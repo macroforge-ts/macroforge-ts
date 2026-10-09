@@ -1,0 +1,37 @@
+import { defineConfig, devices } from '@playwright/test';
+
+// Env-driven for the same reason as the vanilla config: a hardcoded port plus
+// `reuseExistingServer` silently runs the suite against whatever is already
+// listening there.
+const port = globalThis.process.env.TESTGROUND_SVELTE_PORT ?? '5173';
+const origin = `http://localhost:${port}`;
+
+export default defineConfig({
+    testDir: './e2e',
+    testMatch: '**/svelte-*.spec.ts',
+    fullyParallel: true,
+    forbidOnly: !!globalThis.process.env.CI,
+    retries: globalThis.process.env.CI ? 2 : 0,
+    workers: globalThis.process.env.CI ? 1 : undefined,
+    reporter: 'html',
+    use: {
+        baseURL: origin,
+        trace: 'on-first-retry'
+    },
+    projects: [
+        {
+            name: 'chromium',
+            use: { ...devices['Desktop Chrome'] }
+        }
+    ],
+    // The built app, not the dev server: a preview serves the production
+    // build, so no test pays for an on-demand macro expansion.
+    // `mf test testground` builds the app; preview fails loudly without one.
+    webServer: {
+        command: 'deno task preview',
+        cwd: '../svelte',
+        url: origin,
+        reuseExistingServer: !globalThis.process.env.CI,
+        timeout: 120000
+    }
+});

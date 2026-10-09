@@ -5,9 +5,9 @@
     },
     "dependencies": {
         "@jridgewell/trace-mapping": "^0.3.25",
-        "@macroforge/core": "0.4.0",
-        "@macroforge/shared": "0.4.0",
-        "@macroforge/typescript-plugin": "0.4.0",
+        "@macroforge/core": "0.5.0",
+        "@macroforge/shared": "0.5.0",
+        "@macroforge/typescript-plugin": "0.5.0",
         "@vscode/emmet-helper": "2.8.4",
         "chokidar": "^4.0.1",
         "fdir": "^6.2.0",
@@ -60,5 +60,5 @@
     "scripts": {
         "build": "deno run -A ../../tooling/npm/build.ts svelte-language-server"
     },
-    "version": "0.4.0"
+    "version": "0.5.0"
 }

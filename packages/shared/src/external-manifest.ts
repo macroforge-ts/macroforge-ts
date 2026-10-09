@@ -14,7 +14,7 @@ export interface MacroManifestEntry {
     kind: string;
     /** Human-readable description shown in editor tooling. */
     description: string;
-    /** Package specifier the macro lives in (e.g. `"@playground/macro"`). */
+    /** Package specifier the macro lives in (e.g. `"@testground/macro"`). */
     package: string;
 }
 
@@ -124,23 +124,23 @@ export function clearExternalManifestCache(): void {
 /**
  * Attempts to load the manifest from an external macro package.
  *
- * External macro packages (like `@playground/macro`) export their own
+ * External macro packages (like `@testground/macro`) export their own
  * `__macroforgeGetManifest()` function that provides macro metadata
  * including descriptions.
  *
- * @param modulePath - The package path (e.g., "@playground/macro")
+ * @param modulePath - The package path (e.g., "@testground/macro")
  * @param requireFn - Optional custom require function. If not provided, creates one using import.meta.url context.
  * @returns The macro manifest, or null if loading failed
  *
  * @example
  * ```typescript
  * // Basic usage
- * const manifest = getExternalManifest("@playground/macro");
+ * const manifest = getExternalManifest("@testground/macro");
  *
  * // With custom require function (e.g., from vite-plugin)
  * import { createRequire } from "node:module";
  * const moduleRequire = createRequire(import.meta.url);
- * const manifest = getExternalManifest("@playground/macro", moduleRequire);
+ * const manifest = getExternalManifest("@testground/macro", moduleRequire);
  * ```
  */
 export function getExternalManifest(
@@ -237,7 +237,7 @@ function loadManifest(modulePath: string, requireFn: RequireFunction): MacroMani
  *
  * @example
  * ```typescript
- * const macroInfo = getExternalMacroInfo("Gigaform", "@playground/macro");
+ * const macroInfo = getExternalMacroInfo("Gigaform", "@testground/macro");
  * if (macroInfo) {
  *   console.log(macroInfo.description);
  * }
@@ -268,7 +268,7 @@ export function getExternalMacroInfo(
  *
  * @example
  * ```typescript
- * const decoratorInfo = getExternalDecoratorInfo("hiddenController", "@playground/macro");
+ * const decoratorInfo = getExternalDecoratorInfo("hiddenController", "@testground/macro");
  * if (decoratorInfo) {
  *   console.log(decoratorInfo.docs);
  * }

@@ -116,12 +116,15 @@ pub struct ImportRegistry {
     /// Pre-populated from AST during lowering. Never modified after initial construction.
     source_imports: HashMap<String, SourceImport>,
 
-    /// Config file imports (macroforge.config.ts `import` statements). Name → module.
-    pub config_imports: HashMap<String, String>,
-
     /// Generated imports accumulated during macro expansion.
     /// Key: local_name. Insertion order preserved for deterministic output.
     generated: IndexMap<String, GeneratedImport>,
+
+    /// Names an expansion brought into the file from another module's scope,
+    /// as a generic alias declared there expands here. Each is also a
+    /// generated import, and resolves like a source import.
+    #[serde(default)]
+    borrowed: HashMap<String, SourceImport>,
 }
 
 impl Default for ImportRegistry {
@@ -135,8 +138,8 @@ impl ImportRegistry {
     pub fn new() -> Self {
         Self {
             source_imports: HashMap::new(),
-            config_imports: HashMap::new(),
             generated: IndexMap::new(),
+            borrowed: HashMap::new(),
         }
     }
 
@@ -211,8 +214,8 @@ impl ImportRegistry {
 
         Self {
             source_imports,
-            config_imports: HashMap::new(),
             generated: IndexMap::new(),
+            borrowed: HashMap::new(),
         }
     }
 
@@ -230,19 +233,43 @@ impl ImportRegistry {
             .unwrap_or(false)
     }
 
-    /// Get import module for a source import.
+    /// The module `name` is imported from: by the source file, or by a
+    /// [borrowed](Self::borrow_import) import.
     pub fn get_source(&self, name: &str) -> Option<&str> {
         self.source_imports
             .get(name)
+            .or_else(|| self.borrowed.get(name))
             .map(|si| si.source_module.as_str())
     }
 
-    /// Resolve alias to original name.
+    /// Resolve alias to original name, for a source or borrowed import.
     /// For `import { Option as EffectOption }`, `resolve_alias("EffectOption")` → `Some("Option")`.
     pub fn resolve_alias(&self, name: &str) -> Option<&str> {
         self.source_imports
             .get(name)
+            .or_else(|| self.borrowed.get(name))
             .and_then(|si| si.original_name.as_deref())
+    }
+
+    /// Imports `local_name` as a name from another module's scope, which an
+    /// expansion uses in this file: a generated import that resolves like
+    /// one the source file wrote.
+    pub fn borrow_import(
+        &mut self,
+        local_name: &str,
+        original_name: Option<&str>,
+        module: &str,
+        is_type_only: bool,
+    ) {
+        self.request_import(local_name, original_name, module, is_type_only);
+        self.borrowed.insert(
+            local_name.to_string(),
+            SourceImport {
+                source_module: module.to_string(),
+                original_name: original_name.map(str::to_string),
+                is_type_only,
+            },
+        );
     }
 
     /// Get all source imports as a reference to the internal HashMap.
@@ -419,33 +446,33 @@ impl ImportRegistry {
         }
     }
 
-    /// Format all generated imports as TypeScript import lines.
+    /// Format all generated imports as TypeScript import declarations: one
+    /// per module and import kind, in the order each was first requested.
     pub fn emit_generated_imports(&self) -> String {
-        if self.generated.is_empty() {
-            return String::new();
+        let mut declarations: IndexMap<(&str, bool), Vec<String>> = IndexMap::new();
+        for import in self.generated.values() {
+            let specifier = match &import.original_name {
+                Some(original) => format!("{original} as {}", import.local_name),
+                None => import.local_name.clone(),
+            };
+            declarations
+                .entry((import.source_module.as_str(), import.is_type_only))
+                .or_default()
+                .push(specifier);
         }
 
         let mut lines = String::new();
-
-        for (_alias, import) in &self.generated {
-            let keyword = if import.is_type_only {
+        for ((module, is_type_only), specifiers) in declarations {
+            let keyword = if is_type_only {
                 "import type"
             } else {
                 "import"
             };
-
-            let specifier = if let Some(ref original) = import.original_name {
-                format!("{} as {}", original, import.local_name)
-            } else {
-                import.local_name.clone()
-            };
-
             lines.push_str(&format!(
-                "{} {{ {} }} from \"{}\";\n",
-                keyword, specifier, import.source_module
+                "{keyword} {{ {} }} from \"{module}\";\n",
+                specifiers.join(", ")
             ));
         }
-
         lines
     }
 }
@@ -593,6 +620,27 @@ mod tests {
     }
 
     #[test]
+    fn imports_from_one_module_share_a_declaration() {
+        let mut registry = super::ImportRegistry::new();
+        registry.request_import("__foreign__aEncode", None, "#macroforge/config", false);
+        registry.request_import("__mf_Ctx", Some("Ctx"), "pkg", false);
+        registry.request_import("__foreign__aDefault", None, "#macroforge/config", false);
+        registry.request_import("__mf_Options", Some("Options"), "pkg", true);
+        registry.request_import("__mf_Error", Some("Error"), "pkg", false);
+        assert_eq!(
+            registry.emit_generated_imports(),
+            "import { __foreign__aEncode, __foreign__aDefault } from \"#macroforge/config\";\n\
+             import { Ctx as __mf_Ctx, Error as __mf_Error } from \"pkg\";\n\
+             import type { Options as __mf_Options } from \"pkg\";\n"
+        );
+    }
+
+    #[test]
+    fn no_generated_imports_emit_nothing() {
+        assert_eq!(super::ImportRegistry::new().emit_generated_imports(), "");
+    }
+
+    #[test]
     fn a_value_request_upgrades_a_type_only_import() {
         for type_first in [true, false] {
             let mut registry = super::ImportRegistry::new();
@@ -615,15 +663,15 @@ mod tests {
     #[test]
     fn reads_an_import_macro_comment() {
         let imports = macro_imports(
-            "/** import macro { Gigaform, $vec } from \"@playground/macro\"; */\nexport {};",
+            "/** import macro { Gigaform, $vec } from \"@testground/macro\"; */\nexport {};",
         );
         assert_eq!(
             imports.get("Gigaform").map(String::as_str),
-            Some("@playground/macro")
+            Some("@testground/macro")
         );
         assert_eq!(
             imports.get("$vec").map(String::as_str),
-            Some("@playground/macro")
+            Some("@testground/macro")
         );
     }
 

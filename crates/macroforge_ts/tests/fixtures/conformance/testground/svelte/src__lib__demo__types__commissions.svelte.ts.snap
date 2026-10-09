@@ -1,0 +1,487 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/commissions.svelte.ts
+sha256 9109a5eca563c2c32d4665d30c631d200798f73f2796e40456b279b98b52f9c2
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+
+export interface Commissions {
+    
+    technician: string;
+    
+    salesRep: string;
+}
+
+export function commissionsDefaultValue(): Commissions {
+    return {
+        technician: "",
+        salesRep: "",
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function commissionsEncode(value: Commissions, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = commissionsEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function commissionsEncodeWithContext(value: Commissions, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Commissions",
+        __id,
+    };
+
+    
+    result.technician = value.technician;
+    result.salesRep = value.salesRep;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function commissionsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Commissions } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = commissionsDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Commissions.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function commissionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Commissions | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Commissions.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Commissions | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Commissions.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("technician" in obj)) {
+        errors.push({ field: "technician", message: "missing required field" });
+    }
+    if (!("salesRep" in obj)) {
+        errors.push({ field: "salesRep", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_technician = obj["technician"] as string;
+
+        if (!(typeof __raw_technician === "string")) {
+            errors.push({ field: "technician", message: __raw_technician == null ? "Commissions.technician is required" : "expected string" });
+        } else {
+            if (__raw_technician == null) { errors.push({ field: "technician", message: "Commissions.technician is required" }); } else {
+                if (__raw_technician.length === 0) { errors.push({ field: "technician", message: "Commissions.technician must not be empty" }); }
+            }
+            instance.technician = __raw_technician;
+        }
+    }
+    {
+        const __raw_salesRep = obj["salesRep"] as string;
+
+        if (!(typeof __raw_salesRep === "string")) {
+            errors.push({ field: "salesRep", message: __raw_salesRep == null ? "Commissions.salesRep is required" : "expected string" });
+        } else {
+            if (__raw_salesRep == null) { errors.push({ field: "salesRep", message: "Commissions.salesRep is required" }); } else {
+                if (__raw_salesRep.length === 0) { errors.push({ field: "salesRep", message: "Commissions.salesRep must not be empty" }); }
+            }
+            instance.salesRep = __raw_salesRep;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Commissions;
+}
+export function commissionsValidateField<K extends keyof Commissions>(field: K, value: unknown): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if (field === "technician") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "technician", message: "Commissions.technician is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "technician", message: "Commissions.technician must not be empty" }); }
+        }
+    }
+    if (field === "salesRep") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "salesRep", message: "Commissions.salesRep is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "salesRep", message: "Commissions.salesRep must not be empty" }); }
+        }
+    }
+    return errors;
+}
+
+export function commissionsValidateFields(partial: { readonly [K in keyof Commissions]?: unknown }): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("technician" in partial && partial.technician !== undefined) {
+        const __val = partial.technician as string;
+        if (__val == null) { errors.push({ field: "technician", message: "Commissions.technician is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "technician", message: "Commissions.technician must not be empty" }); }
+        }
+    }
+    if ("salesRep" in partial && partial.salesRep !== undefined) {
+        const __val = partial.salesRep as string;
+        if (__val == null) { errors.push({ field: "salesRep", message: "Commissions.salesRep is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "salesRep", message: "Commissions.salesRep must not be empty" }); }
+        }
+    }
+    return errors;
+}
+export function commissionsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "technician" in o && "salesRep" in o;
+}
+
+export function commissionsIs(obj: unknown): obj is Commissions {
+    return commissionsHasShape(obj) && commissionsDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type CommissionsErrors = {
+    _errors: Option.Option<Array<string>>;
+    technician: Option.Option<Array<string>>;
+    salesRep: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type CommissionsTainted = {
+    technician: Option.Option<boolean>;
+    salesRep: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface CommissionsFieldControllers {
+    readonly technician: FieldController<string>;
+    readonly salesRep: FieldController<string>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface CommissionsGigaform {
+    readonly data: Commissions;
+    readonly errors: CommissionsErrors;
+    readonly tainted: CommissionsTainted;
+    readonly fields: CommissionsFieldControllers;
+    validate(): Exit.Exit<Commissions, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Commissions>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function commissionsCreateForm(overrides?: Partial<Commissions>): CommissionsGigaform {
+    let data = $state({ ...commissionsDefaultValue(), ...overrides });
+    let errors = $state<CommissionsErrors>({
+        _errors: Option.none(),
+        technician: Option.none(),
+        salesRep: Option.none(),
+    });
+    let tainted = $state<CommissionsTainted>({
+        technician: Option.none(),
+        salesRep: Option.none(),
+    });
+    const fields = {
+        technician: {
+            name: "technician",
+            label: "technician",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["technician"],
+            get: () => data.technician,
+            set: (value: string) => { data.technician = value; },
+            getError: () => errors.technician,
+            setError: (value: Option.Option<Array<string>>) => { errors.technician = value; },
+            getTainted: () => tainted.technician,
+            setTainted: (value: Option.Option<boolean>) => { tainted.technician = value; },
+            validate: () => commissionsValidateField("technician", data.technician).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        salesRep: {
+            name: "salesRep",
+            label: "salesRep",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["salesRep"],
+            get: () => data.salesRep,
+            set: (value: string) => { data.salesRep = value; },
+            getError: () => errors.salesRep,
+            setError: (value: Option.Option<Array<string>>) => { errors.salesRep = value; },
+            getTainted: () => tainted.salesRep,
+            setTainted: (value: Option.Option<boolean>) => { tainted.salesRep = value; },
+            validate: () => commissionsValidateField("salesRep", data.salesRep).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as CommissionsFieldControllers;
+
+    function validate(): Exit.Exit<Commissions, Array<{ field: string; message: string }>> {
+        return toExit(commissionsDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<Commissions>): void {
+        data = { ...commissionsDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            technician: Option.none(),
+            salesRep: Option.none(),
+        };
+        tainted = {
+            technician: Option.none(),
+            salesRep: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function commissionsFromFormData(formData: FormData): Exit.Exit<Commissions, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    obj.technician = formData.get("technician") ?? "";
+    obj.salesRep = formData.get("salesRep") ?? "";
+
+    return toExit(commissionsDecode(obj));
+}
+
+export const Commissions: {
+  readonly defaultValue: typeof commissionsDefaultValue;
+  readonly encode: typeof commissionsEncode;
+  readonly encodeWithContext: typeof commissionsEncodeWithContext;
+  readonly decode: typeof commissionsDecode;
+  readonly decodeWithContext: typeof commissionsDecodeWithContext;
+  readonly validateField: typeof commissionsValidateField;
+  readonly validateFields: typeof commissionsValidateFields;
+  readonly hasShape: typeof commissionsHasShape;
+  readonly is: typeof commissionsIs;
+  readonly createForm: typeof commissionsCreateForm;
+  readonly fromFormData: typeof commissionsFromFormData;
+} = {
+  defaultValue: commissionsDefaultValue,
+  encode: commissionsEncode,
+  encodeWithContext: commissionsEncodeWithContext,
+  decode: commissionsDecode,
+  decodeWithContext: commissionsDecodeWithContext,
+  validateField: commissionsValidateField,
+  validateFields: commissionsValidateFields,
+  hasShape: commissionsHasShape,
+  is: commissionsIs,
+  createForm: commissionsCreateForm,
+  fromFormData: commissionsFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+export interface Commissions {
+	technician: string;
+	salesRep: string;
+}
+export declare function commissionsDefaultValue(): Commissions;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function commissionsEncode(value: Commissions, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function commissionsEncodeWithContext(value: Commissions, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function commissionsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Commissions;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function commissionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Commissions | __mf_PendingRef;
+export declare function commissionsValidateField<K extends keyof Commissions>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function commissionsValidateFields(partial: { readonly [K in keyof Commissions]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function commissionsHasShape(obj: unknown): boolean;
+export declare function commissionsIs(obj: unknown): obj is Commissions;
+/** Nested error structure matching the data shape  */
+export type CommissionsErrors = {
+	_errors: Option.Option<Array<string>>;
+	technician: Option.Option<Array<string>>;
+	salesRep: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type CommissionsTainted = {
+	technician: Option.Option<boolean>;
+	salesRep: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface CommissionsFieldControllers {
+	readonly technician: FieldController<string>;
+	readonly salesRep: FieldController<string>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface CommissionsGigaform {
+	readonly data: Commissions;
+	readonly errors: CommissionsErrors;
+	readonly tainted: CommissionsTainted;
+	readonly fields: CommissionsFieldControllers;
+	validate(): Exit.Exit<Commissions, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<Commissions>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function commissionsCreateForm(overrides?: Partial<Commissions>): CommissionsGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function commissionsFromFormData(formData: FormData): Exit.Exit<Commissions, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const Commissions: {
+	readonly defaultValue: typeof commissionsDefaultValue;
+	readonly encode: typeof commissionsEncode;
+	readonly encodeWithContext: typeof commissionsEncodeWithContext;
+	readonly decode: typeof commissionsDecode;
+	readonly decodeWithContext: typeof commissionsDecodeWithContext;
+	readonly validateField: typeof commissionsValidateField;
+	readonly validateFields: typeof commissionsValidateFields;
+	readonly hasShape: typeof commissionsHasShape;
+	readonly is: typeof commissionsIs;
+	readonly createForm: typeof commissionsCreateForm;
+	readonly fromFormData: typeof commissionsFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 421..479
+original 107..143 -> expanded 479..515
+original 184..213 -> expanded 515..544
+original 254..278 -> expanded 544..568
+original 278..279 -> expanded 13938..13939
+generated 0..421 <- imports
+generated 568..694 <- Default
+generated 694..1866 <- Encode
+generated 1866..8296 <- Decode
+generated 8296..12883 <- Gigaform
+generated 12883..13938 <- __convenience_const
+
+## Metadata
+
+interface Commissions: {"body_span":{"end":279,"start":138},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":185,"start":144}}],"name":"technician","optional":false,"readonly":false,"span":{"end":209,"start":190},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":255,"start":214}}],"name":"salesRep","optional":false,"readonly":false,"span":{"end":277,"start":260},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Commissions","span":{"end":279,"start":116},"type_params":[]}
+
+## Registry reads
+
+Name("string")
+
+## Buildtime dependencies
+
+(none)

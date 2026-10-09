@@ -1,0 +1,331 @@
+<script lang="ts">
+import { MacroUser, showcaseUserJson, showcaseUserSummary } from '$lib/demo/macro-user';
+import {
+    svelteAllMacrosTestClone,
+    svelteAllMacrosTestDecode,
+    svelteAllMacrosTestEquals,
+    svelteAllMacrosTestHashCode,
+    svelteAllMacrosTestEncode,
+    svelteAllMacrosTestToString,
+    svelteTestInstance
+} from '$lib/demo/all-macros-test';
+import { collectSvelteBuildtime } from '$lib/demo/buildtime-demo';
+
+const buildtimeResults = collectSvelteBuildtime();
+
+const derivedUser = new MacroUser({
+    id: 'usr_1001',
+    name: 'Cam Solar',
+    role: 'Runtime Tinkerer',
+    favoriteMacro: 'Derive',
+    since: '2025-01-07',
+    apiToken: 'sk-live-token'
+});
+const derivedSummary = MacroUser.toString(derivedUser);
+const derivedUserJson = JSON.parse(MacroUser.encode(derivedUser));
+const derivedJsonPretty = JSON.stringify(derivedUserJson, null, 2);
+const showcaseJsonPretty = JSON.stringify(showcaseUserJson, null, 2);
+
+// Test results state
+let testsComplete = $state(false);
+let testResults: {
+    debug?: string;
+    clone?: object;
+    equals?: boolean;
+    hashCode?: number;
+    encode?: object;
+    decode?: object;
+} = $state({});
+
+function runAllMacroTests() {
+    // The derives on an interface generate standalone functions named after it.
+    testResults.debug = svelteAllMacrosTestToString(svelteTestInstance);
+    testResults.clone = svelteAllMacrosTestClone(svelteTestInstance);
+    testResults.equals = svelteAllMacrosTestEquals(svelteTestInstance, svelteTestInstance);
+    testResults.hashCode = svelteAllMacrosTestHashCode(svelteTestInstance);
+    testResults.encode = JSON.parse(svelteAllMacrosTestEncode(svelteTestInstance));
+
+    const decoded = svelteAllMacrosTestDecode({
+        id: 'svelte-099',
+        title: 'Decoded Item',
+        content: 'Round-tripped through the Decode macro',
+        apiKey: 'sk-other-key',
+        count: 7,
+        enabled: false
+    });
+    if (decoded.success) {
+        testResults.decode = decoded.value;
+    }
+
+    // Trigger reactivity
+    testsComplete = true;
+}
+</script>
+
+<main class="page">
+    <section>
+        <h1>Rust-Powered TypeScript Macros in SvelteKit</h1>
+        <p>
+            This page is rendered by <code>test-macros-svelte</code> and
+            showcases the local
+            <code>macroforge</code> transformer running inside Vite via
+            <code>@macroforge/vite-plugin</code>.
+        </p>
+    </section>
+
+    <section>
+        <h2>Macro Test Panel</h2>
+        <div class="test-controls">
+            <button onclick={runAllMacroTests} data-testid="test-all-macros">
+                Run All Macro Tests
+            </button>
+        </div>
+
+        <div
+            class="test-results"
+            data-testid="test-results"
+            data-tests-complete={testsComplete}
+        >
+            <h3>Test Results</h3>
+
+            <div data-testid="result-debug">
+                <strong>Debug (toString):</strong>
+                {#if testResults.debug}
+                    <code>{testResults.debug}</code>
+                {:else}
+                    <em>Click button to run tests</em>
+                {/if}
+            </div>
+
+            <div data-testid="result-clone">
+                <strong>Clone:</strong>
+                {#if testResults.clone}
+                    <pre>{JSON.stringify(testResults.clone, null, 2)}</pre>
+                {:else if testsComplete}
+                    <em>Not available</em>
+                {/if}
+            </div>
+
+            <div data-testid="result-equals">
+                <strong>Equals (self):</strong>
+                {#if testResults.equals !== undefined}
+                    <code>{testResults.equals}</code>
+                {:else if testsComplete}
+                    <em>Not available</em>
+                {/if}
+            </div>
+
+            <div data-testid="result-hashcode">
+                <strong>HashCode:</strong>
+                {#if testResults.hashCode !== undefined}
+                    <code>{testResults.hashCode}</code>
+                {:else if testsComplete}
+                    <em>Not available</em>
+                {/if}
+            </div>
+
+            <div data-testid="result-encode">
+                <strong>Encode (toJSON):</strong>
+                {#if testResults.encode}
+                    <pre>{JSON.stringify(testResults.encode, null, 2)}</pre>
+                {:else if testsComplete}
+                    <em>Not available</em>
+                {/if}
+            </div>
+
+            <div data-testid="result-decode">
+                <strong>Decode (fromJSON):</strong>
+                {#if testResults.decode}
+                    <pre>{JSON.stringify(
+                            testResults.decode,
+                            null,
+                            2,
+                        )}</pre>
+                {:else if testsComplete}
+                    <em>Not available</em>
+                {/if}
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>@derive decorator example</h2>
+        <p>
+            A <code>MacroUser</code> class is decorated with
+            <code>/** @derive(Debug, JSON) */</code>. The macro injects
+            <code>toString()</code>
+            and <code>toJSON()</code>, so we can hydrate typed data without
+            manually writing encoders.
+        </p>
+        <div class="card">
+            <h3>toString()</h3>
+            <p data-testid="macro-user-summary">{derivedSummary}</p>
+            <h3>toJSON()</h3>
+            <pre data-testid="macro-user-json">{derivedJsonPretty}</pre>
+            <p class="note">
+                Field-level <code>@Debug({"{"}{"}"})</code> decorators rename
+                <code>id</code>
+                to <code>userId</code> and skip
+                <code>apiToken</code> entirely when printing the summary, while
+                <code>toJSON()</code> still emits the full object.
+            </p>
+        </div>
+        <div class="card">
+            <h3>Showcase user (module-level)</h3>
+            <p>{showcaseUserSummary}</p>
+            <pre>{showcaseJsonPretty}</pre>
+        </div>
+    </section>
+
+    <section>
+        <h2>@buildtime evaluation</h2>
+        <p>
+            Every value below was computed at build time by macroforge
+            and spliced into the module as a TS literal. The runtime
+            stub imported from <code>@macroforge/core/buildtime</code> still
+            throws when called: proving the plugin did the work, not
+            the browser.
+        </p>
+        <div class="card" data-testid="buildtime-results">
+            <div>
+                <strong>answer:</strong>
+                <code data-testid="svelte-bt-answer"
+                    >{buildtimeResults.answer}</code
+                >
+            </div>
+            <div>
+                <strong>schema sha256:</strong>
+                <code data-testid="svelte-bt-hash"
+                    >{buildtimeResults.schemaHash}</code
+                >
+            </div>
+            <div>
+                <strong>app name (from JSON):</strong>
+                <code data-testid="svelte-bt-app-name"
+                    >{buildtimeResults.appName}</code
+                >
+            </div>
+            <div>
+                <strong>app version (from JSON):</strong>
+                <code data-testid="svelte-bt-app-version"
+                    >{buildtimeResults.appVersion}</code
+                >
+            </div>
+            <div>
+                <strong>features (from JSON):</strong>
+                <code data-testid="svelte-bt-features"
+                    >{buildtimeResults.features.join(',')}</code
+                >
+            </div>
+            <div>
+                <strong>constant list (build-time map):</strong>
+                <code data-testid="svelte-bt-constant-list"
+                    >{buildtimeResults.constantList.join(',')}</code
+                >
+            </div>
+            <div>
+                <strong>derived summary:</strong>
+                <code data-testid="svelte-bt-summary"
+                    >{buildtimeResults.derivedSummary}</code
+                >
+            </div>
+            <div>
+                <strong>runtime stub throws:</strong>
+                <code data-testid="svelte-bt-stub-throws"
+                    >{String(buildtimeResults.runtimeStubThrows)}</code
+                >
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Try it yourself</h2>
+        <ol>
+            <li>Run <code>npm run dev -w svelte</code>.</li>
+            <li>
+                Edit <code>src/lib/demo/macro-snippet.md</code> or
+                <code>macro-user.ts</code> and watch HMR.
+            </li>
+            <li>
+                Extend the <code>@testground/macro</code> package and re-export them
+                from Rust.
+            </li>
+        </ol>
+    </section>
+</main>
+
+<style>
+    .page {
+        margin: 0 auto;
+        max-width: 720px;
+        padding: 2rem 1.5rem 4rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    pre {
+        background: #0f172a;
+        color: #e2e8f0;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        overflow-x: auto;
+    }
+
+    .card {
+        background: #f8fafc;
+        border-radius: 0.75rem;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 10px 35px rgba(15, 23, 42, 0.12);
+    }
+
+    .note {
+        margin-top: 1rem;
+        font-size: 0.95rem;
+        color: #475569;
+    }
+
+    .test-controls {
+        margin: 1rem 0;
+    }
+
+    .test-controls button {
+        background: #4f46e5;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+
+    .test-controls button:hover {
+        background: #4338ca;
+    }
+
+    .test-results {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+
+    .test-results > div {
+        margin: 0.5rem 0;
+        padding: 0.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .test-results > div:last-child {
+        border-bottom: none;
+    }
+
+    code {
+        font-family:
+            "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        background: #e2e8f0;
+        padding: 0.15rem 0.35rem;
+        border-radius: 0.35rem;
+    }
+</style>

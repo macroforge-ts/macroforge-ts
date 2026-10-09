@@ -56,91 +56,62 @@ class Config {
         this.updatedAt = new Date();
     }
 
-static toString(value: Config): string {
-                    return configToString(value);
-                }
-static equals(a: Config, b: Config): boolean {
-                    return configEquals(a, b);
-                }
-static hashCode(value: Config): number {
-                    return configHashCode(value);
-                }}
+    static toString(value: Config): string {
+        return configToString(value);
+    }
+
+    static equals(a: Config, b: Config): boolean {
+        return configEquals(a, b);
+    }
+
+    static hashCode(value: Config): number {
+        return configHashCode(value);
+    }
+}
 
 export function configToString(value: Config): string {
-                        const parts: string[] = [];
-                        parts.push("id: " + value.id);
-parts.push("name: " + value.name);
-parts.push("description: " + value.description);
-parts.push("createdAt: " + value.createdAt);
-parts.push("updatedAt: " + value.updatedAt);
-
-                        return "Config { " + parts.join(", ") + " }";
-                    }
+    const parts: string[] = [];
+    parts.push("id: " + String(value.id));
+    parts.push("name: " + String(value.name));
+    parts.push("description: " + String(value.description));
+    parts.push("createdAt: " + String(value.createdAt));
+    parts.push("updatedAt: " + String(value.updatedAt));
+    return "Config { " + parts.join(", ") + " }";
+}
 
 export function configEquals(a: Config, b: Config): boolean {
-                    if (a === b) return true;
-                    return a.id === b.id && a.name === b.name && a.description === b.description && (a.createdAt instanceof Date && b.createdAt instanceof Date ? a.createdAt.getTime() === b.createdAt.getTime() : a.createdAt === b.createdAt) && (a.updatedAt instanceof Date && b.updatedAt instanceof Date ? a.updatedAt.getTime() === b.updatedAt.getTime() : a.updatedAt === b.updatedAt);
-                }
+    if (a === b) return true;
+    return a.id === b.id && a.name === b.name && a.description === b.description && a.createdAt.getTime() === b.createdAt.getTime() && (a.updatedAt == null || b.updatedAt == null ? a.updatedAt === b.updatedAt : a.updatedAt.getTime() === b.updatedAt.getTime());
+}
 
 export function configHashCode(value: Config): number {
-                    let hash = 17;hash = (hash * 31 + ((value.id ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + ((value.name ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + ((value.description ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + (value.createdAt instanceof Date ? value.createdAt.getTime() | 0 : 0)) | 0;hash = (hash * 31 + (value.updatedAt instanceof Date ? value.updatedAt.getTime() | 0 : 0)) | 0;
-
-
-
-
-                    return hash;
-                }
+    let hash = 17;
+    hash = (hash * 31 + ((value.id ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.name ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.description == null ? 0 : (value.description ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.createdAt.getTime() | 0)) | 0;
+    hash = (hash * 31 + (value.updatedAt == null ? 0 : value.updatedAt.getTime() | 0)) | 0;
+    return hash;
+}
 
 ## DTS
 
-import { Derive } from '@macro/derive';
-
-
-class Config {
-    readonly id: string;
-    name: string;
-    description?: string;
-    readonly createdAt: Date;
-    updatedAt?: Date;
-
-    constructor(id: string, name: string, createdAt: Date);
-
-    update(name: string, description?: string): void;
-
-static toString(value: Config): string {
-                    return configToString(value);
-                }
-static equals(a: Config, b: Config): boolean {
-                    return configEquals(a, b);
-                }
-static hashCode(value: Config): number {
-                    return configHashCode(value);
-                }}
-
-export function configToString(value: Config): string {
-                        const parts: string[] = [];
-                        parts.push("id: " + value.id);
-parts.push("name: " + value.name);
-parts.push("description: " + value.description);
-parts.push("createdAt: " + value.createdAt);
-parts.push("updatedAt: " + value.updatedAt);
-
-                        return "Config { " + parts.join(", ") + " }";
-                    }
-
-export function configEquals(a: Config, b: Config): boolean {
-                    if (a === b) return true;
-                    return a.id === b.id && a.name === b.name && a.description === b.description && (a.createdAt instanceof Date && b.createdAt instanceof Date ? a.createdAt.getTime() === b.createdAt.getTime() : a.createdAt === b.createdAt) && (a.updatedAt instanceof Date && b.updatedAt instanceof Date ? a.updatedAt.getTime() === b.updatedAt.getTime() : a.updatedAt === b.updatedAt);
-                }
-
-export function configHashCode(value: Config): number {
-                    let hash = 17;hash = (hash * 31 + ((value.id ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + ((value.name ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + ((value.description ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + (value.createdAt instanceof Date ? value.createdAt.getTime() | 0 : 0)) | 0;hash = (hash * 31 + (value.updatedAt instanceof Date ? value.updatedAt.getTime() | 0 : 0)) | 0;
-
-
-
-
-                    return hash;
-                }
+declare class Config {
+	readonly id: string;
+	name: string;
+	description?: string;
+	readonly createdAt: Date;
+	updatedAt?: Date;
+	constructor(id: string, name: string, createdAt: Date);
+	update(name: string, description?: string): void;
+	static toString(value: Config): string;
+	static equals(a: Config, b: Config): boolean;
+	static hashCode(value: Config): number;
+}
+export declare function configToString(value: Config): string;
+export declare function configEquals(a: Config, b: Config): boolean;
+export declare function configHashCode(value: Config): number;
+export {};
 
 ## Diagnostics
 
@@ -150,18 +121,18 @@ export function configHashCode(value: Config): number {
 
 original 0..41 -> expanded 0..41
 original 79..533 -> expanded 41..495
-original 533..534 -> expanded 825..826
-original 534..535 -> expanded 2430..2431
-generated 495..604 <- Debug
-generated 604..716 <- PartialEq
-generated 716..825 <- Hash
-generated 826..1257 <- Debug
-generated 1257..1770 <- PartialEq
-generated 1770..2430 <- Hash
+original 533..534 -> expanded 768..769
+original 534..535 -> expanded 2150..2151
+generated 495..585 <- Debug
+generated 585..678 <- PartialEq
+generated 678..768 <- Hash
+generated 769..1175 <- Debug
+generated 1175..1531 <- PartialEq
+generated 1531..2150 <- Hash
 
 ## Metadata
 
-class Config: {"body_span":{"end":535,"start":94},"decorators":[{"args_src":"Debug, PartialEq, Hash","name":"Derive","span":{"end":80,"start":42}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":true,"span":{"end":120,"start":100},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":138,"start":125},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"description","optional":true,"readonly":false,"span":{"end":164,"start":143},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"createdAt","optional":false,"readonly":true,"span":{"end":194,"start":169},"ts_type":"Date","visibility":"Public"},{"decorators":[],"name":"updatedAt","optional":true,"readonly":false,"span":{"end":216,"start":199},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":368,"start":277},"body_src":"\n        this.id = id;\n        this.name = name;\n        this.createdAt = createdAt;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: string, name: string, createdAt: Date","return_type_src":"","span":{"end":368,"start":222},"type_params_src":"","visibility":"Public"},{"body_span":{"end":533,"start":423},"body_src":"\n        this.name = name;\n        this.description = description;\n        this.updatedAt = new Date();\n    ","decorators":[],"is_async":false,"is_static":false,"name":"update","params_src":"name: string, description?: string","return_type_src":"void","span":{"end":533,"start":374},"type_params_src":"","visibility":"Public"}],"name":"Config","span":{"end":535,"start":81},"type_params":[]}
+class Config: {"body_span":{"end":535,"start":94},"decorators":[{"args_src":"Debug, PartialEq, Hash","name":"Derive","span":{"end":80,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"id","optional":false,"readonly":true,"span":{"end":120,"start":100},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":138,"start":125},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"description","optional":true,"readonly":false,"span":{"end":164,"start":143},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"createdAt","optional":false,"readonly":true,"span":{"end":194,"start":169},"ts_type":"Date","visibility":"Public"},{"decorators":[],"initializer":null,"name":"updatedAt","optional":true,"readonly":false,"span":{"end":216,"start":199},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":368,"start":277},"body_src":"\n        this.id = id;\n        this.name = name;\n        this.createdAt = createdAt;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: string, name: string, createdAt: Date","return_type_src":"","span":{"end":368,"start":222},"type_params":[],"visibility":"Public"},{"body_span":{"end":533,"start":423},"body_src":"\n        this.name = name;\n        this.description = description;\n        this.updatedAt = new Date();\n    ","decorators":[],"is_async":false,"is_static":false,"name":"update","params_src":"name: string, description?: string","return_type_src":"void","span":{"end":533,"start":374},"type_params":[],"visibility":"Public"}],"name":"Config","span":{"end":535,"start":81},"type_params":[]}
 
 ## Registry reads
 

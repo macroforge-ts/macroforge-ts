@@ -406,7 +406,7 @@ class User { name: string; }`;
 });
 
 test('macro hover on external macro in @derive', async (t) => {
-    const source = `/** import macro {Gigaform} from "@playground/macro"; */
+    const source = `/** import macro {Gigaform} from "@testground/macro"; */
 
 /** @derive(Debug, Gigaform) */
 interface Account { id: string; }`;
@@ -423,7 +423,7 @@ interface Account { id: string; }`;
     assert.ok(hover, 'expected hover for external macro');
     const docText = (hover.documentation ?? []).map((d) => d.text).join('');
     assert.ok(
-        docText.includes('@playground/macro'),
+        docText.includes('@testground/macro'),
         'should mention source module'
     );
     assert.ok(
@@ -433,7 +433,7 @@ interface Account { id: string; }`;
 });
 
 test('macro hover on custom field decorator from external macro', async (t) => {
-    const source = `/** import macro {Gigaform} from "@playground/macro"; */
+    const source = `/** import macro {Gigaform} from "@testground/macro"; */
 
 /** @derive(Gigaform) */
 interface Account {

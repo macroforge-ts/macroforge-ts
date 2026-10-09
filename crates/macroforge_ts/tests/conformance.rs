@@ -1,4 +1,4 @@
-//! The conformance corpus: every fixture and every playground source expanded
+//! The conformance corpus: every fixture and every testground source expanded
 //! the way the engine's integrations expand it, compared against committed
 //! golden output.
 //!
@@ -19,12 +19,12 @@ use macroforge_ts::ts_syn::abi::ir::type_registry::TypeRegistry;
 use serde_json::{Map, Value};
 use sha2::{Digest, Sha256};
 
-/// The playground projects, each a macroforge project of its own.
-const PLAYGROUND_PROJECTS: [&str; 4] = ["vanilla", "svelte", "library", "macro"];
+/// The testground projects, each a macroforge project of its own.
+const TESTGROUND_PROJECTS: [&str; 4] = ["vanilla", "svelte", "library", "macro"];
 
-/// Set to skip the playground corpus when its macro package cannot be built,
+/// Set to skip the testground corpus when its macro package cannot be built,
 /// such as offline. `mf test` never sets it.
-const SKIP_PLAYGROUND_VAR: &str = "MACROFORGE_CONFORMANCE_SKIP_PLAYGROUND";
+const SKIP_TESTGROUND_VAR: &str = "MACROFORGE_CONFORMANCE_SKIP_TESTGROUND";
 
 fn manifest_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -96,7 +96,7 @@ impl Normalizer {
 enum SourceHeader<'a> {
     /// The whole input, for a small hand-written fixture.
     Full(&'a str),
-    /// The project-relative path and a hash, for a playground file whose
+    /// The project-relative path and a hash, for a testground file whose
     /// source lives in the repository already.
     Located { path: &'a str, source: &'a str },
 }
@@ -434,20 +434,20 @@ fn foreign_types_full() {
 }
 
 // ---------------------------------------------------------------------------
-// Playground corpus
+// Testground corpus
 // ---------------------------------------------------------------------------
 
-/// Whether the playground corpus runs. It needs the playground's macro
+/// Whether the testground corpus runs. It needs the testground's macro
 /// package built and installed, which `mf test` prepares.
-fn playground_available() -> bool {
-    if std::env::var_os(SKIP_PLAYGROUND_VAR).is_some() {
+fn testground_available() -> bool {
+    if std::env::var_os(SKIP_TESTGROUND_VAR).is_some() {
         eprintln!(
-            "WARNING: {SKIP_PLAYGROUND_VAR} is set, so the playground conformance corpus is SKIPPED"
+            "WARNING: {SKIP_TESTGROUND_VAR} is set, so the testground conformance corpus is SKIPPED"
         );
         return false;
     }
     let installed =
-        repo_root().join("tooling/playground/vanilla/node_modules/@playground/macro/pkg");
+        repo_root().join("tooling/testground/vanilla/node_modules/@testground/macro/pkg");
     let has_wasm = std::fs::read_dir(&installed)
         .map(|entries| {
             entries.flatten().any(|entry| {
@@ -460,32 +460,32 @@ fn playground_available() -> bool {
         .unwrap_or(false);
     assert!(
         has_wasm,
-        "the playground macro package is not installed at {}. Run `pixi run build:cli` and then \
-         `target/debug/mf test playground` (or `pixi run test:rust`, which prepares it), or set \
-         {SKIP_PLAYGROUND_VAR}=1 to skip the playground corpus",
+        "the testground macro package is not installed at {}. Run `pixi run build:cli` and then \
+         `target/debug/mf test testground` (or `pixi run test:rust`, which prepares it), or set \
+         {SKIP_TESTGROUND_VAR}=1 to skip the testground corpus",
         installed.display()
     );
     true
 }
 
-struct PlaygroundProject {
+struct TestgroundProject {
     name: &'static str,
     root: PathBuf,
     scan: ScanOutput,
 }
 
-fn scan_project(name: &'static str) -> PlaygroundProject {
-    let root = repo_root().join("tooling/playground").join(name);
+fn scan_project(name: &'static str) -> TestgroundProject {
+    let root = repo_root().join("tooling/testground").join(name);
     let scan = ProjectScanner::new(ScanConfig {
         root_dir: root.clone(),
         ..ScanConfig::default()
     })
     .scan()
-    .unwrap_or_else(|error| panic!("the {name} playground scan failed: {error:#}"));
-    PlaygroundProject { name, root, scan }
+    .unwrap_or_else(|error| panic!("the {name} testground scan failed: {error:#}"));
+    TestgroundProject { name, root, scan }
 }
 
-/// A source file of a playground project, with the text an integration hands
+/// A source file of a testground project, with the text an integration hands
 /// the engine for it.
 struct CorpusFile {
     path: PathBuf,
@@ -512,7 +512,7 @@ fn svelte_script(component: &str) -> Option<&str> {
 
 /// The project's TypeScript sources and Svelte component scripts, in path
 /// order, skipping ignored files and generated `.expanded.` copies.
-fn project_files(project: &PlaygroundProject) -> Vec<CorpusFile> {
+fn project_files(project: &TestgroundProject) -> Vec<CorpusFile> {
     let walker = WalkBuilder::new(&project.root)
         .hidden(false)
         .git_ignore(true)
@@ -561,7 +561,7 @@ fn project_files(project: &PlaygroundProject) -> Vec<CorpusFile> {
 }
 
 fn expand_corpus_file(
-    project: &PlaygroundProject,
+    project: &TestgroundProject,
     registries: &ProjectRegistries,
     file: &CorpusFile,
 ) -> Result<MacroExpansion, String> {
@@ -570,16 +570,16 @@ fn expand_corpus_file(
 }
 
 #[test]
-fn playground_expansions() {
-    if !playground_available() {
+fn testground_expansions() {
+    if !testground_available() {
         return;
     }
     let mut failures = CheckFailures::new();
-    for name in PLAYGROUND_PROJECTS {
+    for name in TESTGROUND_PROJECTS {
         let project = scan_project(name);
         let registries = ProjectRegistries::from(&project.scan);
         let normalizer = Normalizer::new(&project.root);
-        let snapshot_dir = conformance_dir().join("playground").join(name);
+        let snapshot_dir = conformance_dir().join("testground").join(name);
         for file in project_files(&project) {
             let result = expand_corpus_file(&project, &registries, &file);
             let snapshot = format_expansion(
@@ -597,7 +597,7 @@ fn playground_expansions() {
             });
         }
     }
-    failures.finish("playground expansion");
+    failures.finish("testground expansion");
 }
 
 /// A short digest of a registry entry's content, with paths normalized.
@@ -660,15 +660,15 @@ fn scan_summary(scan: &ScanOutput, normalizer: &Normalizer) -> String {
 }
 
 #[test]
-fn playground_registries() {
-    if !playground_available() {
+fn testground_registries() {
+    if !testground_available() {
         return;
     }
     let mut failures = CheckFailures::new();
-    for name in PLAYGROUND_PROJECTS {
+    for name in TESTGROUND_PROJECTS {
         let project = scan_project(name);
         let normalizer = Normalizer::new(&project.root);
-        let snapshot_dir = conformance_dir().join("playground").join(name);
+        let snapshot_dir = conformance_dir().join("testground").join(name);
 
         let registry = registry_snapshot(&project.scan.registry, &normalizer);
         failures.check(&format!("{name} type registry"), || {
@@ -689,17 +689,17 @@ fn playground_registries() {
             assert_named_snapshot(&snapshot_dir, "scan", &summary);
         });
     }
-    failures.finish("playground registry");
+    failures.finish("testground registry");
 }
 
 /// A scanned registry written as JSON and read back is the registry it was:
 /// every lookup answers the same, and the copy records nothing yet.
 #[test]
 fn registries_round_trip_through_json() {
-    if !playground_available() {
+    if !testground_available() {
         return;
     }
-    for name in PLAYGROUND_PROJECTS {
+    for name in TESTGROUND_PROJECTS {
         let project = scan_project(name);
 
         let json = serde_json::to_string(&project.scan.registry).expect("the registry serializes");
@@ -786,8 +786,8 @@ fn assert_gate_is_a_superset(gate: fn(&str, &str) -> bool) {
         }
     }
 
-    if playground_available() {
-        for name in PLAYGROUND_PROJECTS {
+    if testground_available() {
+        for name in TESTGROUND_PROJECTS {
             let project = scan_project(name);
             let registries = ProjectRegistries::from(&project.scan);
             for file in project_files(&project) {

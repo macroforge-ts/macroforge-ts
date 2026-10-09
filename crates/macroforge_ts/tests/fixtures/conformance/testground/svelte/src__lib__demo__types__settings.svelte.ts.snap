@@ -1,0 +1,1367 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/settings.svelte.ts
+sha256 bc565aefa6d19a8c3b1008e116b25cc82e6fe6c383818eba520aef6cac3059c3
+
+## Changed
+
+true
+
+## Output
+
+import { appointmentNotificationsDecodeWithContext, appointmentNotificationsEncodeWithContext } from "./appointment-notifications.svelte";
+import { commissionsDecodeWithContext, commissionsEncodeWithContext } from "./commissions.svelte";
+import { overviewSettingsDecodeWithContext, overviewSettingsEncodeWithContext, overviewSettingsDefaultValue } from "./overview-settings.svelte";
+import { pageDecodeWithContext, pageEncodeWithContext } from "./page.svelte";
+import { scheduleSettingsDecodeWithContext, scheduleSettingsEncodeWithContext, scheduleSettingsDefaultValue } from "./schedule-settings.svelte";
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+import type { AppointmentNotifications } from './appointment-notifications.svelte';
+import type { Commissions } from './commissions.svelte';
+import type { OverviewSettings } from './overview-settings.svelte';
+import type { Page } from './page.svelte';
+import type { ScheduleSettings } from './schedule-settings.svelte';
+
+
+export interface Settings {
+    appointmentNotifications: AppointmentNotifications | null;
+    commissions: Commissions | null;
+    scheduleSettings: ScheduleSettings;
+    accountOverviewSettings: OverviewSettings;
+    serviceOverviewSettings: OverviewSettings;
+    appointmentOverviewSettings: OverviewSettings;
+    leadOverviewSettings: OverviewSettings;
+    packageOverviewSettings: OverviewSettings;
+    productOverviewSettings: OverviewSettings;
+    orderOverviewSettings: OverviewSettings;
+    taxRateOverviewSettings: OverviewSettings;
+    
+    homePage: Page;
+}
+
+export function settingsDefaultValue(): Settings {
+    return {
+        appointmentNotifications: null,
+        commissions: null,
+        scheduleSettings: scheduleSettingsDefaultValue(),
+        accountOverviewSettings: overviewSettingsDefaultValue(),
+        serviceOverviewSettings: overviewSettingsDefaultValue(),
+        appointmentOverviewSettings: overviewSettingsDefaultValue(),
+        leadOverviewSettings: overviewSettingsDefaultValue(),
+        packageOverviewSettings: overviewSettingsDefaultValue(),
+        productOverviewSettings: overviewSettingsDefaultValue(),
+        orderOverviewSettings: overviewSettingsDefaultValue(),
+        taxRateOverviewSettings: overviewSettingsDefaultValue(),
+        homePage: "UserHome",
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function settingsEncode(value: Settings, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = settingsEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function settingsEncodeWithContext(value: Settings, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Settings",
+        __id,
+    };
+
+    
+    if (value.appointmentNotifications !== null) {
+        result.appointmentNotifications = appointmentNotificationsEncodeWithContext(value.appointmentNotifications, ctx);
+    } else {
+        result.appointmentNotifications = null;
+    }
+    if (value.commissions !== null) {
+        result.commissions = commissionsEncodeWithContext(value.commissions, ctx);
+    } else {
+        result.commissions = null;
+    }
+    result.scheduleSettings = scheduleSettingsEncodeWithContext(value.scheduleSettings, ctx);
+    result.accountOverviewSettings = overviewSettingsEncodeWithContext(value.accountOverviewSettings, ctx);
+    result.serviceOverviewSettings = overviewSettingsEncodeWithContext(value.serviceOverviewSettings, ctx);
+    result.appointmentOverviewSettings = overviewSettingsEncodeWithContext(value.appointmentOverviewSettings, ctx);
+    result.leadOverviewSettings = overviewSettingsEncodeWithContext(value.leadOverviewSettings, ctx);
+    result.packageOverviewSettings = overviewSettingsEncodeWithContext(value.packageOverviewSettings, ctx);
+    result.productOverviewSettings = overviewSettingsEncodeWithContext(value.productOverviewSettings, ctx);
+    result.orderOverviewSettings = overviewSettingsEncodeWithContext(value.orderOverviewSettings, ctx);
+    result.taxRateOverviewSettings = overviewSettingsEncodeWithContext(value.taxRateOverviewSettings, ctx);
+    result.homePage = pageEncodeWithContext(value.homePage, ctx);
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = settingsDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Settings.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Settings.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Settings | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Settings.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("appointmentNotifications" in obj)) {
+        errors.push({ field: "appointmentNotifications", message: "missing required field" });
+    }
+    if (!("commissions" in obj)) {
+        errors.push({ field: "commissions", message: "missing required field" });
+    }
+    if (!("scheduleSettings" in obj)) {
+        errors.push({ field: "scheduleSettings", message: "missing required field" });
+    }
+    if (!("accountOverviewSettings" in obj)) {
+        errors.push({ field: "accountOverviewSettings", message: "missing required field" });
+    }
+    if (!("serviceOverviewSettings" in obj)) {
+        errors.push({ field: "serviceOverviewSettings", message: "missing required field" });
+    }
+    if (!("appointmentOverviewSettings" in obj)) {
+        errors.push({ field: "appointmentOverviewSettings", message: "missing required field" });
+    }
+    if (!("leadOverviewSettings" in obj)) {
+        errors.push({ field: "leadOverviewSettings", message: "missing required field" });
+    }
+    if (!("packageOverviewSettings" in obj)) {
+        errors.push({ field: "packageOverviewSettings", message: "missing required field" });
+    }
+    if (!("productOverviewSettings" in obj)) {
+        errors.push({ field: "productOverviewSettings", message: "missing required field" });
+    }
+    if (!("orderOverviewSettings" in obj)) {
+        errors.push({ field: "orderOverviewSettings", message: "missing required field" });
+    }
+    if (!("taxRateOverviewSettings" in obj)) {
+        errors.push({ field: "taxRateOverviewSettings", message: "missing required field" });
+    }
+    if (!("homePage" in obj)) {
+        errors.push({ field: "homePage", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_appointmentNotifications = obj["appointmentNotifications"] as AppointmentNotifications | null;
+
+        if (__raw_appointmentNotifications === null) {
+            instance.appointmentNotifications = null;
+        } else {
+            ctx.pushScope("appointmentNotifications");
+            try {
+                const __result = appointmentNotificationsDecodeWithContext(__raw_appointmentNotifications, ctx);
+                ctx.assignOrDefer(instance, "appointmentNotifications", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "appointmentNotifications" : "appointmentNotifications." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+    {
+        const __raw_commissions = obj["commissions"] as Commissions | null;
+
+        if (__raw_commissions === null) {
+            instance.commissions = null;
+        } else {
+            ctx.pushScope("commissions");
+            try {
+                const __result = commissionsDecodeWithContext(__raw_commissions, ctx);
+                ctx.assignOrDefer(instance, "commissions", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "commissions" : "commissions." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+    {
+        const __raw_scheduleSettings = obj["scheduleSettings"] as ScheduleSettings;
+
+        ctx.pushScope("scheduleSettings");
+        try {
+            const __result = scheduleSettingsDecodeWithContext(__raw_scheduleSettings, ctx);
+            ctx.assignOrDefer(instance, "scheduleSettings", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "scheduleSettings" : "scheduleSettings." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_accountOverviewSettings = obj["accountOverviewSettings"] as OverviewSettings;
+
+        ctx.pushScope("accountOverviewSettings");
+        try {
+            const __result = overviewSettingsDecodeWithContext(__raw_accountOverviewSettings, ctx);
+            ctx.assignOrDefer(instance, "accountOverviewSettings", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "accountOverviewSettings" : "accountOverviewSettings." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_serviceOverviewSettings = obj["serviceOverviewSettings"] as OverviewSettings;
+
+        ctx.pushScope("serviceOverviewSettings");
+        try {
+            const __result = overviewSettingsDecodeWithContext(__raw_serviceOverviewSettings, ctx);
+            ctx.assignOrDefer(instance, "serviceOverviewSettings", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "serviceOverviewSettings" : "serviceOverviewSettings." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_appointmentOverviewSettings = obj["appointmentOverviewSettings"] as OverviewSettings;
+
+        ctx.pushScope("appointmentOverviewSettings");
+        try {
+            const __result = overviewSettingsDecodeWithContext(__raw_appointmentOverviewSettings, ctx);
+            ctx.assignOrDefer(instance, "appointmentOverviewSettings", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "appointmentOverviewSettings" : "appointmentOverviewSettings." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_leadOverviewSettings = obj["leadOverviewSettings"] as OverviewSettings;
+
+        ctx.pushScope("leadOverviewSettings");
+        try {
+            const __result = overviewSettingsDecodeWithContext(__raw_leadOverviewSettings, ctx);
+            ctx.assignOrDefer(instance, "leadOverviewSettings", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "leadOverviewSettings" : "leadOverviewSettings." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_packageOverviewSettings = obj["packageOverviewSettings"] as OverviewSettings;
+
+        ctx.pushScope("packageOverviewSettings");
+        try {
+            const __result = overviewSettingsDecodeWithContext(__raw_packageOverviewSettings, ctx);
+            ctx.assignOrDefer(instance, "packageOverviewSettings", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "packageOverviewSettings" : "packageOverviewSettings." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_productOverviewSettings = obj["productOverviewSettings"] as OverviewSettings;
+
+        ctx.pushScope("productOverviewSettings");
+        try {
+            const __result = overviewSettingsDecodeWithContext(__raw_productOverviewSettings, ctx);
+            ctx.assignOrDefer(instance, "productOverviewSettings", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "productOverviewSettings" : "productOverviewSettings." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_orderOverviewSettings = obj["orderOverviewSettings"] as OverviewSettings;
+
+        ctx.pushScope("orderOverviewSettings");
+        try {
+            const __result = overviewSettingsDecodeWithContext(__raw_orderOverviewSettings, ctx);
+            ctx.assignOrDefer(instance, "orderOverviewSettings", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "orderOverviewSettings" : "orderOverviewSettings." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_taxRateOverviewSettings = obj["taxRateOverviewSettings"] as OverviewSettings;
+
+        ctx.pushScope("taxRateOverviewSettings");
+        try {
+            const __result = overviewSettingsDecodeWithContext(__raw_taxRateOverviewSettings, ctx);
+            ctx.assignOrDefer(instance, "taxRateOverviewSettings", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "taxRateOverviewSettings" : "taxRateOverviewSettings." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_homePage = obj["homePage"] as Page;
+
+        ctx.pushScope("homePage");
+        try {
+            const __result = pageDecodeWithContext(__raw_homePage, ctx);
+            ctx.assignOrDefer(instance, "homePage", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "homePage" : "homePage." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Settings;
+}
+export function settingsValidateField<K extends keyof Settings>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function settingsValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function settingsValidateFields(partial: { readonly [K in keyof Settings]?: unknown }): Array<{ field: string; message: string }>;
+export function settingsValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function settingsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "appointmentNotifications" in o && "commissions" in o && "scheduleSettings" in o && "accountOverviewSettings" in o && "serviceOverviewSettings" in o && "appointmentOverviewSettings" in o && "leadOverviewSettings" in o && "packageOverviewSettings" in o && "productOverviewSettings" in o && "orderOverviewSettings" in o && "taxRateOverviewSettings" in o && "homePage" in o;
+}
+
+export function settingsIs(obj: unknown): obj is Settings {
+    return settingsHasShape(obj) && settingsDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type SettingsErrors = {
+    _errors: Option.Option<Array<string>>;
+    appointmentNotifications: Option.Option<Array<string>>;
+    commissions: Option.Option<Array<string>>;
+    scheduleSettings: Option.Option<Array<string>>;
+    accountOverviewSettings: Option.Option<Array<string>>;
+    serviceOverviewSettings: Option.Option<Array<string>>;
+    appointmentOverviewSettings: Option.Option<Array<string>>;
+    leadOverviewSettings: Option.Option<Array<string>>;
+    packageOverviewSettings: Option.Option<Array<string>>;
+    productOverviewSettings: Option.Option<Array<string>>;
+    orderOverviewSettings: Option.Option<Array<string>>;
+    taxRateOverviewSettings: Option.Option<Array<string>>;
+    homePage: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type SettingsTainted = {
+    appointmentNotifications: Option.Option<boolean>;
+    commissions: Option.Option<boolean>;
+    scheduleSettings: Option.Option<boolean>;
+    accountOverviewSettings: Option.Option<boolean>;
+    serviceOverviewSettings: Option.Option<boolean>;
+    appointmentOverviewSettings: Option.Option<boolean>;
+    leadOverviewSettings: Option.Option<boolean>;
+    packageOverviewSettings: Option.Option<boolean>;
+    productOverviewSettings: Option.Option<boolean>;
+    orderOverviewSettings: Option.Option<boolean>;
+    taxRateOverviewSettings: Option.Option<boolean>;
+    homePage: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface SettingsFieldControllers {
+    readonly appointmentNotifications: FieldController<AppointmentNotifications | null>;
+    readonly commissions: FieldController<Commissions | null>;
+    readonly scheduleSettings: FieldController<ScheduleSettings>;
+    readonly accountOverviewSettings: FieldController<OverviewSettings>;
+    readonly serviceOverviewSettings: FieldController<OverviewSettings>;
+    readonly appointmentOverviewSettings: FieldController<OverviewSettings>;
+    readonly leadOverviewSettings: FieldController<OverviewSettings>;
+    readonly packageOverviewSettings: FieldController<OverviewSettings>;
+    readonly productOverviewSettings: FieldController<OverviewSettings>;
+    readonly orderOverviewSettings: FieldController<OverviewSettings>;
+    readonly taxRateOverviewSettings: FieldController<OverviewSettings>;
+    readonly homePage: FieldController<Page>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface SettingsGigaform {
+    readonly data: Settings;
+    readonly errors: SettingsErrors;
+    readonly tainted: SettingsTainted;
+    readonly fields: SettingsFieldControllers;
+    validate(): Exit.Exit<Settings, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Settings>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaform {
+    let data = $state({ ...settingsDefaultValue(), ...overrides });
+    let errors = $state<SettingsErrors>({
+        _errors: Option.none(),
+        appointmentNotifications: Option.none(),
+        commissions: Option.none(),
+        scheduleSettings: Option.none(),
+        accountOverviewSettings: Option.none(),
+        serviceOverviewSettings: Option.none(),
+        appointmentOverviewSettings: Option.none(),
+        leadOverviewSettings: Option.none(),
+        packageOverviewSettings: Option.none(),
+        productOverviewSettings: Option.none(),
+        orderOverviewSettings: Option.none(),
+        taxRateOverviewSettings: Option.none(),
+        homePage: Option.none(),
+    });
+    let tainted = $state<SettingsTainted>({
+        appointmentNotifications: Option.none(),
+        commissions: Option.none(),
+        scheduleSettings: Option.none(),
+        accountOverviewSettings: Option.none(),
+        serviceOverviewSettings: Option.none(),
+        appointmentOverviewSettings: Option.none(),
+        leadOverviewSettings: Option.none(),
+        packageOverviewSettings: Option.none(),
+        productOverviewSettings: Option.none(),
+        orderOverviewSettings: Option.none(),
+        taxRateOverviewSettings: Option.none(),
+        homePage: Option.none(),
+    });
+    const fields = {
+        appointmentNotifications: {
+            name: "appointmentNotifications",
+            label: "appointmentNotifications",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["appointmentNotifications"],
+            get: () => data.appointmentNotifications,
+            set: (value: AppointmentNotifications | null) => { data.appointmentNotifications = value; },
+            getError: () => errors.appointmentNotifications,
+            setError: (value: Option.Option<Array<string>>) => { errors.appointmentNotifications = value; },
+            getTainted: () => tainted.appointmentNotifications,
+            setTainted: (value: Option.Option<boolean>) => { tainted.appointmentNotifications = value; },
+            validate: () => settingsValidateField("appointmentNotifications", data.appointmentNotifications).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        commissions: {
+            name: "commissions",
+            label: "commissions",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["commissions"],
+            get: () => data.commissions,
+            set: (value: Commissions | null) => { data.commissions = value; },
+            getError: () => errors.commissions,
+            setError: (value: Option.Option<Array<string>>) => { errors.commissions = value; },
+            getTainted: () => tainted.commissions,
+            setTainted: (value: Option.Option<boolean>) => { tainted.commissions = value; },
+            validate: () => settingsValidateField("commissions", data.commissions).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        scheduleSettings: {
+            name: "scheduleSettings",
+            label: "scheduleSettings",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["scheduleSettings"],
+            get: () => data.scheduleSettings,
+            set: (value: ScheduleSettings) => { data.scheduleSettings = value; },
+            getError: () => errors.scheduleSettings,
+            setError: (value: Option.Option<Array<string>>) => { errors.scheduleSettings = value; },
+            getTainted: () => tainted.scheduleSettings,
+            setTainted: (value: Option.Option<boolean>) => { tainted.scheduleSettings = value; },
+            validate: () => settingsValidateField("scheduleSettings", data.scheduleSettings).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        accountOverviewSettings: {
+            name: "accountOverviewSettings",
+            label: "accountOverviewSettings",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["accountOverviewSettings"],
+            get: () => data.accountOverviewSettings,
+            set: (value: OverviewSettings) => { data.accountOverviewSettings = value; },
+            getError: () => errors.accountOverviewSettings,
+            setError: (value: Option.Option<Array<string>>) => { errors.accountOverviewSettings = value; },
+            getTainted: () => tainted.accountOverviewSettings,
+            setTainted: (value: Option.Option<boolean>) => { tainted.accountOverviewSettings = value; },
+            validate: () => settingsValidateField("accountOverviewSettings", data.accountOverviewSettings).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        serviceOverviewSettings: {
+            name: "serviceOverviewSettings",
+            label: "serviceOverviewSettings",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["serviceOverviewSettings"],
+            get: () => data.serviceOverviewSettings,
+            set: (value: OverviewSettings) => { data.serviceOverviewSettings = value; },
+            getError: () => errors.serviceOverviewSettings,
+            setError: (value: Option.Option<Array<string>>) => { errors.serviceOverviewSettings = value; },
+            getTainted: () => tainted.serviceOverviewSettings,
+            setTainted: (value: Option.Option<boolean>) => { tainted.serviceOverviewSettings = value; },
+            validate: () => settingsValidateField("serviceOverviewSettings", data.serviceOverviewSettings).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        appointmentOverviewSettings: {
+            name: "appointmentOverviewSettings",
+            label: "appointmentOverviewSettings",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["appointmentOverviewSettings"],
+            get: () => data.appointmentOverviewSettings,
+            set: (value: OverviewSettings) => { data.appointmentOverviewSettings = value; },
+            getError: () => errors.appointmentOverviewSettings,
+            setError: (value: Option.Option<Array<string>>) => { errors.appointmentOverviewSettings = value; },
+            getTainted: () => tainted.appointmentOverviewSettings,
+            setTainted: (value: Option.Option<boolean>) => { tainted.appointmentOverviewSettings = value; },
+            validate: () => settingsValidateField("appointmentOverviewSettings", data.appointmentOverviewSettings).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        leadOverviewSettings: {
+            name: "leadOverviewSettings",
+            label: "leadOverviewSettings",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["leadOverviewSettings"],
+            get: () => data.leadOverviewSettings,
+            set: (value: OverviewSettings) => { data.leadOverviewSettings = value; },
+            getError: () => errors.leadOverviewSettings,
+            setError: (value: Option.Option<Array<string>>) => { errors.leadOverviewSettings = value; },
+            getTainted: () => tainted.leadOverviewSettings,
+            setTainted: (value: Option.Option<boolean>) => { tainted.leadOverviewSettings = value; },
+            validate: () => settingsValidateField("leadOverviewSettings", data.leadOverviewSettings).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        packageOverviewSettings: {
+            name: "packageOverviewSettings",
+            label: "packageOverviewSettings",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["packageOverviewSettings"],
+            get: () => data.packageOverviewSettings,
+            set: (value: OverviewSettings) => { data.packageOverviewSettings = value; },
+            getError: () => errors.packageOverviewSettings,
+            setError: (value: Option.Option<Array<string>>) => { errors.packageOverviewSettings = value; },
+            getTainted: () => tainted.packageOverviewSettings,
+            setTainted: (value: Option.Option<boolean>) => { tainted.packageOverviewSettings = value; },
+            validate: () => settingsValidateField("packageOverviewSettings", data.packageOverviewSettings).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        productOverviewSettings: {
+            name: "productOverviewSettings",
+            label: "productOverviewSettings",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["productOverviewSettings"],
+            get: () => data.productOverviewSettings,
+            set: (value: OverviewSettings) => { data.productOverviewSettings = value; },
+            getError: () => errors.productOverviewSettings,
+            setError: (value: Option.Option<Array<string>>) => { errors.productOverviewSettings = value; },
+            getTainted: () => tainted.productOverviewSettings,
+            setTainted: (value: Option.Option<boolean>) => { tainted.productOverviewSettings = value; },
+            validate: () => settingsValidateField("productOverviewSettings", data.productOverviewSettings).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        orderOverviewSettings: {
+            name: "orderOverviewSettings",
+            label: "orderOverviewSettings",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["orderOverviewSettings"],
+            get: () => data.orderOverviewSettings,
+            set: (value: OverviewSettings) => { data.orderOverviewSettings = value; },
+            getError: () => errors.orderOverviewSettings,
+            setError: (value: Option.Option<Array<string>>) => { errors.orderOverviewSettings = value; },
+            getTainted: () => tainted.orderOverviewSettings,
+            setTainted: (value: Option.Option<boolean>) => { tainted.orderOverviewSettings = value; },
+            validate: () => settingsValidateField("orderOverviewSettings", data.orderOverviewSettings).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        taxRateOverviewSettings: {
+            name: "taxRateOverviewSettings",
+            label: "taxRateOverviewSettings",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["taxRateOverviewSettings"],
+            get: () => data.taxRateOverviewSettings,
+            set: (value: OverviewSettings) => { data.taxRateOverviewSettings = value; },
+            getError: () => errors.taxRateOverviewSettings,
+            setError: (value: Option.Option<Array<string>>) => { errors.taxRateOverviewSettings = value; },
+            getTainted: () => tainted.taxRateOverviewSettings,
+            setTainted: (value: Option.Option<boolean>) => { tainted.taxRateOverviewSettings = value; },
+            validate: () => settingsValidateField("taxRateOverviewSettings", data.taxRateOverviewSettings).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        homePage: {
+            name: "homePage",
+            label: "homePage",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["homePage"],
+            get: () => data.homePage,
+            set: (value: Page) => { data.homePage = value; },
+            getError: () => errors.homePage,
+            setError: (value: Option.Option<Array<string>>) => { errors.homePage = value; },
+            getTainted: () => tainted.homePage,
+            setTainted: (value: Option.Option<boolean>) => { tainted.homePage = value; },
+            validate: () => settingsValidateField("homePage", data.homePage).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as SettingsFieldControllers;
+
+    function validate(): Exit.Exit<Settings, Array<{ field: string; message: string }>> {
+        return toExit(settingsDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<Settings>): void {
+        data = { ...settingsDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            appointmentNotifications: Option.none(),
+            commissions: Option.none(),
+            scheduleSettings: Option.none(),
+            accountOverviewSettings: Option.none(),
+            serviceOverviewSettings: Option.none(),
+            appointmentOverviewSettings: Option.none(),
+            leadOverviewSettings: Option.none(),
+            packageOverviewSettings: Option.none(),
+            productOverviewSettings: Option.none(),
+            orderOverviewSettings: Option.none(),
+            taxRateOverviewSettings: Option.none(),
+            homePage: Option.none(),
+        };
+        tainted = {
+            appointmentNotifications: Option.none(),
+            commissions: Option.none(),
+            scheduleSettings: Option.none(),
+            accountOverviewSettings: Option.none(),
+            serviceOverviewSettings: Option.none(),
+            appointmentOverviewSettings: Option.none(),
+            leadOverviewSettings: Option.none(),
+            packageOverviewSettings: Option.none(),
+            productOverviewSettings: Option.none(),
+            orderOverviewSettings: Option.none(),
+            taxRateOverviewSettings: Option.none(),
+            homePage: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function settingsFromFormData(formData: FormData): Exit.Exit<Settings, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    {
+
+        const appointmentNotificationsObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("appointmentNotifications.")) {
+                const fieldName = key.slice("appointmentNotifications.".length);
+
+                const parts = fieldName.split(".");
+                let current = appointmentNotificationsObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.appointmentNotifications = appointmentNotificationsObj;
+    }
+    {
+
+        const commissionsObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("commissions.")) {
+                const fieldName = key.slice("commissions.".length);
+
+                const parts = fieldName.split(".");
+                let current = commissionsObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.commissions = commissionsObj;
+    }
+    {
+
+        const scheduleSettingsObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("scheduleSettings.")) {
+                const fieldName = key.slice("scheduleSettings.".length);
+
+                const parts = fieldName.split(".");
+                let current = scheduleSettingsObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.scheduleSettings = scheduleSettingsObj;
+    }
+    {
+
+        const accountOverviewSettingsObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("accountOverviewSettings.")) {
+                const fieldName = key.slice("accountOverviewSettings.".length);
+
+                const parts = fieldName.split(".");
+                let current = accountOverviewSettingsObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.accountOverviewSettings = accountOverviewSettingsObj;
+    }
+    {
+
+        const serviceOverviewSettingsObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("serviceOverviewSettings.")) {
+                const fieldName = key.slice("serviceOverviewSettings.".length);
+
+                const parts = fieldName.split(".");
+                let current = serviceOverviewSettingsObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.serviceOverviewSettings = serviceOverviewSettingsObj;
+    }
+    {
+
+        const appointmentOverviewSettingsObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("appointmentOverviewSettings.")) {
+                const fieldName = key.slice("appointmentOverviewSettings.".length);
+
+                const parts = fieldName.split(".");
+                let current = appointmentOverviewSettingsObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.appointmentOverviewSettings = appointmentOverviewSettingsObj;
+    }
+    {
+
+        const leadOverviewSettingsObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("leadOverviewSettings.")) {
+                const fieldName = key.slice("leadOverviewSettings.".length);
+
+                const parts = fieldName.split(".");
+                let current = leadOverviewSettingsObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.leadOverviewSettings = leadOverviewSettingsObj;
+    }
+    {
+
+        const packageOverviewSettingsObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("packageOverviewSettings.")) {
+                const fieldName = key.slice("packageOverviewSettings.".length);
+
+                const parts = fieldName.split(".");
+                let current = packageOverviewSettingsObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.packageOverviewSettings = packageOverviewSettingsObj;
+    }
+    {
+
+        const productOverviewSettingsObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("productOverviewSettings.")) {
+                const fieldName = key.slice("productOverviewSettings.".length);
+
+                const parts = fieldName.split(".");
+                let current = productOverviewSettingsObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.productOverviewSettings = productOverviewSettingsObj;
+    }
+    {
+
+        const orderOverviewSettingsObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("orderOverviewSettings.")) {
+                const fieldName = key.slice("orderOverviewSettings.".length);
+
+                const parts = fieldName.split(".");
+                let current = orderOverviewSettingsObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.orderOverviewSettings = orderOverviewSettingsObj;
+    }
+    {
+
+        const taxRateOverviewSettingsObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("taxRateOverviewSettings.")) {
+                const fieldName = key.slice("taxRateOverviewSettings.".length);
+
+                const parts = fieldName.split(".");
+                let current = taxRateOverviewSettingsObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.taxRateOverviewSettings = taxRateOverviewSettingsObj;
+    }
+    {
+
+        const homePageObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("homePage.")) {
+                const fieldName = key.slice("homePage.".length);
+
+                const parts = fieldName.split(".");
+                let current = homePageObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.homePage = homePageObj;
+    }
+
+    return toExit(settingsDecode(obj));
+}
+
+export const Settings: {
+  readonly defaultValue: typeof settingsDefaultValue;
+  readonly encode: typeof settingsEncode;
+  readonly encodeWithContext: typeof settingsEncodeWithContext;
+  readonly decode: typeof settingsDecode;
+  readonly decodeWithContext: typeof settingsDecodeWithContext;
+  readonly validateField: typeof settingsValidateField;
+  readonly validateFields: typeof settingsValidateFields;
+  readonly hasShape: typeof settingsHasShape;
+  readonly is: typeof settingsIs;
+  readonly createForm: typeof settingsCreateForm;
+  readonly fromFormData: typeof settingsFromFormData;
+} = {
+  defaultValue: settingsDefaultValue,
+  encode: settingsEncode,
+  encodeWithContext: settingsEncodeWithContext,
+  decode: settingsDecode,
+  decodeWithContext: settingsDecodeWithContext,
+  validateField: settingsValidateField,
+  validateFields: settingsValidateFields,
+  hasShape: settingsHasShape,
+  is: settingsIs,
+  createForm: settingsCreateForm,
+  fromFormData: settingsFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+import type { AppointmentNotifications } from "./appointment-notifications.svelte";
+import type { Commissions } from "./commissions.svelte";
+import type { OverviewSettings } from "./overview-settings.svelte";
+import type { Page } from "./page.svelte";
+import type { ScheduleSettings } from "./schedule-settings.svelte";
+export interface Settings {
+	appointmentNotifications: AppointmentNotifications | null;
+	commissions: Commissions | null;
+	scheduleSettings: ScheduleSettings;
+	accountOverviewSettings: OverviewSettings;
+	serviceOverviewSettings: OverviewSettings;
+	appointmentOverviewSettings: OverviewSettings;
+	leadOverviewSettings: OverviewSettings;
+	packageOverviewSettings: OverviewSettings;
+	productOverviewSettings: OverviewSettings;
+	orderOverviewSettings: OverviewSettings;
+	taxRateOverviewSettings: OverviewSettings;
+	homePage: Page;
+}
+export declare function settingsDefaultValue(): Settings;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function settingsEncode(value: Settings, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function settingsEncodeWithContext(value: Settings, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Settings;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef;
+export declare function settingsValidateField<K extends keyof Settings>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function settingsValidateFields(partial: { readonly [K in keyof Settings]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function settingsHasShape(obj: unknown): boolean;
+export declare function settingsIs(obj: unknown): obj is Settings;
+/** Nested error structure matching the data shape  */
+export type SettingsErrors = {
+	_errors: Option.Option<Array<string>>;
+	appointmentNotifications: Option.Option<Array<string>>;
+	commissions: Option.Option<Array<string>>;
+	scheduleSettings: Option.Option<Array<string>>;
+	accountOverviewSettings: Option.Option<Array<string>>;
+	serviceOverviewSettings: Option.Option<Array<string>>;
+	appointmentOverviewSettings: Option.Option<Array<string>>;
+	leadOverviewSettings: Option.Option<Array<string>>;
+	packageOverviewSettings: Option.Option<Array<string>>;
+	productOverviewSettings: Option.Option<Array<string>>;
+	orderOverviewSettings: Option.Option<Array<string>>;
+	taxRateOverviewSettings: Option.Option<Array<string>>;
+	homePage: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type SettingsTainted = {
+	appointmentNotifications: Option.Option<boolean>;
+	commissions: Option.Option<boolean>;
+	scheduleSettings: Option.Option<boolean>;
+	accountOverviewSettings: Option.Option<boolean>;
+	serviceOverviewSettings: Option.Option<boolean>;
+	appointmentOverviewSettings: Option.Option<boolean>;
+	leadOverviewSettings: Option.Option<boolean>;
+	packageOverviewSettings: Option.Option<boolean>;
+	productOverviewSettings: Option.Option<boolean>;
+	orderOverviewSettings: Option.Option<boolean>;
+	taxRateOverviewSettings: Option.Option<boolean>;
+	homePage: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface SettingsFieldControllers {
+	readonly appointmentNotifications: FieldController<AppointmentNotifications | null>;
+	readonly commissions: FieldController<Commissions | null>;
+	readonly scheduleSettings: FieldController<ScheduleSettings>;
+	readonly accountOverviewSettings: FieldController<OverviewSettings>;
+	readonly serviceOverviewSettings: FieldController<OverviewSettings>;
+	readonly appointmentOverviewSettings: FieldController<OverviewSettings>;
+	readonly leadOverviewSettings: FieldController<OverviewSettings>;
+	readonly packageOverviewSettings: FieldController<OverviewSettings>;
+	readonly productOverviewSettings: FieldController<OverviewSettings>;
+	readonly orderOverviewSettings: FieldController<OverviewSettings>;
+	readonly taxRateOverviewSettings: FieldController<OverviewSettings>;
+	readonly homePage: FieldController<Page>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface SettingsGigaform {
+	readonly data: Settings;
+	readonly errors: SettingsErrors;
+	readonly tainted: SettingsTainted;
+	readonly fields: SettingsFieldControllers;
+	validate(): Exit.Exit<Settings, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<Settings>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function settingsCreateForm(overrides?: Partial<Settings>): SettingsGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function settingsFromFormData(formData: FormData): Exit.Exit<Settings, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const Settings: {
+	readonly defaultValue: typeof settingsDefaultValue;
+	readonly encode: typeof settingsEncode;
+	readonly encodeWithContext: typeof settingsEncodeWithContext;
+	readonly decode: typeof settingsDecode;
+	readonly decodeWithContext: typeof settingsDecodeWithContext;
+	readonly validateField: typeof settingsValidateField;
+	readonly validateFields: typeof settingsValidateFields;
+	readonly hasShape: typeof settingsHasShape;
+	readonly is: typeof settingsIs;
+	readonly createForm: typeof settingsCreateForm;
+	readonly fromFormData: typeof settingsFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..379 -> expanded 1027..1406
+original 428..976 -> expanded 1406..1954
+original 1003..1025 -> expanded 1954..1976
+original 1025..1026 -> expanded 50392..50393
+generated 0..1027 <- imports
+generated 1976..2724 <- Default
+generated 2724..5235 <- Encode
+generated 5235..21031 <- Decode
+generated 21031..49406 <- Gigaform
+generated 49406..50392 <- __convenience_const
+
+## Metadata
+
+interface Settings: {"body_span":{"end":1026,"start":456},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":429,"start":380}}],"fields":[{"decorators":[],"name":"appointmentNotifications","optional":false,"readonly":false,"span":{"end":520,"start":462},"ts_type":"AppointmentNotifications | null"},{"decorators":[],"name":"commissions","optional":false,"readonly":false,"span":{"end":557,"start":525},"ts_type":"Commissions | null"},{"decorators":[],"name":"scheduleSettings","optional":false,"readonly":false,"span":{"end":597,"start":562},"ts_type":"ScheduleSettings"},{"decorators":[],"name":"accountOverviewSettings","optional":false,"readonly":false,"span":{"end":644,"start":602},"ts_type":"OverviewSettings"},{"decorators":[],"name":"serviceOverviewSettings","optional":false,"readonly":false,"span":{"end":691,"start":649},"ts_type":"OverviewSettings"},{"decorators":[],"name":"appointmentOverviewSettings","optional":false,"readonly":false,"span":{"end":742,"start":696},"ts_type":"OverviewSettings"},{"decorators":[],"name":"leadOverviewSettings","optional":false,"readonly":false,"span":{"end":786,"start":747},"ts_type":"OverviewSettings"},{"decorators":[],"name":"packageOverviewSettings","optional":false,"readonly":false,"span":{"end":833,"start":791},"ts_type":"OverviewSettings"},{"decorators":[],"name":"productOverviewSettings","optional":false,"readonly":false,"span":{"end":880,"start":838},"ts_type":"OverviewSettings"},{"decorators":[],"name":"orderOverviewSettings","optional":false,"readonly":false,"span":{"end":925,"start":885},"ts_type":"OverviewSettings"},{"decorators":[],"name":"taxRateOverviewSettings","optional":false,"readonly":false,"span":{"end":972,"start":930},"ts_type":"OverviewSettings"},{"decorators":[{"args_src":"\"UserHome\"","name":"default","span":{"end":1004,"start":977}}],"name":"homePage","optional":false,"readonly":false,"span":{"end":1024,"start":1009},"ts_type":"Page"}],"heritage":[],"methods":[],"name":"Settings","span":{"end":1026,"start":437},"type_params":[]}
+
+## Registry reads
+
+Name("AppointmentNotifications")
+Name("Commissions")
+Name("OverviewSettings")
+Name("Page")
+Name("ScheduleSettings")
+
+## Buildtime dependencies
+
+(none)

@@ -1,6 +1,6 @@
 # PositionMapper
 
-macroforge v0.4.0
+macroforge v0.5.0
 
 Bidirectional position mapper for translating between original and expanded source positions. This
 mapper enables IDE features like error reporting, go-to-definition, and hover to work correctly with

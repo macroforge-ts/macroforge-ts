@@ -19,27 +19,26 @@ pub(super) fn extract_function_names_from_patches(
             _ => continue,
         };
 
-        // Find "export function <name>(" patterns
+        // Each `export function <name>(` or `export function <name><T>(`.
         let mut search_start = 0;
         while let Some(pos) = code[search_start..].find("export function ") {
             let start = search_start + pos + "export function ".len();
-            if let Some(paren_pos) = code[start..].find('(') {
-                let fn_name = code[start..start + paren_pos].trim();
-                if !fn_name.is_empty()
-                    && fn_name
-                        .chars()
-                        .all(|c| c.is_ascii_alphanumeric() || c == '_')
-                    && let Some(short_name) = extract_short_name(fn_name, &camel_type_name)
-                    && !functions
-                        .iter()
-                        .any(|(existing_name, ..)| existing_name == fn_name)
-                {
-                    functions.push((fn_name.to_string(), short_name));
-                }
-                search_start = start + paren_pos;
-            } else {
-                break;
+            let rest = &code[start..];
+            let name_len = rest
+                .find(|character: char| !(character.is_ascii_alphanumeric() || character == '_'))
+                .unwrap_or(rest.len());
+            let fn_name = &rest[..name_len];
+            let declares_function = rest[name_len..].trim_start().starts_with(['(', '<']);
+            if !fn_name.is_empty()
+                && declares_function
+                && let Some(short_name) = extract_short_name(fn_name, &camel_type_name)
+                && !functions
+                    .iter()
+                    .any(|(existing_name, ..)| existing_name == fn_name)
+            {
+                functions.push((fn_name.to_string(), short_name));
             }
+            search_start = start + name_len;
         }
     }
 
@@ -271,6 +270,54 @@ pub(super) fn derive_insert_pos(class_ir: &ClassIR, source: &str) -> u32 {
         .rfind('}')
         .map(|idx| idx as u32 + 1)
         .unwrap_or_else(|| class_ir.body_span.end.max(class_ir.span.start))
+}
+
+/// Members for a class body, laid out to go before its closing brace at the
+/// 1-based position `at`: on their own lines, one level deeper than the
+/// brace's line, with the brace back on a line of its own. Code holding a
+/// template literal keeps its lines as they are, since re-indenting one
+/// would change the string.
+pub(crate) fn class_body_payload(code: &str, source: &str, at: u32) -> String {
+    let brace = (at as usize).saturating_sub(1).min(source.len());
+    let line_start = source
+        .get(..brace)
+        .and_then(|before| before.rfind('\n'))
+        .map_or(0, |newline| newline + 1);
+    let brace_indent: String = source
+        .get(line_start..brace)
+        .unwrap_or_default()
+        .chars()
+        .take_while(|character| *character == ' ' || *character == '\t')
+        .collect();
+    let members = code.trim_matches('\n').trim_end();
+    let body = if members.contains('`') {
+        members.to_string()
+    } else {
+        let member_indent = format!("{brace_indent}    ");
+        members
+            .lines()
+            .map(|line| {
+                if line.trim().is_empty() {
+                    String::new()
+                } else {
+                    format!("{member_indent}{line}")
+                }
+            })
+            .collect::<Vec<_>>()
+            .join("\n")
+    };
+    // An indented brace on its own line already has its indentation before
+    // `at`; the first member takes that place instead of a new line.
+    let brace_on_own_line = !brace_indent.is_empty()
+        && source
+            .get(line_start..brace)
+            .is_some_and(|before| before.trim().is_empty());
+    match body.strip_prefix(brace_indent.as_str()) {
+        Some(first_line_onward) if brace_on_own_line => {
+            format!("{first_line_onward}\n{brace_indent}")
+        }
+        Some(_) | None => format!("\n{body}\n{brace_indent}"),
+    }
 }
 
 pub(super) fn find_macro_comment_span(source: &str, target_start: u32) -> Option<SpanIR> {

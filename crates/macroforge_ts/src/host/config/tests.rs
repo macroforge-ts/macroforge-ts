@@ -1,5 +1,4 @@
 use super::*;
-use std::collections::HashMap;
 
 /// The config parsed from `content`, without the files it was built from.
 fn parse(content: &str, filepath: &str) -> crate::host::Result<MacroforgeConfig> {
@@ -97,7 +96,6 @@ fn test_legacy_macro_config_conversion() {
         keep_decorators: true,
         generate_convenience_const: false,
         foreign_types: vec![],
-        config_imports: HashMap::new(),
         ..Default::default()
     };
 

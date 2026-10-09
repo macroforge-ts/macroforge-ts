@@ -10,13 +10,13 @@ pub struct DecoratorIR {
 }
 ```
 
-A macro reads its options from `args_src`. The helpers in `macroforge_ts::builtin::derive_common`
+A macro reads its options from `args_src`. The helpers in `macroforge_ts::builtin::derive::common`
 parse the common shapes:
 
 Rust
 
 ```
-use macroforge_ts::builtin::derive_common::{extract_named_string, has_flag};
+use macroforge_ts::builtin::derive::common::{extract_named_string, has_flag};
 
 for decorator in &field.decorators {
     if decorator.name.eq_ignore_ascii_case("validate") {

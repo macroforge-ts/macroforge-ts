@@ -11,7 +11,7 @@ import {
     Site,
     TaxRate
 } from '../types/bindings';
-/** import macro { FieldController} from "@playground/macro"; */
+/** import macro { FieldController} from "@testground/macro"; */
 
 /** @fieldController({ field: "memo", controller: textAreaController }) */
 export class Account extends Schema.Class<Account>('Account')({

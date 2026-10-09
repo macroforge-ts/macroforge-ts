@@ -32,7 +32,7 @@ original 0..50 -> expanded 0..50
 
 ## Metadata
 
-class User: {"body_span":{"end":50,"start":29},"decorators":[{"args_src":"","name":"Derive","span":{"end":17,"start":1}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":48,"start":35},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":50,"start":18},"type_params":[]}
+class User: {"body_span":{"end":50,"start":29},"decorators":[{"args_src":"","name":"Derive","span":{"end":17,"start":1}}],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":48,"start":35},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":50,"start":18},"type_params":[]}
 
 ## Registry reads
 

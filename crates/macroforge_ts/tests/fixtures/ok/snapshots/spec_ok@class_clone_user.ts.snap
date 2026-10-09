@@ -24,35 +24,25 @@ import { Derive } from '@macro/derive';
 class User {
     name: string;
 
-static clone(value: User): User {
-                    return userClone(value);
-                }}
+    static clone(value: User): User {
+        return userClone(value);
+    }
+}
 
 export function userClone(value: User): User {
-                    const cloned = Object.create(Object.getPrototypeOf(value));
-                    cloned.name = value.name;
-
-                    return cloned;
-                }
+    const cloned = Object.create(Object.getPrototypeOf(value));
+    cloned.name = value.name;
+    return cloned;
+}
 
 ## DTS
 
-import { Derive } from '@macro/derive';
-
-
-class User {
-    name: string;
-
-static clone(value: User): User {
-                    return userClone(value);
-                }}
-
-export function userClone(value: User): User {
-                    const cloned = Object.create(Object.getPrototypeOf(value));
-                    cloned.name = value.name;
-
-                    return cloned;
-                }
+declare class User {
+	name: string;
+	static clone(value: User): User;
+}
+export declare function userClone(value: User): User;
+export {};
 
 ## Diagnostics
 
@@ -62,14 +52,14 @@ export function userClone(value: User): User {
 
 original 0..41 -> expanded 0..41
 original 62..94 -> expanded 41..73
-original 94..95 -> expanded 170..171
-original 95..96 -> expanded 399..400
-generated 73..170 <- Clone
-generated 171..399 <- Clone
+original 94..95 -> expanded 151..152
+original 95..96 -> expanded 315..316
+generated 73..151 <- Clone
+generated 152..315 <- Clone
 
 ## Metadata
 
-class User: {"body_span":{"end":96,"start":75},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":94,"start":81},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":96,"start":64},"type_params":[]}
+class User: {"body_span":{"end":96,"start":75},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":94,"start":81},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":96,"start":64},"type_params":[]}
 
 ## Registry reads
 

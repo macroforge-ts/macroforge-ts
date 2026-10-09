@@ -1,0 +1,1153 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/validator-form.ts
+sha256 efc4b4c1a7279590acd90092e2bef55d57a7ca6697c9330a48bee3878cdb6b5d
+
+## Changed
+
+true
+
+## Output
+
+import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * Validator form model for E2E testing in Svelte.
+ * Tests string, number, array, and date validators with real form validation.
+ */
+
+import type { ValidationOutcome } from '../validation-outcome';
+
+
+export class UserRegistrationForm {
+    
+    email: string;
+
+    
+    password: string;
+
+    
+    username: string;
+
+    
+    age: number;
+
+    
+    website: string;
+
+    constructor(props: { email: string; password: string; username: string; age: number; website: string }) {
+        this.email = props.email;
+        this.password = props.password;
+        this.username = props.username;
+        this.age = props.age;
+        this.website = props.website;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserRegistrationForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = UserRegistrationForm.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "UserRegistrationForm.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): UserRegistrationForm | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "UserRegistrationForm.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as UserRegistrationForm | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "UserRegistrationForm.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("email" in obj)) {
+            errors.push({ field: "email", message: "missing required field" });
+        }
+        if (!("password" in obj)) {
+            errors.push({ field: "password", message: "missing required field" });
+        }
+        if (!("username" in obj)) {
+            errors.push({ field: "username", message: "missing required field" });
+        }
+        if (!("age" in obj)) {
+            errors.push({ field: "age", message: "missing required field" });
+        }
+        if (!("website" in obj)) {
+            errors.push({ field: "website", message: "missing required field" });
+        }
+
+        const instance = Object.create(UserRegistrationForm.prototype) as UserRegistrationForm;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_email = obj["email"] as string;
+
+            if (!(typeof __raw_email === "string")) {
+                errors.push({ field: "email", message: __raw_email == null ? "UserRegistrationForm.email is required" : "expected string" });
+            } else {
+                if (__raw_email == null) { errors.push({ field: "email", message: "UserRegistrationForm.email is required" }); } else {
+                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "email", message: "UserRegistrationForm.email must be a valid email" }); }
+                }
+                instance.email = __raw_email;
+            }
+        }
+        {
+            const __raw_password = obj["password"] as string;
+
+            if (!(typeof __raw_password === "string")) {
+                errors.push({ field: "password", message: __raw_password == null ? "UserRegistrationForm.password is required" : "expected string" });
+            } else {
+                if (__raw_password == null) { errors.push({ field: "password", message: "UserRegistrationForm.password is required" }); } else {
+                    if (__raw_password.length < 8) { errors.push({ field: "password", message: "UserRegistrationForm.password must have at least 8 characters" }); }
+                    if (__raw_password.length > 50) { errors.push({ field: "password", message: "UserRegistrationForm.password must have at most 50 characters" }); }
+                }
+                instance.password = __raw_password;
+            }
+        }
+        {
+            const __raw_username = obj["username"] as string;
+
+            if (!(typeof __raw_username === "string")) {
+                errors.push({ field: "username", message: __raw_username == null ? "UserRegistrationForm.username is required" : "expected string" });
+            } else {
+                if (__raw_username == null) { errors.push({ field: "username", message: "UserRegistrationForm.username is required" }); } else {
+                    if (__raw_username.length < 3) { errors.push({ field: "username", message: "UserRegistrationForm.username must have at least 3 characters" }); }
+                    if (__raw_username.length > 20) { errors.push({ field: "username", message: "UserRegistrationForm.username must have at most 20 characters" }); }
+                    if (__raw_username !== __raw_username.toLowerCase()) { errors.push({ field: "username", message: "UserRegistrationForm.username must be lowercase" }); }
+                    if (!/^[a-z][a-z0-9_]+$/.test(__raw_username)) { errors.push({ field: "username", message: "UserRegistrationForm.username must match pattern ^[a-z][a-z0-9_]+$" }); }
+                }
+                instance.username = __raw_username;
+            }
+        }
+        {
+            const __raw_age = obj["age"] as number;
+
+            if (!(typeof __raw_age === "number")) {
+                errors.push({ field: "age", message: __raw_age == null ? "UserRegistrationForm.age is required" : "expected number" });
+            } else {
+                if (__raw_age == null) { errors.push({ field: "age", message: "UserRegistrationForm.age is required" }); } else {
+                    if (!Number.isInteger(__raw_age)) { errors.push({ field: "age", message: "UserRegistrationForm.age must be an integer" }); }
+                    if (__raw_age < 18 || __raw_age > 120) { errors.push({ field: "age", message: "UserRegistrationForm.age must be between 18 and 120" }); }
+                }
+                instance.age = __raw_age;
+            }
+        }
+        {
+            const __raw_website = obj["website"] as string;
+
+            if (!(typeof __raw_website === "string")) {
+                errors.push({ field: "website", message: __raw_website == null ? "UserRegistrationForm.website is required" : "expected string" });
+            } else {
+                if (__raw_website == null) { errors.push({ field: "website", message: "UserRegistrationForm.website is required" }); } else {
+                    if (!URL.canParse(__raw_website)) { errors.push({ field: "website", message: "UserRegistrationForm.website must be a valid URL" }); }
+                }
+                instance.website = __raw_website;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof UserRegistrationForm>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "email") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "email", message: "UserRegistrationForm.email is required" }); } else {
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "email", message: "UserRegistrationForm.email must be a valid email" }); }
+            }
+        }
+        if (field === "password") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "password", message: "UserRegistrationForm.password is required" }); } else {
+                if (__val.length < 8) { errors.push({ field: "password", message: "UserRegistrationForm.password must have at least 8 characters" }); }
+                if (__val.length > 50) { errors.push({ field: "password", message: "UserRegistrationForm.password must have at most 50 characters" }); }
+            }
+        }
+        if (field === "username") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "username", message: "UserRegistrationForm.username is required" }); } else {
+                if (__val.length < 3) { errors.push({ field: "username", message: "UserRegistrationForm.username must have at least 3 characters" }); }
+                if (__val.length > 20) { errors.push({ field: "username", message: "UserRegistrationForm.username must have at most 20 characters" }); }
+                if (__val !== __val.toLowerCase()) { errors.push({ field: "username", message: "UserRegistrationForm.username must be lowercase" }); }
+                if (!/^[a-z][a-z0-9_]+$/.test(__val)) { errors.push({ field: "username", message: "UserRegistrationForm.username must match pattern ^[a-z][a-z0-9_]+$" }); }
+            }
+        }
+        if (field === "age") {
+            const __val = value as number;
+            if (__val == null) { errors.push({ field: "age", message: "UserRegistrationForm.age is required" }); } else {
+                if (!Number.isInteger(__val)) { errors.push({ field: "age", message: "UserRegistrationForm.age must be an integer" }); }
+                if (__val < 18 || __val > 120) { errors.push({ field: "age", message: "UserRegistrationForm.age must be between 18 and 120" }); }
+            }
+        }
+        if (field === "website") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "website", message: "UserRegistrationForm.website is required" }); } else {
+                if (!URL.canParse(__val)) { errors.push({ field: "website", message: "UserRegistrationForm.website must be a valid URL" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof UserRegistrationForm]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("email" in partial && partial.email !== undefined) {
+            const __val = partial.email as string;
+            if (__val == null) { errors.push({ field: "email", message: "UserRegistrationForm.email is required" }); } else {
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "email", message: "UserRegistrationForm.email must be a valid email" }); }
+            }
+        }
+        if ("password" in partial && partial.password !== undefined) {
+            const __val = partial.password as string;
+            if (__val == null) { errors.push({ field: "password", message: "UserRegistrationForm.password is required" }); } else {
+                if (__val.length < 8) { errors.push({ field: "password", message: "UserRegistrationForm.password must have at least 8 characters" }); }
+                if (__val.length > 50) { errors.push({ field: "password", message: "UserRegistrationForm.password must have at most 50 characters" }); }
+            }
+        }
+        if ("username" in partial && partial.username !== undefined) {
+            const __val = partial.username as string;
+            if (__val == null) { errors.push({ field: "username", message: "UserRegistrationForm.username is required" }); } else {
+                if (__val.length < 3) { errors.push({ field: "username", message: "UserRegistrationForm.username must have at least 3 characters" }); }
+                if (__val.length > 20) { errors.push({ field: "username", message: "UserRegistrationForm.username must have at most 20 characters" }); }
+                if (__val !== __val.toLowerCase()) { errors.push({ field: "username", message: "UserRegistrationForm.username must be lowercase" }); }
+                if (!/^[a-z][a-z0-9_]+$/.test(__val)) { errors.push({ field: "username", message: "UserRegistrationForm.username must match pattern ^[a-z][a-z0-9_]+$" }); }
+            }
+        }
+        if ("age" in partial && partial.age !== undefined) {
+            const __val = partial.age as number;
+            if (__val == null) { errors.push({ field: "age", message: "UserRegistrationForm.age is required" }); } else {
+                if (!Number.isInteger(__val)) { errors.push({ field: "age", message: "UserRegistrationForm.age must be an integer" }); }
+                if (__val < 18 || __val > 120) { errors.push({ field: "age", message: "UserRegistrationForm.age must be between 18 and 120" }); }
+            }
+        }
+        if ("website" in partial && partial.website !== undefined) {
+            const __val = partial.website as string;
+            if (__val == null) { errors.push({ field: "website", message: "UserRegistrationForm.website is required" }); } else {
+                if (!URL.canParse(__val)) { errors.push({ field: "website", message: "UserRegistrationForm.website must be a valid URL" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "email" in o && "password" in o && "username" in o && "age" in o && "website" in o;
+    }
+
+    static is(obj: unknown): obj is UserRegistrationForm {
+        if (obj instanceof UserRegistrationForm) {
+            return true;
+        }
+        if (!UserRegistrationForm.hasShape(obj)) {
+            return false;
+        }
+        const result = UserRegistrationForm.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function userRegistrationFormDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserRegistrationForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return UserRegistrationForm.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function userRegistrationFormDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UserRegistrationForm | __mf_PendingRef {
+    return UserRegistrationForm.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function userRegistrationFormIs(value: unknown): value is UserRegistrationForm {
+    return UserRegistrationForm.is(value);
+}
+
+
+export class ProductForm {
+    
+    name: string;
+
+    
+    price: number;
+
+    
+    quantity: number;
+
+    
+    tags: Array<string>;
+
+    
+    sku: string;
+
+    constructor(props: { name: string; price: number; quantity: number; tags: Array<string>; sku: string }) {
+        this.name = props.name;
+        this.price = props.price;
+        this.quantity = props.quantity;
+        this.tags = props.tags;
+        this.sku = props.sku;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ProductForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = ProductForm.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "ProductForm.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ProductForm | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "ProductForm.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as ProductForm | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "ProductForm.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("name" in obj)) {
+            errors.push({ field: "name", message: "missing required field" });
+        }
+        if (!("price" in obj)) {
+            errors.push({ field: "price", message: "missing required field" });
+        }
+        if (!("quantity" in obj)) {
+            errors.push({ field: "quantity", message: "missing required field" });
+        }
+        if (!("tags" in obj)) {
+            errors.push({ field: "tags", message: "missing required field" });
+        }
+        if (!("sku" in obj)) {
+            errors.push({ field: "sku", message: "missing required field" });
+        }
+
+        const instance = Object.create(ProductForm.prototype) as ProductForm;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_name = obj["name"] as string;
+
+            if (!(typeof __raw_name === "string")) {
+                errors.push({ field: "name", message: __raw_name == null ? "ProductForm.name is required" : "expected string" });
+            } else {
+                if (__raw_name == null) { errors.push({ field: "name", message: "ProductForm.name is required" }); } else {
+                    if (__raw_name.length === 0) { errors.push({ field: "name", message: "ProductForm.name must not be empty" }); }
+                    if (__raw_name.length > 100) { errors.push({ field: "name", message: "ProductForm.name must have at most 100 characters" }); }
+                }
+                instance.name = __raw_name;
+            }
+        }
+        {
+            const __raw_price = obj["price"] as number;
+
+            if (!(typeof __raw_price === "number")) {
+                errors.push({ field: "price", message: __raw_price == null ? "ProductForm.price is required" : "expected number" });
+            } else {
+                if (__raw_price == null) { errors.push({ field: "price", message: "ProductForm.price is required" }); } else {
+                    if (__raw_price <= 0) { errors.push({ field: "price", message: "ProductForm.price must be positive" }); }
+                    if (__raw_price >= 1000000) { errors.push({ field: "price", message: "ProductForm.price must be less than 1000000" }); }
+                }
+                instance.price = __raw_price;
+            }
+        }
+        {
+            const __raw_quantity = obj["quantity"] as number;
+
+            if (!(typeof __raw_quantity === "number")) {
+                errors.push({ field: "quantity", message: __raw_quantity == null ? "ProductForm.quantity is required" : "expected number" });
+            } else {
+                if (__raw_quantity == null) { errors.push({ field: "quantity", message: "ProductForm.quantity is required" }); } else {
+                    if (!Number.isInteger(__raw_quantity)) { errors.push({ field: "quantity", message: "ProductForm.quantity must be an integer" }); }
+                    if (__raw_quantity < 0) { errors.push({ field: "quantity", message: "ProductForm.quantity must be non-negative" }); }
+                }
+                instance.quantity = __raw_quantity;
+            }
+        }
+        {
+            const __raw_tags = obj["tags"] as Array<string>;
+
+            if (Array.isArray(__raw_tags)) {
+                if (__raw_tags == null) { errors.push({ field: "tags", message: "ProductForm.tags is required" }); } else {
+                    if (__raw_tags.length < 1) { errors.push({ field: "tags", message: "ProductForm.tags must have at least 1 items" }); }
+                    if (__raw_tags.length > 5) { errors.push({ field: "tags", message: "ProductForm.tags must have at most 5 items" }); }
+                }
+                instance.tags = __raw_tags as string[];
+            }
+        }
+        {
+            const __raw_sku = obj["sku"] as string;
+
+            if (!(typeof __raw_sku === "string")) {
+                errors.push({ field: "sku", message: __raw_sku == null ? "ProductForm.sku is required" : "expected string" });
+            } else {
+                if (__raw_sku == null) { errors.push({ field: "sku", message: "ProductForm.sku is required" }); } else {
+                    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__raw_sku)) { errors.push({ field: "sku", message: "ProductForm.sku must be a valid UUID" }); }
+                }
+                instance.sku = __raw_sku;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof ProductForm>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "name") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "name", message: "ProductForm.name is required" }); } else {
+                if (__val.length === 0) { errors.push({ field: "name", message: "ProductForm.name must not be empty" }); }
+                if (__val.length > 100) { errors.push({ field: "name", message: "ProductForm.name must have at most 100 characters" }); }
+            }
+        }
+        if (field === "price") {
+            const __val = value as number;
+            if (__val == null) { errors.push({ field: "price", message: "ProductForm.price is required" }); } else {
+                if (__val <= 0) { errors.push({ field: "price", message: "ProductForm.price must be positive" }); }
+                if (__val >= 1000000) { errors.push({ field: "price", message: "ProductForm.price must be less than 1000000" }); }
+            }
+        }
+        if (field === "quantity") {
+            const __val = value as number;
+            if (__val == null) { errors.push({ field: "quantity", message: "ProductForm.quantity is required" }); } else {
+                if (!Number.isInteger(__val)) { errors.push({ field: "quantity", message: "ProductForm.quantity must be an integer" }); }
+                if (__val < 0) { errors.push({ field: "quantity", message: "ProductForm.quantity must be non-negative" }); }
+            }
+        }
+        if (field === "tags") {
+            const __val = value as Array<string>;
+            if (__val == null) { errors.push({ field: "tags", message: "ProductForm.tags is required" }); } else {
+                if (__val.length < 1) { errors.push({ field: "tags", message: "ProductForm.tags must have at least 1 items" }); }
+                if (__val.length > 5) { errors.push({ field: "tags", message: "ProductForm.tags must have at most 5 items" }); }
+            }
+        }
+        if (field === "sku") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "sku", message: "ProductForm.sku is required" }); } else {
+                if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__val)) { errors.push({ field: "sku", message: "ProductForm.sku must be a valid UUID" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof ProductForm]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("name" in partial && partial.name !== undefined) {
+            const __val = partial.name as string;
+            if (__val == null) { errors.push({ field: "name", message: "ProductForm.name is required" }); } else {
+                if (__val.length === 0) { errors.push({ field: "name", message: "ProductForm.name must not be empty" }); }
+                if (__val.length > 100) { errors.push({ field: "name", message: "ProductForm.name must have at most 100 characters" }); }
+            }
+        }
+        if ("price" in partial && partial.price !== undefined) {
+            const __val = partial.price as number;
+            if (__val == null) { errors.push({ field: "price", message: "ProductForm.price is required" }); } else {
+                if (__val <= 0) { errors.push({ field: "price", message: "ProductForm.price must be positive" }); }
+                if (__val >= 1000000) { errors.push({ field: "price", message: "ProductForm.price must be less than 1000000" }); }
+            }
+        }
+        if ("quantity" in partial && partial.quantity !== undefined) {
+            const __val = partial.quantity as number;
+            if (__val == null) { errors.push({ field: "quantity", message: "ProductForm.quantity is required" }); } else {
+                if (!Number.isInteger(__val)) { errors.push({ field: "quantity", message: "ProductForm.quantity must be an integer" }); }
+                if (__val < 0) { errors.push({ field: "quantity", message: "ProductForm.quantity must be non-negative" }); }
+            }
+        }
+        if ("tags" in partial && partial.tags !== undefined) {
+            const __val = partial.tags as Array<string>;
+            if (__val == null) { errors.push({ field: "tags", message: "ProductForm.tags is required" }); } else {
+                if (__val.length < 1) { errors.push({ field: "tags", message: "ProductForm.tags must have at least 1 items" }); }
+                if (__val.length > 5) { errors.push({ field: "tags", message: "ProductForm.tags must have at most 5 items" }); }
+            }
+        }
+        if ("sku" in partial && partial.sku !== undefined) {
+            const __val = partial.sku as string;
+            if (__val == null) { errors.push({ field: "sku", message: "ProductForm.sku is required" }); } else {
+                if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__val)) { errors.push({ field: "sku", message: "ProductForm.sku must be a valid UUID" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "name" in o && "price" in o && "quantity" in o && "tags" in o && "sku" in o;
+    }
+
+    static is(obj: unknown): obj is ProductForm {
+        if (obj instanceof ProductForm) {
+            return true;
+        }
+        if (!ProductForm.hasShape(obj)) {
+            return false;
+        }
+        const result = ProductForm.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function productFormDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ProductForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ProductForm.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function productFormDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ProductForm | __mf_PendingRef {
+    return ProductForm.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function productFormIs(value: unknown): value is ProductForm {
+    return ProductForm.is(value);
+}
+
+
+export class EventForm {
+    
+    title: string;
+
+    
+    startDate: Date;
+
+    
+    endDate: Date;
+
+    
+    maxAttendees: number;
+
+    constructor(props: { title: string; startDate: Date; endDate: Date; maxAttendees: number }) {
+        this.title = props.title;
+        this.startDate = props.startDate;
+        this.endDate = props.endDate;
+        this.maxAttendees = props.maxAttendees;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EventForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = EventForm.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "EventForm.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): EventForm | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "EventForm.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as EventForm | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "EventForm.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("title" in obj)) {
+            errors.push({ field: "title", message: "missing required field" });
+        }
+        if (!("startDate" in obj)) {
+            errors.push({ field: "startDate", message: "missing required field" });
+        }
+        if (!("endDate" in obj)) {
+            errors.push({ field: "endDate", message: "missing required field" });
+        }
+        if (!("maxAttendees" in obj)) {
+            errors.push({ field: "maxAttendees", message: "missing required field" });
+        }
+
+        const instance = Object.create(EventForm.prototype) as EventForm;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_title = obj["title"] as string;
+
+            if (!(typeof __raw_title === "string")) {
+                errors.push({ field: "title", message: __raw_title == null ? "EventForm.title is required" : "expected string" });
+            } else {
+                if (__raw_title == null) { errors.push({ field: "title", message: "EventForm.title is required" }); } else {
+                    if (__raw_title.length === 0) { errors.push({ field: "title", message: "EventForm.title must not be empty" }); }
+                    if (__raw_title !== __raw_title.trim()) { errors.push({ field: "title", message: "EventForm.title must be trimmed" }); }
+                }
+                instance.title = __raw_title;
+            }
+        }
+        {
+            const __raw_startDate = obj["startDate"] as string | Date;
+
+            {
+                const __dateVal = typeof __raw_startDate === "string" ? new Date(__raw_startDate) : __raw_startDate as Date;if (__dateVal == null) { errors.push({ field: "startDate", message: "EventForm.startDate is required" }); } else {
+                    if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "startDate", message: "EventForm.startDate must be a valid date" }); }
+                    if (__dateVal.getTime() <= new Date("2020-01-01").getTime()) { errors.push({ field: "startDate", message: "EventForm.startDate must be after 2020-01-01" }); }
+                }
+                instance.startDate = __dateVal;
+            }
+        }
+        {
+            const __raw_endDate = obj["endDate"] as string | Date;
+
+            {
+                const __dateVal = typeof __raw_endDate === "string" ? new Date(__raw_endDate) : __raw_endDate as Date;if (__dateVal == null) { errors.push({ field: "endDate", message: "EventForm.endDate is required" }); } else {
+                    if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "endDate", message: "EventForm.endDate must be a valid date" }); }
+                }
+                instance.endDate = __dateVal;
+            }
+        }
+        {
+            const __raw_maxAttendees = obj["maxAttendees"] as number;
+
+            if (!(typeof __raw_maxAttendees === "number")) {
+                errors.push({ field: "maxAttendees", message: __raw_maxAttendees == null ? "EventForm.maxAttendees is required" : "expected number" });
+            } else {
+                if (__raw_maxAttendees == null) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees is required" }); } else {
+                    if (!Number.isInteger(__raw_maxAttendees)) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees must be an integer" }); }
+                    if (__raw_maxAttendees < 1 || __raw_maxAttendees > 1000) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees must be between 1 and 1000" }); }
+                }
+                instance.maxAttendees = __raw_maxAttendees;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof EventForm>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "title") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "title", message: "EventForm.title is required" }); } else {
+                if (__val.length === 0) { errors.push({ field: "title", message: "EventForm.title must not be empty" }); }
+                if (__val !== __val.trim()) { errors.push({ field: "title", message: "EventForm.title must be trimmed" }); }
+            }
+        }
+        if (field === "startDate") {
+            const __val = value as Date;
+            if (__val == null) { errors.push({ field: "startDate", message: "EventForm.startDate is required" }); } else {
+                if (isNaN(new Date(__val).getTime())) { errors.push({ field: "startDate", message: "EventForm.startDate must be a valid date" }); }
+                if (__val.getTime() <= new Date("2020-01-01").getTime()) { errors.push({ field: "startDate", message: "EventForm.startDate must be after 2020-01-01" }); }
+            }
+        }
+        if (field === "endDate") {
+            const __val = value as Date;
+            if (__val == null) { errors.push({ field: "endDate", message: "EventForm.endDate is required" }); } else {
+                if (isNaN(new Date(__val).getTime())) { errors.push({ field: "endDate", message: "EventForm.endDate must be a valid date" }); }
+            }
+        }
+        if (field === "maxAttendees") {
+            const __val = value as number;
+            if (__val == null) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees is required" }); } else {
+                if (!Number.isInteger(__val)) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees must be an integer" }); }
+                if (__val < 1 || __val > 1000) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees must be between 1 and 1000" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof EventForm]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("title" in partial && partial.title !== undefined) {
+            const __val = partial.title as string;
+            if (__val == null) { errors.push({ field: "title", message: "EventForm.title is required" }); } else {
+                if (__val.length === 0) { errors.push({ field: "title", message: "EventForm.title must not be empty" }); }
+                if (__val !== __val.trim()) { errors.push({ field: "title", message: "EventForm.title must be trimmed" }); }
+            }
+        }
+        if ("startDate" in partial && partial.startDate !== undefined) {
+            const __val = partial.startDate as Date;
+            if (__val == null) { errors.push({ field: "startDate", message: "EventForm.startDate is required" }); } else {
+                if (isNaN(new Date(__val).getTime())) { errors.push({ field: "startDate", message: "EventForm.startDate must be a valid date" }); }
+                if (__val.getTime() <= new Date("2020-01-01").getTime()) { errors.push({ field: "startDate", message: "EventForm.startDate must be after 2020-01-01" }); }
+            }
+        }
+        if ("endDate" in partial && partial.endDate !== undefined) {
+            const __val = partial.endDate as Date;
+            if (__val == null) { errors.push({ field: "endDate", message: "EventForm.endDate is required" }); } else {
+                if (isNaN(new Date(__val).getTime())) { errors.push({ field: "endDate", message: "EventForm.endDate must be a valid date" }); }
+            }
+        }
+        if ("maxAttendees" in partial && partial.maxAttendees !== undefined) {
+            const __val = partial.maxAttendees as number;
+            if (__val == null) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees is required" }); } else {
+                if (!Number.isInteger(__val)) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees must be an integer" }); }
+                if (__val < 1 || __val > 1000) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees must be between 1 and 1000" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "title" in o && "startDate" in o && "endDate" in o && "maxAttendees" in o;
+    }
+
+    static is(obj: unknown): obj is EventForm {
+        if (obj instanceof EventForm) {
+            return true;
+        }
+        if (!EventForm.hasShape(obj)) {
+            return false;
+        }
+        const result = EventForm.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function eventFormDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EventForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return EventForm.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function eventFormDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): EventForm | __mf_PendingRef {
+    return EventForm.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function eventFormIs(value: unknown): value is EventForm {
+    return EventForm.is(value);
+}
+
+/** A validator's result, with each field error rendered as `field: message`. */
+export type ValidationResult<T> = ValidationOutcome<T, Array<string>>;
+
+/** Converts what a derived `decode()` returns into a `ValidationResult`. */
+export function toValidationResult<T>(
+    result: { success: true; value: T } | {
+        success: false;
+        errors: Array<{ field: string; message: string }>;
+    }
+): ValidationResult<T> {
+    if (result.success) {
+        return { success: true, data: result.value };
+    }
+    return {
+        success: false,
+        errors: result.errors.map((error) => `${error.field}: ${error.message}`)
+    };
+}
+
+// Form validation functions
+export function validateUserRegistration(
+    data: unknown
+): ValidationResult<UserRegistrationForm> {
+    const result = UserRegistrationForm.decode(data);
+    return toValidationResult(result);
+}
+
+export function validateProduct(data: unknown): ValidationResult<ProductForm> {
+    const result = ProductForm.decode(data);
+    return toValidationResult(result);
+}
+
+export function validateEvent(data: unknown): ValidationResult<EventForm> {
+    const result = EventForm.decode(data);
+    return toValidationResult(result);
+}
+
+## DTS
+
+/**
+* Validator form model for E2E testing in Svelte.
+* Tests string, number, array, and date validators with real form validation.
+*/
+import type { ValidationOutcome } from "../validation-outcome";
+export declare class UserRegistrationForm {
+	email: string;
+	password: string;
+	username: string;
+	age: number;
+	website: string;
+	constructor(props: {
+		email: string;
+		password: string;
+		username: string;
+		age: number;
+		website: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: UserRegistrationForm;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): UserRegistrationForm | __mf_PendingRef;
+	static validateField<K extends keyof UserRegistrationForm>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof UserRegistrationForm]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is UserRegistrationForm;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function userRegistrationFormDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: UserRegistrationForm;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function userRegistrationFormDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UserRegistrationForm | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function userRegistrationFormIs(value: unknown): value is UserRegistrationForm;
+export declare class ProductForm {
+	name: string;
+	price: number;
+	quantity: number;
+	tags: Array<string>;
+	sku: string;
+	constructor(props: {
+		name: string;
+		price: number;
+		quantity: number;
+		tags: Array<string>;
+		sku: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ProductForm;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ProductForm | __mf_PendingRef;
+	static validateField<K extends keyof ProductForm>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof ProductForm]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is ProductForm;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function productFormDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ProductForm;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function productFormDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ProductForm | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function productFormIs(value: unknown): value is ProductForm;
+export declare class EventForm {
+	title: string;
+	startDate: Date;
+	endDate: Date;
+	maxAttendees: number;
+	constructor(props: {
+		title: string;
+		startDate: Date;
+		endDate: Date;
+		maxAttendees: number;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: EventForm;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): EventForm | __mf_PendingRef;
+	static validateField<K extends keyof EventForm>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof EventForm]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is EventForm;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function eventFormDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: EventForm;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function eventFormDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): EventForm | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function eventFormIs(value: unknown): value is EventForm;
+/** A validator's result, with each field error rendered as `field: message`. */
+export type ValidationResult<T> = ValidationOutcome<T, Array<string>>;
+/** Converts what a derived `decode()` returns into a `ValidationResult`. */
+export declare function toValidationResult<T>(result: {
+	success: true;
+	value: T;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+}): ValidationResult<T>;
+export declare function validateUserRegistration(data: unknown): ValidationResult<UserRegistrationForm>;
+export declare function validateProduct(data: unknown): ValidationResult<ProductForm>;
+export declare function validateEvent(data: unknown): ValidationResult<EventForm>;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..204 -> expanded 225..429
+original 226..267 -> expanded 429..470
+original 305..330 -> expanded 470..495
+original 392..420 -> expanded 495..523
+original 529..557 -> expanded 523..551
+original 613..636 -> expanded 551..574
+original 672..694 -> expanded 574..596
+original 694..695 -> expanded 15410..15411
+original 695..697 -> expanded 16573..16575
+original 719..751 -> expanded 16575..16607
+original 810..834 -> expanded 16607..16631
+original 896..921 -> expanded 16631..16656
+original 972..1000 -> expanded 16656..16684
+original 1059..1090 -> expanded 16684..16715
+original 1127..1145 -> expanded 16715..16733
+original 1145..1146 -> expanded 29981..29982
+original 1146..1148 -> expanded 31063..31065
+original 1170..1200 -> expanded 31065..31095
+original 1252..1277 -> expanded 31095..31120
+original 1354..1381 -> expanded 31120..31147
+original 1423..1448 -> expanded 31147..31172
+original 1504..1531 -> expanded 31172..31199
+original 1531..1532 -> expanded 42875..42876
+original 1532..2731 -> expanded 43939..45138
+generated 0..225 <- imports
+generated 596..15410 <- Decode
+generated 15411..16573 <- Decode
+generated 16733..29981 <- Decode
+generated 29982..31063 <- Decode
+generated 31199..42875 <- Decode
+generated 42876..43939 <- Decode
+
+## Metadata
+
+class UserRegistrationForm: {"body_span":{"end":696,"start":262},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":227,"start":205}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"email\"] }","name":"endec","span":{"end":306,"start":268}}],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":325,"start":311},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minLength(8)\", \"maxLength(50)\"] }","name":"endec","span":{"end":393,"start":331}}],"initializer":null,"name":"password","optional":false,"readonly":false,"span":{"end":415,"start":398},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minLength(3)\", \"maxLength(20)\", \"lowercase\", \"pattern(\\\"^[a-z][a-z0-9_]+$\\\")\"] }","name":"endec","span":{"end":530,"start":421}}],"initializer":null,"name":"username","optional":false,"readonly":false,"span":{"end":552,"start":535},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"between(18, 120)\"] }","name":"endec","span":{"end":614,"start":558}}],"initializer":null,"name":"age","optional":false,"readonly":false,"span":{"end":631,"start":619},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"url\"] }","name":"endec","span":{"end":673,"start":637}}],"initializer":null,"name":"website","optional":false,"readonly":false,"span":{"end":694,"start":678},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UserRegistrationForm","span":{"end":696,"start":235},"type_params":[]}
+class ProductForm: {"body_span":{"end":1147,"start":746},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":720,"start":698}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"maxLength(100)\"] }","name":"endec","span":{"end":811,"start":752}}],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":829,"start":816},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"positive\", \"lessThan(1000000)\"] }","name":"endec","span":{"end":897,"start":835}}],"initializer":null,"name":"price","optional":false,"readonly":false,"span":{"end":916,"start":902},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"nonNegative\"] }","name":"endec","span":{"end":973,"start":922}}],"initializer":null,"name":"quantity","optional":false,"readonly":false,"span":{"end":995,"start":978},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minItems(1)\", \"maxItems(5)\"] }","name":"endec","span":{"end":1060,"start":1001}}],"initializer":null,"name":"tags","optional":false,"readonly":false,"span":{"end":1085,"start":1065},"ts_type":"Array<string>","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"uuid\"] }","name":"endec","span":{"end":1128,"start":1091}}],"initializer":null,"name":"sku","optional":false,"readonly":false,"span":{"end":1145,"start":1133},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ProductForm","span":{"end":1147,"start":728},"type_params":[]}
+class EventForm: {"body_span":{"end":1533,"start":1195},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1171,"start":1149}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"trimmed\"] }","name":"endec","span":{"end":1253,"start":1201}}],"initializer":null,"name":"title","optional":false,"readonly":false,"span":{"end":1272,"start":1258},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"validDate\", \"greaterThanDate(\\\"2020-01-01\\\")\"] }","name":"endec","span":{"end":1355,"start":1278}}],"initializer":null,"name":"startDate","optional":false,"readonly":false,"span":{"end":1376,"start":1360},"ts_type":"Date","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":1424,"start":1382}}],"initializer":null,"name":"endDate","optional":false,"readonly":false,"span":{"end":1443,"start":1429},"ts_type":"Date","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"between(1, 1000)\"] }","name":"endec","span":{"end":1505,"start":1449}}],"initializer":null,"name":"maxAttendees","optional":false,"readonly":false,"span":{"end":1531,"start":1510},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EventForm","span":{"end":1533,"start":1179},"type_params":[]}
+type ValidationResult: {"body":{"Alias":"ValidationOutcome<T, Array<string>>"},"decorators":[],"name":"ValidationResult","span":{"end":1686,"start":1623},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+
+## Registry reads
+
+Name("Array")
+
+## Buildtime dependencies
+
+(none)

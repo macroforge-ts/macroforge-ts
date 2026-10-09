@@ -1,0 +1,424 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/company-name.svelte.ts
+sha256 4f95a57536057a931e74c87c638e33ef51e3de6145a63a956953f6a8190bd5c1
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+
+export interface CompanyName {
+    
+    
+    companyName: string;
+}
+
+export function companyNameDefaultValue(): CompanyName {
+    return {
+        companyName: "",
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function companyNameEncode(value: CompanyName, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = companyNameEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function companyNameEncodeWithContext(value: CompanyName, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "CompanyName",
+        __id,
+    };
+
+    
+    result.companyName = value.companyName;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function companyNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CompanyName } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = companyNameDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "CompanyName.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function companyNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CompanyName | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "CompanyName.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as CompanyName | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "CompanyName.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("companyName" in obj)) {
+        errors.push({ field: "companyName", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_companyName = obj["companyName"] as string;
+
+        if (!(typeof __raw_companyName === "string")) {
+            errors.push({ field: "companyName", message: __raw_companyName == null ? "CompanyName.companyName is required" : "expected string" });
+        } else {
+            if (__raw_companyName == null) { errors.push({ field: "companyName", message: "CompanyName.companyName is required" }); } else {
+                if (__raw_companyName.length === 0) { errors.push({ field: "companyName", message: "CompanyName.companyName must not be empty" }); }
+            }
+            instance.companyName = __raw_companyName;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as CompanyName;
+}
+export function companyNameValidateField<K extends keyof CompanyName>(field: K, value: unknown): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if (field === "companyName") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "companyName", message: "CompanyName.companyName is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "companyName", message: "CompanyName.companyName must not be empty" }); }
+        }
+    }
+    return errors;
+}
+
+export function companyNameValidateFields(partial: { readonly [K in keyof CompanyName]?: unknown }): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("companyName" in partial && partial.companyName !== undefined) {
+        const __val = partial.companyName as string;
+        if (__val == null) { errors.push({ field: "companyName", message: "CompanyName.companyName is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "companyName", message: "CompanyName.companyName must not be empty" }); }
+        }
+    }
+    return errors;
+}
+export function companyNameHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "companyName" in o;
+}
+
+export function companyNameIs(obj: unknown): obj is CompanyName {
+    return companyNameHasShape(obj) && companyNameDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type CompanyNameErrors = {
+    _errors: Option.Option<Array<string>>;
+    companyName: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type CompanyNameTainted = {
+    companyName: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface CompanyNameFieldControllers {
+    readonly companyName: FieldController<string>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface CompanyNameGigaform {
+    readonly data: CompanyName;
+    readonly errors: CompanyNameErrors;
+    readonly tainted: CompanyNameTainted;
+    readonly fields: CompanyNameFieldControllers;
+    validate(): Exit.Exit<CompanyName, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<CompanyName>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function companyNameCreateForm(overrides?: Partial<CompanyName>): CompanyNameGigaform {
+    let data = $state({ ...companyNameDefaultValue(), ...overrides });
+    let errors = $state<CompanyNameErrors>({
+        _errors: Option.none(),
+        companyName: Option.none(),
+    });
+    let tainted = $state<CompanyNameTainted>({
+        companyName: Option.none(),
+    });
+    const fields = {
+        companyName: {
+            name: "companyName",
+            label: "Company Name",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["companyName"],
+            get: () => data.companyName,
+            set: (value: string) => { data.companyName = value; },
+            getError: () => errors.companyName,
+            setError: (value: Option.Option<Array<string>>) => { errors.companyName = value; },
+            getTainted: () => tainted.companyName,
+            setTainted: (value: Option.Option<boolean>) => { tainted.companyName = value; },
+            validate: () => companyNameValidateField("companyName", data.companyName).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as CompanyNameFieldControllers;
+
+    function validate(): Exit.Exit<CompanyName, Array<{ field: string; message: string }>> {
+        return toExit(companyNameDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<CompanyName>): void {
+        data = { ...companyNameDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            companyName: Option.none(),
+        };
+        tainted = {
+            companyName: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function companyNameFromFormData(formData: FormData): Exit.Exit<CompanyName, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    obj.companyName = formData.get("companyName") ?? "";
+
+    return toExit(companyNameDecode(obj));
+}
+
+export const CompanyName: {
+  readonly defaultValue: typeof companyNameDefaultValue;
+  readonly encode: typeof companyNameEncode;
+  readonly encodeWithContext: typeof companyNameEncodeWithContext;
+  readonly decode: typeof companyNameDecode;
+  readonly decodeWithContext: typeof companyNameDecodeWithContext;
+  readonly validateField: typeof companyNameValidateField;
+  readonly validateFields: typeof companyNameValidateFields;
+  readonly hasShape: typeof companyNameHasShape;
+  readonly is: typeof companyNameIs;
+  readonly createForm: typeof companyNameCreateForm;
+  readonly fromFormData: typeof companyNameFromFormData;
+} = {
+  defaultValue: companyNameDefaultValue,
+  encode: companyNameEncode,
+  encodeWithContext: companyNameEncodeWithContext,
+  decode: companyNameDecode,
+  decodeWithContext: companyNameDecodeWithContext,
+  validateField: companyNameValidateField,
+  validateFields: companyNameValidateFields,
+  hasShape: companyNameHasShape,
+  is: companyNameIs,
+  createForm: companyNameCreateForm,
+  fromFormData: companyNameFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+export interface CompanyName {
+	companyName: string;
+}
+export declare function companyNameDefaultValue(): CompanyName;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function companyNameEncode(value: CompanyName, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function companyNameEncodeWithContext(value: CompanyName, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function companyNameDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: CompanyName;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function companyNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CompanyName | __mf_PendingRef;
+export declare function companyNameValidateField<K extends keyof CompanyName>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function companyNameValidateFields(partial: { readonly [K in keyof CompanyName]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function companyNameHasShape(obj: unknown): boolean;
+export declare function companyNameIs(obj: unknown): obj is CompanyName;
+/** Nested error structure matching the data shape  */
+export type CompanyNameErrors = {
+	_errors: Option.Option<Array<string>>;
+	companyName: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type CompanyNameTainted = {
+	companyName: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface CompanyNameFieldControllers {
+	readonly companyName: FieldController<string>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface CompanyNameGigaform {
+	readonly data: CompanyName;
+	readonly errors: CompanyNameErrors;
+	readonly tainted: CompanyNameTainted;
+	readonly fields: CompanyNameFieldControllers;
+	validate(): Exit.Exit<CompanyName, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<CompanyName>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function companyNameCreateForm(overrides?: Partial<CompanyName>): CompanyNameGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function companyNameFromFormData(formData: FormData): Exit.Exit<CompanyName, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const CompanyName: {
+	readonly defaultValue: typeof companyNameDefaultValue;
+	readonly encode: typeof companyNameEncode;
+	readonly encodeWithContext: typeof companyNameEncodeWithContext;
+	readonly decode: typeof companyNameDecode;
+	readonly decodeWithContext: typeof companyNameDecodeWithContext;
+	readonly validateField: typeof companyNameValidateField;
+	readonly validateFields: typeof companyNameValidateFields;
+	readonly hasShape: typeof companyNameHasShape;
+	readonly is: typeof companyNameIs;
+	readonly createForm: typeof companyNameCreateForm;
+	readonly fromFormData: typeof companyNameFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 421..479
+original 107..143 -> expanded 479..515
+original 192..197 -> expanded 515..520
+original 238..265 -> expanded 520..547
+original 265..266 -> expanded 11307..11308
+generated 0..421 <- imports
+generated 547..652 <- Default
+generated 652..1788 <- Encode
+generated 1788..6776 <- Decode
+generated 6776..10252 <- Gigaform
+generated 10252..11307 <- __convenience_const
+
+## Metadata
+
+interface CompanyName: {"body_span":{"end":266,"start":138},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":239,"start":198}},{"args_src":"{ label: \"Company Name\" }","name":"textController","span":{"end":193,"start":144}}],"name":"companyName","optional":false,"readonly":false,"span":{"end":264,"start":244},"ts_type":"string"}],"heritage":[],"methods":[],"name":"CompanyName","span":{"end":266,"start":116},"type_params":[]}
+
+## Registry reads
+
+Name("string")
+
+## Buildtime dependencies
+
+(none)

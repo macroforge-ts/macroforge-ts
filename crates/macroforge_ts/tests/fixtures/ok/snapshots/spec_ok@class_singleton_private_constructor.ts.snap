@@ -54,41 +54,26 @@ class Singleton {
         // Reset logic
     }
 
-static toString(value: Singleton): string {
-                    return singletonToString(value);
-                }}
+    static toString(value: Singleton): string {
+        return singletonToString(value);
+    }
+}
 
 export function singletonToString(value: Singleton): string {
-                        const parts: string[] = [];
-                        parts.push("instance: " + value.instance);
-
-                        return "Singleton { " + parts.join(", ") + " }";
-                    }
+    return "Singleton {}";
+}
 
 ## DTS
 
-import { Derive } from '@macro/derive';
-
-
-class Singleton {
-    private static instance: Singleton;
-
-    private constructor();
-
-    static getInstance(): Singleton;
-
-    reset(): void;
-
-static toString(value: Singleton): string {
-                    return singletonToString(value);
-                }}
-
-export function singletonToString(value: Singleton): string {
-                        const parts: string[] = [];
-                        parts.push("instance: " + value.instance);
-
-                        return "Singleton { " + parts.join(", ") + " }";
-                    }
+declare class Singleton {
+	private static instance;
+	private constructor();
+	static getInstance(): Singleton;
+	reset(): void;
+	static toString(value: Singleton): string;
+}
+export declare function singletonToString(value: Singleton): string;
+export {};
 
 ## Diagnostics
 
@@ -98,14 +83,14 @@ export function singletonToString(value: Singleton): string {
 
 original 0..41 -> expanded 0..41
 original 62..412 -> expanded 41..391
-original 412..413 -> expanded 506..507
-original 413..414 -> expanded 785..786
-generated 391..506 <- Debug
-generated 507..785 <- Debug
+original 412..413 -> expanded 487..488
+original 413..414 -> expanded 580..581
+generated 391..487 <- Debug
+generated 488..580 <- Debug
 
 ## Metadata
 
-class Singleton: {"body_span":{"end":414,"start":80},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"name":"instance","optional":false,"readonly":false,"span":{"end":121,"start":86},"ts_type":"Singleton","visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":187,"start":149},"body_src":"\n        // Private constructor\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"","return_type_src":"","span":{"end":187,"start":127},"type_params_src":"","visibility":"Private"},{"body_span":{"end":362,"start":225},"body_src":"\n        if (!Singleton.instance) {\n            Singleton.instance = new Singleton();\n        }\n        return Singleton.instance;\n    ","decorators":[],"is_async":false,"is_static":true,"name":"getInstance","params_src":"","return_type_src":"Singleton","span":{"end":362,"start":193},"type_params_src":"","visibility":"Public"},{"body_span":{"end":412,"start":382},"body_src":"\n        // Reset logic\n    ","decorators":[],"is_async":false,"is_static":false,"name":"reset","params_src":"","return_type_src":"void","span":{"end":412,"start":368},"type_params_src":"","visibility":"Public"}],"name":"Singleton","span":{"end":414,"start":64},"type_params":[]}
+class Singleton: {"body_span":{"end":414,"start":80},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":187,"start":149},"body_src":"\n        // Private constructor\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"","return_type_src":"","span":{"end":187,"start":127},"type_params":[],"visibility":"Private"},{"body_span":{"end":362,"start":225},"body_src":"\n        if (!Singleton.instance) {\n            Singleton.instance = new Singleton();\n        }\n        return Singleton.instance;\n    ","decorators":[],"is_async":false,"is_static":true,"name":"getInstance","params_src":"","return_type_src":"Singleton","span":{"end":362,"start":193},"type_params":[],"visibility":"Public"},{"body_span":{"end":412,"start":382},"body_src":"\n        // Reset logic\n    ","decorators":[],"is_async":false,"is_static":false,"name":"reset","params_src":"","return_type_src":"void","span":{"end":412,"start":368},"type_params":[],"visibility":"Public"}],"name":"Singleton","span":{"end":414,"start":64},"type_params":[]}
 
 ## Registry reads
 

@@ -34,7 +34,7 @@ original 0..97 -> expanded 0..97
 
 ## Metadata
 
-class User: {"body_span":{"end":97,"start":12},"decorators":[],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":31,"start":18},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":95,"start":62},"body_src":"\n        this.name = name;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"name: string","return_type_src":"","span":{"end":95,"start":36},"type_params_src":"","visibility":"Public"}],"name":"User","span":{"end":97,"start":1},"type_params":[]}
+class User: {"body_span":{"end":97,"start":12},"decorators":[],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":31,"start":18},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":95,"start":62},"body_src":"\n        this.name = name;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"name: string","return_type_src":"","span":{"end":95,"start":36},"type_params":[],"visibility":"Public"}],"name":"User","span":{"end":97,"start":1},"type_params":[]}
 
 ## Registry reads
 

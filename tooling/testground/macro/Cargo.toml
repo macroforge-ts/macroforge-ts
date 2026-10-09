@@ -1,0 +1,19 @@
+[package]
+name = "testground_macros"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[lib]
+name = "testground_macros"
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+# Core macro framework - re-exports macroforge_ts_syn, macroforge_ts_quote, macroforge_ts_macros, inventory, serde_json
+macroforge_ts = { path = "../../../crates/macroforge_ts" }
+
+# Serialization for parsing decorator options
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+
+convert_case = "0.12.0"

@@ -1,0 +1,156 @@
+<svelte:head>
+	<title>Expanded Config - Macroforge Documentation</title>
+	<meta name="description" content="How foreign-type handlers reach generated code: the config is expanded into .macroforge/config and each handler is imported by name." />
+</svelte:head>
+
+# Expanded Config
+
+Foreign-type handlers are written in `macroforge.config.ts`, but they run inside the code `@derive(Encode)` and `@derive(Decode)` generate in your own modules. Macroforge connects the two by expanding the config into `.macroforge/config/`, where every handler is a named export, and generated code imports the handlers it calls from `#macroforge/config`.
+
+## Before and after
+
+Take a config whose handlers use a library and a helper of its own:
+
+```typescript
+// macroforge.config.ts
+import { DateTime } from "effect";
+
+const isIsoString = (value: unknown): value is string =>
+  typeof value === "string" && !Number.isNaN(Date.parse(value));
+
+export default {
+  foreignTypes: {
+    "DateTime.Utc": {
+      from: ["effect"],
+      encode: (v: DateTime.Utc) => DateTime.formatIso(v),
+      decode: (raw: unknown) => DateTime.unsafeFromDate(new Date(String(raw))),
+      default: () => DateTime.unsafeNow(),
+      hasShape: isIsoString,
+    },
+  },
+};
+```
+
+and a type that uses it:
+
+```typescript
+// event.ts
+import type { DateTime } from "effect";
+
+/** @derive(Encode, Default) */
+export interface Event {
+  name: string;
+  startsAt: DateTime.Utc;
+}
+```
+
+### Before: handler bodies were copied
+
+Each handler's source text was pasted into every generated module, and the names it read were patched up with synthetic imports:
+
+```typescript
+// event.ts, expanded
+import { DateTime as __mf_DateTime } from "effect";
+
+export function eventEncodeWithContext(value: Event, ctx: __mf_EncodeContext) {
+    // ...
+    result.startsAt = ((v) => __mf_DateTime.formatIso(v))(value.startsAt);
+}
+
+export function eventDefaultValue(): Event {
+    return { name: "", startsAt: (() => __mf_DateTime.unsafeNow())() };
+}
+```
+
+That only works while a handler reads nothing but imports macroforge can guess at. `hasShape: isIsoString` copies as the bare name `isIsoString`, which the expanded module never defines, so it fails at runtime with a `ReferenceError`. The same happens to any helper, constant or local function the config declares.
+
+### After: handlers are imported
+
+The config is expanded into `.macroforge/config/handlers.ts`, with each handler hoisted to an export named after its type:
+
+```typescript
+// .macroforge/config/handlers.ts (generated)
+import { DateTime } from "effect";
+
+const isIsoString = (value: unknown): value is string =>
+  typeof value === "string" && !Number.isNaN(Date.parse(value));
+
+export const __foreign__dateTimeUtcEncode = (v: DateTime.Utc) => DateTime.formatIso(v);
+export const __foreign__dateTimeUtcDecode = (raw: unknown) => DateTime.unsafeFromDate(new Date(String(raw)));
+export const __foreign__dateTimeUtcDefault = () => DateTime.unsafeNow();
+export default {
+  foreignTypes: {
+    "DateTime.Utc": {
+      from: ["effect"],
+      encode: __foreign__dateTimeUtcEncode,
+      decode: __foreign__dateTimeUtcDecode,
+      default: __foreign__dateTimeUtcDefault,
+      hasShape: isIsoString,
+    },
+  },
+};
+
+export { isIsoString as __foreign__dateTimeUtcHasShape };
+```
+
+Generated code imports what it calls:
+
+```typescript
+// event.ts, expanded
+import { __foreign__dateTimeUtcEncode, __foreign__dateTimeUtcDefault } from "#macroforge/config";
+
+export function eventEncodeWithContext(value: Event, ctx: __mf_EncodeContext) {
+    // ...
+    result.startsAt = __foreign__dateTimeUtcEncode(value.startsAt);
+}
+
+export function eventDefaultValue(): Event {
+    return { name: "", startsAt: __foreign__dateTimeUtcDefault() };
+}
+```
+
+Every handler now runs in the module it was written in, so it can use anything that module imports or declares. Each is a separate export, so a bundler keeps only the handlers your code calls.
+
+## Setup
+
+`#macroforge/config` is a [subpath import](https://nodejs.org/api/packages.html#subpath-imports), declared in your manifest the way SvelteKit declares `#lib`. Add it once:
+
+```bash
+macroforge init
+```
+
+which writes this into `package.json` (or the `imports` map of `deno.json` when there is no `package.json`):
+
+```json
+{
+  "imports": {
+    "#macroforge/config": {
+      "types": "./.macroforge/config/handlers.ts",
+      "default": "./.macroforge/config/handlers.js"
+    }
+  }
+}
+```
+
+TypeScript, bundlers, Node and Deno all resolve it natively. A project whose config declares foreign types but whose manifest does not map `#macroforge/config` fails with an error that says what to add. `macroforge init` does not rewrite a `deno.jsonc`, since that would drop its comments; add the entry by hand there.
+
+## When it is regenerated
+
+`.macroforge/config/` is generated, like `.svelte-kit/`: don't edit it and don't commit it. It is rewritten whenever macroforge reads the project: the Vite plugin's project scan, `macroforge watch` (again on every config change), `macroforge cache` and `macroforge expand`. In CI, run `macroforge sync` before a type check to write it without expanding anything. It is written only when its contents change, and swapped in whole, so a reader never sees half of it.
+
+Both `handlers.ts` and a type-stripped `handlers.js` are written, so the entry resolves in tools that read types and in runtimes that don't. A config that extends a base config gets the base expanded beside it under `modules/`, with its handlers re-exported from `handlers.ts`.
+
+## What the config may contain
+
+The expanded config is imported by generated code, so it runs wherever your code runs. The expansion therefore refuses a config that:
+
+- runs a statement at its top level, such as a bare function call: the top level may only declare;
+- uses `import.meta` or a dynamic `import()`, which read differently once the module is moved into `.macroforge/config/`;
+- declares a foreign type inside a function, where its handlers cannot be exported;
+- gives two foreign types the same export name.
+
+Relative imports in the config are rewritten to reach the same files from `.macroforge/config/`. Calls that initialise a top-level binding or the default export are marked `/*#__PURE__*/`, so a bundler can still drop what is unused.
+
+## Packaged libraries
+
+A published package does not ship `.macroforge/`. When `macroforge svelte-package` packages a library, it copies the expanded config into the output as `__macroforge/config/` and rewrites each emitted `#macroforge/config` import to a relative path to that copy, so the package needs no manifest entry of its own.

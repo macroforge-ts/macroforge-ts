@@ -1,0 +1,470 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/custom.svelte.ts
+sha256 26a35fc7465edd498eebb04e5506ebb8e69927b54da3fb8db0d86a6107d32b51
+
+## Changed
+
+true
+
+## Output
+
+import { directionHueDecode, directionHueEncodeWithContext } from "./direction-hue.svelte";
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+import type { DirectionHue } from './direction-hue.svelte';
+
+
+export interface Custom {
+    mappings: Array<DirectionHue>;
+}
+
+export function customDefaultValue(): Custom {
+    return {
+        mappings: [],
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function customEncode(value: Custom, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = customEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function customEncodeWithContext(value: Custom, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Custom",
+        __id,
+    };
+
+    
+    result.mappings = value.mappings.map(
+        (item) => directionHueEncodeWithContext(item, ctx)
+    );
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function customDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Custom } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = customDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Custom.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Custom | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Custom.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Custom | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Custom.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("mappings" in obj)) {
+        errors.push({ field: "mappings", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_mappings = obj["mappings"] as Array<DirectionHue>;
+
+        if (Array.isArray(__raw_mappings)) {
+            const __arr = __raw_mappings.map((item: DirectionHue | { __ref: number }, idx) => {
+                if (typeof item === "object" && item !== null && "__ref" in item) {
+                    const result = ctx.getOrDefer(item.__ref);
+                    if (__mf_PendingRef.is(result)) {
+                        return { __pendingIdx: idx, __refId: result.id };
+                    }
+                    return result;
+                }
+                const __elemResult = directionHueDecode(item);
+                if (!__elemResult.success) {
+                    for (const __err of __elemResult.errors) {
+                        errors.push({
+                            field: __err.field === "_root"
+                                ? "mappings[" + idx + "]"
+                                : "mappings[" + idx + "]." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                }
+                return __elemResult.success ? __elemResult.value : item;
+            });
+            instance.mappings = __arr;
+            __arr.forEach((item, idx) => {
+                if (item && typeof item === "object" && "__pendingIdx" in item) {
+                    ctx.addPatch(instance.mappings, idx, (item as any).__refId);
+                }
+            });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Custom;
+}
+export function customValidateField<K extends keyof Custom>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function customValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function customValidateFields(partial: { readonly [K in keyof Custom]?: unknown }): Array<{ field: string; message: string }>;
+export function customValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function customHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "mappings" in o;
+}
+
+export function customIs(obj: unknown): obj is Custom {
+    return customHasShape(obj) && customDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type CustomErrors = {
+    _errors: Option.Option<Array<string>>;
+    mappings: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type CustomTainted = {
+    mappings: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface CustomFieldControllers {
+    readonly mappings: ArrayFieldController<DirectionHue>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface CustomGigaform {
+    readonly data: Custom;
+    readonly errors: CustomErrors;
+    readonly tainted: CustomTainted;
+    readonly fields: CustomFieldControllers;
+    validate(): Exit.Exit<Custom, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Custom>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function customCreateForm(overrides?: Partial<Custom>): CustomGigaform {
+    let data = $state({ ...customDefaultValue(), ...overrides });
+    let errors = $state<CustomErrors>({
+        _errors: Option.none(),
+        mappings: Option.none(),
+    });
+    let tainted = $state<CustomTainted>({
+        mappings: Option.none(),
+    });
+    const fields = {
+        mappings: {
+            name: "mappings",
+            label: "mappings",
+            type: "fieldset",
+            optional: false,
+            array: true,
+            path: ["mappings"],
+            get: () => data.mappings,
+            set: (value: Array<DirectionHue>) => { data.mappings = value; },
+            getError: () => errors.mappings,
+            setError: (value: Option.Option<Array<string>>) => { errors.mappings = value; },
+            getTainted: () => tainted.mappings,
+            setTainted: (value: Option.Option<boolean>) => { tainted.mappings = value; },
+            validate: () => customValidateField("mappings", data.mappings).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.mappings[index],
+                set: (value: DirectionHue) => { data.mappings[index] = value; },
+                getError: () => errors.mappings,
+                setError: (value: Option.Option<Array<string>>) => { errors.mappings = value; },
+            }),
+            push: (item: DirectionHue) => { data.mappings.push(item); },
+            remove: (index: number) => { data.mappings.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.mappings[a];
+                data.mappings[a] = data.mappings[b];
+                data.mappings[b] = temp;
+            },
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as CustomFieldControllers;
+
+    function validate(): Exit.Exit<Custom, Array<{ field: string; message: string }>> {
+        return toExit(customDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<Custom>): void {
+        data = { ...customDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            mappings: Option.none(),
+        };
+        tainted = {
+            mappings: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function customFromFormData(formData: FormData): Exit.Exit<Custom, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    {
+
+        const mappingsItems: Array<Record<string, unknown>> = [];
+        let idx = 0;
+        while (formData.has("mappings." + idx + ".") || idx === 0) {
+
+            const hasAny = Array.from(formData.keys()).some(k => k.startsWith("mappings." + idx + "."));
+            if (!hasAny && idx > 0) break;
+            if (hasAny) {
+                const item: Record<string, unknown> = {};
+                for (const [key, value] of Array.from(formData.entries())) {
+                    if (key.startsWith("mappings." + idx + ".")) {
+                        const fieldName = key.slice("mappings.".length + String(idx).length + 1);
+                        item[fieldName] = value;
+                    }
+                }
+                mappingsItems.push(item);
+            }
+            idx++;
+            if (idx > 1000) break;
+        }
+        obj.mappings = mappingsItems;
+    }
+
+    return toExit(customDecode(obj));
+}
+
+export const Custom: {
+  readonly defaultValue: typeof customDefaultValue;
+  readonly encode: typeof customEncode;
+  readonly encodeWithContext: typeof customEncodeWithContext;
+  readonly decode: typeof customDecode;
+  readonly decodeWithContext: typeof customDecodeWithContext;
+  readonly validateField: typeof customValidateField;
+  readonly validateFields: typeof customValidateFields;
+  readonly hasShape: typeof customHasShape;
+  readonly is: typeof customIs;
+  readonly createForm: typeof customCreateForm;
+  readonly fromFormData: typeof customFromFormData;
+} = {
+  defaultValue: customDefaultValue,
+  encode: customEncode,
+  encodeWithContext: customEncodeWithContext,
+  decode: customDecode,
+  decodeWithContext: customDecodeWithContext,
+  validateField: customValidateField,
+  validateFields: customValidateFields,
+  hasShape: customHasShape,
+  is: customIs,
+  createForm: customCreateForm,
+  fromFormData: customFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+import type { DirectionHue } from "./direction-hue.svelte";
+export interface Custom {
+	mappings: Array<DirectionHue>;
+}
+export declare function customDefaultValue(): Custom;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function customEncode(value: Custom, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function customEncodeWithContext(value: Custom, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function customDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Custom;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Custom | __mf_PendingRef;
+export declare function customValidateField<K extends keyof Custom>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function customValidateFields(partial: { readonly [K in keyof Custom]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function customHasShape(obj: unknown): boolean;
+export declare function customIs(obj: unknown): obj is Custom;
+/** Nested error structure matching the data shape  */
+export type CustomErrors = {
+	_errors: Option.Option<Array<string>>;
+	mappings: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type CustomTainted = {
+	mappings: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface CustomFieldControllers {
+	readonly mappings: ArrayFieldController<DirectionHue>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface CustomGigaform {
+	readonly data: Custom;
+	readonly errors: CustomErrors;
+	readonly tainted: CustomTainted;
+	readonly fields: CustomFieldControllers;
+	validate(): Exit.Exit<Custom, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<Custom>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function customCreateForm(overrides?: Partial<Custom>): CustomGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function customFromFormData(formData: FormData): Exit.Exit<Custom, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const Custom: {
+	readonly defaultValue: typeof customDefaultValue;
+	readonly encode: typeof customEncode;
+	readonly encodeWithContext: typeof customEncodeWithContext;
+	readonly decode: typeof customDecode;
+	readonly decodeWithContext: typeof customDecodeWithContext;
+	readonly validateField: typeof customValidateField;
+	readonly validateFields: typeof customValidateFields;
+	readonly hasShape: typeof customHasShape;
+	readonly is: typeof customIs;
+	readonly createForm: typeof customCreateForm;
+	readonly fromFormData: typeof customFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..119 -> expanded 535..654
+original 168..231 -> expanded 654..717
+original 231..232 -> expanded 12721..12722
+generated 0..535 <- imports
+generated 717..809 <- Default
+generated 809..1979 <- Encode
+generated 1979..6947 <- Decode
+generated 6947..11781 <- Gigaform
+generated 11781..12721 <- __convenience_const
+
+## Metadata
+
+interface Custom: {"body_span":{"end":232,"start":194},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":169,"start":120}}],"fields":[{"decorators":[],"name":"mappings","optional":false,"readonly":false,"span":{"end":230,"start":200},"ts_type":"Array<DirectionHue>"}],"heritage":[],"methods":[],"name":"Custom","span":{"end":232,"start":177},"type_params":[]}
+
+## Registry reads
+
+Name("Array")
+Name("DirectionHue")
+
+## Buildtime dependencies
+
+(none)

@@ -64,49 +64,33 @@ class Account {
         return this.apiKey;
     }
 
-static clone(value: Account): Account {
-                    return accountClone(value);
-                }}
+    static clone(value: Account): Account {
+        return accountClone(value);
+    }
+}
 
 export function accountClone(value: Account): Account {
-                    const cloned = Object.create(Object.getPrototypeOf(value));
-                    cloned.username = value.username;
-cloned.password = value.password;
-cloned.apiKey = value.apiKey;
-
-                    return cloned;
-                }
+    const cloned = Object.create(Object.getPrototypeOf(value));
+    cloned.username = value.username;
+    cloned.password = value.password;
+    cloned.apiKey = value.apiKey;
+    return cloned;
+}
 
 ## DTS
 
-import { Derive } from '@macro/derive';
-
-
-class Account {
-    public username: string;
-    protected password: string;
-    private apiKey: string;
-
-    constructor(username: string, password: string, apiKey: string);
-
-    login(): boolean;
-
-    protected validatePassword(input: string): boolean;
-
-    private getApiKey(): string;
-
-static clone(value: Account): Account {
-                    return accountClone(value);
-                }}
-
-export function accountClone(value: Account): Account {
-                    const cloned = Object.create(Object.getPrototypeOf(value));
-                    cloned.username = value.username;
-cloned.password = value.password;
-cloned.apiKey = value.apiKey;
-
-                    return cloned;
-                }
+declare class Account {
+	username: string;
+	protected password: string;
+	private apiKey;
+	constructor(username: string, password: string, apiKey: string);
+	login(): boolean;
+	protected validatePassword(input: string): boolean;
+	private getApiKey;
+	static clone(value: Account): Account;
+}
+export declare function accountClone(value: Account): Account;
+export {};
 
 ## Diagnostics
 
@@ -116,14 +100,14 @@ cloned.apiKey = value.apiKey;
 
 original 0..41 -> expanded 0..41
 original 62..574 -> expanded 41..553
-original 574..575 -> expanded 659..660
-original 575..576 -> expanded 969..970
-generated 553..659 <- Clone
-generated 660..969 <- Clone
+original 574..575 -> expanded 640..641
+original 575..576 -> expanded 893..894
+generated 553..640 <- Clone
+generated 641..893 <- Clone
 
 ## Metadata
 
-class Account: {"body_span":{"end":576,"start":78},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"name":"username","optional":false,"readonly":false,"span":{"end":108,"start":84},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"password","optional":false,"readonly":false,"span":{"end":140,"start":113},"ts_type":"string","visibility":"Protected"},{"decorators":[],"name":"apiKey","optional":false,"readonly":false,"span":{"end":168,"start":145},"ts_type":"string","visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":343,"start":238},"body_src":"\n        this.username = username;\n        this.password = password;\n        this.apiKey = apiKey;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"username: string, password: string, apiKey: string","return_type_src":"","span":{"end":343,"start":174},"type_params_src":"","visibility":"Public"},{"body_span":{"end":401,"start":373},"body_src":"\n        return true;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"login","params_src":"","return_type_src":"boolean","span":{"end":401,"start":349},"type_params_src":"","visibility":"Public"},{"body_span":{"end":505,"start":458},"body_src":"\n        return this.password === input;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"validatePassword","params_src":"input: string","return_type_src":"boolean","span":{"end":505,"start":407},"type_params_src":"","visibility":"Protected"},{"body_span":{"end":574,"start":539},"body_src":"\n        return this.apiKey;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"getApiKey","params_src":"","return_type_src":"string","span":{"end":574,"start":511},"type_params_src":"","visibility":"Private"}],"name":"Account","span":{"end":576,"start":64},"type_params":[]}
+class Account: {"body_span":{"end":576,"start":78},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"username","optional":false,"readonly":false,"span":{"end":108,"start":84},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"password","optional":false,"readonly":false,"span":{"end":140,"start":113},"ts_type":"string","visibility":"Protected"},{"decorators":[],"initializer":null,"name":"apiKey","optional":false,"readonly":false,"span":{"end":168,"start":145},"ts_type":"string","visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":343,"start":238},"body_src":"\n        this.username = username;\n        this.password = password;\n        this.apiKey = apiKey;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"username: string, password: string, apiKey: string","return_type_src":"","span":{"end":343,"start":174},"type_params":[],"visibility":"Public"},{"body_span":{"end":401,"start":373},"body_src":"\n        return true;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"login","params_src":"","return_type_src":"boolean","span":{"end":401,"start":349},"type_params":[],"visibility":"Public"},{"body_span":{"end":505,"start":458},"body_src":"\n        return this.password === input;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"validatePassword","params_src":"input: string","return_type_src":"boolean","span":{"end":505,"start":407},"type_params":[],"visibility":"Protected"},{"body_span":{"end":574,"start":539},"body_src":"\n        return this.apiKey;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"getApiKey","params_src":"","return_type_src":"string","span":{"end":574,"start":511},"type_params":[],"visibility":"Private"}],"name":"Account","span":{"end":576,"start":64},"type_params":[]}
 
 ## Registry reads
 

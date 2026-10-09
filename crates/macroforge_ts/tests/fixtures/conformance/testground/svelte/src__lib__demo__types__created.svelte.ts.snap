@@ -1,0 +1,405 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/created.svelte.ts
+sha256 cd4e1e36d3bd4bbf5d7d2153ed888a8a0cc3eaa6804736485d721940679e555a
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+
+export interface Created {
+    initialData: string | null;
+}
+
+export function createdDefaultValue(): Created {
+    return {
+        initialData: null,
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function createdEncode(value: Created, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = createdEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function createdEncodeWithContext(value: Created, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Created",
+        __id,
+    };
+
+    
+    result.initialData = value.initialData;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function createdDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Created } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = createdDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Created.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function createdDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Created | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Created.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Created | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Created.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("initialData" in obj)) {
+        errors.push({ field: "initialData", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_initialData = obj["initialData"] as string | null;
+
+        if (!(typeof __raw_initialData === "string" || __raw_initialData === null)) {
+            errors.push({ field: "initialData", message: "expected string | null" });
+        } else {
+            instance.initialData = __raw_initialData;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Created;
+}
+export function createdValidateField<K extends keyof Created>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function createdValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function createdValidateFields(partial: { readonly [K in keyof Created]?: unknown }): Array<{ field: string; message: string }>;
+export function createdValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function createdHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "initialData" in o;
+}
+
+export function createdIs(obj: unknown): obj is Created {
+    return createdHasShape(obj) && createdDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type CreatedErrors = {
+    _errors: Option.Option<Array<string>>;
+    initialData: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type CreatedTainted = {
+    initialData: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface CreatedFieldControllers {
+    readonly initialData: FieldController<string | null>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface CreatedGigaform {
+    readonly data: Created;
+    readonly errors: CreatedErrors;
+    readonly tainted: CreatedTainted;
+    readonly fields: CreatedFieldControllers;
+    validate(): Exit.Exit<Created, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Created>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function createdCreateForm(overrides?: Partial<Created>): CreatedGigaform {
+    let data = $state({ ...createdDefaultValue(), ...overrides });
+    let errors = $state<CreatedErrors>({
+        _errors: Option.none(),
+        initialData: Option.none(),
+    });
+    let tainted = $state<CreatedTainted>({
+        initialData: Option.none(),
+    });
+    const fields = {
+        initialData: {
+            name: "initialData",
+            label: "initialData",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["initialData"],
+            get: () => data.initialData,
+            set: (value: string | null) => { data.initialData = value; },
+            getError: () => errors.initialData,
+            setError: (value: Option.Option<Array<string>>) => { errors.initialData = value; },
+            getTainted: () => tainted.initialData,
+            setTainted: (value: Option.Option<boolean>) => { tainted.initialData = value; },
+            validate: () => createdValidateField("initialData", data.initialData).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as CreatedFieldControllers;
+
+    function validate(): Exit.Exit<Created, Array<{ field: string; message: string }>> {
+        return toExit(createdDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<Created>): void {
+        data = { ...createdDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            initialData: Option.none(),
+        };
+        tainted = {
+            initialData: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function createdFromFormData(formData: FormData): Exit.Exit<Created, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    obj.initialData = formData.get("initialData") ?? "";
+
+    return toExit(createdDecode(obj));
+}
+
+export const Created: {
+  readonly defaultValue: typeof createdDefaultValue;
+  readonly encode: typeof createdEncode;
+  readonly encodeWithContext: typeof createdEncodeWithContext;
+  readonly decode: typeof createdDecode;
+  readonly decodeWithContext: typeof createdDecodeWithContext;
+  readonly validateField: typeof createdValidateField;
+  readonly validateFields: typeof createdValidateFields;
+  readonly hasShape: typeof createdHasShape;
+  readonly is: typeof createdIs;
+  readonly createForm: typeof createdCreateForm;
+  readonly fromFormData: typeof createdFromFormData;
+} = {
+  defaultValue: createdDefaultValue,
+  encode: createdEncode,
+  encodeWithContext: createdEncodeWithContext,
+  decode: createdDecode,
+  decodeWithContext: createdDecodeWithContext,
+  validateField: createdValidateField,
+  validateFields: createdValidateFields,
+  hasShape: createdHasShape,
+  is: createdIs,
+  createForm: createdCreateForm,
+  fromFormData: createdFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+export interface Created {
+	initialData: string | null;
+}
+export declare function createdDefaultValue(): Created;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function createdEncode(value: Created, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function createdEncodeWithContext(value: Created, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function createdDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Created;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function createdDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Created | __mf_PendingRef;
+export declare function createdValidateField<K extends keyof Created>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function createdValidateFields(partial: { readonly [K in keyof Created]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function createdHasShape(obj: unknown): boolean;
+export declare function createdIs(obj: unknown): obj is Created;
+/** Nested error structure matching the data shape  */
+export type CreatedErrors = {
+	_errors: Option.Option<Array<string>>;
+	initialData: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type CreatedTainted = {
+	initialData: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface CreatedFieldControllers {
+	readonly initialData: FieldController<string | null>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface CreatedGigaform {
+	readonly data: Created;
+	readonly errors: CreatedErrors;
+	readonly tainted: CreatedTainted;
+	readonly fields: CreatedFieldControllers;
+	validate(): Exit.Exit<Created, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<Created>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function createdCreateForm(overrides?: Partial<Created>): CreatedGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function createdFromFormData(formData: FormData): Exit.Exit<Created, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const Created: {
+	readonly defaultValue: typeof createdDefaultValue;
+	readonly encode: typeof createdEncode;
+	readonly encodeWithContext: typeof createdEncodeWithContext;
+	readonly decode: typeof createdDecode;
+	readonly decodeWithContext: typeof createdDecodeWithContext;
+	readonly validateField: typeof createdValidateField;
+	readonly validateFields: typeof createdValidateFields;
+	readonly hasShape: typeof createdHasShape;
+	readonly is: typeof createdIs;
+	readonly createForm: typeof createdCreateForm;
+	readonly fromFormData: typeof createdFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 421..479
+original 107..168 -> expanded 479..540
+original 168..169 -> expanded 9966..9967
+generated 0..421 <- imports
+generated 540..639 <- Default
+generated 639..1751 <- Encode
+generated 1751..5614 <- Decode
+generated 5614..9003 <- Gigaform
+generated 9003..9966 <- __convenience_const
+
+## Metadata
+
+interface Created: {"body_span":{"end":169,"start":134},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"initialData","optional":false,"readonly":false,"span":{"end":167,"start":140},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Created","span":{"end":169,"start":116},"type_params":[]}
+
+## Registry reads
+
+Name("string")
+
+## Buildtime dependencies
+
+(none)

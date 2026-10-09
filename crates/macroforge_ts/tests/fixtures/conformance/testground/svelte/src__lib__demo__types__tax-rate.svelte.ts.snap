@@ -1,0 +1,971 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/tax-rate.svelte.ts
+sha256 5418457d3d95037a3fd927838ce101ca1e452489ad687f748bcf3a07c3976d05
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+
+export interface TaxRate {
+    
+    id: string;
+    
+    
+    name: string;
+    
+    
+    taxAgency: string;
+    
+    zip: number;
+    
+    
+    city: string;
+    
+    
+    county: string;
+    
+    
+    state: string;
+    
+    isActive: boolean;
+    
+    
+    description: string;
+    
+    
+    taxComponents: { [key: string]: number };
+}
+
+export function taxRateDefaultValue(): TaxRate {
+    return {
+        id: "",
+        name: "",
+        taxAgency: "",
+        zip: 0,
+        city: "",
+        county: "",
+        state: "",
+        isActive: false,
+        description: "",
+        taxComponents: ({}),
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function taxRateEncode(value: TaxRate, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = taxRateEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function taxRateEncodeWithContext(value: TaxRate, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "TaxRate",
+        __id,
+    };
+
+    
+    result.id = value.id;
+    result.name = value.name;
+    result.taxAgency = value.taxAgency;
+    result.zip = value.zip;
+    result.city = value.city;
+    result.county = value.county;
+    result.state = value.state;
+    result.isActive = value.isActive;
+    result.description = value.description;
+    result.taxComponents = value.taxComponents;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function taxRateDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TaxRate } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = taxRateDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "TaxRate.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TaxRate | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "TaxRate.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as TaxRate | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "TaxRate.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+    if (!("name" in obj)) {
+        errors.push({ field: "name", message: "missing required field" });
+    }
+    if (!("taxAgency" in obj)) {
+        errors.push({ field: "taxAgency", message: "missing required field" });
+    }
+    if (!("zip" in obj)) {
+        errors.push({ field: "zip", message: "missing required field" });
+    }
+    if (!("city" in obj)) {
+        errors.push({ field: "city", message: "missing required field" });
+    }
+    if (!("county" in obj)) {
+        errors.push({ field: "county", message: "missing required field" });
+    }
+    if (!("state" in obj)) {
+        errors.push({ field: "state", message: "missing required field" });
+    }
+    if (!("isActive" in obj)) {
+        errors.push({ field: "isActive", message: "missing required field" });
+    }
+    if (!("description" in obj)) {
+        errors.push({ field: "description", message: "missing required field" });
+    }
+    if (!("taxComponents" in obj)) {
+        errors.push({ field: "taxComponents", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_id = obj["id"] as string;
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "TaxRate.id is required" : "expected string" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    {
+        const __raw_name = obj["name"] as string;
+
+        if (!(typeof __raw_name === "string")) {
+            errors.push({ field: "name", message: __raw_name == null ? "TaxRate.name is required" : "expected string" });
+        } else {
+            if (__raw_name == null) { errors.push({ field: "name", message: "TaxRate.name is required" }); } else {
+                if (__raw_name.length === 0) { errors.push({ field: "name", message: "TaxRate.name must not be empty" }); }
+            }
+            instance.name = __raw_name;
+        }
+    }
+    {
+        const __raw_taxAgency = obj["taxAgency"] as string;
+
+        if (!(typeof __raw_taxAgency === "string")) {
+            errors.push({ field: "taxAgency", message: __raw_taxAgency == null ? "TaxRate.taxAgency is required" : "expected string" });
+        } else {
+            if (__raw_taxAgency == null) { errors.push({ field: "taxAgency", message: "TaxRate.taxAgency is required" }); } else {
+                if (__raw_taxAgency.length === 0) { errors.push({ field: "taxAgency", message: "TaxRate.taxAgency must not be empty" }); }
+            }
+            instance.taxAgency = __raw_taxAgency;
+        }
+    }
+    {
+        const __raw_zip = obj["zip"] as number;
+
+        if (!(typeof __raw_zip === "number")) {
+            errors.push({ field: "zip", message: __raw_zip == null ? "TaxRate.zip is required" : "expected number" });
+        } else {
+            instance.zip = __raw_zip;
+        }
+    }
+    {
+        const __raw_city = obj["city"] as string;
+
+        if (!(typeof __raw_city === "string")) {
+            errors.push({ field: "city", message: __raw_city == null ? "TaxRate.city is required" : "expected string" });
+        } else {
+            if (__raw_city == null) { errors.push({ field: "city", message: "TaxRate.city is required" }); } else {
+                if (__raw_city.length === 0) { errors.push({ field: "city", message: "TaxRate.city must not be empty" }); }
+            }
+            instance.city = __raw_city;
+        }
+    }
+    {
+        const __raw_county = obj["county"] as string;
+
+        if (!(typeof __raw_county === "string")) {
+            errors.push({ field: "county", message: __raw_county == null ? "TaxRate.county is required" : "expected string" });
+        } else {
+            if (__raw_county == null) { errors.push({ field: "county", message: "TaxRate.county is required" }); } else {
+                if (__raw_county.length === 0) { errors.push({ field: "county", message: "TaxRate.county must not be empty" }); }
+            }
+            instance.county = __raw_county;
+        }
+    }
+    {
+        const __raw_state = obj["state"] as string;
+
+        if (!(typeof __raw_state === "string")) {
+            errors.push({ field: "state", message: __raw_state == null ? "TaxRate.state is required" : "expected string" });
+        } else {
+            if (__raw_state == null) { errors.push({ field: "state", message: "TaxRate.state is required" }); } else {
+                if (__raw_state.length === 0) { errors.push({ field: "state", message: "TaxRate.state must not be empty" }); }
+            }
+            instance.state = __raw_state;
+        }
+    }
+    {
+        const __raw_isActive = obj["isActive"] as boolean;
+
+        if (!(typeof __raw_isActive === "boolean")) {
+            errors.push({ field: "isActive", message: __raw_isActive == null ? "TaxRate.isActive is required" : "expected boolean" });
+        } else {
+            instance.isActive = __raw_isActive;
+        }
+    }
+    {
+        const __raw_description = obj["description"] as string;
+
+        if (!(typeof __raw_description === "string")) {
+            errors.push({ field: "description", message: __raw_description == null ? "TaxRate.description is required" : "expected string" });
+        } else {
+            if (__raw_description == null) { errors.push({ field: "description", message: "TaxRate.description is required" }); } else {
+                if (__raw_description.length === 0) { errors.push({ field: "description", message: "TaxRate.description must not be empty" }); }
+            }
+            instance.description = __raw_description;
+        }
+    }
+    {
+        const __raw_taxComponents = obj["taxComponents"] as { [key: string]: number };
+
+        instance.taxComponents = __raw_taxComponents;
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as TaxRate;
+}
+export function taxRateValidateField<K extends keyof TaxRate>(field: K, value: unknown): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if (field === "name") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "name", message: "TaxRate.name is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "name", message: "TaxRate.name must not be empty" }); }
+        }
+    }
+    if (field === "taxAgency") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "taxAgency", message: "TaxRate.taxAgency is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "taxAgency", message: "TaxRate.taxAgency must not be empty" }); }
+        }
+    }
+    if (field === "city") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "city", message: "TaxRate.city is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "city", message: "TaxRate.city must not be empty" }); }
+        }
+    }
+    if (field === "county") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "county", message: "TaxRate.county is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "county", message: "TaxRate.county must not be empty" }); }
+        }
+    }
+    if (field === "state") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "state", message: "TaxRate.state is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "state", message: "TaxRate.state must not be empty" }); }
+        }
+    }
+    if (field === "description") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "description", message: "TaxRate.description is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "description", message: "TaxRate.description must not be empty" }); }
+        }
+    }
+    return errors;
+}
+
+export function taxRateValidateFields(partial: { readonly [K in keyof TaxRate]?: unknown }): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+        const __val = partial.name as string;
+        if (__val == null) { errors.push({ field: "name", message: "TaxRate.name is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "name", message: "TaxRate.name must not be empty" }); }
+        }
+    }
+    if ("taxAgency" in partial && partial.taxAgency !== undefined) {
+        const __val = partial.taxAgency as string;
+        if (__val == null) { errors.push({ field: "taxAgency", message: "TaxRate.taxAgency is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "taxAgency", message: "TaxRate.taxAgency must not be empty" }); }
+        }
+    }
+    if ("city" in partial && partial.city !== undefined) {
+        const __val = partial.city as string;
+        if (__val == null) { errors.push({ field: "city", message: "TaxRate.city is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "city", message: "TaxRate.city must not be empty" }); }
+        }
+    }
+    if ("county" in partial && partial.county !== undefined) {
+        const __val = partial.county as string;
+        if (__val == null) { errors.push({ field: "county", message: "TaxRate.county is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "county", message: "TaxRate.county must not be empty" }); }
+        }
+    }
+    if ("state" in partial && partial.state !== undefined) {
+        const __val = partial.state as string;
+        if (__val == null) { errors.push({ field: "state", message: "TaxRate.state is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "state", message: "TaxRate.state must not be empty" }); }
+        }
+    }
+    if ("description" in partial && partial.description !== undefined) {
+        const __val = partial.description as string;
+        if (__val == null) { errors.push({ field: "description", message: "TaxRate.description is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "description", message: "TaxRate.description must not be empty" }); }
+        }
+    }
+    return errors;
+}
+export function taxRateHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "id" in o && "name" in o && "taxAgency" in o && "zip" in o && "city" in o && "county" in o && "state" in o && "isActive" in o && "description" in o && "taxComponents" in o;
+}
+
+export function taxRateIs(obj: unknown): obj is TaxRate {
+    return taxRateHasShape(obj) && taxRateDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type TaxRateErrors = {
+    _errors: Option.Option<Array<string>>;
+    id: Option.Option<Array<string>>;
+    name: Option.Option<Array<string>>;
+    taxAgency: Option.Option<Array<string>>;
+    zip: Option.Option<Array<string>>;
+    city: Option.Option<Array<string>>;
+    county: Option.Option<Array<string>>;
+    state: Option.Option<Array<string>>;
+    isActive: Option.Option<Array<string>>;
+    description: Option.Option<Array<string>>;
+    taxComponents: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type TaxRateTainted = {
+    id: Option.Option<boolean>;
+    name: Option.Option<boolean>;
+    taxAgency: Option.Option<boolean>;
+    zip: Option.Option<boolean>;
+    city: Option.Option<boolean>;
+    county: Option.Option<boolean>;
+    state: Option.Option<boolean>;
+    isActive: Option.Option<boolean>;
+    description: Option.Option<boolean>;
+    taxComponents: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface TaxRateFieldControllers {
+    readonly id: FieldController<string>;
+    readonly name: FieldController<string>;
+    readonly taxAgency: FieldController<string>;
+    readonly zip: FieldController<number>;
+    readonly city: FieldController<string>;
+    readonly county: FieldController<string>;
+    readonly state: FieldController<string>;
+    readonly isActive: FieldController<boolean>;
+    readonly description: FieldController<string>;
+    readonly taxComponents: FieldController<{ [key: string]: number }>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface TaxRateGigaform {
+    readonly data: TaxRate;
+    readonly errors: TaxRateErrors;
+    readonly tainted: TaxRateTainted;
+    readonly fields: TaxRateFieldControllers;
+    validate(): Exit.Exit<TaxRate, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<TaxRate>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform {
+    let data = $state({ ...taxRateDefaultValue(), ...overrides });
+    let errors = $state<TaxRateErrors>({
+        _errors: Option.none(),
+        id: Option.none(),
+        name: Option.none(),
+        taxAgency: Option.none(),
+        zip: Option.none(),
+        city: Option.none(),
+        county: Option.none(),
+        state: Option.none(),
+        isActive: Option.none(),
+        description: Option.none(),
+        taxComponents: Option.none(),
+    });
+    let tainted = $state<TaxRateTainted>({
+        id: Option.none(),
+        name: Option.none(),
+        taxAgency: Option.none(),
+        zip: Option.none(),
+        city: Option.none(),
+        county: Option.none(),
+        state: Option.none(),
+        isActive: Option.none(),
+        description: Option.none(),
+        taxComponents: Option.none(),
+    });
+    const fields = {
+        id: {
+            name: "id",
+            label: "id",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["id"],
+            get: () => data.id,
+            set: (value: string) => { data.id = value; },
+            getError: () => errors.id,
+            setError: (value: Option.Option<Array<string>>) => { errors.id = value; },
+            getTainted: () => tainted.id,
+            setTainted: (value: Option.Option<boolean>) => { tainted.id = value; },
+            validate: () => taxRateValidateField("id", data.id).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        name: {
+            name: "name",
+            label: "Name",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["name"],
+            get: () => data.name,
+            set: (value: string) => { data.name = value; },
+            getError: () => errors.name,
+            setError: (value: Option.Option<Array<string>>) => { errors.name = value; },
+            getTainted: () => tainted.name,
+            setTainted: (value: Option.Option<boolean>) => { tainted.name = value; },
+            validate: () => taxRateValidateField("name", data.name).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        taxAgency: {
+            name: "taxAgency",
+            label: "Tax Agency",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["taxAgency"],
+            get: () => data.taxAgency,
+            set: (value: string) => { data.taxAgency = value; },
+            getError: () => errors.taxAgency,
+            setError: (value: Option.Option<Array<string>>) => { errors.taxAgency = value; },
+            getTainted: () => tainted.taxAgency,
+            setTainted: (value: Option.Option<boolean>) => { tainted.taxAgency = value; },
+            validate: () => taxRateValidateField("taxAgency", data.taxAgency).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        zip: {
+            name: "zip",
+            label: "Zip",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["zip"],
+            get: () => data.zip,
+            set: (value: number) => { data.zip = value; },
+            getError: () => errors.zip,
+            setError: (value: Option.Option<Array<string>>) => { errors.zip = value; },
+            getTainted: () => tainted.zip,
+            setTainted: (value: Option.Option<boolean>) => { tainted.zip = value; },
+            validate: () => taxRateValidateField("zip", data.zip).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        city: {
+            name: "city",
+            label: "City",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["city"],
+            get: () => data.city,
+            set: (value: string) => { data.city = value; },
+            getError: () => errors.city,
+            setError: (value: Option.Option<Array<string>>) => { errors.city = value; },
+            getTainted: () => tainted.city,
+            setTainted: (value: Option.Option<boolean>) => { tainted.city = value; },
+            validate: () => taxRateValidateField("city", data.city).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        county: {
+            name: "county",
+            label: "County",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["county"],
+            get: () => data.county,
+            set: (value: string) => { data.county = value; },
+            getError: () => errors.county,
+            setError: (value: Option.Option<Array<string>>) => { errors.county = value; },
+            getTainted: () => tainted.county,
+            setTainted: (value: Option.Option<boolean>) => { tainted.county = value; },
+            validate: () => taxRateValidateField("county", data.county).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        state: {
+            name: "state",
+            label: "State",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["state"],
+            get: () => data.state,
+            set: (value: string) => { data.state = value; },
+            getError: () => errors.state,
+            setError: (value: Option.Option<Array<string>>) => { errors.state = value; },
+            getTainted: () => tainted.state,
+            setTainted: (value: Option.Option<boolean>) => { tainted.state = value; },
+            validate: () => taxRateValidateField("state", data.state).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        isActive: {
+            name: "isActive",
+            label: "Active",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["isActive"],
+            get: () => data.isActive,
+            set: (value: boolean) => { data.isActive = value; },
+            getError: () => errors.isActive,
+            setError: (value: Option.Option<Array<string>>) => { errors.isActive = value; },
+            getTainted: () => tainted.isActive,
+            setTainted: (value: Option.Option<boolean>) => { tainted.isActive = value; },
+            validate: () => taxRateValidateField("isActive", data.isActive).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        description: {
+            name: "description",
+            label: "Description",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["description"],
+            get: () => data.description,
+            set: (value: string) => { data.description = value; },
+            getError: () => errors.description,
+            setError: (value: Option.Option<Array<string>>) => { errors.description = value; },
+            getTainted: () => tainted.description,
+            setTainted: (value: Option.Option<boolean>) => { tainted.description = value; },
+            validate: () => taxRateValidateField("description", data.description).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        taxComponents: {
+            name: "taxComponents",
+            label: "taxComponents",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["taxComponents"],
+            get: () => data.taxComponents,
+            set: (value: { [key: string]: number }) => { data.taxComponents = value; },
+            getError: () => errors.taxComponents,
+            setError: (value: Option.Option<Array<string>>) => { errors.taxComponents = value; },
+            getTainted: () => tainted.taxComponents,
+            setTainted: (value: Option.Option<boolean>) => { tainted.taxComponents = value; },
+            validate: () => taxRateValidateField("taxComponents", data.taxComponents).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as TaxRateFieldControllers;
+
+    function validate(): Exit.Exit<TaxRate, Array<{ field: string; message: string }>> {
+        return toExit(taxRateDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<TaxRate>): void {
+        data = { ...taxRateDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            id: Option.none(),
+            name: Option.none(),
+            taxAgency: Option.none(),
+            zip: Option.none(),
+            city: Option.none(),
+            county: Option.none(),
+            state: Option.none(),
+            isActive: Option.none(),
+            description: Option.none(),
+            taxComponents: Option.none(),
+        };
+        tainted = {
+            id: Option.none(),
+            name: Option.none(),
+            taxAgency: Option.none(),
+            zip: Option.none(),
+            city: Option.none(),
+            county: Option.none(),
+            state: Option.none(),
+            isActive: Option.none(),
+            description: Option.none(),
+            taxComponents: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function taxRateFromFormData(formData: FormData): Exit.Exit<TaxRate, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    obj.id = formData.get("id") ?? "";
+    obj.name = formData.get("name") ?? "";
+    obj.taxAgency = formData.get("taxAgency") ?? "";
+    {
+        const zipStr = formData.get("zip");
+        obj.zip = zipStr ? parseFloat(zipStr as string) : 0;
+        if (obj.zip !== undefined && isNaN(obj.zip as number)) obj.zip = 0;
+    }
+    obj.city = formData.get("city") ?? "";
+    obj.county = formData.get("county") ?? "";
+    obj.state = formData.get("state") ?? "";
+    {
+        const isActiveVal = formData.get("isActive");
+        obj.isActive = isActiveVal === "true" || isActiveVal === "on" || isActiveVal === "1";
+    }
+    obj.description = formData.get("description") ?? "";
+    obj.taxComponents = formData.get("taxComponents") ?? "";
+
+    return toExit(taxRateDecode(obj));
+}
+
+export const TaxRate: {
+  readonly defaultValue: typeof taxRateDefaultValue;
+  readonly encode: typeof taxRateEncode;
+  readonly encodeWithContext: typeof taxRateEncodeWithContext;
+  readonly decode: typeof taxRateDecode;
+  readonly decodeWithContext: typeof taxRateDecodeWithContext;
+  readonly validateField: typeof taxRateValidateField;
+  readonly validateFields: typeof taxRateValidateFields;
+  readonly hasShape: typeof taxRateHasShape;
+  readonly is: typeof taxRateIs;
+  readonly createForm: typeof taxRateCreateForm;
+  readonly fromFormData: typeof taxRateFromFormData;
+} = {
+  defaultValue: taxRateDefaultValue,
+  encode: taxRateEncode,
+  encodeWithContext: taxRateEncodeWithContext,
+  decode: taxRateDecode,
+  decodeWithContext: taxRateDecodeWithContext,
+  validateField: taxRateValidateField,
+  validateFields: taxRateValidateFields,
+  hasShape: taxRateHasShape,
+  is: taxRateIs,
+  createForm: taxRateCreateForm,
+  fromFormData: taxRateFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+export interface TaxRate {
+	id: string;
+	name: string;
+	taxAgency: string;
+	zip: number;
+	city: string;
+	county: string;
+	state: string;
+	isActive: boolean;
+	description: string;
+	taxComponents: {
+		[key: string]: number;
+	};
+}
+export declare function taxRateDefaultValue(): TaxRate;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function taxRateEncode(value: TaxRate, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function taxRateEncodeWithContext(value: TaxRate, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function taxRateDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: TaxRate;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TaxRate | __mf_PendingRef;
+export declare function taxRateValidateField<K extends keyof TaxRate>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function taxRateValidateFields(partial: { readonly [K in keyof TaxRate]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function taxRateHasShape(obj: unknown): boolean;
+export declare function taxRateIs(obj: unknown): obj is TaxRate;
+/** Nested error structure matching the data shape  */
+export type TaxRateErrors = {
+	_errors: Option.Option<Array<string>>;
+	id: Option.Option<Array<string>>;
+	name: Option.Option<Array<string>>;
+	taxAgency: Option.Option<Array<string>>;
+	zip: Option.Option<Array<string>>;
+	city: Option.Option<Array<string>>;
+	county: Option.Option<Array<string>>;
+	state: Option.Option<Array<string>>;
+	isActive: Option.Option<Array<string>>;
+	description: Option.Option<Array<string>>;
+	taxComponents: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type TaxRateTainted = {
+	id: Option.Option<boolean>;
+	name: Option.Option<boolean>;
+	taxAgency: Option.Option<boolean>;
+	zip: Option.Option<boolean>;
+	city: Option.Option<boolean>;
+	county: Option.Option<boolean>;
+	state: Option.Option<boolean>;
+	isActive: Option.Option<boolean>;
+	description: Option.Option<boolean>;
+	taxComponents: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface TaxRateFieldControllers {
+	readonly id: FieldController<string>;
+	readonly name: FieldController<string>;
+	readonly taxAgency: FieldController<string>;
+	readonly zip: FieldController<number>;
+	readonly city: FieldController<string>;
+	readonly county: FieldController<string>;
+	readonly state: FieldController<string>;
+	readonly isActive: FieldController<boolean>;
+	readonly description: FieldController<string>;
+	readonly taxComponents: FieldController<{
+		[key: string]: number;
+	}>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface TaxRateGigaform {
+	readonly data: TaxRate;
+	readonly errors: TaxRateErrors;
+	readonly tainted: TaxRateTainted;
+	readonly fields: TaxRateFieldControllers;
+	validate(): Exit.Exit<TaxRate, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<TaxRate>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function taxRateCreateForm(overrides?: Partial<TaxRate>): TaxRateGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function taxRateFromFormData(formData: FormData): Exit.Exit<TaxRate, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const TaxRate: {
+	readonly defaultValue: typeof taxRateDefaultValue;
+	readonly encode: typeof taxRateEncode;
+	readonly encodeWithContext: typeof taxRateEncodeWithContext;
+	readonly decode: typeof taxRateDecode;
+	readonly decodeWithContext: typeof taxRateDecodeWithContext;
+	readonly validateField: typeof taxRateValidateField;
+	readonly validateFields: typeof taxRateValidateFields;
+	readonly hasShape: typeof taxRateHasShape;
+	readonly is: typeof taxRateIs;
+	readonly createForm: typeof taxRateCreateForm;
+	readonly fromFormData: typeof taxRateFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 421..479
+original 107..139 -> expanded 479..511
+original 167..188 -> expanded 511..532
+original 229..234 -> expanded 532..537
+original 275..298 -> expanded 537..560
+original 345..350 -> expanded 560..565
+original 391..419 -> expanded 565..593
+original 469..491 -> expanded 593..615
+original 532..537 -> expanded 615..620
+original 578..601 -> expanded 620..643
+original 644..649 -> expanded 643..648
+original 690..715 -> expanded 648..673
+original 757..762 -> expanded 673..678
+original 803..827 -> expanded 678..702
+original 872..900 -> expanded 702..730
+original 952..957 -> expanded 730..735
+original 998..1028 -> expanded 735..765
+original 1056..1061 -> expanded 765..770
+original 1080..1128 -> expanded 770..818
+original 1128..1129 -> expanded 30289..30290
+generated 0..421 <- imports
+generated 818..1099 <- Default
+generated 1099..2517 <- Encode
+generated 2517..15862 <- Decode
+generated 15862..29326 <- Gigaform
+generated 29326..30289 <- __convenience_const
+
+## Metadata
+
+interface TaxRate: {"body_span":{"end":1129,"start":134},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":168,"start":140}}],"name":"id","optional":false,"readonly":false,"span":{"end":184,"start":173},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":276,"start":235}},{"args_src":"{ label: \"Name\" }","name":"textController","span":{"end":230,"start":189}}],"name":"name","optional":false,"readonly":false,"span":{"end":294,"start":281},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":392,"start":351}},{"args_src":"{ label: \"Tax Agency\" }","name":"textController","span":{"end":346,"start":299}}],"name":"taxAgency","optional":false,"readonly":false,"span":{"end":415,"start":397},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Zip\", min: 0 }","name":"numberController","span":{"end":470,"start":420}}],"name":"zip","optional":false,"readonly":false,"span":{"end":487,"start":475},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":579,"start":538}},{"args_src":"{ label: \"City\" }","name":"textController","span":{"end":533,"start":492}}],"name":"city","optional":false,"readonly":false,"span":{"end":597,"start":584},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":691,"start":650}},{"args_src":"{ label: \"County\" }","name":"textController","span":{"end":645,"start":602}}],"name":"county","optional":false,"readonly":false,"span":{"end":711,"start":696},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":804,"start":763}},{"args_src":"{ label: \"State\" }","name":"textController","span":{"end":758,"start":716}}],"name":"state","optional":false,"readonly":false,"span":{"end":823,"start":809},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Active\" }","name":"switchController","span":{"end":873,"start":828}}],"name":"isActive","optional":false,"readonly":false,"span":{"end":896,"start":878},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":999,"start":958}},{"args_src":"{ label: \"Description\" }","name":"textAreaController","span":{"end":953,"start":901}}],"name":"description","optional":false,"readonly":false,"span":{"end":1024,"start":1004},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"default","span":{"end":1081,"start":1062}},{"args_src":"{}","name":"hiddenController","span":{"end":1057,"start":1029}}],"name":"taxComponents","optional":false,"readonly":false,"span":{"end":1127,"start":1086},"ts_type":"{ [key: string]: number }"}],"heritage":[],"methods":[],"name":"TaxRate","span":{"end":1129,"start":116},"type_params":[]}
+
+## Registry reads
+
+Name("boolean")
+Name("number")
+Name("string")
+Name("{ [key: string]: number }")
+
+## Buildtime dependencies
+
+(none)

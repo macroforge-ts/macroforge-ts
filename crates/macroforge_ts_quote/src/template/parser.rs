@@ -10,7 +10,7 @@ use super::control_flow::{
 use super::interpolation::{
     interpolate_string_literal, is_backtick_template, is_string_literal, process_backtick_template,
 };
-use super::spacing::{Pos, spacing_between};
+use super::spacing::{Pos, same_line_gap, spacing_between};
 use super::tag::{TagType, analyze_tag};
 
 /// Terminators tell the parser when to stop current recursion level.
@@ -26,25 +26,47 @@ pub enum Terminator {
 }
 
 /// Context for tracking spacing during parsing.
-#[derive(Default)]
+///
+/// Control-flow and binding tags emit nothing, so they are zero-width: the
+/// token after one is spaced from the tag's end. A tag on its own line takes
+/// that line's newline with it; a tag inside a line passes on the gap before
+/// it, so the tokens around it stay apart.
+#[derive(Clone, Default)]
 pub struct SpacingContext {
     /// End position of the previous token (for calculating gaps).
     pub prev_end: Option<Pos>,
+    /// The template's left edge: indentation is measured from it, so output
+    /// does not inherit how deeply the template sits in its Rust source.
+    pub base_col: usize,
+    /// The gap before a skipped tag, owed to the next token if it follows on
+    /// the tag's line.
+    inline_gap: Option<String>,
+    /// The column of the tag a block body follows. The body's first line is
+    /// indented past the tag only to nest it in the template, so that offset
+    /// joins the base for the rest of the body.
+    tag_col: Option<usize>,
 }
 
 impl SpacingContext {
-    pub fn new() -> Self {
-        Self::default()
+    /// A context for a template whose first token starts at `base_col`.
+    pub fn new(base_col: usize) -> Self {
+        Self {
+            base_col,
+            ..Self::default()
+        }
     }
 
     /// Emit spacing to bridge the gap from prev_end to the current span.
     pub fn emit_spacing_to(&mut self, span: Span) -> TokenStream2 {
         let curr_start = Pos::from_span_start(span);
-
-        let spacing = if let Some(prev) = self.prev_end {
-            spacing_between(prev, curr_start)
-        } else {
-            String::new()
+        let inline_gap = self.inline_gap.take();
+        self.settle_indent(curr_start);
+        let spacing = match self.prev_end {
+            Some(prev) if curr_start.line > prev.line => {
+                spacing_between(prev, curr_start, self.base_col)
+            }
+            Some(prev) => inline_gap.unwrap_or_default() + &same_line_gap(prev, curr_start),
+            None => String::new(),
         };
 
         if spacing.is_empty() {
@@ -57,21 +79,73 @@ impl SpacingContext {
     /// Update prev_end to the end of the given span.
     pub fn advance_past(&mut self, span: Span) {
         self.prev_end = Some(Pos::from_span_end(span));
+        self.inline_gap = None;
     }
 
     /// Update prev_end to a specific position.
     pub fn set_prev_end(&mut self, pos: Pos) {
         self.prev_end = Some(pos);
+        self.inline_gap = None;
+    }
+
+    /// Joins a block body's nesting offset to the base once the body's first
+    /// line, starting at `start`, shows how far it is indented past its tag.
+    fn settle_indent(&mut self, start: Pos) {
+        if let Some(prev) = self.prev_end
+            && start.line > prev.line
+            && let Some(tag_col) = self.tag_col.take()
+        {
+            self.base_col += start.col.saturating_sub(tag_col);
+        }
+    }
+
+    /// Passes over a tag that emits nothing, keeping the gap before it when
+    /// it sits inside a line.
+    pub fn skip_tag(&mut self, span: Span) {
+        let tag_start = Pos::from_span_start(span);
+        self.settle_indent(tag_start);
+        self.inline_gap = self
+            .prev_end
+            .filter(|prev| prev.line == tag_start.line)
+            .map(|prev| same_line_gap(prev, tag_start));
+        self.prev_end = Some(Pos::from_span_end(span));
+    }
+
+    /// The context a block's body starts in, just after its opening tag.
+    pub fn after_tag(&mut self, span: Span) -> Self {
+        self.settle_indent(Pos::from_span_start(span));
+        let mut body = self.clone();
+        body.skip_tag(span);
+        body.tag_col = Some(Pos::from_span_start(span).col);
+        body
+    }
+
+    /// The context the next branch of a block starts in: the block's opening
+    /// context, moved to just after the branch's tag at `self`'s position.
+    pub fn next_branch(&mut self, opening: &Self) {
+        let branch_tag_end = self.prev_end;
+        *self = opening.clone();
+        self.prev_end = branch_tag_end;
+    }
+
+    /// Continues after a block whose body ended in `body`, at its closing tag.
+    pub fn resume_after(&mut self, body: &Self) {
+        self.prev_end = body.prev_end;
+        self.inline_gap = None;
     }
 }
 
-/// Recursive function to parse tokens until a terminator is found.
-pub fn parse_fragment(
+/// Parses a whole template, measuring indentation from its first token.
+pub fn parse_template(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
-    stop_at: Option<&[Terminator]>,
-) -> syn::Result<(TokenStream2, Option<Terminator>)> {
-    let mut ctx = SpacingContext::new();
-    parse_fragment_with_ctx(iter, stop_at, &mut ctx)
+) -> syn::Result<TokenStream2> {
+    let base_col = iter
+        .peek()
+        .map(|token| Pos::from_span_start(token.span()).col)
+        .unwrap_or_default();
+    let mut ctx = SpacingContext::new(base_col);
+    let (output, _) = parse_fragment_with_ctx(iter, None, &mut ctx)?;
+    Ok(output)
 }
 
 /// Parse fragment with explicit spacing context (for nested parsing).
@@ -122,22 +196,26 @@ pub fn parse_fragment_with_ctx(
                 match tag {
                     TagType::If(cond) => {
                         iter.next(); // Consume {#if}
-                        output.extend(parse_if_chain(iter, cond, span)?);
-                        ctx.advance_past(span);
+                        let mut body = ctx.after_tag(span);
+                        output.extend(parse_if_chain(iter, cond, span, &mut body)?);
+                        ctx.resume_after(&body);
                     }
                     TagType::IfLet(pattern, expr) => {
                         iter.next(); // Consume {#if let}
-                        output.extend(parse_if_let_chain(iter, pattern, expr, span)?);
-                        ctx.advance_past(span);
+                        let mut body = ctx.after_tag(span);
+                        output.extend(parse_if_let_chain(iter, pattern, expr, span, &mut body)?);
+                        ctx.resume_after(&body);
                     }
                     TagType::For(item, list) => {
                         iter.next(); // Consume {#for}
 
-                        // Capture spacing from before the {#for} tag
-                        let leading_spacing = ctx.emit_spacing_to(span);
-                        ctx.advance_past(span);
-
-                        let (body, terminator) = parse_fragment(iter, Some(&[Terminator::EndFor]))?;
+                        let mut body_ctx = ctx.after_tag(span);
+                        let (body, terminator) = parse_fragment_with_ctx(
+                            iter,
+                            Some(&[Terminator::EndFor]),
+                            &mut body_ctx,
+                        )?;
+                        ctx.resume_after(&body_ctx);
                         if !matches!(terminator, Some(Terminator::EndFor)) {
                             return Err(syn::Error::new(
                                 span,
@@ -145,28 +223,30 @@ pub fn parse_fragment_with_ctx(
                             ));
                         }
 
-                        // Emit leading spacing before each iteration
+                        // Each iteration starts with its body's own leading spacing.
                         output.extend(quote! {
                             for #item in #list {
-                                #leading_spacing
                                 #body
                             }
                         });
                     }
                     TagType::Match(expr) => {
                         iter.next(); // Consume {#match}
-                        output.extend(parse_match_arms(iter, expr, span)?);
-                        ctx.advance_past(span);
+                        let mut body = ctx.after_tag(span);
+                        output.extend(parse_match_arms(iter, expr, span, &mut body)?);
+                        ctx.resume_after(&body);
                     }
                     TagType::While(cond) => {
                         iter.next(); // Consume {#while}
-                        output.extend(parse_while_chain(iter, cond, span)?);
-                        ctx.advance_past(span);
+                        let mut body = ctx.after_tag(span);
+                        output.extend(parse_while_chain(iter, cond, span, &mut body)?);
+                        ctx.resume_after(&body);
                     }
                     TagType::WhileLet(pattern, expr) => {
                         iter.next(); // Consume {#while let}
-                        output.extend(parse_while_let_chain(iter, pattern, expr, span)?);
-                        ctx.advance_past(span);
+                        let mut body = ctx.after_tag(span);
+                        output.extend(parse_while_let_chain(iter, pattern, expr, span, &mut body)?);
+                        ctx.resume_after(&body);
                     }
                     TagType::Do(body) => {
                         iter.next(); // Consume {$do ...}
@@ -174,7 +254,7 @@ pub fn parse_fragment_with_ctx(
                         output.extend(quote! {
                             #body;
                         });
-                        ctx.advance_past(span);
+                        ctx.skip_tag(span);
                     }
                     TagType::LineComment(body) => {
                         iter.next(); // Consume
@@ -209,6 +289,7 @@ pub fn parse_fragment_with_ctx(
                             && stops.iter().any(|s| matches!(s, Terminator::Else))
                         {
                             iter.next(); // Consume
+                            ctx.skip_tag(span);
                             return Ok((output, Some(Terminator::Else)));
                         }
                         return Err(syn::Error::new(span, "Unexpected {:else}"));
@@ -218,6 +299,7 @@ pub fn parse_fragment_with_ctx(
                             && stops.iter().any(|s| matches!(s, Terminator::ElseIf(_)))
                         {
                             iter.next(); // Consume
+                            ctx.skip_tag(span);
                             return Ok((output, Some(Terminator::ElseIf(cond))));
                         }
                         return Err(syn::Error::new(span, "Unexpected {:else if}"));
@@ -227,6 +309,7 @@ pub fn parse_fragment_with_ctx(
                             && stops.iter().any(|s| matches!(s, Terminator::EndIf))
                         {
                             iter.next(); // Consume
+                            ctx.skip_tag(span);
                             return Ok((output, Some(Terminator::EndIf)));
                         }
                         return Err(syn::Error::new(span, "Unexpected {/if}"));
@@ -236,6 +319,7 @@ pub fn parse_fragment_with_ctx(
                             && stops.iter().any(|s| matches!(s, Terminator::EndFor))
                         {
                             iter.next(); // Consume
+                            ctx.skip_tag(span);
                             return Ok((output, Some(Terminator::EndFor)));
                         }
                         return Err(syn::Error::new(span, "Unexpected {/for}"));
@@ -245,6 +329,7 @@ pub fn parse_fragment_with_ctx(
                             && stops.iter().any(|s| matches!(s, Terminator::EndWhile))
                         {
                             iter.next(); // Consume
+                            ctx.skip_tag(span);
                             return Ok((output, Some(Terminator::EndWhile)));
                         }
                         return Err(syn::Error::new(span, "Unexpected {/while}"));
@@ -254,6 +339,7 @@ pub fn parse_fragment_with_ctx(
                             && stops.iter().any(|s| matches!(s, Terminator::Case(_)))
                         {
                             iter.next(); // Consume
+                            ctx.skip_tag(span);
                             return Ok((output, Some(Terminator::Case(pattern))));
                         }
                         return Err(syn::Error::new(span, "Unexpected {:case}"));
@@ -263,6 +349,7 @@ pub fn parse_fragment_with_ctx(
                             && stops.iter().any(|s| matches!(s, Terminator::EndMatch))
                         {
                             iter.next(); // Consume
+                            ctx.skip_tag(span);
                             return Ok((output, Some(Terminator::EndMatch)));
                         }
                         return Err(syn::Error::new(span, "Unexpected {/match}"));
@@ -272,24 +359,25 @@ pub fn parse_fragment_with_ctx(
                         output.extend(quote! {
                             let #body;
                         });
-                        ctx.advance_past(span);
+                        ctx.skip_tag(span);
                     }
                     TagType::LetMut(body) => {
                         iter.next(); // Consume {$mut ...}
                         output.extend(quote! {
                             let mut #body;
                         });
-                        ctx.advance_past(span);
+                        ctx.skip_tag(span);
                     }
                     TagType::TypeScript(body) => {
                         iter.next(); // Consume {$typescript ...}
                         output.extend(ctx.emit_spacing_to(span));
-                        // The body is a TsStream: its source joins the output, and the
-                        // rest of it (patches, suffixes, diagnostics) is carried along.
+                        // The body is a TsStream: its source joins the output at the
+                        // indentation it lands on, and the rest of it (patches, suffixes,
+                        // diagnostics) is carried along.
                         output.extend(quote! {
                             {
                                 let mut __ts_stream: macroforge_ts::ts_syn::TsStream = #body;
-                                __out.push_str(&__ts_stream.take_source());
+                                __ts_stream.splice_source_into(&mut __out);
                                 __carried = __carried.merge(__ts_stream);
                             }
                         });
@@ -318,7 +406,7 @@ pub fn parse_fragment_with_ctx(
                         // Emit spacing before closing brace
                         let close_start = Pos::from_span_start(g.span_close());
                         if let Some(prev) = ctx.prev_end {
-                            let sp = spacing_between(prev, close_start);
+                            let sp = spacing_between(prev, close_start, ctx.base_col);
                             if !sp.is_empty() {
                                 output.extend(quote! { __out.push_str(#sp); });
                             }
@@ -355,7 +443,7 @@ pub fn parse_fragment_with_ctx(
                 // Emit spacing before closing delimiter
                 let close_start = Pos::from_span_start(g.span_close());
                 if let Some(prev) = ctx.prev_end {
-                    let sp = spacing_between(prev, close_start);
+                    let sp = spacing_between(prev, close_start, ctx.base_col);
                     if !sp.is_empty() {
                         output.extend(quote! { __out.push_str(#sp); });
                     }

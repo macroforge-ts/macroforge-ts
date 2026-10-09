@@ -18,32 +18,24 @@ true
 export class User {
     name: string;
 
-static toString(value: User): string {
-                    return userToString(value);
-                }}
+    static toString(value: User): string {
+        return userToString(value);
+    }
+}
 
 export function userToString(value: User): string {
-                        const parts: string[] = [];
-                        parts.push("name: " + value.name);
-
-                        return "User { " + parts.join(", ") + " }";
-                    }
+    const parts: string[] = [];
+    parts.push("name: " + String(value.name));
+    return "User { " + parts.join(", ") + " }";
+}
 
 ## DTS
 
-export class User {
-    name: string;
-
-static toString(value: User): string {
-                    return userToString(value);
-                }}
-
-export function userToString(value: User): string {
-                        const parts: string[] = [];
-                        parts.push("name: " + value.name);
-
-                        return "User { " + parts.join(", ") + " }";
-                    }
+export declare class User {
+	name: string;
+	static toString(value: User): string;
+}
+export declare function userToString(value: User): string;
 
 ## Diagnostics
 
@@ -52,14 +44,14 @@ export function userToString(value: User): string {
 ## Mapping
 
 original 21..60 -> expanded 0..39
-original 60..61 -> expanded 144..145
-original 61..62 -> expanded 400..401
-generated 39..144 <- Debug
-generated 145..400 <- Debug
+original 60..61 -> expanded 125..126
+original 61..62 -> expanded 308..309
+generated 39..125 <- Debug
+generated 126..308 <- Debug
 
 ## Metadata
 
-class User: {"body_span":{"end":62,"start":41},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":22,"start":1}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":60,"start":47},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":62,"start":30},"type_params":[]}
+class User: {"body_span":{"end":62,"start":41},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":22,"start":1}}],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":60,"start":47},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":62,"start":30},"type_params":[]}
 
 ## Registry reads
 

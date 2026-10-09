@@ -29,7 +29,8 @@ import { helper } from "./helper";
 export class Widget {
     id: string;
 
-placedWithin(): string { return "Widget"; }}
+    placedWithin(): string { return "Widget"; }
+}
 
 export const placedBelow = "Widget";
 
@@ -37,19 +38,12 @@ export const after = helper();
 
 ## DTS
 
-const placedTop = "Widget";
-/** import macro { Placed } from "@macroforge/test-macros" */
-import { helper } from "./helper";
-
-
-export class Widget {
-    id: string;
-
-placedWithin(): string { return "Widget"; }}
-
-export const placedBelow = "Widget";
-
-export const after = helper();
+export declare class Widget {
+	id: string;
+	placedWithin(): string;
+}
+export declare const placedBelow = "Widget";
+export declare const after: unknown;
 
 ## Diagnostics
 
@@ -59,15 +53,15 @@ export const after = helper();
 
 original 0..98 -> expanded 28..126
 original 120..159 -> expanded 126..165
-original 159..160 -> expanded 209..210
-original 160..193 -> expanded 248..281
+original 159..160 -> expanded 214..215
+original 160..193 -> expanded 253..286
 generated 0..28 <- Placed
-generated 165..209 <- Placed
-generated 210..248 <- Placed
+generated 165..214 <- Placed
+generated 215..253 <- Placed
 
 ## Metadata
 
-class Widget: {"body_span":{"end":161,"start":142},"decorators":[{"args_src":"Placed","name":"Derive","span":{"end":121,"start":99}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":159,"start":148},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Widget","span":{"end":161,"start":129},"type_params":[]}
+class Widget: {"body_span":{"end":161,"start":142},"decorators":[{"args_src":"Placed","name":"Derive","span":{"end":121,"start":99}}],"fields":[{"decorators":[],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":159,"start":148},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Widget","span":{"end":161,"start":129},"type_params":[]}
 
 ## Registry reads
 

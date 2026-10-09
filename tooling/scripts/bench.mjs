@@ -8,9 +8,9 @@
 //                                                   JSR (the build:wasm task)
 //   MF_BENCH_ITERATIONS=50                          control iteration count (default: 20)
 //
-// Every call passes the vanilla playground's type and declarative registries,
+// Every call passes the vanilla testground's type and declarative registries,
 // as the Vite plugin does, so the numbers include what crossing them costs.
-// `target/debug/macroforge refresh tooling/playground/vanilla` writes them.
+// `target/debug/macroforge refresh tooling/testground/vanilla` writes them.
 
 import { pathToFileURL } from 'node:url';
 import * as path from 'node:path';
@@ -109,22 +109,22 @@ async function collectWasmBindgenBinaries(dir, acc) {
 // ============================================================================
 
 const benchFiles = [
-    'tooling/playground/vanilla/src/user.ts',
-    'tooling/playground/svelte/src/lib/demo/macro-user.ts',
-    'tooling/playground/vanilla/src/all-macros-test.ts',
-    'tooling/playground/vanilla/src/enum-type-examples.ts',
-    'tooling/playground/vanilla/src/form-model.ts',
-    'tooling/playground/vanilla/src/validator-form.ts'
+    'tooling/testground/vanilla/src/user.ts',
+    'tooling/testground/svelte/src/lib/demo/macro-user.ts',
+    'tooling/testground/vanilla/src/all-macros-test.ts',
+    'tooling/testground/vanilla/src/enum-type-examples.ts',
+    'tooling/testground/vanilla/src/form-model.ts',
+    'tooling/testground/vanilla/src/validator-form.ts'
 ];
 
-const registryDir = path.join(root, 'tooling/playground/vanilla/.macroforge');
+const registryDir = path.join(root, 'tooling/testground/vanilla/.macroforge');
 
 function getOptions() {
     const read = (name) => {
         const file = path.join(registryDir, name);
         if (!fs.existsSync(file)) {
             console.error(
-                `No ${file}. Run: target/debug/macroforge refresh tooling/playground/vanilla`
+                `No ${file}. Run: target/debug/macroforge refresh tooling/testground/vanilla`
             );
             Deno.exit(1);
         }
@@ -164,7 +164,7 @@ async function bench(label, modPath) {
     const options = getOptions();
     // External macro packages resolve from the working directory, as they do
     // from the app root under the Vite plugin.
-    Deno.chdir(path.join(root, 'tooling/playground/vanilla'));
+    Deno.chdir(path.join(root, 'tooling/testground/vanilla'));
     for (let w = 0; w < 2; w++) {
         for (const i of inputs) {
             m.expandSync(i.code, i.filepath, options);

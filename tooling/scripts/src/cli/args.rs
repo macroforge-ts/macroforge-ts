@@ -109,7 +109,7 @@ pub enum DocsCommands {
 
 #[derive(clap::Args)]
 pub struct TestArgs {
-    /// Test suite to run: 'rust', 'packages', 'playground', or 'all'
+    /// Test suite to run: 'rust', 'packages', 'testground', or 'all'
     #[arg(default_value = "all")]
     pub suite: String,
 }

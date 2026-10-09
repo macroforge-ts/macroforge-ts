@@ -2,22 +2,22 @@
     "crates": [
         {
             "name": "macroforge_ts",
-            "version": "0.4.0",
+            "version": "0.5.0",
             "itemCount": 43
         },
         {
             "name": "macroforge_ts_syn",
-            "version": "0.4.0",
+            "version": "0.5.0",
             "itemCount": 1
         },
         {
             "name": "macroforge_ts_quote",
-            "version": "0.4.0",
+            "version": "0.5.0",
             "itemCount": 2
         },
         {
             "name": "macroforge_ts_macros",
-            "version": "0.4.0",
+            "version": "0.5.0",
             "itemCount": 3
         }
     ],
@@ -27,6 +27,7 @@
         "decode",
         "default",
         "encode",
+        "eq",
         "hash",
         "newtype",
         "ord",

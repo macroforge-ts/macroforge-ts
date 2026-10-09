@@ -29,7 +29,7 @@ class User {
             "Should have static encodeWithContext method"
         );
         assert!(
-            type_output.contains("export function userEncode"),
+            type_output.contains("export declare function userEncode"),
             "Should have standalone userEncode function"
         );
     }
@@ -91,7 +91,8 @@ class User {
             "Should have decode method"
         );
         assert!(
-            type_output.contains("static decodeWithContext(value: any, ctx: __mf_DecodeContext)"),
+            type_output
+                .contains("static decodeWithContext(value: unknown, ctx: __mf_DecodeContext)"),
             "Should have decodeWithContext method"
         );
     }
@@ -393,16 +394,17 @@ export type Stage = 'Active' | { Invoice: Ref };
     // `typeof __inner === "object" ? __inner : {}`, so a variant holding a
     // bare id decoded to `{}`: the link vanished and the result still
     // reported success, which is worse than failing.
-    let invoice_branch = result
-        .code
-        .lines()
-        .find(|line| line.contains(r#"__variantName === "Invoice""#))
-        .unwrap_or_else(|| {
-            panic!(
-                "expected a decode branch for the Invoice variant. Got:\n{}",
-                result.code
-            )
-        });
+    // The branch runs from its condition to the next variant's, or the end.
+    let marker = r#"__variantName === "Invoice""#;
+    let start = result.code.find(marker).unwrap_or_else(|| {
+        panic!(
+            "expected a decode branch for the Invoice variant. Got:\n{}",
+            result.code
+        )
+    });
+    let rest = &result.code[start + marker.len()..];
+    let invoice_branch = &result.code
+        [start..start + marker.len() + rest.find("__variantName ===").unwrap_or(rest.len())];
 
     assert!(
         !invoice_branch.contains(r#"typeof __inner === "object""#),

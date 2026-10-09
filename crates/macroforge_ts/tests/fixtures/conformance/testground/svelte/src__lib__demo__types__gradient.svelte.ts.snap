@@ -1,0 +1,409 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/gradient.svelte.ts
+sha256 c95da3df99f58b19834f5993b2cce36108d010e1081e9f10c99871efdb8482c8
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+
+export interface Gradient {
+    startHue: number;
+}
+
+export function gradientDefaultValue(): Gradient {
+    return {
+        startHue: 0,
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function gradientEncode(value: Gradient, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = gradientEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function gradientEncodeWithContext(value: Gradient, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Gradient",
+        __id,
+    };
+
+    
+    result.startHue = value.startHue;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function gradientDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Gradient } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = gradientDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Gradient.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function gradientDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Gradient | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Gradient.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Gradient | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Gradient.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("startHue" in obj)) {
+        errors.push({ field: "startHue", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_startHue = obj["startHue"] as number;
+
+        if (!(typeof __raw_startHue === "number")) {
+            errors.push({ field: "startHue", message: __raw_startHue == null ? "Gradient.startHue is required" : "expected number" });
+        } else {
+            instance.startHue = __raw_startHue;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Gradient;
+}
+export function gradientValidateField<K extends keyof Gradient>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function gradientValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function gradientValidateFields(partial: { readonly [K in keyof Gradient]?: unknown }): Array<{ field: string; message: string }>;
+export function gradientValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function gradientHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "startHue" in o;
+}
+
+export function gradientIs(obj: unknown): obj is Gradient {
+    return gradientHasShape(obj) && gradientDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type GradientErrors = {
+    _errors: Option.Option<Array<string>>;
+    startHue: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type GradientTainted = {
+    startHue: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface GradientFieldControllers {
+    readonly startHue: FieldController<number>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface GradientGigaform {
+    readonly data: Gradient;
+    readonly errors: GradientErrors;
+    readonly tainted: GradientTainted;
+    readonly fields: GradientFieldControllers;
+    validate(): Exit.Exit<Gradient, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Gradient>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function gradientCreateForm(overrides?: Partial<Gradient>): GradientGigaform {
+    let data = $state({ ...gradientDefaultValue(), ...overrides });
+    let errors = $state<GradientErrors>({
+        _errors: Option.none(),
+        startHue: Option.none(),
+    });
+    let tainted = $state<GradientTainted>({
+        startHue: Option.none(),
+    });
+    const fields = {
+        startHue: {
+            name: "startHue",
+            label: "startHue",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["startHue"],
+            get: () => data.startHue,
+            set: (value: number) => { data.startHue = value; },
+            getError: () => errors.startHue,
+            setError: (value: Option.Option<Array<string>>) => { errors.startHue = value; },
+            getTainted: () => tainted.startHue,
+            setTainted: (value: Option.Option<boolean>) => { tainted.startHue = value; },
+            validate: () => gradientValidateField("startHue", data.startHue).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as GradientFieldControllers;
+
+    function validate(): Exit.Exit<Gradient, Array<{ field: string; message: string }>> {
+        return toExit(gradientDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<Gradient>): void {
+        data = { ...gradientDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            startHue: Option.none(),
+        };
+        tainted = {
+            startHue: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function gradientFromFormData(formData: FormData): Exit.Exit<Gradient, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    {
+        const startHueStr = formData.get("startHue");
+        obj.startHue = startHueStr ? parseFloat(startHueStr as string) : 0;
+        if (obj.startHue !== undefined && isNaN(obj.startHue as number)) obj.startHue = 0;
+    }
+
+    return toExit(gradientDecode(obj));
+}
+
+export const Gradient: {
+  readonly defaultValue: typeof gradientDefaultValue;
+  readonly encode: typeof gradientEncode;
+  readonly encodeWithContext: typeof gradientEncodeWithContext;
+  readonly decode: typeof gradientDecode;
+  readonly decodeWithContext: typeof gradientDecodeWithContext;
+  readonly validateField: typeof gradientValidateField;
+  readonly validateFields: typeof gradientValidateFields;
+  readonly hasShape: typeof gradientHasShape;
+  readonly is: typeof gradientIs;
+  readonly createForm: typeof gradientCreateForm;
+  readonly fromFormData: typeof gradientFromFormData;
+} = {
+  defaultValue: gradientDefaultValue,
+  encode: gradientEncode,
+  encodeWithContext: gradientEncodeWithContext,
+  decode: gradientDecode,
+  decodeWithContext: gradientDecodeWithContext,
+  validateField: gradientValidateField,
+  validateFields: gradientValidateFields,
+  hasShape: gradientHasShape,
+  is: gradientIs,
+  createForm: gradientCreateForm,
+  fromFormData: gradientFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+export interface Gradient {
+	startHue: number;
+}
+export declare function gradientDefaultValue(): Gradient;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function gradientEncode(value: Gradient, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function gradientEncodeWithContext(value: Gradient, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function gradientDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Gradient;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function gradientDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Gradient | __mf_PendingRef;
+export declare function gradientValidateField<K extends keyof Gradient>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function gradientValidateFields(partial: { readonly [K in keyof Gradient]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function gradientHasShape(obj: unknown): boolean;
+export declare function gradientIs(obj: unknown): obj is Gradient;
+/** Nested error structure matching the data shape  */
+export type GradientErrors = {
+	_errors: Option.Option<Array<string>>;
+	startHue: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type GradientTainted = {
+	startHue: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface GradientFieldControllers {
+	readonly startHue: FieldController<number>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface GradientGigaform {
+	readonly data: Gradient;
+	readonly errors: GradientErrors;
+	readonly tainted: GradientTainted;
+	readonly fields: GradientFieldControllers;
+	validate(): Exit.Exit<Gradient, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<Gradient>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function gradientCreateForm(overrides?: Partial<Gradient>): GradientGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function gradientFromFormData(formData: FormData): Exit.Exit<Gradient, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const Gradient: {
+	readonly defaultValue: typeof gradientDefaultValue;
+	readonly encode: typeof gradientEncode;
+	readonly encodeWithContext: typeof gradientEncodeWithContext;
+	readonly decode: typeof gradientDecode;
+	readonly decodeWithContext: typeof gradientDecodeWithContext;
+	readonly validateField: typeof gradientValidateField;
+	readonly validateFields: typeof gradientValidateFields;
+	readonly hasShape: typeof gradientHasShape;
+	readonly is: typeof gradientIs;
+	readonly createForm: typeof gradientCreateForm;
+	readonly fromFormData: typeof gradientFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 421..479
+original 107..159 -> expanded 479..531
+original 159..160 -> expanded 10117..10118
+generated 0..421 <- imports
+generated 531..626 <- Default
+generated 626..1738 <- Encode
+generated 1738..5610 <- Decode
+generated 5610..9131 <- Gigaform
+generated 9131..10117 <- __convenience_const
+
+## Metadata
+
+interface Gradient: {"body_span":{"end":160,"start":135},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"startHue","optional":false,"readonly":false,"span":{"end":158,"start":141},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Gradient","span":{"end":160,"start":116},"type_params":[]}
+
+## Registry reads
+
+Name("number")
+
+## Buildtime dependencies
+
+(none)

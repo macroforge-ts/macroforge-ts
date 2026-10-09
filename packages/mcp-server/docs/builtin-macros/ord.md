@@ -1,14 +1,14 @@
 # Ord
 
-The `Ord` macro generates a `compareTo()` method for **total ordering** comparison. This is
-analogous to Rust's `Ord` trait, enabling objects to be sorted and compared with a guaranteed
-ordering relationship.
+The `Ord` macro generates a `compare()` method for **total ordering** comparison. This is analogous
+to Rust's `Ord` trait, enabling objects to be sorted and compared with a guaranteed ordering
+relationship.
 
 ## Generated Output
 
 | Type       | Generated Code                                                     | Description                                          |
 | ---------- | ------------------------------------------------------------------ | ---------------------------------------------------- |
-| Class      | `classNameCompare(a, b)` + `static compareTo(a, b)`                | Standalone function + static wrapper method          |
+| Class      | `classNameCompare(a, b)` + `static compare(a, b)`                  | Standalone function + static wrapper method          |
 | Enum       | `enumNameCompare(a: EnumName, b: EnumName): number`                | Standalone function comparing enum values            |
 | Interface  | `interfaceNameCompare(a: InterfaceName, b: InterfaceName): number` | Standalone function comparing fields                 |
 | Type Alias | `typeNameCompare(a: TypeName, b: TypeName): number`                | Standalone function with type-appropriate comparison |
@@ -34,14 +34,21 @@ Fields are compared **lexicographically** in declaration order:
 
 ## Type-Specific Comparisons
 
-| Type              | Comparison Method                        |
-| ----------------- | ---------------------------------------- |
-| `number`/`bigint` | Direct `<` and `>` comparison            |
-| `string`          | `localeCompare()` (clamped to -1, 0, 1)  |
-| `boolean`         | false &lt; true                          |
-| Arrays            | Lexicographic element-by-element         |
-| `Date`            | `getTime()` timestamp comparison         |
-| Objects           | Calls `compareTo()` if available, else 0 |
+| Type                  | Comparison Method                                                                               |
+| --------------------- | ----------------------------------------------------------------------------------------------- |
+| `number`/`bigint`     | Direct `<` and `>` comparison                                                                   |
+| `string`              | UTF-16 code units, so `0` exactly when `===` holds                                              |
+| `boolean`             | false &lt; true                                                                                 |
+| Optional and nullable | An absent value orders first                                                                    |
+| Arrays                | Lexicographic, each element compared by its own type                                            |
+| `Date`                | `getTime()` timestamp comparison                                                                |
+| Types deriving `Ord`  | Their `compare` function                                                                        |
+| Anything else         | `structuralCompare` from `@macroforge/core/structural`, a total order agreeing with `PartialEq` |
+
+## Requirements
+
+`Ord` requires `Eq` and `PartialOrd`, as in Rust, and so `PartialEq` as well. Deriving it without
+them is an expansion error.
 
 ## Field-Level Options
 
@@ -52,7 +59,7 @@ The `@ord` decorator supports:
 ## Example
 
 ```typescript before
-/** @derive(Ord) */
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
 class Version {
     major: number;
     minor: number;
@@ -66,7 +73,7 @@ class Version {
     minor: number;
     patch: number;
 
-    static compareTo(a: Version, b: Version): number {
+    static compare(a: Version, b: Version): number {
         return versionCompare(a, b);
     }
 }
@@ -86,4 +93,4 @@ export function versionCompare(a: Version, b: Version): number {
 ## Ord vs PartialOrd
 
 - Use **Ord** when all values are comparable (total ordering)
-- Use **PartialOrd** when some values may be incomparable (returns `Option<number>`)
+- Use **PartialOrd** when some values may be incomparable (returns `number | null`)

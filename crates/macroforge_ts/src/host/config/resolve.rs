@@ -99,7 +99,6 @@ impl ConfigLayer {
             must_use: self.must_use.unwrap_or(defaults.must_use),
             non_exhaustive: self.non_exhaustive.unwrap_or(defaults.non_exhaustive),
             buildtime: self.buildtime.unwrap_or(defaults.buildtime),
-            config_imports: self.imports,
         }
     }
 }
@@ -475,8 +474,8 @@ impl Resolver {
                         &module.location(),
                         &name,
                         entry,
-                        &module.imports,
                         module.source,
+                        module.path,
                     )?;
                     foreign_types = merge_foreign_types(foreign_types, vec![foreign_type]);
                 }

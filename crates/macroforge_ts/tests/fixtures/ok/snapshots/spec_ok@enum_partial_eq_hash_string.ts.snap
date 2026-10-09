@@ -25,16 +25,16 @@ enum Color {
 }
 
 export function colorEquals(a: Color, b: Color): boolean {
-                    return a === b;
-                }
+    return a === b;
+}
 
 export function colorHashCode(value: Color): number {
-                        let hash = 0;
-                        for (let i = 0; i < value.length; i++) {
-                            hash = (hash * 31 + value.charCodeAt(i)) | 0;
-                        }
-                        return hash;
-                    }
+    let hash = 0;
+    for (let i = 0; i < value.length; i++) {
+        hash = (hash * 31 + value.charCodeAt(i)) | 0;
+    }
+    return hash;
+}
 
 namespace Color {
   export const equals: typeof colorEquals = colorEquals;
@@ -43,28 +43,18 @@ namespace Color {
 
 ## DTS
 
-enum Color {
-    Red = 'red',
-    Green = 'green',
-    Blue = 'blue'
+declare enum Color {
+	Red = "red",
+	Green = "green",
+	Blue = "blue"
 }
-
-export function colorEquals(a: Color, b: Color): boolean {
-                    return a === b;
-                }
-
-export function colorHashCode(value: Color): number {
-                        let hash = 0;
-                        for (let i = 0; i < value.length; i++) {
-                            hash = (hash * 31 + value.charCodeAt(i)) | 0;
-                        }
-                        return hash;
-                    }
-
-namespace Color {
-  export const equals: typeof colorEquals = colorEquals;
-  export const hashCode: typeof colorHashCode = colorHashCode;
+export declare function colorEquals(a: Color, b: Color): boolean;
+export declare function colorHashCode(value: Color): number;
+declare namespace Color {
+	const equals: typeof colorEquals;
+	const hashCode: typeof colorHashCode;
 }
+export {};
 
 ## Diagnostics
 
@@ -73,10 +63,10 @@ namespace Color {
 ## Mapping
 
 original 31..102 -> expanded 0..71
-original 102..103 -> expanded 643..644
-generated 71..185 <- PartialEq
-generated 185..502 <- Hash
-generated 502..643 <- __convenience_const
+original 102..103 -> expanded 491..492
+generated 71..153 <- PartialEq
+generated 153..350 <- Hash
+generated 350..491 <- __convenience_const
 
 ## Metadata
 

@@ -1,0 +1,460 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/lead-stage.svelte.ts
+sha256 87d98fb1d791ba79d96973034f15fa977948b0ffa815b1fe3d84df03bd7b066c
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+
+export type LeadStage =
+    | /** @default */ 'Open'
+    | 'InitialContact'
+    | 'Qualified'
+    | 'Estimate'
+    | 'Negotiation';
+
+export function leadStageDefaultValue(): LeadStage {
+    return "Open";
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function leadStageEncode(value: LeadStage, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = leadStageEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function leadStageEncodeWithContext(value: LeadStage, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    }
+    return __variant;
+}
+
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+export function leadStageDecode(input: unknown): { success: true; value: LeadStage } | { success: false; errors: Array<{ field: string; message: string }> } {
+    switch (input) {
+        case 'Open':
+        case 'InitialContact':
+        case 'Qualified':
+        case 'Estimate':
+        case 'Negotiation':
+            return { success: true, value: input as LeadStage };
+        default:
+            return { success: false, errors: [{ field: "_root", message: "Invalid value for LeadStage: expected one of " + ['Open', 'InitialContact', 'Qualified', 'Estimate', 'Negotiation'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
+    }
+}
+
+/** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+export function leadStageDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): LeadStage | __mf_PendingRef {
+    switch (value) {
+        case 'Open':
+        case 'InitialContact':
+        case 'Qualified':
+        case 'Estimate':
+        case 'Negotiation':
+            return value as LeadStage;
+        default:
+            throw new __mf_DecodeError([{
+                field: "_root",
+                message: "Invalid value for LeadStage: expected one of " + ['Open', 'InitialContact', 'Qualified', 'Estimate', 'Negotiation'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+            }]);
+    }
+}
+
+export function leadStageHasShape(value: unknown): boolean {
+    switch (value) {
+        case 'Open':
+        case 'InitialContact':
+        case 'Qualified':
+        case 'Estimate':
+        case 'Negotiation':
+            return true;
+        default:
+            return false;
+    }
+}
+
+export function leadStageIs(value: unknown): value is LeadStage {
+    return leadStageHasShape(value);
+}
+
+/** Per-variant error types  */
+
+export type LeadStageOpenErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+export type LeadStageInitialContactErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+export type LeadStageQualifiedErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+export type LeadStageEstimateErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+export type LeadStageNegotiationErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+
+/** Per-variant tainted types  */
+
+export type LeadStageOpenTainted = {
+};
+export type LeadStageInitialContactTainted = {
+};
+export type LeadStageQualifiedTainted = {
+};
+export type LeadStageEstimateTainted = {
+};
+export type LeadStageNegotiationTainted = {
+};
+
+/** Union error type  */
+export type LeadStageErrors = ({ _value: "Open" } & LeadStageOpenErrors) | ({ _value: "InitialContact" } & LeadStageInitialContactErrors) | ({ _value: "Qualified" } & LeadStageQualifiedErrors) | ({ _value: "Estimate" } & LeadStageEstimateErrors) | ({ _value: "Negotiation" } & LeadStageNegotiationErrors);
+
+/** Union tainted type  */
+export type LeadStageTainted = ({ _value: "Open" } & LeadStageOpenTainted) | ({ _value: "InitialContact" } & LeadStageInitialContactTainted) | ({ _value: "Qualified" } & LeadStageQualifiedTainted) | ({ _value: "Estimate" } & LeadStageEstimateTainted) | ({ _value: "Negotiation" } & LeadStageNegotiationTainted);
+
+/** Per-variant field controller types  */
+
+export interface LeadStageOpenFieldControllers {
+}
+export interface LeadStageInitialContactFieldControllers {
+}
+export interface LeadStageQualifiedFieldControllers {
+}
+export interface LeadStageEstimateFieldControllers {
+}
+export interface LeadStageNegotiationFieldControllers {
+}
+
+/** Union Gigaform interface with variant switching  */
+export interface LeadStageGigaform {
+    readonly currentVariant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation";
+    readonly data: LeadStage;
+    readonly errors: LeadStageErrors;
+    readonly tainted: LeadStageTainted;
+    readonly variants: LeadStageVariantFields;
+    switchVariant(variant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation"): void;
+    validate(): Exit.Exit<LeadStage, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<LeadStage>): void;
+}
+
+/** Variant fields container  */
+export interface LeadStageVariantFields {
+    readonly Open: { readonly fields: LeadStageOpenFieldControllers };
+    readonly InitialContact: { readonly fields: LeadStageInitialContactFieldControllers };
+    readonly Qualified: { readonly fields: LeadStageQualifiedFieldControllers };
+    readonly Estimate: { readonly fields: LeadStageEstimateFieldControllers };
+    readonly Negotiation: { readonly fields: LeadStageNegotiationFieldControllers };
+}
+/** Gets default value for a specific variant  */
+function leadStageGetDefaultForVariant(variant: string): LeadStage {
+    if (variant === "Open") { return "Open" as LeadStage; }
+    if (variant === "InitialContact") { return "InitialContact" as LeadStage; }
+    if (variant === "Qualified") { return "Qualified" as LeadStage; }
+    if (variant === "Estimate") { return "Estimate" as LeadStage; }
+    if (variant === "Negotiation") { return "Negotiation" as LeadStage; }
+    return "Open" as LeadStage;
+}
+
+/** Creates a new discriminated union Gigaform with variant switching  */
+export function leadStageCreateForm(initial?: LeadStage): LeadStageGigaform {
+
+    const initialVariant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation" = (initial as "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation") ?? "Open";
+
+    let currentVariant = $state<"Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation">(initialVariant);
+    let data = $state<LeadStage>(initial ?? leadStageGetDefaultForVariant(initialVariant));
+    let errors = $state<LeadStageErrors>({} as LeadStageErrors);
+    let tainted = $state<LeadStageTainted>({} as LeadStageTainted);
+
+    const variants = {
+        "Open": { fields: {  } as unknown as LeadStageOpenFieldControllers },
+        "InitialContact": { fields: {  } as unknown as LeadStageInitialContactFieldControllers },
+        "Qualified": { fields: {  } as unknown as LeadStageQualifiedFieldControllers },
+        "Estimate": { fields: {  } as unknown as LeadStageEstimateFieldControllers },
+        "Negotiation": { fields: {  } as unknown as LeadStageNegotiationFieldControllers },
+    } as unknown as LeadStageVariantFields;
+
+    function switchVariant(variant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation"): void {
+        currentVariant = variant;
+        data = leadStageGetDefaultForVariant(variant);
+        errors = {} as LeadStageErrors;
+        tainted = {} as LeadStageTainted;
+    }
+
+    function validate(): Exit.Exit<LeadStage, Array<{ field: string; message: string }>> {
+        return toExit(leadStageDecode(data));
+    }
+
+    function reset(overrides?: Partial<LeadStage>): void {
+        data = overrides ? overrides as typeof data : leadStageGetDefaultForVariant(currentVariant);
+        errors = {} as LeadStageErrors;
+        tainted = {} as LeadStageTainted;
+    }
+
+    return {
+        get currentVariant() { return currentVariant; },
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        variants,
+        switchVariant,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData for union type, determining variant from discriminant field  */
+export function leadStageFromFormData(formData: FormData): Exit.Exit<LeadStage, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation" | null;
+
+    if (!discriminant) {
+        return toExit({ success: false, errors: [{ field: "_value", message: "Missing discriminant field" }] });
+    }
+
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+
+    {
+
+        if (discriminant === "Open") {
+
+        }
+    }
+    {
+
+        if (discriminant === "InitialContact") {
+
+        }
+    }
+    {
+
+        if (discriminant === "Qualified") {
+
+        }
+    }
+    {
+
+        if (discriminant === "Estimate") {
+
+        }
+    }
+    {
+
+        if (discriminant === "Negotiation") {
+
+        }
+    }
+
+    return toExit(leadStageDecode(obj));
+}
+
+export const LeadStage: {
+  readonly defaultValue: typeof leadStageDefaultValue;
+  readonly encode: typeof leadStageEncode;
+  readonly encodeWithContext: typeof leadStageEncodeWithContext;
+  readonly decode: typeof leadStageDecode;
+  readonly decodeWithContext: typeof leadStageDecodeWithContext;
+  readonly hasShape: typeof leadStageHasShape;
+  readonly is: typeof leadStageIs;
+  readonly createForm: typeof leadStageCreateForm;
+  readonly fromFormData: typeof leadStageFromFormData;
+} = {
+  defaultValue: leadStageDefaultValue,
+  encode: leadStageEncode,
+  encodeWithContext: leadStageEncodeWithContext,
+  decode: leadStageDecode,
+  decodeWithContext: leadStageDecodeWithContext,
+  hasShape: leadStageHasShape,
+  is: leadStageIs,
+  createForm: leadStageCreateForm,
+  fromFormData: leadStageFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+export type LeadStage = "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation";
+export declare function leadStageDefaultValue(): LeadStage;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function leadStageEncode(value: LeadStage, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function leadStageEncodeWithContext(value: LeadStage, ctx: __mf_EncodeContext): unknown;
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+export declare function leadStageDecode(input: unknown): {
+	success: true;
+	value: LeadStage;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+export declare function leadStageDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): LeadStage | __mf_PendingRef;
+export declare function leadStageHasShape(value: unknown): boolean;
+export declare function leadStageIs(value: unknown): value is LeadStage;
+/** Per-variant error types  */
+export type LeadStageOpenErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+export type LeadStageInitialContactErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+export type LeadStageQualifiedErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+export type LeadStageEstimateErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+export type LeadStageNegotiationErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+/** Per-variant tainted types  */
+export type LeadStageOpenTainted = {};
+export type LeadStageInitialContactTainted = {};
+export type LeadStageQualifiedTainted = {};
+export type LeadStageEstimateTainted = {};
+export type LeadStageNegotiationTainted = {};
+/** Union error type  */
+export type LeadStageErrors = ({
+	_value: "Open";
+} & LeadStageOpenErrors) | ({
+	_value: "InitialContact";
+} & LeadStageInitialContactErrors) | ({
+	_value: "Qualified";
+} & LeadStageQualifiedErrors) | ({
+	_value: "Estimate";
+} & LeadStageEstimateErrors) | ({
+	_value: "Negotiation";
+} & LeadStageNegotiationErrors);
+/** Union tainted type  */
+export type LeadStageTainted = ({
+	_value: "Open";
+} & LeadStageOpenTainted) | ({
+	_value: "InitialContact";
+} & LeadStageInitialContactTainted) | ({
+	_value: "Qualified";
+} & LeadStageQualifiedTainted) | ({
+	_value: "Estimate";
+} & LeadStageEstimateTainted) | ({
+	_value: "Negotiation";
+} & LeadStageNegotiationTainted);
+/** Per-variant field controller types  */
+export interface LeadStageOpenFieldControllers {}
+export interface LeadStageInitialContactFieldControllers {}
+export interface LeadStageQualifiedFieldControllers {}
+export interface LeadStageEstimateFieldControllers {}
+export interface LeadStageNegotiationFieldControllers {}
+/** Union Gigaform interface with variant switching  */
+export interface LeadStageGigaform {
+	readonly currentVariant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation";
+	readonly data: LeadStage;
+	readonly errors: LeadStageErrors;
+	readonly tainted: LeadStageTainted;
+	readonly variants: LeadStageVariantFields;
+	switchVariant(variant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation"): void;
+	validate(): Exit.Exit<LeadStage, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<LeadStage>): void;
+}
+/** Variant fields container  */
+export interface LeadStageVariantFields {
+	readonly Open: {
+		readonly fields: LeadStageOpenFieldControllers;
+	};
+	readonly InitialContact: {
+		readonly fields: LeadStageInitialContactFieldControllers;
+	};
+	readonly Qualified: {
+		readonly fields: LeadStageQualifiedFieldControllers;
+	};
+	readonly Estimate: {
+		readonly fields: LeadStageEstimateFieldControllers;
+	};
+	readonly Negotiation: {
+		readonly fields: LeadStageNegotiationFieldControllers;
+	};
+}
+/** Creates a new discriminated union Gigaform with variant switching  */
+export declare function leadStageCreateForm(initial?: LeadStage): LeadStageGigaform;
+/** Parses FormData for union type, determining variant from discriminant field  */
+export declare function leadStageFromFormData(formData: FormData): Exit.Exit<LeadStage, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const LeadStage: {
+	readonly defaultValue: typeof leadStageDefaultValue;
+	readonly encode: typeof leadStageEncode;
+	readonly encodeWithContext: typeof leadStageEncodeWithContext;
+	readonly decode: typeof leadStageDecode;
+	readonly decodeWithContext: typeof leadStageDecodeWithContext;
+	readonly hasShape: typeof leadStageHasShape;
+	readonly is: typeof leadStageIs;
+	readonly createForm: typeof leadStageCreateForm;
+	readonly fromFormData: typeof leadStageFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 460..518
+original 107..239 -> expanded 518..650
+original 239..240 -> expanded 11382..11383
+generated 0..460 <- imports
+generated 650..725 <- Default
+generated 725..2038 <- Encode
+generated 2038..4050 <- Decode
+generated 4050..10573 <- Gigaform
+generated 10573..11382 <- __convenience_const
+
+## Metadata
+
+type LeadStage: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":154,"start":139}}],"kind":{"Literal":"'Open'"}},{"decorators":[],"kind":{"Literal":"'InitialContact'"}},{"decorators":[],"kind":{"Literal":"'Qualified'"}},{"decorators":[],"kind":{"Literal":"'Estimate'"}},{"decorators":[],"kind":{"Literal":"'Negotiation'"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"name":"LeadStage","span":{"end":240,"start":116},"type_params":[]}
+
+## Registry reads
+
+Name("LeadStage")
+
+## Buildtime dependencies
+
+(none)

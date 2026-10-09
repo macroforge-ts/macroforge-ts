@@ -1,7 +1,6 @@
-// Foreign type DateTime.Utc whose default body references a *different*
-// namespace (Option) that IS imported at the top of macroforge.config.ts.
-// Target file imports only DateTime, so Option must be auto-aliased and
-// imported under `__mf_Option`.
+// The default and decode handlers read Option, which the config imports and
+// the target file does not. The expanded config keeps that import, so the
+// generated file imports only the handlers and never Option.
 import { DateTime, Option } from 'effect';
 
 export default {

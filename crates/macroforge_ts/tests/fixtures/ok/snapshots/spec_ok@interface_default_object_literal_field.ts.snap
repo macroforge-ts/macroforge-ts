@@ -25,12 +25,12 @@ export interface Assignment {
 }
 
 export function assignmentDefaultValue(): Assignment {
-                        return {
-name: "",
-scores: ({}),
-active: false,
-};
-                    }
+    return {
+        name: "",
+        scores: ({}),
+        active: false,
+    };
+}
 
 export const Assignment: {
   readonly defaultValue: typeof assignmentDefaultValue;
@@ -41,23 +41,15 @@ export const Assignment: {
 ## DTS
 
 export interface Assignment {
-    name: string;
-    scores: { [key: string]: number };
-    active: boolean;
+	name: string;
+	scores: {
+		[key: string]: number;
+	};
+	active: boolean;
 }
-
-export function assignmentDefaultValue(): Assignment {
-                        return {
-name: "",
-scores: ({}),
-active: false,
-};
-                    }
-
-export const Assignment: {
-  readonly defaultValue: typeof assignmentDefaultValue;
-} = {
-  defaultValue: assignmentDefaultValue
+export declare function assignmentDefaultValue(): Assignment;
+export declare const Assignment: {
+	readonly defaultValue: typeof assignmentDefaultValue;
 };
 
 ## Diagnostics
@@ -67,9 +59,9 @@ export const Assignment: {
 ## Mapping
 
 original 23..133 -> expanded 0..110
-original 133..134 -> expanded 395..396
-generated 110..263 <- Default
-generated 263..395 <- __convenience_const
+original 133..134 -> expanded 383..384
+generated 110..251 <- Default
+generated 251..383 <- __convenience_const
 
 ## Metadata
 

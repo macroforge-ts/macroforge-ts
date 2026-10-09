@@ -247,9 +247,10 @@ impl ExternalMacroLoader {
         {
             return Ok(Some(wasm.clone()));
         }
-        let wasm = self
-            .find_package_dir(module_path)
-            .and_then(|package_dir| super::wasm_loader::find_wasm_module(&package_dir));
+        let wasm = match self.find_package_dir(module_path) {
+            Some(package_dir) => super::wasm_loader::find_wasm_module(&package_dir)?,
+            None => None,
+        };
         match &wasm {
             Some(path) => {
                 found.insert(key, path.clone());
@@ -481,7 +482,7 @@ mod tests {
             name: name.to_string(),
             kind: kind.to_string(),
             description: String::new(),
-            package: "playground_macros".to_string(),
+            package: "testground_macros".to_string(),
         }
     }
 

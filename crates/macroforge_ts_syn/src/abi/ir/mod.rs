@@ -70,6 +70,8 @@ pub mod function;
 pub mod interface;
 pub mod type_alias;
 pub mod type_alias_resolve;
+mod type_alias_scope;
+pub mod type_param;
 pub mod type_registry;
 
 pub use class::*;
@@ -80,4 +82,5 @@ pub use function::*;
 pub use interface::*;
 pub use type_alias::*;
 pub use type_alias_resolve::*;
+pub use type_param::TypeParamIR;
 pub use type_registry::*;

@@ -120,7 +120,7 @@ for field in class.fields() {
     pub type_args: Vec<ResolvedTypeRef>, // Map<string, User> → [string, User]
 }`} lang="rust" />
 
-<CodeBlock code={`use macroforge_ts::builtin::derive_common::resolved_type_has_derive;
+<CodeBlock code={`use macroforge_ts::builtin::derive::common::resolved_type_has_derive;
 
 if let Some(resolved) = input.context.resolved_fields.as_ref().and_then(|f| f.get(&field.name)) {
     // Does the field's type, or its element type, also derive Clone?
@@ -148,7 +148,7 @@ let shape = resolve_generic_aliases(
 
 <h3>Helpers</h3>
 
-<p><code>macroforge_ts::builtin::derive_common</code> holds the helpers the built-in macros use:</p>
+<p><code>macroforge_ts::builtin::derive::common</code> holds the helpers the built-in macros use:</p>
 
 <table>
 	<thead>
@@ -193,7 +193,6 @@ let shape = resolve_generic_aliases(
     pub must_use: MustUseConfig,
     pub non_exhaustive: NonExhaustiveConfig,
     pub buildtime: BuildtimeConfig,
-    pub config_imports: HashMap<String, ImportInfo>, // the config file's own imports
 }`} lang="rust" />
 
 <p>
@@ -209,9 +208,19 @@ let shape = resolve_generic_aliases(
     .and_then(|config| config.foreign_types.iter().find(|ft| ft.name == field.ts_type));
 
 if let Some(foreign) = foreign {
-    // foreign.encode_expr, decode_expr, default_expr, has_shape_expr
-    // hold the configured expressions, as source text
+    // Imports the handler from #macroforge/config and names it, so the
+    // generated code calls the project's own function.
+    if let Some(encode) = foreign.handler_callee(ForeignHandler::Encode) {
+        // emit \`\${encode}(value.field)\`
+    }
 }`} lang="rust" />
+
+<p>
+	A handler runs in the project's config, not in your macro's output: <code>handler_callee</code>
+	requests its import and returns the name to call. See
+	<a href={resolve('/docs/endec/foreign-types/expanded-config')}>Expanded Config</a> for how the
+	config is expanded so each handler can be imported.
+</p>
 
 <h2 id="next-steps">Next Steps</h2>
 

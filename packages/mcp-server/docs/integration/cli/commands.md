@@ -203,11 +203,6 @@ Bash
 macroforge cache [root] [options]
 ```
 
-#### Options
-
-| Option | Description |
-| ------ | ----------- |
-
 ### macroforge refresh
 
 Deletes and rebuilds the macro cache from scratch.
@@ -218,10 +213,29 @@ Bash
 macroforge refresh [root] [options]
 ```
 
-#### Options
+### macroforge init
 
-| Option | Description |
-| ------ | ----------- |
+Declares `#macroforge/config` in the project's `package.json`, or its `deno.json` when there is no
+`package.json`. Generated code imports foreign-type handlers from that specifier. See
+[Expanded Config](../../docs/endec/foreign-types/expanded-config).
+
+Bash
+
+```
+macroforge init [root]
+```
+
+### macroforge sync
+
+Writes the generated files a type check reads, without expanding anything: the type and declarative
+registries under `.macroforge/` and the expanded config under `.macroforge/config/`. Run it before
+`tsc` or `svelte-check` in CI, as a SvelteKit project runs `svelte-kit sync`.
+
+Bash
+
+```
+macroforge sync [root]
+```
 
 ### macroforge build
 

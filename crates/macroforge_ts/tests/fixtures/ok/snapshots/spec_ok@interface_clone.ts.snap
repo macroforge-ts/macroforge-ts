@@ -23,12 +23,11 @@ interface UserData {
 }
 
 export function userDataClone(value: UserData): UserData {
-                    const result = {} as any;
-                    result.name = value.name;
-result.age = value.age;
-
-                    return result as UserData;
-                }
+    return ({
+	name: value.name,
+	age: value.age
+});
+}
 
 const UserData: {
   readonly clone: typeof userDataClone;
@@ -39,23 +38,11 @@ const UserData: {
 ## DTS
 
 interface UserData {
-    name: string;
-    age: number;
+	name: string;
+	age: number;
 }
-
-export function userDataClone(value: UserData): UserData {
-                    const result = {} as any;
-                    result.name = value.name;
-result.age = value.age;
-
-                    return result as UserData;
-                }
-
-const UserData: {
-  readonly clone: typeof userDataClone;
-} = {
-  clone: userDataClone
-};
+export declare function userDataClone(value: UserData): UserData;
+export {};
 
 ## Diagnostics
 
@@ -64,9 +51,9 @@ const UserData: {
 ## Mapping
 
 original 21..79 -> expanded 0..58
-original 79..80 -> expanded 391..392
-generated 58..300 <- Clone
-generated 300..391 <- __convenience_const
+original 79..80 -> expanded 264..265
+generated 58..173 <- Clone
+generated 173..264 <- __convenience_const
 
 ## Metadata
 

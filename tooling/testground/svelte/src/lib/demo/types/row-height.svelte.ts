@@ -1,0 +1,8 @@
+/** import macro {Gigaform} from "@testground/macro"; */
+
+/** @derive(Default, Encode, Decode, Gigaform) */
+export type RowHeight =
+    | 'ExtraSmall'
+    | 'Small'
+    | /** @default */ 'Medium'
+    | 'Large';

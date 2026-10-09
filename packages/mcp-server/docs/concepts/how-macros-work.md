@@ -27,16 +27,16 @@ After (Generated)
 class User {
   name: string;
 
-static toString(value: User): string {
-                    return userToString(value);
-                }}
+    static toString(value: User): string {
+        return userToString(value);
+    }
+}
 
 export function userToString(value: User): string {
-                        const parts: string[] = [];
-                        parts.push("name: " + value.name);
-
-                        return "User { " + parts.join(", ") + " }";
-                    }
+    const parts: string[] = [];
+    parts.push("name: " + String(value.name));
+    return "User { " + parts.join(", ") + " }";
+}
 ```
 
 ## Zero Runtime Overhead

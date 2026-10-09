@@ -1,6 +1,7 @@
 <script lang="ts">
     import CodeBlock from "$lib/components/ui/CodeBlock.svelte";
     import Alert from "$lib/components/ui/Alert.svelte";
+    import { resolve } from "$app/paths";
 
     let { data } = $props();
 </script>
@@ -35,21 +36,25 @@
 <CodeBlock
     code={`git clone https://gitlab.com/macroforge-ts/macroforge-ts.git
 cd macroforge-ts/crates
-cargo build --release --bin macroforge
+cargo install --path macroforge_ts
 
-# The binary is at target/release/macroforge`}
+# The binary is installed globally`}
     lang="bash"
 />
 
 <h2 id="commands">Commands</h2>
 
 <p>
-    Each command works on a project: the nearest directory at or above its target that holds a
-    <code>macroforge.config.*</code>, <code>package.json</code>, <code>deno.json</code> or
-    <code>deno.jsonc</code>. The target is the file or directory given to <code>expand</code>,
-    otherwise the current directory. The project's state lives in its <code>.macroforge/</code>
-    directory. <code>expand</code> on a file outside any project expands it on its own and writes no
-    state; the other commands report that no project was found.
+    Each command works on a project: the nearest directory at or above its
+    target that holds a
+    <code>macroforge.config.*</code>, <code>package.json</code>,
+    <code>deno.json</code>
+    or
+    <code>deno.jsonc</code>. The target is the file or directory given to
+    <code>expand</code>, otherwise the current directory. The project's state
+    lives in its <code>.macroforge/</code>
+    directory. <code>expand</code> on a file outside any project expands it on its
+    own and writes no state; the other commands report that no project was found.
 </p>
 
 <h3 id="expand">macroforge expand</h3>
@@ -142,9 +147,9 @@ cargo build --release --bin macroforge
 
 <Alert type="note">
     <span
-        >Expansion runs natively in Rust; no Node.js process is spawned. External
-        macro packages are loaded from <code>node_modules</code> via FFI, so run the
-        CLI from your project root when your code uses them.</span
+        >Expansion runs natively in Rust; no Node.js process is spawned.
+        External macro packages are loaded from <code>node_modules</code> via FFI,
+        so run the CLI from your project root when your code uses them.</span
     >
 </Alert>
 
@@ -192,7 +197,8 @@ cargo build --release --bin macroforge
 <h3 id="svelte-check">macroforge svelte-check</h3>
 
 <p>
-    Runs <code>svelte-check</code> with macro expansion, so Svelte components using macros are properly type-checked.
+    Runs <code>svelte-check</code> with macro expansion, so Svelte components using
+    macros are properly type-checked.
 </p>
 
 <CodeBlock code={`macroforge svelte-check [options]`} lang="bash" />
@@ -217,7 +223,10 @@ cargo build --release --bin macroforge
         </tr>
         <tr>
             <td><code>--output &lt;format&gt;</code></td>
-            <td>Output format: <code>human</code>, <code>human-verbose</code>, <code>machine</code>, <code>machine-verbose</code></td>
+            <td
+                >Output format: <code>human</code>, <code>human-verbose</code>,
+                <code>machine</code>, <code>machine-verbose</code></td
+            >
         </tr>
         <tr>
             <td><code>--fail-on-warnings</code></td>
@@ -229,8 +238,8 @@ cargo build --release --bin macroforge
 <h3 id="svelte-package">macroforge svelte-package</h3>
 
 <p>
-    Runs <code>svelte-package</code> with macro expansion, so a published Svelte
-    library ships fully expanded source and type declarations.
+    Runs <code>svelte-package</code> with macro expansion, so a published Svelte library
+    ships fully expanded source and type declarations.
 </p>
 
 <CodeBlock code={`macroforge svelte-package [options]`} lang="bash" />
@@ -271,50 +280,64 @@ cargo build --release --bin macroforge
 <h4>Incremental builds</h4>
 
 <p>
-    Packaging is incremental. Each run records what it consumed and produced under
-    <code>.macroforge/svelte-package/</code>, and a run whose inputs all match the previous one
-    exits without repackaging. When a rebuild is needed, only the files that changed are
-    re-expanded. The rest keep the expanded output from last time.
+    Packaging is incremental. Each run records what it consumed and produced
+    under
+    <code>.macroforge/svelte-package/</code>, and a run whose inputs all match
+    the previous one exits without repackaging. When a rebuild is needed, only
+    the files that changed are re-expanded. The rest keep the expanded output
+    from last time.
 </p>
 
 <p>
-    A file that differs only in formatting (trailing whitespace, runs of blank lines) does not
-    count as a change. Note that <code>.ts</code> is transpiled on the way into the package so its
-    layout is discarded anyway, but <code>.svelte</code> and <code>.js</code> are copied through
-    verbatim: a formatting-only edit to those will not reach the package until the next real
-    change or a <code>--full-rebuild</code>.
+    A file that differs only in formatting (trailing whitespace, runs of blank
+    lines) does not count as a change. Note that <code>.ts</code> is transpiled
+    on the way into the package so its layout is discarded anyway, but
+    <code>.svelte</code>
+    and <code>.js</code> are copied through verbatim: a formatting-only edit to
+    those will not reach the package until the next real change or a
+    <code>--full-rebuild</code>.
 </p>
 
 <p>Any of these forces a full rebuild on its own:</p>
 
 <ul>
-    <li>a changed macroforge version, <code>macroforge.config.*</code>, or external macro binary</li>
-    <li>a changed <code>svelte.config.*</code>, <code>package.json</code>, or tsconfig</li>
+    <li>
+        a changed macroforge version, <code>macroforge.config.*</code>, or
+        external macro binary
+    </li>
+    <li>
+        a changed <code>svelte.config.*</code>, <code>package.json</code>, or
+        tsconfig
+    </li>
     <li>
         a changed <code>@sveltejs/package</code>, <code>macroforge</code>, or
         <code>@macroforge/svelte-preprocessor</code> version
     </li>
     <li>different command-line options</li>
     <li>a changed project source outside the input directory</li>
-    <li>an output directory that was deleted or modified behind the CLI's back</li>
+    <li>
+        an output directory that was deleted or modified behind the CLI's back
+    </li>
 </ul>
 
 <p>
-    A locally rebuilt linked package whose version did not change is the one thing this cannot
-    see; <code>--full-rebuild</code> is the escape hatch. <code>macroforge refresh</code> also
-    discards the build state along with the expansion cache.
+    A locally rebuilt linked package whose version did not change is the one
+    thing this cannot see; <code>--full-rebuild</code> is the escape hatch.
+    <code>macroforge refresh</code> also discards the build state along with the expansion
+    cache.
 </p>
 
 <p>
-    Expansion failures fail the build. A module that cannot be expanded has no correct packaged
-    form, and shipping its unexpanded source publishes a library whose generated runtime is
-    silently missing.
+    Expansion failures fail the build. A module that cannot be expanded has no
+    correct packaged form, and shipping its unexpanded source publishes a
+    library whose generated runtime is silently missing.
 </p>
 
 <h3 id="watch">macroforge watch</h3>
 
 <p>
-    Watches source files and maintains the macro expansion cache, keeping it up to date as files change.
+    Watches source files and maintains the macro expansion cache, keeping it up
+    to date as files change.
 </p>
 
 <CodeBlock code={`macroforge watch [root] [options]`} lang="bash" />
@@ -339,52 +362,46 @@ cargo build --release --bin macroforge
 <h3 id="cache">macroforge cache</h3>
 
 <p>
-    Builds the <code>.macroforge/cache</code> directory once for all source files. Useful for CI or pre-build steps.
+    Builds the <code>.macroforge/cache</code> directory once for all source files.
+    Useful for CI or pre-build steps.
 </p>
 
 <CodeBlock code={`macroforge cache [root] [options]`} lang="bash" />
 
-<h4>Options</h4>
-
-<table>
-    <thead>
-        <tr>
-            <th>Option</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-    </tbody>
-</table>
-
 <h3 id="refresh">macroforge refresh</h3>
 
-<p>
-    Deletes and rebuilds the macro cache from scratch.
-</p>
+<p>Deletes and rebuilds the macro cache from scratch.</p>
 
 <CodeBlock code={`macroforge refresh [root] [options]`} lang="bash" />
 
-<h4>Options</h4>
+<h3 id="init">macroforge init</h3>
 
-<table>
-    <thead>
-        <tr>
-            <th>Option</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-    </tbody>
-</table>
+<p>
+    Declares <code>#macroforge/config</code> in the project's <code>package.json</code>, or its
+    <code>deno.json</code> when there is no <code>package.json</code>. Generated code imports
+    foreign-type handlers from that specifier. See
+    <a href={resolve('/docs/endec/foreign-types/expanded-config')}>Expanded Config</a>.
+</p>
+
+<CodeBlock code={`macroforge init [root]`} lang="bash" />
+
+<h3 id="sync">macroforge sync</h3>
+
+<p>
+    Writes the generated files a type check reads, without expanding anything: the type and
+    declarative registries under <code>.macroforge/</code> and the expanded config under
+    <code>.macroforge/config/</code>. Run it before <code>tsc</code> or <code>svelte-check</code> in
+    CI, as a SvelteKit project runs <code>svelte-kit sync</code>.
+</p>
+
+<CodeBlock code={`macroforge sync [root]`} lang="bash" />
 
 <h3 id="build">macroforge build</h3>
 
 <p>
     Builds a macro crate to WebAssembly with <code>wasm-bindgen</code> and
     post-processes the output to add <code>$</code>-prefixed re-exports for
-    function-like (Call) macros. Used when distributing your own macro
-    packages.
+    function-like (Call) macros. Used when distributing your own macro packages.
 </p>
 
 <CodeBlock code={`macroforge build [crate_dir] [options]`} lang="bash" />
@@ -393,11 +410,15 @@ cargo build --release --bin macroforge
 
 <ol>
     <li><code>cargo build --release --target wasm32-unknown-unknown</code></li>
-    <li>Runs <code>wasm-bindgen --target nodejs</code> into <code>pkg/</code>
-        (or the directory given via <code>-o</code>)</li>
-    <li>Parses the generated <code>.d.ts</code> to discover Call macros and
-        appends <code>export &#123; state as $state &#125;</code>-style
-        aliases so consumers can import both forms.</li>
+    <li>
+        Runs <code>wasm-bindgen --target nodejs</code> into <code>pkg/</code>
+        (or the directory given via <code>-o</code>)
+    </li>
+    <li>
+        Parses the generated <code>.d.ts</code> to discover Call macros and
+        appends <code>export &#123; state as $state &#125;</code>-style aliases
+        so consumers can import both forms.
+    </li>
 </ol>
 
 <h4>Options</h4>
@@ -416,8 +437,10 @@ cargo build --release --bin macroforge
         </tr>
         <tr>
             <td><code>-o, --out &lt;out&gt;</code></td>
-            <td>Output directory for the WASM package (defaults to
-                <code>&lt;crate_dir&gt;/pkg</code>)</td>
+            <td
+                >Output directory for the WASM package (defaults to
+                <code>&lt;crate_dir&gt;/pkg</code>)</td
+            >
         </tr>
     </tbody>
 </table>
@@ -506,7 +529,10 @@ class User {
     Use <code>macroforge expand</code> to inspect what code your macros generate:
 </p>
 
-<CodeBlock code={`macroforge expand src/models/user.ts --print | less`} lang="bash" />
+<CodeBlock
+    code={`macroforge expand src/models/user.ts --print | less`}
+    lang="bash"
+/>
 
 <h3>Build Pipeline</h3>
 

@@ -1,0 +1,2484 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/lead.svelte.ts
+sha256 e74385c6efffe0e321e716e3ad3a797c8ff2411749ef9f4c5d34c74f65831222
+
+## Changed
+
+true
+
+## Output
+
+import { accountNameDecodeWithContext, accountNameEncodeWithContext, accountNameDefaultValue } from "./account-name.svelte";
+import { emailDecodeWithContext, emailEncodeWithContext, emailDefaultValue } from "./email.svelte";
+import { leadStageDecodeWithContext, leadStageEncodeWithContext } from "./lead-stage.svelte";
+import { nextStepDecodeWithContext, nextStepEncodeWithContext } from "./next-step.svelte";
+import { phoneNumberDecode, phoneNumberEncodeWithContext } from "./phone-number.svelte";
+import { priorityDecodeWithContext, priorityEncodeWithContext } from "./priority.svelte";
+import { sectorDecodeWithContext, sectorEncodeWithContext } from "./sector.svelte";
+import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+import type { AccountName } from './account-name.svelte';
+import type { Email } from './email.svelte';
+import type { LeadStage } from './lead-stage.svelte';
+import type { NextStep } from './next-step.svelte';
+import type { PhoneNumber } from './phone-number.svelte';
+import type { Priority } from './priority.svelte';
+import type { Represents } from './represents.svelte';
+import type { Sector } from './sector.svelte';
+import type { Site } from './site.svelte';
+import type { TaxRate } from './tax-rate.svelte';
+
+
+export interface Lead {
+    
+    id: string;
+    
+    number: number | null;
+    
+    accepted: boolean;
+    
+    probability: number;
+    
+    
+    priority: Priority;
+    
+    dueDate: string | null;
+    
+    closeDate: string | null;
+    
+    value: number;
+    
+    
+    stage: LeadStage;
+    
+    
+    status: string;
+    
+    description: string | null;
+    
+    
+    nextStep: NextStep;
+    
+    favorite: boolean;
+    
+    dateAdded: string | null;
+    
+    taxRate: (string | TaxRate) | null;
+    
+    
+    sector: Sector;
+    
+    leadName: AccountName;
+    
+    phones: Array<PhoneNumber>;
+    
+    email: Email;
+    
+    leadSource: string | null;
+    
+    
+    site: string | Site;
+    
+    
+    memo: string;
+    
+    needsReview: boolean;
+    
+    hasAlert: boolean;
+    
+    salesRep: Array<Represents> | null;
+    
+    color: string | null;
+    
+    
+    accountType: string;
+    
+    
+    subtype: string;
+    
+    isTaxExempt: boolean;
+    
+    
+    paymentTerms: string;
+    
+    tags: Array<string>;
+    
+    customFields: Array<[string, string]>;
+}
+
+export function leadDefaultValue(): Lead {
+    return {
+        id: "",
+        number: null,
+        accepted: false,
+        probability: 0,
+        priority: "Medium",
+        dueDate: null,
+        closeDate: null,
+        value: 0,
+        stage: "Open",
+        status: "",
+        description: null,
+        nextStep: "InitialContact",
+        favorite: false,
+        dateAdded: null,
+        taxRate: null,
+        sector: "Residential",
+        leadName: accountNameDefaultValue(),
+        phones: [],
+        email: emailDefaultValue(),
+        leadSource: null,
+        site: "",
+        memo: "",
+        needsReview: false,
+        hasAlert: false,
+        salesRep: null,
+        color: null,
+        accountType: "",
+        subtype: "",
+        isTaxExempt: false,
+        paymentTerms: "",
+        tags: [],
+        customFields: [],
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function leadEncode(value: Lead, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = leadEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function leadEncodeWithContext(value: Lead, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Lead",
+        __id,
+    };
+
+    
+    result.id = value.id;
+    result.number = value.number;
+    result.accepted = value.accepted;
+    result.probability = value.probability;
+    result.priority = priorityEncodeWithContext(value.priority, ctx);
+    result.dueDate = value.dueDate;
+    result.closeDate = value.closeDate;
+    result.value = value.value;
+    result.stage = leadStageEncodeWithContext(value.stage, ctx);
+    result.status = value.status;
+    result.description = value.description;
+    result.nextStep = nextStepEncodeWithContext(value.nextStep, ctx);
+    result.favorite = value.favorite;
+    result.dateAdded = value.dateAdded;
+    if (value.taxRate !== null) {
+        result.taxRate = value.taxRate;
+    } else {
+        result.taxRate = null;
+    }
+    result.sector = sectorEncodeWithContext(value.sector, ctx);
+    result.leadName = accountNameEncodeWithContext(value.leadName, ctx);
+    result.phones = value.phones.map(
+        (item) => phoneNumberEncodeWithContext(item, ctx)
+    );
+    result.email = emailEncodeWithContext(value.email, ctx);
+    result.leadSource = value.leadSource;
+    result.site = typeof value.site === "string"
+        ? value.site
+        : siteEncodeWithContext(value.site, ctx);
+    result.memo = value.memo;
+    result.needsReview = value.needsReview;
+    result.hasAlert = value.hasAlert;
+    if (value.salesRep !== null) {
+        result.salesRep = value.salesRep;
+    } else {
+        result.salesRep = null;
+    }
+    result.color = value.color;
+    result.accountType = value.accountType;
+    result.subtype = value.subtype;
+    result.isTaxExempt = value.isTaxExempt;
+    result.paymentTerms = value.paymentTerms;
+    result.tags = value.tags;
+    result.customFields = value.customFields;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function leadDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Lead } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = leadDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Lead.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Lead | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Lead.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Lead | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Lead.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+    if (!("number" in obj)) {
+        errors.push({ field: "number", message: "missing required field" });
+    }
+    if (!("accepted" in obj)) {
+        errors.push({ field: "accepted", message: "missing required field" });
+    }
+    if (!("probability" in obj)) {
+        errors.push({ field: "probability", message: "missing required field" });
+    }
+    if (!("priority" in obj)) {
+        errors.push({ field: "priority", message: "missing required field" });
+    }
+    if (!("dueDate" in obj)) {
+        errors.push({ field: "dueDate", message: "missing required field" });
+    }
+    if (!("closeDate" in obj)) {
+        errors.push({ field: "closeDate", message: "missing required field" });
+    }
+    if (!("value" in obj)) {
+        errors.push({ field: "value", message: "missing required field" });
+    }
+    if (!("stage" in obj)) {
+        errors.push({ field: "stage", message: "missing required field" });
+    }
+    if (!("status" in obj)) {
+        errors.push({ field: "status", message: "missing required field" });
+    }
+    if (!("description" in obj)) {
+        errors.push({ field: "description", message: "missing required field" });
+    }
+    if (!("nextStep" in obj)) {
+        errors.push({ field: "nextStep", message: "missing required field" });
+    }
+    if (!("favorite" in obj)) {
+        errors.push({ field: "favorite", message: "missing required field" });
+    }
+    if (!("dateAdded" in obj)) {
+        errors.push({ field: "dateAdded", message: "missing required field" });
+    }
+    if (!("taxRate" in obj)) {
+        errors.push({ field: "taxRate", message: "missing required field" });
+    }
+    if (!("sector" in obj)) {
+        errors.push({ field: "sector", message: "missing required field" });
+    }
+    if (!("leadName" in obj)) {
+        errors.push({ field: "leadName", message: "missing required field" });
+    }
+    if (!("phones" in obj)) {
+        errors.push({ field: "phones", message: "missing required field" });
+    }
+    if (!("email" in obj)) {
+        errors.push({ field: "email", message: "missing required field" });
+    }
+    if (!("leadSource" in obj)) {
+        errors.push({ field: "leadSource", message: "missing required field" });
+    }
+    if (!("site" in obj)) {
+        errors.push({ field: "site", message: "missing required field" });
+    }
+    if (!("memo" in obj)) {
+        errors.push({ field: "memo", message: "missing required field" });
+    }
+    if (!("needsReview" in obj)) {
+        errors.push({ field: "needsReview", message: "missing required field" });
+    }
+    if (!("hasAlert" in obj)) {
+        errors.push({ field: "hasAlert", message: "missing required field" });
+    }
+    if (!("salesRep" in obj)) {
+        errors.push({ field: "salesRep", message: "missing required field" });
+    }
+    if (!("color" in obj)) {
+        errors.push({ field: "color", message: "missing required field" });
+    }
+    if (!("accountType" in obj)) {
+        errors.push({ field: "accountType", message: "missing required field" });
+    }
+    if (!("subtype" in obj)) {
+        errors.push({ field: "subtype", message: "missing required field" });
+    }
+    if (!("isTaxExempt" in obj)) {
+        errors.push({ field: "isTaxExempt", message: "missing required field" });
+    }
+    if (!("paymentTerms" in obj)) {
+        errors.push({ field: "paymentTerms", message: "missing required field" });
+    }
+    if (!("tags" in obj)) {
+        errors.push({ field: "tags", message: "missing required field" });
+    }
+    if (!("customFields" in obj)) {
+        errors.push({ field: "customFields", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_id = obj["id"] as string;
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "Lead.id is required" : "expected string" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    {
+        const __raw_number = obj["number"] as number | null;
+
+        if (!(typeof __raw_number === "number" || __raw_number === null)) {
+            errors.push({ field: "number", message: "expected number | null" });
+        } else {
+            instance.number = __raw_number;
+        }
+    }
+    {
+        const __raw_accepted = obj["accepted"] as boolean;
+
+        if (!(typeof __raw_accepted === "boolean")) {
+            errors.push({ field: "accepted", message: __raw_accepted == null ? "Lead.accepted is required" : "expected boolean" });
+        } else {
+            instance.accepted = __raw_accepted;
+        }
+    }
+    {
+        const __raw_probability = obj["probability"] as number;
+
+        if (!(typeof __raw_probability === "number")) {
+            errors.push({ field: "probability", message: __raw_probability == null ? "Lead.probability is required" : "expected number" });
+        } else {
+            instance.probability = __raw_probability;
+        }
+    }
+    {
+        const __raw_priority = obj["priority"] as Priority;
+
+        ctx.pushScope("priority");
+        try {
+            const __result = priorityDecodeWithContext(__raw_priority, ctx);
+            ctx.assignOrDefer(instance, "priority", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "priority" : "priority." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_dueDate = obj["dueDate"] as string | null;
+
+        if (!(typeof __raw_dueDate === "string" || __raw_dueDate === null)) {
+            errors.push({ field: "dueDate", message: "expected string | null" });
+        } else {
+            instance.dueDate = __raw_dueDate;
+        }
+    }
+    {
+        const __raw_closeDate = obj["closeDate"] as string | null;
+
+        if (!(typeof __raw_closeDate === "string" || __raw_closeDate === null)) {
+            errors.push({ field: "closeDate", message: "expected string | null" });
+        } else {
+            instance.closeDate = __raw_closeDate;
+        }
+    }
+    {
+        const __raw_value = obj["value"] as number;
+
+        if (!(typeof __raw_value === "number")) {
+            errors.push({ field: "value", message: __raw_value == null ? "Lead.value is required" : "expected number" });
+        } else {
+            instance.value = __raw_value;
+        }
+    }
+    {
+        const __raw_stage = obj["stage"] as LeadStage;
+
+        ctx.pushScope("stage");
+        try {
+            const __result = leadStageDecodeWithContext(__raw_stage, ctx);
+            ctx.assignOrDefer(instance, "stage", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "stage" : "stage." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_status = obj["status"] as string;
+
+        if (!(typeof __raw_status === "string")) {
+            errors.push({ field: "status", message: __raw_status == null ? "Lead.status is required" : "expected string" });
+        } else {
+            if (__raw_status == null) { errors.push({ field: "status", message: "Lead.status is required" }); } else {
+                if (__raw_status.length === 0) { errors.push({ field: "status", message: "Lead.status must not be empty" }); }
+            }
+            instance.status = __raw_status;
+        }
+    }
+    {
+        const __raw_description = obj["description"] as string | null;
+
+        if (!(typeof __raw_description === "string" || __raw_description === null)) {
+            errors.push({ field: "description", message: "expected string | null" });
+        } else {
+            instance.description = __raw_description;
+        }
+    }
+    {
+        const __raw_nextStep = obj["nextStep"] as NextStep;
+
+        ctx.pushScope("nextStep");
+        try {
+            const __result = nextStepDecodeWithContext(__raw_nextStep, ctx);
+            ctx.assignOrDefer(instance, "nextStep", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "nextStep" : "nextStep." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_favorite = obj["favorite"] as boolean;
+
+        if (!(typeof __raw_favorite === "boolean")) {
+            errors.push({ field: "favorite", message: __raw_favorite == null ? "Lead.favorite is required" : "expected boolean" });
+        } else {
+            instance.favorite = __raw_favorite;
+        }
+    }
+    {
+        const __raw_dateAdded = obj["dateAdded"] as string | null;
+
+        if (!(typeof __raw_dateAdded === "string" || __raw_dateAdded === null)) {
+            errors.push({ field: "dateAdded", message: "expected string | null" });
+        } else {
+            instance.dateAdded = __raw_dateAdded;
+        }
+    }
+    {
+        const __raw_taxRate = obj["taxRate"] as (string | TaxRate) | null;
+
+        if (__raw_taxRate === null) {
+            instance.taxRate = null;
+        } else {
+            instance.taxRate = __raw_taxRate;
+        }
+    }
+    {
+        const __raw_sector = obj["sector"] as Sector;
+
+        ctx.pushScope("sector");
+        try {
+            const __result = sectorDecodeWithContext(__raw_sector, ctx);
+            ctx.assignOrDefer(instance, "sector", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "sector" : "sector." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_leadName = obj["leadName"] as AccountName;
+
+        ctx.pushScope("leadName");
+        try {
+            const __result = accountNameDecodeWithContext(__raw_leadName, ctx);
+            ctx.assignOrDefer(instance, "leadName", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "leadName" : "leadName." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_phones = obj["phones"] as Array<PhoneNumber>;
+
+        if (Array.isArray(__raw_phones)) {
+            const __arr = __raw_phones.map((item: PhoneNumber | { __ref: number }, idx) => {
+                if (typeof item === "object" && item !== null && "__ref" in item) {
+                    const result = ctx.getOrDefer(item.__ref);
+                    if (__mf_PendingRef.is(result)) {
+                        return { __pendingIdx: idx, __refId: result.id };
+                    }
+                    return result;
+                }
+                const __elemResult = phoneNumberDecode(item);
+                if (!__elemResult.success) {
+                    for (const __err of __elemResult.errors) {
+                        errors.push({
+                            field: __err.field === "_root"
+                                ? "phones[" + idx + "]"
+                                : "phones[" + idx + "]." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                }
+                return __elemResult.success ? __elemResult.value : item;
+            });
+            instance.phones = __arr;
+            __arr.forEach((item, idx) => {
+                if (item && typeof item === "object" && "__pendingIdx" in item) {
+                    ctx.addPatch(instance.phones, idx, (item as any).__refId);
+                }
+            });
+        }
+    }
+    {
+        const __raw_email = obj["email"] as Email;
+
+        ctx.pushScope("email");
+        try {
+            const __result = emailDecodeWithContext(__raw_email, ctx);
+            ctx.assignOrDefer(instance, "email", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "email" : "email." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_leadSource = obj["leadSource"] as string | null;
+
+        if (!(typeof __raw_leadSource === "string" || __raw_leadSource === null)) {
+            errors.push({ field: "leadSource", message: "expected string | null" });
+        } else {
+            instance.leadSource = __raw_leadSource;
+        }
+    }
+    {
+        const __raw_site = obj["site"] as string | Site;
+
+        if (typeof __raw_site === "string") {
+            instance.site = __raw_site;
+        } else {
+            ctx.pushScope("site");
+            try {
+                const __result = siteDecodeWithContext(__raw_site, ctx);
+                ctx.assignOrDefer(instance, "site", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "site" : "site." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+    {
+        const __raw_memo = obj["memo"] as string;
+
+        if (!(typeof __raw_memo === "string")) {
+            errors.push({ field: "memo", message: __raw_memo == null ? "Lead.memo is required" : "expected string" });
+        } else {
+            if (__raw_memo == null) { errors.push({ field: "memo", message: "Lead.memo is required" }); } else {
+                if (__raw_memo.length === 0) { errors.push({ field: "memo", message: "Lead.memo must not be empty" }); }
+            }
+            instance.memo = __raw_memo;
+        }
+    }
+    {
+        const __raw_needsReview = obj["needsReview"] as boolean;
+
+        if (!(typeof __raw_needsReview === "boolean")) {
+            errors.push({ field: "needsReview", message: __raw_needsReview == null ? "Lead.needsReview is required" : "expected boolean" });
+        } else {
+            instance.needsReview = __raw_needsReview;
+        }
+    }
+    {
+        const __raw_hasAlert = obj["hasAlert"] as boolean;
+
+        if (!(typeof __raw_hasAlert === "boolean")) {
+            errors.push({ field: "hasAlert", message: __raw_hasAlert == null ? "Lead.hasAlert is required" : "expected boolean" });
+        } else {
+            instance.hasAlert = __raw_hasAlert;
+        }
+    }
+    {
+        const __raw_salesRep = obj["salesRep"] as Array<Represents> | null;
+
+        if (__raw_salesRep === null) {
+            instance.salesRep = null;
+        } else {
+            instance.salesRep = __raw_salesRep;
+        }
+    }
+    {
+        const __raw_color = obj["color"] as string | null;
+
+        if (!(typeof __raw_color === "string" || __raw_color === null)) {
+            errors.push({ field: "color", message: "expected string | null" });
+        } else {
+            instance.color = __raw_color;
+        }
+    }
+    {
+        const __raw_accountType = obj["accountType"] as string;
+
+        if (!(typeof __raw_accountType === "string")) {
+            errors.push({ field: "accountType", message: __raw_accountType == null ? "Lead.accountType is required" : "expected string" });
+        } else {
+            if (__raw_accountType == null) { errors.push({ field: "accountType", message: "Lead.accountType is required" }); } else {
+                if (__raw_accountType.length === 0) { errors.push({ field: "accountType", message: "Lead.accountType must not be empty" }); }
+            }
+            instance.accountType = __raw_accountType;
+        }
+    }
+    {
+        const __raw_subtype = obj["subtype"] as string;
+
+        if (!(typeof __raw_subtype === "string")) {
+            errors.push({ field: "subtype", message: __raw_subtype == null ? "Lead.subtype is required" : "expected string" });
+        } else {
+            if (__raw_subtype == null) { errors.push({ field: "subtype", message: "Lead.subtype is required" }); } else {
+                if (__raw_subtype.length === 0) { errors.push({ field: "subtype", message: "Lead.subtype must not be empty" }); }
+            }
+            instance.subtype = __raw_subtype;
+        }
+    }
+    {
+        const __raw_isTaxExempt = obj["isTaxExempt"] as boolean;
+
+        if (!(typeof __raw_isTaxExempt === "boolean")) {
+            errors.push({ field: "isTaxExempt", message: __raw_isTaxExempt == null ? "Lead.isTaxExempt is required" : "expected boolean" });
+        } else {
+            instance.isTaxExempt = __raw_isTaxExempt;
+        }
+    }
+    {
+        const __raw_paymentTerms = obj["paymentTerms"] as string;
+
+        if (!(typeof __raw_paymentTerms === "string")) {
+            errors.push({ field: "paymentTerms", message: __raw_paymentTerms == null ? "Lead.paymentTerms is required" : "expected string" });
+        } else {
+            if (__raw_paymentTerms == null) { errors.push({ field: "paymentTerms", message: "Lead.paymentTerms is required" }); } else {
+                if (__raw_paymentTerms.length === 0) { errors.push({ field: "paymentTerms", message: "Lead.paymentTerms must not be empty" }); }
+            }
+            instance.paymentTerms = __raw_paymentTerms;
+        }
+    }
+    {
+        const __raw_tags = obj["tags"] as Array<string>;
+
+        if (Array.isArray(__raw_tags)) {
+            instance.tags = __raw_tags as string[];
+        }
+    }
+    {
+        const __raw_customFields = obj["customFields"] as Array<[string, string]>;
+
+        if (Array.isArray(__raw_customFields)) {
+            const __arr = __raw_customFields.map((item: [string, string] | { __ref: number }, idx) => {
+                if (typeof item === "object" && item !== null && "__ref" in item) {
+                    const result = ctx.getOrDefer(item.__ref);
+                    if (__mf_PendingRef.is(result)) {
+                        return { __pendingIdx: idx, __refId: result.id };
+                    }
+                    return result;
+                }
+                return item as [string, string];
+            });
+            instance.customFields = __arr;
+            __arr.forEach((item, idx) => {
+                if (item && typeof item === "object" && "__pendingIdx" in item) {
+                    ctx.addPatch(instance.customFields, idx, (item as any).__refId);
+                }
+            });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Lead;
+}
+export function leadValidateField<K extends keyof Lead>(field: K, value: unknown): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if (field === "status") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "status", message: "Lead.status is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "status", message: "Lead.status must not be empty" }); }
+        }
+    }
+    if (field === "memo") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "memo", message: "Lead.memo is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "memo", message: "Lead.memo must not be empty" }); }
+        }
+    }
+    if (field === "accountType") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "accountType", message: "Lead.accountType is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "accountType", message: "Lead.accountType must not be empty" }); }
+        }
+    }
+    if (field === "subtype") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "subtype", message: "Lead.subtype is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "subtype", message: "Lead.subtype must not be empty" }); }
+        }
+    }
+    if (field === "paymentTerms") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "paymentTerms", message: "Lead.paymentTerms is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "paymentTerms", message: "Lead.paymentTerms must not be empty" }); }
+        }
+    }
+    return errors;
+}
+
+export function leadValidateFields(partial: { readonly [K in keyof Lead]?: unknown }): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("status" in partial && partial.status !== undefined) {
+        const __val = partial.status as string;
+        if (__val == null) { errors.push({ field: "status", message: "Lead.status is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "status", message: "Lead.status must not be empty" }); }
+        }
+    }
+    if ("memo" in partial && partial.memo !== undefined) {
+        const __val = partial.memo as string;
+        if (__val == null) { errors.push({ field: "memo", message: "Lead.memo is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "memo", message: "Lead.memo must not be empty" }); }
+        }
+    }
+    if ("accountType" in partial && partial.accountType !== undefined) {
+        const __val = partial.accountType as string;
+        if (__val == null) { errors.push({ field: "accountType", message: "Lead.accountType is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "accountType", message: "Lead.accountType must not be empty" }); }
+        }
+    }
+    if ("subtype" in partial && partial.subtype !== undefined) {
+        const __val = partial.subtype as string;
+        if (__val == null) { errors.push({ field: "subtype", message: "Lead.subtype is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "subtype", message: "Lead.subtype must not be empty" }); }
+        }
+    }
+    if ("paymentTerms" in partial && partial.paymentTerms !== undefined) {
+        const __val = partial.paymentTerms as string;
+        if (__val == null) { errors.push({ field: "paymentTerms", message: "Lead.paymentTerms is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "paymentTerms", message: "Lead.paymentTerms must not be empty" }); }
+        }
+    }
+    return errors;
+}
+export function leadHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "id" in o && "number" in o && "accepted" in o && "probability" in o && "priority" in o && "dueDate" in o && "closeDate" in o && "value" in o && "stage" in o && "status" in o && "description" in o && "nextStep" in o && "favorite" in o && "dateAdded" in o && "taxRate" in o && "sector" in o && "leadName" in o && "phones" in o && "email" in o && "leadSource" in o && "site" in o && "memo" in o && "needsReview" in o && "hasAlert" in o && "salesRep" in o && "color" in o && "accountType" in o && "subtype" in o && "isTaxExempt" in o && "paymentTerms" in o && "tags" in o && "customFields" in o;
+}
+
+export function leadIs(obj: unknown): obj is Lead {
+    return leadHasShape(obj) && leadDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type LeadErrors = {
+    _errors: Option.Option<Array<string>>;
+    id: Option.Option<Array<string>>;
+    number: Option.Option<Array<string>>;
+    accepted: Option.Option<Array<string>>;
+    probability: Option.Option<Array<string>>;
+    priority: Option.Option<Array<string>>;
+    dueDate: Option.Option<Array<string>>;
+    closeDate: Option.Option<Array<string>>;
+    value: Option.Option<Array<string>>;
+    stage: Option.Option<Array<string>>;
+    status: Option.Option<Array<string>>;
+    description: Option.Option<Array<string>>;
+    nextStep: Option.Option<Array<string>>;
+    favorite: Option.Option<Array<string>>;
+    dateAdded: Option.Option<Array<string>>;
+    taxRate: Option.Option<Array<string>>;
+    sector: Option.Option<Array<string>>;
+    leadName: Option.Option<Array<string>>;
+    phones: Option.Option<Array<string>>;
+    email: Option.Option<Array<string>>;
+    leadSource: Option.Option<Array<string>>;
+    site: Option.Option<Array<string>>;
+    memo: Option.Option<Array<string>>;
+    needsReview: Option.Option<Array<string>>;
+    hasAlert: Option.Option<Array<string>>;
+    salesRep: Option.Option<Array<string>>;
+    color: Option.Option<Array<string>>;
+    accountType: Option.Option<Array<string>>;
+    subtype: Option.Option<Array<string>>;
+    isTaxExempt: Option.Option<Array<string>>;
+    paymentTerms: Option.Option<Array<string>>;
+    tags: Option.Option<Array<string>>;
+    customFields: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type LeadTainted = {
+    id: Option.Option<boolean>;
+    number: Option.Option<boolean>;
+    accepted: Option.Option<boolean>;
+    probability: Option.Option<boolean>;
+    priority: Option.Option<boolean>;
+    dueDate: Option.Option<boolean>;
+    closeDate: Option.Option<boolean>;
+    value: Option.Option<boolean>;
+    stage: Option.Option<boolean>;
+    status: Option.Option<boolean>;
+    description: Option.Option<boolean>;
+    nextStep: Option.Option<boolean>;
+    favorite: Option.Option<boolean>;
+    dateAdded: Option.Option<boolean>;
+    taxRate: Option.Option<boolean>;
+    sector: Option.Option<boolean>;
+    leadName: Option.Option<boolean>;
+    phones: Option.Option<boolean>;
+    email: Option.Option<boolean>;
+    leadSource: Option.Option<boolean>;
+    site: Option.Option<boolean>;
+    memo: Option.Option<boolean>;
+    needsReview: Option.Option<boolean>;
+    hasAlert: Option.Option<boolean>;
+    salesRep: Option.Option<boolean>;
+    color: Option.Option<boolean>;
+    accountType: Option.Option<boolean>;
+    subtype: Option.Option<boolean>;
+    isTaxExempt: Option.Option<boolean>;
+    paymentTerms: Option.Option<boolean>;
+    tags: Option.Option<boolean>;
+    customFields: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface LeadFieldControllers {
+    readonly id: FieldController<string>;
+    readonly number: FieldController<number | null>;
+    readonly accepted: FieldController<boolean>;
+    readonly probability: FieldController<number>;
+    readonly priority: FieldController<Priority>;
+    readonly dueDate: FieldController<string | null>;
+    readonly closeDate: FieldController<string | null>;
+    readonly value: FieldController<number>;
+    readonly stage: FieldController<LeadStage>;
+    readonly status: FieldController<string>;
+    readonly description: FieldController<string | null>;
+    readonly nextStep: FieldController<NextStep>;
+    readonly favorite: FieldController<boolean>;
+    readonly dateAdded: FieldController<string | null>;
+    readonly taxRate: FieldController<(string | TaxRate) | null>;
+    readonly sector: FieldController<Sector>;
+    readonly leadName: FieldController<AccountName>;
+    readonly phones: ArrayFieldController<PhoneNumber>;
+    readonly email: FieldController<Email>;
+    readonly leadSource: FieldController<string | null>;
+    readonly site: FieldController<string | Site>;
+    readonly memo: FieldController<string>;
+    readonly needsReview: FieldController<boolean>;
+    readonly hasAlert: FieldController<boolean>;
+    readonly salesRep: FieldController<Array<Represents> | null>;
+    readonly color: FieldController<string | null>;
+    readonly accountType: FieldController<string>;
+    readonly subtype: FieldController<string>;
+    readonly isTaxExempt: FieldController<boolean>;
+    readonly paymentTerms: FieldController<string>;
+    readonly tags: ArrayFieldController<string>;
+    readonly customFields: ArrayFieldController<[string, string]>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface LeadGigaform {
+    readonly data: Lead;
+    readonly errors: LeadErrors;
+    readonly tainted: LeadTainted;
+    readonly fields: LeadFieldControllers;
+    validate(): Exit.Exit<Lead, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Lead>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform {
+    let data = $state({ ...leadDefaultValue(), ...overrides });
+    let errors = $state<LeadErrors>({
+        _errors: Option.none(),
+        id: Option.none(),
+        number: Option.none(),
+        accepted: Option.none(),
+        probability: Option.none(),
+        priority: Option.none(),
+        dueDate: Option.none(),
+        closeDate: Option.none(),
+        value: Option.none(),
+        stage: Option.none(),
+        status: Option.none(),
+        description: Option.none(),
+        nextStep: Option.none(),
+        favorite: Option.none(),
+        dateAdded: Option.none(),
+        taxRate: Option.none(),
+        sector: Option.none(),
+        leadName: Option.none(),
+        phones: Option.none(),
+        email: Option.none(),
+        leadSource: Option.none(),
+        site: Option.none(),
+        memo: Option.none(),
+        needsReview: Option.none(),
+        hasAlert: Option.none(),
+        salesRep: Option.none(),
+        color: Option.none(),
+        accountType: Option.none(),
+        subtype: Option.none(),
+        isTaxExempt: Option.none(),
+        paymentTerms: Option.none(),
+        tags: Option.none(),
+        customFields: Option.none(),
+    });
+    let tainted = $state<LeadTainted>({
+        id: Option.none(),
+        number: Option.none(),
+        accepted: Option.none(),
+        probability: Option.none(),
+        priority: Option.none(),
+        dueDate: Option.none(),
+        closeDate: Option.none(),
+        value: Option.none(),
+        stage: Option.none(),
+        status: Option.none(),
+        description: Option.none(),
+        nextStep: Option.none(),
+        favorite: Option.none(),
+        dateAdded: Option.none(),
+        taxRate: Option.none(),
+        sector: Option.none(),
+        leadName: Option.none(),
+        phones: Option.none(),
+        email: Option.none(),
+        leadSource: Option.none(),
+        site: Option.none(),
+        memo: Option.none(),
+        needsReview: Option.none(),
+        hasAlert: Option.none(),
+        salesRep: Option.none(),
+        color: Option.none(),
+        accountType: Option.none(),
+        subtype: Option.none(),
+        isTaxExempt: Option.none(),
+        paymentTerms: Option.none(),
+        tags: Option.none(),
+        customFields: Option.none(),
+    });
+    const fields = {
+        id: {
+            name: "id",
+            label: "id",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["id"],
+            get: () => data.id,
+            set: (value: string) => { data.id = value; },
+            getError: () => errors.id,
+            setError: (value: Option.Option<Array<string>>) => { errors.id = value; },
+            getTainted: () => tainted.id,
+            setTainted: (value: Option.Option<boolean>) => { tainted.id = value; },
+            validate: () => leadValidateField("id", data.id).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        number: {
+            name: "number",
+            label: "number",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["number"],
+            get: () => data.number,
+            set: (value: number | null) => { data.number = value; },
+            getError: () => errors.number,
+            setError: (value: Option.Option<Array<string>>) => { errors.number = value; },
+            getTainted: () => tainted.number,
+            setTainted: (value: Option.Option<boolean>) => { tainted.number = value; },
+            validate: () => leadValidateField("number", data.number).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        accepted: {
+            name: "accepted",
+            label: "accepted",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["accepted"],
+            get: () => data.accepted,
+            set: (value: boolean) => { data.accepted = value; },
+            getError: () => errors.accepted,
+            setError: (value: Option.Option<Array<string>>) => { errors.accepted = value; },
+            getTainted: () => tainted.accepted,
+            setTainted: (value: Option.Option<boolean>) => { tainted.accepted = value; },
+            validate: () => leadValidateField("accepted", data.accepted).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        probability: {
+            name: "probability",
+            label: "Probability",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["probability"],
+            get: () => data.probability,
+            set: (value: number) => { data.probability = value; },
+            getError: () => errors.probability,
+            setError: (value: Option.Option<Array<string>>) => { errors.probability = value; },
+            getTainted: () => tainted.probability,
+            setTainted: (value: Option.Option<boolean>) => { tainted.probability = value; },
+            validate: () => leadValidateField("probability", data.probability).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        priority: {
+            name: "priority",
+            label: "Priority",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["priority"],
+            get: () => data.priority,
+            set: (value: Priority) => { data.priority = value; },
+            getError: () => errors.priority,
+            setError: (value: Option.Option<Array<string>>) => { errors.priority = value; },
+            getTainted: () => tainted.priority,
+            setTainted: (value: Option.Option<boolean>) => { tainted.priority = value; },
+            validate: () => leadValidateField("priority", data.priority).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        dueDate: {
+            name: "dueDate",
+            label: "Due Date",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["dueDate"],
+            get: () => data.dueDate,
+            set: (value: string | null) => { data.dueDate = value; },
+            getError: () => errors.dueDate,
+            setError: (value: Option.Option<Array<string>>) => { errors.dueDate = value; },
+            getTainted: () => tainted.dueDate,
+            setTainted: (value: Option.Option<boolean>) => { tainted.dueDate = value; },
+            validate: () => leadValidateField("dueDate", data.dueDate).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        closeDate: {
+            name: "closeDate",
+            label: "Close Date",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["closeDate"],
+            get: () => data.closeDate,
+            set: (value: string | null) => { data.closeDate = value; },
+            getError: () => errors.closeDate,
+            setError: (value: Option.Option<Array<string>>) => { errors.closeDate = value; },
+            getTainted: () => tainted.closeDate,
+            setTainted: (value: Option.Option<boolean>) => { tainted.closeDate = value; },
+            validate: () => leadValidateField("closeDate", data.closeDate).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        value: {
+            name: "value",
+            label: "Value",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["value"],
+            get: () => data.value,
+            set: (value: number) => { data.value = value; },
+            getError: () => errors.value,
+            setError: (value: Option.Option<Array<string>>) => { errors.value = value; },
+            getTainted: () => tainted.value,
+            setTainted: (value: Option.Option<boolean>) => { tainted.value = value; },
+            validate: () => leadValidateField("value", data.value).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        stage: {
+            name: "stage",
+            label: "Stage",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["stage"],
+            get: () => data.stage,
+            set: (value: LeadStage) => { data.stage = value; },
+            getError: () => errors.stage,
+            setError: (value: Option.Option<Array<string>>) => { errors.stage = value; },
+            getTainted: () => tainted.stage,
+            setTainted: (value: Option.Option<boolean>) => { tainted.stage = value; },
+            validate: () => leadValidateField("stage", data.stage).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        status: {
+            name: "status",
+            label: "Status",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["status"],
+            get: () => data.status,
+            set: (value: string) => { data.status = value; },
+            getError: () => errors.status,
+            setError: (value: Option.Option<Array<string>>) => { errors.status = value; },
+            getTainted: () => tainted.status,
+            setTainted: (value: Option.Option<boolean>) => { tainted.status = value; },
+            validate: () => leadValidateField("status", data.status).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        description: {
+            name: "description",
+            label: "Description",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["description"],
+            get: () => data.description,
+            set: (value: string | null) => { data.description = value; },
+            getError: () => errors.description,
+            setError: (value: Option.Option<Array<string>>) => { errors.description = value; },
+            getTainted: () => tainted.description,
+            setTainted: (value: Option.Option<boolean>) => { tainted.description = value; },
+            validate: () => leadValidateField("description", data.description).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        nextStep: {
+            name: "nextStep",
+            label: "nextStep",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["nextStep"],
+            get: () => data.nextStep,
+            set: (value: NextStep) => { data.nextStep = value; },
+            getError: () => errors.nextStep,
+            setError: (value: Option.Option<Array<string>>) => { errors.nextStep = value; },
+            getTainted: () => tainted.nextStep,
+            setTainted: (value: Option.Option<boolean>) => { tainted.nextStep = value; },
+            validate: () => leadValidateField("nextStep", data.nextStep).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        favorite: {
+            name: "favorite",
+            label: "Favorite",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["favorite"],
+            get: () => data.favorite,
+            set: (value: boolean) => { data.favorite = value; },
+            getError: () => errors.favorite,
+            setError: (value: Option.Option<Array<string>>) => { errors.favorite = value; },
+            getTainted: () => tainted.favorite,
+            setTainted: (value: Option.Option<boolean>) => { tainted.favorite = value; },
+            validate: () => leadValidateField("favorite", data.favorite).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        dateAdded: {
+            name: "dateAdded",
+            label: "dateAdded",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["dateAdded"],
+            get: () => data.dateAdded,
+            set: (value: string | null) => { data.dateAdded = value; },
+            getError: () => errors.dateAdded,
+            setError: (value: Option.Option<Array<string>>) => { errors.dateAdded = value; },
+            getTainted: () => tainted.dateAdded,
+            setTainted: (value: Option.Option<boolean>) => { tainted.dateAdded = value; },
+            validate: () => leadValidateField("dateAdded", data.dateAdded).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        taxRate: {
+            name: "taxRate",
+            label: "Tax Rate",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["taxRate"],
+            get: () => data.taxRate,
+            set: (value: (string | TaxRate) | null) => { data.taxRate = value; },
+            getError: () => errors.taxRate,
+            setError: (value: Option.Option<Array<string>>) => { errors.taxRate = value; },
+            getTainted: () => tainted.taxRate,
+            setTainted: (value: Option.Option<boolean>) => { tainted.taxRate = value; },
+            validate: () => leadValidateField("taxRate", data.taxRate).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        sector: {
+            name: "sector",
+            label: "Sector",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["sector"],
+            get: () => data.sector,
+            set: (value: Sector) => { data.sector = value; },
+            getError: () => errors.sector,
+            setError: (value: Option.Option<Array<string>>) => { errors.sector = value; },
+            getTainted: () => tainted.sector,
+            setTainted: (value: Option.Option<boolean>) => { tainted.sector = value; },
+            validate: () => leadValidateField("sector", data.sector).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        leadName: {
+            name: "leadName",
+            label: "leadName",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["leadName"],
+            get: () => data.leadName,
+            set: (value: AccountName) => { data.leadName = value; },
+            getError: () => errors.leadName,
+            setError: (value: Option.Option<Array<string>>) => { errors.leadName = value; },
+            getTainted: () => tainted.leadName,
+            setTainted: (value: Option.Option<boolean>) => { tainted.leadName = value; },
+            validate: () => leadValidateField("leadName", data.leadName).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        phones: {
+            name: "phones",
+            label: "phones",
+            type: "fieldset",
+            optional: false,
+            array: true,
+            path: ["phones"],
+            get: () => data.phones,
+            set: (value: Array<PhoneNumber>) => { data.phones = value; },
+            getError: () => errors.phones,
+            setError: (value: Option.Option<Array<string>>) => { errors.phones = value; },
+            getTainted: () => tainted.phones,
+            setTainted: (value: Option.Option<boolean>) => { tainted.phones = value; },
+            validate: () => leadValidateField("phones", data.phones).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.phones[index],
+                set: (value: PhoneNumber) => { data.phones[index] = value; },
+                getError: () => errors.phones,
+                setError: (value: Option.Option<Array<string>>) => { errors.phones = value; },
+            }),
+            push: (item: PhoneNumber) => { data.phones.push(item); },
+            remove: (index: number) => { data.phones.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.phones[a];
+                data.phones[a] = data.phones[b];
+                data.phones[b] = temp;
+            },
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        email: {
+            name: "email",
+            label: "Email",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["email"],
+            get: () => data.email,
+            set: (value: Email) => { data.email = value; },
+            getError: () => errors.email,
+            setError: (value: Option.Option<Array<string>>) => { errors.email = value; },
+            getTainted: () => tainted.email,
+            setTainted: (value: Option.Option<boolean>) => { tainted.email = value; },
+            validate: () => leadValidateField("email", data.email).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        leadSource: {
+            name: "leadSource",
+            label: "Lead Source",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["leadSource"],
+            get: () => data.leadSource,
+            set: (value: string | null) => { data.leadSource = value; },
+            getError: () => errors.leadSource,
+            setError: (value: Option.Option<Array<string>>) => { errors.leadSource = value; },
+            getTainted: () => tainted.leadSource,
+            setTainted: (value: Option.Option<boolean>) => { tainted.leadSource = value; },
+            validate: () => leadValidateField("leadSource", data.leadSource).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        site: {
+            name: "site",
+            label: "Site",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["site"],
+            get: () => data.site,
+            set: (value: string | Site) => { data.site = value; },
+            getError: () => errors.site,
+            setError: (value: Option.Option<Array<string>>) => { errors.site = value; },
+            getTainted: () => tainted.site,
+            setTainted: (value: Option.Option<boolean>) => { tainted.site = value; },
+            validate: () => leadValidateField("site", data.site).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        memo: {
+            name: "memo",
+            label: "Memo",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["memo"],
+            get: () => data.memo,
+            set: (value: string) => { data.memo = value; },
+            getError: () => errors.memo,
+            setError: (value: Option.Option<Array<string>>) => { errors.memo = value; },
+            getTainted: () => tainted.memo,
+            setTainted: (value: Option.Option<boolean>) => { tainted.memo = value; },
+            validate: () => leadValidateField("memo", data.memo).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        needsReview: {
+            name: "needsReview",
+            label: "Needs Review",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["needsReview"],
+            get: () => data.needsReview,
+            set: (value: boolean) => { data.needsReview = value; },
+            getError: () => errors.needsReview,
+            setError: (value: Option.Option<Array<string>>) => { errors.needsReview = value; },
+            getTainted: () => tainted.needsReview,
+            setTainted: (value: Option.Option<boolean>) => { tainted.needsReview = value; },
+            validate: () => leadValidateField("needsReview", data.needsReview).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        hasAlert: {
+            name: "hasAlert",
+            label: "Has Alert",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["hasAlert"],
+            get: () => data.hasAlert,
+            set: (value: boolean) => { data.hasAlert = value; },
+            getError: () => errors.hasAlert,
+            setError: (value: Option.Option<Array<string>>) => { errors.hasAlert = value; },
+            getTainted: () => tainted.hasAlert,
+            setTainted: (value: Option.Option<boolean>) => { tainted.hasAlert = value; },
+            validate: () => leadValidateField("hasAlert", data.hasAlert).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        salesRep: {
+            name: "salesRep",
+            label: "Sales Rep",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["salesRep"],
+            get: () => data.salesRep,
+            set: (value: Array<Represents> | null) => { data.salesRep = value; },
+            getError: () => errors.salesRep,
+            setError: (value: Option.Option<Array<string>>) => { errors.salesRep = value; },
+            getTainted: () => tainted.salesRep,
+            setTainted: (value: Option.Option<boolean>) => { tainted.salesRep = value; },
+            validate: () => leadValidateField("salesRep", data.salesRep).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        color: {
+            name: "color",
+            label: "color",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["color"],
+            get: () => data.color,
+            set: (value: string | null) => { data.color = value; },
+            getError: () => errors.color,
+            setError: (value: Option.Option<Array<string>>) => { errors.color = value; },
+            getTainted: () => tainted.color,
+            setTainted: (value: Option.Option<boolean>) => { tainted.color = value; },
+            validate: () => leadValidateField("color", data.color).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        accountType: {
+            name: "accountType",
+            label: "Account Type",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["accountType"],
+            get: () => data.accountType,
+            set: (value: string) => { data.accountType = value; },
+            getError: () => errors.accountType,
+            setError: (value: Option.Option<Array<string>>) => { errors.accountType = value; },
+            getTainted: () => tainted.accountType,
+            setTainted: (value: Option.Option<boolean>) => { tainted.accountType = value; },
+            validate: () => leadValidateField("accountType", data.accountType).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        subtype: {
+            name: "subtype",
+            label: "Subtype",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["subtype"],
+            get: () => data.subtype,
+            set: (value: string) => { data.subtype = value; },
+            getError: () => errors.subtype,
+            setError: (value: Option.Option<Array<string>>) => { errors.subtype = value; },
+            getTainted: () => tainted.subtype,
+            setTainted: (value: Option.Option<boolean>) => { tainted.subtype = value; },
+            validate: () => leadValidateField("subtype", data.subtype).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        isTaxExempt: {
+            name: "isTaxExempt",
+            label: "Tax Exempt",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["isTaxExempt"],
+            get: () => data.isTaxExempt,
+            set: (value: boolean) => { data.isTaxExempt = value; },
+            getError: () => errors.isTaxExempt,
+            setError: (value: Option.Option<Array<string>>) => { errors.isTaxExempt = value; },
+            getTainted: () => tainted.isTaxExempt,
+            setTainted: (value: Option.Option<boolean>) => { tainted.isTaxExempt = value; },
+            validate: () => leadValidateField("isTaxExempt", data.isTaxExempt).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        paymentTerms: {
+            name: "paymentTerms",
+            label: "Payment Terms",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["paymentTerms"],
+            get: () => data.paymentTerms,
+            set: (value: string) => { data.paymentTerms = value; },
+            getError: () => errors.paymentTerms,
+            setError: (value: Option.Option<Array<string>>) => { errors.paymentTerms = value; },
+            getTainted: () => tainted.paymentTerms,
+            setTainted: (value: Option.Option<boolean>) => { tainted.paymentTerms = value; },
+            validate: () => leadValidateField("paymentTerms", data.paymentTerms).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        tags: {
+            name: "tags",
+            label: "Tags",
+            type: "text",
+            optional: false,
+            array: true,
+            path: ["tags"],
+            get: () => data.tags,
+            set: (value: Array<string>) => { data.tags = value; },
+            getError: () => errors.tags,
+            setError: (value: Option.Option<Array<string>>) => { errors.tags = value; },
+            getTainted: () => tainted.tags,
+            setTainted: (value: Option.Option<boolean>) => { tainted.tags = value; },
+            validate: () => leadValidateField("tags", data.tags).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.tags[index],
+                set: (value: string) => { data.tags[index] = value; },
+                getError: () => errors.tags,
+                setError: (value: Option.Option<Array<string>>) => { errors.tags = value; },
+            }),
+            push: (item: string) => { data.tags.push(item); },
+            remove: (index: number) => { data.tags.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.tags[a];
+                data.tags[a] = data.tags[b];
+                data.tags[b] = temp;
+            },
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        customFields: {
+            name: "customFields",
+            label: "customFields",
+            type: "text",
+            optional: false,
+            array: true,
+            path: ["customFields"],
+            get: () => data.customFields,
+            set: (value: Array<[string, string]>) => { data.customFields = value; },
+            getError: () => errors.customFields,
+            setError: (value: Option.Option<Array<string>>) => { errors.customFields = value; },
+            getTainted: () => tainted.customFields,
+            setTainted: (value: Option.Option<boolean>) => { tainted.customFields = value; },
+            validate: () => leadValidateField("customFields", data.customFields).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.customFields[index],
+                set: (value: [string, string]) => { data.customFields[index] = value; },
+                getError: () => errors.customFields,
+                setError: (value: Option.Option<Array<string>>) => { errors.customFields = value; },
+            }),
+            push: (item: [string, string]) => { data.customFields.push(item); },
+            remove: (index: number) => { data.customFields.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.customFields[a];
+                data.customFields[a] = data.customFields[b];
+                data.customFields[b] = temp;
+            },
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as LeadFieldControllers;
+
+    function validate(): Exit.Exit<Lead, Array<{ field: string; message: string }>> {
+        return toExit(leadDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<Lead>): void {
+        data = { ...leadDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            id: Option.none(),
+            number: Option.none(),
+            accepted: Option.none(),
+            probability: Option.none(),
+            priority: Option.none(),
+            dueDate: Option.none(),
+            closeDate: Option.none(),
+            value: Option.none(),
+            stage: Option.none(),
+            status: Option.none(),
+            description: Option.none(),
+            nextStep: Option.none(),
+            favorite: Option.none(),
+            dateAdded: Option.none(),
+            taxRate: Option.none(),
+            sector: Option.none(),
+            leadName: Option.none(),
+            phones: Option.none(),
+            email: Option.none(),
+            leadSource: Option.none(),
+            site: Option.none(),
+            memo: Option.none(),
+            needsReview: Option.none(),
+            hasAlert: Option.none(),
+            salesRep: Option.none(),
+            color: Option.none(),
+            accountType: Option.none(),
+            subtype: Option.none(),
+            isTaxExempt: Option.none(),
+            paymentTerms: Option.none(),
+            tags: Option.none(),
+            customFields: Option.none(),
+        };
+        tainted = {
+            id: Option.none(),
+            number: Option.none(),
+            accepted: Option.none(),
+            probability: Option.none(),
+            priority: Option.none(),
+            dueDate: Option.none(),
+            closeDate: Option.none(),
+            value: Option.none(),
+            stage: Option.none(),
+            status: Option.none(),
+            description: Option.none(),
+            nextStep: Option.none(),
+            favorite: Option.none(),
+            dateAdded: Option.none(),
+            taxRate: Option.none(),
+            sector: Option.none(),
+            leadName: Option.none(),
+            phones: Option.none(),
+            email: Option.none(),
+            leadSource: Option.none(),
+            site: Option.none(),
+            memo: Option.none(),
+            needsReview: Option.none(),
+            hasAlert: Option.none(),
+            salesRep: Option.none(),
+            color: Option.none(),
+            accountType: Option.none(),
+            subtype: Option.none(),
+            isTaxExempt: Option.none(),
+            paymentTerms: Option.none(),
+            tags: Option.none(),
+            customFields: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function leadFromFormData(formData: FormData): Exit.Exit<Lead, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    obj.id = formData.get("id") ?? "";
+    {
+        const numberStr = formData.get("number");
+        obj.number = numberStr ? parseFloat(numberStr as string) : 0;
+        if (obj.number !== undefined && isNaN(obj.number as number)) obj.number = 0;
+    }
+    {
+        const acceptedVal = formData.get("accepted");
+        obj.accepted = acceptedVal === "true" || acceptedVal === "on" || acceptedVal === "1";
+    }
+    {
+        const probabilityStr = formData.get("probability");
+        obj.probability = probabilityStr ? parseFloat(probabilityStr as string) : 0;
+        if (obj.probability !== undefined && isNaN(obj.probability as number)) obj.probability = 0;
+    }
+    {
+
+        const priorityObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("priority.")) {
+                const fieldName = key.slice("priority.".length);
+
+                const parts = fieldName.split(".");
+                let current = priorityObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.priority = priorityObj;
+    }
+    obj.dueDate = formData.get("dueDate") ?? "";
+    obj.closeDate = formData.get("closeDate") ?? "";
+    {
+        const valueStr = formData.get("value");
+        obj.value = valueStr ? parseFloat(valueStr as string) : 0;
+        if (obj.value !== undefined && isNaN(obj.value as number)) obj.value = 0;
+    }
+    {
+
+        const stageObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("stage.")) {
+                const fieldName = key.slice("stage.".length);
+
+                const parts = fieldName.split(".");
+                let current = stageObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.stage = stageObj;
+    }
+    obj.status = formData.get("status") ?? "";
+    obj.description = formData.get("description") ?? "";
+    {
+
+        const nextStepObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("nextStep.")) {
+                const fieldName = key.slice("nextStep.".length);
+
+                const parts = fieldName.split(".");
+                let current = nextStepObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.nextStep = nextStepObj;
+    }
+    {
+        const favoriteVal = formData.get("favorite");
+        obj.favorite = favoriteVal === "true" || favoriteVal === "on" || favoriteVal === "1";
+    }
+    obj.dateAdded = formData.get("dateAdded") ?? "";
+    obj.taxRate = formData.get("taxRate") ?? "";
+    {
+
+        const sectorObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("sector.")) {
+                const fieldName = key.slice("sector.".length);
+
+                const parts = fieldName.split(".");
+                let current = sectorObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.sector = sectorObj;
+    }
+    {
+
+        const leadNameObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("leadName.")) {
+                const fieldName = key.slice("leadName.".length);
+
+                const parts = fieldName.split(".");
+                let current = leadNameObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.leadName = leadNameObj;
+    }
+    {
+
+        const phonesItems: Array<Record<string, unknown>> = [];
+        let idx = 0;
+        while (formData.has("phones." + idx + ".") || idx === 0) {
+
+            const hasAny = Array.from(formData.keys()).some(k => k.startsWith("phones." + idx + "."));
+            if (!hasAny && idx > 0) break;
+            if (hasAny) {
+                const item: Record<string, unknown> = {};
+                for (const [key, value] of Array.from(formData.entries())) {
+                    if (key.startsWith("phones." + idx + ".")) {
+                        const fieldName = key.slice("phones.".length + String(idx).length + 1);
+                        item[fieldName] = value;
+                    }
+                }
+                phonesItems.push(item);
+            }
+            idx++;
+            if (idx > 1000) break;
+        }
+        obj.phones = phonesItems;
+    }
+    {
+
+        const emailObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("email.")) {
+                const fieldName = key.slice("email.".length);
+
+                const parts = fieldName.split(".");
+                let current = emailObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.email = emailObj;
+    }
+    obj.leadSource = formData.get("leadSource") ?? "";
+    obj.site = formData.get("site") ?? "";
+    obj.memo = formData.get("memo") ?? "";
+    {
+        const needsReviewVal = formData.get("needsReview");
+        obj.needsReview = needsReviewVal === "true" || needsReviewVal === "on" || needsReviewVal === "1";
+    }
+    {
+        const hasAlertVal = formData.get("hasAlert");
+        obj.hasAlert = hasAlertVal === "true" || hasAlertVal === "on" || hasAlertVal === "1";
+    }
+    {
+
+        const salesRepObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("salesRep.")) {
+                const fieldName = key.slice("salesRep.".length);
+
+                const parts = fieldName.split(".");
+                let current = salesRepObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.salesRep = salesRepObj;
+    }
+    obj.color = formData.get("color") ?? "";
+    obj.accountType = formData.get("accountType") ?? "";
+    obj.subtype = formData.get("subtype") ?? "";
+    {
+        const isTaxExemptVal = formData.get("isTaxExempt");
+        obj.isTaxExempt = isTaxExemptVal === "true" || isTaxExemptVal === "on" || isTaxExemptVal === "1";
+    }
+    obj.paymentTerms = formData.get("paymentTerms") ?? "";
+    obj.tags = formData.getAll("tags") as Array<string>;
+    {
+
+        const customFieldsItems: Array<Record<string, unknown>> = [];
+        let idx = 0;
+        while (formData.has("customFields." + idx + ".") || idx === 0) {
+
+            const hasAny = Array.from(formData.keys()).some(k => k.startsWith("customFields." + idx + "."));
+            if (!hasAny && idx > 0) break;
+            if (hasAny) {
+                const item: Record<string, unknown> = {};
+                for (const [key, value] of Array.from(formData.entries())) {
+                    if (key.startsWith("customFields." + idx + ".")) {
+                        const fieldName = key.slice("customFields.".length + String(idx).length + 1);
+                        item[fieldName] = value;
+                    }
+                }
+                customFieldsItems.push(item);
+            }
+            idx++;
+            if (idx > 1000) break;
+        }
+        obj.customFields = customFieldsItems;
+    }
+
+    return toExit(leadDecode(obj));
+}
+
+export const Lead: {
+  readonly defaultValue: typeof leadDefaultValue;
+  readonly encode: typeof leadEncode;
+  readonly encodeWithContext: typeof leadEncodeWithContext;
+  readonly decode: typeof leadDecode;
+  readonly decodeWithContext: typeof leadDecodeWithContext;
+  readonly validateField: typeof leadValidateField;
+  readonly validateFields: typeof leadValidateFields;
+  readonly hasShape: typeof leadHasShape;
+  readonly is: typeof leadIs;
+  readonly createForm: typeof leadCreateForm;
+  readonly fromFormData: typeof leadFromFormData;
+} = {
+  defaultValue: leadDefaultValue,
+  encode: leadEncode,
+  encodeWithContext: leadEncodeWithContext,
+  decode: leadDecode,
+  decodeWithContext: leadDecodeWithContext,
+  validateField: leadValidateField,
+  validateFields: leadValidateFields,
+  hasShape: leadHasShape,
+  is: leadIs,
+  createForm: leadCreateForm,
+  fromFormData: leadFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+import type { AccountName } from "./account-name.svelte";
+import type { Email } from "./email.svelte";
+import type { LeadStage } from "./lead-stage.svelte";
+import type { NextStep } from "./next-step.svelte";
+import type { PhoneNumber } from "./phone-number.svelte";
+import type { Priority } from "./priority.svelte";
+import type { Represents } from "./represents.svelte";
+import type { Sector } from "./sector.svelte";
+import type { Site } from "./site.svelte";
+import type { TaxRate } from "./tax-rate.svelte";
+export interface Lead {
+	id: string;
+	number: number | null;
+	accepted: boolean;
+	probability: number;
+	priority: Priority;
+	dueDate: string | null;
+	closeDate: string | null;
+	value: number;
+	stage: LeadStage;
+	status: string;
+	description: string | null;
+	nextStep: NextStep;
+	favorite: boolean;
+	dateAdded: string | null;
+	taxRate: (string | TaxRate) | null;
+	sector: Sector;
+	leadName: AccountName;
+	phones: Array<PhoneNumber>;
+	email: Email;
+	leadSource: string | null;
+	site: string | Site;
+	memo: string;
+	needsReview: boolean;
+	hasAlert: boolean;
+	salesRep: Array<Represents> | null;
+	color: string | null;
+	accountType: string;
+	subtype: string;
+	isTaxExempt: boolean;
+	paymentTerms: string;
+	tags: Array<string>;
+	customFields: Array<[string, string]>;
+}
+export declare function leadDefaultValue(): Lead;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function leadEncode(value: Lead, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function leadEncodeWithContext(value: Lead, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function leadDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Lead;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Lead | __mf_PendingRef;
+export declare function leadValidateField<K extends keyof Lead>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function leadValidateFields(partial: { readonly [K in keyof Lead]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function leadHasShape(obj: unknown): boolean;
+export declare function leadIs(obj: unknown): obj is Lead;
+/** Nested error structure matching the data shape  */
+export type LeadErrors = {
+	_errors: Option.Option<Array<string>>;
+	id: Option.Option<Array<string>>;
+	number: Option.Option<Array<string>>;
+	accepted: Option.Option<Array<string>>;
+	probability: Option.Option<Array<string>>;
+	priority: Option.Option<Array<string>>;
+	dueDate: Option.Option<Array<string>>;
+	closeDate: Option.Option<Array<string>>;
+	value: Option.Option<Array<string>>;
+	stage: Option.Option<Array<string>>;
+	status: Option.Option<Array<string>>;
+	description: Option.Option<Array<string>>;
+	nextStep: Option.Option<Array<string>>;
+	favorite: Option.Option<Array<string>>;
+	dateAdded: Option.Option<Array<string>>;
+	taxRate: Option.Option<Array<string>>;
+	sector: Option.Option<Array<string>>;
+	leadName: Option.Option<Array<string>>;
+	phones: Option.Option<Array<string>>;
+	email: Option.Option<Array<string>>;
+	leadSource: Option.Option<Array<string>>;
+	site: Option.Option<Array<string>>;
+	memo: Option.Option<Array<string>>;
+	needsReview: Option.Option<Array<string>>;
+	hasAlert: Option.Option<Array<string>>;
+	salesRep: Option.Option<Array<string>>;
+	color: Option.Option<Array<string>>;
+	accountType: Option.Option<Array<string>>;
+	subtype: Option.Option<Array<string>>;
+	isTaxExempt: Option.Option<Array<string>>;
+	paymentTerms: Option.Option<Array<string>>;
+	tags: Option.Option<Array<string>>;
+	customFields: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type LeadTainted = {
+	id: Option.Option<boolean>;
+	number: Option.Option<boolean>;
+	accepted: Option.Option<boolean>;
+	probability: Option.Option<boolean>;
+	priority: Option.Option<boolean>;
+	dueDate: Option.Option<boolean>;
+	closeDate: Option.Option<boolean>;
+	value: Option.Option<boolean>;
+	stage: Option.Option<boolean>;
+	status: Option.Option<boolean>;
+	description: Option.Option<boolean>;
+	nextStep: Option.Option<boolean>;
+	favorite: Option.Option<boolean>;
+	dateAdded: Option.Option<boolean>;
+	taxRate: Option.Option<boolean>;
+	sector: Option.Option<boolean>;
+	leadName: Option.Option<boolean>;
+	phones: Option.Option<boolean>;
+	email: Option.Option<boolean>;
+	leadSource: Option.Option<boolean>;
+	site: Option.Option<boolean>;
+	memo: Option.Option<boolean>;
+	needsReview: Option.Option<boolean>;
+	hasAlert: Option.Option<boolean>;
+	salesRep: Option.Option<boolean>;
+	color: Option.Option<boolean>;
+	accountType: Option.Option<boolean>;
+	subtype: Option.Option<boolean>;
+	isTaxExempt: Option.Option<boolean>;
+	paymentTerms: Option.Option<boolean>;
+	tags: Option.Option<boolean>;
+	customFields: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface LeadFieldControllers {
+	readonly id: FieldController<string>;
+	readonly number: FieldController<number | null>;
+	readonly accepted: FieldController<boolean>;
+	readonly probability: FieldController<number>;
+	readonly priority: FieldController<Priority>;
+	readonly dueDate: FieldController<string | null>;
+	readonly closeDate: FieldController<string | null>;
+	readonly value: FieldController<number>;
+	readonly stage: FieldController<LeadStage>;
+	readonly status: FieldController<string>;
+	readonly description: FieldController<string | null>;
+	readonly nextStep: FieldController<NextStep>;
+	readonly favorite: FieldController<boolean>;
+	readonly dateAdded: FieldController<string | null>;
+	readonly taxRate: FieldController<(string | TaxRate) | null>;
+	readonly sector: FieldController<Sector>;
+	readonly leadName: FieldController<AccountName>;
+	readonly phones: ArrayFieldController<PhoneNumber>;
+	readonly email: FieldController<Email>;
+	readonly leadSource: FieldController<string | null>;
+	readonly site: FieldController<string | Site>;
+	readonly memo: FieldController<string>;
+	readonly needsReview: FieldController<boolean>;
+	readonly hasAlert: FieldController<boolean>;
+	readonly salesRep: FieldController<Array<Represents> | null>;
+	readonly color: FieldController<string | null>;
+	readonly accountType: FieldController<string>;
+	readonly subtype: FieldController<string>;
+	readonly isTaxExempt: FieldController<boolean>;
+	readonly paymentTerms: FieldController<string>;
+	readonly tags: ArrayFieldController<string>;
+	readonly customFields: ArrayFieldController<[string, string]>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface LeadGigaform {
+	readonly data: Lead;
+	readonly errors: LeadErrors;
+	readonly tainted: LeadTainted;
+	readonly fields: LeadFieldControllers;
+	validate(): Exit.Exit<Lead, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<Lead>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function leadCreateForm(overrides?: Partial<Lead>): LeadGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function leadFromFormData(formData: FormData): Exit.Exit<Lead, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const Lead: {
+	readonly defaultValue: typeof leadDefaultValue;
+	readonly encode: typeof leadEncode;
+	readonly encodeWithContext: typeof leadEncodeWithContext;
+	readonly decode: typeof leadDecode;
+	readonly decodeWithContext: typeof leadDecodeWithContext;
+	readonly validateField: typeof leadValidateField;
+	readonly validateFields: typeof leadValidateFields;
+	readonly hasShape: typeof leadHasShape;
+	readonly is: typeof leadIs;
+	readonly createForm: typeof leadCreateForm;
+	readonly fromFormData: typeof leadFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..572 -> expanded 1194..1766
+original 621..650 -> expanded 1766..1795
+original 678..699 -> expanded 1795..1816
+original 727..759 -> expanded 1816..1848
+original 787..815 -> expanded 1848..1876
+original 883..913 -> expanded 1876..1906
+original 1106..1111 -> expanded 1906..1911
+original 1136..1165 -> expanded 1911..1940
+original 1214..1247 -> expanded 1940..1973
+original 1298..1333 -> expanded 1973..2008
+original 1397..1421 -> expanded 2008..2032
+original 1718..1723 -> expanded 2032..2037
+original 1746..1773 -> expanded 2037..2064
+original 1816..1821 -> expanded 2064..2069
+original 1862..1887 -> expanded 2069..2094
+original 1939..1976 -> expanded 2094..2131
+original 2004..2009 -> expanded 2131..2136
+original 2042..2071 -> expanded 2136..2165
+original 2118..2146 -> expanded 2165..2193
+original 2174..2209 -> expanded 2193..2228
+original 2309..2354 -> expanded 2228..2273
+original 2535..2540 -> expanded 2273..2278
+original 2570..2595 -> expanded 2278..2303
+original 2727..2759 -> expanded 2303..2335
+original 2812..2849 -> expanded 2335..2372
+original 2897..2920 -> expanded 2372..2395
+original 2991..3027 -> expanded 2395..2431
+original 3076..3081 -> expanded 2431..2436
+original 3100..3130 -> expanded 2436..2466
+original 3175..3180 -> expanded 2466..2471
+original 3221..3244 -> expanded 2471..2494
+original 3295..3326 -> expanded 2494..2525
+original 3374..3402 -> expanded 2525..2553
+original 3491..3536 -> expanded 2553..2598
+original 3564..3595 -> expanded 2598..2629
+original 3667..3672 -> expanded 2629..2634
+original 3713..3743 -> expanded 2634..2664
+original 3810..3815 -> expanded 2664..2669
+original 3856..3882 -> expanded 2669..2695
+original 3931..3962 -> expanded 2695..2726
+original 4035..4040 -> expanded 2726..2731
+original 4081..4112 -> expanded 2731..2762
+original 4153..4183 -> expanded 2762..2792
+original 4243..4288 -> expanded 2792..2837
+original 4288..4289 -> expanded 82544..82545
+generated 0..1194 <- imports
+generated 2837..3699 <- Default
+generated 3699..6465 <- Encode
+generated 6465..33629 <- Decode
+generated 33629..81650 <- Gigaform
+generated 81650..82544 <- __convenience_const
+
+## Metadata
+
+interface Lead: {"body_span":{"end":4289,"start":645},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":622,"start":573}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":679,"start":651}}],"name":"id","optional":false,"readonly":false,"span":{"end":695,"start":684},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":728,"start":700}}],"name":"number","optional":false,"readonly":false,"span":{"end":755,"start":733},"ts_type":"number | null"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":788,"start":760}}],"name":"accepted","optional":false,"readonly":false,"span":{"end":811,"start":793},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Probability\", min: 0, max: 100 }","name":"numberController","span":{"end":884,"start":816}}],"name":"probability","optional":false,"readonly":false,"span":{"end":909,"start":889},"ts_type":"number"},{"decorators":[{"args_src":"\"Medium\"","name":"default","span":{"end":1137,"start":1112}},{"args_src":"{ label: \"Priority\", options: [{ label: \"High\", value: \"High\" }, { label: \"Medium\", value: \"Medium\" }, { label: \"Low\", value: \"Low\" }], orientation: \"horizontal\" }","name":"radioGroupController","span":{"end":1107,"start":914}}],"name":"priority","optional":false,"readonly":false,"span":{"end":1161,"start":1142},"ts_type":"Priority"},{"decorators":[{"args_src":"{ label: \"Due Date\" }","name":"dateTimeController","span":{"end":1215,"start":1166}}],"name":"dueDate","optional":false,"readonly":false,"span":{"end":1243,"start":1220},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Close Date\" }","name":"dateTimeController","span":{"end":1299,"start":1248}}],"name":"closeDate","optional":false,"readonly":false,"span":{"end":1329,"start":1304},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Value\", min: 0, step: 0.01 }","name":"numberController","span":{"end":1398,"start":1334}}],"name":"value","optional":false,"readonly":false,"span":{"end":1417,"start":1403},"ts_type":"number"},{"decorators":[{"args_src":"\"Open\"","name":"default","span":{"end":1747,"start":1724}},{"args_src":"{ label: \"Stage\", options: [{ label: \"Open\", value: \"Open\" }, { label: \"Working\", value: \"Working\" }, { label: \"Lost\", value: \"Lost\" }, { label: \"Qualified\", value: \"Qualified\" }, { label: \"Estimate\", value: \"Estimate\" }, { label: \"Negotiation\", value: \"Negotiation\" }] }","name":"selectController","span":{"end":1719,"start":1422}}],"name":"stage","optional":false,"readonly":false,"span":{"end":1769,"start":1752},"ts_type":"LeadStage"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1863,"start":1822}},{"args_src":"{ label: \"Status\" }","name":"textController","span":{"end":1817,"start":1774}}],"name":"status","optional":false,"readonly":false,"span":{"end":1883,"start":1868},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Description\" }","name":"textAreaController","span":{"end":1940,"start":1888}}],"name":"description","optional":false,"readonly":false,"span":{"end":1972,"start":1945},"ts_type":"string | null"},{"decorators":[{"args_src":"\"InitialContact\"","name":"default","span":{"end":2043,"start":2010}},{"args_src":"{}","name":"hiddenController","span":{"end":2005,"start":1977}}],"name":"nextStep","optional":false,"readonly":false,"span":{"end":2067,"start":2048},"ts_type":"NextStep"},{"decorators":[{"args_src":"{ label: \"Favorite\" }","name":"switchController","span":{"end":2119,"start":2072}}],"name":"favorite","optional":false,"readonly":false,"span":{"end":2142,"start":2124},"ts_type":"boolean"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":2175,"start":2147}}],"name":"dateAdded","optional":false,"readonly":false,"span":{"end":2205,"start":2180},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Tax Rate\", allowCustom: false, fetchUrls: [\"/api/tax_rates\"] }","name":"comboboxController","span":{"end":2310,"start":2210}}],"name":"taxRate","optional":false,"readonly":false,"span":{"end":2350,"start":2315},"ts_type":"(string | TaxRate) | null"},{"decorators":[{"args_src":"\"Residential\"","name":"default","span":{"end":2571,"start":2541}},{"args_src":"{ label: \"Sector\", options: [{ label: \"Residential\", value: \"Residential\" }, { label: \"Commercial\", value: \"Commercial\" }], orientation: \"horizontal\" }","name":"radioGroupController","span":{"end":2536,"start":2355}}],"name":"sector","optional":false,"readonly":false,"span":{"end":2591,"start":2576},"ts_type":"Sector"},{"decorators":[{"args_src":"{ legend: \"Name\", variants: { CompanyName: { label: \"Company\" }, PersonName: { label: \"Person\" } } }","name":"enumFieldsetController","span":{"end":2728,"start":2596}}],"name":"leadName","optional":false,"readonly":false,"span":{"end":2755,"start":2733},"ts_type":"AccountName"},{"decorators":[{"args_src":"{ legend: \"Phones\" }","name":"arrayFieldsetController","span":{"end":2813,"start":2760}}],"name":"phones","optional":false,"readonly":false,"span":{"end":2845,"start":2818},"ts_type":"Array<PhoneNumber>"},{"decorators":[{"args_src":"{ label: \"Email\" }","name":"emailFieldController","span":{"end":2898,"start":2850}}],"name":"email","optional":false,"readonly":false,"span":{"end":2916,"start":2903},"ts_type":"Email"},{"decorators":[{"args_src":"{ label: \"Lead Source\", allowCustom: true }","name":"comboboxController","span":{"end":2992,"start":2921}}],"name":"leadSource","optional":false,"readonly":false,"span":{"end":3023,"start":2997},"ts_type":"string | null"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":3101,"start":3082}},{"args_src":"{ label: \"Site\" }","name":"siteFieldsetController","span":{"end":3077,"start":3028}}],"name":"site","optional":false,"readonly":false,"span":{"end":3126,"start":3106},"ts_type":"string | Site"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":3222,"start":3181}},{"args_src":"{ label: \"Memo\" }","name":"textAreaController","span":{"end":3176,"start":3131}}],"name":"memo","optional":false,"readonly":false,"span":{"end":3240,"start":3227},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Needs Review\" }","name":"toggleController","span":{"end":3296,"start":3245}}],"name":"needsReview","optional":false,"readonly":false,"span":{"end":3322,"start":3301},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Has Alert\" }","name":"toggleController","span":{"end":3375,"start":3327}}],"name":"hasAlert","optional":false,"readonly":false,"span":{"end":3398,"start":3380},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Sales Rep\", fetchUrls: [\"/api/employees\"] }","name":"comboboxMultipleController","span":{"end":3492,"start":3403}}],"name":"salesRep","optional":false,"readonly":false,"span":{"end":3532,"start":3497},"ts_type":"Array<Represents> | null"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":3565,"start":3537}}],"name":"color","optional":false,"readonly":false,"span":{"end":3591,"start":3570},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":3714,"start":3673}},{"args_src":"{ label: \"Account Type\", allowCustom: true }","name":"comboboxController","span":{"end":3668,"start":3596}}],"name":"accountType","optional":false,"readonly":false,"span":{"end":3739,"start":3719},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":3857,"start":3816}},{"args_src":"{ label: \"Subtype\", allowCustom: true }","name":"comboboxController","span":{"end":3811,"start":3744}}],"name":"subtype","optional":false,"readonly":false,"span":{"end":3878,"start":3862},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Tax Exempt\" }","name":"toggleController","span":{"end":3932,"start":3883}}],"name":"isTaxExempt","optional":false,"readonly":false,"span":{"end":3958,"start":3937},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":4082,"start":4041}},{"args_src":"{ label: \"Payment Terms\", allowCustom: true }","name":"comboboxController","span":{"end":4036,"start":3963}}],"name":"paymentTerms","optional":false,"readonly":false,"span":{"end":4108,"start":4087},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Tags\" }","name":"tagsController","span":{"end":4154,"start":4113}}],"name":"tags","optional":false,"readonly":false,"span":{"end":4179,"start":4159},"ts_type":"Array<string>"},{"decorators":[{"args_src":"{ legend: \"Custom Fields\" }","name":"arrayFieldsetController","span":{"end":4244,"start":4184}}],"name":"customFields","optional":false,"readonly":false,"span":{"end":4287,"start":4249},"ts_type":"Array<[string, string]>"}],"heritage":[],"methods":[],"name":"Lead","span":{"end":4289,"start":630},"type_params":[]}
+
+## Registry reads
+
+Name("(string | TaxRate)")
+Name("AccountName")
+Name("Array")
+Name("Email")
+Name("LeadStage")
+Name("NextStep")
+Name("PhoneNumber")
+Name("Priority")
+Name("Represents")
+Name("Sector")
+Name("[string, string]")
+Name("boolean")
+Name("number")
+Name("string")
+Name("string | Site")
+
+## Buildtime dependencies
+
+(none)

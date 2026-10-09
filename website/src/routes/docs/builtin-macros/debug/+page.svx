@@ -24,8 +24,13 @@ reverse lookup on numeric enums.
 
 **Interfaces**: Generates a standalone function `ifaceNameToString(value)`.
 
-**Type Aliases**: Generates a standalone function using JSON.stringify for
-complex types, or field enumeration for object types.
+**Type Aliases**: Generates a standalone function listing the fields of an
+object type, or rendering any other value by its type.
+
+Primitives and built-ins render as `String` renders them, types deriving
+`Debug` through their `toString`, and anything else (maps, sets, object
+literals, unions) through `structuralDebug` from
+`@macroforge/core/structural`.
 
 Names use **camelCase** conversion (e.g., `User` -> `userToString`).
 

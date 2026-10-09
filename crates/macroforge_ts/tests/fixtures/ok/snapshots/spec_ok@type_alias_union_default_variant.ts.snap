@@ -23,8 +23,8 @@ export type UnionWithVariantDefault =
     | VariantC;
 
 export function unionWithVariantDefaultDefaultValue(): UnionWithVariantDefault {
-                            return variantADefaultValue();
-                        }
+    return variantADefaultValue();
+}
 
 export const UnionWithVariantDefault: {
   readonly defaultValue: typeof unionWithVariantDefaultDefaultValue;
@@ -34,19 +34,10 @@ export const UnionWithVariantDefault: {
 
 ## DTS
 
-export type UnionWithVariantDefault =
-    | /** @default */ VariantA
-    | VariantB
-    | VariantC;
-
-export function unionWithVariantDefaultDefaultValue(): UnionWithVariantDefault {
-                            return variantADefaultValue();
-                        }
-
-export const UnionWithVariantDefault: {
-  readonly defaultValue: typeof unionWithVariantDefaultDefaultValue;
-} = {
-  defaultValue: unionWithVariantDefaultDefaultValue
+export type UnionWithVariantDefault = VariantA | VariantB | VariantC;
+export declare function unionWithVariantDefaultDefaultValue(): UnionWithVariantDefault;
+export declare const UnionWithVariantDefault: {
+	readonly defaultValue: typeof unionWithVariantDefaultDefaultValue;
 };
 
 ## Diagnostics
@@ -56,9 +47,9 @@ export const UnionWithVariantDefault: {
 ## Mapping
 
 original 23..123 -> expanded 0..100
-original 123..124 -> expanded 438..439
-generated 100..267 <- Default
-generated 267..438 <- __convenience_const
+original 123..124 -> expanded 390..391
+generated 100..219 <- Default
+generated 219..390 <- __convenience_const
 
 ## Metadata
 

@@ -24,55 +24,36 @@ import { Derive } from '@macro/derive';
 class User {
     name: string;
 
-static equals(a: User, b: User): boolean {
-                    return userEquals(a, b);
-                }
-static hashCode(value: User): number {
-                    return userHashCode(value);
-                }}
+    static equals(a: User, b: User): boolean {
+        return userEquals(a, b);
+    }
+
+    static hashCode(value: User): number {
+        return userHashCode(value);
+    }
+}
 
 export function userEquals(a: User, b: User): boolean {
-                    if (a === b) return true;
-                    return a.name === b.name;
-                }
+    if (a === b) return true;
+    return a.name === b.name;
+}
 
 export function userHashCode(value: User): number {
-                    let hash = 17;hash = (hash * 31 + ((value.name ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-
-
-
-
-                    return hash;
-                }
+    let hash = 17;
+    hash = (hash * 31 + ((value.name ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    return hash;
+}
 
 ## DTS
 
-import { Derive } from '@macro/derive';
-
-
-class User {
-    name: string;
-
-static equals(a: User, b: User): boolean {
-                    return userEquals(a, b);
-                }
-static hashCode(value: User): number {
-                    return userHashCode(value);
-                }}
-
-export function userEquals(a: User, b: User): boolean {
-                    if (a === b) return true;
-                    return a.name === b.name;
-                }
-
-export function userHashCode(value: User): number {
-                    let hash = 17;hash = (hash * 31 + ((value.name ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-
-
-
-
-                    return hash;
-                }
+declare class User {
+	name: string;
+	static equals(a: User, b: User): boolean;
+	static hashCode(value: User): number;
+}
+export declare function userEquals(a: User, b: User): boolean;
+export declare function userHashCode(value: User): number;
+export {};
 
 ## Diagnostics
 
@@ -82,16 +63,16 @@ export function userHashCode(value: User): number {
 
 original 0..41 -> expanded 0..41
 original 72..104 -> expanded 41..73
-original 104..105 -> expanded 284..285
-original 105..106 -> expanded 701..702
-generated 73..179 <- PartialEq
-generated 179..284 <- Hash
-generated 285..452 <- PartialEq
-generated 452..701 <- Hash
+original 104..105 -> expanded 246..247
+original 105..106 -> expanded 568..569
+generated 73..160 <- PartialEq
+generated 160..246 <- Hash
+generated 247..366 <- PartialEq
+generated 366..568 <- Hash
 
 ## Metadata
 
-class User: {"body_span":{"end":106,"start":85},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":73,"start":42}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":104,"start":91},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":106,"start":74},"type_params":[]}
+class User: {"body_span":{"end":106,"start":85},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":73,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":104,"start":91},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":106,"start":74},"type_params":[]}
 
 ## Registry reads
 

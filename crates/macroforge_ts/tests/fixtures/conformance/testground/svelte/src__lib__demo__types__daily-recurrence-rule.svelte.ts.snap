@@ -1,0 +1,409 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/daily-recurrence-rule.svelte.ts
+sha256 5b9ac8213970eda5ee35e460fe529e46b6da4047ffbdacd4f3ba34ea7c4aa465
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+
+export interface DailyRecurrenceRule {
+    quantityOfDays: number;
+}
+
+export function dailyRecurrenceRuleDefaultValue(): DailyRecurrenceRule {
+    return {
+        quantityOfDays: 0,
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function dailyRecurrenceRuleEncode(value: DailyRecurrenceRule, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = dailyRecurrenceRuleEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function dailyRecurrenceRuleEncodeWithContext(value: DailyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "DailyRecurrenceRule",
+        __id,
+    };
+
+    
+    result.quantityOfDays = value.quantityOfDays;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function dailyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DailyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = dailyRecurrenceRuleDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "DailyRecurrenceRule.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function dailyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DailyRecurrenceRule | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "DailyRecurrenceRule.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as DailyRecurrenceRule | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "DailyRecurrenceRule.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("quantityOfDays" in obj)) {
+        errors.push({ field: "quantityOfDays", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_quantityOfDays = obj["quantityOfDays"] as number;
+
+        if (!(typeof __raw_quantityOfDays === "number")) {
+            errors.push({ field: "quantityOfDays", message: __raw_quantityOfDays == null ? "DailyRecurrenceRule.quantityOfDays is required" : "expected number" });
+        } else {
+            instance.quantityOfDays = __raw_quantityOfDays;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as DailyRecurrenceRule;
+}
+export function dailyRecurrenceRuleValidateField<K extends keyof DailyRecurrenceRule>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function dailyRecurrenceRuleValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function dailyRecurrenceRuleValidateFields(partial: { readonly [K in keyof DailyRecurrenceRule]?: unknown }): Array<{ field: string; message: string }>;
+export function dailyRecurrenceRuleValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function dailyRecurrenceRuleHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "quantityOfDays" in o;
+}
+
+export function dailyRecurrenceRuleIs(obj: unknown): obj is DailyRecurrenceRule {
+    return dailyRecurrenceRuleHasShape(obj) && dailyRecurrenceRuleDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type DailyRecurrenceRuleErrors = {
+    _errors: Option.Option<Array<string>>;
+    quantityOfDays: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type DailyRecurrenceRuleTainted = {
+    quantityOfDays: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface DailyRecurrenceRuleFieldControllers {
+    readonly quantityOfDays: FieldController<number>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface DailyRecurrenceRuleGigaform {
+    readonly data: DailyRecurrenceRule;
+    readonly errors: DailyRecurrenceRuleErrors;
+    readonly tainted: DailyRecurrenceRuleTainted;
+    readonly fields: DailyRecurrenceRuleFieldControllers;
+    validate(): Exit.Exit<DailyRecurrenceRule, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<DailyRecurrenceRule>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function dailyRecurrenceRuleCreateForm(overrides?: Partial<DailyRecurrenceRule>): DailyRecurrenceRuleGigaform {
+    let data = $state({ ...dailyRecurrenceRuleDefaultValue(), ...overrides });
+    let errors = $state<DailyRecurrenceRuleErrors>({
+        _errors: Option.none(),
+        quantityOfDays: Option.none(),
+    });
+    let tainted = $state<DailyRecurrenceRuleTainted>({
+        quantityOfDays: Option.none(),
+    });
+    const fields = {
+        quantityOfDays: {
+            name: "quantityOfDays",
+            label: "quantityOfDays",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["quantityOfDays"],
+            get: () => data.quantityOfDays,
+            set: (value: number) => { data.quantityOfDays = value; },
+            getError: () => errors.quantityOfDays,
+            setError: (value: Option.Option<Array<string>>) => { errors.quantityOfDays = value; },
+            getTainted: () => tainted.quantityOfDays,
+            setTainted: (value: Option.Option<boolean>) => { tainted.quantityOfDays = value; },
+            validate: () => dailyRecurrenceRuleValidateField("quantityOfDays", data.quantityOfDays).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as DailyRecurrenceRuleFieldControllers;
+
+    function validate(): Exit.Exit<DailyRecurrenceRule, Array<{ field: string; message: string }>> {
+        return toExit(dailyRecurrenceRuleDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<DailyRecurrenceRule>): void {
+        data = { ...dailyRecurrenceRuleDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            quantityOfDays: Option.none(),
+        };
+        tainted = {
+            quantityOfDays: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function dailyRecurrenceRuleFromFormData(formData: FormData): Exit.Exit<DailyRecurrenceRule, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    {
+        const quantityOfDaysStr = formData.get("quantityOfDays");
+        obj.quantityOfDays = quantityOfDaysStr ? parseFloat(quantityOfDaysStr as string) : 0;
+        if (obj.quantityOfDays !== undefined && isNaN(obj.quantityOfDays as number)) obj.quantityOfDays = 0;
+    }
+
+    return toExit(dailyRecurrenceRuleDecode(obj));
+}
+
+export const DailyRecurrenceRule: {
+  readonly defaultValue: typeof dailyRecurrenceRuleDefaultValue;
+  readonly encode: typeof dailyRecurrenceRuleEncode;
+  readonly encodeWithContext: typeof dailyRecurrenceRuleEncodeWithContext;
+  readonly decode: typeof dailyRecurrenceRuleDecode;
+  readonly decodeWithContext: typeof dailyRecurrenceRuleDecodeWithContext;
+  readonly validateField: typeof dailyRecurrenceRuleValidateField;
+  readonly validateFields: typeof dailyRecurrenceRuleValidateFields;
+  readonly hasShape: typeof dailyRecurrenceRuleHasShape;
+  readonly is: typeof dailyRecurrenceRuleIs;
+  readonly createForm: typeof dailyRecurrenceRuleCreateForm;
+  readonly fromFormData: typeof dailyRecurrenceRuleFromFormData;
+} = {
+  defaultValue: dailyRecurrenceRuleDefaultValue,
+  encode: dailyRecurrenceRuleEncode,
+  encodeWithContext: dailyRecurrenceRuleEncodeWithContext,
+  decode: dailyRecurrenceRuleDecode,
+  decodeWithContext: dailyRecurrenceRuleDecodeWithContext,
+  validateField: dailyRecurrenceRuleValidateField,
+  validateFields: dailyRecurrenceRuleValidateFields,
+  hasShape: dailyRecurrenceRuleHasShape,
+  is: dailyRecurrenceRuleIs,
+  createForm: dailyRecurrenceRuleCreateForm,
+  fromFormData: dailyRecurrenceRuleFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+export interface DailyRecurrenceRule {
+	quantityOfDays: number;
+}
+export declare function dailyRecurrenceRuleDefaultValue(): DailyRecurrenceRule;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function dailyRecurrenceRuleEncode(value: DailyRecurrenceRule, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function dailyRecurrenceRuleEncodeWithContext(value: DailyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function dailyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DailyRecurrenceRule;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function dailyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DailyRecurrenceRule | __mf_PendingRef;
+export declare function dailyRecurrenceRuleValidateField<K extends keyof DailyRecurrenceRule>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function dailyRecurrenceRuleValidateFields(partial: { readonly [K in keyof DailyRecurrenceRule]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function dailyRecurrenceRuleHasShape(obj: unknown): boolean;
+export declare function dailyRecurrenceRuleIs(obj: unknown): obj is DailyRecurrenceRule;
+/** Nested error structure matching the data shape  */
+export type DailyRecurrenceRuleErrors = {
+	_errors: Option.Option<Array<string>>;
+	quantityOfDays: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type DailyRecurrenceRuleTainted = {
+	quantityOfDays: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface DailyRecurrenceRuleFieldControllers {
+	readonly quantityOfDays: FieldController<number>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface DailyRecurrenceRuleGigaform {
+	readonly data: DailyRecurrenceRule;
+	readonly errors: DailyRecurrenceRuleErrors;
+	readonly tainted: DailyRecurrenceRuleTainted;
+	readonly fields: DailyRecurrenceRuleFieldControllers;
+	validate(): Exit.Exit<DailyRecurrenceRule, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<DailyRecurrenceRule>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function dailyRecurrenceRuleCreateForm(overrides?: Partial<DailyRecurrenceRule>): DailyRecurrenceRuleGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function dailyRecurrenceRuleFromFormData(formData: FormData): Exit.Exit<DailyRecurrenceRule, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const DailyRecurrenceRule: {
+	readonly defaultValue: typeof dailyRecurrenceRuleDefaultValue;
+	readonly encode: typeof dailyRecurrenceRuleEncode;
+	readonly encodeWithContext: typeof dailyRecurrenceRuleEncodeWithContext;
+	readonly decode: typeof dailyRecurrenceRuleDecode;
+	readonly decodeWithContext: typeof dailyRecurrenceRuleDecodeWithContext;
+	readonly validateField: typeof dailyRecurrenceRuleValidateField;
+	readonly validateFields: typeof dailyRecurrenceRuleValidateFields;
+	readonly hasShape: typeof dailyRecurrenceRuleHasShape;
+	readonly is: typeof dailyRecurrenceRuleIs;
+	readonly createForm: typeof dailyRecurrenceRuleCreateForm;
+	readonly fromFormData: typeof dailyRecurrenceRuleFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 421..479
+original 107..176 -> expanded 479..548
+original 176..177 -> expanded 11238..11239
+generated 0..421 <- imports
+generated 548..671 <- Default
+generated 671..1861 <- Encode
+generated 1861..6041 <- Decode
+generated 6041..9999 <- Gigaform
+generated 9999..11238 <- __convenience_const
+
+## Metadata
+
+interface DailyRecurrenceRule: {"body_span":{"end":177,"start":146},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"quantityOfDays","optional":false,"readonly":false,"span":{"end":175,"start":152},"ts_type":"number"}],"heritage":[],"methods":[],"name":"DailyRecurrenceRule","span":{"end":177,"start":116},"type_params":[]}
+
+## Registry reads
+
+Name("number")
+
+## Buildtime dependencies
+
+(none)

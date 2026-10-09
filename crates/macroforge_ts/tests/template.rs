@@ -1,5 +1,5 @@
 // Integration tests for ts_template! macro and derive macros
-// Migrated from tooling/playground/tests/rust-tests
+// Migrated from tooling/testground/tests/rust-tests
 
 #[path = "template/comments_and_composition.rs"]
 mod comments_and_composition;
@@ -688,4 +688,34 @@ fn test_union_type_nested_if_for() {
         "Expected Option2.decodeWithContext, found: {}",
         s
     );
+}
+
+#[test]
+fn template_output_is_laid_out_from_its_own_left_edge() {
+    let fields = ["id", "name"];
+    let has_fields = true;
+    let stream = ts_template! {
+        export function hash(value: User): number {
+            let hash = 17;
+            {#if has_fields}
+                {#for field in fields}
+                    hash = hash + value.@{field};
+                {/for}
+            {/if}
+            return hash;
+        }
+    };
+    assert_eq!(
+        stream.source(),
+        "export function hash(value: User): number {\n    let hash = 17;\n    hash = hash + value.id;\n    hash = hash + value.name;\n    return hash;\n}"
+    );
+}
+
+#[test]
+fn an_inline_tag_keeps_the_space_before_it() {
+    let quiet = false;
+    let stream = ts_template! {
+        return {#if quiet}null{:else}value{/if};
+    };
+    assert_eq!(stream.source(), "return value;");
 }

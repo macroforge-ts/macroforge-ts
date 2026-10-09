@@ -796,7 +796,7 @@ pub fn resolve_cross_file_imports(
             // only point to a declarative library file. If we can't
             // resolve it, that's an error the user needs to know about.
             //
-            // Bare package specifiers (e.g. `@playground/macro`) may
+            // Bare package specifiers (e.g. `@testground/macro`) may
             // refer to proc macro packages loaded via the external
             // loader at dispatch time, so skip those silently and let
             // the proc macro fallback in the rewriter handle them.

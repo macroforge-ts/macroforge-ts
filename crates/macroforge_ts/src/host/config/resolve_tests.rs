@@ -61,13 +61,18 @@ fn a_config_that_exports_an_imported_base_is_that_base() {
         foreign_type_names(&config),
         ["DateTime.DateTime", "Duration.Duration"]
     );
-    assert_eq!(
-        config
-            .config_imports
-            .get("DateTime")
-            .map(|import| import.source.as_str()),
-        Some("effect"),
-        "the base's imports travel with its handlers"
+    let sites = &config
+        .foreign_types
+        .iter()
+        .find(|foreign_type| foreign_type.name == "DateTime.DateTime")
+        .expect("the base's foreign type")
+        .handler_sites;
+    assert!(
+        !sites.is_empty()
+            && sites
+                .iter()
+                .all(|site| site.module.ends_with("shared/base.config.ts")),
+        "the base's handlers are hoisted from the base, where their imports are: {sites:?}"
     );
 }
 
@@ -299,5 +304,34 @@ fn editing_a_base_reaches_a_config_found_by_discovery() {
     assert!(
         !edited.keep_decorators,
         "the cached config must follow its base"
+    );
+}
+
+#[test]
+fn a_relative_file_path_finds_an_absolute_root() {
+    // Relative to the test's working directory, as a CLI argument would be.
+    let dir = tempfile::tempdir_in(".").expect("a directory under the working directory");
+    for (path, content) in [
+        ("package.json", "{}"),
+        ("macroforge.config.ts", "export default {};"),
+        ("src/lib/model.ts", "export interface Model {}"),
+    ] {
+        let full = dir.path().join(path);
+        if let Some(parent) = full.parent() {
+            fs::create_dir_all(parent).expect("the fixture directory");
+        }
+        fs::write(&full, content).expect("the fixture file");
+    }
+    let name = dir.path().file_name().expect("the directory's name");
+    let relative = Path::new(name).join("src/lib/model.ts");
+
+    let (_, root) = MacroforgeConfigLoader::find_with_root_from_path(&relative)
+        .expect("discovery succeeds")
+        .expect("the config is found");
+
+    assert!(root.is_absolute(), "{}", root.display());
+    assert_eq!(
+        root.canonicalize().expect("the root exists"),
+        dir.path().canonicalize().expect("the fixture exists")
     );
 }

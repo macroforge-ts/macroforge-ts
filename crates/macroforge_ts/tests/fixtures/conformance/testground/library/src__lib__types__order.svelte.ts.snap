@@ -1,0 +1,279 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/types/order.svelte.ts
+sha256 23f94633a01335c4b1f52fe00cbb1548c5fa813a16f5fdb735b288f824e764f7
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+
+export interface Order {
+    id: string;
+    quantity: number;
+}
+
+export function orderDefaultValue(): Order {
+    return {
+        id: "",
+        quantity: 0,
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function orderEncode(value: Order, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = orderEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function orderEncodeWithContext(value: Order, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Order",
+        __id,
+    };
+
+    
+    result.id = value.id;
+    result.quantity = value.quantity;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function orderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Order } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = orderDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Order.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Order | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Order.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Order | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Order.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+    if (!("quantity" in obj)) {
+        errors.push({ field: "quantity", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_id = obj["id"] as string;
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "Order.id is required" : "expected string" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    {
+        const __raw_quantity = obj["quantity"] as number;
+
+        if (!(typeof __raw_quantity === "number")) {
+            errors.push({ field: "quantity", message: __raw_quantity == null ? "Order.quantity is required" : "expected number" });
+        } else {
+            instance.quantity = __raw_quantity;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Order;
+}
+export function orderValidateField<K extends keyof Order>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function orderValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function orderValidateFields(partial: { readonly [K in keyof Order]?: unknown }): Array<{ field: string; message: string }>;
+export function orderValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function orderHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "id" in o && "quantity" in o;
+}
+
+export function orderIs(obj: unknown): obj is Order {
+    return orderHasShape(obj) && orderDecode(obj).success;
+}
+
+export const Order: {
+  readonly defaultValue: typeof orderDefaultValue;
+  readonly encode: typeof orderEncode;
+  readonly encodeWithContext: typeof orderEncodeWithContext;
+  readonly decode: typeof orderDecode;
+  readonly decodeWithContext: typeof orderDecodeWithContext;
+  readonly validateField: typeof orderValidateField;
+  readonly validateFields: typeof orderValidateFields;
+  readonly hasShape: typeof orderHasShape;
+  readonly is: typeof orderIs;
+} = {
+  defaultValue: orderDefaultValue,
+  encode: orderEncode,
+  encodeWithContext: orderEncodeWithContext,
+  decode: orderDecode,
+  decodeWithContext: orderDecodeWithContext,
+  validateField: orderValidateField,
+  validateFields: orderValidateFields,
+  hasShape: orderHasShape,
+  is: orderIs
+};
+
+## DTS
+
+export interface Order {
+	id: string;
+	quantity: number;
+}
+export declare function orderDefaultValue(): Order;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function orderEncode(value: Order, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function orderEncodeWithContext(value: Order, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function orderDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Order;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Order | __mf_PendingRef;
+export declare function orderValidateField<K extends keyof Order>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function orderValidateFields(partial: { readonly [K in keyof Order]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function orderHasShape(obj: unknown): boolean;
+export declare function orderIs(obj: unknown): obj is Order;
+export declare const Order: {
+	readonly defaultValue: typeof orderDefaultValue;
+	readonly encode: typeof orderEncode;
+	readonly encodeWithContext: typeof orderEncodeWithContext;
+	readonly decode: typeof orderDecode;
+	readonly decodeWithContext: typeof orderDecodeWithContext;
+	readonly validateField: typeof orderValidateField;
+	readonly validateFields: typeof orderValidateFields;
+	readonly hasShape: typeof orderHasShape;
+	readonly is: typeof orderIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 39..104 -> expanded 262..327
+original 104..105 -> expanded 6512..6513
+generated 0..262 <- imports
+generated 327..432 <- Default
+generated 432..1552 <- Encode
+generated 1552..5759 <- Decode
+generated 5759..6512 <- __convenience_const
+
+## Metadata
+
+interface Order: {"body_span":{"end":105,"start":64},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":40,"start":1}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":81,"start":70},"ts_type":"string"},{"decorators":[],"name":"quantity","optional":false,"readonly":false,"span":{"end":103,"start":86},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Order","span":{"end":105,"start":48},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

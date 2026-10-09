@@ -1,0 +1,1962 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/validators/bigint-validator-tests.ts
+sha256 c3592944b46a7015f8c586b34d28f8fb5e315f9f7baf5aad36657e9b06b3025f
+
+## Changed
+
+true
+
+## Output
+
+import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * BigInt validator test classes for comprehensive decoder validation testing.
+ */
+
+// GreaterThanBigInt validator
+/** @derive(Decode) */
+export class GreaterThanBigIntValidator {
+    /** @endec({ validate: ["greaterThanBigInt(0)"] }) */
+    value: bigint;
+
+    constructor(props: { value: bigint }) {
+        this.value = props.value;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = GreaterThanBigIntValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "GreaterThanBigIntValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): GreaterThanBigIntValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "GreaterThanBigIntValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as GreaterThanBigIntValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "GreaterThanBigIntValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("value" in obj)) {
+            errors.push({ field: "value", message: "missing required field" });
+        }
+
+        const instance = Object.create(GreaterThanBigIntValidator.prototype) as GreaterThanBigIntValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        try {
+            const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
+            if (__convertedVal == null) { errors.push({ field: "value", message: "GreaterThanBigIntValidator.value is required" }); } else {
+                if (__convertedVal <= 0n) { errors.push({ field: "value", message: "GreaterThanBigIntValidator.value must be greater than 0" }); }
+            }
+            instance.value = __convertedVal;
+        } catch (__error) {
+            errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof GreaterThanBigIntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "value") {
+            const __val = value as bigint;
+            if (__val == null) { errors.push({ field: "value", message: "GreaterThanBigIntValidator.value is required" }); } else {
+                if (__val <= 0n) { errors.push({ field: "value", message: "GreaterThanBigIntValidator.value must be greater than 0" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof GreaterThanBigIntValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("value" in partial && partial.value !== undefined) {
+            const __val = partial.value as bigint;
+            if (__val == null) { errors.push({ field: "value", message: "GreaterThanBigIntValidator.value is required" }); } else {
+                if (__val <= 0n) { errors.push({ field: "value", message: "GreaterThanBigIntValidator.value must be greater than 0" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "value" in o;
+    }
+
+    static is(obj: unknown): obj is GreaterThanBigIntValidator {
+        if (obj instanceof GreaterThanBigIntValidator) {
+            return true;
+        }
+        if (!GreaterThanBigIntValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = GreaterThanBigIntValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function greaterThanBigIntValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return GreaterThanBigIntValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function greaterThanBigIntValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GreaterThanBigIntValidator | __mf_PendingRef {
+    return GreaterThanBigIntValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function greaterThanBigIntValidatorIs(value: unknown): value is GreaterThanBigIntValidator {
+    return GreaterThanBigIntValidator.is(value);
+}
+
+// GreaterThanOrEqualToBigInt validator
+/** @derive(Decode) */
+export class GreaterThanOrEqualToBigIntValidator {
+    /** @endec({ validate: ["greaterThanOrEqualToBigInt(0)"] }) */
+    value: bigint;
+
+    constructor(props: { value: bigint }) {
+        this.value = props.value;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = GreaterThanOrEqualToBigIntValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "GreaterThanOrEqualToBigIntValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): GreaterThanOrEqualToBigIntValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "GreaterThanOrEqualToBigIntValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as GreaterThanOrEqualToBigIntValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "GreaterThanOrEqualToBigIntValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("value" in obj)) {
+            errors.push({ field: "value", message: "missing required field" });
+        }
+
+        const instance = Object.create(GreaterThanOrEqualToBigIntValidator.prototype) as GreaterThanOrEqualToBigIntValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        try {
+            const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
+            if (__convertedVal == null) { errors.push({ field: "value", message: "GreaterThanOrEqualToBigIntValidator.value is required" }); } else {
+                if (__convertedVal < 0n) { errors.push({ field: "value", message: "GreaterThanOrEqualToBigIntValidator.value must be greater than or equal to 0" }); }
+            }
+            instance.value = __convertedVal;
+        } catch (__error) {
+            errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof GreaterThanOrEqualToBigIntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "value") {
+            const __val = value as bigint;
+            if (__val == null) { errors.push({ field: "value", message: "GreaterThanOrEqualToBigIntValidator.value is required" }); } else {
+                if (__val < 0n) { errors.push({ field: "value", message: "GreaterThanOrEqualToBigIntValidator.value must be greater than or equal to 0" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof GreaterThanOrEqualToBigIntValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("value" in partial && partial.value !== undefined) {
+            const __val = partial.value as bigint;
+            if (__val == null) { errors.push({ field: "value", message: "GreaterThanOrEqualToBigIntValidator.value is required" }); } else {
+                if (__val < 0n) { errors.push({ field: "value", message: "GreaterThanOrEqualToBigIntValidator.value must be greater than or equal to 0" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "value" in o;
+    }
+
+    static is(obj: unknown): obj is GreaterThanOrEqualToBigIntValidator {
+        if (obj instanceof GreaterThanOrEqualToBigIntValidator) {
+            return true;
+        }
+        if (!GreaterThanOrEqualToBigIntValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = GreaterThanOrEqualToBigIntValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function greaterThanOrEqualToBigIntValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return GreaterThanOrEqualToBigIntValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function greaterThanOrEqualToBigIntValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GreaterThanOrEqualToBigIntValidator | __mf_PendingRef {
+    return GreaterThanOrEqualToBigIntValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function greaterThanOrEqualToBigIntValidatorIs(value: unknown): value is GreaterThanOrEqualToBigIntValidator {
+    return GreaterThanOrEqualToBigIntValidator.is(value);
+}
+
+// LessThanBigInt validator
+/** @derive(Decode) */
+export class LessThanBigIntValidator {
+    /** @endec({ validate: ["lessThanBigInt(1000)"] }) */
+    value: bigint;
+
+    constructor(props: { value: bigint }) {
+        this.value = props.value;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = LessThanBigIntValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "LessThanBigIntValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): LessThanBigIntValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "LessThanBigIntValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as LessThanBigIntValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "LessThanBigIntValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("value" in obj)) {
+            errors.push({ field: "value", message: "missing required field" });
+        }
+
+        const instance = Object.create(LessThanBigIntValidator.prototype) as LessThanBigIntValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        try {
+            const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
+            if (__convertedVal == null) { errors.push({ field: "value", message: "LessThanBigIntValidator.value is required" }); } else {
+                if (__convertedVal >= 1000n) { errors.push({ field: "value", message: "LessThanBigIntValidator.value must be less than 1000" }); }
+            }
+            instance.value = __convertedVal;
+        } catch (__error) {
+            errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof LessThanBigIntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "value") {
+            const __val = value as bigint;
+            if (__val == null) { errors.push({ field: "value", message: "LessThanBigIntValidator.value is required" }); } else {
+                if (__val >= 1000n) { errors.push({ field: "value", message: "LessThanBigIntValidator.value must be less than 1000" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof LessThanBigIntValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("value" in partial && partial.value !== undefined) {
+            const __val = partial.value as bigint;
+            if (__val == null) { errors.push({ field: "value", message: "LessThanBigIntValidator.value is required" }); } else {
+                if (__val >= 1000n) { errors.push({ field: "value", message: "LessThanBigIntValidator.value must be less than 1000" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "value" in o;
+    }
+
+    static is(obj: unknown): obj is LessThanBigIntValidator {
+        if (obj instanceof LessThanBigIntValidator) {
+            return true;
+        }
+        if (!LessThanBigIntValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = LessThanBigIntValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function lessThanBigIntValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return LessThanBigIntValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function lessThanBigIntValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): LessThanBigIntValidator | __mf_PendingRef {
+    return LessThanBigIntValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function lessThanBigIntValidatorIs(value: unknown): value is LessThanBigIntValidator {
+    return LessThanBigIntValidator.is(value);
+}
+
+// LessThanOrEqualToBigInt validator
+/** @derive(Decode) */
+export class LessThanOrEqualToBigIntValidator {
+    /** @endec({ validate: ["lessThanOrEqualToBigInt(1000)"] }) */
+    value: bigint;
+
+    constructor(props: { value: bigint }) {
+        this.value = props.value;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = LessThanOrEqualToBigIntValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "LessThanOrEqualToBigIntValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): LessThanOrEqualToBigIntValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "LessThanOrEqualToBigIntValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as LessThanOrEqualToBigIntValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "LessThanOrEqualToBigIntValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("value" in obj)) {
+            errors.push({ field: "value", message: "missing required field" });
+        }
+
+        const instance = Object.create(LessThanOrEqualToBigIntValidator.prototype) as LessThanOrEqualToBigIntValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        try {
+            const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
+            if (__convertedVal == null) { errors.push({ field: "value", message: "LessThanOrEqualToBigIntValidator.value is required" }); } else {
+                if (__convertedVal > 1000n) { errors.push({ field: "value", message: "LessThanOrEqualToBigIntValidator.value must be less than or equal to 1000" }); }
+            }
+            instance.value = __convertedVal;
+        } catch (__error) {
+            errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof LessThanOrEqualToBigIntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "value") {
+            const __val = value as bigint;
+            if (__val == null) { errors.push({ field: "value", message: "LessThanOrEqualToBigIntValidator.value is required" }); } else {
+                if (__val > 1000n) { errors.push({ field: "value", message: "LessThanOrEqualToBigIntValidator.value must be less than or equal to 1000" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof LessThanOrEqualToBigIntValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("value" in partial && partial.value !== undefined) {
+            const __val = partial.value as bigint;
+            if (__val == null) { errors.push({ field: "value", message: "LessThanOrEqualToBigIntValidator.value is required" }); } else {
+                if (__val > 1000n) { errors.push({ field: "value", message: "LessThanOrEqualToBigIntValidator.value must be less than or equal to 1000" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "value" in o;
+    }
+
+    static is(obj: unknown): obj is LessThanOrEqualToBigIntValidator {
+        if (obj instanceof LessThanOrEqualToBigIntValidator) {
+            return true;
+        }
+        if (!LessThanOrEqualToBigIntValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = LessThanOrEqualToBigIntValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function lessThanOrEqualToBigIntValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return LessThanOrEqualToBigIntValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function lessThanOrEqualToBigIntValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): LessThanOrEqualToBigIntValidator | __mf_PendingRef {
+    return LessThanOrEqualToBigIntValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function lessThanOrEqualToBigIntValidatorIs(value: unknown): value is LessThanOrEqualToBigIntValidator {
+    return LessThanOrEqualToBigIntValidator.is(value);
+}
+
+// BetweenBigInt validator
+/** @derive(Decode) */
+export class BetweenBigIntValidator {
+    /** @endec({ validate: ["betweenBigInt(0, 1000)"] }) */
+    value: bigint;
+
+    constructor(props: { value: bigint }) {
+        this.value = props.value;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: BetweenBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = BetweenBigIntValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "BetweenBigIntValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): BetweenBigIntValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "BetweenBigIntValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as BetweenBigIntValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "BetweenBigIntValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("value" in obj)) {
+            errors.push({ field: "value", message: "missing required field" });
+        }
+
+        const instance = Object.create(BetweenBigIntValidator.prototype) as BetweenBigIntValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        try {
+            const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
+            if (__convertedVal == null) { errors.push({ field: "value", message: "BetweenBigIntValidator.value is required" }); } else {
+                if (__convertedVal < 0n || __convertedVal > 1000n) { errors.push({ field: "value", message: "BetweenBigIntValidator.value must be between 0 and 1000" }); }
+            }
+            instance.value = __convertedVal;
+        } catch (__error) {
+            errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof BetweenBigIntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "value") {
+            const __val = value as bigint;
+            if (__val == null) { errors.push({ field: "value", message: "BetweenBigIntValidator.value is required" }); } else {
+                if (__val < 0n || __val > 1000n) { errors.push({ field: "value", message: "BetweenBigIntValidator.value must be between 0 and 1000" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof BetweenBigIntValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("value" in partial && partial.value !== undefined) {
+            const __val = partial.value as bigint;
+            if (__val == null) { errors.push({ field: "value", message: "BetweenBigIntValidator.value is required" }); } else {
+                if (__val < 0n || __val > 1000n) { errors.push({ field: "value", message: "BetweenBigIntValidator.value must be between 0 and 1000" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "value" in o;
+    }
+
+    static is(obj: unknown): obj is BetweenBigIntValidator {
+        if (obj instanceof BetweenBigIntValidator) {
+            return true;
+        }
+        if (!BetweenBigIntValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = BetweenBigIntValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function betweenBigIntValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: BetweenBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return BetweenBigIntValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function betweenBigIntValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): BetweenBigIntValidator | __mf_PendingRef {
+    return BetweenBigIntValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function betweenBigIntValidatorIs(value: unknown): value is BetweenBigIntValidator {
+    return BetweenBigIntValidator.is(value);
+}
+
+// PositiveBigInt validator
+/** @derive(Decode) */
+export class PositiveBigIntValidator {
+    /** @endec({ validate: ["positiveBigInt"] }) */
+    value: bigint;
+
+    constructor(props: { value: bigint }) {
+        this.value = props.value;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PositiveBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = PositiveBigIntValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "PositiveBigIntValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): PositiveBigIntValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "PositiveBigIntValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as PositiveBigIntValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "PositiveBigIntValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("value" in obj)) {
+            errors.push({ field: "value", message: "missing required field" });
+        }
+
+        const instance = Object.create(PositiveBigIntValidator.prototype) as PositiveBigIntValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        try {
+            const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
+            if (__convertedVal == null) { errors.push({ field: "value", message: "PositiveBigIntValidator.value is required" }); } else {
+                if (__convertedVal <= 0n) { errors.push({ field: "value", message: "PositiveBigIntValidator.value must be positive" }); }
+            }
+            instance.value = __convertedVal;
+        } catch (__error) {
+            errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof PositiveBigIntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "value") {
+            const __val = value as bigint;
+            if (__val == null) { errors.push({ field: "value", message: "PositiveBigIntValidator.value is required" }); } else {
+                if (__val <= 0n) { errors.push({ field: "value", message: "PositiveBigIntValidator.value must be positive" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof PositiveBigIntValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("value" in partial && partial.value !== undefined) {
+            const __val = partial.value as bigint;
+            if (__val == null) { errors.push({ field: "value", message: "PositiveBigIntValidator.value is required" }); } else {
+                if (__val <= 0n) { errors.push({ field: "value", message: "PositiveBigIntValidator.value must be positive" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "value" in o;
+    }
+
+    static is(obj: unknown): obj is PositiveBigIntValidator {
+        if (obj instanceof PositiveBigIntValidator) {
+            return true;
+        }
+        if (!PositiveBigIntValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = PositiveBigIntValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function positiveBigIntValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PositiveBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return PositiveBigIntValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function positiveBigIntValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): PositiveBigIntValidator | __mf_PendingRef {
+    return PositiveBigIntValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function positiveBigIntValidatorIs(value: unknown): value is PositiveBigIntValidator {
+    return PositiveBigIntValidator.is(value);
+}
+
+// NonNegativeBigInt validator
+/** @derive(Decode) */
+export class NonNegativeBigIntValidator {
+    /** @endec({ validate: ["nonNegativeBigInt"] }) */
+    value: bigint;
+
+    constructor(props: { value: bigint }) {
+        this.value = props.value;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NonNegativeBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = NonNegativeBigIntValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "NonNegativeBigIntValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): NonNegativeBigIntValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "NonNegativeBigIntValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as NonNegativeBigIntValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "NonNegativeBigIntValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("value" in obj)) {
+            errors.push({ field: "value", message: "missing required field" });
+        }
+
+        const instance = Object.create(NonNegativeBigIntValidator.prototype) as NonNegativeBigIntValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        try {
+            const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
+            if (__convertedVal == null) { errors.push({ field: "value", message: "NonNegativeBigIntValidator.value is required" }); } else {
+                if (__convertedVal < 0n) { errors.push({ field: "value", message: "NonNegativeBigIntValidator.value must be non-negative" }); }
+            }
+            instance.value = __convertedVal;
+        } catch (__error) {
+            errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof NonNegativeBigIntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "value") {
+            const __val = value as bigint;
+            if (__val == null) { errors.push({ field: "value", message: "NonNegativeBigIntValidator.value is required" }); } else {
+                if (__val < 0n) { errors.push({ field: "value", message: "NonNegativeBigIntValidator.value must be non-negative" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof NonNegativeBigIntValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("value" in partial && partial.value !== undefined) {
+            const __val = partial.value as bigint;
+            if (__val == null) { errors.push({ field: "value", message: "NonNegativeBigIntValidator.value is required" }); } else {
+                if (__val < 0n) { errors.push({ field: "value", message: "NonNegativeBigIntValidator.value must be non-negative" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "value" in o;
+    }
+
+    static is(obj: unknown): obj is NonNegativeBigIntValidator {
+        if (obj instanceof NonNegativeBigIntValidator) {
+            return true;
+        }
+        if (!NonNegativeBigIntValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = NonNegativeBigIntValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function nonNegativeBigIntValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NonNegativeBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return NonNegativeBigIntValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function nonNegativeBigIntValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NonNegativeBigIntValidator | __mf_PendingRef {
+    return NonNegativeBigIntValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function nonNegativeBigIntValidatorIs(value: unknown): value is NonNegativeBigIntValidator {
+    return NonNegativeBigIntValidator.is(value);
+}
+
+// NegativeBigInt validator
+/** @derive(Decode) */
+export class NegativeBigIntValidator {
+    /** @endec({ validate: ["negativeBigInt"] }) */
+    value: bigint;
+
+    constructor(props: { value: bigint }) {
+        this.value = props.value;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NegativeBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = NegativeBigIntValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "NegativeBigIntValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): NegativeBigIntValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "NegativeBigIntValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as NegativeBigIntValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "NegativeBigIntValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("value" in obj)) {
+            errors.push({ field: "value", message: "missing required field" });
+        }
+
+        const instance = Object.create(NegativeBigIntValidator.prototype) as NegativeBigIntValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        try {
+            const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
+            if (__convertedVal == null) { errors.push({ field: "value", message: "NegativeBigIntValidator.value is required" }); } else {
+                if (__convertedVal >= 0n) { errors.push({ field: "value", message: "NegativeBigIntValidator.value must be negative" }); }
+            }
+            instance.value = __convertedVal;
+        } catch (__error) {
+            errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof NegativeBigIntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "value") {
+            const __val = value as bigint;
+            if (__val == null) { errors.push({ field: "value", message: "NegativeBigIntValidator.value is required" }); } else {
+                if (__val >= 0n) { errors.push({ field: "value", message: "NegativeBigIntValidator.value must be negative" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof NegativeBigIntValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("value" in partial && partial.value !== undefined) {
+            const __val = partial.value as bigint;
+            if (__val == null) { errors.push({ field: "value", message: "NegativeBigIntValidator.value is required" }); } else {
+                if (__val >= 0n) { errors.push({ field: "value", message: "NegativeBigIntValidator.value must be negative" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "value" in o;
+    }
+
+    static is(obj: unknown): obj is NegativeBigIntValidator {
+        if (obj instanceof NegativeBigIntValidator) {
+            return true;
+        }
+        if (!NegativeBigIntValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = NegativeBigIntValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function negativeBigIntValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NegativeBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return NegativeBigIntValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function negativeBigIntValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NegativeBigIntValidator | __mf_PendingRef {
+    return NegativeBigIntValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function negativeBigIntValidatorIs(value: unknown): value is NegativeBigIntValidator {
+    return NegativeBigIntValidator.is(value);
+}
+
+// NonPositiveBigInt validator
+/** @derive(Decode) */
+export class NonPositiveBigIntValidator {
+    /** @endec({ validate: ["nonPositiveBigInt"] }) */
+    value: bigint;
+
+    constructor(props: { value: bigint }) {
+        this.value = props.value;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NonPositiveBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = NonPositiveBigIntValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "NonPositiveBigIntValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): NonPositiveBigIntValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "NonPositiveBigIntValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as NonPositiveBigIntValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "NonPositiveBigIntValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("value" in obj)) {
+            errors.push({ field: "value", message: "missing required field" });
+        }
+
+        const instance = Object.create(NonPositiveBigIntValidator.prototype) as NonPositiveBigIntValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        try {
+            const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
+            if (__convertedVal == null) { errors.push({ field: "value", message: "NonPositiveBigIntValidator.value is required" }); } else {
+                if (__convertedVal > 0n) { errors.push({ field: "value", message: "NonPositiveBigIntValidator.value must be non-positive" }); }
+            }
+            instance.value = __convertedVal;
+        } catch (__error) {
+            errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof NonPositiveBigIntValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "value") {
+            const __val = value as bigint;
+            if (__val == null) { errors.push({ field: "value", message: "NonPositiveBigIntValidator.value is required" }); } else {
+                if (__val > 0n) { errors.push({ field: "value", message: "NonPositiveBigIntValidator.value must be non-positive" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof NonPositiveBigIntValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("value" in partial && partial.value !== undefined) {
+            const __val = partial.value as bigint;
+            if (__val == null) { errors.push({ field: "value", message: "NonPositiveBigIntValidator.value is required" }); } else {
+                if (__val > 0n) { errors.push({ field: "value", message: "NonPositiveBigIntValidator.value must be non-positive" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "value" in o;
+    }
+
+    static is(obj: unknown): obj is NonPositiveBigIntValidator {
+        if (obj instanceof NonPositiveBigIntValidator) {
+            return true;
+        }
+        if (!NonPositiveBigIntValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = NonPositiveBigIntValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function nonPositiveBigIntValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NonPositiveBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return NonPositiveBigIntValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function nonPositiveBigIntValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NonPositiveBigIntValidator | __mf_PendingRef {
+    return NonPositiveBigIntValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function nonPositiveBigIntValidatorIs(value: unknown): value is NonPositiveBigIntValidator {
+    return NonPositiveBigIntValidator.is(value);
+}
+
+## DTS
+
+/**
+* BigInt validator test classes for comprehensive decoder validation testing.
+*/
+/** @derive(Decode) */
+export declare class GreaterThanBigIntValidator {
+	/** @endec({ validate: ["greaterThanBigInt(0)"] }) */
+	value: bigint;
+	constructor(props: {
+		value: bigint;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: GreaterThanBigIntValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): GreaterThanBigIntValidator | __mf_PendingRef;
+	static validateField<K extends keyof GreaterThanBigIntValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof GreaterThanBigIntValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is GreaterThanBigIntValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function greaterThanBigIntValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GreaterThanBigIntValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function greaterThanBigIntValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GreaterThanBigIntValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function greaterThanBigIntValidatorIs(value: unknown): value is GreaterThanBigIntValidator;
+/** @derive(Decode) */
+export declare class GreaterThanOrEqualToBigIntValidator {
+	/** @endec({ validate: ["greaterThanOrEqualToBigInt(0)"] }) */
+	value: bigint;
+	constructor(props: {
+		value: bigint;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: GreaterThanOrEqualToBigIntValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): GreaterThanOrEqualToBigIntValidator | __mf_PendingRef;
+	static validateField<K extends keyof GreaterThanOrEqualToBigIntValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof GreaterThanOrEqualToBigIntValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is GreaterThanOrEqualToBigIntValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function greaterThanOrEqualToBigIntValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GreaterThanOrEqualToBigIntValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function greaterThanOrEqualToBigIntValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GreaterThanOrEqualToBigIntValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function greaterThanOrEqualToBigIntValidatorIs(value: unknown): value is GreaterThanOrEqualToBigIntValidator;
+/** @derive(Decode) */
+export declare class LessThanBigIntValidator {
+	/** @endec({ validate: ["lessThanBigInt(1000)"] }) */
+	value: bigint;
+	constructor(props: {
+		value: bigint;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: LessThanBigIntValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): LessThanBigIntValidator | __mf_PendingRef;
+	static validateField<K extends keyof LessThanBigIntValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof LessThanBigIntValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is LessThanBigIntValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function lessThanBigIntValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: LessThanBigIntValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function lessThanBigIntValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): LessThanBigIntValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function lessThanBigIntValidatorIs(value: unknown): value is LessThanBigIntValidator;
+/** @derive(Decode) */
+export declare class LessThanOrEqualToBigIntValidator {
+	/** @endec({ validate: ["lessThanOrEqualToBigInt(1000)"] }) */
+	value: bigint;
+	constructor(props: {
+		value: bigint;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: LessThanOrEqualToBigIntValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): LessThanOrEqualToBigIntValidator | __mf_PendingRef;
+	static validateField<K extends keyof LessThanOrEqualToBigIntValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof LessThanOrEqualToBigIntValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is LessThanOrEqualToBigIntValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function lessThanOrEqualToBigIntValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: LessThanOrEqualToBigIntValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function lessThanOrEqualToBigIntValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): LessThanOrEqualToBigIntValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function lessThanOrEqualToBigIntValidatorIs(value: unknown): value is LessThanOrEqualToBigIntValidator;
+/** @derive(Decode) */
+export declare class BetweenBigIntValidator {
+	/** @endec({ validate: ["betweenBigInt(0, 1000)"] }) */
+	value: bigint;
+	constructor(props: {
+		value: bigint;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: BetweenBigIntValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): BetweenBigIntValidator | __mf_PendingRef;
+	static validateField<K extends keyof BetweenBigIntValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof BetweenBigIntValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is BetweenBigIntValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function betweenBigIntValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: BetweenBigIntValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function betweenBigIntValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): BetweenBigIntValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function betweenBigIntValidatorIs(value: unknown): value is BetweenBigIntValidator;
+/** @derive(Decode) */
+export declare class PositiveBigIntValidator {
+	/** @endec({ validate: ["positiveBigInt"] }) */
+	value: bigint;
+	constructor(props: {
+		value: bigint;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: PositiveBigIntValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): PositiveBigIntValidator | __mf_PendingRef;
+	static validateField<K extends keyof PositiveBigIntValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof PositiveBigIntValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is PositiveBigIntValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function positiveBigIntValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: PositiveBigIntValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function positiveBigIntValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): PositiveBigIntValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function positiveBigIntValidatorIs(value: unknown): value is PositiveBigIntValidator;
+/** @derive(Decode) */
+export declare class NonNegativeBigIntValidator {
+	/** @endec({ validate: ["nonNegativeBigInt"] }) */
+	value: bigint;
+	constructor(props: {
+		value: bigint;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: NonNegativeBigIntValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): NonNegativeBigIntValidator | __mf_PendingRef;
+	static validateField<K extends keyof NonNegativeBigIntValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof NonNegativeBigIntValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is NonNegativeBigIntValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function nonNegativeBigIntValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NonNegativeBigIntValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function nonNegativeBigIntValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NonNegativeBigIntValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function nonNegativeBigIntValidatorIs(value: unknown): value is NonNegativeBigIntValidator;
+/** @derive(Decode) */
+export declare class NegativeBigIntValidator {
+	/** @endec({ validate: ["negativeBigInt"] }) */
+	value: bigint;
+	constructor(props: {
+		value: bigint;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: NegativeBigIntValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): NegativeBigIntValidator | __mf_PendingRef;
+	static validateField<K extends keyof NegativeBigIntValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof NegativeBigIntValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is NegativeBigIntValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function negativeBigIntValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NegativeBigIntValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function negativeBigIntValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NegativeBigIntValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function negativeBigIntValidatorIs(value: unknown): value is NegativeBigIntValidator;
+/** @derive(Decode) */
+export declare class NonPositiveBigIntValidator {
+	/** @endec({ validate: ["nonPositiveBigInt"] }) */
+	value: bigint;
+	constructor(props: {
+		value: bigint;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: NonPositiveBigIntValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): NonPositiveBigIntValidator | __mf_PendingRef;
+	static validateField<K extends keyof NonPositiveBigIntValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof NonPositiveBigIntValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is NonPositiveBigIntValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function nonPositiveBigIntValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NonPositiveBigIntValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function nonPositiveBigIntValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NonPositiveBigIntValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function nonPositiveBigIntValidatorIs(value: unknown): value is NonPositiveBigIntValidator;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..261 -> expanded 225..486
+original 261..262 -> expanded 6173..6174
+original 262..464 -> expanded 7390..7592
+original 464..465 -> expanded 13501..13502
+original 465..634 -> expanded 14799..14968
+original 634..635 -> expanded 20601..20602
+original 635..831 -> expanded 21791..21987
+original 831..832 -> expanded 27842..27843
+original 832..1001 -> expanded 29113..29282
+original 1001..1002 -> expanded 34954..34955
+original 1002..1165 -> expanded 36135..36298
+original 1165..1166 -> expanded 41904..41905
+original 1166..1338 -> expanded 43094..43266
+original 1338..1339 -> expanded 48944..48945
+original 1339..1502 -> expanded 50161..50324
+original 1502..1503 -> expanded 55930..55931
+original 1503..1675 -> expanded 57120..57292
+original 1675..1676 -> expanded 62970..62971
+original 1676..1677 -> expanded 64187..64188
+generated 0..225 <- imports
+generated 486..6173 <- Decode
+generated 6174..7390 <- Decode
+generated 7592..13501 <- Decode
+generated 13502..14799 <- Decode
+generated 14968..20601 <- Decode
+generated 20602..21791 <- Decode
+generated 21987..27842 <- Decode
+generated 27843..29113 <- Decode
+generated 29282..34954 <- Decode
+generated 34955..36135 <- Decode
+generated 36298..41904 <- Decode
+generated 41905..43094 <- Decode
+generated 43266..48944 <- Decode
+generated 48945..50161 <- Decode
+generated 50324..55930 <- Decode
+generated 55931..57120 <- Decode
+generated 57292..62970 <- Decode
+generated 62971..64187 <- Decode
+
+## Metadata
+
+class GreaterThanBigIntValidator: {"body_span":{"end":263,"start":183},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":142,"start":120}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanBigInt(0)\"] }","name":"endec","span":{"end":242,"start":189}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":261,"start":247},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanBigIntValidator","span":{"end":263,"start":150},"type_params":[]}
+class GreaterThanOrEqualToBigIntValidator: {"body_span":{"end":466,"start":377},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":327,"start":305}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanOrEqualToBigInt(0)\"] }","name":"endec","span":{"end":445,"start":383}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":464,"start":450},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanOrEqualToBigIntValidator","span":{"end":466,"start":335},"type_params":[]}
+class LessThanBigIntValidator: {"body_span":{"end":636,"start":556},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":518,"start":496}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanBigInt(1000)\"] }","name":"endec","span":{"end":615,"start":562}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":634,"start":620},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanBigIntValidator","span":{"end":636,"start":526},"type_params":[]}
+class LessThanOrEqualToBigIntValidator: {"body_span":{"end":833,"start":744},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":697,"start":675}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanOrEqualToBigInt(1000)\"] }","name":"endec","span":{"end":812,"start":750}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":831,"start":817},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanOrEqualToBigIntValidator","span":{"end":833,"start":705},"type_params":[]}
+class BetweenBigIntValidator: {"body_span":{"end":1003,"start":921},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":884,"start":862}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"betweenBigInt(0, 1000)\"] }","name":"endec","span":{"end":982,"start":927}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1001,"start":987},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"BetweenBigIntValidator","span":{"end":1003,"start":892},"type_params":[]}
+class PositiveBigIntValidator: {"body_span":{"end":1167,"start":1093},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1055,"start":1033}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"positiveBigInt\"] }","name":"endec","span":{"end":1146,"start":1099}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1165,"start":1151},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"PositiveBigIntValidator","span":{"end":1167,"start":1063},"type_params":[]}
+class NonNegativeBigIntValidator: {"body_span":{"end":1340,"start":1263},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1222,"start":1200}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNegativeBigInt\"] }","name":"endec","span":{"end":1319,"start":1269}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1338,"start":1324},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonNegativeBigIntValidator","span":{"end":1340,"start":1230},"type_params":[]}
+class NegativeBigIntValidator: {"body_span":{"end":1504,"start":1430},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1392,"start":1370}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"negativeBigInt\"] }","name":"endec","span":{"end":1483,"start":1436}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1502,"start":1488},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NegativeBigIntValidator","span":{"end":1504,"start":1400},"type_params":[]}
+class NonPositiveBigIntValidator: {"body_span":{"end":1677,"start":1600},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1559,"start":1537}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonPositiveBigInt\"] }","name":"endec","span":{"end":1656,"start":1606}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1675,"start":1661},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonPositiveBigIntValidator","span":{"end":1677,"start":1567},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

@@ -1,0 +1,479 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/service-defaults.svelte.ts
+sha256 4c7450e372fcbc13f6c018d3abbd4f84f2f1f4706ce7a982ba14e08c9263a83b
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+
+export interface ServiceDefaults {
+    
+    price: number;
+    
+    
+    description: string;
+}
+
+export function serviceDefaultsDefaultValue(): ServiceDefaults {
+    return {
+        price: 0,
+        description: "",
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function serviceDefaultsEncode(value: ServiceDefaults, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = serviceDefaultsEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function serviceDefaultsEncodeWithContext(value: ServiceDefaults, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "ServiceDefaults",
+        __id,
+    };
+
+    
+    result.price = value.price;
+    result.description = value.description;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function serviceDefaultsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ServiceDefaults } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = serviceDefaultsDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ServiceDefaults.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function serviceDefaultsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ServiceDefaults | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ServiceDefaults.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as ServiceDefaults | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ServiceDefaults.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("price" in obj)) {
+        errors.push({ field: "price", message: "missing required field" });
+    }
+    if (!("description" in obj)) {
+        errors.push({ field: "description", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_price = obj["price"] as number;
+
+        if (!(typeof __raw_price === "number")) {
+            errors.push({ field: "price", message: __raw_price == null ? "ServiceDefaults.price is required" : "expected number" });
+        } else {
+            instance.price = __raw_price;
+        }
+    }
+    {
+        const __raw_description = obj["description"] as string;
+
+        if (!(typeof __raw_description === "string")) {
+            errors.push({ field: "description", message: __raw_description == null ? "ServiceDefaults.description is required" : "expected string" });
+        } else {
+            if (__raw_description == null) { errors.push({ field: "description", message: "ServiceDefaults.description is required" }); } else {
+                if (__raw_description.length === 0) { errors.push({ field: "description", message: "ServiceDefaults.description must not be empty" }); }
+            }
+            instance.description = __raw_description;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as ServiceDefaults;
+}
+export function serviceDefaultsValidateField<K extends keyof ServiceDefaults>(field: K, value: unknown): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if (field === "description") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "description", message: "ServiceDefaults.description is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "description", message: "ServiceDefaults.description must not be empty" }); }
+        }
+    }
+    return errors;
+}
+
+export function serviceDefaultsValidateFields(partial: { readonly [K in keyof ServiceDefaults]?: unknown }): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("description" in partial && partial.description !== undefined) {
+        const __val = partial.description as string;
+        if (__val == null) { errors.push({ field: "description", message: "ServiceDefaults.description is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "description", message: "ServiceDefaults.description must not be empty" }); }
+        }
+    }
+    return errors;
+}
+export function serviceDefaultsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "price" in o && "description" in o;
+}
+
+export function serviceDefaultsIs(obj: unknown): obj is ServiceDefaults {
+    return serviceDefaultsHasShape(obj) && serviceDefaultsDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type ServiceDefaultsErrors = {
+    _errors: Option.Option<Array<string>>;
+    price: Option.Option<Array<string>>;
+    description: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type ServiceDefaultsTainted = {
+    price: Option.Option<boolean>;
+    description: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface ServiceDefaultsFieldControllers {
+    readonly price: FieldController<number>;
+    readonly description: FieldController<string>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface ServiceDefaultsGigaform {
+    readonly data: ServiceDefaults;
+    readonly errors: ServiceDefaultsErrors;
+    readonly tainted: ServiceDefaultsTainted;
+    readonly fields: ServiceDefaultsFieldControllers;
+    validate(): Exit.Exit<ServiceDefaults, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<ServiceDefaults>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function serviceDefaultsCreateForm(overrides?: Partial<ServiceDefaults>): ServiceDefaultsGigaform {
+    let data = $state({ ...serviceDefaultsDefaultValue(), ...overrides });
+    let errors = $state<ServiceDefaultsErrors>({
+        _errors: Option.none(),
+        price: Option.none(),
+        description: Option.none(),
+    });
+    let tainted = $state<ServiceDefaultsTainted>({
+        price: Option.none(),
+        description: Option.none(),
+    });
+    const fields = {
+        price: {
+            name: "price",
+            label: "Price",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["price"],
+            get: () => data.price,
+            set: (value: number) => { data.price = value; },
+            getError: () => errors.price,
+            setError: (value: Option.Option<Array<string>>) => { errors.price = value; },
+            getTainted: () => tainted.price,
+            setTainted: (value: Option.Option<boolean>) => { tainted.price = value; },
+            validate: () => serviceDefaultsValidateField("price", data.price).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        description: {
+            name: "description",
+            label: "Description",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["description"],
+            get: () => data.description,
+            set: (value: string) => { data.description = value; },
+            getError: () => errors.description,
+            setError: (value: Option.Option<Array<string>>) => { errors.description = value; },
+            getTainted: () => tainted.description,
+            setTainted: (value: Option.Option<boolean>) => { tainted.description = value; },
+            validate: () => serviceDefaultsValidateField("description", data.description).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as ServiceDefaultsFieldControllers;
+
+    function validate(): Exit.Exit<ServiceDefaults, Array<{ field: string; message: string }>> {
+        return toExit(serviceDefaultsDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<ServiceDefaults>): void {
+        data = { ...serviceDefaultsDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            price: Option.none(),
+            description: Option.none(),
+        };
+        tainted = {
+            price: Option.none(),
+            description: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function serviceDefaultsFromFormData(formData: FormData): Exit.Exit<ServiceDefaults, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    {
+        const priceStr = formData.get("price");
+        obj.price = priceStr ? parseFloat(priceStr as string) : 0;
+        if (obj.price !== undefined && isNaN(obj.price as number)) obj.price = 0;
+    }
+    obj.description = formData.get("description") ?? "";
+
+    return toExit(serviceDefaultsDecode(obj));
+}
+
+export const ServiceDefaults: {
+  readonly defaultValue: typeof serviceDefaultsDefaultValue;
+  readonly encode: typeof serviceDefaultsEncode;
+  readonly encodeWithContext: typeof serviceDefaultsEncodeWithContext;
+  readonly decode: typeof serviceDefaultsDecode;
+  readonly decodeWithContext: typeof serviceDefaultsDecodeWithContext;
+  readonly validateField: typeof serviceDefaultsValidateField;
+  readonly validateFields: typeof serviceDefaultsValidateFields;
+  readonly hasShape: typeof serviceDefaultsHasShape;
+  readonly is: typeof serviceDefaultsIs;
+  readonly createForm: typeof serviceDefaultsCreateForm;
+  readonly fromFormData: typeof serviceDefaultsFromFormData;
+} = {
+  defaultValue: serviceDefaultsDefaultValue,
+  encode: serviceDefaultsEncode,
+  encodeWithContext: serviceDefaultsEncodeWithContext,
+  decode: serviceDefaultsDecode,
+  decodeWithContext: serviceDefaultsDecodeWithContext,
+  validateField: serviceDefaultsValidateField,
+  validateFields: serviceDefaultsValidateFields,
+  hasShape: serviceDefaultsHasShape,
+  is: serviceDefaultsIs,
+  createForm: serviceDefaultsCreateForm,
+  fromFormData: serviceDefaultsFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+export interface ServiceDefaults {
+	price: number;
+	description: string;
+}
+export declare function serviceDefaultsDefaultValue(): ServiceDefaults;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function serviceDefaultsEncode(value: ServiceDefaults, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function serviceDefaultsEncodeWithContext(value: ServiceDefaults, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function serviceDefaultsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ServiceDefaults;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function serviceDefaultsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ServiceDefaults | __mf_PendingRef;
+export declare function serviceDefaultsValidateField<K extends keyof ServiceDefaults>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function serviceDefaultsValidateFields(partial: { readonly [K in keyof ServiceDefaults]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function serviceDefaultsHasShape(obj: unknown): boolean;
+export declare function serviceDefaultsIs(obj: unknown): obj is ServiceDefaults;
+/** Nested error structure matching the data shape  */
+export type ServiceDefaultsErrors = {
+	_errors: Option.Option<Array<string>>;
+	price: Option.Option<Array<string>>;
+	description: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type ServiceDefaultsTainted = {
+	price: Option.Option<boolean>;
+	description: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface ServiceDefaultsFieldControllers {
+	readonly price: FieldController<number>;
+	readonly description: FieldController<string>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface ServiceDefaultsGigaform {
+	readonly data: ServiceDefaults;
+	readonly errors: ServiceDefaultsErrors;
+	readonly tainted: ServiceDefaultsTainted;
+	readonly fields: ServiceDefaultsFieldControllers;
+	validate(): Exit.Exit<ServiceDefaults, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<ServiceDefaults>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function serviceDefaultsCreateForm(overrides?: Partial<ServiceDefaults>): ServiceDefaultsGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function serviceDefaultsFromFormData(formData: FormData): Exit.Exit<ServiceDefaults, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const ServiceDefaults: {
+	readonly defaultValue: typeof serviceDefaultsDefaultValue;
+	readonly encode: typeof serviceDefaultsEncode;
+	readonly encodeWithContext: typeof serviceDefaultsEncodeWithContext;
+	readonly decode: typeof serviceDefaultsDecode;
+	readonly decodeWithContext: typeof serviceDefaultsDecodeWithContext;
+	readonly validateField: typeof serviceDefaultsValidateField;
+	readonly validateFields: typeof serviceDefaultsValidateFields;
+	readonly hasShape: typeof serviceDefaultsHasShape;
+	readonly is: typeof serviceDefaultsIs;
+	readonly createForm: typeof serviceDefaultsCreateForm;
+	readonly fromFormData: typeof serviceDefaultsFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 421..479
+original 107..147 -> expanded 479..519
+original 211..235 -> expanded 519..543
+original 287..292 -> expanded 543..548
+original 333..360 -> expanded 548..575
+original 360..361 -> expanded 13396..13397
+generated 0..421 <- imports
+generated 575..706 <- Default
+generated 706..1898 <- Encode
+generated 1898..7434 <- Decode
+generated 7434..12249 <- Gigaform
+generated 12249..13396 <- __convenience_const
+
+## Metadata
+
+interface ServiceDefaults: {"body_span":{"end":361,"start":142},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ label: \"Price\", min: 0, step: 0.01 }","name":"numberController","span":{"end":212,"start":148}}],"name":"price","optional":false,"readonly":false,"span":{"end":231,"start":217},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":334,"start":293}},{"args_src":"{ label: \"Description\" }","name":"textAreaController","span":{"end":288,"start":236}}],"name":"description","optional":false,"readonly":false,"span":{"end":359,"start":339},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ServiceDefaults","span":{"end":361,"start":116},"type_params":[]}
+
+## Registry reads
+
+Name("number")
+Name("string")
+
+## Buildtime dependencies
+
+(none)

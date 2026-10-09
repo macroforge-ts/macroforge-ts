@@ -654,6 +654,18 @@ pub mod macroforge {
             .run()
     }
 
+    /// Runs `macroforge cache` over a project, writing the type and
+    /// declarative registries its builds read from `.macroforge/`.
+    pub fn cache(root: &Path, project_dir: &Path) -> Result<()> {
+        let binary = binary(root)?;
+        Shell::new(&binary)
+            .args(&["cache", "."])
+            .dir(project_dir)
+            .run_checked()
+            .with_context(|| format!("macroforge cache failed in {}", project_dir.display()))?;
+        Ok(())
+    }
+
     /// Runs `macroforge svelte-check` in a Svelte project with machine-verbose output.
     pub fn svelte_check(root: &Path, project_dir: &Path) -> Result<CommandResult> {
         let binary = binary(root)?;

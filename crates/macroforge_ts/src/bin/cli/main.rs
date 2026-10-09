@@ -106,8 +106,8 @@
 //! one exits without repackaging. When a rebuild is needed, only the files that
 //! changed are re-expanded; the rest keep the expanded output from last time.
 //!
-//! A file that differs only in formatting: trailing whitespace, blank-line runs
-//!: does not count as changed. `.ts` is transpiled on the way into the package
+//! A file that differs only in formatting (trailing whitespace, blank-line runs)
+//! does not count as changed. `.ts` is transpiled on the way into the package
 //! so its formatting is discarded anyway, but `.svelte` and `.js` are copied
 //! through verbatim, which means a formatting-only edit to those will not reach
 //! the package until the next real change or a `--full-rebuild`.
@@ -122,6 +122,19 @@
 //! Expansion failures fail the build. A module that cannot be expanded has no
 //! correct packaged form, and shipping its unexpanded source publishes a library
 //! whose generated runtime is silently missing.
+//!
+//! ### `macroforge init`
+//!
+//! Declares `#macroforge/config` in the project's `package.json` (or its
+//! `deno.json` when it has no `package.json`). Generated code imports
+//! foreign-type handlers from that specifier, which maps to the expanded config.
+//!
+//! ### `macroforge sync`
+//!
+//! Writes the generated files a type check reads, without expanding anything:
+//! the type and declarative registries under `.macroforge/`, and the expanded
+//! config under `.macroforge/config/`. Run it before `tsc` or `svelte-check`
+//! in CI, as a SvelteKit project runs `svelte-kit sync`.
 //!
 //! ## Configuration
 //!
@@ -157,6 +170,10 @@
 //! }
 //! ```
 //!
+//! Each handler becomes a named export of the expanded config in
+//! `.macroforge/config/`, and generated code imports it from
+//! `#macroforge/config`, which `macroforge init` declares.
+//!
 //! See the [Configuration](crate::host::config) module for full documentation.
 //!
 //! ## Output File Naming
@@ -188,9 +205,12 @@ mod build;
 mod cache;
 mod expand;
 mod hash_cache;
+mod init;
 mod lock;
+mod package_config;
 mod package_expand;
 mod package_state;
+mod sync;
 mod watch;
 mod wrappers;
 
@@ -204,21 +224,13 @@ use std::path::PathBuf;
 use build::run_build;
 use cache::{run_cache, run_refresh};
 use expand::{ScanOptions, expand_file, scan_and_expand};
+use init::run_init;
 use lock::{ProjectLock, resolve_project_root};
+use sync::run_sync;
 use watch::run_watch;
 use wrappers::{run_svelte_check_wrapper, run_svelte_package_wrapper, run_tsc_wrapper};
 
 /// Command-line interface for Macroforge TypeScript macro utilities.
-///
-/// Provides eight commands:
-/// - `expand` - Expand macros in TypeScript files or directories
-/// - `tsc` - Run TypeScript type checking with macro expansion
-/// - `svelte-check` - Run svelte-check with macro expansion
-/// - `svelte-package` - Run @sveltejs/package with macro expansion
-/// - `watch` - Watch files and maintain the .macroforge/cache
-/// - `cache` - Build the .macroforge/cache once and exit
-/// - `refresh` - Delete and rebuild the .macroforge/cache
-/// - `build` - Build a macro crate to WASM with $ aliases
 #[derive(Parser)]
 #[command(name = "macroforge", about = "TypeScript macro development utilities")]
 struct Cli {
@@ -312,6 +324,26 @@ enum Command {
     },
     /// Build the .macroforge/cache once and exit.
     ///
+    /// Declare `#macroforge/config` in the project's manifest.
+    ///
+    /// Generated code imports foreign-type handlers from `#macroforge/config`, a
+    /// subpath import of the expanded config. Adds it to `package.json` (or to a
+    /// `deno.json` when there is no `package.json`), keeping the file's order and
+    /// indentation. Does nothing when it is already declared.
+    Init {
+        /// Project root (defaults to the project containing the cwd)
+        root: Option<PathBuf>,
+    },
+    /// Write the generated files a type check reads, without expanding anything.
+    ///
+    /// Writes the type and declarative registries under `.macroforge/` and the
+    /// expanded config under `.macroforge/config/`, which `#macroforge/config`
+    /// resolves to. Run it before `tsc` or `svelte-check` in CI, as SvelteKit
+    /// projects run `svelte-kit sync`.
+    Sync {
+        /// Project root (defaults to the project containing the cwd)
+        root: Option<PathBuf>,
+    },
     /// Same as `watch` but without the file-watching loop: expands all TypeScript
     /// files, writes the cache, then exits. Useful in CI or as a pre-build step.
     Cache {
@@ -352,6 +384,8 @@ impl Command {
             Command::Watch { .. } => "watch",
             Command::Cache { .. } => "cache",
             Command::Refresh { .. } => "refresh",
+            Command::Init { .. } => "init",
+            Command::Sync { .. } => "sync",
             Command::Build { .. } => "build",
         }
     }
@@ -365,9 +399,11 @@ impl Command {
     /// project by walking up from [`Self::anchor`].
     fn explicit_root(&self) -> Option<PathBuf> {
         match self {
-            Command::Watch { root, .. } | Command::Cache { root } | Command::Refresh { root } => {
-                root.clone()
-            }
+            Command::Watch { root, .. }
+            | Command::Cache { root }
+            | Command::Refresh { root }
+            | Command::Init { root }
+            | Command::Sync { root } => root.clone(),
             // A crate is its own project, whether or not it has a manifest.
             Command::Build { crate_dir, .. } => {
                 Some(crate_dir.clone().unwrap_or_else(|| PathBuf::from(".")))
@@ -401,7 +437,10 @@ impl Command {
     fn locks_its_own_writes(&self) -> bool {
         matches!(
             self,
-            Command::Watch { .. } | Command::Tsc { .. } | Command::SvelteCheck { .. }
+            Command::Watch { .. }
+                | Command::Tsc { .. }
+                | Command::SvelteCheck { .. }
+                | Command::Sync { .. }
         )
     }
 
@@ -474,6 +513,12 @@ fn main() -> Result<()> {
             include_ignored,
             emit_expanded,
         } => {
+            // The expanded files import their foreign-type handlers from it.
+            if let Some(root) = root.as_deref() {
+                macroforge_ts::host::config::hoist::sync_expanded_config(root).with_context(
+                    || format!("failed to expand the config of {}", root.display()),
+                )?;
+            }
             let scan_options = || ScanOptions {
                 include_ignored,
                 out_dir: out.clone(),
@@ -532,6 +577,8 @@ fn main() -> Result<()> {
         Command::Watch { debounce_ms, .. } => run_watch(required_root()?, debounce_ms),
         Command::Cache { .. } => run_cache(required_root()?),
         Command::Refresh { .. } => run_refresh(required_root()?),
+        Command::Init { .. } => run_init(required_root()?),
+        Command::Sync { .. } => run_sync(required_root()?),
         Command::Build { crate_dir, out } => run_build(crate_dir, out),
     };
     drop(lock);

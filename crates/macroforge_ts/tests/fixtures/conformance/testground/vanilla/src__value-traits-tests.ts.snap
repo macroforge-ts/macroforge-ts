@@ -1,0 +1,3001 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/value-traits-tests.ts
+sha256 41723637c835645bc9d6638e1af87f50d2fb8c4cadb91a2110acbcc4aa81cbb5
+
+## Changed
+
+true
+
+## Output
+
+import { structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash, structuralClone as __mf_structuralClone, structuralDebug as __mf_structuralDebug, structuralCompare as __mf_structuralCompare } from "@macroforge/core/structural";
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * PartialEq, Hash and Clone over built-in, collection, optional, union and
+ * tuple types. The three must agree: a clone equals its source, and equal
+ * values hash the same.
+ */
+
+/** @derive(PartialEq, Hash, Clone) */
+export interface Timeline {
+    events: Date[];
+    labels: Map<string, Date>;
+    started?: Date;
+    note: string | null;
+}
+
+export function timelineEquals(a: Timeline, b: Timeline): boolean {
+    if (a === b) return true;
+    return a.events.length === b.events.length && a.events.every((__item0, __index0) => {
+	const __other0 = b.events[__index0];
+	return __other0 === undefined ? __item0 === undefined : __item0.getTime() === __other0.getTime();
+}) && a.labels.size === b.labels.size && Array.from(a.labels).every(([__key0, __item0]) => {
+	const __other0 = b.labels.get(__key0);
+	return b.labels.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0.getTime() === __other0.getTime());
+}) && (a.started == null || b.started == null ? a.started === b.started : a.started.getTime() === b.started.getTime()) && a.note === b.note;
+}
+
+export function timelineHashCode(value: Timeline): number {
+    let hash = 17;
+    hash = (hash * 31 + (value.events.reduce((__hash0, __item0) => __hash0 * 31 + (__item0.getTime() | 0) | 0, 1))) | 0;
+    hash = (hash * 31 + (Array.from(value.labels).reduce((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + (__item0.getTime() | 0) | 0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.started == null ? 0 : value.started.getTime() | 0)) | 0;
+    hash = (hash * 31 + (value.note == null ? 0 : (value.note ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    return hash;
+}
+
+export function timelineClone(value: Timeline): Timeline {
+    return ({
+	events: value.events.map((__item0) => new Date(__item0.getTime())),
+	labels: (() => {
+		const __copy0 = new Map(value.labels);
+		for (const [__key0, __item0] of value.labels) __copy0.set(__key0, new Date(__item0.getTime()));
+		return __copy0;
+	})(),
+	..."started" in value ? { started: value.started == null ? value.started : new Date(value.started.getTime()) } : {},
+	note: value.note
+});
+}
+
+export const Timeline: {
+  readonly equals: typeof timelineEquals;
+  readonly hashCode: typeof timelineHashCode;
+  readonly clone: typeof timelineClone;
+} = {
+  equals: timelineEquals,
+  hashCode: timelineHashCode,
+  clone: timelineClone
+};
+
+/** @derive(PartialEq, Hash, Clone) */
+export class Badge {
+    label: string = '';
+
+    static equals(a: Badge, b: Badge): boolean {
+        return badgeEquals(a, b);
+    }
+
+    static hashCode(value: Badge): number {
+        return badgeHashCode(value);
+    }
+
+    static clone(value: Badge): Badge {
+        return badgeClone(value);
+    }
+}
+
+export function badgeEquals(a: Badge, b: Badge): boolean {
+    if (a === b) return true;
+    return a.label === b.label;
+}
+
+export function badgeHashCode(value: Badge): number {
+    let hash = 17;
+    hash = (hash * 31 + ((value.label ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    return hash;
+}
+
+export function badgeClone(value: Badge): Badge {
+    const cloned = Object.create(Object.getPrototypeOf(value));
+    cloned.label = value.label;
+    return cloned;
+}
+
+/** @derive(PartialEq, Hash, Clone) */
+export interface Wall {
+    badges: Set<Badge>;
+    pinned: unknown;
+}
+
+export function wallEquals(a: Wall, b: Wall): boolean {
+    if (a === b) return true;
+    return a.badges.size === b.badges.size && Array.from(a.badges).every((__item0) => b.badges.has(__item0) || Array.from(b.badges).some((__other0) => badgeEquals(__item0, __other0))) && __mf_structuralEquals(a.pinned, b.pinned);
+}
+
+export function wallHashCode(value: Wall): number {
+    let hash = 17;
+    hash = (hash * 31 + (Array.from(value.badges).reduce((__hash0, __item0) => __hash0 + badgeHashCode(__item0) | 0, 0))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.pinned))) | 0;
+    return hash;
+}
+
+export function wallClone(value: Wall): Wall {
+    return ({
+	badges: new Set(Array.from(value.badges, (__item0) => badgeClone(__item0))),
+	pinned: __mf_structuralClone(value.pinned)
+});
+}
+
+export const Wall: {
+  readonly equals: typeof wallEquals;
+  readonly hashCode: typeof wallHashCode;
+  readonly clone: typeof wallClone;
+} = {
+  equals: wallEquals,
+  hashCode: wallHashCode,
+  clone: wallClone
+};
+
+/** @derive(PartialEq, Hash, Clone) */
+export type Shape =
+    | { kind: 'circle'; radius: number }
+    | { kind: 'square'; side: number; at: Date };
+
+export function shapeEquals(a: Shape, b: Shape): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function shapeHashCode(value: Shape): number {
+    return __mf_structuralHash(value);
+}
+
+export function shapeClone(value: Shape): Shape {
+    return __mf_structuralClone(value);
+}
+
+export const Shape: {
+  readonly equals: typeof shapeEquals;
+  readonly hashCode: typeof shapeHashCode;
+  readonly clone: typeof shapeClone;
+} = {
+  equals: shapeEquals,
+  hashCode: shapeHashCode,
+  clone: shapeClone
+};
+
+/** @derive(PartialEq, Hash, Clone) */
+export type Moment = [label: string, at: Date];
+
+export function momentEquals(a: Moment, b: Moment): boolean {
+    if (a === b) return true;
+    return a[0] === b[0] && a[1].getTime() === b[1].getTime();
+}
+
+export function momentHashCode(value: Moment): number {
+    return (1 * 31 + (value[0] ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0) * 31 + (value[1].getTime() | 0) | 0;
+}
+
+export function momentClone(value: Moment): Moment {
+    return [value[0], new Date(value[1].getTime())];
+}
+
+export const Moment: {
+  readonly equals: typeof momentEquals;
+  readonly hashCode: typeof momentHashCode;
+  readonly clone: typeof momentClone;
+} = {
+  equals: momentEquals,
+  hashCode: momentHashCode,
+  clone: momentClone
+};
+
+/** @derive(PartialEq, Hash, Clone) */
+export type Reading = string | number[];
+
+export function readingEquals(a: Reading, b: Reading): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function readingHashCode(value: Reading): number {
+    return __mf_structuralHash(value);
+}
+
+export function readingClone(value: Reading): Reading {
+    return __mf_structuralClone(value);
+}
+
+export const Reading: {
+  readonly equals: typeof readingEquals;
+  readonly hashCode: typeof readingHashCode;
+  readonly clone: typeof readingClone;
+} = {
+  equals: readingEquals,
+  hashCode: readingHashCode,
+  clone: readingClone
+};
+
+/** @derive(Debug) */
+export interface Inventory {
+    counts: Map<string, number>;
+    owner: { name: string };
+    total: bigint;
+}
+
+export function inventoryToString(value: Inventory): string {
+    const parts: string[] = [];
+    parts.push("counts: " + __mf_structuralDebug(value.counts));
+    parts.push("owner: " + __mf_structuralDebug(value.owner));
+    parts.push("total: " + String(value.total));
+    return "Inventory { " + parts.join(", ") + " }";
+}
+
+export const Inventory: {
+  readonly toString: typeof inventoryToString;
+} = {
+  toString: inventoryToString
+};
+
+/** @derive(Debug) */
+export type Amount = bigint | { value: bigint };
+
+export function amountToString(value: Amount): string {
+    return "Amount(" + __mf_structuralDebug(value) + ")";
+}
+
+export const Amount: {
+  readonly toString: typeof amountToString;
+} = {
+  toString: amountToString
+};
+
+/** @derive(Encode, Decode) */
+export class Ledger {
+    entries: Map<string, number> = new Map();
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: Ledger, keepMetadata?: boolean): string {
+        return ledgerEncode(value, keepMetadata);
+    }
+
+    /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+    static encodeWithContext(value: Ledger, ctx: __mf_EncodeContext): Record<string, unknown> {
+        return ledgerEncodeWithContext(value, ctx);
+    }
+
+    constructor(props: { entries: Map<string, number> }) {
+        this.entries = props.entries;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Ledger } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = Ledger.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "Ledger.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Ledger | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "Ledger.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as Ledger | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "Ledger.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("entries" in obj)) {
+            errors.push({ field: "entries", message: "missing required field" });
+        }
+
+        const instance = Object.create(Ledger.prototype) as Ledger;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_entries = obj["entries"] as Record<string, number>;
+
+            if (typeof __raw_entries === "object" && __raw_entries !== null) {
+                instance.entries = new Map(
+                    Object.entries(__raw_entries).map(([k, v]) => [k as string, v as number])
+                );
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof Ledger>(field: K, value: unknown): Array<{ field: string; message: string }>;
+    static validateField(): Array<{ field: string; message: string }> {
+        return [];
+    }
+
+    static validateFields(partial: { readonly [K in keyof Ledger]?: unknown }): Array<{ field: string; message: string }>;
+    static validateFields(): Array<{ field: string; message: string }> {
+        return [];
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "entries" in o;
+    }
+
+    static is(obj: unknown): obj is Ledger {
+        if (obj instanceof Ledger) {
+            return true;
+        }
+        if (!Ledger.hasShape(obj)) {
+            return false;
+        }
+        const result = Ledger.decode(obj);
+        return result.success;
+    }
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function ledgerEncode(value: Ledger, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = ledgerEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function ledgerEncodeWithContext(value: Ledger, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Ledger",
+        __id,
+    };
+
+    
+    result.entries = Object.fromEntries(value.entries.entries());
+
+    return result;
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function ledgerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Ledger } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return Ledger.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function ledgerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Ledger | __mf_PendingRef {
+    return Ledger.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function ledgerIs(value: unknown): value is Ledger {
+    return Ledger.is(value);
+}
+
+/** @derive(Encode, Decode) */
+export type LedgerPair = [Ledger, Ledger];
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function ledgerPairEncode(value: LedgerPair, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = ledgerPairEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function ledgerPairEncodeWithContext(value: LedgerPair, ctx: __mf_EncodeContext): unknown {
+    const __view: { e0: Ledger; e1: Ledger } = {
+        e0: value[0],
+        e1: value[1],
+    };
+    return ((value: { e0: Ledger; e1: Ledger }): unknown[] => {
+        const result: Record<string, unknown> = {};
+
+        result.e0 = ledgerEncodeWithContext(value.e0, ctx);
+        result.e1 = ledgerEncodeWithContext(value.e1, ctx);
+        const __tuple: unknown[] = [];
+        if ("e0" in result) {
+            __tuple.push(result.e0);
+        }
+        if ("e1" in result) {
+            __tuple.push(result.e1);
+        }
+        return __tuple;
+    })(__view);
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function ledgerPairDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LedgerPair } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = ledgerPairDecodeWithContext(data, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+export function ledgerPairIs(value: unknown): value is LedgerPair {
+    return ledgerPairHasShape(value);
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function ledgerPairDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): LedgerPair {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "LedgerPair.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as LedgerPair;
+    }
+    if (!Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "LedgerPair.decodeWithContext: expected an array" }]);
+    }
+    const errors: Array<{ field: string; message: string }> = [];
+    if (value.length <= 0) {
+        errors.push({ field: "0", message: "missing required element" });
+    }
+    if (value.length <= 1) {
+        errors.push({ field: "1", message: "missing required element" });
+    }
+    if (value.length > 2) {
+        errors.push({ field: "_root", message: "too many elements" });
+    }
+    const obj: Record<string, unknown> = {};
+    for (let __index = 0; __index < Math.min(value.length, 2); __index++) {
+        obj[__index] = value[__index];
+    }
+
+    const tuple: unknown[] = [];
+    const instance: any = {};
+    Object.defineProperty(instance, "e0", {
+        get: () => tuple[0],
+        set: (item: unknown) => {
+            tuple[0] = item;
+        }
+    });
+    Object.defineProperty(instance, "e1", {
+        get: () => tuple[1],
+        set: (item: unknown) => {
+            tuple[1] = item;
+        }
+    });
+    ctx.trackForFreeze(tuple);
+
+    {
+        const __raw_e0 = obj["0"] as Ledger;
+
+        ctx.pushScope("0");
+        try {
+            const __result = ledgerDecodeWithContext(__raw_e0, ctx);
+            ctx.assignOrDefer(instance, "e0", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "0" : "0." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_e1 = obj["1"] as Ledger;
+
+        ctx.pushScope("1");
+        try {
+            const __result = ledgerDecodeWithContext(__raw_e1, ctx);
+            ctx.assignOrDefer(instance, "e1", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "1" : "1." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+
+    ctx.pushErrors(errors);
+    return tuple as LedgerPair;
+}
+
+export function ledgerPairHasShape(value: unknown): boolean {
+    return Array.isArray(value) && value.length >= 2 && value.length <= 2;
+}
+
+export const LedgerPair: {
+  readonly encode: typeof ledgerPairEncode;
+  readonly encodeWithContext: typeof ledgerPairEncodeWithContext;
+  readonly decode: typeof ledgerPairDecode;
+  readonly is: typeof ledgerPairIs;
+  readonly decodeWithContext: typeof ledgerPairDecodeWithContext;
+  readonly hasShape: typeof ledgerPairHasShape;
+} = {
+  encode: ledgerPairEncode,
+  encodeWithContext: ledgerPairEncodeWithContext,
+  decode: ledgerPairDecode,
+  is: ledgerPairIs,
+  decodeWithContext: ledgerPairDecodeWithContext,
+  hasShape: ledgerPairHasShape
+};
+
+/** @derive(Encode, Decode) */
+export type MainLedger = Ledger;
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function mainLedgerEncode(value: MainLedger, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = mainLedgerEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function mainLedgerEncodeWithContext(value: MainLedger, ctx: __mf_EncodeContext): unknown {
+    return ((value: { value: Ledger }): unknown => {
+        const result: Record<string, unknown> = {};
+
+        result.value = ledgerEncodeWithContext(value.value, ctx);
+        return result.value;
+    })({ value });
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function mainLedgerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MainLedger } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = mainLedgerDecodeWithContext(data, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+export function mainLedgerIs(value: unknown): value is MainLedger {
+    return mainLedgerHasShape(value);
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function mainLedgerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): MainLedger {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "MainLedger.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as MainLedger;
+    }
+    const obj: Record<string, unknown> = { _root: value };
+    const errors: Array<{ field: string; message: string }> = [];
+    const instance: any = {};
+
+    {
+        const __raw__root = obj["_root"] as Ledger;
+
+        ctx.pushScope("_root");
+        try {
+            const __result = ledgerDecodeWithContext(__raw__root, ctx);
+            ctx.assignOrDefer(instance, "_root", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "_root" : "_root." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+
+    ctx.pushErrors(errors);
+    return instance._root as MainLedger;
+}
+
+export function mainLedgerHasShape(value: unknown): boolean {
+    return value != null;
+}
+
+export const MainLedger: {
+  readonly encode: typeof mainLedgerEncode;
+  readonly encodeWithContext: typeof mainLedgerEncodeWithContext;
+  readonly decode: typeof mainLedgerDecode;
+  readonly is: typeof mainLedgerIs;
+  readonly decodeWithContext: typeof mainLedgerDecodeWithContext;
+  readonly hasShape: typeof mainLedgerHasShape;
+} = {
+  encode: mainLedgerEncode,
+  encodeWithContext: mainLedgerEncodeWithContext,
+  decode: mainLedgerDecode,
+  is: mainLedgerIs,
+  decodeWithContext: mainLedgerDecodeWithContext,
+  hasShape: mainLedgerHasShape
+};
+
+/** @derive(Encode, Decode) */
+export type Totals = Map<string, number>;
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function totalsEncode(value: Totals, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = totalsEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function totalsEncodeWithContext(value: Totals, ctx: __mf_EncodeContext): unknown;
+export function totalsEncodeWithContext(value: Totals): unknown {
+    return ((value: { value: Map<string, number> }): unknown => {
+        const result: Record<string, unknown> = {};
+
+        result.value = Object.fromEntries(value.value.entries());
+        return result.value;
+    })({ value });
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function totalsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Totals } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = totalsDecodeWithContext(data, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+export function totalsIs(value: unknown): value is Totals {
+    return totalsHasShape(value);
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function totalsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Totals {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Totals.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Totals;
+    }
+    const obj: Record<string, unknown> = { _root: value };
+    const errors: Array<{ field: string; message: string }> = [];
+    const instance: any = {};
+
+    {
+        const __raw__root = obj["_root"] as Record<string, number>;
+
+        if (typeof __raw__root === "object" && __raw__root !== null) {
+            instance._root = new Map(
+                Object.entries(__raw__root).map(([k, v]) => [k as string, v as number])
+            );
+        }
+    }
+
+    ctx.pushErrors(errors);
+    return instance._root as Totals;
+}
+
+export function totalsHasShape(value: unknown): boolean {
+    return value != null;
+}
+
+export const Totals: {
+  readonly encode: typeof totalsEncode;
+  readonly encodeWithContext: typeof totalsEncodeWithContext;
+  readonly decode: typeof totalsDecode;
+  readonly is: typeof totalsIs;
+  readonly decodeWithContext: typeof totalsDecodeWithContext;
+  readonly hasShape: typeof totalsHasShape;
+} = {
+  encode: totalsEncode,
+  encodeWithContext: totalsEncodeWithContext,
+  decode: totalsDecode,
+  is: totalsIs,
+  decodeWithContext: totalsDecodeWithContext,
+  hasShape: totalsHasShape
+};
+
+/** @derive(Encode) */
+export type LedgerOrNote = Ledger | string;
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function ledgerOrNoteEncode(value: LedgerOrNote, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = ledgerOrNoteEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function ledgerOrNoteEncodeWithContext(value: LedgerOrNote, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    }
+    return __variant;
+}
+
+export const LedgerOrNote: {
+  readonly encode: typeof ledgerOrNoteEncode;
+  readonly encodeWithContext: typeof ledgerOrNoteEncodeWithContext;
+} = {
+  encode: ledgerOrNoteEncode,
+  encodeWithContext: ledgerOrNoteEncodeWithContext
+};
+
+/**
+ * @derive(Encode)
+ * @endec({ tag: "kind" })
+ */
+export type Tally =
+    | { kind: 'counts'; counts: Map<string, number> }
+    | { kind: 'note'; text: string };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function tallyEncode(value: Tally, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = tallyEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function tallyEncodeWithContext(value: Tally, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    if (!__matched && typeof value === "object" && value !== null && "kind" in value && value["kind"] === "counts") {
+        const result: Record<string, unknown> = {};
+
+        result.kind = value.kind;
+        result.counts = Object.fromEntries(value.counts.entries());
+        __variant = result;
+        __matched = true;
+    }
+    if (!__matched && typeof value === "object" && value !== null && "kind" in value && value["kind"] === "note") {
+        const result: Record<string, unknown> = {};
+
+        result.kind = value.kind;
+        result.text = value.text;
+        __variant = result;
+        __matched = true;
+    }
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        return { "kind": (value as any)["kind"] ?? __typeName, ...fields };
+    }
+    return __variant;
+}
+
+export const Tally: {
+  readonly encode: typeof tallyEncode;
+  readonly encodeWithContext: typeof tallyEncodeWithContext;
+} = {
+  encode: tallyEncode,
+  encodeWithContext: tallyEncodeWithContext
+};
+
+/** @derive(Default) */
+export class Shelf<T> {
+    items: T[] = [];
+    label: string = '';
+
+    static defaultValue<T>(): Shelf<T> {
+
+        const instance: Shelf<T> = Object.create(Shelf.prototype);
+        instance.items = [];
+        instance.label = "";
+        return instance;
+    }
+}
+
+export function shelfDefaultValue<T>(): Shelf<T> {
+    return Shelf.defaultValue<T>();
+}
+
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
+export interface Rank {
+    label: string;
+    at?: Date;
+    meta: { tier: number };
+}
+
+export function rankEquals(a: Rank, b: Rank): boolean {
+    if (a === b) return true;
+    return a.label === b.label && (a.at == null || b.at == null ? a.at === b.at : a.at.getTime() === b.at.getTime()) && __mf_structuralEquals(a.meta, b.meta);
+}
+
+export function rankPartialCompare(a: Rank, b: Rank): number | null {
+    if (a === b) return 0;
+    const cmp0 = (a.label < b.label ? -1 : a.label > b.label ? 1 : 0);
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = (a.at == null || b.at == null ? __mf_structuralCompare(a.at, b.at) : (a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : a.at.getTime() === b.at.getTime() ? 0 : null));
+    if (cmp1 === null) return null;
+    if (cmp1 !== 0) return cmp1;
+    const cmp2 = __mf_structuralCompare(a.meta, b.meta);
+    if (cmp2 === null) return null;
+    if (cmp2 !== 0) return cmp2;
+    return 0;
+}
+
+export function rankCompare(a: Rank, b: Rank): number {
+    if (a === b) return 0;
+    const cmp0 = a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = a.at == null || b.at == null ? __mf_structuralCompare(a.at, b.at) : a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : 0;
+    if (cmp1 !== 0) return cmp1;
+    const cmp2 = __mf_structuralCompare(a.meta, b.meta);
+    if (cmp2 !== 0) return cmp2;
+    return 0;
+}
+
+export const Rank: {
+  readonly equals: typeof rankEquals;
+  readonly partialCompare: typeof rankPartialCompare;
+  readonly compare: typeof rankCompare;
+} = {
+  equals: rankEquals,
+  partialCompare: rankPartialCompare,
+  compare: rankCompare
+};
+
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
+export type Choice = { kind: 'a'; count: number } | { kind: 'b'; name: string } | null;
+
+export function choiceEquals(a: Choice, b: Choice): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function choicePartialCompare(a: Choice, b: Choice): number | null {
+    return __mf_structuralCompare(a, b);
+}
+
+export function choiceCompare(a: Choice, b: Choice): number {
+    return __mf_structuralCompare(a, b);
+}
+
+export const Choice: {
+  readonly equals: typeof choiceEquals;
+  readonly partialCompare: typeof choicePartialCompare;
+  readonly compare: typeof choiceCompare;
+} = {
+  equals: choiceEquals,
+  partialCompare: choicePartialCompare,
+  compare: choiceCompare
+};
+
+/** @derive(PartialEq, Hash, Clone, Debug, Encode, Decode) */
+export interface Labeled<T extends string = string> {
+    label: T;
+    weight: number;
+}
+
+export function labeledEquals<T extends string = string>(a: Labeled<T>, b: Labeled<T>): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a.label, b.label) && a.weight === b.weight;
+}
+
+export function labeledHashCode<T extends string = string>(value: Labeled<T>): number {
+    let hash = 17;
+    hash = (hash * 31 + (__mf_structuralHash(value.label))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.weight) ? value.weight | 0 : value.weight.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    return hash;
+}
+
+export function labeledClone<T extends string = string>(value: Labeled<T>): Labeled<T> {
+    return ({
+	label: __mf_structuralClone(value.label),
+	weight: value.weight
+});
+}
+
+export function labeledToString<T extends string = string>(value: Labeled<T>): string {
+    const parts: string[] = [];
+    parts.push("label: " + __mf_structuralDebug(value.label));
+    parts.push("weight: " + String(value.weight));
+    return "Labeled { " + parts.join(", ") + " }";
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function labeledEncode<T extends string = string>(value: Labeled<T>, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = labeledEncodeWithContext<T>(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function labeledEncodeWithContext<T extends string = string>(value: Labeled<T>, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Labeled",
+        __id,
+    };
+
+    
+    result.label = value.label;
+    result.weight = value.weight;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function labeledDecode<T extends string = string>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Labeled<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = labeledDecodeWithContext<T>(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Labeled.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function labeledDecodeWithContext<T extends string = string>(value: unknown, ctx: __mf_DecodeContext): Labeled<T> | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Labeled.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Labeled<T> | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Labeled.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("label" in obj)) {
+        errors.push({ field: "label", message: "missing required field" });
+    }
+    if (!("weight" in obj)) {
+        errors.push({ field: "weight", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_label = obj["label"] as T;
+
+        instance.label = __raw_label;
+    }
+    {
+        const __raw_weight = obj["weight"] as number;
+
+        if (!(typeof __raw_weight === "number")) {
+            errors.push({ field: "weight", message: __raw_weight == null ? "Labeled.weight is required" : "expected number" });
+        } else {
+            instance.weight = __raw_weight;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Labeled<T>;
+}
+export function labeledValidateField<T extends string = string, K extends keyof Labeled<T> = keyof Labeled<T>>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function labeledValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function labeledValidateFields<T extends string = string>(partial: { readonly [K in keyof Labeled<T>]?: unknown }): Array<{ field: string; message: string }>;
+export function labeledValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function labeledHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "label" in o && "weight" in o;
+}
+
+export function labeledIs<T extends string = string>(obj: unknown): obj is Labeled<T> {
+    return labeledHasShape(obj) && labeledDecode(obj).success;
+}
+
+export const Labeled: {
+  readonly equals: typeof labeledEquals;
+  readonly hashCode: typeof labeledHashCode;
+  readonly clone: typeof labeledClone;
+  readonly toString: typeof labeledToString;
+  readonly encode: typeof labeledEncode;
+  readonly encodeWithContext: typeof labeledEncodeWithContext;
+  readonly decode: typeof labeledDecode;
+  readonly decodeWithContext: typeof labeledDecodeWithContext;
+  readonly validateField: typeof labeledValidateField;
+  readonly validateFields: typeof labeledValidateFields;
+  readonly hasShape: typeof labeledHasShape;
+  readonly is: typeof labeledIs;
+} = {
+  equals: labeledEquals,
+  hashCode: labeledHashCode,
+  clone: labeledClone,
+  toString: labeledToString,
+  encode: labeledEncode,
+  encodeWithContext: labeledEncodeWithContext,
+  decode: labeledDecode,
+  decodeWithContext: labeledDecodeWithContext,
+  validateField: labeledValidateField,
+  validateFields: labeledValidateFields,
+  hasShape: labeledHasShape,
+  is: labeledIs
+};
+
+/** @derive(Default) */
+export class Crate<T extends object> {
+    items: T[] = [];
+
+    static defaultValue<T extends object>(): Crate<T> {
+
+        const instance: Crate<T> = Object.create(Crate.prototype);
+        instance.items = [];
+        return instance;
+    }
+}
+
+export function crateDefaultValue<T extends object>(): Crate<T> {
+    return Crate.defaultValue<T>();
+}
+
+/** @derive(PartialEq, Eq, Hash, Clone, Debug, PartialOrd, Ord, Encode, Decode) */
+export interface Keyed<K extends string> {
+    key: K;
+    rank: number;
+}
+
+export function keyedEquals<K extends string>(a: Keyed<K>, b: Keyed<K>): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a.key, b.key) && a.rank === b.rank;
+}
+
+export function keyedHashCode<K extends string>(value: Keyed<K>): number {
+    let hash = 17;
+    hash = (hash * 31 + (__mf_structuralHash(value.key))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.rank) ? value.rank | 0 : value.rank.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    return hash;
+}
+
+export function keyedClone<K extends string>(value: Keyed<K>): Keyed<K> {
+    return ({
+	key: __mf_structuralClone(value.key),
+	rank: value.rank
+});
+}
+
+export function keyedToString<K extends string>(value: Keyed<K>): string {
+    const parts: string[] = [];
+    parts.push("key: " + __mf_structuralDebug(value.key));
+    parts.push("rank: " + String(value.rank));
+    return "Keyed { " + parts.join(", ") + " }";
+}
+
+export function keyedPartialCompare<K extends string>(a: Keyed<K>, b: Keyed<K>): number | null {
+    if (a === b) return 0;
+    const cmp0 = __mf_structuralCompare(a.key, b.key);
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = (a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : a.rank === b.rank ? 0 : null);
+    if (cmp1 === null) return null;
+    if (cmp1 !== 0) return cmp1;
+    return 0;
+}
+
+export function keyedCompare<K extends string>(a: Keyed<K>, b: Keyed<K>): number {
+    if (a === b) return 0;
+    const cmp0 = __mf_structuralCompare(a.key, b.key);
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : 0;
+    if (cmp1 !== 0) return cmp1;
+    return 0;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function keyedEncode<K extends string>(value: Keyed<K>, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = keyedEncodeWithContext<K>(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function keyedEncodeWithContext<K extends string>(value: Keyed<K>, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Keyed",
+        __id,
+    };
+
+    
+    result.key = value.key;
+    result.rank = value.rank;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function keyedDecode<K extends string>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Keyed<K> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = keyedDecodeWithContext<K>(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Keyed.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function keyedDecodeWithContext<K extends string>(value: unknown, ctx: __mf_DecodeContext): Keyed<K> | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Keyed.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Keyed<K> | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Keyed.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("key" in obj)) {
+        errors.push({ field: "key", message: "missing required field" });
+    }
+    if (!("rank" in obj)) {
+        errors.push({ field: "rank", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_key = obj["key"] as K;
+
+        instance.key = __raw_key;
+    }
+    {
+        const __raw_rank = obj["rank"] as number;
+
+        if (!(typeof __raw_rank === "number")) {
+            errors.push({ field: "rank", message: __raw_rank == null ? "Keyed.rank is required" : "expected number" });
+        } else {
+            instance.rank = __raw_rank;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Keyed<K>;
+}
+export function keyedValidateField<K extends string, K1 extends keyof Keyed<K> = keyof Keyed<K>>(field: K1, value: unknown): Array<{ field: string; message: string }>;
+export function keyedValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function keyedValidateFields<K extends string>(partial: { readonly [K1 in keyof Keyed<K>]?: unknown }): Array<{ field: string; message: string }>;
+export function keyedValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function keyedHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "key" in o && "rank" in o;
+}
+
+export function keyedIs<K extends string>(obj: unknown): obj is Keyed<K> {
+    return keyedHasShape(obj) && keyedDecode(obj).success;
+}
+
+export const Keyed: {
+  readonly equals: typeof keyedEquals;
+  readonly hashCode: typeof keyedHashCode;
+  readonly clone: typeof keyedClone;
+  readonly toString: typeof keyedToString;
+  readonly partialCompare: typeof keyedPartialCompare;
+  readonly compare: typeof keyedCompare;
+  readonly encode: typeof keyedEncode;
+  readonly encodeWithContext: typeof keyedEncodeWithContext;
+  readonly decode: typeof keyedDecode;
+  readonly decodeWithContext: typeof keyedDecodeWithContext;
+  readonly validateField: typeof keyedValidateField;
+  readonly validateFields: typeof keyedValidateFields;
+  readonly hasShape: typeof keyedHasShape;
+  readonly is: typeof keyedIs;
+} = {
+  equals: keyedEquals,
+  hashCode: keyedHashCode,
+  clone: keyedClone,
+  toString: keyedToString,
+  partialCompare: keyedPartialCompare,
+  compare: keyedCompare,
+  encode: keyedEncode,
+  encodeWithContext: keyedEncodeWithContext,
+  decode: keyedDecode,
+  decodeWithContext: keyedDecodeWithContext,
+  validateField: keyedValidateField,
+  validateFields: keyedValidateFields,
+  hasShape: keyedHasShape,
+  is: keyedIs
+};
+
+/** @derive(PartialEq, Eq, Hash, Clone, Debug, PartialOrd, Ord, Encode, Decode) */
+export class Slot<T extends object> {
+    held: T | null = null;
+    index: number = 0;
+
+    static equals<T extends object>(a: Slot<T>, b: Slot<T>): boolean {
+        return slotEquals(a, b);
+    }
+
+    static hashCode<T extends object>(value: Slot<T>): number {
+        return slotHashCode(value);
+    }
+
+    static clone<T extends object>(value: Slot<T>): Slot<T> {
+        return slotClone(value);
+    }
+
+    static toString<T extends object>(value: Slot<T>): string {
+        return slotToString(value);
+    }
+
+    static partialCompare<T extends object>(a: Slot<T>, b: Slot<T>): number | null {
+        return slotPartialCompare(a, b);
+    }
+
+    static compare<T extends object>(a: Slot<T>, b: Slot<T>): number {
+        return slotCompare(a, b);
+    }
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode<T extends object>(value: Slot<T>, keepMetadata?: boolean): string {
+        return slotEncode(value, keepMetadata);
+    }
+
+    /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+    static encodeWithContext<T extends object>(value: Slot<T>, ctx: __mf_EncodeContext): Record<string, unknown> {
+        return slotEncodeWithContext(value, ctx);
+    }
+
+    constructor(props: { held: T | null; index: number }) {
+        this.held = props.held;
+        this.index = props.index;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode<T extends object>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Slot<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = Slot.decodeWithContext<T>(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "Slot.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext): Slot<T> | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "Slot.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as Slot<T> | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "Slot.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("held" in obj)) {
+            errors.push({ field: "held", message: "missing required field" });
+        }
+        if (!("index" in obj)) {
+            errors.push({ field: "index", message: "missing required field" });
+        }
+
+        const instance = Object.create(Slot.prototype) as Slot<T>;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_held = obj["held"] as T | null;
+
+            if (__raw_held === null) {
+                instance.held = null;
+            } else {
+                instance.held = __raw_held;
+            }
+        }
+        {
+            const __raw_index = obj["index"] as number;
+
+            if (!(typeof __raw_index === "number")) {
+                errors.push({ field: "index", message: __raw_index == null ? "Slot.index is required" : "expected number" });
+            } else {
+                instance.index = __raw_index;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<T extends object, K extends keyof Slot<T> = keyof Slot<T>>(field: K, value: unknown): Array<{ field: string; message: string }>;
+    static validateField(): Array<{ field: string; message: string }> {
+        return [];
+    }
+
+    static validateFields<T extends object>(partial: { readonly [K in keyof Slot<T>]?: unknown }): Array<{ field: string; message: string }>;
+    static validateFields(): Array<{ field: string; message: string }> {
+        return [];
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "held" in o && "index" in o;
+    }
+
+    static is<T extends object>(obj: unknown): obj is Slot<T> {
+        if (obj instanceof Slot) {
+            return true;
+        }
+        if (!Slot.hasShape(obj)) {
+            return false;
+        }
+        const result = Slot.decode(obj);
+        return result.success;
+    }
+}
+
+export function slotEquals<T extends object>(a: Slot<T>, b: Slot<T>): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a.held, b.held) && a.index === b.index;
+}
+
+export function slotHashCode<T extends object>(value: Slot<T>): number {
+    let hash = 17;
+    hash = (hash * 31 + (__mf_structuralHash(value.held))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.index) ? value.index | 0 : value.index.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    return hash;
+}
+
+export function slotClone<T extends object>(value: Slot<T>): Slot<T> {
+    const cloned = Object.create(Object.getPrototypeOf(value));
+    cloned.held = __mf_structuralClone(value.held);
+    cloned.index = value.index;
+    return cloned;
+}
+
+export function slotToString<T extends object>(value: Slot<T>): string {
+    const parts: string[] = [];
+    parts.push("held: " + __mf_structuralDebug(value.held));
+    parts.push("index: " + String(value.index));
+    return "Slot { " + parts.join(", ") + " }";
+}
+
+export function slotPartialCompare<T extends object>(a: Slot<T>, b: Slot<T>): number | null {
+    if (a === b) return 0;
+    const cmp0 = __mf_structuralCompare(a.held, b.held);
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = (a.index < b.index ? -1 : a.index > b.index ? 1 : a.index === b.index ? 0 : null);
+    if (cmp1 === null) return null;
+    if (cmp1 !== 0) return cmp1;
+    return 0;
+}
+
+export function slotCompare<T extends object>(a: Slot<T>, b: Slot<T>): number {
+    if (a === b) return 0;
+    const cmp0 = __mf_structuralCompare(a.held, b.held);
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = a.index < b.index ? -1 : a.index > b.index ? 1 : 0;
+    if (cmp1 !== 0) return cmp1;
+    return 0;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function slotEncode<T extends object>(value: Slot<T>, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = slotEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function slotEncodeWithContext<T extends object>(value: Slot<T>, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Slot",
+        __id,
+    };
+
+    
+    if (value.held !== null) {
+        result.held = value.held;
+    } else {
+        result.held = null;
+    }
+    result.index = value.index;
+
+    return result;
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function slotDecode<T extends object>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Slot<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return Slot.decode<T>(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function slotDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext): Slot<T> | __mf_PendingRef {
+    return Slot.decodeWithContext<T>(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function slotIs<T extends object>(value: unknown): value is Slot<T> {
+    return Slot.is<T>(value);
+}
+
+/** @derive(Encode, Decode) */
+export type Counted<T extends object> = [T, number];
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function countedEncode<T extends object>(value: Counted<T>, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = countedEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function countedEncodeWithContext<T extends object>(value: Counted<T>, ctx: __mf_EncodeContext): unknown;
+export function countedEncodeWithContext<T extends object>(value: Counted<T>): unknown {
+    const __view: { e0: T; e1: number } = {
+        e0: value[0],
+        e1: value[1],
+    };
+    return ((value: { e0: T; e1: number }): unknown[] => {
+        const result: Record<string, unknown> = {};
+
+        result.e0 = value.e0;
+        result.e1 = value.e1;
+        const __tuple: unknown[] = [];
+        if ("e0" in result) {
+            __tuple.push(result.e0);
+        }
+        if ("e1" in result) {
+            __tuple.push(result.e1);
+        }
+        return __tuple;
+    })(__view);
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function countedDecode<T extends object>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Counted<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = countedDecodeWithContext<T>(data, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+export function countedIs<T extends object>(value: unknown): value is Counted<T> {
+    return countedHasShape(value);
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function countedDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext): Counted<T> {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Counted.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Counted<T>;
+    }
+    if (!Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Counted.decodeWithContext: expected an array" }]);
+    }
+    const errors: Array<{ field: string; message: string }> = [];
+    if (value.length <= 0) {
+        errors.push({ field: "0", message: "missing required element" });
+    }
+    if (value.length <= 1) {
+        errors.push({ field: "1", message: "missing required element" });
+    }
+    if (value.length > 2) {
+        errors.push({ field: "_root", message: "too many elements" });
+    }
+    const obj: Record<string, unknown> = {};
+    for (let __index = 0; __index < Math.min(value.length, 2); __index++) {
+        obj[__index] = value[__index];
+    }
+
+    const tuple: unknown[] = [];
+    const instance: any = {};
+    Object.defineProperty(instance, "e0", {
+        get: () => tuple[0],
+        set: (item: unknown) => {
+            tuple[0] = item;
+        }
+    });
+    Object.defineProperty(instance, "e1", {
+        get: () => tuple[1],
+        set: (item: unknown) => {
+            tuple[1] = item;
+        }
+    });
+    ctx.trackForFreeze(tuple);
+
+    {
+        const __raw_e0 = obj["0"] as T;
+
+        instance.e0 = __raw_e0;
+    }
+    {
+        const __raw_e1 = obj["1"] as number;
+
+        if (!(typeof __raw_e1 === "number")) {
+            errors.push({ field: "1", message: __raw_e1 == null ? "Counted.1 is required" : "expected number" });
+        } else {
+            instance.e1 = __raw_e1;
+        }
+    }
+
+    ctx.pushErrors(errors);
+    return tuple as Counted<T>;
+}
+
+export function countedHasShape(value: unknown): boolean {
+    return Array.isArray(value) && value.length >= 2 && value.length <= 2;
+}
+
+export const Counted: {
+  readonly encode: typeof countedEncode;
+  readonly encodeWithContext: typeof countedEncodeWithContext;
+  readonly decode: typeof countedDecode;
+  readonly is: typeof countedIs;
+  readonly decodeWithContext: typeof countedDecodeWithContext;
+  readonly hasShape: typeof countedHasShape;
+} = {
+  encode: countedEncode,
+  encodeWithContext: countedEncodeWithContext,
+  decode: countedDecode,
+  is: countedIs,
+  decodeWithContext: countedDecodeWithContext,
+  hasShape: countedHasShape
+};
+
+/** @derive(Encode, Decode) */
+export type Code<T extends string> = T | number;
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function codeEncode<T extends string>(value: Code<T>, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = codeEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function codeEncodeWithContext<T extends string>(value: Code<T>, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    }
+    return __variant;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function codeDecode<T extends string>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Code<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = codeDecodeWithContext<T>(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Code.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function codeDecodeWithContext<T extends string>(value: unknown, ctx: __mf_DecodeContext): Code<T> | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Code.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Code<T> | __mf_PendingRef;
+    }
+
+    
+    if (typeof value === "number") {
+        return value as Code<T>;
+    }
+    return value as Code<T>;
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "Code.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function codeHasShape(value: unknown): boolean {
+                if (typeof value === "number") return true;
+                return true;
+}
+export function codeIs<T extends string>(value: unknown): value is Code<T> {
+    return codeHasShape(value);
+}
+
+export const Code: {
+  readonly encode: typeof codeEncode;
+  readonly encodeWithContext: typeof codeEncodeWithContext;
+  readonly decode: typeof codeDecode;
+  readonly decodeWithContext: typeof codeDecodeWithContext;
+  readonly hasShape: typeof codeHasShape;
+  readonly is: typeof codeIs;
+} = {
+  encode: codeEncode,
+  encodeWithContext: codeEncodeWithContext,
+  decode: codeDecode,
+  decodeWithContext: codeDecodeWithContext,
+  hasShape: codeHasShape,
+  is: codeIs
+};
+
+/** @derive(Encode, Decode) */
+export type Boxed<T extends object> = Array<T>;
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function boxedEncode<T extends object>(value: Boxed<T>, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = boxedEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function boxedEncodeWithContext<T extends object>(value: Boxed<T>, ctx: __mf_EncodeContext): unknown;
+export function boxedEncodeWithContext<T extends object>(value: Boxed<T>): unknown {
+    return ((value: { value: Array<T> }): unknown => {
+        const result: Record<string, unknown> = {};
+
+        result.value = value.value;
+        return result.value;
+    })({ value });
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function boxedDecode<T extends object>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Boxed<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = boxedDecodeWithContext<T>(data, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+export function boxedIs<T extends object>(value: unknown): value is Boxed<T> {
+    return boxedHasShape(value);
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function boxedDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext): Boxed<T> {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Boxed.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Boxed<T>;
+    }
+    const obj: Record<string, unknown> = { _root: value };
+    const errors: Array<{ field: string; message: string }> = [];
+    const instance: any = {};
+
+    {
+        const __raw__root = obj["_root"] as Array<T>;
+
+        if (Array.isArray(__raw__root)) {
+            const __arr = __raw__root.map((item: T | { __ref: number }, idx) => {
+                if (typeof item === "object" && item !== null && "__ref" in item) {
+                    const result = ctx.getOrDefer(item.__ref);
+                    if (__mf_PendingRef.is(result)) {
+                        return { __pendingIdx: idx, __refId: result.id };
+                    }
+                    return result;
+                }
+                return item as T;
+            });
+            instance._root = __arr;
+            __arr.forEach((item, idx) => {
+                if (item && typeof item === "object" && "__pendingIdx" in item) {
+                    ctx.addPatch(instance._root, idx, (item as any).__refId);
+                }
+            });
+        }
+    }
+
+    ctx.pushErrors(errors);
+    return instance._root as Boxed<T>;
+}
+
+export function boxedHasShape(value: unknown): boolean {
+    return value != null;
+}
+
+export const Boxed: {
+  readonly encode: typeof boxedEncode;
+  readonly encodeWithContext: typeof boxedEncodeWithContext;
+  readonly decode: typeof boxedDecode;
+  readonly is: typeof boxedIs;
+  readonly decodeWithContext: typeof boxedDecodeWithContext;
+  readonly hasShape: typeof boxedHasShape;
+} = {
+  encode: boxedEncode,
+  encodeWithContext: boxedEncodeWithContext,
+  decode: boxedDecode,
+  is: boxedIs,
+  decodeWithContext: boxedDecodeWithContext,
+  hasShape: boxedHasShape
+};
+
+## DTS
+
+/**
+* PartialEq, Hash and Clone over built-in, collection, optional, union and
+* tuple types. The three must agree: a clone equals its source, and equal
+* values hash the same.
+*/
+/** @derive(PartialEq, Hash, Clone) */
+export interface Timeline {
+	events: Date[];
+	labels: Map<string, Date>;
+	started?: Date;
+	note: string | null;
+}
+export declare function timelineEquals(a: Timeline, b: Timeline): boolean;
+export declare function timelineHashCode(value: Timeline): number;
+export declare function timelineClone(value: Timeline): Timeline;
+export declare const Timeline: {
+	readonly equals: typeof timelineEquals;
+	readonly hashCode: typeof timelineHashCode;
+	readonly clone: typeof timelineClone;
+};
+/** @derive(PartialEq, Hash, Clone) */
+export declare class Badge {
+	label: string;
+	static equals(a: Badge, b: Badge): boolean;
+	static hashCode(value: Badge): number;
+	static clone(value: Badge): Badge;
+}
+export declare function badgeEquals(a: Badge, b: Badge): boolean;
+export declare function badgeHashCode(value: Badge): number;
+export declare function badgeClone(value: Badge): Badge;
+/** @derive(PartialEq, Hash, Clone) */
+export interface Wall {
+	badges: Set<Badge>;
+	pinned: unknown;
+}
+export declare function wallEquals(a: Wall, b: Wall): boolean;
+export declare function wallHashCode(value: Wall): number;
+export declare function wallClone(value: Wall): Wall;
+export declare const Wall: {
+	readonly equals: typeof wallEquals;
+	readonly hashCode: typeof wallHashCode;
+	readonly clone: typeof wallClone;
+};
+/** @derive(PartialEq, Hash, Clone) */
+export type Shape = {
+	kind: "circle";
+	radius: number;
+} | {
+	kind: "square";
+	side: number;
+	at: Date;
+};
+export declare function shapeEquals(a: Shape, b: Shape): boolean;
+export declare function shapeHashCode(value: Shape): number;
+export declare function shapeClone(value: Shape): Shape;
+export declare const Shape: {
+	readonly equals: typeof shapeEquals;
+	readonly hashCode: typeof shapeHashCode;
+	readonly clone: typeof shapeClone;
+};
+/** @derive(PartialEq, Hash, Clone) */
+export type Moment = [label: string, at: Date];
+export declare function momentEquals(a: Moment, b: Moment): boolean;
+export declare function momentHashCode(value: Moment): number;
+export declare function momentClone(value: Moment): Moment;
+export declare const Moment: {
+	readonly equals: typeof momentEquals;
+	readonly hashCode: typeof momentHashCode;
+	readonly clone: typeof momentClone;
+};
+/** @derive(PartialEq, Hash, Clone) */
+export type Reading = string | number[];
+export declare function readingEquals(a: Reading, b: Reading): boolean;
+export declare function readingHashCode(value: Reading): number;
+export declare function readingClone(value: Reading): Reading;
+export declare const Reading: {
+	readonly equals: typeof readingEquals;
+	readonly hashCode: typeof readingHashCode;
+	readonly clone: typeof readingClone;
+};
+/** @derive(Debug) */
+export interface Inventory {
+	counts: Map<string, number>;
+	owner: {
+		name: string;
+	};
+	total: bigint;
+}
+export declare function inventoryToString(value: Inventory): string;
+export declare const Inventory: {
+	readonly toString: typeof inventoryToString;
+};
+/** @derive(Debug) */
+export type Amount = bigint | {
+	value: bigint;
+};
+export declare function amountToString(value: Amount): string;
+export declare const Amount: {
+	readonly toString: typeof amountToString;
+};
+/** @derive(Encode, Decode) */
+export declare class Ledger {
+	entries: Map<string, number>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: Ledger, keepMetadata?: boolean): string;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: Ledger, ctx: __mf_EncodeContext): Record<string, unknown>;
+	constructor(props: {
+		entries: Map<string, number>;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: Ledger;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Ledger | __mf_PendingRef;
+	static validateField<K extends keyof Ledger>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof Ledger]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is Ledger;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function ledgerEncode(value: Ledger, keepMetadata?: boolean): string;
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function ledgerEncodeWithContext(value: Ledger, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function ledgerDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Ledger;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function ledgerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Ledger | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function ledgerIs(value: unknown): value is Ledger;
+/** @derive(Encode, Decode) */
+export type LedgerPair = [Ledger, Ledger];
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function ledgerPairEncode(value: LedgerPair, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function ledgerPairEncodeWithContext(value: LedgerPair, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function ledgerPairDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: LedgerPair;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare function ledgerPairIs(value: unknown): value is LedgerPair;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function ledgerPairDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): LedgerPair;
+export declare function ledgerPairHasShape(value: unknown): boolean;
+export declare const LedgerPair: {
+	readonly encode: typeof ledgerPairEncode;
+	readonly encodeWithContext: typeof ledgerPairEncodeWithContext;
+	readonly decode: typeof ledgerPairDecode;
+	readonly is: typeof ledgerPairIs;
+	readonly decodeWithContext: typeof ledgerPairDecodeWithContext;
+	readonly hasShape: typeof ledgerPairHasShape;
+};
+/** @derive(Encode, Decode) */
+export type MainLedger = Ledger;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function mainLedgerEncode(value: MainLedger, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function mainLedgerEncodeWithContext(value: MainLedger, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function mainLedgerDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: MainLedger;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare function mainLedgerIs(value: unknown): value is MainLedger;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function mainLedgerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): MainLedger;
+export declare function mainLedgerHasShape(value: unknown): boolean;
+export declare const MainLedger: {
+	readonly encode: typeof mainLedgerEncode;
+	readonly encodeWithContext: typeof mainLedgerEncodeWithContext;
+	readonly decode: typeof mainLedgerDecode;
+	readonly is: typeof mainLedgerIs;
+	readonly decodeWithContext: typeof mainLedgerDecodeWithContext;
+	readonly hasShape: typeof mainLedgerHasShape;
+};
+/** @derive(Encode, Decode) */
+export type Totals = Map<string, number>;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function totalsEncode(value: Totals, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function totalsEncodeWithContext(value: Totals, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function totalsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Totals;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare function totalsIs(value: unknown): value is Totals;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function totalsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Totals;
+export declare function totalsHasShape(value: unknown): boolean;
+export declare const Totals: {
+	readonly encode: typeof totalsEncode;
+	readonly encodeWithContext: typeof totalsEncodeWithContext;
+	readonly decode: typeof totalsDecode;
+	readonly is: typeof totalsIs;
+	readonly decodeWithContext: typeof totalsDecodeWithContext;
+	readonly hasShape: typeof totalsHasShape;
+};
+/** @derive(Encode) */
+export type LedgerOrNote = Ledger | string;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function ledgerOrNoteEncode(value: LedgerOrNote, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function ledgerOrNoteEncodeWithContext(value: LedgerOrNote, ctx: __mf_EncodeContext): unknown;
+export declare const LedgerOrNote: {
+	readonly encode: typeof ledgerOrNoteEncode;
+	readonly encodeWithContext: typeof ledgerOrNoteEncodeWithContext;
+};
+/**
+* @derive(Encode)
+* @endec({ tag: "kind" })
+*/
+export type Tally = {
+	kind: "counts";
+	counts: Map<string, number>;
+} | {
+	kind: "note";
+	text: string;
+};
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function tallyEncode(value: Tally, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function tallyEncodeWithContext(value: Tally, ctx: __mf_EncodeContext): unknown;
+export declare const Tally: {
+	readonly encode: typeof tallyEncode;
+	readonly encodeWithContext: typeof tallyEncodeWithContext;
+};
+/** @derive(Default) */
+export declare class Shelf<T> {
+	items: T[];
+	label: string;
+	static defaultValue<T>(): Shelf<T>;
+}
+export declare function shelfDefaultValue<T>(): Shelf<T>;
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
+export interface Rank {
+	label: string;
+	at?: Date;
+	meta: {
+		tier: number;
+	};
+}
+export declare function rankEquals(a: Rank, b: Rank): boolean;
+export declare function rankPartialCompare(a: Rank, b: Rank): number | null;
+export declare function rankCompare(a: Rank, b: Rank): number;
+export declare const Rank: {
+	readonly equals: typeof rankEquals;
+	readonly partialCompare: typeof rankPartialCompare;
+	readonly compare: typeof rankCompare;
+};
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
+export type Choice = {
+	kind: "a";
+	count: number;
+} | {
+	kind: "b";
+	name: string;
+} | null;
+export declare function choiceEquals(a: Choice, b: Choice): boolean;
+export declare function choicePartialCompare(a: Choice, b: Choice): number | null;
+export declare function choiceCompare(a: Choice, b: Choice): number;
+export declare const Choice: {
+	readonly equals: typeof choiceEquals;
+	readonly partialCompare: typeof choicePartialCompare;
+	readonly compare: typeof choiceCompare;
+};
+/** @derive(PartialEq, Hash, Clone, Debug, Encode, Decode) */
+export interface Labeled<T extends string = string> {
+	label: T;
+	weight: number;
+}
+export declare function labeledEquals<T extends string = string>(a: Labeled<T>, b: Labeled<T>): boolean;
+export declare function labeledHashCode<T extends string = string>(value: Labeled<T>): number;
+export declare function labeledClone<T extends string = string>(value: Labeled<T>): Labeled<T>;
+export declare function labeledToString<T extends string = string>(value: Labeled<T>): string;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function labeledEncode<T extends string = string>(value: Labeled<T>, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function labeledEncodeWithContext<T extends string = string>(value: Labeled<T>, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function labeledDecode<T extends string = string>(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Labeled<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function labeledDecodeWithContext<T extends string = string>(value: unknown, ctx: __mf_DecodeContext): Labeled<T> | __mf_PendingRef;
+export declare function labeledValidateField<
+	T extends string = string,
+	K extends keyof Labeled<T> = keyof Labeled<T>
+>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function labeledValidateFields<T extends string = string>(partial: { readonly [K in keyof Labeled<T>]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function labeledHasShape(obj: unknown): boolean;
+export declare function labeledIs<T extends string = string>(obj: unknown): obj is Labeled<T>;
+export declare const Labeled: {
+	readonly equals: typeof labeledEquals;
+	readonly hashCode: typeof labeledHashCode;
+	readonly clone: typeof labeledClone;
+	readonly toString: typeof labeledToString;
+	readonly encode: typeof labeledEncode;
+	readonly encodeWithContext: typeof labeledEncodeWithContext;
+	readonly decode: typeof labeledDecode;
+	readonly decodeWithContext: typeof labeledDecodeWithContext;
+	readonly validateField: typeof labeledValidateField;
+	readonly validateFields: typeof labeledValidateFields;
+	readonly hasShape: typeof labeledHasShape;
+	readonly is: typeof labeledIs;
+};
+/** @derive(Default) */
+export declare class Crate<T extends object> {
+	items: T[];
+	static defaultValue<T extends object>(): Crate<T>;
+}
+export declare function crateDefaultValue<T extends object>(): Crate<T>;
+/** @derive(PartialEq, Eq, Hash, Clone, Debug, PartialOrd, Ord, Encode, Decode) */
+export interface Keyed<K extends string> {
+	key: K;
+	rank: number;
+}
+export declare function keyedEquals<K extends string>(a: Keyed<K>, b: Keyed<K>): boolean;
+export declare function keyedHashCode<K extends string>(value: Keyed<K>): number;
+export declare function keyedClone<K extends string>(value: Keyed<K>): Keyed<K>;
+export declare function keyedToString<K extends string>(value: Keyed<K>): string;
+export declare function keyedPartialCompare<K extends string>(a: Keyed<K>, b: Keyed<K>): number | null;
+export declare function keyedCompare<K extends string>(a: Keyed<K>, b: Keyed<K>): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function keyedEncode<K extends string>(value: Keyed<K>, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function keyedEncodeWithContext<K extends string>(value: Keyed<K>, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function keyedDecode<K extends string>(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Keyed<K>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function keyedDecodeWithContext<K extends string>(value: unknown, ctx: __mf_DecodeContext): Keyed<K> | __mf_PendingRef;
+export declare function keyedValidateField<
+	K extends string,
+	K1 extends keyof Keyed<K> = keyof Keyed<K>
+>(field: K1, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function keyedValidateFields<K extends string>(partial: { readonly [K1 in keyof Keyed<K>]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function keyedHasShape(obj: unknown): boolean;
+export declare function keyedIs<K extends string>(obj: unknown): obj is Keyed<K>;
+export declare const Keyed: {
+	readonly equals: typeof keyedEquals;
+	readonly hashCode: typeof keyedHashCode;
+	readonly clone: typeof keyedClone;
+	readonly toString: typeof keyedToString;
+	readonly partialCompare: typeof keyedPartialCompare;
+	readonly compare: typeof keyedCompare;
+	readonly encode: typeof keyedEncode;
+	readonly encodeWithContext: typeof keyedEncodeWithContext;
+	readonly decode: typeof keyedDecode;
+	readonly decodeWithContext: typeof keyedDecodeWithContext;
+	readonly validateField: typeof keyedValidateField;
+	readonly validateFields: typeof keyedValidateFields;
+	readonly hasShape: typeof keyedHasShape;
+	readonly is: typeof keyedIs;
+};
+/** @derive(PartialEq, Eq, Hash, Clone, Debug, PartialOrd, Ord, Encode, Decode) */
+export declare class Slot<T extends object> {
+	held: T | null;
+	index: number;
+	static equals<T extends object>(a: Slot<T>, b: Slot<T>): boolean;
+	static hashCode<T extends object>(value: Slot<T>): number;
+	static clone<T extends object>(value: Slot<T>): Slot<T>;
+	static toString<T extends object>(value: Slot<T>): string;
+	static partialCompare<T extends object>(a: Slot<T>, b: Slot<T>): number | null;
+	static compare<T extends object>(a: Slot<T>, b: Slot<T>): number;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode<T extends object>(value: Slot<T>, keepMetadata?: boolean): string;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext<T extends object>(value: Slot<T>, ctx: __mf_EncodeContext): Record<string, unknown>;
+	constructor(props: {
+		held: T | null;
+		index: number;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode<T extends object>(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: Slot<T>;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext): Slot<T> | __mf_PendingRef;
+	static validateField<
+		T extends object,
+		K extends keyof Slot<T> = keyof Slot<T>
+	>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields<T extends object>(partial: { readonly [K in keyof Slot<T>]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is<T extends object>(obj: unknown): obj is Slot<T>;
+}
+export declare function slotEquals<T extends object>(a: Slot<T>, b: Slot<T>): boolean;
+export declare function slotHashCode<T extends object>(value: Slot<T>): number;
+export declare function slotClone<T extends object>(value: Slot<T>): Slot<T>;
+export declare function slotToString<T extends object>(value: Slot<T>): string;
+export declare function slotPartialCompare<T extends object>(a: Slot<T>, b: Slot<T>): number | null;
+export declare function slotCompare<T extends object>(a: Slot<T>, b: Slot<T>): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function slotEncode<T extends object>(value: Slot<T>, keepMetadata?: boolean): string;
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function slotEncodeWithContext<T extends object>(value: Slot<T>, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function slotDecode<T extends object>(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Slot<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function slotDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext): Slot<T> | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function slotIs<T extends object>(value: unknown): value is Slot<T>;
+/** @derive(Encode, Decode) */
+export type Counted<T extends object> = [T, number];
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function countedEncode<T extends object>(value: Counted<T>, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function countedEncodeWithContext<T extends object>(value: Counted<T>, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function countedDecode<T extends object>(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Counted<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare function countedIs<T extends object>(value: unknown): value is Counted<T>;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function countedDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext): Counted<T>;
+export declare function countedHasShape(value: unknown): boolean;
+export declare const Counted: {
+	readonly encode: typeof countedEncode;
+	readonly encodeWithContext: typeof countedEncodeWithContext;
+	readonly decode: typeof countedDecode;
+	readonly is: typeof countedIs;
+	readonly decodeWithContext: typeof countedDecodeWithContext;
+	readonly hasShape: typeof countedHasShape;
+};
+/** @derive(Encode, Decode) */
+export type Code<T extends string> = T | number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function codeEncode<T extends string>(value: Code<T>, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function codeEncodeWithContext<T extends string>(value: Code<T>, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function codeDecode<T extends string>(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Code<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function codeDecodeWithContext<T extends string>(value: unknown, ctx: __mf_DecodeContext): Code<T> | __mf_PendingRef;
+export declare function codeHasShape(value: unknown): boolean;
+export declare function codeIs<T extends string>(value: unknown): value is Code<T>;
+export declare const Code: {
+	readonly encode: typeof codeEncode;
+	readonly encodeWithContext: typeof codeEncodeWithContext;
+	readonly decode: typeof codeDecode;
+	readonly decodeWithContext: typeof codeDecodeWithContext;
+	readonly hasShape: typeof codeHasShape;
+	readonly is: typeof codeIs;
+};
+/** @derive(Encode, Decode) */
+export type Boxed<T extends object> = Array<T>;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function boxedEncode<T extends object>(value: Boxed<T>, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function boxedEncodeWithContext<T extends object>(value: Boxed<T>, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function boxedDecode<T extends object>(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Boxed<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare function boxedIs<T extends object>(value: unknown): value is Boxed<T>;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function boxedDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext): Boxed<T>;
+export declare function boxedHasShape(value: unknown): boolean;
+export declare const Boxed: {
+	readonly encode: typeof boxedEncode;
+	readonly encodeWithContext: typeof boxedEncodeWithContext;
+	readonly decode: typeof boxedDecode;
+	readonly is: typeof boxedIs;
+	readonly decodeWithContext: typeof boxedDecodeWithContext;
+	readonly hasShape: typeof boxedHasShape;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..349 -> expanded 556..905
+original 349..435 -> expanded 3011..3097
+original 435..436 -> expanded 3356..3357
+original 436..547 -> expanded 3854..3965
+original 547..698 -> expanded 4972..5123
+original 698..786 -> expanded 5665..5753
+original 786..867 -> expanded 6447..6528
+original 867..1002 -> expanded 7100..7235
+original 1002..1074 -> expanded 7675..7747
+original 1074..1175 -> expanded 7968..8069
+original 1175..1176 -> expanded 13080..13081
+original 1176..1251 -> expanded 15255..15330
+original 1251..1316 -> expanded 21734..21799
+original 1316..1390 -> expanded 26201..26275
+original 1390..1458 -> expanded 30236..30304
+original 1458..1625 -> expanded 31866..32033
+original 1625..1720 -> expanded 34146..34241
+original 1720..1721 -> expanded 34440..34441
+original 1721..1857 -> expanded 34531..34667
+original 1857..1993 -> expanded 36312..36448
+original 1993..2146 -> expanded 37069..37222
+original 2146..2232 -> expanded 44658..44744
+original 2232..2233 -> expanded 44929..44930
+original 2233..2392 -> expanded 45035..45194
+original 2392..2565 -> expanded 53229..53402
+original 2565..2566 -> expanded 59602..59603
+original 2566..2651 -> expanded 63722..63807
+original 2651..2732 -> expanded 69263..69344
+original 2732..2812 -> expanded 73634..73714
+original 2812..2813 -> expanded 78308..78309
+generated 0..556 <- imports
+generated 905..1632 <- PartialEq
+generated 1632..2302 <- Hash
+generated 2302..2769 <- Clone
+generated 2769..3011 <- __convenience_const
+generated 3097..3187 <- PartialEq
+generated 3187..3275 <- Hash
+generated 3275..3356 <- Clone
+generated 3357..3481 <- PartialEq
+generated 3481..3686 <- Hash
+generated 3686..3854 <- Clone
+generated 3965..4284 <- PartialEq
+generated 4284..4568 <- Hash
+generated 4568..4758 <- Clone
+generated 4758..4972 <- __convenience_const
+generated 5123..5255 <- PartialEq
+generated 5255..5351 <- Hash
+generated 5351..5444 <- Clone
+generated 5444..5665 <- __convenience_const
+generated 5753..5911 <- PartialEq
+generated 5911..6110 <- Hash
+generated 6110..6219 <- Clone
+generated 6219..6447 <- __convenience_const
+generated 6528..6666 <- PartialEq
+generated 6666..6766 <- Hash
+generated 6766..6865 <- Clone
+generated 6865..7100 <- __convenience_const
+generated 7235..7562 <- Debug
+generated 7562..7675 <- __convenience_const
+generated 7747..7864 <- Debug
+generated 7864..7968 <- __convenience_const
+generated 8069..8700 <- Encode
+generated 8700..13080 <- Decode
+generated 13081..14219 <- Encode
+generated 14219..15255 <- Decode
+generated 15330..16683 <- Encode
+generated 16683..21186 <- Decode
+generated 21186..21734 <- __convenience_const
+generated 21799..22802 <- Encode
+generated 22802..25653 <- Decode
+generated 25653..26201 <- __convenience_const
+generated 26275..27336 <- Encode
+generated 27336..29740 <- Decode
+generated 29740..30236 <- __convenience_const
+generated 30304..31632 <- Encode
+generated 31632..31866 <- __convenience_const
+generated 32033..33947 <- Encode
+generated 33947..34146 <- __convenience_const
+generated 34241..34440 <- Default
+generated 34441..34531 <- Default
+generated 34667..34915 <- PartialEq
+generated 34915..35576 <- PartialOrd
+generated 35576..36066 <- Ord
+generated 36066..36312 <- __convenience_const
+generated 36448..36583 <- PartialEq
+generated 36583..36703 <- PartialOrd
+generated 36703..36809 <- Ord
+generated 36809..37069 <- __convenience_const
+generated 37222..37430 <- PartialEq
+generated 37430..37790 <- Hash
+generated 37790..37965 <- Clone
+generated 37965..38253 <- Debug
+generated 38253..39450 <- Encode
+generated 39450..43681 <- Decode
+generated 43681..44658 <- __convenience_const
+generated 44744..44929 <- Default
+generated 44930..45035 <- Default
+generated 45194..45379 <- PartialEq
+generated 45379..45718 <- Hash
+generated 45718..45870 <- Clone
+generated 45870..46135 <- Debug
+generated 46135..46563 <- PartialOrd
+generated 46563..46876 <- Ord
+generated 46876..48035 <- Encode
+generated 48035..52142 <- Decode
+generated 52142..53229 <- __convenience_const
+generated 53402..53513 <- PartialEq
+generated 53513..53620 <- Hash
+generated 53620..53722 <- Clone
+generated 53722..53829 <- Debug
+generated 53829..53962 <- PartialOrd
+generated 53962..54074 <- Ord
+generated 54074..54739 <- Encode
+generated 54739..59602 <- Decode
+generated 59603..59789 <- PartialEq
+generated 59789..60130 <- Hash
+generated 60130..60371 <- Clone
+generated 60371..60637 <- Debug
+generated 60637..61070 <- PartialOrd
+generated 61070..61386 <- Ord
+generated 61386..62632 <- Encode
+generated 62632..63722 <- Decode
+generated 63807..65205 <- Encode
+generated 65205..68754 <- Decode
+generated 68754..69263 <- __convenience_const
+generated 69344..70674 <- Encode
+generated 70674..73164 <- Decode
+generated 73164..73634 <- __convenience_const
+generated 73714..74790 <- Encode
+generated 74790..77825 <- Decode
+generated 77825..78308 <- __convenience_const
+
+## Metadata
+
+class Badge: {"body_span":{"end":437,"start":410},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":390,"start":352}}],"fields":[{"decorators":[],"initializer":"''","name":"label","optional":false,"readonly":false,"span":{"end":435,"start":416},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Badge","span":{"end":437,"start":398},"type_params":[]}
+class Ledger: {"body_span":{"end":1177,"start":1128},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1107,"start":1077}}],"fields":[{"decorators":[],"initializer":"new Map()","name":"entries","optional":false,"readonly":false,"span":{"end":1175,"start":1134},"ts_type":"Map<string, number>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Ledger","span":{"end":1177,"start":1115},"type_params":[]}
+class Shelf: {"body_span":{"end":1722,"start":1674},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":1651,"start":1628}}],"fields":[{"decorators":[],"initializer":"[]","name":"items","optional":false,"readonly":false,"span":{"end":1696,"start":1680},"ts_type":"T[]","visibility":"Public"},{"decorators":[],"initializer":"''","name":"label","optional":false,"readonly":false,"span":{"end":1720,"start":1701},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Shelf","span":{"end":1722,"start":1659},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+class Crate: {"body_span":{"end":2234,"start":2210},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":2172,"start":2149}}],"fields":[{"decorators":[],"initializer":"[]","name":"items","optional":false,"readonly":false,"span":{"end":2232,"start":2216},"ts_type":"T[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Crate","span":{"end":2234,"start":2180},"type_params":[{"constraint":"object","default":null,"is_const":false,"name":"T"}]}
+class Slot: {"body_span":{"end":2567,"start":2514},"decorators":[{"args_src":"PartialEq, Eq, Hash, Clone, Debug, PartialOrd, Ord, Encode, Decode","name":"Derive","span":{"end":2477,"start":2395}}],"fields":[{"decorators":[],"initializer":"null","name":"held","optional":false,"readonly":false,"span":{"end":2542,"start":2520},"ts_type":"T | null","visibility":"Public"},{"decorators":[],"initializer":"0","name":"index","optional":false,"readonly":false,"span":{"end":2565,"start":2547},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Slot","span":{"end":2567,"start":2485},"type_params":[{"constraint":"object","default":null,"is_const":false,"name":"T"}]}
+interface Timeline: {"body_span":{"end":350,"start":251},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":224,"start":186}}],"fields":[{"decorators":[],"name":"events","optional":false,"readonly":false,"span":{"end":272,"start":257},"ts_type":"Date[]"},{"decorators":[],"name":"labels","optional":false,"readonly":false,"span":{"end":303,"start":277},"ts_type":"Map<string, Date>"},{"decorators":[],"name":"started","optional":true,"readonly":false,"span":{"end":323,"start":308},"ts_type":"Date"},{"decorators":[],"name":"note","optional":false,"readonly":false,"span":{"end":348,"start":328},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Timeline","span":{"end":350,"start":232},"type_params":[]}
+interface Wall: {"body_span":{"end":548,"start":500},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":477,"start":439}}],"fields":[{"decorators":[],"name":"badges","optional":false,"readonly":false,"span":{"end":525,"start":506},"ts_type":"Set<Badge>"},{"decorators":[],"name":"pinned","optional":false,"readonly":false,"span":{"end":546,"start":530},"ts_type":"unknown"}],"heritage":[],"methods":[],"name":"Wall","span":{"end":548,"start":485},"type_params":[]}
+interface Inventory: {"body_span":{"end":1003,"start":919},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":891,"start":870}}],"fields":[{"decorators":[],"name":"counts","optional":false,"readonly":false,"span":{"end":953,"start":925},"ts_type":"Map<string, number>"},{"decorators":[],"name":"owner","optional":false,"readonly":false,"span":{"end":982,"start":958},"ts_type":"{ name: string }"},{"decorators":[],"name":"total","optional":false,"readonly":false,"span":{"end":1001,"start":987},"ts_type":"bigint"}],"heritage":[],"methods":[],"name":"Inventory","span":{"end":1003,"start":899},"type_params":[]}
+interface Rank: {"body_span":{"end":1858,"start":1793},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":1770,"start":1724}}],"fields":[{"decorators":[],"name":"label","optional":false,"readonly":false,"span":{"end":1813,"start":1799},"ts_type":"string"},{"decorators":[],"name":"at","optional":true,"readonly":false,"span":{"end":1828,"start":1818},"ts_type":"Date"},{"decorators":[],"name":"meta","optional":false,"readonly":false,"span":{"end":1856,"start":1833},"ts_type":"{ tier: number }"}],"heritage":[],"methods":[],"name":"Rank","span":{"end":1858,"start":1778},"type_params":[]}
+interface Labeled: {"body_span":{"end":2147,"start":2110},"decorators":[{"args_src":"PartialEq, Hash, Clone, Debug, Encode, Decode","name":"Derive","span":{"end":2057,"start":1996}}],"fields":[{"decorators":[],"name":"label","optional":false,"readonly":false,"span":{"end":2125,"start":2116},"ts_type":"T"},{"decorators":[],"name":"weight","optional":false,"readonly":false,"span":{"end":2145,"start":2130},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Labeled","span":{"end":2147,"start":2065},"type_params":[{"constraint":"string","default":"string","is_const":false,"name":"T"}]}
+interface Keyed: {"body_span":{"end":2393,"start":2360},"decorators":[{"args_src":"PartialEq, Eq, Hash, Clone, Debug, PartialOrd, Ord, Encode, Decode","name":"Derive","span":{"end":2318,"start":2236}}],"fields":[{"decorators":[],"name":"key","optional":false,"readonly":false,"span":{"end":2373,"start":2366},"ts_type":"K"},{"decorators":[],"name":"rank","optional":false,"readonly":false,"span":{"end":2391,"start":2378},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Keyed","span":{"end":2393,"start":2326},"type_params":[{"constraint":"string","default":null,"is_const":false,"name":"K"}]}
+type Shape: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":632,"start":617},"ts_type":"'circle'"},{"decorators":[],"name":"radius","optional":false,"readonly":false,"span":{"end":647,"start":633},"ts_type":"number"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":673,"start":658},"ts_type":"'square'"},{"decorators":[],"name":"side","optional":false,"readonly":false,"span":{"end":687,"start":674},"ts_type":"number"},{"decorators":[],"name":"at","optional":false,"readonly":false,"span":{"end":696,"start":688},"ts_type":"Date"}]}}}]},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":588,"start":550}}],"name":"Shape","span":{"end":699,"start":596},"type_params":[]}
+type Moment: {"body":{"Tuple":["label: string","at: Date"]},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":739,"start":701}}],"name":"Moment","span":{"end":787,"start":747},"type_params":[]}
+type Reading: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"TypeRef":"number[]"}}]},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":827,"start":789}}],"name":"Reading","span":{"end":868,"start":835},"type_params":[]}
+type Amount: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"bigint"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":1072,"start":1059},"ts_type":"bigint"}]}}}]},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":1026,"start":1005}}],"name":"Amount","span":{"end":1075,"start":1034},"type_params":[]}
+type LedgerPair: {"body":{"Tuple":["Ledger","Ledger"]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1209,"start":1179}}],"name":"LedgerPair","span":{"end":1252,"start":1217},"type_params":[]}
+type MainLedger: {"body":{"Alias":"Ledger"},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1284,"start":1254}}],"name":"MainLedger","span":{"end":1317,"start":1292},"type_params":[]}
+type Totals: {"body":{"Alias":"Map<string, number>"},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1349,"start":1319}}],"name":"Totals","span":{"end":1391,"start":1357},"type_params":[]}
+type LedgerOrNote: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"Ledger"}},{"decorators":[],"kind":{"TypeRef":"string"}}]},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":1415,"start":1393}}],"name":"LedgerOrNote","span":{"end":1459,"start":1423},"type_params":[]}
+type Tally: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":1558,"start":1543},"ts_type":"'counts'"},{"decorators":[],"name":"counts","optional":false,"readonly":false,"span":{"end":1586,"start":1559},"ts_type":"Map<string, number>"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":1610,"start":1597},"ts_type":"'note'"},{"decorators":[],"name":"text","optional":false,"readonly":false,"span":{"end":1623,"start":1611},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":1514,"start":1461}},{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":1514,"start":1461}}],"name":"Tally","span":{"end":1626,"start":1522},"type_params":[]}
+type Choice: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":1940,"start":1930},"ts_type":"'a'"},{"decorators":[],"name":"count","optional":false,"readonly":false,"span":{"end":1954,"start":1941},"ts_type":"number"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":1971,"start":1961},"ts_type":"'b'"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":1984,"start":1972},"ts_type":"string"}]}}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":1906,"start":1860}}],"name":"Choice","span":{"end":1994,"start":1914},"type_params":[]}
+type Counted: {"body":{"Tuple":["T","number"]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2599,"start":2569}}],"name":"Counted","span":{"end":2652,"start":2607},"type_params":[{"constraint":"object","default":null,"is_const":false,"name":"T"}]}
+type Code: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"T"}},{"decorators":[],"kind":{"TypeRef":"number"}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2684,"start":2654}}],"name":"Code","span":{"end":2733,"start":2692},"type_params":[{"constraint":"string","default":null,"is_const":false,"name":"T"}]}
+type Boxed: {"body":{"Alias":"Array<T>"},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2765,"start":2735}}],"name":"Boxed","span":{"end":2813,"start":2773},"type_params":[{"constraint":"object","default":null,"is_const":false,"name":"T"}]}
+
+## Registry reads
+
+Name("Amount")
+Name("Array")
+Name("Array<T>")
+Name("Badge")
+Name("Boxed")
+Name("Choice")
+Name("Code")
+Name("Counted")
+Name("K")
+Name("Ledger")
+Name("LedgerOrNote")
+Name("LedgerPair")
+Name("MainLedger")
+Name("Map")
+Name("Map<string, number>")
+Name("Moment")
+Name("Reading")
+Name("Shape")
+Name("T")
+Name("Tally")
+Name("Totals")
+Name("bigint")
+Name("null")
+Name("number")
+Name("number[]")
+Name("string")
+Name("{ name: string }")
+Name("{ tier: number }")
+
+## Buildtime dependencies
+
+(none)

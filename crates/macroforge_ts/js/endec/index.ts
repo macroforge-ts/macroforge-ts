@@ -444,6 +444,39 @@ export class DecodeError extends Error {
 }
 
 /**
+ * The value a literal default decodes to, for a field whose type validates
+ * its values, such as a newtype. A literal its own type rejects is a broken
+ * declaration, so it throws rather than yield a default that is invalid.
+ */
+export function decodedLiteral<T>(
+  decoded:
+    | { success: true; value: T }
+    | { success: false; errors: Array<FieldError> },
+): T {
+  if (decoded.success) return decoded.value;
+  throw new DecodeError(decoded.errors);
+}
+
+/**
+ * The static `encodeWithContext` of the class `value` is an instance of, when
+ * that class derives `Encode`. Only the class's own static counts, so a
+ * subclass that does not derive `Encode` is not encoded as its parent.
+ */
+export function derivedEncoder(
+  value: unknown,
+): ((value: unknown, ctx: EncodeContext) => unknown) | undefined {
+  if (typeof value !== "object" || value === null) return undefined;
+  const constructor: unknown = value.constructor;
+  if (typeof constructor !== "function") return undefined;
+  if (!Object.prototype.hasOwnProperty.call(constructor, "encodeWithContext")) {
+    return undefined;
+  }
+  const encoder: unknown = Reflect.get(constructor, "encodeWithContext");
+  if (typeof encoder !== "function") return undefined;
+  return (item, ctx) => encoder(item, ctx);
+}
+
+/**
  * Whether `value` is a multiple of `divisor`, the `multipleOf(n)` validator's
  * check. Decimal operands are compared exactly, so `0.3` is a multiple of
  * `0.1`; a value that is not finite is never a multiple. Matches Effect's

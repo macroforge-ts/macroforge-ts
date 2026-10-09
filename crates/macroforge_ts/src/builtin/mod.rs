@@ -17,14 +17,15 @@
 //! | Macro | Generated Method | Description |
 //! |-------|------------------|-------------|
 //! | `PartialEq` | `static equals(a, b): boolean` | Field-by-field equality comparison |
+//! | `Eq` | None | Marks `PartialEq` equality as total, as Rust's `Eq`; requires `PartialEq` |
 //! | `Hash` | `static hashCode(value): number` | Hash code generation for collections |
 //!
 //! ### Ordering
 //!
 //! | Macro | Generated Method | Description |
 //! |-------|------------------|-------------|
-//! | `PartialOrd` | `static compareTo(a, b): number \| null` | Partial ordering (can return null) |
-//! | `Ord` | `static compareTo(a, b): number` | Total ordering (never null) |
+//! | `PartialOrd` | `static partialCompare(a, b): number \| null` | Partial ordering (can return null); requires `PartialEq` |
+//! | `Ord` | `static compare(a, b): number` | Total ordering (never null); requires `Eq` and `PartialOrd` |
 //!
 //! ### Cloning & Debugging
 //!
@@ -91,32 +92,9 @@
 //! }
 //! ```
 
-/// Clone macro implementation (deep copy).
-pub mod derive_clone;
-
-/// Shared utilities for comparison macros.
-pub mod derive_common;
-
-/// Debug macro implementation (toString).
-mod derive_debug;
-
-/// Default macro implementation (factory method).
-mod derive_default;
-
-/// Hash macro implementation (hashCode).
-pub mod derive_hash;
-
-/// Ord macro implementation (total ordering).
-mod derive_ord;
-
-/// PartialEq macro implementation (equals).
-pub mod derive_partial_eq;
-
-/// PartialOrd macro implementation (partial ordering).
-mod derive_partial_ord;
-
-/// Encoding macros (Encode, Decode).
-pub mod endec;
+/// The derive macros: equality, ordering, hashing, cloning, debugging,
+/// defaults and encoding.
+pub mod derive;
 
 /// `$Newtype<T>` type-position macro (nominal symbol brands).
 pub mod newtype;

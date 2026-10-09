@@ -1,0 +1,1432 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/user.svelte.ts
+sha256 6754201e94a38953f6178b6577e41ae82bf6c68aabaf59f9af02bd2549b14ccc
+
+## Changed
+
+true
+
+## Output
+
+import { appPermissionsDecodeWithContext, appPermissionsEncodeWithContext, appPermissionsDefaultValue } from "./app-permissions.svelte";
+import { settingsDecodeWithContext, settingsEncodeWithContext, settingsDefaultValue } from "./settings.svelte";
+import { userRoleDecodeWithContext, userRoleEncodeWithContext } from "./user-role.svelte";
+import { __foreign__optionOptionDefault, __foreign__dateTimeDateTimeDefault, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionDecode, __foreign__dateTimeDateTimeDecode } from "#macroforge/config";
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+import { type DateTime, Option } from 'effect';
+import type { AppPermissions } from './app-permissions.svelte';
+import type { Metadata } from './metadata.svelte';
+import type { Settings } from './settings.svelte';
+import type { UserRole } from './user-role.svelte';
+
+
+export interface User {
+    id: string;
+    email: Option.Option<string>;
+    
+    firstName: string;
+    
+    lastName: string;
+    password: Option.Option<string>;
+    metadata: Option.Option<Metadata>;
+    settings: Settings;
+    
+    role: UserRole;
+    emailVerified: boolean;
+    verificationToken: Option.Option<string>;
+    verificationExpires: Option.Option<DateTime.DateTime>;
+    passwordResetToken: Option.Option<string>;
+    passwordResetExpires: Option.Option<DateTime.DateTime>;
+    permissions: AppPermissions;
+    createdAt: DateTime.DateTime;
+    lastLoginAt: Option.Option<DateTime.DateTime>;
+}
+
+export function userDefaultValue(): User {
+    return {
+        id: "",
+        email: __foreign__optionOptionDefault(),
+        firstName: "",
+        lastName: "",
+        password: __foreign__optionOptionDefault(),
+        metadata: __foreign__optionOptionDefault(),
+        settings: settingsDefaultValue(),
+        role: "Administrator",
+        emailVerified: false,
+        verificationToken: __foreign__optionOptionDefault(),
+        verificationExpires: __foreign__optionOptionDefault(),
+        passwordResetToken: __foreign__optionOptionDefault(),
+        passwordResetExpires: __foreign__optionOptionDefault(),
+        permissions: appPermissionsDefaultValue(),
+        createdAt: __foreign__dateTimeDateTimeDefault(),
+        lastLoginAt: __foreign__optionOptionDefault(),
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function userEncode(value: User, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = userEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "User",
+        __id,
+    };
+
+    
+    result.id = value.id;
+    result.email = __foreign__optionOptionEncode(value.email);
+    result.firstName = value.firstName;
+    result.lastName = value.lastName;
+    result.password = __foreign__optionOptionEncode(value.password);
+    result.metadata = __foreign__optionOptionEncode(value.metadata);
+    result.settings = settingsEncodeWithContext(value.settings, ctx);
+    result.role = userRoleEncodeWithContext(value.role, ctx);
+    result.emailVerified = value.emailVerified;
+    result.verificationToken = __foreign__optionOptionEncode(value.verificationToken);
+    result.verificationExpires = __foreign__optionOptionEncode(value.verificationExpires);
+    result.passwordResetToken = __foreign__optionOptionEncode(value.passwordResetToken);
+    result.passwordResetExpires = __foreign__optionOptionEncode(value.passwordResetExpires);
+    result.permissions = appPermissionsEncodeWithContext(value.permissions, ctx);
+    result.createdAt = __foreign__dateTimeDateTimeEncode(value.createdAt);
+    result.lastLoginAt = __foreign__optionOptionEncode(value.lastLoginAt);
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function userDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = userDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "User.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): User | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "User.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as User | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "User.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+    if (!("email" in obj)) {
+        errors.push({ field: "email", message: "missing required field" });
+    }
+    if (!("firstName" in obj)) {
+        errors.push({ field: "firstName", message: "missing required field" });
+    }
+    if (!("lastName" in obj)) {
+        errors.push({ field: "lastName", message: "missing required field" });
+    }
+    if (!("password" in obj)) {
+        errors.push({ field: "password", message: "missing required field" });
+    }
+    if (!("metadata" in obj)) {
+        errors.push({ field: "metadata", message: "missing required field" });
+    }
+    if (!("settings" in obj)) {
+        errors.push({ field: "settings", message: "missing required field" });
+    }
+    if (!("role" in obj)) {
+        errors.push({ field: "role", message: "missing required field" });
+    }
+    if (!("emailVerified" in obj)) {
+        errors.push({ field: "emailVerified", message: "missing required field" });
+    }
+    if (!("verificationToken" in obj)) {
+        errors.push({ field: "verificationToken", message: "missing required field" });
+    }
+    if (!("verificationExpires" in obj)) {
+        errors.push({ field: "verificationExpires", message: "missing required field" });
+    }
+    if (!("passwordResetToken" in obj)) {
+        errors.push({ field: "passwordResetToken", message: "missing required field" });
+    }
+    if (!("passwordResetExpires" in obj)) {
+        errors.push({ field: "passwordResetExpires", message: "missing required field" });
+    }
+    if (!("permissions" in obj)) {
+        errors.push({ field: "permissions", message: "missing required field" });
+    }
+    if (!("createdAt" in obj)) {
+        errors.push({ field: "createdAt", message: "missing required field" });
+    }
+    if (!("lastLoginAt" in obj)) {
+        errors.push({ field: "lastLoginAt", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_id = obj["id"] as string;
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "User.id is required" : "expected string" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    try {
+        instance.email = __foreign__optionOptionDecode(obj["email"]);
+    } catch (__error) {
+        errors.push({ field: "email", message: __error instanceof Error ? __error.message : String(__error) });
+    }
+    {
+        const __raw_firstName = obj["firstName"] as string;
+
+        if (!(typeof __raw_firstName === "string")) {
+            errors.push({ field: "firstName", message: __raw_firstName == null ? "User.firstName is required" : "expected string" });
+        } else {
+            if (__raw_firstName == null) { errors.push({ field: "firstName", message: "User.firstName is required" }); } else {
+                if (__raw_firstName.length === 0) { errors.push({ field: "firstName", message: "User.firstName must not be empty" }); }
+            }
+            instance.firstName = __raw_firstName;
+        }
+    }
+    {
+        const __raw_lastName = obj["lastName"] as string;
+
+        if (!(typeof __raw_lastName === "string")) {
+            errors.push({ field: "lastName", message: __raw_lastName == null ? "User.lastName is required" : "expected string" });
+        } else {
+            if (__raw_lastName == null) { errors.push({ field: "lastName", message: "User.lastName is required" }); } else {
+                if (__raw_lastName.length === 0) { errors.push({ field: "lastName", message: "User.lastName must not be empty" }); }
+            }
+            instance.lastName = __raw_lastName;
+        }
+    }
+    try {
+        instance.password = __foreign__optionOptionDecode(obj["password"]);
+    } catch (__error) {
+        errors.push({ field: "password", message: __error instanceof Error ? __error.message : String(__error) });
+    }
+    try {
+        instance.metadata = __foreign__optionOptionDecode(obj["metadata"]);
+    } catch (__error) {
+        errors.push({ field: "metadata", message: __error instanceof Error ? __error.message : String(__error) });
+    }
+    {
+        const __raw_settings = obj["settings"] as Settings;
+
+        ctx.pushScope("settings");
+        try {
+            const __result = settingsDecodeWithContext(__raw_settings, ctx);
+            ctx.assignOrDefer(instance, "settings", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "settings" : "settings." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_role = obj["role"] as UserRole;
+
+        ctx.pushScope("role");
+        try {
+            const __result = userRoleDecodeWithContext(__raw_role, ctx);
+            ctx.assignOrDefer(instance, "role", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "role" : "role." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_emailVerified = obj["emailVerified"] as boolean;
+
+        if (!(typeof __raw_emailVerified === "boolean")) {
+            errors.push({ field: "emailVerified", message: __raw_emailVerified == null ? "User.emailVerified is required" : "expected boolean" });
+        } else {
+            instance.emailVerified = __raw_emailVerified;
+        }
+    }
+    try {
+        instance.verificationToken = __foreign__optionOptionDecode(obj["verificationToken"]);
+    } catch (__error) {
+        errors.push({ field: "verificationToken", message: __error instanceof Error ? __error.message : String(__error) });
+    }
+    try {
+        instance.verificationExpires = __foreign__optionOptionDecode(obj["verificationExpires"]);
+    } catch (__error) {
+        errors.push({ field: "verificationExpires", message: __error instanceof Error ? __error.message : String(__error) });
+    }
+    try {
+        instance.passwordResetToken = __foreign__optionOptionDecode(obj["passwordResetToken"]);
+    } catch (__error) {
+        errors.push({ field: "passwordResetToken", message: __error instanceof Error ? __error.message : String(__error) });
+    }
+    try {
+        instance.passwordResetExpires = __foreign__optionOptionDecode(obj["passwordResetExpires"]);
+    } catch (__error) {
+        errors.push({ field: "passwordResetExpires", message: __error instanceof Error ? __error.message : String(__error) });
+    }
+    {
+        const __raw_permissions = obj["permissions"] as AppPermissions;
+
+        ctx.pushScope("permissions");
+        try {
+            const __result = appPermissionsDecodeWithContext(__raw_permissions, ctx);
+            ctx.assignOrDefer(instance, "permissions", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "permissions" : "permissions." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    try {
+        instance.createdAt = __foreign__dateTimeDateTimeDecode(obj["createdAt"]);
+    } catch (__error) {
+        errors.push({ field: "createdAt", message: __error instanceof Error ? __error.message : String(__error) });
+    }
+    try {
+        instance.lastLoginAt = __foreign__optionOptionDecode(obj["lastLoginAt"]);
+    } catch (__error) {
+        errors.push({ field: "lastLoginAt", message: __error instanceof Error ? __error.message : String(__error) });
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as User;
+}
+export function userValidateField<K extends keyof User>(field: K, value: unknown): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if (field === "firstName") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "firstName", message: "User.firstName is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "firstName", message: "User.firstName must not be empty" }); }
+        }
+    }
+    if (field === "lastName") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "lastName", message: "User.lastName is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "lastName", message: "User.lastName must not be empty" }); }
+        }
+    }
+    return errors;
+}
+
+export function userValidateFields(partial: { readonly [K in keyof User]?: unknown }): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("firstName" in partial && partial.firstName !== undefined) {
+        const __val = partial.firstName as string;
+        if (__val == null) { errors.push({ field: "firstName", message: "User.firstName is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "firstName", message: "User.firstName must not be empty" }); }
+        }
+    }
+    if ("lastName" in partial && partial.lastName !== undefined) {
+        const __val = partial.lastName as string;
+        if (__val == null) { errors.push({ field: "lastName", message: "User.lastName is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "lastName", message: "User.lastName must not be empty" }); }
+        }
+    }
+    return errors;
+}
+export function userHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "id" in o && "email" in o && "firstName" in o && "lastName" in o && "password" in o && "metadata" in o && "settings" in o && "role" in o && "emailVerified" in o && "verificationToken" in o && "verificationExpires" in o && "passwordResetToken" in o && "passwordResetExpires" in o && "permissions" in o && "createdAt" in o && "lastLoginAt" in o;
+}
+
+export function userIs(obj: unknown): obj is User {
+    return userHasShape(obj) && userDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type UserErrors = {
+    _errors: Option.Option<Array<string>>;
+    id: Option.Option<Array<string>>;
+    email: Option.Option<Array<string>>;
+    firstName: Option.Option<Array<string>>;
+    lastName: Option.Option<Array<string>>;
+    password: Option.Option<Array<string>>;
+    metadata: Option.Option<Array<string>>;
+    settings: Option.Option<Array<string>>;
+    role: Option.Option<Array<string>>;
+    emailVerified: Option.Option<Array<string>>;
+    verificationToken: Option.Option<Array<string>>;
+    verificationExpires: Option.Option<Array<string>>;
+    passwordResetToken: Option.Option<Array<string>>;
+    passwordResetExpires: Option.Option<Array<string>>;
+    permissions: Option.Option<Array<string>>;
+    createdAt: Option.Option<Array<string>>;
+    lastLoginAt: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type UserTainted = {
+    id: Option.Option<boolean>;
+    email: Option.Option<boolean>;
+    firstName: Option.Option<boolean>;
+    lastName: Option.Option<boolean>;
+    password: Option.Option<boolean>;
+    metadata: Option.Option<boolean>;
+    settings: Option.Option<boolean>;
+    role: Option.Option<boolean>;
+    emailVerified: Option.Option<boolean>;
+    verificationToken: Option.Option<boolean>;
+    verificationExpires: Option.Option<boolean>;
+    passwordResetToken: Option.Option<boolean>;
+    passwordResetExpires: Option.Option<boolean>;
+    permissions: Option.Option<boolean>;
+    createdAt: Option.Option<boolean>;
+    lastLoginAt: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface UserFieldControllers {
+    readonly id: FieldController<string>;
+    readonly email: FieldController<Option.Option<string>>;
+    readonly firstName: FieldController<string>;
+    readonly lastName: FieldController<string>;
+    readonly password: FieldController<Option.Option<string>>;
+    readonly metadata: FieldController<Option.Option<Metadata>>;
+    readonly settings: FieldController<Settings>;
+    readonly role: FieldController<UserRole>;
+    readonly emailVerified: FieldController<boolean>;
+    readonly verificationToken: FieldController<Option.Option<string>>;
+    readonly verificationExpires: FieldController<Option.Option<DateTime.DateTime>>;
+    readonly passwordResetToken: FieldController<Option.Option<string>>;
+    readonly passwordResetExpires: FieldController<Option.Option<DateTime.DateTime>>;
+    readonly permissions: FieldController<AppPermissions>;
+    readonly createdAt: FieldController<DateTime.DateTime>;
+    readonly lastLoginAt: FieldController<Option.Option<DateTime.DateTime>>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface UserGigaform {
+    readonly data: User;
+    readonly errors: UserErrors;
+    readonly tainted: UserTainted;
+    readonly fields: UserFieldControllers;
+    validate(): Exit.Exit<User, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<User>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function userCreateForm(overrides?: Partial<User>): UserGigaform {
+    let data = $state({ ...userDefaultValue(), ...overrides });
+    let errors = $state<UserErrors>({
+        _errors: Option.none(),
+        id: Option.none(),
+        email: Option.none(),
+        firstName: Option.none(),
+        lastName: Option.none(),
+        password: Option.none(),
+        metadata: Option.none(),
+        settings: Option.none(),
+        role: Option.none(),
+        emailVerified: Option.none(),
+        verificationToken: Option.none(),
+        verificationExpires: Option.none(),
+        passwordResetToken: Option.none(),
+        passwordResetExpires: Option.none(),
+        permissions: Option.none(),
+        createdAt: Option.none(),
+        lastLoginAt: Option.none(),
+    });
+    let tainted = $state<UserTainted>({
+        id: Option.none(),
+        email: Option.none(),
+        firstName: Option.none(),
+        lastName: Option.none(),
+        password: Option.none(),
+        metadata: Option.none(),
+        settings: Option.none(),
+        role: Option.none(),
+        emailVerified: Option.none(),
+        verificationToken: Option.none(),
+        verificationExpires: Option.none(),
+        passwordResetToken: Option.none(),
+        passwordResetExpires: Option.none(),
+        permissions: Option.none(),
+        createdAt: Option.none(),
+        lastLoginAt: Option.none(),
+    });
+    const fields = {
+        id: {
+            name: "id",
+            label: "id",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["id"],
+            get: () => data.id,
+            set: (value: string) => { data.id = value; },
+            getError: () => errors.id,
+            setError: (value: Option.Option<Array<string>>) => { errors.id = value; },
+            getTainted: () => tainted.id,
+            setTainted: (value: Option.Option<boolean>) => { tainted.id = value; },
+            validate: () => userValidateField("id", data.id).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        email: {
+            name: "email",
+            label: "email",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["email"],
+            get: () => data.email,
+            set: (value: Option.Option<string>) => { data.email = value; },
+            getError: () => errors.email,
+            setError: (value: Option.Option<Array<string>>) => { errors.email = value; },
+            getTainted: () => tainted.email,
+            setTainted: (value: Option.Option<boolean>) => { tainted.email = value; },
+            validate: () => userValidateField("email", data.email).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        firstName: {
+            name: "firstName",
+            label: "firstName",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["firstName"],
+            get: () => data.firstName,
+            set: (value: string) => { data.firstName = value; },
+            getError: () => errors.firstName,
+            setError: (value: Option.Option<Array<string>>) => { errors.firstName = value; },
+            getTainted: () => tainted.firstName,
+            setTainted: (value: Option.Option<boolean>) => { tainted.firstName = value; },
+            validate: () => userValidateField("firstName", data.firstName).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        lastName: {
+            name: "lastName",
+            label: "lastName",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["lastName"],
+            get: () => data.lastName,
+            set: (value: string) => { data.lastName = value; },
+            getError: () => errors.lastName,
+            setError: (value: Option.Option<Array<string>>) => { errors.lastName = value; },
+            getTainted: () => tainted.lastName,
+            setTainted: (value: Option.Option<boolean>) => { tainted.lastName = value; },
+            validate: () => userValidateField("lastName", data.lastName).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        password: {
+            name: "password",
+            label: "password",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["password"],
+            get: () => data.password,
+            set: (value: Option.Option<string>) => { data.password = value; },
+            getError: () => errors.password,
+            setError: (value: Option.Option<Array<string>>) => { errors.password = value; },
+            getTainted: () => tainted.password,
+            setTainted: (value: Option.Option<boolean>) => { tainted.password = value; },
+            validate: () => userValidateField("password", data.password).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        metadata: {
+            name: "metadata",
+            label: "metadata",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["metadata"],
+            get: () => data.metadata,
+            set: (value: Option.Option<Metadata>) => { data.metadata = value; },
+            getError: () => errors.metadata,
+            setError: (value: Option.Option<Array<string>>) => { errors.metadata = value; },
+            getTainted: () => tainted.metadata,
+            setTainted: (value: Option.Option<boolean>) => { tainted.metadata = value; },
+            validate: () => userValidateField("metadata", data.metadata).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        settings: {
+            name: "settings",
+            label: "settings",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["settings"],
+            get: () => data.settings,
+            set: (value: Settings) => { data.settings = value; },
+            getError: () => errors.settings,
+            setError: (value: Option.Option<Array<string>>) => { errors.settings = value; },
+            getTainted: () => tainted.settings,
+            setTainted: (value: Option.Option<boolean>) => { tainted.settings = value; },
+            validate: () => userValidateField("settings", data.settings).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        role: {
+            name: "role",
+            label: "role",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["role"],
+            get: () => data.role,
+            set: (value: UserRole) => { data.role = value; },
+            getError: () => errors.role,
+            setError: (value: Option.Option<Array<string>>) => { errors.role = value; },
+            getTainted: () => tainted.role,
+            setTainted: (value: Option.Option<boolean>) => { tainted.role = value; },
+            validate: () => userValidateField("role", data.role).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        emailVerified: {
+            name: "emailVerified",
+            label: "emailVerified",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["emailVerified"],
+            get: () => data.emailVerified,
+            set: (value: boolean) => { data.emailVerified = value; },
+            getError: () => errors.emailVerified,
+            setError: (value: Option.Option<Array<string>>) => { errors.emailVerified = value; },
+            getTainted: () => tainted.emailVerified,
+            setTainted: (value: Option.Option<boolean>) => { tainted.emailVerified = value; },
+            validate: () => userValidateField("emailVerified", data.emailVerified).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        verificationToken: {
+            name: "verificationToken",
+            label: "verificationToken",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["verificationToken"],
+            get: () => data.verificationToken,
+            set: (value: Option.Option<string>) => { data.verificationToken = value; },
+            getError: () => errors.verificationToken,
+            setError: (value: Option.Option<Array<string>>) => { errors.verificationToken = value; },
+            getTainted: () => tainted.verificationToken,
+            setTainted: (value: Option.Option<boolean>) => { tainted.verificationToken = value; },
+            validate: () => userValidateField("verificationToken", data.verificationToken).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        verificationExpires: {
+            name: "verificationExpires",
+            label: "verificationExpires",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["verificationExpires"],
+            get: () => data.verificationExpires,
+            set: (value: Option.Option<DateTime.DateTime>) => { data.verificationExpires = value; },
+            getError: () => errors.verificationExpires,
+            setError: (value: Option.Option<Array<string>>) => { errors.verificationExpires = value; },
+            getTainted: () => tainted.verificationExpires,
+            setTainted: (value: Option.Option<boolean>) => { tainted.verificationExpires = value; },
+            validate: () => userValidateField("verificationExpires", data.verificationExpires).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        passwordResetToken: {
+            name: "passwordResetToken",
+            label: "passwordResetToken",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["passwordResetToken"],
+            get: () => data.passwordResetToken,
+            set: (value: Option.Option<string>) => { data.passwordResetToken = value; },
+            getError: () => errors.passwordResetToken,
+            setError: (value: Option.Option<Array<string>>) => { errors.passwordResetToken = value; },
+            getTainted: () => tainted.passwordResetToken,
+            setTainted: (value: Option.Option<boolean>) => { tainted.passwordResetToken = value; },
+            validate: () => userValidateField("passwordResetToken", data.passwordResetToken).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        passwordResetExpires: {
+            name: "passwordResetExpires",
+            label: "passwordResetExpires",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["passwordResetExpires"],
+            get: () => data.passwordResetExpires,
+            set: (value: Option.Option<DateTime.DateTime>) => { data.passwordResetExpires = value; },
+            getError: () => errors.passwordResetExpires,
+            setError: (value: Option.Option<Array<string>>) => { errors.passwordResetExpires = value; },
+            getTainted: () => tainted.passwordResetExpires,
+            setTainted: (value: Option.Option<boolean>) => { tainted.passwordResetExpires = value; },
+            validate: () => userValidateField("passwordResetExpires", data.passwordResetExpires).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        permissions: {
+            name: "permissions",
+            label: "permissions",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["permissions"],
+            get: () => data.permissions,
+            set: (value: AppPermissions) => { data.permissions = value; },
+            getError: () => errors.permissions,
+            setError: (value: Option.Option<Array<string>>) => { errors.permissions = value; },
+            getTainted: () => tainted.permissions,
+            setTainted: (value: Option.Option<boolean>) => { tainted.permissions = value; },
+            validate: () => userValidateField("permissions", data.permissions).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        createdAt: {
+            name: "createdAt",
+            label: "createdAt",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["createdAt"],
+            get: () => data.createdAt,
+            set: (value: DateTime.DateTime) => { data.createdAt = value; },
+            getError: () => errors.createdAt,
+            setError: (value: Option.Option<Array<string>>) => { errors.createdAt = value; },
+            getTainted: () => tainted.createdAt,
+            setTainted: (value: Option.Option<boolean>) => { tainted.createdAt = value; },
+            validate: () => userValidateField("createdAt", data.createdAt).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        lastLoginAt: {
+            name: "lastLoginAt",
+            label: "lastLoginAt",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["lastLoginAt"],
+            get: () => data.lastLoginAt,
+            set: (value: Option.Option<DateTime.DateTime>) => { data.lastLoginAt = value; },
+            getError: () => errors.lastLoginAt,
+            setError: (value: Option.Option<Array<string>>) => { errors.lastLoginAt = value; },
+            getTainted: () => tainted.lastLoginAt,
+            setTainted: (value: Option.Option<boolean>) => { tainted.lastLoginAt = value; },
+            validate: () => userValidateField("lastLoginAt", data.lastLoginAt).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as UserFieldControllers;
+
+    function validate(): Exit.Exit<User, Array<{ field: string; message: string }>> {
+        return toExit(userDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<User>): void {
+        data = { ...userDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            id: Option.none(),
+            email: Option.none(),
+            firstName: Option.none(),
+            lastName: Option.none(),
+            password: Option.none(),
+            metadata: Option.none(),
+            settings: Option.none(),
+            role: Option.none(),
+            emailVerified: Option.none(),
+            verificationToken: Option.none(),
+            verificationExpires: Option.none(),
+            passwordResetToken: Option.none(),
+            passwordResetExpires: Option.none(),
+            permissions: Option.none(),
+            createdAt: Option.none(),
+            lastLoginAt: Option.none(),
+        };
+        tainted = {
+            id: Option.none(),
+            email: Option.none(),
+            firstName: Option.none(),
+            lastName: Option.none(),
+            password: Option.none(),
+            metadata: Option.none(),
+            settings: Option.none(),
+            role: Option.none(),
+            emailVerified: Option.none(),
+            verificationToken: Option.none(),
+            verificationExpires: Option.none(),
+            passwordResetToken: Option.none(),
+            passwordResetExpires: Option.none(),
+            permissions: Option.none(),
+            createdAt: Option.none(),
+            lastLoginAt: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function userFromFormData(formData: FormData): Exit.Exit<User, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    obj.id = formData.get("id") ?? "";
+    {
+
+        const emailObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("email.")) {
+                const fieldName = key.slice("email.".length);
+
+                const parts = fieldName.split(".");
+                let current = emailObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.email = emailObj;
+    }
+    obj.firstName = formData.get("firstName") ?? "";
+    obj.lastName = formData.get("lastName") ?? "";
+    {
+
+        const passwordObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("password.")) {
+                const fieldName = key.slice("password.".length);
+
+                const parts = fieldName.split(".");
+                let current = passwordObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.password = passwordObj;
+    }
+    {
+
+        const metadataObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("metadata.")) {
+                const fieldName = key.slice("metadata.".length);
+
+                const parts = fieldName.split(".");
+                let current = metadataObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.metadata = metadataObj;
+    }
+    {
+
+        const settingsObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("settings.")) {
+                const fieldName = key.slice("settings.".length);
+
+                const parts = fieldName.split(".");
+                let current = settingsObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.settings = settingsObj;
+    }
+    {
+
+        const roleObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("role.")) {
+                const fieldName = key.slice("role.".length);
+
+                const parts = fieldName.split(".");
+                let current = roleObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.role = roleObj;
+    }
+    {
+        const emailVerifiedVal = formData.get("emailVerified");
+        obj.emailVerified = emailVerifiedVal === "true" || emailVerifiedVal === "on" || emailVerifiedVal === "1";
+    }
+    {
+
+        const verificationTokenObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("verificationToken.")) {
+                const fieldName = key.slice("verificationToken.".length);
+
+                const parts = fieldName.split(".");
+                let current = verificationTokenObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.verificationToken = verificationTokenObj;
+    }
+    {
+
+        const verificationExpiresObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("verificationExpires.")) {
+                const fieldName = key.slice("verificationExpires.".length);
+
+                const parts = fieldName.split(".");
+                let current = verificationExpiresObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.verificationExpires = verificationExpiresObj;
+    }
+    {
+
+        const passwordResetTokenObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("passwordResetToken.")) {
+                const fieldName = key.slice("passwordResetToken.".length);
+
+                const parts = fieldName.split(".");
+                let current = passwordResetTokenObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.passwordResetToken = passwordResetTokenObj;
+    }
+    {
+
+        const passwordResetExpiresObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("passwordResetExpires.")) {
+                const fieldName = key.slice("passwordResetExpires.".length);
+
+                const parts = fieldName.split(".");
+                let current = passwordResetExpiresObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.passwordResetExpires = passwordResetExpiresObj;
+    }
+    {
+
+        const permissionsObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("permissions.")) {
+                const fieldName = key.slice("permissions.".length);
+
+                const parts = fieldName.split(".");
+                let current = permissionsObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.permissions = permissionsObj;
+    }
+    {
+
+        const createdAtObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("createdAt.")) {
+                const fieldName = key.slice("createdAt.".length);
+
+                const parts = fieldName.split(".");
+                let current = createdAtObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.createdAt = createdAtObj;
+    }
+    {
+
+        const lastLoginAtObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("lastLoginAt.")) {
+                const fieldName = key.slice("lastLoginAt.".length);
+
+                const parts = fieldName.split(".");
+                let current = lastLoginAtObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.lastLoginAt = lastLoginAtObj;
+    }
+
+    return toExit(userDecode(obj));
+}
+
+export const User: {
+  readonly defaultValue: typeof userDefaultValue;
+  readonly encode: typeof userEncode;
+  readonly encodeWithContext: typeof userEncodeWithContext;
+  readonly decode: typeof userDecode;
+  readonly decodeWithContext: typeof userDecodeWithContext;
+  readonly validateField: typeof userValidateField;
+  readonly validateFields: typeof userValidateFields;
+  readonly hasShape: typeof userHasShape;
+  readonly is: typeof userIs;
+  readonly createForm: typeof userCreateForm;
+  readonly fromFormData: typeof userFromFormData;
+} = {
+  defaultValue: userDefaultValue,
+  encode: userEncode,
+  encodeWithContext: userEncodeWithContext,
+  decode: userDecode,
+  decodeWithContext: userDecodeWithContext,
+  validateField: userValidateField,
+  validateFields: userValidateFields,
+  hasShape: userHasShape,
+  is: userIs,
+  createForm: userCreateForm,
+  fromFormData: userFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+import { type DateTime, Option } from "effect";
+import type { AppPermissions } from "./app-permissions.svelte";
+import type { Metadata } from "./metadata.svelte";
+import type { Settings } from "./settings.svelte";
+import type { UserRole } from "./user-role.svelte";
+export interface User {
+	id: string;
+	email: Option.Option<string>;
+	firstName: string;
+	lastName: string;
+	password: Option.Option<string>;
+	metadata: Option.Option<Metadata>;
+	settings: Settings;
+	role: UserRole;
+	emailVerified: boolean;
+	verificationToken: Option.Option<string>;
+	verificationExpires: Option.Option<DateTime.DateTime>;
+	passwordResetToken: Option.Option<string>;
+	passwordResetExpires: Option.Option<DateTime.DateTime>;
+	permissions: AppPermissions;
+	createdAt: DateTime.DateTime;
+	lastLoginAt: Option.Option<DateTime.DateTime>;
+}
+export declare function userDefaultValue(): User;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function userEncode(value: User, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function userDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: User;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): User | __mf_PendingRef;
+export declare function userValidateField<K extends keyof User>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function userValidateFields(partial: { readonly [K in keyof User]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function userHasShape(obj: unknown): boolean;
+export declare function userIs(obj: unknown): obj is User;
+/** Nested error structure matching the data shape  */
+export type UserErrors = {
+	_errors: Option.Option<Array<string>>;
+	id: Option.Option<Array<string>>;
+	email: Option.Option<Array<string>>;
+	firstName: Option.Option<Array<string>>;
+	lastName: Option.Option<Array<string>>;
+	password: Option.Option<Array<string>>;
+	metadata: Option.Option<Array<string>>;
+	settings: Option.Option<Array<string>>;
+	role: Option.Option<Array<string>>;
+	emailVerified: Option.Option<Array<string>>;
+	verificationToken: Option.Option<Array<string>>;
+	verificationExpires: Option.Option<Array<string>>;
+	passwordResetToken: Option.Option<Array<string>>;
+	passwordResetExpires: Option.Option<Array<string>>;
+	permissions: Option.Option<Array<string>>;
+	createdAt: Option.Option<Array<string>>;
+	lastLoginAt: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type UserTainted = {
+	id: Option.Option<boolean>;
+	email: Option.Option<boolean>;
+	firstName: Option.Option<boolean>;
+	lastName: Option.Option<boolean>;
+	password: Option.Option<boolean>;
+	metadata: Option.Option<boolean>;
+	settings: Option.Option<boolean>;
+	role: Option.Option<boolean>;
+	emailVerified: Option.Option<boolean>;
+	verificationToken: Option.Option<boolean>;
+	verificationExpires: Option.Option<boolean>;
+	passwordResetToken: Option.Option<boolean>;
+	passwordResetExpires: Option.Option<boolean>;
+	permissions: Option.Option<boolean>;
+	createdAt: Option.Option<boolean>;
+	lastLoginAt: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface UserFieldControllers {
+	readonly id: FieldController<string>;
+	readonly email: FieldController<Option.Option<string>>;
+	readonly firstName: FieldController<string>;
+	readonly lastName: FieldController<string>;
+	readonly password: FieldController<Option.Option<string>>;
+	readonly metadata: FieldController<Option.Option<Metadata>>;
+	readonly settings: FieldController<Settings>;
+	readonly role: FieldController<UserRole>;
+	readonly emailVerified: FieldController<boolean>;
+	readonly verificationToken: FieldController<Option.Option<string>>;
+	readonly verificationExpires: FieldController<Option.Option<DateTime.DateTime>>;
+	readonly passwordResetToken: FieldController<Option.Option<string>>;
+	readonly passwordResetExpires: FieldController<Option.Option<DateTime.DateTime>>;
+	readonly permissions: FieldController<AppPermissions>;
+	readonly createdAt: FieldController<DateTime.DateTime>;
+	readonly lastLoginAt: FieldController<Option.Option<DateTime.DateTime>>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface UserGigaform {
+	readonly data: User;
+	readonly errors: UserErrors;
+	readonly tainted: UserTainted;
+	readonly fields: UserFieldControllers;
+	validate(): Exit.Exit<User, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<User>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function userCreateForm(overrides?: Partial<User>): UserGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function userFromFormData(formData: FormData): Exit.Exit<User, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const User: {
+	readonly defaultValue: typeof userDefaultValue;
+	readonly encode: typeof userEncode;
+	readonly encodeWithContext: typeof userEncodeWithContext;
+	readonly decode: typeof userDecode;
+	readonly decodeWithContext: typeof userDecodeWithContext;
+	readonly validateField: typeof userValidateField;
+	readonly validateFields: typeof userValidateFields;
+	readonly hasShape: typeof userHasShape;
+	readonly is: typeof userIs;
+	readonly createForm: typeof userCreateForm;
+	readonly fromFormData: typeof userFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..325 -> expanded 990..1315
+original 374..453 -> expanded 1315..1394
+original 494..522 -> expanded 1394..1422
+original 563..690 -> expanded 1422..1549
+original 722..1102 -> expanded 1549..1929
+original 1102..1103 -> expanded 49336..49337
+generated 0..990 <- imports
+generated 1929..2725 <- Default
+generated 2725..4852 <- Encode
+generated 4852..18102 <- Decode
+generated 18102..48442 <- Gigaform
+generated 48442..49336 <- __convenience_const
+
+## Metadata
+
+interface User: {"body_span":{"end":1103,"start":398},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":375,"start":326}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":415,"start":404},"ts_type":"string"},{"decorators":[],"name":"email","optional":false,"readonly":false,"span":{"end":449,"start":420},"ts_type":"Option.Option<string>"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":495,"start":454}}],"name":"firstName","optional":false,"readonly":false,"span":{"end":518,"start":500},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":564,"start":523}}],"name":"lastName","optional":false,"readonly":false,"span":{"end":586,"start":569},"ts_type":"string"},{"decorators":[],"name":"password","optional":false,"readonly":false,"span":{"end":623,"start":591},"ts_type":"Option.Option<string>"},{"decorators":[],"name":"metadata","optional":false,"readonly":false,"span":{"end":662,"start":628},"ts_type":"Option.Option<Metadata>"},{"decorators":[],"name":"settings","optional":false,"readonly":false,"span":{"end":686,"start":667},"ts_type":"Settings"},{"decorators":[{"args_src":"\"Administrator\"","name":"default","span":{"end":723,"start":691}}],"name":"role","optional":false,"readonly":false,"span":{"end":743,"start":728},"ts_type":"UserRole"},{"decorators":[],"name":"emailVerified","optional":false,"readonly":false,"span":{"end":771,"start":748},"ts_type":"boolean"},{"decorators":[],"name":"verificationToken","optional":false,"readonly":false,"span":{"end":817,"start":776},"ts_type":"Option.Option<string>"},{"decorators":[],"name":"verificationExpires","optional":false,"readonly":false,"span":{"end":876,"start":822},"ts_type":"Option.Option<DateTime.DateTime>"},{"decorators":[],"name":"passwordResetToken","optional":false,"readonly":false,"span":{"end":923,"start":881},"ts_type":"Option.Option<string>"},{"decorators":[],"name":"passwordResetExpires","optional":false,"readonly":false,"span":{"end":983,"start":928},"ts_type":"Option.Option<DateTime.DateTime>"},{"decorators":[],"name":"permissions","optional":false,"readonly":false,"span":{"end":1016,"start":988},"ts_type":"AppPermissions"},{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":1050,"start":1021},"ts_type":"DateTime.DateTime"},{"decorators":[],"name":"lastLoginAt","optional":false,"readonly":false,"span":{"end":1101,"start":1055},"ts_type":"Option.Option<DateTime.DateTime>"}],"heritage":[],"methods":[],"name":"User","span":{"end":1103,"start":383},"type_params":[]}
+
+## Registry reads
+
+Name("AppPermissions")
+Name("DateTime.DateTime")
+Name("Metadata")
+Name("Option.Option")
+Name("Option.Option<DateTime.DateTime>")
+Name("Option.Option<Metadata>")
+Name("Option.Option<string>")
+Name("Settings")
+Name("UserRole")
+Name("boolean")
+Name("string")
+
+## Buildtime dependencies
+
+(none)

@@ -1,4 +1,4 @@
-# The CI job image. The playground's end-to-end suite drives Chromium's
+# The CI job image. The testground's end-to-end suite drives Chromium's
 # headless shell and nothing else, so that is the only browser the image
 # carries. Everything else comes from the repo's pixi.toml at job time.
 FROM ubuntu:noble
@@ -16,14 +16,15 @@ RUN curl -fsSL https://pixi.sh/install.sh | bash \
 ENV PATH="/root/.pixi/bin:/root/.cargo/bin:${PATH}"
 
 # Each Playwright release drives one browser revision, so this must match the
-# @playwright/test version tooling/playground/tests resolves. Node exists only
+# @playwright/test version tooling/testground/tests resolves. Node exists only
 # for the install and leaves the image with its caches in the same layer.
 ARG PLAYWRIGHT_VERSION=1.63.0
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 RUN pixi exec --spec nodejs npx --yes "playwright@${PLAYWRIGHT_VERSION}" install --with-deps --only-shell chromium \
     && rm -rf /root/.cache /root/.npm /var/lib/apt/lists/*
 
-# The digest of this file at build time. Jobs compare it with the checkout's
-# copy, so a pipeline never runs on an image built from an older Dockerfile.
+# The digest of this file's instructions at build time, from
+# tooling/ci/dockerfile-digest.sh. Jobs compare it with the checkout's copy, so
+# a pipeline never runs on an image built from older instructions.
 ARG DOCKERFILE_SHA256
 ENV DOCKERFILE_SHA256=${DOCKERFILE_SHA256}

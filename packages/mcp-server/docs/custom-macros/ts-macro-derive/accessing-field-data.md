@@ -13,6 +13,7 @@ struct FieldIR {
     pub readonly: bool,             // Whether field is readonly
     pub visibility: Visibility,     // Public, Protected, Private
     pub decorators: Vec<DecoratorIR>, // Field decorators
+    pub initializer: Option<String>,  // Initializer as written, e.g. "dark"
 }
 ```
 
@@ -60,5 +61,5 @@ struct DecoratorIR {
 Note
 
 To check for decorators, iterate through `field.decorators` and check `decorator.name`. `has_flag`
-and `extract_named_string` in `macroforge_ts::builtin::derive_common` read options out of
+and `extract_named_string` in `macroforge_ts::builtin::derive::common` read options out of
 `args_src`; see [Decorators](../../docs/custom-macros/context-and-ir#decorators).

@@ -7,7 +7,7 @@ pub struct InterfaceIR {
     pub name: String,
     pub span: SpanIR,
     pub body_span: SpanIR,
-    pub type_params: Vec<String>,
+    pub type_params: Vec<TypeParamIR>,
     pub heritage: Vec<String>,       // extends clauses
     pub decorators: Vec<DecoratorIR>,
     pub fields: Vec<InterfaceFieldIR>,
@@ -26,7 +26,7 @@ pub struct InterfaceFieldIR {
 pub struct InterfaceMethodIR {
     pub name: String,
     pub span: SpanIR,
-    pub type_params_src: String,
+    pub type_params: Vec<TypeParamIR>,
     pub params_src: String,
     pub return_type_src: String,
     pub optional: bool,

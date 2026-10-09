@@ -31,6 +31,7 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::abi::ir::TypeParamIR;
 use crate::abi::{DecoratorIR, SpanIR};
 
 /// Intermediate representation of a TypeScript class declaration.
@@ -45,7 +46,7 @@ use crate::abi::{DecoratorIR, SpanIR};
 /// - `span` - Source span covering the entire class declaration
 /// - `body_span` - Source span of just the class body (between `{` and `}`)
 /// - `is_abstract` - Whether the class is declared as `abstract`
-/// - `type_params` - Generic type parameters (e.g., `["T", "U"]` for `class Foo<T, U>`)
+/// - `type_params` - Generic type parameters as declared (`T`, `U` for `class Foo<T, U>`)
 /// - `heritage` - Extended/implemented types (e.g., `["BaseClass", "IEncodable"]`)
 /// - `decorators` - Decorators applied to the class
 /// - `fields` - Class properties/fields
@@ -83,8 +84,9 @@ pub struct ClassIR {
     /// Whether this is an `abstract class`.
     pub is_abstract: bool,
 
-    /// Generic type parameters (e.g., `["T"]` for `class Foo<T>`).
-    pub type_params: Vec<String>,
+    /// Generic type parameters as declared (`T extends Shape` for
+    /// `class Foo<T extends Shape>`).
+    pub type_params: Vec<TypeParamIR>,
 
     /// Heritage clauses - extended classes and implemented interfaces.
     /// For `class Foo extends Bar implements IBaz`, this would be `["Bar", "IBaz"]`.
@@ -157,6 +159,10 @@ pub struct FieldIR {
 
     /// Decorators applied to this field.
     pub decorators: Vec<DecoratorIR>,
+
+    /// The initializer expression as written (`"dark"` for `theme = "dark"`).
+    #[serde(default)]
+    pub initializer: Option<String>,
 }
 
 impl FieldIR {
@@ -187,7 +193,7 @@ impl FieldIR {
 ///
 /// The `MethodSigIR` would have:
 /// - `name`: `"fetchUser"`
-/// - `type_params_src`: `"<T>"`
+/// - `type_params`: `T`
 /// - `params_src`: `"id: string"`
 /// - `return_type_src`: `"Promise<T>"`
 /// - `is_async`: `true`
@@ -200,9 +206,8 @@ pub struct MethodSigIR {
     /// Source span of the method declaration.
     pub span: SpanIR,
 
-    /// Type parameters as source string (e.g., `"<T>"`, `"<T, U extends Foo>"`).
-    /// Empty string if no type parameters.
-    pub type_params_src: String,
+    /// Generic type parameters as declared (`T`, `U extends Foo`).
+    pub type_params: Vec<TypeParamIR>,
 
     /// Method parameters as source string (e.g., `"name: string, age: number"`).
     pub params_src: String,

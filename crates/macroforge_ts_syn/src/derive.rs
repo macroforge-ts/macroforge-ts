@@ -112,7 +112,7 @@
 use crate::abi::{
     ClassIR, DecoratorIR, EnumIR, EnumVariantIR, FieldIR, InterfaceFieldIR, InterfaceIR,
     InterfaceMethodIR, MacroContextIR, MethodSigIR, SpanIR, TargetIR, TypeAliasIR, TypeBody,
-    TypeMember,
+    TypeMember, TypeParamIR,
 };
 
 use crate::TsSynError;
@@ -454,7 +454,7 @@ impl DataClass {
     }
 
     /// Get type parameters
-    pub fn type_params(&self) -> &[String] {
+    pub fn type_params(&self) -> &[TypeParamIR] {
         &self.inner.type_params
     }
 
@@ -594,7 +594,7 @@ impl DataInterface {
     }
 
     /// Get type parameters
-    pub fn type_params(&self) -> &[String] {
+    pub fn type_params(&self) -> &[TypeParamIR] {
         &self.inner.type_params
     }
 
@@ -631,7 +631,7 @@ impl DataInterface {
 /// # Example
 ///
 /// ```rust
-/// use macroforge_ts_syn::{DeriveInput, Data};
+/// use macroforge_ts_syn::{DeriveInput, Data, TypeParamIR};
 ///
 /// fn process_type_alias(input: &DeriveInput) {
 ///     if let Data::TypeAlias(alias) = &input.data {
@@ -659,7 +659,7 @@ impl DataInterface {
 ///         // Access type parameters
 ///         let params = alias.type_params();
 ///         if !params.is_empty() {
-///             println!("Generic: <{}>", params.join(", "));
+///             println!("Generic: {}", TypeParamIR::declare_all(params));
 ///         }
 ///     }
 /// }
@@ -677,7 +677,7 @@ impl DataTypeAlias {
     }
 
     /// Get type parameters
-    pub fn type_params(&self) -> &[String] {
+    pub fn type_params(&self) -> &[TypeParamIR] {
         &self.inner.type_params
     }
 
@@ -968,6 +968,7 @@ mod tests {
                         readonly: false,
                         visibility: crate::abi::Visibility::Public,
                         decorators: vec![],
+                        initializer: None,
                     },
                     FieldIR {
                         name: "name".into(),
@@ -977,6 +978,7 @@ mod tests {
                         readonly: false,
                         visibility: crate::abi::Visibility::Public,
                         decorators: vec![],
+                        initializer: None,
                     },
                 ],
                 methods: vec![],

@@ -48,45 +48,29 @@ class ValidationExample {
         this.internalFlag = internalFlag;
     }
 
-static toString(value: ValidationExample): string {
-                    return validationExampleToString(value);
-                }}
+    static toString(value: ValidationExample): string {
+        return validationExampleToString(value);
+    }
+}
 
 export function validationExampleToString(value: ValidationExample): string {
-                        const parts: string[] = [];
-                        parts.push("userId: " + value.id);
-parts.push("name: " + value.name);
-
-                        return "ValidationExample { " + parts.join(", ") + " }";
-                    }
+    const parts: string[] = [];
+    parts.push("userId: " + String(value.id));
+    parts.push("name: " + String(value.name));
+    return "ValidationExample { " + parts.join(", ") + " }";
+}
 
 ## DTS
 
-import { Derive } from '@macro/derive';
-
-
-class ValidationExample {
-    
-    id: string;
-
-    name: string;
-
-    
-    internalFlag: boolean;
-
-    constructor(id: string, name: string, internalFlag: boolean);
-
-static toString(value: ValidationExample): string {
-                    return validationExampleToString(value);
-                }}
-
-export function validationExampleToString(value: ValidationExample): string {
-                        const parts: string[] = [];
-                        parts.push("userId: " + value.id);
-parts.push("name: " + value.name);
-
-                        return "ValidationExample { " + parts.join(", ") + " }";
-                    }
+declare class ValidationExample {
+	id: string;
+	name: string;
+	internalFlag: boolean;
+	constructor(id: string, name: string, internalFlag: boolean);
+	static toString(value: ValidationExample): string;
+}
+export declare function validationExampleToString(value: ValidationExample): string;
+export {};
 
 ## Diagnostics
 
@@ -98,14 +82,14 @@ original 0..41 -> expanded 0..41
 original 62..93 -> expanded 41..72
 original 128..169 -> expanded 72..113
 original 198..390 -> expanded 113..305
-original 390..391 -> expanded 436..437
-original 391..392 -> expanded 766..767
-generated 305..436 <- Debug
-generated 437..766 <- Debug
+original 390..391 -> expanded 417..418
+original 391..392 -> expanded 686..687
+generated 305..417 <- Debug
+generated 418..686 <- Debug
 
 ## Metadata
 
-class ValidationExample: {"body_span":{"end":392,"start":88},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[{"args_src":"{ rename: \"userId\" }","name":"debug","span":{"end":129,"start":94}}],"name":"id","optional":false,"readonly":false,"span":{"end":145,"start":134},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":164,"start":151},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":199,"start":170}}],"name":"internalFlag","optional":false,"readonly":false,"span":{"end":226,"start":204},"ts_type":"boolean","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":390,"start":293},"body_src":"\n        this.id = id;\n        this.name = name;\n        this.internalFlag = internalFlag;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: string, name: string, internalFlag: boolean","return_type_src":"","span":{"end":390,"start":232},"type_params_src":"","visibility":"Public"}],"name":"ValidationExample","span":{"end":392,"start":64},"type_params":[]}
+class ValidationExample: {"body_span":{"end":392,"start":88},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[{"args_src":"{ rename: \"userId\" }","name":"debug","span":{"end":129,"start":94}}],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":145,"start":134},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":164,"start":151},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":199,"start":170}}],"initializer":null,"name":"internalFlag","optional":false,"readonly":false,"span":{"end":226,"start":204},"ts_type":"boolean","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":390,"start":293},"body_src":"\n        this.id = id;\n        this.name = name;\n        this.internalFlag = internalFlag;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: string, name: string, internalFlag: boolean","return_type_src":"","span":{"end":390,"start":232},"type_params":[],"visibility":"Public"}],"name":"ValidationExample","span":{"end":392,"start":64},"type_params":[]}
 
 ## Registry reads
 

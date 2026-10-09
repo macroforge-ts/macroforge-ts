@@ -1,6 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use crate::atomic_fs::{sibling_with_suffix, swap_dir, write_atomic};
+use crate::build::mark_snippets_as_modules;
 use crate::cache::{
     CacheEntry, CacheManifest, compute_external_macro_hash, content_hash, normalized_content_hash,
     warm_cache,
@@ -1150,4 +1151,31 @@ fn test_repackaging_alone_keeps_the_expanded_tree() {
         state.expansion_stale_reason(&current, &state.declarative_hash),
         None
     );
+}
+
+// =========================================================================
+// macroforge build output
+// =========================================================================
+
+#[test]
+fn snippets_are_marked_as_modules() -> anyhow::Result<()> {
+    let pkg = tempfile::tempdir()?;
+    std::fs::create_dir_all(pkg.path().join("snippets/macroforge_ts-0"))?;
+
+    mark_snippets_as_modules(pkg.path())?;
+
+    let manifest = std::fs::read_to_string(pkg.path().join("snippets/package.json"))?;
+    let parsed: serde_json::Value = serde_json::from_str(&manifest)?;
+    assert_eq!(parsed["type"], "module");
+    Ok(())
+}
+
+#[test]
+fn a_package_without_snippets_gets_no_marker() -> anyhow::Result<()> {
+    let pkg = tempfile::tempdir()?;
+
+    mark_snippets_as_modules(pkg.path())?;
+
+    assert!(!pkg.path().join("snippets").exists());
+    Ok(())
 }

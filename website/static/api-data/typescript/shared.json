@@ -1,6 +1,6 @@
 {
     "name": "@macroforge/shared",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "description": "Shared utilities for Macroforge plugins",
     "exports": [
         {
@@ -44,12 +44,12 @@
             "name": "getExternalManifest",
             "kind": "function",
             "type": "(modulePath: string, requireFn?: RequireFunction) => MacroManifest | null",
-            "description": "Attempts to load the manifest from an external macro package. External macro packages (like `@playground/macro`) export their own `__macroforgeGetManifest()` function that provides macro metadata including descriptions. ```",
+            "description": "Attempts to load the manifest from an external macro package. External macro packages (like `@testground/macro`) export their own `__macroforgeGetManifest()` function that provides macro metadata including descriptions. ```",
             "params": [
                 {
                     "name": "modulePath",
                     "type": "string",
-                    "description": "The package path (e.g., \"@playground/macro\")"
+                    "description": "The package path (e.g., \"@testground/macro\")"
                 },
                 {
                     "name": "requireFn",
@@ -59,7 +59,7 @@
             ],
             "returns": "The macro manifest, or null if loading failed",
             "examples": [
-                "```typescript\n// Basic usage\nconst manifest = getExternalManifest(\"@playground/macro\");\n\n// With custom require function (e.g., from vite-plugin)\nimport { createRequire } from \"node:module\";\nconst moduleRequire = createRequire(import.meta.url);\nconst manifest = getExternalManifest(\"@playground/macro\", moduleRequire);\n```"
+                "```typescript\n// Basic usage\nconst manifest = getExternalManifest(\"@testground/macro\");\n\n// With custom require function (e.g., from vite-plugin)\nimport { createRequire } from \"node:module\";\nconst moduleRequire = createRequire(import.meta.url);\nconst manifest = getExternalManifest(\"@testground/macro\", moduleRequire);\n```"
             ]
         },
         {
@@ -86,7 +86,7 @@
             ],
             "returns": "The macro manifest entry, or null if not found",
             "examples": [
-                "```typescript\nconst macroInfo = getExternalMacroInfo(\"Gigaform\", \"@playground/macro\");\nif (macroInfo) {\nconsole.log(macroInfo.description);\n}\n```"
+                "```typescript\nconst macroInfo = getExternalMacroInfo(\"Gigaform\", \"@testground/macro\");\nif (macroInfo) {\nconsole.log(macroInfo.description);\n}\n```"
             ]
         },
         {
@@ -113,7 +113,7 @@
             ],
             "returns": "The decorator manifest entry, or null if not found",
             "examples": [
-                "```typescript\nconst decoratorInfo = getExternalDecoratorInfo(\"hiddenController\", \"@playground/macro\");\nif (decoratorInfo) {\nconsole.log(decoratorInfo.docs);\n}\n```"
+                "```typescript\nconst decoratorInfo = getExternalDecoratorInfo(\"hiddenController\", \"@testground/macro\");\nif (decoratorInfo) {\nconsole.log(decoratorInfo.docs);\n}\n```"
             ]
         },
         {

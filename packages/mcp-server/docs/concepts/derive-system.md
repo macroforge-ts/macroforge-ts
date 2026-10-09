@@ -103,6 +103,7 @@ class User {
 After (Generated)
 
 ```
+import { structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
 import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
 
 class User {
@@ -118,53 +119,59 @@ class User {
 
   metadata: Record<string, unknown>;
 
-static toString(value: User): string {
-                    return userToString(value);
-                }
-/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                static encode(value: User, keepMetadata?: boolean): string {
-                    return userEncode(value, keepMetadata);
-                }
+    static toString(value: User): string {
+        return userToString(value);
+    }
 
-                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                static encodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
-                    return userEncodeWithContext(value, ctx);
-                }}
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: User, keepMetadata?: boolean): string {
+        return userEncode(value, keepMetadata);
+    }
+
+    /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+    static encodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
+        return userEncodeWithContext(value, ctx);
+    }
+}
 
 export function userToString(value: User): string {
-                        const parts: string[] = [];
-                        parts.push("userId: " + value.id);
-parts.push("name: " + value.name);
-parts.push("metadata: " + value.metadata);
-
-                        return "User { " + parts.join(", ") + " }";
-                    }
+    const parts: string[] = [];
+    parts.push("userId: " + String(value.id));
+    parts.push("name: " + String(value.name));
+    parts.push("metadata: " + __mf_structuralDebug(value.metadata));
+    return "User { " + parts.join(", ") + " }";
+}
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function userEncode(value: User, keepMetadata?: boolean): string {
-                    const ctx = __mf_EncodeContext.create();
-                    const __raw = userEncodeWithContext(value, ctx);
-                    if (keepMetadata) return JSON.stringify(__raw);
-                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                }
+export function userEncode(value: User, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = userEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
 
-                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
 
-                    const existingId = ctx.getId(value);
-                    if (existingId !== undefined) {
-                        return { __ref: existingId };
-                    }
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
 
-                    const __id = ctx.register(value);
+    const __id = ctx.register(value);
 
-                    const result: Record<string, unknown> = {
-                        "__type": "User",
-                        __id,
-                    };result.user_id = value.id;result.name = value.name;result.metadata = value.metadata;
+    const result: Record<string, unknown> = {
+        "__type": "User",
+        __id,
+    };
 
-                    return result;
-                }
+    
+    result.user_id = value.id;
+    result.name = value.name;
+    result.metadata = value.metadata;
+
+    return result;
+}
 ```
 
 Syntax rules:

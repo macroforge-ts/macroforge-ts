@@ -1,0 +1,422 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/last-name.svelte.ts
+sha256 890298aafb84476d37c6d4f1994c289c87f7accb05f85d4c0147430e4bbf7f88
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+
+export interface LastName {
+    
+    name: string;
+}
+
+export function lastNameDefaultValue(): LastName {
+    return {
+        name: "",
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function lastNameEncode(value: LastName, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = lastNameEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function lastNameEncodeWithContext(value: LastName, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "LastName",
+        __id,
+    };
+
+    
+    result.name = value.name;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function lastNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LastName } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = lastNameDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "LastName.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function lastNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): LastName | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "LastName.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as LastName | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "LastName.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("name" in obj)) {
+        errors.push({ field: "name", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_name = obj["name"] as string;
+
+        if (!(typeof __raw_name === "string")) {
+            errors.push({ field: "name", message: __raw_name == null ? "LastName.name is required" : "expected string" });
+        } else {
+            if (__raw_name == null) { errors.push({ field: "name", message: "LastName.name is required" }); } else {
+                if (__raw_name.length === 0) { errors.push({ field: "name", message: "LastName.name must not be empty" }); }
+            }
+            instance.name = __raw_name;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as LastName;
+}
+export function lastNameValidateField<K extends keyof LastName>(field: K, value: unknown): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if (field === "name") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "name", message: "LastName.name is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "name", message: "LastName.name must not be empty" }); }
+        }
+    }
+    return errors;
+}
+
+export function lastNameValidateFields(partial: { readonly [K in keyof LastName]?: unknown }): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+        const __val = partial.name as string;
+        if (__val == null) { errors.push({ field: "name", message: "LastName.name is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "name", message: "LastName.name must not be empty" }); }
+        }
+    }
+    return errors;
+}
+export function lastNameHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "name" in o;
+}
+
+export function lastNameIs(obj: unknown): obj is LastName {
+    return lastNameHasShape(obj) && lastNameDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type LastNameErrors = {
+    _errors: Option.Option<Array<string>>;
+    name: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type LastNameTainted = {
+    name: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface LastNameFieldControllers {
+    readonly name: FieldController<string>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface LastNameGigaform {
+    readonly data: LastName;
+    readonly errors: LastNameErrors;
+    readonly tainted: LastNameTainted;
+    readonly fields: LastNameFieldControllers;
+    validate(): Exit.Exit<LastName, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<LastName>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function lastNameCreateForm(overrides?: Partial<LastName>): LastNameGigaform {
+    let data = $state({ ...lastNameDefaultValue(), ...overrides });
+    let errors = $state<LastNameErrors>({
+        _errors: Option.none(),
+        name: Option.none(),
+    });
+    let tainted = $state<LastNameTainted>({
+        name: Option.none(),
+    });
+    const fields = {
+        name: {
+            name: "name",
+            label: "name",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["name"],
+            get: () => data.name,
+            set: (value: string) => { data.name = value; },
+            getError: () => errors.name,
+            setError: (value: Option.Option<Array<string>>) => { errors.name = value; },
+            getTainted: () => tainted.name,
+            setTainted: (value: Option.Option<boolean>) => { tainted.name = value; },
+            validate: () => lastNameValidateField("name", data.name).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as LastNameFieldControllers;
+
+    function validate(): Exit.Exit<LastName, Array<{ field: string; message: string }>> {
+        return toExit(lastNameDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<LastName>): void {
+        data = { ...lastNameDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            name: Option.none(),
+        };
+        tainted = {
+            name: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function lastNameFromFormData(formData: FormData): Exit.Exit<LastName, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    obj.name = formData.get("name") ?? "";
+
+    return toExit(lastNameDecode(obj));
+}
+
+export const LastName: {
+  readonly defaultValue: typeof lastNameDefaultValue;
+  readonly encode: typeof lastNameEncode;
+  readonly encodeWithContext: typeof lastNameEncodeWithContext;
+  readonly decode: typeof lastNameDecode;
+  readonly decodeWithContext: typeof lastNameDecodeWithContext;
+  readonly validateField: typeof lastNameValidateField;
+  readonly validateFields: typeof lastNameValidateFields;
+  readonly hasShape: typeof lastNameHasShape;
+  readonly is: typeof lastNameIs;
+  readonly createForm: typeof lastNameCreateForm;
+  readonly fromFormData: typeof lastNameFromFormData;
+} = {
+  defaultValue: lastNameDefaultValue,
+  encode: lastNameEncode,
+  encodeWithContext: lastNameEncodeWithContext,
+  decode: lastNameDecode,
+  decodeWithContext: lastNameDecodeWithContext,
+  validateField: lastNameValidateField,
+  validateFields: lastNameValidateFields,
+  hasShape: lastNameHasShape,
+  is: lastNameIs,
+  createForm: lastNameCreateForm,
+  fromFormData: lastNameFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+export interface LastName {
+	name: string;
+}
+export declare function lastNameDefaultValue(): LastName;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function lastNameEncode(value: LastName, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function lastNameEncodeWithContext(value: LastName, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function lastNameDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: LastName;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function lastNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): LastName | __mf_PendingRef;
+export declare function lastNameValidateField<K extends keyof LastName>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function lastNameValidateFields(partial: { readonly [K in keyof LastName]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function lastNameHasShape(obj: unknown): boolean;
+export declare function lastNameIs(obj: unknown): obj is LastName;
+/** Nested error structure matching the data shape  */
+export type LastNameErrors = {
+	_errors: Option.Option<Array<string>>;
+	name: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type LastNameTainted = {
+	name: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface LastNameFieldControllers {
+	readonly name: FieldController<string>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface LastNameGigaform {
+	readonly data: LastName;
+	readonly errors: LastNameErrors;
+	readonly tainted: LastNameTainted;
+	readonly fields: LastNameFieldControllers;
+	validate(): Exit.Exit<LastName, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<LastName>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function lastNameCreateForm(overrides?: Partial<LastName>): LastNameGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function lastNameFromFormData(formData: FormData): Exit.Exit<LastName, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const LastName: {
+	readonly defaultValue: typeof lastNameDefaultValue;
+	readonly encode: typeof lastNameEncode;
+	readonly encodeWithContext: typeof lastNameEncodeWithContext;
+	readonly decode: typeof lastNameDecode;
+	readonly decodeWithContext: typeof lastNameDecodeWithContext;
+	readonly validateField: typeof lastNameValidateField;
+	readonly validateFields: typeof lastNameValidateFields;
+	readonly hasShape: typeof lastNameHasShape;
+	readonly is: typeof lastNameIs;
+	readonly createForm: typeof lastNameCreateForm;
+	readonly fromFormData: typeof lastNameFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 421..479
+original 107..140 -> expanded 479..512
+original 181..201 -> expanded 512..532
+original 201..202 -> expanded 10674..10675
+generated 0..421 <- imports
+generated 532..624 <- Default
+generated 624..1728 <- Encode
+generated 1728..6435 <- Decode
+generated 6435..9688 <- Gigaform
+generated 9688..10674 <- __convenience_const
+
+## Metadata
+
+interface LastName: {"body_span":{"end":202,"start":135},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":182,"start":141}}],"name":"name","optional":false,"readonly":false,"span":{"end":200,"start":187},"ts_type":"string"}],"heritage":[],"methods":[],"name":"LastName","span":{"end":202,"start":116},"type_params":[]}
+
+## Registry reads
+
+Name("string")
+
+## Buildtime dependencies
+
+(none)

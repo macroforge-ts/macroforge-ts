@@ -1,0 +1,525 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/ordering-tests.ts
+sha256 3d2cf023ded841a210af836179b5167b0c1ca72dbb76e9e03cb0f4966e0b3811
+
+## Changed
+
+true
+
+## Output
+
+import { structuralCompare as __mf_structuralCompare, structuralEquals as __mf_structuralEquals } from "@macroforge/core/structural";
+/**
+ * Ordering derives over array fields, tuple aliases, a class, and a class
+ * whose array field holds another class deriving Ord.
+ */
+
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
+export interface Scores {
+    values: number[];
+}
+
+export function scoresEquals(a: Scores, b: Scores): boolean {
+    if (a === b) return true;
+    return a.values.length === b.values.length && a.values.every((__item0, __index0) => {
+	const __other0 = b.values[__index0];
+	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
+});
+}
+
+export function scoresPartialCompare(a: Scores, b: Scores): number | null {
+    if (a === b) return 0;
+    const cmp0 = (() => {
+        const __left0 = a.values;
+        const __right0 = b.values;
+        const __shared0 = Math.min(__left0.length, __right0.length);
+        for (let __index0 = 0; __index0 < __shared0; __index0++) {
+            const __item0 = __left0[__index0];
+            const __other0 = __right0[__index0];
+            const __order0 = __item0 === undefined || __other0 === undefined
+                ? __mf_structuralCompare(__item0, __other0)
+                : (__item0 < __other0 ? -1 : __item0 > __other0 ? 1 : __item0 === __other0 ? 0 : null);
+            if (__order0 !== 0) return __order0;
+        }
+        return __left0.length < __right0.length ? -1
+            : __left0.length > __right0.length ? 1 : 0;
+    })();
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    return 0;
+}
+
+export function scoresCompare(a: Scores, b: Scores): number {
+    if (a === b) return 0;
+    const cmp0 = (() => {
+	const __left0 = a.values;
+	const __right0 = b.values;
+	const __shared0 = Math.min(__left0.length, __right0.length);
+	for (let __index0 = 0; __index0 < __shared0; __index0++) {
+		const __item0 = __left0[__index0];
+		const __other0 = __right0[__index0];
+		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : __item0 < __other0 ? -1 : __item0 > __other0 ? 1 : 0;
+		if (__order0 !== 0) return __order0;
+	}
+	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
+})();
+    if (cmp0 !== 0) return cmp0;
+    return 0;
+}
+
+export const Scores: {
+  readonly equals: typeof scoresEquals;
+  readonly partialCompare: typeof scoresPartialCompare;
+  readonly compare: typeof scoresCompare;
+} = {
+  equals: scoresEquals,
+  partialCompare: scoresPartialCompare,
+  compare: scoresCompare
+};
+
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
+export type Entry = [name: string, rank: number, ...tags: string[]];
+
+export function entryEquals(a: Entry, b: Entry): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function entryPartialCompare(a: Entry, b: Entry): number | null {
+    if (a === b) return 0;
+    const left0 = a[0];
+    const right0 = b[0];
+    const cmp0 = (left0 < right0 ? -1 : left0 > right0 ? 1 : 0);
+    if (cmp0 !== 0) return cmp0;
+    const left1 = a[1];
+    const right1 = b[1];
+    const cmp1 = (left1 < right1 ? -1 : left1 > right1 ? 1 : left1 === right1 ? 0 : null);
+    if (cmp1 !== 0) return cmp1;
+    const left2 = a.slice(2);
+    const right2 = b.slice(2);
+    const cmp2 = (() => {
+        const __left0 = left2;
+        const __right0 = right2;
+        const __shared0 = Math.min(__left0.length, __right0.length);
+        for (let __index0 = 0; __index0 < __shared0; __index0++) {
+            const __item0 = __left0[__index0];
+            const __other0 = __right0[__index0];
+            const __order0 = __item0 === undefined || __other0 === undefined
+                ? __mf_structuralCompare(__item0, __other0)
+                : (__item0 < __other0 ? -1 : __item0 > __other0 ? 1 : 0);
+            if (__order0 !== 0) return __order0;
+        }
+        return __left0.length < __right0.length ? -1
+            : __left0.length > __right0.length ? 1 : 0;
+    })();
+    if (cmp2 !== 0) return cmp2;
+    return 0;
+}
+
+export function entryCompare(a: Entry, b: Entry): number {
+    if (a === b) return 0;
+    const left0 = a[0];
+    const right0 = b[0];
+    const cmp0 = (left0 < right0 ? -1 : left0 > right0 ? 1 : 0);
+    if (cmp0 !== 0) return cmp0;
+    const left1 = a[1];
+    const right1 = b[1];
+    const cmp1 = (left1 < right1 ? -1 : left1 > right1 ? 1 : 0);
+    if (cmp1 !== 0) return cmp1;
+    const left2 = a.slice(2);
+    const right2 = b.slice(2);
+    const cmp2 = (() => {
+        const __left0 = left2;
+        const __right0 = right2;
+        const __shared0 = Math.min(__left0.length, __right0.length);
+        for (let __index0 = 0; __index0 < __shared0; __index0++) {
+            const __item0 = __left0[__index0];
+            const __other0 = __right0[__index0];
+            const __order0 = __item0 === undefined || __other0 === undefined
+                ? __mf_structuralCompare(__item0, __other0)
+                : (__item0 < __other0 ? -1 : __item0 > __other0 ? 1 : 0);
+            if (__order0 !== 0) return __order0;
+        }
+        return __left0.length < __right0.length ? -1
+            : __left0.length > __right0.length ? 1 : 0;
+    })();
+    if (cmp2 !== 0) return cmp2;
+    return 0;
+}
+
+export const Entry: {
+  readonly equals: typeof entryEquals;
+  readonly partialCompare: typeof entryPartialCompare;
+  readonly compare: typeof entryCompare;
+} = {
+  equals: entryEquals,
+  partialCompare: entryPartialCompare,
+  compare: entryCompare
+};
+
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
+export type Span = [start: number, end?: number];
+
+export function spanEquals(a: Span, b: Span): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function spanPartialCompare(a: Span, b: Span): number | null {
+    if (a === b) return 0;
+    const left0 = a[0];
+    const right0 = b[0];
+    const cmp0 = (left0 < right0 ? -1 : left0 > right0 ? 1 : left0 === right0 ? 0 : null);
+    if (cmp0 !== 0) return cmp0;
+    const left1 = a[1];
+    const right1 = b[1];
+    const cmp1 = left1 === undefined || right1 === undefined
+        ? (left1 === right1 ? 0 : left1 === undefined ? -1 : 1)
+        : (left1 < right1 ? -1 : left1 > right1 ? 1 : left1 === right1 ? 0 : null);
+    if (cmp1 !== 0) return cmp1;
+    return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
+}
+
+export function spanCompare(a: Span, b: Span): number {
+    if (a === b) return 0;
+    const left0 = a[0];
+    const right0 = b[0];
+    const cmp0 = (left0 < right0 ? -1 : left0 > right0 ? 1 : 0);
+    if (cmp0 !== 0) return cmp0;
+    const left1 = a[1];
+    const right1 = b[1];
+    const cmp1 = left1 === undefined || right1 === undefined
+        ? (left1 === right1 ? 0 : left1 === undefined ? -1 : 1)
+        : (left1 < right1 ? -1 : left1 > right1 ? 1 : 0);
+    if (cmp1 !== 0) return cmp1;
+    return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
+}
+
+export const Span: {
+  readonly equals: typeof spanEquals;
+  readonly partialCompare: typeof spanPartialCompare;
+  readonly compare: typeof spanCompare;
+} = {
+  equals: spanEquals,
+  partialCompare: spanPartialCompare,
+  compare: spanCompare
+};
+
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
+export type Grid = [number[], Date];
+
+export function gridEquals(a: Grid, b: Grid): boolean {
+    if (a === b) return true;
+    return (a[0].length === b[0].length && a[0].every((__item0, __index0) => { const __other0 = b[0][__index0]; return __other0 === undefined ? __item0 === undefined : __item0 === __other0; })) && a[1].getTime() === b[1].getTime();
+}
+
+export function gridPartialCompare(a: Grid, b: Grid): number | null {
+    if (a === b) return 0;
+    const left0 = a[0];
+    const right0 = b[0];
+    const cmp0 = (() => {
+        const __left0 = left0;
+        const __right0 = right0;
+        const __shared0 = Math.min(__left0.length, __right0.length);
+        for (let __index0 = 0; __index0 < __shared0; __index0++) {
+            const __item0 = __left0[__index0];
+            const __other0 = __right0[__index0];
+            const __order0 = __item0 === undefined || __other0 === undefined
+                ? __mf_structuralCompare(__item0, __other0)
+                : (__item0 < __other0 ? -1 : __item0 > __other0 ? 1 : __item0 === __other0 ? 0 : null);
+            if (__order0 !== 0) return __order0;
+        }
+        return __left0.length < __right0.length ? -1
+            : __left0.length > __right0.length ? 1 : 0;
+    })();
+    if (cmp0 !== 0) return cmp0;
+    const left1 = a[1];
+    const right1 = b[1];
+    const cmp1 = (left1.getTime() < right1.getTime() ? -1 : left1.getTime() > right1.getTime() ? 1 : left1.getTime() === right1.getTime() ? 0 : null);
+    if (cmp1 !== 0) return cmp1;
+    return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
+}
+
+export function gridCompare(a: Grid, b: Grid): number {
+    if (a === b) return 0;
+    const left0 = a[0];
+    const right0 = b[0];
+    const cmp0 = (() => {
+        const __left0 = left0;
+        const __right0 = right0;
+        const __shared0 = Math.min(__left0.length, __right0.length);
+        for (let __index0 = 0; __index0 < __shared0; __index0++) {
+            const __item0 = __left0[__index0];
+            const __other0 = __right0[__index0];
+            const __order0 = __item0 === undefined || __other0 === undefined
+                ? __mf_structuralCompare(__item0, __other0)
+                : (__item0 < __other0 ? -1 : __item0 > __other0 ? 1 : 0);
+            if (__order0 !== 0) return __order0;
+        }
+        return __left0.length < __right0.length ? -1
+            : __left0.length > __right0.length ? 1 : 0;
+    })();
+    if (cmp0 !== 0) return cmp0;
+    const left1 = a[1];
+    const right1 = b[1];
+    const cmp1 = (left1.getTime() < right1.getTime() ? -1 : left1.getTime() > right1.getTime() ? 1 : 0);
+    if (cmp1 !== 0) return cmp1;
+    return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
+}
+
+export const Grid: {
+  readonly equals: typeof gridEquals;
+  readonly partialCompare: typeof gridPartialCompare;
+  readonly compare: typeof gridCompare;
+} = {
+  equals: gridEquals,
+  partialCompare: gridPartialCompare,
+  compare: gridCompare
+};
+
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
+export class Version {
+    major: number = 0;
+    minor: number = 0;
+
+    static equals(a: Version, b: Version): boolean {
+        return versionEquals(a, b);
+    }
+
+    static partialCompare(a: Version, b: Version): number | null {
+        return versionPartialCompare(a, b);
+    }
+
+    static compare(a: Version, b: Version): number {
+        return versionCompare(a, b);
+    }
+}
+
+export function versionEquals(a: Version, b: Version): boolean {
+    if (a === b) return true;
+    return a.major === b.major && a.minor === b.minor;
+}
+
+export function versionPartialCompare(a: Version, b: Version): number | null {
+    if (a === b) return 0;
+    const cmp0 = (a.major < b.major ? -1 : a.major > b.major ? 1 : a.major === b.major ? 0 : null);
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = (a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : a.minor === b.minor ? 0 : null);
+    if (cmp1 === null) return null;
+    if (cmp1 !== 0) return cmp1;
+    return 0;
+}
+
+export function versionCompare(a: Version, b: Version): number {
+    if (a === b) return 0;
+    const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : 0;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : 0;
+    if (cmp1 !== 0) return cmp1;
+    return 0;
+}
+
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
+export class Release {
+    versions: Version[] = [];
+
+    static equals(a: Release, b: Release): boolean {
+        return releaseEquals(a, b);
+    }
+
+    static partialCompare(a: Release, b: Release): number | null {
+        return releasePartialCompare(a, b);
+    }
+
+    static compare(a: Release, b: Release): number {
+        return releaseCompare(a, b);
+    }
+}
+
+export function releaseEquals(a: Release, b: Release): boolean {
+    if (a === b) return true;
+    return a.versions.length === b.versions.length && a.versions.every((__item0, __index0) => {
+	const __other0 = b.versions[__index0];
+	return __other0 === undefined ? __item0 === undefined : versionEquals(__item0, __other0);
+});
+}
+
+export function releasePartialCompare(a: Release, b: Release): number | null {
+    if (a === b) return 0;
+    const cmp0 = (() => {
+        const __left0 = a.versions;
+        const __right0 = b.versions;
+        const __shared0 = Math.min(__left0.length, __right0.length);
+        for (let __index0 = 0; __index0 < __shared0; __index0++) {
+            const __item0 = __left0[__index0];
+            const __other0 = __right0[__index0];
+            const __order0 = __item0 === undefined || __other0 === undefined
+                ? __mf_structuralCompare(__item0, __other0)
+                : versionPartialCompare(__item0, __other0);
+            if (__order0 !== 0) return __order0;
+        }
+        return __left0.length < __right0.length ? -1
+            : __left0.length > __right0.length ? 1 : 0;
+    })();
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    return 0;
+}
+
+export function releaseCompare(a: Release, b: Release): number {
+    if (a === b) return 0;
+    const cmp0 = (() => {
+	const __left0 = a.versions;
+	const __right0 = b.versions;
+	const __shared0 = Math.min(__left0.length, __right0.length);
+	for (let __index0 = 0; __index0 < __shared0; __index0++) {
+		const __item0 = __left0[__index0];
+		const __other0 = __right0[__index0];
+		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : versionCompare(__item0, __other0);
+		if (__order0 !== 0) return __order0;
+	}
+	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
+})();
+    if (cmp0 !== 0) return cmp0;
+    return 0;
+}
+
+## DTS
+
+/**
+* Ordering derives over array fields, tuple aliases, a class, and a class
+* whose array field holds another class deriving Ord.
+*/
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
+export interface Scores {
+	values: number[];
+}
+export declare function scoresEquals(a: Scores, b: Scores): boolean;
+export declare function scoresPartialCompare(a: Scores, b: Scores): number | null;
+export declare function scoresCompare(a: Scores, b: Scores): number;
+export declare const Scores: {
+	readonly equals: typeof scoresEquals;
+	readonly partialCompare: typeof scoresPartialCompare;
+	readonly compare: typeof scoresCompare;
+};
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
+export type Entry = [name: string, rank: number, ...tags: string[]];
+export declare function entryEquals(a: Entry, b: Entry): boolean;
+export declare function entryPartialCompare(a: Entry, b: Entry): number | null;
+export declare function entryCompare(a: Entry, b: Entry): number;
+export declare const Entry: {
+	readonly equals: typeof entryEquals;
+	readonly partialCompare: typeof entryPartialCompare;
+	readonly compare: typeof entryCompare;
+};
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
+export type Span = [start: number, end?: number];
+export declare function spanEquals(a: Span, b: Span): boolean;
+export declare function spanPartialCompare(a: Span, b: Span): number | null;
+export declare function spanCompare(a: Span, b: Span): number;
+export declare const Span: {
+	readonly equals: typeof spanEquals;
+	readonly partialCompare: typeof spanPartialCompare;
+	readonly compare: typeof spanCompare;
+};
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
+export type Grid = [number[], Date];
+export declare function gridEquals(a: Grid, b: Grid): boolean;
+export declare function gridPartialCompare(a: Grid, b: Grid): number | null;
+export declare function gridCompare(a: Grid, b: Grid): number;
+export declare const Grid: {
+	readonly equals: typeof gridEquals;
+	readonly partialCompare: typeof gridPartialCompare;
+	readonly compare: typeof gridCompare;
+};
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
+export declare class Version {
+	major: number;
+	minor: number;
+	static equals(a: Version, b: Version): boolean;
+	static partialCompare(a: Version, b: Version): number | null;
+	static compare(a: Version, b: Version): number;
+}
+export declare function versionEquals(a: Version, b: Version): boolean;
+export declare function versionPartialCompare(a: Version, b: Version): number | null;
+export declare function versionCompare(a: Version, b: Version): number;
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
+export declare class Release {
+	versions: Version[];
+	static equals(a: Release, b: Release): boolean;
+	static partialCompare(a: Release, b: Release): number | null;
+	static compare(a: Release, b: Release): number;
+}
+export declare function releaseEquals(a: Release, b: Release): boolean;
+export declare function releasePartialCompare(a: Release, b: Release): number | null;
+export declare function releaseCompare(a: Release, b: Release): number;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..235 -> expanded 134..369
+original 235..352 -> expanded 2593..2710
+original 352..450 -> expanded 5539..5637
+original 450..535 -> expanded 7208..7293
+original 535..653 -> expanded 10216..10334
+original 653..654 -> expanded 10645..10646
+original 654..756 -> expanded 11573..11675
+original 756..757 -> expanded 11986..11987
+original 757..758 -> expanded 13925..13926
+generated 0..134 <- imports
+generated 369..675 <- PartialEq
+generated 675..1610 <- PartialOrd
+generated 1610..2333 <- Ord
+generated 2333..2593 <- __convenience_const
+generated 2710..2842 <- PartialEq
+generated 2842..4084 <- PartialOrd
+generated 4084..5286 <- Ord
+generated 5286..5539 <- __convenience_const
+generated 5637..5766 <- PartialEq
+generated 5766..6397 <- PartialOrd
+generated 6397..6962 <- Ord
+generated 6962..7208 <- __convenience_const
+generated 7293..7614 <- PartialEq
+generated 7614..8837 <- PartialOrd
+generated 8837..9970 <- Ord
+generated 9970..10216 <- __convenience_const
+generated 10334..10430 <- PartialEq
+generated 10430..10548 <- PartialOrd
+generated 10548..10645 <- Ord
+generated 10646..10799 <- PartialEq
+generated 10799..11260 <- PartialOrd
+generated 11260..11573 <- Ord
+generated 11675..11771 <- PartialEq
+generated 11771..11889 <- PartialOrd
+generated 11889..11986 <- Ord
+generated 11987..12316 <- PartialEq
+generated 12316..13214 <- PartialOrd
+generated 13214..13925 <- Ord
+
+## Metadata
+
+class Version: {"body_span":{"end":655,"start":606},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":584,"start":538}}],"fields":[{"decorators":[],"initializer":"0","name":"major","optional":false,"readonly":false,"span":{"end":630,"start":612},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"0","name":"minor","optional":false,"readonly":false,"span":{"end":653,"start":635},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Version","span":{"end":655,"start":592},"type_params":[]}
+class Release: {"body_span":{"end":758,"start":725},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":703,"start":657}}],"fields":[{"decorators":[],"initializer":"[]","name":"versions","optional":false,"readonly":false,"span":{"end":756,"start":731},"ts_type":"Version[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Release","span":{"end":758,"start":711},"type_params":[]}
+interface Scores: {"body_span":{"end":236,"start":211},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":186,"start":140}}],"fields":[{"decorators":[],"name":"values","optional":false,"readonly":false,"span":{"end":234,"start":217},"ts_type":"number[]"}],"heritage":[],"methods":[],"name":"Scores","span":{"end":236,"start":194},"type_params":[]}
+type Entry: {"body":{"Tuple":["name: string","rank: number","...tags: string[]"]},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":284,"start":238}}],"name":"Entry","span":{"end":353,"start":292},"type_params":[]}
+type Span: {"body":{"Tuple":["start: number","end?: number"]},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":401,"start":355}}],"name":"Span","span":{"end":451,"start":409},"type_params":[]}
+type Grid: {"body":{"Tuple":["number[]","Date"]},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":499,"start":453}}],"name":"Grid","span":{"end":536,"start":507},"type_params":[]}
+
+## Registry reads
+
+Name("Entry")
+Name("Grid")
+Name("Span")
+Name("Version")
+
+## Buildtime dependencies
+
+(none)

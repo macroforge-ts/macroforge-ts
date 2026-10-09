@@ -27,19 +27,25 @@ impl Pos {
     }
 }
 
-/// Calculate whitespace needed between two positions.
-/// Returns a string with newlines and/or spaces to bridge the gap.
-pub fn spacing_between(prev_end: Pos, curr_start: Pos) -> String {
+/// Whitespace bridging two positions: newlines and indentation measured from
+/// `base_col`, the template's own left edge, or the spaces between two tokens
+/// on one line. Blank lines collapse to one.
+pub fn spacing_between(prev_end: Pos, curr_start: Pos, base_col: usize) -> String {
     if curr_start.line > prev_end.line {
-        // Different lines: emit newlines + indentation
-        let newlines = curr_start.line - prev_end.line;
-        let indent = curr_start.col;
+        let newlines = (curr_start.line - prev_end.line).min(2);
+        let indent = curr_start.col.saturating_sub(base_col);
         format!("{}{}", "\n".repeat(newlines), " ".repeat(indent))
-    } else if curr_start.col > prev_end.col {
-        // Same line, gap between tokens
+    } else {
+        same_line_gap(prev_end, curr_start)
+    }
+}
+
+/// The spaces between two positions on one line, or nothing when the second
+/// starts on a later line.
+pub fn same_line_gap(prev_end: Pos, curr_start: Pos) -> String {
+    if curr_start.line == prev_end.line && curr_start.col > prev_end.col {
         " ".repeat(curr_start.col - prev_end.col)
     } else {
-        // No gap (or overlapping spans - shouldn't happen)
         String::new()
     }
 }

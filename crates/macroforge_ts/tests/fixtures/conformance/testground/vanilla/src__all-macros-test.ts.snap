@@ -1,0 +1,468 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/all-macros-test.ts
+sha256 e02fa45b0e34e7e55452bba7c953c4d8e1e9e7fcef7182fda9bc528a0fdc5cba
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * Comprehensive test class demonstrating all available macros.
+ * Used for Playwright e2e tests to verify macro expansion works at runtime.
+ */
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export class AllMacrosTestClass {
+    /** @debug({ rename: "identifier" }) */
+    id: number;
+
+    name: string;
+
+    email: string;
+
+    /** @debug({ skip: true }) */
+    secretToken: string;
+
+    isActive: boolean;
+
+    score: number;
+
+    static toString(value: AllMacrosTestClass): string {
+        return allMacrosTestClassToString(value);
+    }
+
+    static clone(value: AllMacrosTestClass): AllMacrosTestClass {
+        return allMacrosTestClassClone(value);
+    }
+
+    static equals(a: AllMacrosTestClass, b: AllMacrosTestClass): boolean {
+        return allMacrosTestClassEquals(a, b);
+    }
+
+    static hashCode(value: AllMacrosTestClass): number {
+        return allMacrosTestClassHashCode(value);
+    }
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: AllMacrosTestClass, keepMetadata?: boolean): string {
+        return allMacrosTestClassEncode(value, keepMetadata);
+    }
+
+    /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+    static encodeWithContext(value: AllMacrosTestClass, ctx: __mf_EncodeContext): Record<string, unknown> {
+        return allMacrosTestClassEncodeWithContext(value, ctx);
+    }
+
+    constructor(props: { id: number; name: string; email: string; secretToken: string; isActive: boolean; score: number }) {
+        this.id = props.id;
+        this.name = props.name;
+        this.email = props.email;
+        this.secretToken = props.secretToken;
+        this.isActive = props.isActive;
+        this.score = props.score;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AllMacrosTestClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = AllMacrosTestClass.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "AllMacrosTestClass.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): AllMacrosTestClass | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "AllMacrosTestClass.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as AllMacrosTestClass | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "AllMacrosTestClass.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("id" in obj)) {
+            errors.push({ field: "id", message: "missing required field" });
+        }
+        if (!("name" in obj)) {
+            errors.push({ field: "name", message: "missing required field" });
+        }
+        if (!("email" in obj)) {
+            errors.push({ field: "email", message: "missing required field" });
+        }
+        if (!("secretToken" in obj)) {
+            errors.push({ field: "secretToken", message: "missing required field" });
+        }
+        if (!("isActive" in obj)) {
+            errors.push({ field: "isActive", message: "missing required field" });
+        }
+        if (!("score" in obj)) {
+            errors.push({ field: "score", message: "missing required field" });
+        }
+
+        const instance = Object.create(AllMacrosTestClass.prototype) as AllMacrosTestClass;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_id = obj["id"] as number;
+
+            if (!(typeof __raw_id === "number")) {
+                errors.push({ field: "id", message: __raw_id == null ? "AllMacrosTestClass.id is required" : "expected number" });
+            } else {
+                instance.id = __raw_id;
+            }
+        }
+        {
+            const __raw_name = obj["name"] as string;
+
+            if (!(typeof __raw_name === "string")) {
+                errors.push({ field: "name", message: __raw_name == null ? "AllMacrosTestClass.name is required" : "expected string" });
+            } else {
+                instance.name = __raw_name;
+            }
+        }
+        {
+            const __raw_email = obj["email"] as string;
+
+            if (!(typeof __raw_email === "string")) {
+                errors.push({ field: "email", message: __raw_email == null ? "AllMacrosTestClass.email is required" : "expected string" });
+            } else {
+                instance.email = __raw_email;
+            }
+        }
+        {
+            const __raw_secretToken = obj["secretToken"] as string;
+
+            if (!(typeof __raw_secretToken === "string")) {
+                errors.push({ field: "secretToken", message: __raw_secretToken == null ? "AllMacrosTestClass.secretToken is required" : "expected string" });
+            } else {
+                instance.secretToken = __raw_secretToken;
+            }
+        }
+        {
+            const __raw_isActive = obj["isActive"] as boolean;
+
+            if (!(typeof __raw_isActive === "boolean")) {
+                errors.push({ field: "isActive", message: __raw_isActive == null ? "AllMacrosTestClass.isActive is required" : "expected boolean" });
+            } else {
+                instance.isActive = __raw_isActive;
+            }
+        }
+        {
+            const __raw_score = obj["score"] as number;
+
+            if (!(typeof __raw_score === "number")) {
+                errors.push({ field: "score", message: __raw_score == null ? "AllMacrosTestClass.score is required" : "expected number" });
+            } else {
+                instance.score = __raw_score;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof AllMacrosTestClass>(field: K, value: unknown): Array<{ field: string; message: string }>;
+    static validateField(): Array<{ field: string; message: string }> {
+        return [];
+    }
+
+    static validateFields(partial: { readonly [K in keyof AllMacrosTestClass]?: unknown }): Array<{ field: string; message: string }>;
+    static validateFields(): Array<{ field: string; message: string }> {
+        return [];
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "id" in o && "name" in o && "email" in o && "secretToken" in o && "isActive" in o && "score" in o;
+    }
+
+    static is(obj: unknown): obj is AllMacrosTestClass {
+        if (obj instanceof AllMacrosTestClass) {
+            return true;
+        }
+        if (!AllMacrosTestClass.hasShape(obj)) {
+            return false;
+        }
+        const result = AllMacrosTestClass.decode(obj);
+        return result.success;
+    }
+}
+
+export function allMacrosTestClassToString(value: AllMacrosTestClass): string {
+    const parts: string[] = [];
+    parts.push("identifier: " + String(value.id));
+    parts.push("name: " + String(value.name));
+    parts.push("email: " + String(value.email));
+    parts.push("isActive: " + String(value.isActive));
+    parts.push("score: " + String(value.score));
+    return "AllMacrosTestClass { " + parts.join(", ") + " }";
+}
+
+export function allMacrosTestClassClone(value: AllMacrosTestClass): AllMacrosTestClass {
+    const cloned = Object.create(Object.getPrototypeOf(value));
+    cloned.id = value.id;
+    cloned.name = value.name;
+    cloned.email = value.email;
+    cloned.secretToken = value.secretToken;
+    cloned.isActive = value.isActive;
+    cloned.score = value.score;
+    return cloned;
+}
+
+export function allMacrosTestClassEquals(a: AllMacrosTestClass, b: AllMacrosTestClass): boolean {
+    if (a === b) return true;
+    return a.id === b.id && a.name === b.name && a.email === b.email && a.secretToken === b.secretToken && a.isActive === b.isActive && a.score === b.score;
+}
+
+export function allMacrosTestClassHashCode(value: AllMacrosTestClass): number {
+    let hash = 17;
+    hash = (hash * 31 + (Number.isInteger(value.id) ? value.id | 0 : value.id.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.name ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.email ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.secretToken ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.isActive ? 1231 : 1237)) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.score) ? value.score | 0 : value.score.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    return hash;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function allMacrosTestClassEncode(value: AllMacrosTestClass, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = allMacrosTestClassEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function allMacrosTestClassEncodeWithContext(value: AllMacrosTestClass, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "AllMacrosTestClass",
+        __id,
+    };
+
+    
+    result.id = value.id;
+    result.name = value.name;
+    result.email = value.email;
+    result.secretToken = value.secretToken;
+    result.isActive = value.isActive;
+    result.score = value.score;
+
+    return result;
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function allMacrosTestClassDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AllMacrosTestClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return AllMacrosTestClass.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function allMacrosTestClassDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AllMacrosTestClass | __mf_PendingRef {
+    return AllMacrosTestClass.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function allMacrosTestClassIs(value: unknown): value is AllMacrosTestClass {
+    return AllMacrosTestClass.is(value);
+}
+
+// Pre-instantiated test instance for e2e tests
+export const testInstance = new AllMacrosTestClass({
+    id: 42,
+    name: 'Test User',
+    email: 'test@example.com',
+    secretToken: 'secret-token-123',
+    isActive: true,
+    score: 100
+});
+
+## DTS
+
+/**
+* Comprehensive test class demonstrating all available macros.
+* Used for Playwright e2e tests to verify macro expansion works at runtime.
+*/
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export declare class AllMacrosTestClass {
+	/** @debug({ rename: "identifier" }) */
+	id: number;
+	name: string;
+	email: string;
+	/** @debug({ skip: true }) */
+	secretToken: string;
+	isActive: boolean;
+	score: number;
+	static toString(value: AllMacrosTestClass): string;
+	static clone(value: AllMacrosTestClass): AllMacrosTestClass;
+	static equals(a: AllMacrosTestClass, b: AllMacrosTestClass): boolean;
+	static hashCode(value: AllMacrosTestClass): number;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: AllMacrosTestClass, keepMetadata?: boolean): string;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: AllMacrosTestClass, ctx: __mf_EncodeContext): Record<string, unknown>;
+	constructor(props: {
+		id: number;
+		name: string;
+		email: string;
+		secretToken: string;
+		isActive: boolean;
+		score: number;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: AllMacrosTestClass;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): AllMacrosTestClass | __mf_PendingRef;
+	static validateField<K extends keyof AllMacrosTestClass>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof AllMacrosTestClass]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is AllMacrosTestClass;
+}
+export declare function allMacrosTestClassToString(value: AllMacrosTestClass): string;
+export declare function allMacrosTestClassClone(value: AllMacrosTestClass): AllMacrosTestClass;
+export declare function allMacrosTestClassEquals(a: AllMacrosTestClass, b: AllMacrosTestClass): boolean;
+export declare function allMacrosTestClassHashCode(value: AllMacrosTestClass): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function allMacrosTestClassEncode(value: AllMacrosTestClass, keepMetadata?: boolean): string;
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function allMacrosTestClassEncodeWithContext(value: AllMacrosTestClass, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function allMacrosTestClassDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AllMacrosTestClass;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function allMacrosTestClassDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AllMacrosTestClass | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function allMacrosTestClassIs(value: unknown): value is AllMacrosTestClass;
+export declare const testInstance: unknown;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..449 -> expanded 262..711
+original 449..450 -> expanded 9181..9182
+original 450..695 -> expanded 13607..13852
+generated 0..262 <- imports
+generated 711..825 <- Debug
+generated 825..945 <- Clone
+generated 945..1074 <- PartialEq
+generated 1074..1188 <- Hash
+generated 1188..1867 <- Encode
+generated 1867..9181 <- Decode
+generated 9182..9610 <- Debug
+generated 9610..9987 <- Clone
+generated 9987..10275 <- PartialEq
+generated 10275..11117 <- Hash
+generated 11117..12463 <- Encode
+generated 12463..13607 <- Decode
+
+## Metadata
+
+class AllMacrosTestClass: {"body_span":{"end":451,"start":245},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":212,"start":151}}],"fields":[{"decorators":[{"args_src":"{ rename: \"identifier\" }","name":"debug","span":{"end":290,"start":251}}],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":306,"start":295},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":325,"start":312},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":345,"start":331},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":380,"start":351}}],"initializer":null,"name":"secretToken","optional":false,"readonly":false,"span":{"end":405,"start":385},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"isActive","optional":false,"readonly":false,"span":{"end":429,"start":411},"ts_type":"boolean","visibility":"Public"},{"decorators":[],"initializer":null,"name":"score","optional":false,"readonly":false,"span":{"end":449,"start":435},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"AllMacrosTestClass","span":{"end":451,"start":220},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

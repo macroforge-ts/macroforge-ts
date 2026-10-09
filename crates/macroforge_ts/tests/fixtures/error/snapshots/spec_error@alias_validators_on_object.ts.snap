@@ -24,7 +24,7 @@ type Contact = {
 ## DTS
 
 type Contact = {
-  address: string;
+	address: string;
 };
 
 ## Diagnostics

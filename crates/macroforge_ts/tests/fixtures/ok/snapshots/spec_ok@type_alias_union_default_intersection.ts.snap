@@ -36,11 +36,11 @@ export type EntityRecord =
     | ({ variant: 'Person' } & PersonRecord);
 
 export function entityRecordDefaultValue(): EntityRecord {
-                            return ({
+    return ({
 	variant: "Unknown",
 	...unknownRecordDefaultValue()
 });
-                        }
+}
 
 export const EntityRecord: {
   readonly defaultValue: typeof entityRecordDefaultValue;
@@ -51,29 +51,21 @@ export const EntityRecord: {
 ## DTS
 
 interface UnknownRecord {
-    source: string;
+	source: string;
 }
 interface PersonRecord {
-    name: string;
+	name: string;
 }
-
-
-export type EntityRecord =
-    | /** @default */ ({ variant: 'Unknown' } & UnknownRecord)
-    | ({ variant: 'Person' } & PersonRecord);
-
-export function entityRecordDefaultValue(): EntityRecord {
-                            return ({
-	variant: "Unknown",
-	...unknownRecordDefaultValue()
-});
-                        }
-
-export const EntityRecord: {
-  readonly defaultValue: typeof entityRecordDefaultValue;
-} = {
-  defaultValue: entityRecordDefaultValue
+export type EntityRecord = ({
+	variant: "Unknown";
+} & UnknownRecord) | ({
+	variant: "Person";
+} & PersonRecord);
+export declare function entityRecordDefaultValue(): EntityRecord;
+export declare const EntityRecord: {
+	readonly defaultValue: typeof entityRecordDefaultValue;
 };
+export {};
 
 ## Diagnostics
 
@@ -83,9 +75,9 @@ export const EntityRecord: {
 
 original 0..94 -> expanded 0..94
 original 117..253 -> expanded 94..230
-original 253..254 -> expanded 549..550
-generated 230..411 <- Default
-generated 411..549 <- __convenience_const
+original 253..254 -> expanded 501..502
+generated 230..363 <- Default
+generated 363..501 <- __convenience_const
 
 ## Metadata
 

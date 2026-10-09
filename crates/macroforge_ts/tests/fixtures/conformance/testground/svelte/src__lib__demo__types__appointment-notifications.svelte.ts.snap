@@ -1,0 +1,487 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/appointment-notifications.svelte.ts
+sha256 8e2214c17c43ec16932d01d49f54132db99d647cec9cbb6685fa2800f8e7ea5f
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+
+export interface AppointmentNotifications {
+    
+    personalScheduleChangeNotifications: string;
+    
+    allScheduleChangeNotifications: string;
+}
+
+export function appointmentNotificationsDefaultValue(): AppointmentNotifications {
+    return {
+        personalScheduleChangeNotifications: "",
+        allScheduleChangeNotifications: "",
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function appointmentNotificationsEncode(value: AppointmentNotifications, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = appointmentNotificationsEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function appointmentNotificationsEncodeWithContext(value: AppointmentNotifications, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "AppointmentNotifications",
+        __id,
+    };
+
+    
+    result.personalScheduleChangeNotifications = value.personalScheduleChangeNotifications;
+    result.allScheduleChangeNotifications = value.allScheduleChangeNotifications;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function appointmentNotificationsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AppointmentNotifications } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = appointmentNotificationsDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "AppointmentNotifications.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function appointmentNotificationsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AppointmentNotifications | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "AppointmentNotifications.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as AppointmentNotifications | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "AppointmentNotifications.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("personalScheduleChangeNotifications" in obj)) {
+        errors.push({ field: "personalScheduleChangeNotifications", message: "missing required field" });
+    }
+    if (!("allScheduleChangeNotifications" in obj)) {
+        errors.push({ field: "allScheduleChangeNotifications", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_personalScheduleChangeNotifications = obj["personalScheduleChangeNotifications"] as string;
+
+        if (!(typeof __raw_personalScheduleChangeNotifications === "string")) {
+            errors.push({ field: "personalScheduleChangeNotifications", message: __raw_personalScheduleChangeNotifications == null ? "AppointmentNotifications.personalScheduleChangeNotifications is required" : "expected string" });
+        } else {
+            if (__raw_personalScheduleChangeNotifications == null) { errors.push({ field: "personalScheduleChangeNotifications", message: "AppointmentNotifications.personalScheduleChangeNotifications is required" }); } else {
+                if (__raw_personalScheduleChangeNotifications.length === 0) { errors.push({ field: "personalScheduleChangeNotifications", message: "AppointmentNotifications.personalScheduleChangeNotifications must not be empty" }); }
+            }
+            instance.personalScheduleChangeNotifications = __raw_personalScheduleChangeNotifications;
+        }
+    }
+    {
+        const __raw_allScheduleChangeNotifications = obj["allScheduleChangeNotifications"] as string;
+
+        if (!(typeof __raw_allScheduleChangeNotifications === "string")) {
+            errors.push({ field: "allScheduleChangeNotifications", message: __raw_allScheduleChangeNotifications == null ? "AppointmentNotifications.allScheduleChangeNotifications is required" : "expected string" });
+        } else {
+            if (__raw_allScheduleChangeNotifications == null) { errors.push({ field: "allScheduleChangeNotifications", message: "AppointmentNotifications.allScheduleChangeNotifications is required" }); } else {
+                if (__raw_allScheduleChangeNotifications.length === 0) { errors.push({ field: "allScheduleChangeNotifications", message: "AppointmentNotifications.allScheduleChangeNotifications must not be empty" }); }
+            }
+            instance.allScheduleChangeNotifications = __raw_allScheduleChangeNotifications;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as AppointmentNotifications;
+}
+export function appointmentNotificationsValidateField<K extends keyof AppointmentNotifications>(field: K, value: unknown): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if (field === "personalScheduleChangeNotifications") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "personalScheduleChangeNotifications", message: "AppointmentNotifications.personalScheduleChangeNotifications is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "personalScheduleChangeNotifications", message: "AppointmentNotifications.personalScheduleChangeNotifications must not be empty" }); }
+        }
+    }
+    if (field === "allScheduleChangeNotifications") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "allScheduleChangeNotifications", message: "AppointmentNotifications.allScheduleChangeNotifications is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "allScheduleChangeNotifications", message: "AppointmentNotifications.allScheduleChangeNotifications must not be empty" }); }
+        }
+    }
+    return errors;
+}
+
+export function appointmentNotificationsValidateFields(partial: { readonly [K in keyof AppointmentNotifications]?: unknown }): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("personalScheduleChangeNotifications" in partial && partial.personalScheduleChangeNotifications !== undefined) {
+        const __val = partial.personalScheduleChangeNotifications as string;
+        if (__val == null) { errors.push({ field: "personalScheduleChangeNotifications", message: "AppointmentNotifications.personalScheduleChangeNotifications is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "personalScheduleChangeNotifications", message: "AppointmentNotifications.personalScheduleChangeNotifications must not be empty" }); }
+        }
+    }
+    if ("allScheduleChangeNotifications" in partial && partial.allScheduleChangeNotifications !== undefined) {
+        const __val = partial.allScheduleChangeNotifications as string;
+        if (__val == null) { errors.push({ field: "allScheduleChangeNotifications", message: "AppointmentNotifications.allScheduleChangeNotifications is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "allScheduleChangeNotifications", message: "AppointmentNotifications.allScheduleChangeNotifications must not be empty" }); }
+        }
+    }
+    return errors;
+}
+export function appointmentNotificationsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "personalScheduleChangeNotifications" in o && "allScheduleChangeNotifications" in o;
+}
+
+export function appointmentNotificationsIs(obj: unknown): obj is AppointmentNotifications {
+    return appointmentNotificationsHasShape(obj) && appointmentNotificationsDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type AppointmentNotificationsErrors = {
+    _errors: Option.Option<Array<string>>;
+    personalScheduleChangeNotifications: Option.Option<Array<string>>;
+    allScheduleChangeNotifications: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type AppointmentNotificationsTainted = {
+    personalScheduleChangeNotifications: Option.Option<boolean>;
+    allScheduleChangeNotifications: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface AppointmentNotificationsFieldControllers {
+    readonly personalScheduleChangeNotifications: FieldController<string>;
+    readonly allScheduleChangeNotifications: FieldController<string>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface AppointmentNotificationsGigaform {
+    readonly data: AppointmentNotifications;
+    readonly errors: AppointmentNotificationsErrors;
+    readonly tainted: AppointmentNotificationsTainted;
+    readonly fields: AppointmentNotificationsFieldControllers;
+    validate(): Exit.Exit<AppointmentNotifications, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<AppointmentNotifications>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function appointmentNotificationsCreateForm(overrides?: Partial<AppointmentNotifications>): AppointmentNotificationsGigaform {
+    let data = $state({ ...appointmentNotificationsDefaultValue(), ...overrides });
+    let errors = $state<AppointmentNotificationsErrors>({
+        _errors: Option.none(),
+        personalScheduleChangeNotifications: Option.none(),
+        allScheduleChangeNotifications: Option.none(),
+    });
+    let tainted = $state<AppointmentNotificationsTainted>({
+        personalScheduleChangeNotifications: Option.none(),
+        allScheduleChangeNotifications: Option.none(),
+    });
+    const fields = {
+        personalScheduleChangeNotifications: {
+            name: "personalScheduleChangeNotifications",
+            label: "personalScheduleChangeNotifications",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["personalScheduleChangeNotifications"],
+            get: () => data.personalScheduleChangeNotifications,
+            set: (value: string) => { data.personalScheduleChangeNotifications = value; },
+            getError: () => errors.personalScheduleChangeNotifications,
+            setError: (value: Option.Option<Array<string>>) => { errors.personalScheduleChangeNotifications = value; },
+            getTainted: () => tainted.personalScheduleChangeNotifications,
+            setTainted: (value: Option.Option<boolean>) => { tainted.personalScheduleChangeNotifications = value; },
+            validate: () => appointmentNotificationsValidateField("personalScheduleChangeNotifications", data.personalScheduleChangeNotifications).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        allScheduleChangeNotifications: {
+            name: "allScheduleChangeNotifications",
+            label: "allScheduleChangeNotifications",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["allScheduleChangeNotifications"],
+            get: () => data.allScheduleChangeNotifications,
+            set: (value: string) => { data.allScheduleChangeNotifications = value; },
+            getError: () => errors.allScheduleChangeNotifications,
+            setError: (value: Option.Option<Array<string>>) => { errors.allScheduleChangeNotifications = value; },
+            getTainted: () => tainted.allScheduleChangeNotifications,
+            setTainted: (value: Option.Option<boolean>) => { tainted.allScheduleChangeNotifications = value; },
+            validate: () => appointmentNotificationsValidateField("allScheduleChangeNotifications", data.allScheduleChangeNotifications).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as AppointmentNotificationsFieldControllers;
+
+    function validate(): Exit.Exit<AppointmentNotifications, Array<{ field: string; message: string }>> {
+        return toExit(appointmentNotificationsDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<AppointmentNotifications>): void {
+        data = { ...appointmentNotificationsDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            personalScheduleChangeNotifications: Option.none(),
+            allScheduleChangeNotifications: Option.none(),
+        };
+        tainted = {
+            personalScheduleChangeNotifications: Option.none(),
+            allScheduleChangeNotifications: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function appointmentNotificationsFromFormData(formData: FormData): Exit.Exit<AppointmentNotifications, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    obj.personalScheduleChangeNotifications = formData.get("personalScheduleChangeNotifications") ?? "";
+    obj.allScheduleChangeNotifications = formData.get("allScheduleChangeNotifications") ?? "";
+
+    return toExit(appointmentNotificationsDecode(obj));
+}
+
+export const AppointmentNotifications: {
+  readonly defaultValue: typeof appointmentNotificationsDefaultValue;
+  readonly encode: typeof appointmentNotificationsEncode;
+  readonly encodeWithContext: typeof appointmentNotificationsEncodeWithContext;
+  readonly decode: typeof appointmentNotificationsDecode;
+  readonly decodeWithContext: typeof appointmentNotificationsDecodeWithContext;
+  readonly validateField: typeof appointmentNotificationsValidateField;
+  readonly validateFields: typeof appointmentNotificationsValidateFields;
+  readonly hasShape: typeof appointmentNotificationsHasShape;
+  readonly is: typeof appointmentNotificationsIs;
+  readonly createForm: typeof appointmentNotificationsCreateForm;
+  readonly fromFormData: typeof appointmentNotificationsFromFormData;
+} = {
+  defaultValue: appointmentNotificationsDefaultValue,
+  encode: appointmentNotificationsEncode,
+  encodeWithContext: appointmentNotificationsEncodeWithContext,
+  decode: appointmentNotificationsDecode,
+  decodeWithContext: appointmentNotificationsDecodeWithContext,
+  validateField: appointmentNotificationsValidateField,
+  validateFields: appointmentNotificationsValidateFields,
+  hasShape: appointmentNotificationsHasShape,
+  is: appointmentNotificationsIs,
+  createForm: appointmentNotificationsCreateForm,
+  fromFormData: appointmentNotificationsFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+export interface AppointmentNotifications {
+	personalScheduleChangeNotifications: string;
+	allScheduleChangeNotifications: string;
+}
+export declare function appointmentNotificationsDefaultValue(): AppointmentNotifications;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function appointmentNotificationsEncode(value: AppointmentNotifications, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function appointmentNotificationsEncodeWithContext(value: AppointmentNotifications, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function appointmentNotificationsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AppointmentNotifications;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function appointmentNotificationsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AppointmentNotifications | __mf_PendingRef;
+export declare function appointmentNotificationsValidateField<K extends keyof AppointmentNotifications>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function appointmentNotificationsValidateFields(partial: { readonly [K in keyof AppointmentNotifications]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function appointmentNotificationsHasShape(obj: unknown): boolean;
+export declare function appointmentNotificationsIs(obj: unknown): obj is AppointmentNotifications;
+/** Nested error structure matching the data shape  */
+export type AppointmentNotificationsErrors = {
+	_errors: Option.Option<Array<string>>;
+	personalScheduleChangeNotifications: Option.Option<Array<string>>;
+	allScheduleChangeNotifications: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type AppointmentNotificationsTainted = {
+	personalScheduleChangeNotifications: Option.Option<boolean>;
+	allScheduleChangeNotifications: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface AppointmentNotificationsFieldControllers {
+	readonly personalScheduleChangeNotifications: FieldController<string>;
+	readonly allScheduleChangeNotifications: FieldController<string>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface AppointmentNotificationsGigaform {
+	readonly data: AppointmentNotifications;
+	readonly errors: AppointmentNotificationsErrors;
+	readonly tainted: AppointmentNotificationsTainted;
+	readonly fields: AppointmentNotificationsFieldControllers;
+	validate(): Exit.Exit<AppointmentNotifications, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<AppointmentNotifications>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function appointmentNotificationsCreateForm(overrides?: Partial<AppointmentNotifications>): AppointmentNotificationsGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function appointmentNotificationsFromFormData(formData: FormData): Exit.Exit<AppointmentNotifications, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const AppointmentNotifications: {
+	readonly defaultValue: typeof appointmentNotificationsDefaultValue;
+	readonly encode: typeof appointmentNotificationsEncode;
+	readonly encodeWithContext: typeof appointmentNotificationsEncodeWithContext;
+	readonly decode: typeof appointmentNotificationsDecode;
+	readonly decodeWithContext: typeof appointmentNotificationsDecodeWithContext;
+	readonly validateField: typeof appointmentNotificationsValidateField;
+	readonly validateFields: typeof appointmentNotificationsValidateFields;
+	readonly hasShape: typeof appointmentNotificationsHasShape;
+	readonly is: typeof appointmentNotificationsIs;
+	readonly createForm: typeof appointmentNotificationsCreateForm;
+	readonly fromFormData: typeof appointmentNotificationsFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 421..479
+original 107..156 -> expanded 479..528
+original 197..251 -> expanded 528..582
+original 292..338 -> expanded 582..628
+original 338..339 -> expanded 17659..17660
+generated 0..421 <- imports
+generated 628..827 <- Default
+generated 827..2171 <- Encode
+generated 2171..10393 <- Decode
+generated 10393..16305 <- Gigaform
+generated 16305..17659 <- __convenience_const
+
+## Metadata
+
+interface AppointmentNotifications: {"body_span":{"end":339,"start":151},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":198,"start":157}}],"name":"personalScheduleChangeNotifications","optional":false,"readonly":false,"span":{"end":247,"start":203},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":293,"start":252}}],"name":"allScheduleChangeNotifications","optional":false,"readonly":false,"span":{"end":337,"start":298},"ts_type":"string"}],"heritage":[],"methods":[],"name":"AppointmentNotifications","span":{"end":339,"start":116},"type_params":[]}
+
+## Registry reads
+
+Name("string")
+
+## Buildtime dependencies
+
+(none)

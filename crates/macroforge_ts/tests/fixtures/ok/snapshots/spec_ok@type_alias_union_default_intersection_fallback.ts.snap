@@ -36,11 +36,11 @@ export type Status =
     | ({ kind: 'Inactive' } & InactiveData);
 
 export function statusDefaultValue(): Status {
-                            return ({
+    return ({
 	kind: "Active",
 	...activeDataDefaultValue()
 });
-                        }
+}
 
 export const Status: {
   readonly defaultValue: typeof statusDefaultValue;
@@ -51,29 +51,21 @@ export const Status: {
 ## DTS
 
 interface ActiveData {
-    since: string;
+	since: string;
 }
 interface InactiveData {
-    reason: string;
+	reason: string;
 }
-
-
-export type Status =
-    | ({ kind: 'Active' } & ActiveData)
-    | ({ kind: 'Inactive' } & InactiveData);
-
-export function statusDefaultValue(): Status {
-                            return ({
-	kind: "Active",
-	...activeDataDefaultValue()
-});
-                        }
-
-export const Status: {
-  readonly defaultValue: typeof statusDefaultValue;
-} = {
-  defaultValue: statusDefaultValue
+export type Status = ({
+	kind: "Active";
+} & ActiveData) | ({
+	kind: "Inactive";
+} & InactiveData);
+export declare function statusDefaultValue(): Status;
+export declare const Status: {
+	readonly defaultValue: typeof statusDefaultValue;
 };
+export {};
 
 ## Diagnostics
 
@@ -83,9 +75,9 @@ export const Status: {
 
 original 0..92 -> expanded 0..92
 original 115..221 -> expanded 92..198
-original 221..222 -> expanded 480..481
-generated 198..360 <- Default
-generated 360..480 <- __convenience_const
+original 221..222 -> expanded 432..433
+generated 198..312 <- Default
+generated 312..432 <- __convenience_const
 
 ## Metadata
 

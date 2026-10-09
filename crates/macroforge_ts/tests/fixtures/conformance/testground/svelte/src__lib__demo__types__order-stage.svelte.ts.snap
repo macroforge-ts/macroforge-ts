@@ -1,0 +1,393 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/order-stage.svelte.ts
+sha256 70e7bedf59bde8a7dd1eb0b051c2ec848ccfe8586e2217a1602fde1d500d8b64
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+
+export type OrderStage = /** @default */ 'Estimate' | 'Active' | 'Invoice';
+
+export function orderStageDefaultValue(): OrderStage {
+    return "Estimate";
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function orderStageEncode(value: OrderStage, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = orderStageEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function orderStageEncodeWithContext(value: OrderStage, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    }
+    return __variant;
+}
+
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+export function orderStageDecode(input: unknown): { success: true; value: OrderStage } | { success: false; errors: Array<{ field: string; message: string }> } {
+    switch (input) {
+        case 'Estimate':
+        case 'Active':
+        case 'Invoice':
+            return { success: true, value: input as OrderStage };
+        default:
+            return { success: false, errors: [{ field: "_root", message: "Invalid value for OrderStage: expected one of " + ['Estimate', 'Active', 'Invoice'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
+    }
+}
+
+/** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+export function orderStageDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): OrderStage | __mf_PendingRef {
+    switch (value) {
+        case 'Estimate':
+        case 'Active':
+        case 'Invoice':
+            return value as OrderStage;
+        default:
+            throw new __mf_DecodeError([{
+                field: "_root",
+                message: "Invalid value for OrderStage: expected one of " + ['Estimate', 'Active', 'Invoice'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+            }]);
+    }
+}
+
+export function orderStageHasShape(value: unknown): boolean {
+    switch (value) {
+        case 'Estimate':
+        case 'Active':
+        case 'Invoice':
+            return true;
+        default:
+            return false;
+    }
+}
+
+export function orderStageIs(value: unknown): value is OrderStage {
+    return orderStageHasShape(value);
+}
+
+/** Per-variant error types  */
+
+export type OrderStageEstimateErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+export type OrderStageActiveErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+export type OrderStageInvoiceErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+
+/** Per-variant tainted types  */
+
+export type OrderStageEstimateTainted = {
+};
+export type OrderStageActiveTainted = {
+};
+export type OrderStageInvoiceTainted = {
+};
+
+/** Union error type  */
+export type OrderStageErrors = ({ _value: "Estimate" } & OrderStageEstimateErrors) | ({ _value: "Active" } & OrderStageActiveErrors) | ({ _value: "Invoice" } & OrderStageInvoiceErrors);
+
+/** Union tainted type  */
+export type OrderStageTainted = ({ _value: "Estimate" } & OrderStageEstimateTainted) | ({ _value: "Active" } & OrderStageActiveTainted) | ({ _value: "Invoice" } & OrderStageInvoiceTainted);
+
+/** Per-variant field controller types  */
+
+export interface OrderStageEstimateFieldControllers {
+}
+export interface OrderStageActiveFieldControllers {
+}
+export interface OrderStageInvoiceFieldControllers {
+}
+
+/** Union Gigaform interface with variant switching  */
+export interface OrderStageGigaform {
+    readonly currentVariant: "Estimate" | "Active" | "Invoice";
+    readonly data: OrderStage;
+    readonly errors: OrderStageErrors;
+    readonly tainted: OrderStageTainted;
+    readonly variants: OrderStageVariantFields;
+    switchVariant(variant: "Estimate" | "Active" | "Invoice"): void;
+    validate(): Exit.Exit<OrderStage, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<OrderStage>): void;
+}
+
+/** Variant fields container  */
+export interface OrderStageVariantFields {
+    readonly Estimate: { readonly fields: OrderStageEstimateFieldControllers };
+    readonly Active: { readonly fields: OrderStageActiveFieldControllers };
+    readonly Invoice: { readonly fields: OrderStageInvoiceFieldControllers };
+}
+/** Gets default value for a specific variant  */
+function orderStageGetDefaultForVariant(variant: string): OrderStage {
+    if (variant === "Estimate") { return "Estimate" as OrderStage; }
+    if (variant === "Active") { return "Active" as OrderStage; }
+    if (variant === "Invoice") { return "Invoice" as OrderStage; }
+    return "Estimate" as OrderStage;
+}
+
+/** Creates a new discriminated union Gigaform with variant switching  */
+export function orderStageCreateForm(initial?: OrderStage): OrderStageGigaform {
+
+    const initialVariant: "Estimate" | "Active" | "Invoice" = (initial as "Estimate" | "Active" | "Invoice") ?? "Estimate";
+
+    let currentVariant = $state<"Estimate" | "Active" | "Invoice">(initialVariant);
+    let data = $state<OrderStage>(initial ?? orderStageGetDefaultForVariant(initialVariant));
+    let errors = $state<OrderStageErrors>({} as OrderStageErrors);
+    let tainted = $state<OrderStageTainted>({} as OrderStageTainted);
+
+    const variants = {
+        "Estimate": { fields: {  } as unknown as OrderStageEstimateFieldControllers },
+        "Active": { fields: {  } as unknown as OrderStageActiveFieldControllers },
+        "Invoice": { fields: {  } as unknown as OrderStageInvoiceFieldControllers },
+    } as unknown as OrderStageVariantFields;
+
+    function switchVariant(variant: "Estimate" | "Active" | "Invoice"): void {
+        currentVariant = variant;
+        data = orderStageGetDefaultForVariant(variant);
+        errors = {} as OrderStageErrors;
+        tainted = {} as OrderStageTainted;
+    }
+
+    function validate(): Exit.Exit<OrderStage, Array<{ field: string; message: string }>> {
+        return toExit(orderStageDecode(data));
+    }
+
+    function reset(overrides?: Partial<OrderStage>): void {
+        data = overrides ? overrides as typeof data : orderStageGetDefaultForVariant(currentVariant);
+        errors = {} as OrderStageErrors;
+        tainted = {} as OrderStageTainted;
+    }
+
+    return {
+        get currentVariant() { return currentVariant; },
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        variants,
+        switchVariant,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData for union type, determining variant from discriminant field  */
+export function orderStageFromFormData(formData: FormData): Exit.Exit<OrderStage, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as "Estimate" | "Active" | "Invoice" | null;
+
+    if (!discriminant) {
+        return toExit({ success: false, errors: [{ field: "_value", message: "Missing discriminant field" }] });
+    }
+
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+
+    {
+
+        if (discriminant === "Estimate") {
+
+        }
+    }
+    {
+
+        if (discriminant === "Active") {
+
+        }
+    }
+    {
+
+        if (discriminant === "Invoice") {
+
+        }
+    }
+
+    return toExit(orderStageDecode(obj));
+}
+
+export const OrderStage: {
+  readonly defaultValue: typeof orderStageDefaultValue;
+  readonly encode: typeof orderStageEncode;
+  readonly encodeWithContext: typeof orderStageEncodeWithContext;
+  readonly decode: typeof orderStageDecode;
+  readonly decodeWithContext: typeof orderStageDecodeWithContext;
+  readonly hasShape: typeof orderStageHasShape;
+  readonly is: typeof orderStageIs;
+  readonly createForm: typeof orderStageCreateForm;
+  readonly fromFormData: typeof orderStageFromFormData;
+} = {
+  defaultValue: orderStageDefaultValue,
+  encode: orderStageEncode,
+  encodeWithContext: orderStageEncodeWithContext,
+  decode: orderStageDecode,
+  decodeWithContext: orderStageDecodeWithContext,
+  hasShape: orderStageHasShape,
+  is: orderStageIs,
+  createForm: orderStageCreateForm,
+  fromFormData: orderStageFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+export type OrderStage = "Estimate" | "Active" | "Invoice";
+export declare function orderStageDefaultValue(): OrderStage;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function orderStageEncode(value: OrderStage, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function orderStageEncodeWithContext(value: OrderStage, ctx: __mf_EncodeContext): unknown;
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+export declare function orderStageDecode(input: unknown): {
+	success: true;
+	value: OrderStage;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+export declare function orderStageDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): OrderStage | __mf_PendingRef;
+export declare function orderStageHasShape(value: unknown): boolean;
+export declare function orderStageIs(value: unknown): value is OrderStage;
+/** Per-variant error types  */
+export type OrderStageEstimateErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+export type OrderStageActiveErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+export type OrderStageInvoiceErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+/** Per-variant tainted types  */
+export type OrderStageEstimateTainted = {};
+export type OrderStageActiveTainted = {};
+export type OrderStageInvoiceTainted = {};
+/** Union error type  */
+export type OrderStageErrors = ({
+	_value: "Estimate";
+} & OrderStageEstimateErrors) | ({
+	_value: "Active";
+} & OrderStageActiveErrors) | ({
+	_value: "Invoice";
+} & OrderStageInvoiceErrors);
+/** Union tainted type  */
+export type OrderStageTainted = ({
+	_value: "Estimate";
+} & OrderStageEstimateTainted) | ({
+	_value: "Active";
+} & OrderStageActiveTainted) | ({
+	_value: "Invoice";
+} & OrderStageInvoiceTainted);
+/** Per-variant field controller types  */
+export interface OrderStageEstimateFieldControllers {}
+export interface OrderStageActiveFieldControllers {}
+export interface OrderStageInvoiceFieldControllers {}
+/** Union Gigaform interface with variant switching  */
+export interface OrderStageGigaform {
+	readonly currentVariant: "Estimate" | "Active" | "Invoice";
+	readonly data: OrderStage;
+	readonly errors: OrderStageErrors;
+	readonly tainted: OrderStageTainted;
+	readonly variants: OrderStageVariantFields;
+	switchVariant(variant: "Estimate" | "Active" | "Invoice"): void;
+	validate(): Exit.Exit<OrderStage, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<OrderStage>): void;
+}
+/** Variant fields container  */
+export interface OrderStageVariantFields {
+	readonly Estimate: {
+		readonly fields: OrderStageEstimateFieldControllers;
+	};
+	readonly Active: {
+		readonly fields: OrderStageActiveFieldControllers;
+	};
+	readonly Invoice: {
+		readonly fields: OrderStageInvoiceFieldControllers;
+	};
+}
+/** Creates a new discriminated union Gigaform with variant switching  */
+export declare function orderStageCreateForm(initial?: OrderStage): OrderStageGigaform;
+/** Parses FormData for union type, determining variant from discriminant field  */
+export declare function orderStageFromFormData(formData: FormData): Exit.Exit<OrderStage, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const OrderStage: {
+	readonly defaultValue: typeof orderStageDefaultValue;
+	readonly encode: typeof orderStageEncode;
+	readonly encodeWithContext: typeof orderStageEncodeWithContext;
+	readonly decode: typeof orderStageDecode;
+	readonly decodeWithContext: typeof orderStageDecodeWithContext;
+	readonly hasShape: typeof orderStageHasShape;
+	readonly is: typeof orderStageIs;
+	readonly createForm: typeof orderStageCreateForm;
+	readonly fromFormData: typeof orderStageFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 460..518
+original 107..183 -> expanded 518..594
+original 183..184 -> expanded 9637..9638
+generated 0..460 <- imports
+generated 594..675 <- Default
+generated 675..1993 <- Encode
+generated 1993..3774 <- Decode
+generated 3774..8809 <- Gigaform
+generated 8809..9637 <- __convenience_const
+
+## Metadata
+
+type OrderStage: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":149,"start":134}}],"kind":{"Literal":"'Estimate'"}},{"decorators":[],"kind":{"Literal":"'Active'"}},{"decorators":[],"kind":{"Literal":"'Invoice'"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"name":"OrderStage","span":{"end":184,"start":116},"type_params":[]}
+
+## Registry reads
+
+Name("OrderStage")
+
+## Buildtime dependencies
+
+(none)

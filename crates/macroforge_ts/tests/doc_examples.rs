@@ -3,7 +3,7 @@
 
 use std::sync::Arc;
 
-use macroforge_ts::builtin::derive_common::{extract_named_string, has_flag};
+use macroforge_ts::builtin::derive::common::{extract_named_string, has_flag};
 use macroforge_ts::host::{MacroRegistry, Macroforge};
 use macroforge_ts::macros::{ts_macro_derive, ts_quote, ts_template};
 use macroforge_ts::ts_syn::abi::{MacroContextIR, SpanIR};

@@ -1,6 +1,6 @@
-// Foreign type whose expression bodies use JS globals (Math, Array,
-// console, Date). Globals must NEVER be aliased or imported: they live
-// in the JS runtime. The cache must reference them unchanged.
+// Handlers that read JS globals (Math, Array, console, Date). The globals
+// stay inside the expanded handlers; the generated file imports only the
+// handler exports.
 import { DateTime } from 'effect';
 
 export default {

@@ -1,0 +1,12 @@
+/** import macro {Gigaform} from "@testground/macro"; */
+
+import type { RowHeight } from './row-height.svelte';
+
+/** @derive(Default, Encode, Decode, Gigaform) */
+export interface ScheduleSettings {
+    daysPerWeek: number;
+    /** @default("Medium") */
+    rowHeight: RowHeight;
+    visibleRoutes: Array<string>;
+    detailedCards: boolean;
+}

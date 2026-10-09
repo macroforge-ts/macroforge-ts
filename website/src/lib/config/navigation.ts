@@ -59,6 +59,8 @@ export function resolvePath(path: Pathname): ResolvedPathname {
             return resolve('/docs/endec/field-options');
         case '/docs/endec/foreign-types':
             return resolve('/docs/endec/foreign-types');
+        case '/docs/endec/foreign-types/expanded-config':
+            return resolve('/docs/endec/foreign-types/expanded-config');
         case '/docs/endec/cycles-and-references':
             return resolve('/docs/endec/cycles-and-references');
         case '/docs/attributes':
@@ -79,6 +81,8 @@ export function resolvePath(path: Pathname): ResolvedPathname {
             return resolve('/docs/builtin-macros/default');
         case '/docs/builtin-macros/hash':
             return resolve('/docs/builtin-macros/hash');
+        case '/docs/builtin-macros/eq':
+            return resolve('/docs/builtin-macros/eq');
         case '/docs/builtin-macros/ord':
             return resolve('/docs/builtin-macros/ord');
         case '/docs/builtin-macros/partial-eq':
@@ -211,6 +215,7 @@ export const navigation: NavSection[] = [
             { title: 'Hash', href: '/docs/builtin-macros/hash' },
             { title: 'Ord', href: '/docs/builtin-macros/ord' },
             { title: 'PartialEq', href: '/docs/builtin-macros/partial-eq' },
+            { title: 'Eq', href: '/docs/builtin-macros/eq' },
             { title: 'PartialOrd', href: '/docs/builtin-macros/partial-ord' },
             { title: 'Encode', href: '/docs/builtin-macros/encode' },
             { title: 'Decode', href: '/docs/builtin-macros/decode' },
@@ -225,6 +230,7 @@ export const navigation: NavSection[] = [
             { title: 'Container Options', href: '/docs/endec/container-options' },
             { title: 'Field Options', href: '/docs/endec/field-options' },
             { title: 'Foreign Types', href: '/docs/endec/foreign-types' },
+            { title: 'Expanded Config', href: '/docs/endec/foreign-types/expanded-config' },
             { title: 'Cycles & References', href: '/docs/endec/cycles-and-references' }
         ]
     },

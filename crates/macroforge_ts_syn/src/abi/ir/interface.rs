@@ -25,6 +25,8 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::abi::ir::TypeParamIR;
+
 use crate::abi::{DecoratorIR, SpanIR};
 
 /// Intermediate representation of a TypeScript interface declaration.
@@ -74,8 +76,8 @@ pub struct InterfaceIR {
     /// Source span of the interface body (between `{` and `}`).
     pub body_span: SpanIR,
 
-    /// Generic type parameters (e.g., `["T"]` for `interface Foo<T>`).
-    pub type_params: Vec<String>,
+    /// Generic type parameters as declared (`T` for `interface Foo<T>`).
+    pub type_params: Vec<TypeParamIR>,
 
     /// Extended interfaces (from `extends` clause).
     /// For `interface Foo extends Bar, Baz`, this would be `["Bar", "Baz"]`.
@@ -175,7 +177,7 @@ impl InterfaceFieldIR {
 ///
 /// The `InterfaceMethodIR` would have:
 /// - `name`: `"process"`
-/// - `type_params_src`: `"<T>"`
+/// - `type_params`: `T`
 /// - `params_src`: `"input: T"`
 /// - `return_type_src`: `"Promise<Result<T>>"`
 /// - `optional`: `false`
@@ -187,8 +189,8 @@ pub struct InterfaceMethodIR {
     /// Source span of the method signature.
     pub span: SpanIR,
 
-    /// Type parameters as source string (e.g., `"<T>"`).
-    pub type_params_src: String,
+    /// Generic type parameters as declared.
+    pub type_params: Vec<TypeParamIR>,
 
     /// Method parameters as source string.
     pub params_src: String,

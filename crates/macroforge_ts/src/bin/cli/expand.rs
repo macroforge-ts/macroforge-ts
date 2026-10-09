@@ -3,7 +3,7 @@ use ignore::WalkBuilder;
 use macroforge_ts::host::MacroExpansion;
 use macroforge_ts::host::project::{ProjectRegistries, expand_project_file};
 use macroforge_ts::line_index::LineIndex;
-use macroforge_ts::ts_syn::abi::Diagnostic;
+use macroforge_ts::ts_syn::abi::{Diagnostic, DiagnosticLevel};
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -152,7 +152,11 @@ pub fn scan_and_expand(
         match result {
             Ok(Some(file)) => {
                 files_expanded += 1;
-                emit_diagnostics(&file.expansion, &file.source, path);
+                emit_diagnostics(&file.expansion.diagnostics, &file.source, path);
+                if error_count(&file.expansion) > 0 {
+                    failures += 1;
+                    continue;
+                }
 
                 if let Some(out_dir) = &opts.out_dir {
                     write_file(&out_dir.join(rel), &file.expansion.code)?;
@@ -160,6 +164,7 @@ pub fn scan_and_expand(
                 if let Some(types_dir) = &opts.types_out_dir
                     && let Some(types) = file.expansion.type_output.as_ref()
                 {
+                    emit_diagnostics(&file.expansion.type_output_diagnostics, &file.source, path);
                     write_file(&types_dir.join(type_surface_rel_path(rel)), types)?;
                 }
                 if opts.emit_expanded {
@@ -350,11 +355,29 @@ pub(crate) fn try_expand_file(
         return Ok(false);
     };
 
-    emit_diagnostics(&expansion, &source, &input);
+    emit_diagnostics(&expansion.diagnostics, &source, &input);
+    // Code a macro reported an error in is not written: like a compile error,
+    // it fails the command instead.
+    let errors = error_count(&expansion);
+    if errors > 0 {
+        return Err(anyhow!(
+            "{errors} macro error(s) in {}; nothing was written",
+            input.display()
+        ));
+    }
     emit_runtime_output(&expansion, &input, out.as_ref(), print)?;
-    emit_type_output(&expansion, &input, types_out.as_ref(), print)?;
+    emit_type_output(&expansion, &source, &input, types_out.as_ref(), print)?;
 
     Ok(true)
+}
+
+/// How many of an expansion's diagnostics are errors.
+fn error_count(expansion: &MacroExpansion) -> usize {
+    expansion
+        .diagnostics
+        .iter()
+        .filter(|diagnostic| diagnostic.level == DiagnosticLevel::Error)
+        .count()
 }
 
 /// Routes one file's expanded runtime code: to `explicit_out` when given,
@@ -395,6 +418,7 @@ fn emit_runtime_output(
 /// * `print` - Whether to print type declarations to stdout
 fn emit_type_output(
     result: &MacroExpansion,
+    source: &str,
     input: &Path,
     explicit_out: Option<&PathBuf>,
     print: bool,
@@ -402,6 +426,9 @@ fn emit_type_output(
     let Some(types) = result.type_output.as_ref() else {
         return Ok(());
     };
+    if explicit_out.is_some() || print {
+        emit_diagnostics(&result.type_output_diagnostics, source, input);
+    }
 
     if let Some(path) = explicit_out {
         write_file(path, types)?;
@@ -441,16 +468,15 @@ fn copy_file(src: &Path, dest: &Path) -> Result<()> {
     Ok(())
 }
 
-/// Prints macro expansion diagnostics (warnings, errors) to stderr.
-///
-/// Each diagnostic is formatted with its level, file location, and message.
-pub(crate) fn emit_diagnostics(expansion: &MacroExpansion, source: &str, input: &Path) {
-    if expansion.diagnostics.is_empty() {
+/// Prints `diagnostics` (warnings, errors) of `input` to stderr, each with its
+/// level, location in `source` and message.
+pub(crate) fn emit_diagnostics(diagnostics: &[Diagnostic], source: &str, input: &Path) {
+    if diagnostics.is_empty() {
         return;
     }
 
     let lines = LineIndex::new(source);
-    for diagnostic in &expansion.diagnostics {
+    for diagnostic in diagnostics {
         eprintln!("{}", format_diagnostic(diagnostic, source, &lines, input));
         for note in &diagnostic.notes {
             eprintln!("[macroforge]   note: {note}");

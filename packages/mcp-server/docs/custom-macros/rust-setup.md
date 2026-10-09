@@ -34,7 +34,7 @@ edition = "2024"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-macroforge_ts = "0.4"
+macroforge_ts = "0.5"
 
 [profile.release]
 lto = true

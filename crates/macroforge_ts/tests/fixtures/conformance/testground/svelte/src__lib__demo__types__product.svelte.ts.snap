@@ -1,0 +1,937 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/product.svelte.ts
+sha256 fe50a34dccc87803d5800375d8a3b78babdfea03e610c1e58687cb717dcbc3a6
+
+## Changed
+
+true
+
+## Output
+
+import { productDefaultsDecodeWithContext, productDefaultsEncodeWithContext, productDefaultsDefaultValue } from "./product-defaults.svelte";
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+import type { ProductDefaults } from './product-defaults.svelte';
+
+
+export interface Product {
+    
+    id: string;
+    
+    
+    name: string;
+    
+    
+    quickCode: string;
+    
+    group: string | null;
+    
+    subgroup: string | null;
+    
+    unit: string | null;
+    
+    active: boolean;
+    
+    commission: boolean;
+    
+    favorite: boolean;
+    defaults: ProductDefaults;
+}
+
+export function productDefaultValue(): Product {
+    return {
+        id: "",
+        name: "",
+        quickCode: "",
+        group: null,
+        subgroup: null,
+        unit: null,
+        active: false,
+        commission: false,
+        favorite: false,
+        defaults: productDefaultsDefaultValue(),
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function productEncode(value: Product, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = productEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function productEncodeWithContext(value: Product, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Product",
+        __id,
+    };
+
+    
+    result.id = value.id;
+    result.name = value.name;
+    result.quickCode = value.quickCode;
+    result.group = value.group;
+    result.subgroup = value.subgroup;
+    result.unit = value.unit;
+    result.active = value.active;
+    result.commission = value.commission;
+    result.favorite = value.favorite;
+    result.defaults = productDefaultsEncodeWithContext(value.defaults, ctx);
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function productDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Product } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = productDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Product.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Product | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Product.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Product | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Product.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+    if (!("name" in obj)) {
+        errors.push({ field: "name", message: "missing required field" });
+    }
+    if (!("quickCode" in obj)) {
+        errors.push({ field: "quickCode", message: "missing required field" });
+    }
+    if (!("group" in obj)) {
+        errors.push({ field: "group", message: "missing required field" });
+    }
+    if (!("subgroup" in obj)) {
+        errors.push({ field: "subgroup", message: "missing required field" });
+    }
+    if (!("unit" in obj)) {
+        errors.push({ field: "unit", message: "missing required field" });
+    }
+    if (!("active" in obj)) {
+        errors.push({ field: "active", message: "missing required field" });
+    }
+    if (!("commission" in obj)) {
+        errors.push({ field: "commission", message: "missing required field" });
+    }
+    if (!("favorite" in obj)) {
+        errors.push({ field: "favorite", message: "missing required field" });
+    }
+    if (!("defaults" in obj)) {
+        errors.push({ field: "defaults", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_id = obj["id"] as string;
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "Product.id is required" : "expected string" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    {
+        const __raw_name = obj["name"] as string;
+
+        if (!(typeof __raw_name === "string")) {
+            errors.push({ field: "name", message: __raw_name == null ? "Product.name is required" : "expected string" });
+        } else {
+            if (__raw_name == null) { errors.push({ field: "name", message: "Product.name is required" }); } else {
+                if (__raw_name.length === 0) { errors.push({ field: "name", message: "Product.name must not be empty" }); }
+            }
+            instance.name = __raw_name;
+        }
+    }
+    {
+        const __raw_quickCode = obj["quickCode"] as string;
+
+        if (!(typeof __raw_quickCode === "string")) {
+            errors.push({ field: "quickCode", message: __raw_quickCode == null ? "Product.quickCode is required" : "expected string" });
+        } else {
+            if (__raw_quickCode == null) { errors.push({ field: "quickCode", message: "Product.quickCode is required" }); } else {
+                if (__raw_quickCode.length === 0) { errors.push({ field: "quickCode", message: "Product.quickCode must not be empty" }); }
+            }
+            instance.quickCode = __raw_quickCode;
+        }
+    }
+    {
+        const __raw_group = obj["group"] as string | null;
+
+        if (!(typeof __raw_group === "string" || __raw_group === null)) {
+            errors.push({ field: "group", message: "expected string | null" });
+        } else {
+            instance.group = __raw_group;
+        }
+    }
+    {
+        const __raw_subgroup = obj["subgroup"] as string | null;
+
+        if (!(typeof __raw_subgroup === "string" || __raw_subgroup === null)) {
+            errors.push({ field: "subgroup", message: "expected string | null" });
+        } else {
+            instance.subgroup = __raw_subgroup;
+        }
+    }
+    {
+        const __raw_unit = obj["unit"] as string | null;
+
+        if (!(typeof __raw_unit === "string" || __raw_unit === null)) {
+            errors.push({ field: "unit", message: "expected string | null" });
+        } else {
+            instance.unit = __raw_unit;
+        }
+    }
+    {
+        const __raw_active = obj["active"] as boolean;
+
+        if (!(typeof __raw_active === "boolean")) {
+            errors.push({ field: "active", message: __raw_active == null ? "Product.active is required" : "expected boolean" });
+        } else {
+            instance.active = __raw_active;
+        }
+    }
+    {
+        const __raw_commission = obj["commission"] as boolean;
+
+        if (!(typeof __raw_commission === "boolean")) {
+            errors.push({ field: "commission", message: __raw_commission == null ? "Product.commission is required" : "expected boolean" });
+        } else {
+            instance.commission = __raw_commission;
+        }
+    }
+    {
+        const __raw_favorite = obj["favorite"] as boolean;
+
+        if (!(typeof __raw_favorite === "boolean")) {
+            errors.push({ field: "favorite", message: __raw_favorite == null ? "Product.favorite is required" : "expected boolean" });
+        } else {
+            instance.favorite = __raw_favorite;
+        }
+    }
+    {
+        const __raw_defaults = obj["defaults"] as ProductDefaults;
+
+        ctx.pushScope("defaults");
+        try {
+            const __result = productDefaultsDecodeWithContext(__raw_defaults, ctx);
+            ctx.assignOrDefer(instance, "defaults", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "defaults" : "defaults." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Product;
+}
+export function productValidateField<K extends keyof Product>(field: K, value: unknown): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if (field === "name") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "name", message: "Product.name is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "name", message: "Product.name must not be empty" }); }
+        }
+    }
+    if (field === "quickCode") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "quickCode", message: "Product.quickCode is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "quickCode", message: "Product.quickCode must not be empty" }); }
+        }
+    }
+    return errors;
+}
+
+export function productValidateFields(partial: { readonly [K in keyof Product]?: unknown }): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+        const __val = partial.name as string;
+        if (__val == null) { errors.push({ field: "name", message: "Product.name is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "name", message: "Product.name must not be empty" }); }
+        }
+    }
+    if ("quickCode" in partial && partial.quickCode !== undefined) {
+        const __val = partial.quickCode as string;
+        if (__val == null) { errors.push({ field: "quickCode", message: "Product.quickCode is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "quickCode", message: "Product.quickCode must not be empty" }); }
+        }
+    }
+    return errors;
+}
+export function productHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "id" in o && "name" in o && "quickCode" in o && "group" in o && "subgroup" in o && "unit" in o && "active" in o && "commission" in o && "favorite" in o && "defaults" in o;
+}
+
+export function productIs(obj: unknown): obj is Product {
+    return productHasShape(obj) && productDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type ProductErrors = {
+    _errors: Option.Option<Array<string>>;
+    id: Option.Option<Array<string>>;
+    name: Option.Option<Array<string>>;
+    quickCode: Option.Option<Array<string>>;
+    group: Option.Option<Array<string>>;
+    subgroup: Option.Option<Array<string>>;
+    unit: Option.Option<Array<string>>;
+    active: Option.Option<Array<string>>;
+    commission: Option.Option<Array<string>>;
+    favorite: Option.Option<Array<string>>;
+    defaults: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type ProductTainted = {
+    id: Option.Option<boolean>;
+    name: Option.Option<boolean>;
+    quickCode: Option.Option<boolean>;
+    group: Option.Option<boolean>;
+    subgroup: Option.Option<boolean>;
+    unit: Option.Option<boolean>;
+    active: Option.Option<boolean>;
+    commission: Option.Option<boolean>;
+    favorite: Option.Option<boolean>;
+    defaults: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface ProductFieldControllers {
+    readonly id: FieldController<string>;
+    readonly name: FieldController<string>;
+    readonly quickCode: FieldController<string>;
+    readonly group: FieldController<string | null>;
+    readonly subgroup: FieldController<string | null>;
+    readonly unit: FieldController<string | null>;
+    readonly active: FieldController<boolean>;
+    readonly commission: FieldController<boolean>;
+    readonly favorite: FieldController<boolean>;
+    readonly defaults: FieldController<ProductDefaults>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface ProductGigaform {
+    readonly data: Product;
+    readonly errors: ProductErrors;
+    readonly tainted: ProductTainted;
+    readonly fields: ProductFieldControllers;
+    validate(): Exit.Exit<Product, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Product>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function productCreateForm(overrides?: Partial<Product>): ProductGigaform {
+    let data = $state({ ...productDefaultValue(), ...overrides });
+    let errors = $state<ProductErrors>({
+        _errors: Option.none(),
+        id: Option.none(),
+        name: Option.none(),
+        quickCode: Option.none(),
+        group: Option.none(),
+        subgroup: Option.none(),
+        unit: Option.none(),
+        active: Option.none(),
+        commission: Option.none(),
+        favorite: Option.none(),
+        defaults: Option.none(),
+    });
+    let tainted = $state<ProductTainted>({
+        id: Option.none(),
+        name: Option.none(),
+        quickCode: Option.none(),
+        group: Option.none(),
+        subgroup: Option.none(),
+        unit: Option.none(),
+        active: Option.none(),
+        commission: Option.none(),
+        favorite: Option.none(),
+        defaults: Option.none(),
+    });
+    const fields = {
+        id: {
+            name: "id",
+            label: "id",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["id"],
+            get: () => data.id,
+            set: (value: string) => { data.id = value; },
+            getError: () => errors.id,
+            setError: (value: Option.Option<Array<string>>) => { errors.id = value; },
+            getTainted: () => tainted.id,
+            setTainted: (value: Option.Option<boolean>) => { tainted.id = value; },
+            validate: () => productValidateField("id", data.id).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        name: {
+            name: "name",
+            label: "Name",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["name"],
+            get: () => data.name,
+            set: (value: string) => { data.name = value; },
+            getError: () => errors.name,
+            setError: (value: Option.Option<Array<string>>) => { errors.name = value; },
+            getTainted: () => tainted.name,
+            setTainted: (value: Option.Option<boolean>) => { tainted.name = value; },
+            validate: () => productValidateField("name", data.name).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        quickCode: {
+            name: "quickCode",
+            label: "Quick Code",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["quickCode"],
+            get: () => data.quickCode,
+            set: (value: string) => { data.quickCode = value; },
+            getError: () => errors.quickCode,
+            setError: (value: Option.Option<Array<string>>) => { errors.quickCode = value; },
+            getTainted: () => tainted.quickCode,
+            setTainted: (value: Option.Option<boolean>) => { tainted.quickCode = value; },
+            validate: () => productValidateField("quickCode", data.quickCode).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        group: {
+            name: "group",
+            label: "Group",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["group"],
+            get: () => data.group,
+            set: (value: string | null) => { data.group = value; },
+            getError: () => errors.group,
+            setError: (value: Option.Option<Array<string>>) => { errors.group = value; },
+            getTainted: () => tainted.group,
+            setTainted: (value: Option.Option<boolean>) => { tainted.group = value; },
+            validate: () => productValidateField("group", data.group).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        subgroup: {
+            name: "subgroup",
+            label: "Subgroup",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["subgroup"],
+            get: () => data.subgroup,
+            set: (value: string | null) => { data.subgroup = value; },
+            getError: () => errors.subgroup,
+            setError: (value: Option.Option<Array<string>>) => { errors.subgroup = value; },
+            getTainted: () => tainted.subgroup,
+            setTainted: (value: Option.Option<boolean>) => { tainted.subgroup = value; },
+            validate: () => productValidateField("subgroup", data.subgroup).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        unit: {
+            name: "unit",
+            label: "Unit",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["unit"],
+            get: () => data.unit,
+            set: (value: string | null) => { data.unit = value; },
+            getError: () => errors.unit,
+            setError: (value: Option.Option<Array<string>>) => { errors.unit = value; },
+            getTainted: () => tainted.unit,
+            setTainted: (value: Option.Option<boolean>) => { tainted.unit = value; },
+            validate: () => productValidateField("unit", data.unit).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        active: {
+            name: "active",
+            label: "Active",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["active"],
+            get: () => data.active,
+            set: (value: boolean) => { data.active = value; },
+            getError: () => errors.active,
+            setError: (value: Option.Option<Array<string>>) => { errors.active = value; },
+            getTainted: () => tainted.active,
+            setTainted: (value: Option.Option<boolean>) => { tainted.active = value; },
+            validate: () => productValidateField("active", data.active).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        commission: {
+            name: "commission",
+            label: "Commission",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["commission"],
+            get: () => data.commission,
+            set: (value: boolean) => { data.commission = value; },
+            getError: () => errors.commission,
+            setError: (value: Option.Option<Array<string>>) => { errors.commission = value; },
+            getTainted: () => tainted.commission,
+            setTainted: (value: Option.Option<boolean>) => { tainted.commission = value; },
+            validate: () => productValidateField("commission", data.commission).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        favorite: {
+            name: "favorite",
+            label: "Favorite",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["favorite"],
+            get: () => data.favorite,
+            set: (value: boolean) => { data.favorite = value; },
+            getError: () => errors.favorite,
+            setError: (value: Option.Option<Array<string>>) => { errors.favorite = value; },
+            getTainted: () => tainted.favorite,
+            setTainted: (value: Option.Option<boolean>) => { tainted.favorite = value; },
+            validate: () => productValidateField("favorite", data.favorite).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        defaults: {
+            name: "defaults",
+            label: "defaults",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["defaults"],
+            get: () => data.defaults,
+            set: (value: ProductDefaults) => { data.defaults = value; },
+            getError: () => errors.defaults,
+            setError: (value: Option.Option<Array<string>>) => { errors.defaults = value; },
+            getTainted: () => tainted.defaults,
+            setTainted: (value: Option.Option<boolean>) => { tainted.defaults = value; },
+            validate: () => productValidateField("defaults", data.defaults).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as ProductFieldControllers;
+
+    function validate(): Exit.Exit<Product, Array<{ field: string; message: string }>> {
+        return toExit(productDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<Product>): void {
+        data = { ...productDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            id: Option.none(),
+            name: Option.none(),
+            quickCode: Option.none(),
+            group: Option.none(),
+            subgroup: Option.none(),
+            unit: Option.none(),
+            active: Option.none(),
+            commission: Option.none(),
+            favorite: Option.none(),
+            defaults: Option.none(),
+        };
+        tainted = {
+            id: Option.none(),
+            name: Option.none(),
+            quickCode: Option.none(),
+            group: Option.none(),
+            subgroup: Option.none(),
+            unit: Option.none(),
+            active: Option.none(),
+            commission: Option.none(),
+            favorite: Option.none(),
+            defaults: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function productFromFormData(formData: FormData): Exit.Exit<Product, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    obj.id = formData.get("id") ?? "";
+    obj.name = formData.get("name") ?? "";
+    obj.quickCode = formData.get("quickCode") ?? "";
+    obj.group = formData.get("group") ?? "";
+    obj.subgroup = formData.get("subgroup") ?? "";
+    obj.unit = formData.get("unit") ?? "";
+    {
+        const activeVal = formData.get("active");
+        obj.active = activeVal === "true" || activeVal === "on" || activeVal === "1";
+    }
+    {
+        const commissionVal = formData.get("commission");
+        obj.commission = commissionVal === "true" || commissionVal === "on" || commissionVal === "1";
+    }
+    {
+        const favoriteVal = formData.get("favorite");
+        obj.favorite = favoriteVal === "true" || favoriteVal === "on" || favoriteVal === "1";
+    }
+    {
+
+        const defaultsObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("defaults.")) {
+                const fieldName = key.slice("defaults.".length);
+
+                const parts = fieldName.split(".");
+                let current = defaultsObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.defaults = defaultsObj;
+    }
+
+    return toExit(productDecode(obj));
+}
+
+export const Product: {
+  readonly defaultValue: typeof productDefaultValue;
+  readonly encode: typeof productEncode;
+  readonly encodeWithContext: typeof productEncodeWithContext;
+  readonly decode: typeof productDecode;
+  readonly decodeWithContext: typeof productDecodeWithContext;
+  readonly validateField: typeof productValidateField;
+  readonly validateFields: typeof productValidateFields;
+  readonly hasShape: typeof productHasShape;
+  readonly is: typeof productIs;
+  readonly createForm: typeof productCreateForm;
+  readonly fromFormData: typeof productFromFormData;
+} = {
+  defaultValue: productDefaultValue,
+  encode: productEncode,
+  encodeWithContext: productEncodeWithContext,
+  decode: productDecode,
+  decodeWithContext: productDecodeWithContext,
+  validateField: productValidateField,
+  validateFields: productValidateFields,
+  hasShape: productHasShape,
+  is: productIs,
+  createForm: productCreateForm,
+  fromFormData: productFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+import type { ProductDefaults } from "./product-defaults.svelte";
+export interface Product {
+	id: string;
+	name: string;
+	quickCode: string;
+	group: string | null;
+	subgroup: string | null;
+	unit: string | null;
+	active: boolean;
+	commission: boolean;
+	favorite: boolean;
+	defaults: ProductDefaults;
+}
+export declare function productDefaultValue(): Product;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function productEncode(value: Product, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function productEncodeWithContext(value: Product, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function productDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Product;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function productDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Product | __mf_PendingRef;
+export declare function productValidateField<K extends keyof Product>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function productValidateFields(partial: { readonly [K in keyof Product]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function productHasShape(obj: unknown): boolean;
+export declare function productIs(obj: unknown): obj is Product;
+/** Nested error structure matching the data shape  */
+export type ProductErrors = {
+	_errors: Option.Option<Array<string>>;
+	id: Option.Option<Array<string>>;
+	name: Option.Option<Array<string>>;
+	quickCode: Option.Option<Array<string>>;
+	group: Option.Option<Array<string>>;
+	subgroup: Option.Option<Array<string>>;
+	unit: Option.Option<Array<string>>;
+	active: Option.Option<Array<string>>;
+	commission: Option.Option<Array<string>>;
+	favorite: Option.Option<Array<string>>;
+	defaults: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type ProductTainted = {
+	id: Option.Option<boolean>;
+	name: Option.Option<boolean>;
+	quickCode: Option.Option<boolean>;
+	group: Option.Option<boolean>;
+	subgroup: Option.Option<boolean>;
+	unit: Option.Option<boolean>;
+	active: Option.Option<boolean>;
+	commission: Option.Option<boolean>;
+	favorite: Option.Option<boolean>;
+	defaults: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface ProductFieldControllers {
+	readonly id: FieldController<string>;
+	readonly name: FieldController<string>;
+	readonly quickCode: FieldController<string>;
+	readonly group: FieldController<string | null>;
+	readonly subgroup: FieldController<string | null>;
+	readonly unit: FieldController<string | null>;
+	readonly active: FieldController<boolean>;
+	readonly commission: FieldController<boolean>;
+	readonly favorite: FieldController<boolean>;
+	readonly defaults: FieldController<ProductDefaults>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface ProductGigaform {
+	readonly data: Product;
+	readonly errors: ProductErrors;
+	readonly tainted: ProductTainted;
+	readonly fields: ProductFieldControllers;
+	validate(): Exit.Exit<Product, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<Product>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function productCreateForm(overrides?: Partial<Product>): ProductGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function productFromFormData(formData: FormData): Exit.Exit<Product, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const Product: {
+	readonly defaultValue: typeof productDefaultValue;
+	readonly encode: typeof productEncode;
+	readonly encodeWithContext: typeof productEncodeWithContext;
+	readonly decode: typeof productDecode;
+	readonly decodeWithContext: typeof productDecodeWithContext;
+	readonly validateField: typeof productValidateField;
+	readonly validateFields: typeof productValidateFields;
+	readonly hasShape: typeof productHasShape;
+	readonly is: typeof productIs;
+	readonly createForm: typeof productCreateForm;
+	readonly fromFormData: typeof productFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..125 -> expanded 562..687
+original 174..206 -> expanded 687..719
+original 234..255 -> expanded 719..740
+original 296..301 -> expanded 740..745
+original 342..365 -> expanded 745..768
+original 412..417 -> expanded 768..773
+original 458..486 -> expanded 773..801
+original 551..582 -> expanded 801..832
+original 650..684 -> expanded 832..866
+original 748..778 -> expanded 866..896
+original 823..849 -> expanded 896..922
+original 898..928 -> expanded 922..952
+original 975..1031 -> expanded 952..1008
+original 1031..1032 -> expanded 28148..28149
+generated 0..562 <- imports
+generated 1008..1326 <- Default
+generated 1326..2781 <- Encode
+generated 2781..12916 <- Decode
+generated 12916..27185 <- Gigaform
+generated 27185..28148 <- __convenience_const
+
+## Metadata
+
+interface Product: {"body_span":{"end":1032,"start":201},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":175,"start":126}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":235,"start":207}}],"name":"id","optional":false,"readonly":false,"span":{"end":251,"start":240},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":343,"start":302}},{"args_src":"{ label: \"Name\" }","name":"textController","span":{"end":297,"start":256}}],"name":"name","optional":false,"readonly":false,"span":{"end":361,"start":348},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":459,"start":418}},{"args_src":"{ label: \"Quick Code\" }","name":"textController","span":{"end":413,"start":366}}],"name":"quickCode","optional":false,"readonly":false,"span":{"end":482,"start":464},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Group\", allowCustom: true }","name":"comboboxController","span":{"end":552,"start":487}}],"name":"group","optional":false,"readonly":false,"span":{"end":578,"start":557},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Subgroup\", allowCustom: true }","name":"comboboxController","span":{"end":651,"start":583}}],"name":"subgroup","optional":false,"readonly":false,"span":{"end":680,"start":656},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Unit\", allowCustom: true }","name":"comboboxController","span":{"end":749,"start":685}}],"name":"unit","optional":false,"readonly":false,"span":{"end":774,"start":754},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Active\" }","name":"switchController","span":{"end":824,"start":779}}],"name":"active","optional":false,"readonly":false,"span":{"end":845,"start":829},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Commission\" }","name":"switchController","span":{"end":899,"start":850}}],"name":"commission","optional":false,"readonly":false,"span":{"end":924,"start":904},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Favorite\" }","name":"switchController","span":{"end":976,"start":929}}],"name":"favorite","optional":false,"readonly":false,"span":{"end":999,"start":981},"ts_type":"boolean"},{"decorators":[],"name":"defaults","optional":false,"readonly":false,"span":{"end":1030,"start":1004},"ts_type":"ProductDefaults"}],"heritage":[],"methods":[],"name":"Product","span":{"end":1032,"start":183},"type_params":[]}
+
+## Registry reads
+
+Name("ProductDefaults")
+Name("boolean")
+Name("string")
+
+## Buildtime dependencies
+
+(none)

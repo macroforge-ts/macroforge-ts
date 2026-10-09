@@ -38,38 +38,39 @@ export class User {
     this.email = email;
   }
 
-static toString(value: User): string {
-                    return userToString(value);
-                }
-static clone(value: User): User {
-                    return userClone(value);
-                }
-static equals(a: User, b: User): boolean {
-                    return userEquals(a, b);
-                }}
+    static toString(value: User): string {
+        return userToString(value);
+    }
+
+    static clone(value: User): User {
+        return userClone(value);
+    }
+
+    static equals(a: User, b: User): boolean {
+        return userEquals(a, b);
+    }
+}
 
 export function userToString(value: User): string {
-                        const parts: string[] = [];
-                        parts.push("name: " + value.name);
-parts.push("age: " + value.age);
-parts.push("email: " + value.email);
-
-                        return "User { " + parts.join(", ") + " }";
-                    }
+    const parts: string[] = [];
+    parts.push("name: " + String(value.name));
+    parts.push("age: " + String(value.age));
+    parts.push("email: " + String(value.email));
+    return "User { " + parts.join(", ") + " }";
+}
 
 export function userClone(value: User): User {
-                    const cloned = Object.create(Object.getPrototypeOf(value));
-                    cloned.name = value.name;
-cloned.age = value.age;
-cloned.email = value.email;
-
-                    return cloned;
-                }
+    const cloned = Object.create(Object.getPrototypeOf(value));
+    cloned.name = value.name;
+    cloned.age = value.age;
+    cloned.email = value.email;
+    return cloned;
+}
 
 export function userEquals(a: User, b: User): boolean {
-                    if (a === b) return true;
-                    return a.name === b.name && a.age === b.age && a.email === b.email;
-                }
+    if (a === b) return true;
+    return a.name === b.name && a.age === b.age && a.email === b.email;
+}
 ```
 
 ## Using the Generated Methods
@@ -141,17 +142,17 @@ export class User {
     this.password = password;
   }
 
-static toString(value: User): string {
-                    return userToString(value);
-                }}
+    static toString(value: User): string {
+        return userToString(value);
+    }
+}
 
 export function userToString(value: User): string {
-                        const parts: string[] = [];
-                        parts.push("userId: " + value.id);
-parts.push("name: " + value.name);
-
-                        return "User { " + parts.join(", ") + " }";
-                    }
+    const parts: string[] = [];
+    parts.push("userId: " + String(value.id));
+    parts.push("name: " + String(value.name));
+    return "User { " + parts.join(", ") + " }";
+}
 ```
 
 TypeScript

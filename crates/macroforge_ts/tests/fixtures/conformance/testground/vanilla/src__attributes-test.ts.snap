@@ -1,0 +1,105 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/attributes-test.ts
+sha256 1247c1c897a1e46e5042ff07325c1e20a8113d277cc7b5d60681f425a6536fcb
+
+## Changed
+
+true
+
+## Output
+
+// End-to-end fixture for the four Rust-inspired attribute macros:
+// `@cfg`, `@deprecated`, `@mustUse`, `@nonExhaustive`.
+//
+// `macroforge.config.ts` sets `cfg.features = ['testground']` and
+// `cfg.target = 'web'`. With those flags:
+//
+// - `@cfg({ feature: 'testground' })`  ⇒  declaration kept
+// - `@cfg({ feature: 'never' })`       ⇒  declaration stripped (export becomes undefined)
+// - `@cfg({ target: 'web' })`          ⇒  kept
+// - `@cfg({ target: 'node' })`         ⇒  stripped
+//
+// `@deprecated` rewrites the JSDoc to a tsc-readable form, which
+// `tests/expansion.test.mjs` covers; runtime can only confirm the function
+// still exists since JSDoc isn't reflected.
+//
+// `@mustUse` only flags discarded call sites. We consume the return below so
+// no diagnostic fires and the testground stays buildable.
+//
+// `@nonExhaustive` brands a type alias's RHS at type-level only. The runtime
+// artifact is just the type alias declaration; the brand intersection lives
+// in the snapshot.
+
+
+export function keptByTestground(): string {
+    return 'kept-by-feature';
+}
+
+
+
+
+export function keptByWebTarget(): string {
+    return 'kept-by-target';
+}
+
+
+
+/** @deprecated use renderV2 instead */
+export function renderV1(): string {
+    return 'render-v1';
+}
+
+
+export function openConnection(): { close: () => void } {
+    return { close() {} };
+}
+
+
+export type ServerStatus = ('green' | 'yellow' | 'red') & { readonly __nonExhaustive: unique symbol };
+
+// Used to verify the type still typechecks after the brand intersection
+// added by `@nonExhaustive`. External code constructing a `ServerStatus`
+// must cast through the brand. That is the point of the brand.
+export const exampleStatus = 'green' as ServerStatus;
+
+// Consume the @mustUse return value so no diagnostic fires at build time.
+const handle = openConnection();
+handle.close();
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..1007 -> expanded 0..1007
+original 1045..1124 -> expanded 1007..1086
+original 1262..1264 -> expanded 1086..1088
+original 1294..1371 -> expanded 1088..1165
+original 1486..1488 -> expanded 1165..1167
+original 1550..1615 -> expanded 1206..1271
+original 1666..1755 -> expanded 1271..1360
+original 1776..1804 -> expanded 1360..1388
+original 1830..2223 -> expanded 1462..1855
+generated 1167..1206 <- deprecated
+generated 1388..1462 <- nonExhaustive
+
+## Metadata
+
+type ServerStatus: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"'green' | 'yellow' | 'red'"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"__nonExhaustive","optional":false,"readonly":true,"span":{"end":1461,"start":1422},"ts_type":"unique symbol"}]}}}]},"decorators":[],"name":"ServerStatus","span":{"end":1464,"start":1369},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

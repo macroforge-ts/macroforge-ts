@@ -331,7 +331,7 @@ interface Point {
 #[test]
 fn test_interface_derive_macros_default_to_prefix_functions() {
     let source = r#"
-/** @derive(Debug, Clone, PartialEq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
 export interface Point {
     x: number;
     y: number;
@@ -394,23 +394,21 @@ export interface User {
         );
 
         // ...and it should add corresponding imports from the original module specifier.
-        assert!(
-            result
-                .code
-                .contains("import { metadataEncodeWithContext } from \"./metadata.svelte\";"),
-            "Expected metadataEncodeWithContext import to be added"
-        );
-        assert!(
-            result
-                .code
-                .contains("import { metadataDecodeWithContext } from \"./metadata.svelte\";"),
-            "Expected metadataDecodeWithContext import to be added"
-        );
-        assert!(
-            result
-                .code
-                .contains("import { metadataDefaultValue } from \"./metadata.svelte\";"),
-            "Expected metadataDefaultValue import to be added"
+        let metadata_imports: Vec<&str> = result
+            .code
+            .lines()
+            .filter(|line| {
+                line.ends_with("} from \"./metadata.svelte\";")
+                    && line.contains("metadataDefaultValue")
+            })
+            .collect();
+        assert_eq!(
+            metadata_imports,
+            [
+                "import { metadataDecodeWithContext, metadataEncodeWithContext, metadataDefaultValue } from \"./metadata.svelte\";"
+            ],
+            "Expected one import of the three metadata functions. Got:\n{}",
+            result.code
         );
     }
 }

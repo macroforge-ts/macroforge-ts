@@ -49,6 +49,7 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::abi::ir::TypeParamIR;
 use crate::abi::{DecoratorIR, InterfaceFieldIR, SpanIR};
 
 /// Intermediate representation of a TypeScript type alias declaration.
@@ -68,7 +69,7 @@ use crate::abi::{DecoratorIR, InterfaceFieldIR, SpanIR};
 ///
 /// The `TypeAliasIR` would have:
 /// - `name`: `"Result"`
-/// - `type_params`: `["T", "E"]`
+/// - `type_params`: `T` and `E`
 /// - `body`: `TypeBody::Union([...])`
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct TypeAliasIR {
@@ -81,8 +82,8 @@ pub struct TypeAliasIR {
     /// Decorators applied to the type alias (from JSDoc).
     pub decorators: Vec<DecoratorIR>,
 
-    /// Generic type parameters (e.g., `["T", "E"]` for `type Result<T, E>`).
-    pub type_params: Vec<String>,
+    /// Generic type parameters as declared (`T`, `E` for `type Result<T, E>`).
+    pub type_params: Vec<TypeParamIR>,
 
     /// The body/definition of the type alias.
     pub body: TypeBody,
@@ -115,6 +116,7 @@ impl TypeAliasIR {
 /// | `{ x: T }` | `Object` |
 /// | `[A, B]` | `Tuple` |
 /// | `SomeType` | `Alias` |
+/// | `$Newtype<T>` | `Newtype` |
 /// | `Partial<T>` | `Other` (complex) |
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub enum TypeBody {
@@ -164,6 +166,15 @@ pub enum TypeBody {
     ///
     /// The string contains the raw source of the type.
     Other(String),
+
+    /// A nominal brand over another type, as `$Newtype<T>` declares it.
+    ///
+    /// Example: `type Meters = $Newtype<number>`
+    ///
+    /// Holds the branded type. The unexpanded macro call and its expansion
+    /// (`T & { readonly [__mf_newtype_N]: true }`) both lower to this, so a
+    /// derive sees one shape whichever form it reads.
+    Newtype(Box<TypeBody>),
 }
 
 impl Default for TypeBody {
@@ -182,6 +193,7 @@ impl TypeBody {
             TypeBody::Object { fields } => {
                 fields.iter_mut().for_each(InterfaceFieldIR::clear_spans);
             }
+            TypeBody::Newtype(inner) => inner.clear_spans(),
             TypeBody::Tuple(_) | TypeBody::Alias(_) | TypeBody::Other(_) => {}
         }
     }
@@ -243,6 +255,14 @@ impl TypeBody {
         }
     }
 
+    /// Returns the branded type if this is a newtype
+    pub fn as_newtype(&self) -> Option<&TypeBody> {
+        match self {
+            TypeBody::Newtype(inner) => Some(inner),
+            _ => None,
+        }
+    }
+
     /// Returns the aliased type if this is a simple alias
     pub fn as_alias(&self) -> Option<&str> {
         match self {
@@ -259,6 +279,7 @@ impl TypeBody {
     /// brands (`number & { readonly __brand: "Meters" }`) and `number & {}`.
     pub fn primitive_base(&self) -> Option<&str> {
         match self {
+            TypeBody::Newtype(inner) => inner.primitive_base(),
             TypeBody::Alias(name) | TypeBody::Other(name) => typeof_primitive(name),
             TypeBody::Intersection(members) => {
                 let mut base = None;
@@ -278,6 +299,12 @@ impl TypeBody {
         }
     }
 }
+
+/// The name of the built-in nominal brand macro.
+pub const NEWTYPE_MACRO: &str = "$Newtype";
+
+/// The prefix of the `unique symbol` each `$Newtype` expansion brands with.
+pub const NEWTYPE_BRAND_PREFIX: &str = "__mf_newtype_";
 
 /// Returns `name` trimmed when it is a primitive keyword whose runtime `typeof`
 /// has the same name, and so can be checked and branded.

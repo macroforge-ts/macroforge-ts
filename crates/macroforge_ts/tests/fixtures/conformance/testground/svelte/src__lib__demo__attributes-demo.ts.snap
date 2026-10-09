@@ -1,0 +1,90 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/attributes-demo.ts
+sha256 ca7fe4c897e61b7879ddac5acd2855301ee81b98af6661c218bffe8c0cdd8435
+
+## Changed
+
+true
+
+## Output
+
+// Mirror of `testground/vanilla/src/attributes-test.ts` for the SvelteKit
+// testground. The two fixtures share the same set of annotations so the
+// vanilla and svelte e2e suites stay in lockstep: fixing a bug in one
+// testground's expansion uncovers it in the other.
+//
+// `testground/svelte/macroforge.config.ts` sets
+// `cfg.features = ['testground']` and `cfg.target = 'web'`.
+
+
+export function keptByTestground(): string {
+    return 'kept-by-feature';
+}
+
+
+
+
+export function keptByWebTarget(): string {
+    return 'kept-by-target';
+}
+
+
+
+/** @deprecated use renderV2 instead */
+export function renderV1(): string {
+    return 'render-v1';
+}
+
+
+export function openConnection(): { close: () => void } {
+    return { close() {} };
+}
+
+
+export type ServerStatus = ('green' | 'yellow' | 'red') & { readonly __nonExhaustive: unique symbol };
+
+// External code constructing a `ServerStatus` must cast through the brand
+// `@nonExhaustive` adds. That is the point of the brand.
+export const exampleStatus = 'green' as ServerStatus;
+
+// Consume the @mustUse return value so no diagnostic fires at build time.
+const handle = openConnection();
+handle.close();
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..385 -> expanded 0..385
+original 423..502 -> expanded 385..464
+original 640..642 -> expanded 464..466
+original 672..749 -> expanded 466..543
+original 864..866 -> expanded 543..545
+original 928..993 -> expanded 584..649
+original 1044..1133 -> expanded 649..738
+original 1154..1182 -> expanded 738..766
+original 1208..1523 -> expanded 840..1155
+generated 545..584 <- deprecated
+generated 766..840 <- nonExhaustive
+
+## Metadata
+
+type ServerStatus: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"'green' | 'yellow' | 'red'"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"__nonExhaustive","optional":false,"readonly":true,"span":{"end":839,"start":800},"ts_type":"unique symbol"}]}}}]},"decorators":[],"name":"ServerStatus","span":{"end":842,"start":747},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

@@ -21,20 +21,13 @@ export enum Status {
     Inactive
 }
 
-export function statusToString(value: Status): string {const key = Status[value as unknown as keyof typeof Status];
-                        if (key !== undefined) {
-                            return "Status." + key;
-                        }
-                        return "Status(" + String(value) + ")";
-
-
-
-
-
-
-
-
-                }
+export function statusToString(value: Status): string {
+    const key = Status[value as unknown as keyof typeof Status];
+    if (key !== undefined) {
+        return "Status." + key;
+    }
+    return "Status(" + String(value) + ")";
+}
 
 export namespace Status {
   export const toString: typeof statusToString = statusToString;
@@ -42,28 +35,13 @@ export namespace Status {
 
 ## DTS
 
-export enum Status {
-    Active,
-    Inactive
+export declare enum Status {
+	Active = 0,
+	Inactive = 1
 }
-
-export function statusToString(value: Status): string {const key = Status[value as unknown as keyof typeof Status];
-                        if (key !== undefined) {
-                            return "Status." + key;
-                        }
-                        return "Status(" + String(value) + ")";
-
-
-
-
-
-
-
-
-                }
-
-export namespace Status {
-  export const toString: typeof statusToString = statusToString;
+export declare function statusToString(value: Status): string;
+export declare namespace Status {
+	const toString: typeof statusToString;
 }
 
 ## Diagnostics
@@ -73,9 +51,9 @@ export namespace Status {
 ## Mapping
 
 original 21..69 -> expanded 0..48
-original 69..70 -> expanded 476..477
-generated 48..382 <- Debug
-generated 382..476 <- __convenience_const
+original 69..70 -> expanded 377..378
+generated 48..283 <- Debug
+generated 283..377 <- __convenience_const
 
 ## Metadata
 

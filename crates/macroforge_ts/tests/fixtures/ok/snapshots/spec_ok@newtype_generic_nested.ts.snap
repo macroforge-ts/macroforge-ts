@@ -16,9 +16,7 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
-import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
-import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 declare const __mf_newtype_3: unique symbol;
@@ -26,117 +24,90 @@ declare const __mf_newtype_2: unique symbol;
 
 export type Id<T> = string & { readonly [__mf_newtype_1]: true };
 
-/** Encodes a value to a JSON string. @param value - The value to encode @param _keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
-                    export function idEncode<T>(value: Id<T>, _keepMetadata?: boolean): string {return JSON.stringify(value);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export function idEncode<T>(value: Id<T>, keepMetadata?: boolean): string;
+export function idEncode<T>(value: Id<T>): string {
+    return JSON.stringify(value);
+}
 
-
-
-
-                    }
-
-                    /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param _ctx - The encoding context, unused for primitives  */
-                    export function idEncodeWithContext<T>(value: Id<T>, _ctx: __mf_EncodeContext): unknown {return value;
-
-
-
-
-                    }
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export function idEncodeWithContext<T>(value: Id<T>, ctx: __mf_EncodeContext): unknown;
+export function idEncodeWithContext<T>(value: Id<T>): unknown {
+    return value;
+}
 
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-        export function idDecode<T>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Id<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
-            try {
-                const data = input;
+export function idDecode<T>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Id<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = input;
 
-                const ctx = __mf_DecodeContext.create();
-                const result = idDecodeWithContext<T>(data, ctx);
-                if (opts?.freeze) {
-                    ctx.freezeAll();
-                }
+        const ctx = __mf_DecodeContext.create();
+        const result = idDecodeWithContext<T>(data, ctx);
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
 
-                const __errors = ctx.getErrors();
-                if (__errors.length > 0) {
-                    return ({
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
 	success: false,
 	errors: __errors
 });
-                }
+        }
 
-                return ({
+        return ({
 	success: true,
 	value: result
 });
-            } catch (e) {
-                if (e instanceof __mf_DecodeError) {
-                    return ({
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
 	success: false,
 	errors: e.errors
 });
-                }
-                const message = e instanceof Error ? e.message : String(e);
-                return ({
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
 	success: false,
 	errors: [{
 		field: "_root",
 		message
 	}]
 });
-            }
-        }
+    }
+}
 
-        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-        export function idDecodeWithContext<T>(value: unknown, _ctx: __mf_DecodeContext): Id<T> {const __decoded: unknown = value;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function idDecodeWithContext<T>(value: unknown, _ctx: __mf_DecodeContext): Id<T> {
+    const __decoded: unknown = value;
+    if (typeof __decoded !== "string") {
+        throw new __mf_DecodeError([{ field: "_root", message: "Id.decodeWithContext: expected string" }]);
+    }
+    return __decoded as Id<T>;
+}
 
+export function idHasShape(value: unknown): boolean {
+    return typeof value === "string";
+}
 
-
-
-
-
-
-
-
-
-
-            if (typeof __decoded !== "string") {
-                throw new __mf_DecodeError([{ field: "_root", message: "Id.decodeWithContext: expected string" }]);
-            }
-
-
-
-
-            return __decoded as Id<T>;
-        }
-
-        export function idValidateField<T, K extends keyof Id<T>>(
-            _field: K,
-            _value: Id[K]
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
-
-        export function idValidateFields(
-            _partial: Partial<Id>
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
-
-        export function idHasShape<T>(value: unknown): boolean {return typeof value === "string";
-
-
-
-
-        }
-
-        export function idIs<T>(value: unknown): value is Id<T> {return typeof value === "string";
-
-
-
-
-        }
+export function idIs<T>(value: unknown): value is Id<T> {
+    return typeof value === "string";
+}
 
 export const Id: {
-  readonly validateFields: typeof idValidateFields;
+  readonly encode: typeof idEncode;
+  readonly encodeWithContext: typeof idEncodeWithContext;
+  readonly decode: typeof idDecode;
+  readonly decodeWithContext: typeof idDecodeWithContext;
+  readonly hasShape: typeof idHasShape;
+  readonly is: typeof idIs;
 } = {
-  validateFields: idValidateFields
+  encode: idEncode,
+  encodeWithContext: idEncodeWithContext,
+  decode: idDecode,
+  decodeWithContext: idDecodeWithContext,
+  hasShape: idHasShape,
+  is: idIs
 };
 
 export type Deep = number & { readonly [__mf_newtype_3]: true } & { readonly [__mf_newtype_2]: true };
@@ -146,123 +117,42 @@ export type Deep = number & { readonly [__mf_newtype_3]: true } & { readonly [__
 declare const __mf_newtype_1: unique symbol;
 declare const __mf_newtype_3: unique symbol;
 declare const __mf_newtype_2: unique symbol;
-
-export type Id<T> = string & { readonly [__mf_newtype_1]: true };
-
-/** Encodes a value to a JSON string. @param value - The value to encode @param _keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
-                    export function idEncode<T>(value: Id<T>, _keepMetadata?: boolean): string {return JSON.stringify(value);
-
-
-
-
-                    }
-
-                    /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param _ctx - The encoding context, unused for primitives  */
-                    export function idEncodeWithContext<T>(value: Id<T>, _ctx: __mf_EncodeContext): unknown {return value;
-
-
-
-
-                    }
-
-/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-        export function idDecode<T>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Id<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
-            try {
-                const data = input;
-
-                const ctx = __mf_DecodeContext.create();
-                const result = idDecodeWithContext<T>(data, ctx);
-                if (opts?.freeze) {
-                    ctx.freezeAll();
-                }
-
-                const __errors = ctx.getErrors();
-                if (__errors.length > 0) {
-                    return ({
-	success: false,
-	errors: __errors
-});
-                }
-
-                return ({
-	success: true,
-	value: result
-});
-            } catch (e) {
-                if (e instanceof __mf_DecodeError) {
-                    return ({
-	success: false,
-	errors: e.errors
-});
-                }
-                const message = e instanceof Error ? e.message : String(e);
-                return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message
-	}]
-});
-            }
-        }
-
-        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-        export function idDecodeWithContext<T>(value: unknown, _ctx: __mf_DecodeContext): Id<T> {const __decoded: unknown = value;
-
-
-
-
-
-
-
-
-
-
-
-            if (typeof __decoded !== "string") {
-                throw new __mf_DecodeError([{ field: "_root", message: "Id.decodeWithContext: expected string" }]);
-            }
-
-
-
-
-            return __decoded as Id<T>;
-        }
-
-        export function idValidateField<T, K extends keyof Id<T>>(
-            _field: K,
-            _value: Id[K]
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
-
-        export function idValidateFields(
-            _partial: Partial<Id>
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
-
-        export function idHasShape<T>(value: unknown): boolean {return typeof value === "string";
-
-
-
-
-        }
-
-        export function idIs<T>(value: unknown): value is Id<T> {return typeof value === "string";
-
-
-
-
-        }
-
-export const Id: {
-  readonly validateFields: typeof idValidateFields;
-} = {
-  validateFields: idValidateFields
+export type Id<T> = string & {
+	readonly [__mf_newtype_1]: true;
 };
-
-export type Deep = number & { readonly [__mf_newtype_3]: true } & { readonly [__mf_newtype_2]: true };
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export declare function idEncode<T>(value: Id<T>, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export declare function idEncodeWithContext<T>(value: Id<T>, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function idDecode<T>(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Id<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function idDecodeWithContext<T>(value: unknown, _ctx: __mf_DecodeContext): Id<T>;
+export declare function idHasShape(value: unknown): boolean;
+export declare function idIs<T>(value: unknown): value is Id<T>;
+export declare const Id: {
+	readonly encode: typeof idEncode;
+	readonly encodeWithContext: typeof idEncodeWithContext;
+	readonly decode: typeof idDecode;
+	readonly decodeWithContext: typeof idDecodeWithContext;
+	readonly hasShape: typeof idHasShape;
+	readonly is: typeof idIs;
+};
+export type Deep = number & {
+	readonly [__mf_newtype_3]: true;
+} & {
+	readonly [__mf_newtype_2]: true;
+};
+export {};
 
 ## Diagnostics
 
@@ -270,24 +160,24 @@ export type Deep = number & { readonly [__mf_newtype_3]: true } & { readonly [__
 
 ## Mapping
 
-original 30..51 -> expanded 448..469
-original 67..68 -> expanded 513..514
-original 68..89 -> expanded 3672..3693
-original 115..117 -> expanded 3775..3777
-generated 0..313 <- imports
-generated 313..358 <- $Newtype
-generated 358..403 <- $Newtype
-generated 403..448 <- $Newtype
-generated 469..513 <- $Newtype
-generated 514..1200 <- Encode
-generated 1200..3556 <- Decode
-generated 3556..3672 <- __convenience_const
-generated 3693..3775 <- $Newtype
+original 30..51 -> expanded 366..387
+original 67..68 -> expanded 431..432
+original 68..89 -> expanded 3293..3314
+original 115..117 -> expanded 3396..3398
+generated 0..231 <- imports
+generated 231..276 <- $Newtype
+generated 276..321 <- $Newtype
+generated 321..366 <- $Newtype
+generated 387..431 <- $Newtype
+generated 432..1130 <- Encode
+generated 1130..2849 <- Decode
+generated 2849..3293 <- __convenience_const
+generated 3314..3396 <- $Newtype
 
 ## Metadata
 
-type Id: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"Brand":["__mf_newtype_1"]}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":166,"start":136}}],"name":"Id","span":{"end":232,"start":174},"type_params":["T"]}
-type Deep: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"Brand":["__mf_newtype_3"]}},{"decorators":[],"kind":{"Brand":["__mf_newtype_2"]}}]},"decorators":[],"name":"Deep","span":{"end":336,"start":241},"type_params":[]}
+type Id: {"body":{"Newtype":{"Alias":"string"}},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":166,"start":136}}],"name":"Id","span":{"end":232,"start":174},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+type Deep: {"body":{"Newtype":{"Newtype":{"Alias":"number"}}},"decorators":[],"name":"Deep","span":{"end":336,"start":241},"type_params":[]}
 
 ## Registry reads
 

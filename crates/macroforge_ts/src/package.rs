@@ -12,5 +12,9 @@ pub const PACKAGE: &str = "@macroforge/core";
 /// Encoding runtime: `DecodeContext`, `DecodeError`, `PendingRef`.
 pub const ENDEC: &str = "@macroforge/core/endec";
 
+/// Runtime fallbacks for `PartialEq`, `Hash` and `Clone` on values whose
+/// declared type does not say how to compare, hash or copy them.
+pub const STRUCTURAL: &str = "@macroforge/core/structural";
+
 /// Declarative macro definitions (`macroRules`) and the `import macro` form.
 pub const RULES: &str = "@macroforge/core/rules";

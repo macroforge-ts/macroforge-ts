@@ -355,7 +355,7 @@ fn lower_file(path: &Path, stamp: Option<FileStamp>) -> anyhow::Result<CacheEntr
             .map_err(|error| lower_error("interfaces", error))?,
         enums: lower_enums(&ret.program, &source, None)
             .map_err(|error| lower_error("enums", error))?,
-        type_aliases: lower_type_aliases(&ret.program, &source, None)
+        type_aliases: lower_type_aliases(&ret.program, &source)
             .map_err(|error| lower_error("type aliases", error))?,
         declarative_macros,
         file_imports: collect_file_imports(&ret.program),

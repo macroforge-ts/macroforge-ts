@@ -1,4 +1,4 @@
-/** @derive(Debug, Clone, PartialEq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
 export interface Point {
     x: number;
     y: number;

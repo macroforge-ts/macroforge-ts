@@ -7,7 +7,7 @@ pub struct TypeAliasIR {
     pub name: String,
     pub span: SpanIR,
     pub decorators: Vec<DecoratorIR>,
-    pub type_params: Vec<String>,
+    pub type_params: Vec<TypeParamIR>,
     pub body: TypeBody,
 }
 

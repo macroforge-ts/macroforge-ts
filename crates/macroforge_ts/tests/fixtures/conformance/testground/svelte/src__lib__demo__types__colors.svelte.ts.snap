@@ -1,0 +1,552 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/colors.svelte.ts
+sha256 abea72513105f35dbfe4c64cdf9569cd993793797432522e5a4b21bbc583311f
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+
+export interface Colors {
+    
+    main: string;
+    
+    hover: string;
+    
+    active: string;
+}
+
+export function colorsDefaultValue(): Colors {
+    return {
+        main: "",
+        hover: "",
+        active: "",
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function colorsEncode(value: Colors, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = colorsEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function colorsEncodeWithContext(value: Colors, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Colors",
+        __id,
+    };
+
+    
+    result.main = value.main;
+    result.hover = value.hover;
+    result.active = value.active;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function colorsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Colors } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = colorsDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Colors.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function colorsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Colors | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Colors.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Colors | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Colors.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("main" in obj)) {
+        errors.push({ field: "main", message: "missing required field" });
+    }
+    if (!("hover" in obj)) {
+        errors.push({ field: "hover", message: "missing required field" });
+    }
+    if (!("active" in obj)) {
+        errors.push({ field: "active", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_main = obj["main"] as string;
+
+        if (!(typeof __raw_main === "string")) {
+            errors.push({ field: "main", message: __raw_main == null ? "Colors.main is required" : "expected string" });
+        } else {
+            if (__raw_main == null) { errors.push({ field: "main", message: "Colors.main is required" }); } else {
+                if (__raw_main.length === 0) { errors.push({ field: "main", message: "Colors.main must not be empty" }); }
+            }
+            instance.main = __raw_main;
+        }
+    }
+    {
+        const __raw_hover = obj["hover"] as string;
+
+        if (!(typeof __raw_hover === "string")) {
+            errors.push({ field: "hover", message: __raw_hover == null ? "Colors.hover is required" : "expected string" });
+        } else {
+            if (__raw_hover == null) { errors.push({ field: "hover", message: "Colors.hover is required" }); } else {
+                if (__raw_hover.length === 0) { errors.push({ field: "hover", message: "Colors.hover must not be empty" }); }
+            }
+            instance.hover = __raw_hover;
+        }
+    }
+    {
+        const __raw_active = obj["active"] as string;
+
+        if (!(typeof __raw_active === "string")) {
+            errors.push({ field: "active", message: __raw_active == null ? "Colors.active is required" : "expected string" });
+        } else {
+            if (__raw_active == null) { errors.push({ field: "active", message: "Colors.active is required" }); } else {
+                if (__raw_active.length === 0) { errors.push({ field: "active", message: "Colors.active must not be empty" }); }
+            }
+            instance.active = __raw_active;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Colors;
+}
+export function colorsValidateField<K extends keyof Colors>(field: K, value: unknown): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if (field === "main") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "main", message: "Colors.main is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "main", message: "Colors.main must not be empty" }); }
+        }
+    }
+    if (field === "hover") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "hover", message: "Colors.hover is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "hover", message: "Colors.hover must not be empty" }); }
+        }
+    }
+    if (field === "active") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "active", message: "Colors.active is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "active", message: "Colors.active must not be empty" }); }
+        }
+    }
+    return errors;
+}
+
+export function colorsValidateFields(partial: { readonly [K in keyof Colors]?: unknown }): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("main" in partial && partial.main !== undefined) {
+        const __val = partial.main as string;
+        if (__val == null) { errors.push({ field: "main", message: "Colors.main is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "main", message: "Colors.main must not be empty" }); }
+        }
+    }
+    if ("hover" in partial && partial.hover !== undefined) {
+        const __val = partial.hover as string;
+        if (__val == null) { errors.push({ field: "hover", message: "Colors.hover is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "hover", message: "Colors.hover must not be empty" }); }
+        }
+    }
+    if ("active" in partial && partial.active !== undefined) {
+        const __val = partial.active as string;
+        if (__val == null) { errors.push({ field: "active", message: "Colors.active is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "active", message: "Colors.active must not be empty" }); }
+        }
+    }
+    return errors;
+}
+export function colorsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "main" in o && "hover" in o && "active" in o;
+}
+
+export function colorsIs(obj: unknown): obj is Colors {
+    return colorsHasShape(obj) && colorsDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type ColorsErrors = {
+    _errors: Option.Option<Array<string>>;
+    main: Option.Option<Array<string>>;
+    hover: Option.Option<Array<string>>;
+    active: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type ColorsTainted = {
+    main: Option.Option<boolean>;
+    hover: Option.Option<boolean>;
+    active: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface ColorsFieldControllers {
+    readonly main: FieldController<string>;
+    readonly hover: FieldController<string>;
+    readonly active: FieldController<string>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface ColorsGigaform {
+    readonly data: Colors;
+    readonly errors: ColorsErrors;
+    readonly tainted: ColorsTainted;
+    readonly fields: ColorsFieldControllers;
+    validate(): Exit.Exit<Colors, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Colors>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function colorsCreateForm(overrides?: Partial<Colors>): ColorsGigaform {
+    let data = $state({ ...colorsDefaultValue(), ...overrides });
+    let errors = $state<ColorsErrors>({
+        _errors: Option.none(),
+        main: Option.none(),
+        hover: Option.none(),
+        active: Option.none(),
+    });
+    let tainted = $state<ColorsTainted>({
+        main: Option.none(),
+        hover: Option.none(),
+        active: Option.none(),
+    });
+    const fields = {
+        main: {
+            name: "main",
+            label: "main",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["main"],
+            get: () => data.main,
+            set: (value: string) => { data.main = value; },
+            getError: () => errors.main,
+            setError: (value: Option.Option<Array<string>>) => { errors.main = value; },
+            getTainted: () => tainted.main,
+            setTainted: (value: Option.Option<boolean>) => { tainted.main = value; },
+            validate: () => colorsValidateField("main", data.main).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        hover: {
+            name: "hover",
+            label: "hover",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["hover"],
+            get: () => data.hover,
+            set: (value: string) => { data.hover = value; },
+            getError: () => errors.hover,
+            setError: (value: Option.Option<Array<string>>) => { errors.hover = value; },
+            getTainted: () => tainted.hover,
+            setTainted: (value: Option.Option<boolean>) => { tainted.hover = value; },
+            validate: () => colorsValidateField("hover", data.hover).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        active: {
+            name: "active",
+            label: "active",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["active"],
+            get: () => data.active,
+            set: (value: string) => { data.active = value; },
+            getError: () => errors.active,
+            setError: (value: Option.Option<Array<string>>) => { errors.active = value; },
+            getTainted: () => tainted.active,
+            setTainted: (value: Option.Option<boolean>) => { tainted.active = value; },
+            validate: () => colorsValidateField("active", data.active).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as ColorsFieldControllers;
+
+    function validate(): Exit.Exit<Colors, Array<{ field: string; message: string }>> {
+        return toExit(colorsDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<Colors>): void {
+        data = { ...colorsDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            main: Option.none(),
+            hover: Option.none(),
+            active: Option.none(),
+        };
+        tainted = {
+            main: Option.none(),
+            hover: Option.none(),
+            active: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function colorsFromFormData(formData: FormData): Exit.Exit<Colors, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    obj.main = formData.get("main") ?? "";
+    obj.hover = formData.get("hover") ?? "";
+    obj.active = formData.get("active") ?? "";
+
+    return toExit(colorsDecode(obj));
+}
+
+export const Colors: {
+  readonly defaultValue: typeof colorsDefaultValue;
+  readonly encode: typeof colorsEncode;
+  readonly encodeWithContext: typeof colorsEncodeWithContext;
+  readonly decode: typeof colorsDecode;
+  readonly decodeWithContext: typeof colorsDecodeWithContext;
+  readonly validateField: typeof colorsValidateField;
+  readonly validateFields: typeof colorsValidateFields;
+  readonly hasShape: typeof colorsHasShape;
+  readonly is: typeof colorsIs;
+  readonly createForm: typeof colorsCreateForm;
+  readonly fromFormData: typeof colorsFromFormData;
+} = {
+  defaultValue: colorsDefaultValue,
+  encode: colorsEncode,
+  encodeWithContext: colorsEncodeWithContext,
+  decode: colorsDecode,
+  decodeWithContext: colorsDecodeWithContext,
+  validateField: colorsValidateField,
+  validateFields: colorsValidateFields,
+  hasShape: colorsHasShape,
+  is: colorsIs,
+  createForm: colorsCreateForm,
+  fromFormData: colorsFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+export interface Colors {
+	main: string;
+	hover: string;
+	active: string;
+}
+export declare function colorsDefaultValue(): Colors;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function colorsEncode(value: Colors, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function colorsEncodeWithContext(value: Colors, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function colorsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Colors;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function colorsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Colors | __mf_PendingRef;
+export declare function colorsValidateField<K extends keyof Colors>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function colorsValidateFields(partial: { readonly [K in keyof Colors]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function colorsHasShape(obj: unknown): boolean;
+export declare function colorsIs(obj: unknown): obj is Colors;
+/** Nested error structure matching the data shape  */
+export type ColorsErrors = {
+	_errors: Option.Option<Array<string>>;
+	main: Option.Option<Array<string>>;
+	hover: Option.Option<Array<string>>;
+	active: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type ColorsTainted = {
+	main: Option.Option<boolean>;
+	hover: Option.Option<boolean>;
+	active: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface ColorsFieldControllers {
+	readonly main: FieldController<string>;
+	readonly hover: FieldController<string>;
+	readonly active: FieldController<string>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface ColorsGigaform {
+	readonly data: Colors;
+	readonly errors: ColorsErrors;
+	readonly tainted: ColorsTainted;
+	readonly fields: ColorsFieldControllers;
+	validate(): Exit.Exit<Colors, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<Colors>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function colorsCreateForm(overrides?: Partial<Colors>): ColorsGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function colorsFromFormData(formData: FormData): Exit.Exit<Colors, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const Colors: {
+	readonly defaultValue: typeof colorsDefaultValue;
+	readonly encode: typeof colorsEncode;
+	readonly encodeWithContext: typeof colorsEncodeWithContext;
+	readonly decode: typeof colorsDecode;
+	readonly decodeWithContext: typeof colorsDecodeWithContext;
+	readonly validateField: typeof colorsValidateField;
+	readonly validateFields: typeof colorsValidateFields;
+	readonly hasShape: typeof colorsHasShape;
+	readonly is: typeof colorsIs;
+	readonly createForm: typeof colorsCreateForm;
+	readonly fromFormData: typeof colorsFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 421..479
+original 107..138 -> expanded 479..510
+original 179..202 -> expanded 510..533
+original 243..267 -> expanded 533..557
+original 308..330 -> expanded 557..579
+original 330..331 -> expanded 15540..15541
+generated 0..421 <- imports
+generated 579..706 <- Default
+generated 706..1864 <- Encode
+generated 1864..9246 <- Decode
+generated 9246..14600 <- Gigaform
+generated 14600..15540 <- __convenience_const
+
+## Metadata
+
+interface Colors: {"body_span":{"end":331,"start":133},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":180,"start":139}}],"name":"main","optional":false,"readonly":false,"span":{"end":198,"start":185},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":244,"start":203}}],"name":"hover","optional":false,"readonly":false,"span":{"end":263,"start":249},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":309,"start":268}}],"name":"active","optional":false,"readonly":false,"span":{"end":329,"start":314},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Colors","span":{"end":331,"start":116},"type_params":[]}
+
+## Registry reads
+
+Name("string")
+
+## Buildtime dependencies
+
+(none)

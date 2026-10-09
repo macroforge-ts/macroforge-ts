@@ -18,11 +18,12 @@ For **classes** (`class_handler`), the macro generates static methods plus stand
 - `static is(value): value is T` - Type guard: instanceof check, then `hasShape`, then a full
   `decode`
 - `static validateField(field, value)` / `static validateFields(partial)` - Run the field validators
-  without decoding
+  on input that has not been decoded, typed `unknown`
 - A synthesized `constructor(props)` that assigns all decoded fields
 
 **Interfaces** and **type aliases** get the standalone-function forms of the same surface (there is
-no class to attach statics to). **Enums** (`enum_handler`) get
+no class to attach statics to), except that only an object-shaped alias has fields to validate, so
+no other alias gets `validateField`/`validateFields`. **Enums** (`enum_handler`) get
 `nameDecode`/`nameDecodeWithContext`/`nameIs`; unlike the other shapes, the enum `decode` function
 **throws** an `Error` on invalid values rather than returning a result union.
 
@@ -44,5 +45,5 @@ Alias-level validators on any other alias shape are an expansion error; put them
 instead.
 
 Validation (see `validation`) runs during decoding and reports failures through the `errors` array
-of the result union. Field-level options are parsed by `field_processing`; see the parent endec
-module for the option and validator reference.
+of the result union. Field-level options are parsed by `field`; see the parent endec module for the
+option and validator reference.

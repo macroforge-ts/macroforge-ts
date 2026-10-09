@@ -63,7 +63,7 @@ fn comment_start(source: &str, floor: usize, close: usize) -> Option<usize> {
 }
 
 /// Whether a JSDoc body is a `/** import macro … */` directive: the body is
-/// the import itself. Its module paths (`"@playground/macro"`) would
+/// the import itself. Its module paths (`"@testground/macro"`) would
 /// otherwise read as `@` directives, while prose or an example that merely
 /// mentions one is ordinary documentation.
 pub fn is_macro_import_comment(body: &str) -> bool {

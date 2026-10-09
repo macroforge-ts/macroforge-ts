@@ -88,6 +88,8 @@
 //! }
 //! ```
 
+mod declarations;
+mod derive_requirements;
 mod derive_targets;
 mod external_loader;
 mod helpers;
@@ -117,15 +119,15 @@ use super::{
 
 pub(crate) use derive_targets::{
     AttributeTarget, AttributeTargetIR, DeriveTargetIR, SpanKey, collect_attribute_targets,
-    collect_derive_targets, diagnostic_span_for_derive, find_macro_name_span, span_ir_with_at,
+    collect_derive_targets, diagnostic_span_for_derive, find_macro_name_span,
 };
 pub(crate) use external_loader::ExternalMacroLoader;
 use external_loader::resolve_external_decorator_names;
 use helpers::{
-    derive_insert_pos, extract_function_names_from_patches, find_macro_comment_span,
-    generate_convenience_export, get_derive_target_end_span, get_derive_target_name,
-    get_derive_target_start_span, has_existing_namespace_or_const, is_declaration_exported,
-    split_by_markers,
+    class_body_payload, derive_insert_pos, extract_function_names_from_patches,
+    find_macro_comment_span, generate_convenience_export, get_derive_target_end_span,
+    get_derive_target_name, get_derive_target_start_span, has_existing_namespace_or_const,
+    is_declaration_exported, split_by_markers,
 };
 use imports::{check_builtin_import_warnings, external_type_function_import_patches};
 use registration::register_packages;
@@ -146,8 +148,11 @@ pub struct MacroExpansion {
     pub diagnostics: Vec<Diagnostic>,
     /// Whether any macros were expanded (i.e., source code was modified).
     pub changed: bool,
-    /// Separate type-level output (`.d.ts` patches), if any macros generated type declarations.
+    /// The file's `.d.ts` surface, when any macro generated type declarations.
     pub type_output: Option<String>,
+    /// Declarations `type_output` could not type exactly, such as an export
+    /// whose type is only inferred. Reported where the surface is written.
+    pub type_output_diagnostics: Vec<Diagnostic>,
     /// All classes found in the source, lowered to IR.
     pub classes: Vec<ClassIR>,
     /// All interfaces found in the source, lowered to IR.
@@ -380,6 +385,10 @@ impl MacroExpander {
         debug_assert!(
             registry.contains("@macro/derive", "Ord"),
             "Built-in @macro/derive::Ord macro should be registered"
+        );
+        assert!(
+            registry.contains("@macro/derive", "Eq"),
+            "Built-in @macro/derive::Eq macro should be registered"
         );
         debug_assert!(
             registry.contains("@macro/derive", "Default"),
@@ -953,7 +962,7 @@ impl MacroExpander {
                 .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
             enums: lower_enums(&parsed.program, source, filter)
                 .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
-            type_aliases: lower_type_aliases(&parsed.program, source, filter)
+            type_aliases: lower_type_aliases(&parsed.program, source)
                 .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
             functions: lower_functions(&parsed.program, source, filter)
                 .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
@@ -969,6 +978,7 @@ impl MacroExpander {
                 diagnostics: prepass_diagnostics,
                 changed: changed_by_prepass,
                 type_output: None,
+                type_output_diagnostics: Vec::new(),
                 classes: Vec::new(),
                 interfaces: Vec::new(),
                 enums: Vec::new(),
@@ -994,6 +1004,7 @@ impl MacroExpander {
 
         let mut result = self.apply_and_finalize_expansion(
             source,
+            file_name,
             prepass_mapping.as_ref(),
             collector,
             &mut prepass_diagnostics,
@@ -1031,14 +1042,8 @@ impl MacroExpander {
         } = items;
 
         // Install registry into thread-local (replaces 5 separate set_* calls).
-        // Merge in any config_imports already set by the entry point.
         // (foreign_types are stored in a separate thread-local in host/import_registry.rs)
-        let existing_config_imports =
-            crate::host::import_registry::with_registry(|r| r.config_imports.clone());
-        let mut registry = imports;
-        if !existing_config_imports.is_empty() {
-            registry.config_imports = existing_config_imports;
-        }
+        let registry = imports;
         let entries = registry.source_import_entries();
         let mut trace_logs = Trace::default();
 
@@ -1115,6 +1120,11 @@ impl MacroExpander {
             });
         }
 
+        diagnostics.extend(derive_requirements::check_derive_requirements(
+            &derive_targets,
+            source,
+        ));
+
         let (attribute_targets, attr_diagnostics) = collect_attribute_targets(
             &function_map,
             &class_map,
@@ -1170,7 +1180,7 @@ impl MacroExpander {
                     for field in &class_ir.fields {
                         for decorator in &field.decorators {
                             let field_dec_removal = Patch::Delete {
-                                span: span_ir_with_at(decorator.span, source),
+                                span: decorator.span,
                             };
                             collector.add_runtime_patches(vec![field_dec_removal.clone()]);
                             collector.add_type_patches(vec![field_dec_removal]);
@@ -1183,52 +1193,6 @@ impl MacroExpander {
                         }
                     }
                 }
-
-                // Add patches to strip method bodies for type output (only for classes with @derive)
-                for method in &class_ir.methods {
-                    let return_type = method
-                        .return_type_src
-                        .trim_start()
-                        .trim_start_matches(':')
-                        .trim_start();
-                    let method_signature = if method.name == "constructor" {
-                        let visibility = match method.visibility {
-                            crate::ts_syn::abi::Visibility::Private => "private ",
-                            crate::ts_syn::abi::Visibility::Protected => "protected ",
-                            crate::ts_syn::abi::Visibility::Public => "",
-                        };
-                        format!(
-                            "{visibility}constructor({params_src});",
-                            visibility = visibility,
-                            params_src = method.params_src
-                        )
-                    } else {
-                        let visibility = match method.visibility {
-                            crate::ts_syn::abi::Visibility::Private => "private ",
-                            crate::ts_syn::abi::Visibility::Protected => "protected ",
-                            crate::ts_syn::abi::Visibility::Public => "",
-                        };
-                        let static_kw = if method.is_static { "static " } else { "" };
-                        let async_kw = if method.is_async { "async " } else { "" };
-
-                        format!(
-                            "{visibility}{static_kw}{async_kw}{method_name}{type_params}({params_src}): {return_type};",
-                            visibility = visibility,
-                            static_kw = static_kw,
-                            async_kw = async_kw,
-                            method_name = method.name,
-                            type_params = method.type_params_src,
-                            params_src = method.params_src,
-                            return_type = return_type
-                        )
-                    };
-
-                    collector.add_type_patches(vec![Patch::Replace {
-                        span: method.span,
-                        code: method_signature,
-                        source_macro: None,
-                    }]);
-                }
             }
 
             // Remove interface field decorators when not keeping decorators
@@ -1238,7 +1202,7 @@ impl MacroExpander {
                 for field in &interface_ir.fields {
                     for decorator in &field.decorators {
                         let field_dec_removal = Patch::Delete {
-                            span: span_ir_with_at(decorator.span, source),
+                            span: decorator.span,
                         };
                         collector.add_runtime_patches(vec![field_dec_removal.clone()]);
                         collector.add_type_patches(vec![field_dec_removal]);
@@ -1483,9 +1447,15 @@ impl MacroExpander {
                     }
                 }
 
+                // A macro that reported an error produced that error: falling back
+                // to the external loader would replace it with the loader's result.
                 let no_output = result.runtime_patches.is_empty()
                     && result.type_patches.is_empty()
-                    && result.tokens.is_none();
+                    && result.tokens.is_none()
+                    && !result
+                        .diagnostics
+                        .iter()
+                        .any(|diagnostic| diagnostic.level == DiagnosticLevel::Error);
 
                 if *DEBUG_EXPAND {
                     eprintln!(
@@ -1906,6 +1876,10 @@ impl MacroExpander {
             let end_of_file = source.len() as u32 + 1;
 
             for (location, code) in split_by_markers(tokens, result.insert_pos) {
+                // A macro that generates nothing, such as `Eq`, leaves no gap.
+                if code.trim().is_empty() {
+                    continue;
+                }
                 let (at, code, context) = match (location, &ctx.target) {
                     ("top", _) => (1, format!("{}\n", code.trim()), None),
                     ("above", _) => (target_start, code, None),
@@ -1913,14 +1887,10 @@ impl MacroExpander {
                     // Only a class body takes members; elsewhere body code
                     // goes below the declaration.
                     ("body", TargetIR::Class(class_ir)) => {
-                        let payload = if code.starts_with('\n') {
-                            code
-                        } else {
-                            format!("\n{code}")
-                        };
+                        let at = derive_insert_pos(class_ir, source);
                         (
-                            derive_insert_pos(class_ir, source),
-                            payload,
+                            at,
+                            class_body_payload(&code, source, at),
                             Some("class body".to_string()),
                         )
                     }
@@ -1954,6 +1924,7 @@ impl MacroExpander {
     pub(crate) fn apply_and_finalize_expansion(
         &self,
         source: &str,
+        file_name: &str,
         prepass_mapping: Option<&SourceMapping>,
         collector: PatchCollector,
         diagnostics: &mut Vec<Diagnostic>,
@@ -1967,7 +1938,15 @@ impl MacroExpander {
             ..
         } = items;
         let has_patches = collector.has_patches();
-        let (runtime_result, type_output) = collector.apply(source, None)?;
+        let (runtime_result, typed_source) = collector.apply(source, None)?;
+        // Every consumer reads the type output as a `.d.ts`.
+        let (type_output, type_output_diagnostics) = match typed_source {
+            Some(typed_source) => {
+                let surface = declarations::declaration_surface(&typed_source, file_name)?;
+                (Some(surface.code), surface.diagnostics)
+            }
+            None => (None, Vec::new()),
+        };
 
         let mut code = runtime_result.code;
 
@@ -1990,6 +1969,7 @@ impl MacroExpander {
             diagnostics: std::mem::take(diagnostics),
             changed: has_patches,
             type_output,
+            type_output_diagnostics,
             classes,
             interfaces,
             enums,
@@ -2072,18 +2052,17 @@ impl Trace {
     }
 }
 
-/// Records an expansion's trace in the project's debug log and as info
-/// diagnostics, only when `MF_LOG` asks for it: written on every file, the
-/// log would grow without bound.
 /// Writes the lines a macro logged while it ran, carried back on its result,
 /// to the debug log of the file it expanded.
 fn write_macro_debug(result: &mut crate::ts_syn::MacroResult, ctx: &crate::ts_syn::MacroContextIR) {
     if let Some(debug) = result.debug.take() {
-        let lines: Vec<String> = debug.lines().map(str::to_string).collect();
-        crate::debug::log_for_file(&ctx.file_name, &ctx.macro_name, &lines);
+        crate::debug::log_carried_for_file(&ctx.file_name, &debug);
     }
 }
 
+/// Records an expansion's trace in the project's debug log and as info
+/// diagnostics, only when `MF_LOG` asks for it: written on every file, the
+/// log would grow without bound.
 fn flush_trace(file_name: &str, trace: &Trace, diagnostics: &mut Vec<Diagnostic>) {
     if !*TRACE_ENABLED {
         return;

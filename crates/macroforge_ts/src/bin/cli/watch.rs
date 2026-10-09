@@ -459,6 +459,12 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                     if let Err(err) = refresh_type_registry(root) {
                         eprintln!("[macroforge watch] {err:#}");
                     }
+                    // A refused config is reported and the watch goes on, as a
+                    // failed registry refresh is: the next edit may fix it.
+                    if let Err(err) = macroforge_ts::host::config::hoist::sync_expanded_config(root)
+                    {
+                        eprintln!("[macroforge watch] could not expand the config: {err}");
+                    }
 
                     let new_config_hash = compute_config_hash(root);
                     manifest.config_hash = new_config_hash;

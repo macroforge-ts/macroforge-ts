@@ -1,0 +1,694 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/app-permissions.svelte.ts
+sha256 2fbb0071cb99c73ef81c564e81b2d0cfb7976d00bac77ff13ba690c6ab1a29a9
+
+## Changed
+
+true
+
+## Output
+
+import { applicationsDecode, applicationsEncodeWithContext } from "./applications.svelte";
+import { pageDecode, pageEncodeWithContext } from "./page.svelte";
+import { tableDecode, tableEncodeWithContext } from "./table.svelte";
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+import type { Applications } from './applications.svelte';
+import type { Page } from './page.svelte';
+import type { Table } from './table.svelte';
+
+
+export interface AppPermissions {
+    applications: Array<Applications>;
+    pages: Array<Page>;
+    data: Array<Table>;
+}
+
+export function appPermissionsDefaultValue(): AppPermissions {
+    return {
+        applications: [],
+        pages: [],
+        data: [],
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function appPermissionsEncode(value: AppPermissions, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = appPermissionsEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function appPermissionsEncodeWithContext(value: AppPermissions, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "AppPermissions",
+        __id,
+    };
+
+    
+    result.applications = value.applications.map(
+        (item) => applicationsEncodeWithContext(item, ctx)
+    );
+    result.pages = value.pages.map(
+        (item) => pageEncodeWithContext(item, ctx)
+    );
+    result.data = value.data.map(
+        (item) => tableEncodeWithContext(item, ctx)
+    );
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function appPermissionsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AppPermissions } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = appPermissionsDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "AppPermissions.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function appPermissionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AppPermissions | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "AppPermissions.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as AppPermissions | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "AppPermissions.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("applications" in obj)) {
+        errors.push({ field: "applications", message: "missing required field" });
+    }
+    if (!("pages" in obj)) {
+        errors.push({ field: "pages", message: "missing required field" });
+    }
+    if (!("data" in obj)) {
+        errors.push({ field: "data", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_applications = obj["applications"] as Array<Applications>;
+
+        if (Array.isArray(__raw_applications)) {
+            const __arr = __raw_applications.map((item: Applications | { __ref: number }, idx) => {
+                if (typeof item === "object" && item !== null && "__ref" in item) {
+                    const result = ctx.getOrDefer(item.__ref);
+                    if (__mf_PendingRef.is(result)) {
+                        return { __pendingIdx: idx, __refId: result.id };
+                    }
+                    return result;
+                }
+                const __elemResult = applicationsDecode(item);
+                if (!__elemResult.success) {
+                    for (const __err of __elemResult.errors) {
+                        errors.push({
+                            field: __err.field === "_root"
+                                ? "applications[" + idx + "]"
+                                : "applications[" + idx + "]." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                }
+                return __elemResult.success ? __elemResult.value : item;
+            });
+            instance.applications = __arr;
+            __arr.forEach((item, idx) => {
+                if (item && typeof item === "object" && "__pendingIdx" in item) {
+                    ctx.addPatch(instance.applications, idx, (item as any).__refId);
+                }
+            });
+        }
+    }
+    {
+        const __raw_pages = obj["pages"] as Array<Page>;
+
+        if (Array.isArray(__raw_pages)) {
+            const __arr = __raw_pages.map((item: Page | { __ref: number }, idx) => {
+                if (typeof item === "object" && item !== null && "__ref" in item) {
+                    const result = ctx.getOrDefer(item.__ref);
+                    if (__mf_PendingRef.is(result)) {
+                        return { __pendingIdx: idx, __refId: result.id };
+                    }
+                    return result;
+                }
+                const __elemResult = pageDecode(item);
+                if (!__elemResult.success) {
+                    for (const __err of __elemResult.errors) {
+                        errors.push({
+                            field: __err.field === "_root"
+                                ? "pages[" + idx + "]"
+                                : "pages[" + idx + "]." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                }
+                return __elemResult.success ? __elemResult.value : item;
+            });
+            instance.pages = __arr;
+            __arr.forEach((item, idx) => {
+                if (item && typeof item === "object" && "__pendingIdx" in item) {
+                    ctx.addPatch(instance.pages, idx, (item as any).__refId);
+                }
+            });
+        }
+    }
+    {
+        const __raw_data = obj["data"] as Array<Table>;
+
+        if (Array.isArray(__raw_data)) {
+            const __arr = __raw_data.map((item: Table | { __ref: number }, idx) => {
+                if (typeof item === "object" && item !== null && "__ref" in item) {
+                    const result = ctx.getOrDefer(item.__ref);
+                    if (__mf_PendingRef.is(result)) {
+                        return { __pendingIdx: idx, __refId: result.id };
+                    }
+                    return result;
+                }
+                const __elemResult = tableDecode(item);
+                if (!__elemResult.success) {
+                    for (const __err of __elemResult.errors) {
+                        errors.push({
+                            field: __err.field === "_root"
+                                ? "data[" + idx + "]"
+                                : "data[" + idx + "]." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                }
+                return __elemResult.success ? __elemResult.value : item;
+            });
+            instance.data = __arr;
+            __arr.forEach((item, idx) => {
+                if (item && typeof item === "object" && "__pendingIdx" in item) {
+                    ctx.addPatch(instance.data, idx, (item as any).__refId);
+                }
+            });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as AppPermissions;
+}
+export function appPermissionsValidateField<K extends keyof AppPermissions>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function appPermissionsValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function appPermissionsValidateFields(partial: { readonly [K in keyof AppPermissions]?: unknown }): Array<{ field: string; message: string }>;
+export function appPermissionsValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function appPermissionsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "applications" in o && "pages" in o && "data" in o;
+}
+
+export function appPermissionsIs(obj: unknown): obj is AppPermissions {
+    return appPermissionsHasShape(obj) && appPermissionsDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type AppPermissionsErrors = {
+    _errors: Option.Option<Array<string>>;
+    applications: Option.Option<Array<string>>;
+    pages: Option.Option<Array<string>>;
+    data: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type AppPermissionsTainted = {
+    applications: Option.Option<boolean>;
+    pages: Option.Option<boolean>;
+    data: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface AppPermissionsFieldControllers {
+    readonly applications: ArrayFieldController<Applications>;
+    readonly pages: ArrayFieldController<Page>;
+    readonly data: ArrayFieldController<Table>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface AppPermissionsGigaform {
+    readonly data: AppPermissions;
+    readonly errors: AppPermissionsErrors;
+    readonly tainted: AppPermissionsTainted;
+    readonly fields: AppPermissionsFieldControllers;
+    validate(): Exit.Exit<AppPermissions, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<AppPermissions>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function appPermissionsCreateForm(overrides?: Partial<AppPermissions>): AppPermissionsGigaform {
+    let data = $state({ ...appPermissionsDefaultValue(), ...overrides });
+    let errors = $state<AppPermissionsErrors>({
+        _errors: Option.none(),
+        applications: Option.none(),
+        pages: Option.none(),
+        data: Option.none(),
+    });
+    let tainted = $state<AppPermissionsTainted>({
+        applications: Option.none(),
+        pages: Option.none(),
+        data: Option.none(),
+    });
+    const fields = {
+        applications: {
+            name: "applications",
+            label: "applications",
+            type: "text",
+            optional: false,
+            array: true,
+            path: ["applications"],
+            get: () => data.applications,
+            set: (value: Array<Applications>) => { data.applications = value; },
+            getError: () => errors.applications,
+            setError: (value: Option.Option<Array<string>>) => { errors.applications = value; },
+            getTainted: () => tainted.applications,
+            setTainted: (value: Option.Option<boolean>) => { tainted.applications = value; },
+            validate: () => appPermissionsValidateField("applications", data.applications).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.applications[index],
+                set: (value: Applications) => { data.applications[index] = value; },
+                getError: () => errors.applications,
+                setError: (value: Option.Option<Array<string>>) => { errors.applications = value; },
+            }),
+            push: (item: Applications) => { data.applications.push(item); },
+            remove: (index: number) => { data.applications.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.applications[a];
+                data.applications[a] = data.applications[b];
+                data.applications[b] = temp;
+            },
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        pages: {
+            name: "pages",
+            label: "pages",
+            type: "text",
+            optional: false,
+            array: true,
+            path: ["pages"],
+            get: () => data.pages,
+            set: (value: Array<Page>) => { data.pages = value; },
+            getError: () => errors.pages,
+            setError: (value: Option.Option<Array<string>>) => { errors.pages = value; },
+            getTainted: () => tainted.pages,
+            setTainted: (value: Option.Option<boolean>) => { tainted.pages = value; },
+            validate: () => appPermissionsValidateField("pages", data.pages).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.pages[index],
+                set: (value: Page) => { data.pages[index] = value; },
+                getError: () => errors.pages,
+                setError: (value: Option.Option<Array<string>>) => { errors.pages = value; },
+            }),
+            push: (item: Page) => { data.pages.push(item); },
+            remove: (index: number) => { data.pages.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.pages[a];
+                data.pages[a] = data.pages[b];
+                data.pages[b] = temp;
+            },
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        data: {
+            name: "data",
+            label: "data",
+            type: "text",
+            optional: false,
+            array: true,
+            path: ["data"],
+            get: () => data.data,
+            set: (value: Array<Table>) => { data.data = value; },
+            getError: () => errors.data,
+            setError: (value: Option.Option<Array<string>>) => { errors.data = value; },
+            getTainted: () => tainted.data,
+            setTainted: (value: Option.Option<boolean>) => { tainted.data = value; },
+            validate: () => appPermissionsValidateField("data", data.data).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.data[index],
+                set: (value: Table) => { data.data[index] = value; },
+                getError: () => errors.data,
+                setError: (value: Option.Option<Array<string>>) => { errors.data = value; },
+            }),
+            push: (item: Table) => { data.data.push(item); },
+            remove: (index: number) => { data.data.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.data[a];
+                data.data[a] = data.data[b];
+                data.data[b] = temp;
+            },
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as AppPermissionsFieldControllers;
+
+    function validate(): Exit.Exit<AppPermissions, Array<{ field: string; message: string }>> {
+        return toExit(appPermissionsDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<AppPermissions>): void {
+        data = { ...appPermissionsDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            applications: Option.none(),
+            pages: Option.none(),
+            data: Option.none(),
+        };
+        tainted = {
+            applications: Option.none(),
+            pages: Option.none(),
+            data: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function appPermissionsFromFormData(formData: FormData): Exit.Exit<AppPermissions, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    {
+
+        const applicationsItems: Array<Record<string, unknown>> = [];
+        let idx = 0;
+        while (formData.has("applications." + idx + ".") || idx === 0) {
+
+            const hasAny = Array.from(formData.keys()).some(k => k.startsWith("applications." + idx + "."));
+            if (!hasAny && idx > 0) break;
+            if (hasAny) {
+                const item: Record<string, unknown> = {};
+                for (const [key, value] of Array.from(formData.entries())) {
+                    if (key.startsWith("applications." + idx + ".")) {
+                        const fieldName = key.slice("applications.".length + String(idx).length + 1);
+                        item[fieldName] = value;
+                    }
+                }
+                applicationsItems.push(item);
+            }
+            idx++;
+            if (idx > 1000) break;
+        }
+        obj.applications = applicationsItems;
+    }
+    {
+
+        const pagesItems: Array<Record<string, unknown>> = [];
+        let idx = 0;
+        while (formData.has("pages." + idx + ".") || idx === 0) {
+
+            const hasAny = Array.from(formData.keys()).some(k => k.startsWith("pages." + idx + "."));
+            if (!hasAny && idx > 0) break;
+            if (hasAny) {
+                const item: Record<string, unknown> = {};
+                for (const [key, value] of Array.from(formData.entries())) {
+                    if (key.startsWith("pages." + idx + ".")) {
+                        const fieldName = key.slice("pages.".length + String(idx).length + 1);
+                        item[fieldName] = value;
+                    }
+                }
+                pagesItems.push(item);
+            }
+            idx++;
+            if (idx > 1000) break;
+        }
+        obj.pages = pagesItems;
+    }
+    {
+
+        const dataItems: Array<Record<string, unknown>> = [];
+        let idx = 0;
+        while (formData.has("data." + idx + ".") || idx === 0) {
+
+            const hasAny = Array.from(formData.keys()).some(k => k.startsWith("data." + idx + "."));
+            if (!hasAny && idx > 0) break;
+            if (hasAny) {
+                const item: Record<string, unknown> = {};
+                for (const [key, value] of Array.from(formData.entries())) {
+                    if (key.startsWith("data." + idx + ".")) {
+                        const fieldName = key.slice("data.".length + String(idx).length + 1);
+                        item[fieldName] = value;
+                    }
+                }
+                dataItems.push(item);
+            }
+            idx++;
+            if (idx > 1000) break;
+        }
+        obj.data = dataItems;
+    }
+
+    return toExit(appPermissionsDecode(obj));
+}
+
+export const AppPermissions: {
+  readonly defaultValue: typeof appPermissionsDefaultValue;
+  readonly encode: typeof appPermissionsEncode;
+  readonly encodeWithContext: typeof appPermissionsEncodeWithContext;
+  readonly decode: typeof appPermissionsDecode;
+  readonly decodeWithContext: typeof appPermissionsDecodeWithContext;
+  readonly validateField: typeof appPermissionsValidateField;
+  readonly validateFields: typeof appPermissionsValidateFields;
+  readonly hasShape: typeof appPermissionsHasShape;
+  readonly is: typeof appPermissionsIs;
+  readonly createForm: typeof appPermissionsCreateForm;
+  readonly fromFormData: typeof appPermissionsFromFormData;
+} = {
+  defaultValue: appPermissionsDefaultValue,
+  encode: appPermissionsEncode,
+  encodeWithContext: appPermissionsEncodeWithContext,
+  decode: appPermissionsDecode,
+  decodeWithContext: appPermissionsDecodeWithContext,
+  validateField: appPermissionsValidateField,
+  validateFields: appPermissionsValidateFields,
+  hasShape: appPermissionsHasShape,
+  is: appPermissionsIs,
+  createForm: appPermissionsCreateForm,
+  fromFormData: appPermissionsFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+import type { Applications } from "./applications.svelte";
+import type { Page } from "./page.svelte";
+import type { Table } from "./table.svelte";
+export interface AppPermissions {
+	applications: Array<Applications>;
+	pages: Array<Page>;
+	data: Array<Table>;
+}
+export declare function appPermissionsDefaultValue(): AppPermissions;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function appPermissionsEncode(value: AppPermissions, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function appPermissionsEncodeWithContext(value: AppPermissions, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function appPermissionsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AppPermissions;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function appPermissionsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AppPermissions | __mf_PendingRef;
+export declare function appPermissionsValidateField<K extends keyof AppPermissions>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function appPermissionsValidateFields(partial: { readonly [K in keyof AppPermissions]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function appPermissionsHasShape(obj: unknown): boolean;
+export declare function appPermissionsIs(obj: unknown): obj is AppPermissions;
+/** Nested error structure matching the data shape  */
+export type AppPermissionsErrors = {
+	_errors: Option.Option<Array<string>>;
+	applications: Option.Option<Array<string>>;
+	pages: Option.Option<Array<string>>;
+	data: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type AppPermissionsTainted = {
+	applications: Option.Option<boolean>;
+	pages: Option.Option<boolean>;
+	data: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface AppPermissionsFieldControllers {
+	readonly applications: ArrayFieldController<Applications>;
+	readonly pages: ArrayFieldController<Page>;
+	readonly data: ArrayFieldController<Table>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface AppPermissionsGigaform {
+	readonly data: AppPermissions;
+	readonly errors: AppPermissionsErrors;
+	readonly tainted: AppPermissionsTainted;
+	readonly fields: AppPermissionsFieldControllers;
+	validate(): Exit.Exit<AppPermissions, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<AppPermissions>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function appPermissionsCreateForm(overrides?: Partial<AppPermissions>): AppPermissionsGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function appPermissionsFromFormData(formData: FormData): Exit.Exit<AppPermissions, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const AppPermissions: {
+	readonly defaultValue: typeof appPermissionsDefaultValue;
+	readonly encode: typeof appPermissionsEncode;
+	readonly encodeWithContext: typeof appPermissionsEncodeWithContext;
+	readonly decode: typeof appPermissionsDecode;
+	readonly decodeWithContext: typeof appPermissionsDecodeWithContext;
+	readonly validateField: typeof appPermissionsValidateField;
+	readonly validateFields: typeof appPermissionsValidateFields;
+	readonly hasShape: typeof appPermissionsHasShape;
+	readonly is: typeof appPermissionsIs;
+	readonly createForm: typeof appPermissionsCreateForm;
+	readonly fromFormData: typeof appPermissionsFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..206 -> expanded 671..877
+original 255..378 -> expanded 877..1000
+original 378..379 -> expanded 22177..22178
+generated 0..671 <- imports
+generated 1000..1149 <- Default
+generated 1149..2562 <- Encode
+generated 2562..10836 <- Decode
+generated 10836..21053 <- Gigaform
+generated 21053..22177 <- __convenience_const
+
+## Metadata
+
+interface AppPermissions: {"body_span":{"end":379,"start":289},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":256,"start":207}}],"fields":[{"decorators":[],"name":"applications","optional":false,"readonly":false,"span":{"end":329,"start":295},"ts_type":"Array<Applications>"},{"decorators":[],"name":"pages","optional":false,"readonly":false,"span":{"end":353,"start":334},"ts_type":"Array<Page>"},{"decorators":[],"name":"data","optional":false,"readonly":false,"span":{"end":377,"start":358},"ts_type":"Array<Table>"}],"heritage":[],"methods":[],"name":"AppPermissions","span":{"end":379,"start":264},"type_params":[]}
+
+## Registry reads
+
+Name("Applications")
+Name("Array")
+Name("Page")
+Name("Table")
+
+## Buildtime dependencies
+
+(none)

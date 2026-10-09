@@ -2,16 +2,17 @@
 
 use crate::LoweredTarget;
 use crate::TsSynError;
+use crate::abi::ir::TypeParamIR;
 use crate::abi::{
     ClassIR, DecoratorIR, EnumIR, EnumValue, EnumVariantIR, FieldIR, FunctionIR, FunctionParamIR,
-    InterfaceFieldIR, InterfaceIR, InterfaceMethodIR, MethodSigIR, SpanIR, TypeAliasIR, TypeBody,
-    TypeMember, TypeMemberKind, Visibility,
+    InterfaceFieldIR, InterfaceIR, InterfaceMethodIR, MethodSigIR, NEWTYPE_BRAND_PREFIX,
+    NEWTYPE_MACRO, SpanIR, TypeAliasIR, TypeBody, TypeMember, TypeMemberKind, Visibility,
 };
 use ::oxc::ast::ast::{
     BindingPattern, Class, ClassElement, Declaration, ExportDefaultDeclarationKind, Expression,
     Function, Program, PropertyKey, Statement, TSAccessibility, TSEnumDeclaration,
     TSEnumMemberName, TSInterfaceDeclaration, TSSignature, TSType, TSTypeAliasDeclaration,
-    TSTypeLiteral, TSTypeName, UnaryOperator,
+    TSTypeLiteral, TSTypeName, TSTypeOperatorOperator, TSTypeParameterDeclaration, UnaryOperator,
 };
 use oxc::span::GetSpan;
 use std::collections::HashSet;
@@ -104,7 +105,7 @@ fn lower_class(
     let type_params = decl
         .type_parameters
         .as_ref()
-        .map(|tp| tp.params.iter().map(|p| p.name.to_string()).collect())
+        .map(|tp| lower_type_params(tp, source))
         .unwrap_or_default();
 
     let mut heritage = Vec::new();
@@ -129,7 +130,8 @@ fn lower_class(
     for element in &decl.body.body {
         let floor = std::mem::replace(&mut previous_end, element.span().end as usize);
         match element {
-            ClassElement::PropertyDefinition(prop) => {
+            // A static property belongs to the class, not to its instances.
+            ClassElement::PropertyDefinition(prop) if !prop.r#static => {
                 if let PropertyKey::StaticIdentifier(ident) = &prop.key {
                     let field_decorators =
                         collect_leading_decorators(source, floor, prop.span.start as usize, filter);
@@ -152,6 +154,10 @@ fn lower_class(
                             _ => Visibility::Public,
                         },
                         decorators: field_decorators,
+                        initializer: prop.value.as_ref().map(|value| {
+                            let sp = value.span();
+                            source[sp.start as usize..sp.end as usize].to_string()
+                        }),
                     });
                 }
             }
@@ -159,10 +165,10 @@ fn lower_class(
                 if let PropertyKey::StaticIdentifier(ident) = &method.key {
                     let func = &method.value;
 
-                    let type_params_src = func
+                    let type_params = func
                         .type_parameters
                         .as_ref()
-                        .map(|tp| source[tp.span.start as usize..tp.span.end as usize].to_string())
+                        .map(|tp| lower_type_params(tp, source))
                         .unwrap_or_default();
 
                     let params_src = {
@@ -204,7 +210,7 @@ fn lower_class(
                     methods.push(MethodSigIR {
                         name: ident.name.to_string(),
                         span: oxc_span_ir(method.span),
-                        type_params_src,
+                        type_params,
                         params_src,
                         return_type_src,
                         is_static: method.r#static,
@@ -271,7 +277,7 @@ fn lower_interface(
     let type_params = decl
         .type_parameters
         .as_ref()
-        .map(|tp| tp.params.iter().map(|p| p.name.to_string()).collect())
+        .map(|tp| lower_type_params(tp, source))
         .unwrap_or_default();
 
     let mut heritage = Vec::new();
@@ -349,10 +355,10 @@ fn lower_interface_members(
                             .to_string()
                     };
 
-                    let type_params_src = meth
+                    let type_params = meth
                         .type_parameters
                         .as_ref()
-                        .map(|tp| source[tp.span.start as usize..tp.span.end as usize].to_string())
+                        .map(|tp| lower_type_params(tp, source))
                         .unwrap_or_default();
 
                     let return_type_src = meth
@@ -369,7 +375,7 @@ fn lower_interface_members(
                     methods.push(InterfaceMethodIR {
                         name: ident.name.to_string(),
                         span: oxc_span_ir(meth.span),
-                        type_params_src,
+                        type_params,
                         params_src,
                         return_type_src,
                         optional: meth.optional,
@@ -497,7 +503,6 @@ fn lower_enum(decl: &TSEnumDeclaration<'_>, source: &str) -> EnumIR {
 pub fn lower_type_aliases(
     program: &Program<'_>,
     source: &str,
-    _filter: Option<&HashSet<String>>,
 ) -> Result<Vec<TypeAliasIR>, TsSynError> {
     let mut aliases = Vec::new();
     for stmt in &program.body {
@@ -523,7 +528,7 @@ fn lower_type_alias(decl: &TSTypeAliasDeclaration<'_>, source: &str) -> TypeAlia
     let type_params = decl
         .type_parameters
         .as_ref()
-        .map(|tp| tp.params.iter().map(|p| p.name.to_string()).collect())
+        .map(|tp| lower_type_params(tp, source))
         .unwrap_or_default();
 
     let body = lower_type_body(&decl.type_annotation, source);
@@ -603,6 +608,13 @@ fn brand_symbols(lit: &TSTypeLiteral<'_>) -> Option<Vec<String>> {
 }
 
 fn lower_type_body(ts_type: &TSType<'_>, source: &str) -> TypeBody {
+    if let Some((branded, depth)) = newtype_branded_type(ts_type) {
+        let mut body = lower_type_body(branded, source);
+        for _ in 0..depth {
+            body = TypeBody::Newtype(Box::new(body));
+        }
+        return body;
+    }
     match ts_type {
         TSType::TSUnionType(union) => TypeBody::Union(lower_union_members(&union.types, source)),
         TSType::TSIntersectionType(inter) => {
@@ -624,11 +636,113 @@ fn lower_type_body(ts_type: &TSType<'_>, source: &str) -> TypeBody {
                 .collect();
             TypeBody::Tuple(elements)
         }
-        _ => {
-            let sp = ts_type.span();
-            TypeBody::Other(source[sp.start as usize..sp.end as usize].to_string())
+        // A reference to another type, by name or as an array or keyword.
+        TSType::TSTypeReference(_)
+        | TSType::TSArrayType(_)
+        | TSType::TSLiteralType(_)
+        | TSType::TSAnyKeyword(_)
+        | TSType::TSBigIntKeyword(_)
+        | TSType::TSBooleanKeyword(_)
+        | TSType::TSNeverKeyword(_)
+        | TSType::TSNullKeyword(_)
+        | TSType::TSNumberKeyword(_)
+        | TSType::TSObjectKeyword(_)
+        | TSType::TSStringKeyword(_)
+        | TSType::TSSymbolKeyword(_)
+        | TSType::TSUndefinedKeyword(_)
+        | TSType::TSUnknownKeyword(_)
+        | TSType::TSVoidKeyword(_) => TypeBody::Alias(type_source(ts_type, source)),
+        TSType::TSTypeOperatorType(operator)
+            if operator.operator == TSTypeOperatorOperator::Readonly
+                && matches!(operator.type_annotation, TSType::TSArrayType(_)) =>
+        {
+            TypeBody::Alias(type_source(ts_type, source))
         }
+        _ => TypeBody::Other(type_source(ts_type, source)),
     }
+}
+
+/// The type a `$Newtype` brands and how many brands it carries, from the
+/// macro call (`$Newtype<T>`) or from its expansion
+/// (`T & { readonly [__mf_newtype_N]: true }`). A nested newtype expands to one
+/// flat intersection with a brand per level.
+fn newtype_branded_type<'a, 'b>(ts_type: &'b TSType<'a>) -> Option<(&'b TSType<'a>, usize)> {
+    match ts_type {
+        TSType::TSTypeReference(reference) => {
+            let TSTypeName::IdentifierReference(ident) = &reference.type_name else {
+                return None;
+            };
+            if ident.name != NEWTYPE_MACRO {
+                return None;
+            }
+            match reference.type_arguments.as_deref()?.params.as_slice() {
+                [branded] => Some((branded, 1)),
+                _ => None,
+            }
+        }
+        TSType::TSIntersectionType(inter) => {
+            let (brands, rest): (Vec<_>, Vec<_>) = inter
+                .types
+                .iter()
+                .partition(|member| is_newtype_brand(member));
+            match (brands.len(), rest.as_slice()) {
+                (0, _) => None,
+                (depth, [branded]) => Some((unparenthesized(branded), depth)),
+                _ => None,
+            }
+        }
+        TSType::TSParenthesizedType(paren) => newtype_branded_type(&paren.type_annotation),
+        _ => None,
+    }
+}
+
+/// Whether `ts_type` is the brand a `$Newtype` expansion adds: a type literal
+/// whose only keys are its `__mf_newtype_N` symbols.
+fn is_newtype_brand(ts_type: &TSType<'_>) -> bool {
+    let TSType::TSTypeLiteral(lit) = ts_type else {
+        return false;
+    };
+    brand_symbols(lit).is_some_and(|symbols| {
+        symbols
+            .iter()
+            .all(|symbol| symbol.starts_with(NEWTYPE_BRAND_PREFIX))
+    })
+}
+
+fn unparenthesized<'a, 'b>(ts_type: &'b TSType<'a>) -> &'b TSType<'a> {
+    match ts_type {
+        TSType::TSParenthesizedType(paren) => unparenthesized(&paren.type_annotation),
+        _ => ts_type,
+    }
+}
+
+/// Each parameter of a type parameter list as declared, its constraint and
+/// default kept as written.
+fn lower_type_params(params: &TSTypeParameterDeclaration<'_>, source: &str) -> Vec<TypeParamIR> {
+    params
+        .params
+        .iter()
+        .map(|param| TypeParamIR {
+            name: param.name.to_string(),
+            constraint: param
+                .constraint
+                .as_ref()
+                .map(|constraint| type_source(constraint, source)),
+            default: param
+                .default
+                .as_ref()
+                .map(|default| type_source(default, source)),
+            is_const: param.r#const,
+        })
+        .collect()
+}
+
+fn type_source(ts_type: &TSType<'_>, source: &str) -> String {
+    let sp = ts_type.span();
+    source
+        .get(sp.start as usize..sp.end as usize)
+        .unwrap_or_default()
+        .to_string()
 }
 
 pub fn lower_functions(
@@ -690,7 +804,7 @@ fn lower_function(
     let type_params = decl
         .type_parameters
         .as_ref()
-        .map(|tp| tp.params.iter().map(|p| p.name.to_string()).collect())
+        .map(|tp| lower_type_params(tp, source))
         .unwrap_or_default();
 
     let mut params = Vec::new();
@@ -797,7 +911,7 @@ pub fn lower_targets(
     for e in lower_enums(program, source, filter)? {
         targets.push(LoweredTarget::Enum(e));
     }
-    for ta in lower_type_aliases(program, source, filter)? {
+    for ta in lower_type_aliases(program, source)? {
         targets.push(LoweredTarget::TypeAlias(ta));
     }
     for func in lower_functions(program, source, filter)? {
@@ -894,12 +1008,35 @@ mod tests {
 
     fn single_type_alias(source: &str) -> TypeAliasIR {
         let allocator = Allocator::default();
-        let aliases = lower_type_aliases(&parse(&allocator, source), source, None)
+        let aliases = lower_type_aliases(&parse(&allocator, source), source)
             .expect("type aliases should lower");
         aliases
             .into_iter()
             .next()
             .expect("source declares a type alias")
+    }
+
+    #[test]
+    fn a_reference_to_another_type_lowers_to_an_alias() {
+        for (source, target) in [
+            ("type A = Ledger;", "Ledger"),
+            ("type B = Map<string, number>;", "Map<string, number>"),
+            ("type C = string[];", "string[]"),
+            ("type D = readonly Date[];", "readonly Date[]"),
+            ("type E = string;", "string"),
+        ] {
+            assert_eq!(
+                single_type_alias(source).body.as_alias(),
+                Some(target),
+                "{source}"
+            );
+        }
+        for source in ["type F = keyof User;", "type G = `on${string}`;"] {
+            assert!(
+                single_type_alias(source).body.as_alias().is_none(),
+                "{source}"
+            );
+        }
     }
 
     #[test]
@@ -950,10 +1087,10 @@ mod tests {
 
     #[test]
     fn import_macro_comment_not_parsed_as_decorator() {
-        // The `@playground/macro` inside an import-macro comment is a module
-        // path, not a `@playground` directive.
+        // The `@testground/macro` inside an import-macro comment is a module
+        // path, not a `@testground` directive.
         let iface = single_interface(
-            r#"/** import macro {Gigaform} from "@playground/macro"; */
+            r#"/** import macro {Gigaform} from "@testground/macro"; */
 /** @derive(Default, Encode, Decode, Gigaform) */
 export interface PhoneNumber {
     label: string;
@@ -1092,6 +1229,19 @@ type ContactInfo = {
     }
 
     #[test]
+    fn class_fields_keep_their_initializers_and_skip_statics() {
+        let class = single_class(
+            "class Settings {\n  static instances = 0;\n  theme: string = \"dark\";\n  label?: string;\n}",
+        );
+        let fields: Vec<(&str, Option<&str>)> = class
+            .fields
+            .iter()
+            .map(|field| (field.name.as_str(), field.initializer.as_deref()))
+            .collect();
+        assert_eq!(fields, [("theme", Some("\"dark\"")), ("label", None)]);
+    }
+
+    #[test]
     fn symbol_keyed_literal_lowers_to_brand() {
         let alias = single_type_alias(
             "declare const MetersBrand: unique symbol;\ntype Meters = number & { readonly [MetersBrand]: true };",
@@ -1117,6 +1267,57 @@ type ContactInfo = {
         };
         assert!(members[1].is_object());
         assert_eq!(alias.body.primitive_base(), Some("number"));
+    }
+
+    #[test]
+    fn newtype_call_lowers_to_newtype() {
+        let alias = single_type_alias("type Meters = $Newtype<number>;");
+        assert_eq!(
+            alias.body,
+            TypeBody::Newtype(Box::new(TypeBody::Alias("number".to_string())))
+        );
+        assert_eq!(alias.body.primitive_base(), Some("number"));
+    }
+
+    #[test]
+    fn newtype_expansion_lowers_to_newtype() {
+        let alias =
+            single_type_alias("type Meters = number & { readonly [__mf_newtype_3]: true };");
+        assert_eq!(
+            alias.body,
+            TypeBody::Newtype(Box::new(TypeBody::Alias("number".to_string())))
+        );
+    }
+
+    #[test]
+    fn nested_newtypes_lower_to_nested_newtypes() {
+        let call = single_type_alias("type Id = $Newtype<$Newtype<string>>;");
+        let expanded = single_type_alias(
+            "type Id = string & { readonly [__mf_newtype_1]: true } & { readonly [__mf_newtype_2]: true };",
+        );
+        let parenthesized = single_type_alias(
+            "type Id = (string & { readonly [__mf_newtype_1]: true }) & { readonly [__mf_newtype_2]: true };",
+        );
+        let nested = TypeBody::Newtype(Box::new(TypeBody::Newtype(Box::new(TypeBody::Alias(
+            "string".to_string(),
+        )))));
+        assert_eq!(call.body, nested);
+        assert_eq!(expanded.body, nested);
+        assert_eq!(parenthesized.body, nested);
+        assert_eq!(call.body.primitive_base(), Some("string"));
+    }
+
+    #[test]
+    fn hand_written_brand_stays_an_intersection() {
+        let alias = single_type_alias("type Meters = number & { readonly [Brand]: true };");
+        assert!(alias.body.is_intersection());
+        assert_eq!(alias.body.primitive_base(), Some("number"));
+    }
+
+    #[test]
+    fn newtype_with_two_arguments_is_not_a_newtype() {
+        let alias = single_type_alias("type Pair = $Newtype<string, number>;");
+        assert_eq!(alias.body.as_newtype(), None);
     }
 
     #[test]

@@ -20,7 +20,7 @@ packages/                        # NPM packages (TypeScript/Deno)
   shared/                        # Shared utilities
 tooling/
   scripts/                       # `mf` CLI tool (Rust)
-  playground/                    # Demo projects (macro, svelte, vanilla)
+  testground/                    # Demo projects (macro, svelte, vanilla)
   tests/                         # E2E tests
 website/                         # Documentation site (SvelteKit)
 ```
@@ -67,10 +67,10 @@ cargo test -p macroforge_ts --features test-macros
 ### Snapshot tests
 
 The conformance suite (`crates/macroforge_ts/tests/conformance.rs`) snapshots with
-[insta](https://insta.rs). It expands every fixture and every source file of the playground projects
+[insta](https://insta.rs). It expands every fixture and every source file of the testground projects
 the way the integrations expand them, and compares the expanded code, declarations, diagnostics,
 source mapping, metadata and registry reads against committed goldens. It also snapshots each
-playground project's registries and checks that a registry survives a JSON round trip. A change that
+testground project's registries and checks that a registry survives a JSON round trip. A change that
 only makes expansion faster moves no golden.
 
 ```bash
@@ -86,10 +86,10 @@ cargo insta test -p macroforge_ts --features test-macros --test conformance
 cargo insta review
 ```
 
-The playground corpus resolves the playground's external macro package from each app's
+The testground corpus resolves the testground's external macro package from each app's
 `node_modules`, so it needs the macro package built and installed. `pixi run test:rust` prepares it
-when it is missing (after `pixi run build:cli`); `MACROFORGE_CONFORMANCE_SKIP_PLAYGROUND=1` skips
-the playground corpus when that is impossible, such as offline.
+when it is missing (after `pixi run build:cli`); `MACROFORGE_CONFORMANCE_SKIP_TESTGROUND=1` skips
+the testground corpus when that is impossible, such as offline.
 
 #### Adding a snapshot test
 
@@ -108,17 +108,17 @@ Fixtures in `error/` accept any outcome and snapshot whatever happens.
 pixi run test:packages
 ```
 
-### Playground tests
+### Testground tests
 
 ```bash
-pixi run test:playground
+pixi run test:testground
 ```
 
-The end-to-end step serves the vanilla playground on port 3000. Point it somewhere else when that
+The end-to-end step serves the vanilla testground on port 3000. Point it somewhere else when that
 port is already taken, or Playwright attaches to whatever is listening and every test fails:
 
 ```bash
-PLAYGROUND_VANILLA_PORT=3177 pixi run test:playground
+TESTGROUND_VANILLA_PORT=3177 pixi run test:testground
 ```
 
 ### All tests

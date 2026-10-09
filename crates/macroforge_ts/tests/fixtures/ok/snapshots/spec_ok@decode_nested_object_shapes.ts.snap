@@ -1,0 +1,1522 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/decode_nested_object_shapes.ts
+---
+## Input
+
+/**
+ * Nested values encoded and decoded through an interface and an object type
+ * alias, which share one field encoder and decoder with classes.
+ */
+
+/** @derive(Encode, Decode) */
+export interface Point {
+    /** @endec(nonNegative) */
+    x: number;
+}
+
+/** @derive(Encode, Decode) */
+export type Route = {
+    stops: Point[];
+    named: Record<string, Point>;
+    visits?: Map<string, number>;
+};
+
+/** @derive(Encode, Decode) */
+export interface Labeled {
+    label: string;
+    /** @endec(flatten) */
+    origin: Point;
+}
+
+/** @derive(Encode, Decode) */
+export interface Box<T> {
+    label: string;
+    value: T;
+}
+
+/** @derive(Encode, Decode) */
+export type Pair<A, B> = {
+    first: A;
+    second: B;
+};
+
+/** @derive(Encode, Decode) */
+export type Outcome<T> = Box<T> | 'none';
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * Nested values encoded and decoded through an interface and an object type
+ * alias, which share one field encoder and decoder with classes.
+ */
+
+
+export interface Point {
+    
+    x: number;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function pointEncode(value: Point, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = pointEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Point",
+        __id,
+    };
+
+    
+    result.x = value.x;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = pointDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Point.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Point | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Point.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Point | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Point.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("x" in obj)) {
+        errors.push({ field: "x", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_x = obj["x"] as number;
+
+        if (!(typeof __raw_x === "number")) {
+            errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
+        } else {
+            if (__raw_x == null) { errors.push({ field: "x", message: "Point.x is required" }); } else {
+                if (__raw_x < 0) { errors.push({ field: "x", message: "Point.x must be non-negative" }); }
+            }
+            instance.x = __raw_x;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Point;
+}
+export function pointValidateField<K extends keyof Point>(field: K, value: unknown): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if (field === "x") {
+        const __val = value as number;
+        if (__val == null) { errors.push({ field: "x", message: "Point.x is required" }); } else {
+            if (__val < 0) { errors.push({ field: "x", message: "Point.x must be non-negative" }); }
+        }
+    }
+    return errors;
+}
+
+export function pointValidateFields(partial: { readonly [K in keyof Point]?: unknown }): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("x" in partial && partial.x !== undefined) {
+        const __val = partial.x as number;
+        if (__val == null) { errors.push({ field: "x", message: "Point.x is required" }); } else {
+            if (__val < 0) { errors.push({ field: "x", message: "Point.x must be non-negative" }); }
+        }
+    }
+    return errors;
+}
+export function pointHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "x" in o;
+}
+
+export function pointIs(obj: unknown): obj is Point {
+    return pointHasShape(obj) && pointDecode(obj).success;
+}
+
+export const Point: {
+  readonly encode: typeof pointEncode;
+  readonly encodeWithContext: typeof pointEncodeWithContext;
+  readonly decode: typeof pointDecode;
+  readonly decodeWithContext: typeof pointDecodeWithContext;
+  readonly validateField: typeof pointValidateField;
+  readonly validateFields: typeof pointValidateFields;
+  readonly hasShape: typeof pointHasShape;
+  readonly is: typeof pointIs;
+} = {
+  encode: pointEncode,
+  encodeWithContext: pointEncodeWithContext,
+  decode: pointDecode,
+  decodeWithContext: pointDecodeWithContext,
+  validateField: pointValidateField,
+  validateFields: pointValidateFields,
+  hasShape: pointHasShape,
+  is: pointIs
+};
+
+
+export type Route = {
+    stops: Point[];
+    named: Record<string, Point>;
+    visits?: Map<string, number>;
+};
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function routeEncode(value: Route, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = routeEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function routeEncodeWithContext(value: Route, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Route",
+        __id,
+    };
+
+    
+    result.stops = value.stops.map(
+        (item) => pointEncodeWithContext(item, ctx)
+    );
+    result.named = Object.fromEntries(
+        Object.entries(value.named).map(([k, v]) => [k, pointEncodeWithContext(v, ctx)])
+    );
+    if (value.visits !== undefined) {
+        result.visits = Object.fromEntries(value.visits.entries());
+    }
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function routeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Route } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = routeDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Route.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Route | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Route.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Route | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Route.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("stops" in obj)) {
+        errors.push({ field: "stops", message: "missing required field" });
+    }
+    if (!("named" in obj)) {
+        errors.push({ field: "named", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_stops = obj["stops"] as Point[];
+
+        if (Array.isArray(__raw_stops)) {
+            const __arr = __raw_stops.map((item: Point | { __ref: number }, idx) => {
+                if (typeof item === "object" && item !== null && "__ref" in item) {
+                    const result = ctx.getOrDefer(item.__ref);
+                    if (__mf_PendingRef.is(result)) {
+                        return { __pendingIdx: idx, __refId: result.id };
+                    }
+                    return result;
+                }
+                const __elemResult = pointDecode(item);
+                if (!__elemResult.success) {
+                    for (const __err of __elemResult.errors) {
+                        errors.push({
+                            field: __err.field === "_root"
+                                ? "stops[" + idx + "]"
+                                : "stops[" + idx + "]." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                }
+                return __elemResult.success ? __elemResult.value : item;
+            });
+            instance.stops = __arr;
+            __arr.forEach((item, idx) => {
+                if (item && typeof item === "object" && "__pendingIdx" in item) {
+                    ctx.addPatch(instance.stops, idx, (item as any).__refId);
+                }
+            });
+        }
+    }
+    {
+        const __raw_named = obj["named"] as Record<string, Point>;
+
+        if (typeof __raw_named === "object" && __raw_named !== null) {
+            instance.named = Object.fromEntries(
+                Object.entries(__raw_named).map(([k, v]) => {
+                    const __vResult = pointDecode(v);
+                    if (!__vResult.success) {
+                        for (const __err of __vResult.errors) {
+                            errors.push({
+                                field: __err.field === "_root"
+                                    ? "named." + k
+                                    : "named." + k + "." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    }
+                    return [k, __vResult.success ? __vResult.value : v];
+                })
+            ) as Record<string, Point>;
+        }
+    }
+    if ("visits" in obj && obj["visits"] !== undefined) {
+        const __raw_visits = obj["visits"] as Record<string, number>;
+
+        if (typeof __raw_visits === "object" && __raw_visits !== null) {
+            instance.visits = new Map(
+                Object.entries(__raw_visits).map(([k, v]) => [k as string, v as number])
+            );
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Route;
+}
+export function routeValidateField<K extends keyof Route>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function routeValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function routeValidateFields(partial: { readonly [K in keyof Route]?: unknown }): Array<{ field: string; message: string }>;
+export function routeValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function routeHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "stops" in o && "named" in o;
+}
+
+export function routeIs(obj: unknown): obj is Route {
+    return routeHasShape(obj) && routeDecode(obj).success;
+}
+
+export const Route: {
+  readonly encode: typeof routeEncode;
+  readonly encodeWithContext: typeof routeEncodeWithContext;
+  readonly decode: typeof routeDecode;
+  readonly decodeWithContext: typeof routeDecodeWithContext;
+  readonly validateField: typeof routeValidateField;
+  readonly validateFields: typeof routeValidateFields;
+  readonly hasShape: typeof routeHasShape;
+  readonly is: typeof routeIs;
+} = {
+  encode: routeEncode,
+  encodeWithContext: routeEncodeWithContext,
+  decode: routeDecode,
+  decodeWithContext: routeDecodeWithContext,
+  validateField: routeValidateField,
+  validateFields: routeValidateFields,
+  hasShape: routeHasShape,
+  is: routeIs
+};
+
+
+export interface Labeled {
+    label: string;
+    
+    origin: Point;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function labeledEncode(value: Labeled, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = labeledEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function labeledEncodeWithContext(value: Labeled, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Labeled",
+        __id,
+    };
+
+    
+    result.label = value.label;
+    {
+        const __flattened = pointEncodeWithContext(value.origin, ctx);
+
+        const { ["__type"]: _, __id: __, ...rest } = __flattened as any;
+        Object.assign(result, rest);
+    }
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function labeledDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Labeled } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = labeledDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Labeled.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function labeledDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Labeled | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Labeled.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Labeled | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Labeled.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("label" in obj)) {
+        errors.push({ field: "label", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_label = obj["label"] as string;
+
+        if (!(typeof __raw_label === "string")) {
+            errors.push({ field: "label", message: __raw_label == null ? "Labeled.label is required" : "expected string" });
+        } else {
+            instance.label = __raw_label;
+        }
+    }
+    try {
+        const __result = pointDecodeWithContext(obj, ctx);
+        ctx.assignOrDefer(instance, "origin", __result);
+    } catch (__e) {
+        if (__e instanceof __mf_DecodeError) {
+            for (const __err of __e.errors) {
+                errors.push(__err);
+            }
+        } else {
+            throw __e;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Labeled;
+}
+export function labeledValidateField<K extends keyof Labeled>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function labeledValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function labeledValidateFields(partial: { readonly [K in keyof Labeled]?: unknown }): Array<{ field: string; message: string }>;
+export function labeledValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function labeledHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "label" in o;
+}
+
+export function labeledIs(obj: unknown): obj is Labeled {
+    return labeledHasShape(obj) && labeledDecode(obj).success;
+}
+
+export const Labeled: {
+  readonly encode: typeof labeledEncode;
+  readonly encodeWithContext: typeof labeledEncodeWithContext;
+  readonly decode: typeof labeledDecode;
+  readonly decodeWithContext: typeof labeledDecodeWithContext;
+  readonly validateField: typeof labeledValidateField;
+  readonly validateFields: typeof labeledValidateFields;
+  readonly hasShape: typeof labeledHasShape;
+  readonly is: typeof labeledIs;
+} = {
+  encode: labeledEncode,
+  encodeWithContext: labeledEncodeWithContext,
+  decode: labeledDecode,
+  decodeWithContext: labeledDecodeWithContext,
+  validateField: labeledValidateField,
+  validateFields: labeledValidateFields,
+  hasShape: labeledHasShape,
+  is: labeledIs
+};
+
+
+export interface Box<T> {
+    label: string;
+    value: T;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function boxEncode<T>(value: Box<T>, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = boxEncodeWithContext<T>(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function boxEncodeWithContext<T>(value: Box<T>, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Box",
+        __id,
+    };
+
+    
+    result.label = value.label;
+    result.value = value.value;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function boxDecode<T>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Box<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = boxDecodeWithContext<T>(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Box.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext): Box<T> | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Box.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Box<T> | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Box.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("label" in obj)) {
+        errors.push({ field: "label", message: "missing required field" });
+    }
+    if (!("value" in obj)) {
+        errors.push({ field: "value", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_label = obj["label"] as string;
+
+        if (!(typeof __raw_label === "string")) {
+            errors.push({ field: "label", message: __raw_label == null ? "Box.label is required" : "expected string" });
+        } else {
+            instance.label = __raw_label;
+        }
+    }
+    {
+        const __raw_value = obj["value"] as T;
+
+        instance.value = __raw_value;
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Box<T>;
+}
+export function boxValidateField<T, K extends keyof Box<T> = keyof Box<T>>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function boxValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function boxValidateFields<T>(partial: { readonly [K in keyof Box<T>]?: unknown }): Array<{ field: string; message: string }>;
+export function boxValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function boxHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "label" in o && "value" in o;
+}
+
+export function boxIs<T>(obj: unknown): obj is Box<T> {
+    return boxHasShape(obj) && boxDecode(obj).success;
+}
+
+export const Box: {
+  readonly encode: typeof boxEncode;
+  readonly encodeWithContext: typeof boxEncodeWithContext;
+  readonly decode: typeof boxDecode;
+  readonly decodeWithContext: typeof boxDecodeWithContext;
+  readonly validateField: typeof boxValidateField;
+  readonly validateFields: typeof boxValidateFields;
+  readonly hasShape: typeof boxHasShape;
+  readonly is: typeof boxIs;
+} = {
+  encode: boxEncode,
+  encodeWithContext: boxEncodeWithContext,
+  decode: boxDecode,
+  decodeWithContext: boxDecodeWithContext,
+  validateField: boxValidateField,
+  validateFields: boxValidateFields,
+  hasShape: boxHasShape,
+  is: boxIs
+};
+
+
+export type Pair<A, B> = {
+    first: A;
+    second: B;
+};
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function pairEncode<A, B>(value: Pair<A, B>, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = pairEncodeWithContext<A, B>(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function pairEncodeWithContext<A, B>(value: Pair<A, B>, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Pair",
+        __id,
+    };
+
+    
+    result.first = value.first;
+    result.second = value.second;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function pairDecode<A, B>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Pair<A, B> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = pairDecodeWithContext<A, B>(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Pair.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function pairDecodeWithContext<A, B>(value: unknown, ctx: __mf_DecodeContext): Pair<A, B> | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Pair.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Pair<A, B> | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Pair.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("first" in obj)) {
+        errors.push({ field: "first", message: "missing required field" });
+    }
+    if (!("second" in obj)) {
+        errors.push({ field: "second", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_first = obj["first"] as A;
+
+        instance.first = __raw_first;
+    }
+    {
+        const __raw_second = obj["second"] as B;
+
+        instance.second = __raw_second;
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Pair<A, B>;
+}
+export function pairValidateField<A, B, K extends keyof Pair<A, B> = keyof Pair<A, B>>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function pairValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function pairValidateFields<A, B>(partial: { readonly [K in keyof Pair<A, B>]?: unknown }): Array<{ field: string; message: string }>;
+export function pairValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function pairHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "first" in o && "second" in o;
+}
+
+export function pairIs<A, B>(obj: unknown): obj is Pair<A, B> {
+    return pairHasShape(obj) && pairDecode(obj).success;
+}
+
+export const Pair: {
+  readonly encode: typeof pairEncode;
+  readonly encodeWithContext: typeof pairEncodeWithContext;
+  readonly decode: typeof pairDecode;
+  readonly decodeWithContext: typeof pairDecodeWithContext;
+  readonly validateField: typeof pairValidateField;
+  readonly validateFields: typeof pairValidateFields;
+  readonly hasShape: typeof pairHasShape;
+  readonly is: typeof pairIs;
+} = {
+  encode: pairEncode,
+  encodeWithContext: pairEncodeWithContext,
+  decode: pairDecode,
+  decodeWithContext: pairDecodeWithContext,
+  validateField: pairValidateField,
+  validateFields: pairValidateFields,
+  hasShape: pairHasShape,
+  is: pairIs
+};
+
+
+export type Outcome<T> = Box<T> | 'none';
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function outcomeEncode<T>(value: Outcome<T>, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = outcomeEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function outcomeEncodeWithContext<T>(value: Outcome<T>, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    }
+    return __variant;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function outcomeDecode<T>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Outcome<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = outcomeDecodeWithContext<T>(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Outcome.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function outcomeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext): Outcome<T> | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Outcome.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Outcome<T> | __mf_PendingRef;
+    }
+
+    
+    const allowedLiterals = ['none'] as const;
+    if (allowedLiterals.includes(value as any)) {
+        return value as Outcome<T>;
+    }
+
+    if (typeof value === "object" && value !== null) {
+        const __typeName = (value as any)["__type"];
+        if (typeof __typeName === "string") {
+            if (__typeName === "Box<T>") {
+                return boxDecodeWithContext(value, ctx) as Outcome<T>;
+            }
+        } else {
+
+            const __shapeMatches: Array<string> = [];
+            if (boxHasShape(value)) __shapeMatches.push("Box<T>");
+            if (__shapeMatches.length === 1) {
+                if (__shapeMatches[0] === "Box<T>") {
+                    return boxDecodeWithContext(value, ctx) as Outcome<T>;
+                }
+            }
+        }
+    } else {
+
+        const __shapeMatches: Array<string> = [];
+        if (boxHasShape(value)) __shapeMatches.push("Box<T>");
+        if (__shapeMatches.length === 1) {
+            if (__shapeMatches[0] === "Box<T>") {
+                return boxDecodeWithContext(value, ctx) as Outcome<T>;
+            }
+        }
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "Outcome.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function outcomeHasShape(value: unknown): boolean {
+                const allowedLiterals = ['none'] as const;
+                if (allowedLiterals.includes(value as any)) return true;
+
+                if (typeof value === "object" && value !== null) {
+                    const __typeName = (value as any)["__type"];
+                    if (typeof __typeName === "string") {
+                        if (__typeName === "Box<T>") return true;
+                    } else {
+                        let __matchCount = 0;
+                        if (boxHasShape(value)) __matchCount++;
+                        if (__matchCount === 1) return true;
+                    }
+                } else {
+
+                    let __matchCount = 0;
+                    if (boxHasShape(value)) __matchCount++;
+                    if (__matchCount === 1) return true;
+                }
+                return false;
+}
+export function outcomeIs<T>(value: unknown): value is Outcome<T> {
+    return outcomeHasShape(value);
+}
+
+export const Outcome: {
+  readonly encode: typeof outcomeEncode;
+  readonly encodeWithContext: typeof outcomeEncodeWithContext;
+  readonly decode: typeof outcomeDecode;
+  readonly decodeWithContext: typeof outcomeDecodeWithContext;
+  readonly hasShape: typeof outcomeHasShape;
+  readonly is: typeof outcomeIs;
+} = {
+  encode: outcomeEncode,
+  encodeWithContext: outcomeEncodeWithContext,
+  decode: outcomeDecode,
+  decodeWithContext: outcomeDecodeWithContext,
+  hasShape: outcomeHasShape,
+  is: outcomeIs
+};
+
+## DTS
+
+/**
+* Nested values encoded and decoded through an interface and an object type
+* alias, which share one field encoder and decoder with classes.
+*/
+export interface Point {
+	x: number;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function pointEncode(value: Point, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function pointDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Point;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Point | __mf_PendingRef;
+export declare function pointValidateField<K extends keyof Point>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function pointValidateFields(partial: { readonly [K in keyof Point]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function pointHasShape(obj: unknown): boolean;
+export declare function pointIs(obj: unknown): obj is Point;
+export declare const Point: {
+	readonly encode: typeof pointEncode;
+	readonly encodeWithContext: typeof pointEncodeWithContext;
+	readonly decode: typeof pointDecode;
+	readonly decodeWithContext: typeof pointDecodeWithContext;
+	readonly validateField: typeof pointValidateField;
+	readonly validateFields: typeof pointValidateFields;
+	readonly hasShape: typeof pointHasShape;
+	readonly is: typeof pointIs;
+};
+export type Route = {
+	stops: Point[];
+	named: Record<string, Point>;
+	visits?: Map<string, number>;
+};
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function routeEncode(value: Route, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function routeEncodeWithContext(value: Route, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function routeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Route;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Route | __mf_PendingRef;
+export declare function routeValidateField<K extends keyof Route>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function routeValidateFields(partial: { readonly [K in keyof Route]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function routeHasShape(obj: unknown): boolean;
+export declare function routeIs(obj: unknown): obj is Route;
+export declare const Route: {
+	readonly encode: typeof routeEncode;
+	readonly encodeWithContext: typeof routeEncodeWithContext;
+	readonly decode: typeof routeDecode;
+	readonly decodeWithContext: typeof routeDecodeWithContext;
+	readonly validateField: typeof routeValidateField;
+	readonly validateFields: typeof routeValidateFields;
+	readonly hasShape: typeof routeHasShape;
+	readonly is: typeof routeIs;
+};
+export interface Labeled {
+	label: string;
+	origin: Point;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function labeledEncode(value: Labeled, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function labeledEncodeWithContext(value: Labeled, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function labeledDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Labeled;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function labeledDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Labeled | __mf_PendingRef;
+export declare function labeledValidateField<K extends keyof Labeled>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function labeledValidateFields(partial: { readonly [K in keyof Labeled]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function labeledHasShape(obj: unknown): boolean;
+export declare function labeledIs(obj: unknown): obj is Labeled;
+export declare const Labeled: {
+	readonly encode: typeof labeledEncode;
+	readonly encodeWithContext: typeof labeledEncodeWithContext;
+	readonly decode: typeof labeledDecode;
+	readonly decodeWithContext: typeof labeledDecodeWithContext;
+	readonly validateField: typeof labeledValidateField;
+	readonly validateFields: typeof labeledValidateFields;
+	readonly hasShape: typeof labeledHasShape;
+	readonly is: typeof labeledIs;
+};
+export interface Box<T> {
+	label: string;
+	value: T;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function boxEncode<T>(value: Box<T>, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function boxEncodeWithContext<T>(value: Box<T>, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function boxDecode<T>(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Box<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext): Box<T> | __mf_PendingRef;
+export declare function boxValidateField<
+	T,
+	K extends keyof Box<T> = keyof Box<T>
+>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function boxValidateFields<T>(partial: { readonly [K in keyof Box<T>]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function boxHasShape(obj: unknown): boolean;
+export declare function boxIs<T>(obj: unknown): obj is Box<T>;
+export declare const Box: {
+	readonly encode: typeof boxEncode;
+	readonly encodeWithContext: typeof boxEncodeWithContext;
+	readonly decode: typeof boxDecode;
+	readonly decodeWithContext: typeof boxDecodeWithContext;
+	readonly validateField: typeof boxValidateField;
+	readonly validateFields: typeof boxValidateFields;
+	readonly hasShape: typeof boxHasShape;
+	readonly is: typeof boxIs;
+};
+export type Pair<
+	A,
+	B
+> = {
+	first: A;
+	second: B;
+};
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function pairEncode<
+	A,
+	B
+>(value: Pair<A, B>, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function pairEncodeWithContext<
+	A,
+	B
+>(value: Pair<A, B>, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function pairDecode<
+	A,
+	B
+>(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Pair<A, B>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function pairDecodeWithContext<
+	A,
+	B
+>(value: unknown, ctx: __mf_DecodeContext): Pair<A, B> | __mf_PendingRef;
+export declare function pairValidateField<
+	A,
+	B,
+	K extends keyof Pair<A, B> = keyof Pair<A, B>
+>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function pairValidateFields<
+	A,
+	B
+>(partial: { readonly [K in keyof Pair<A, B>]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function pairHasShape(obj: unknown): boolean;
+export declare function pairIs<
+	A,
+	B
+>(obj: unknown): obj is Pair<A, B>;
+export declare const Pair: {
+	readonly encode: typeof pairEncode;
+	readonly encodeWithContext: typeof pairEncodeWithContext;
+	readonly decode: typeof pairDecode;
+	readonly decodeWithContext: typeof pairDecodeWithContext;
+	readonly validateField: typeof pairValidateField;
+	readonly validateFields: typeof pairValidateFields;
+	readonly hasShape: typeof pairHasShape;
+	readonly is: typeof pairIs;
+};
+export type Outcome<T> = Box<T> | "none";
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function outcomeEncode<T>(value: Outcome<T>, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function outcomeEncodeWithContext<T>(value: Outcome<T>, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function outcomeDecode<T>(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Outcome<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function outcomeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext): Outcome<T> | __mf_PendingRef;
+export declare function outcomeHasShape(value: unknown): boolean;
+export declare function outcomeIs<T>(value: unknown): value is Outcome<T>;
+export declare const Outcome: {
+	readonly encode: typeof outcomeEncode;
+	readonly encodeWithContext: typeof outcomeEncodeWithContext;
+	readonly decode: typeof outcomeDecode;
+	readonly decodeWithContext: typeof outcomeDecodeWithContext;
+	readonly hasShape: typeof outcomeHasShape;
+	readonly is: typeof outcomeIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..152 -> expanded 301..453
+original 182..212 -> expanded 453..483
+original 238..255 -> expanded 483..500
+original 255..257 -> expanded 6771..6773
+original 287..400 -> expanded 6773..6886
+original 400..402 -> expanded 15258..15260
+original 432..483 -> expanded 15260..15311
+original 505..526 -> expanded 15311..15332
+original 526..528 -> expanded 21489..21491
+original 558..619 -> expanded 21491..21552
+original 619..621 -> expanded 27316..27318
+original 651..710 -> expanded 27318..27377
+original 710..712 -> expanded 33045..33047
+original 742..784 -> expanded 33047..33089
+original 784..785 -> expanded 39099..39100
+generated 0..301 <- imports
+generated 500..1580 <- Encode
+generated 1580..6104 <- Decode
+generated 6104..6771 <- __convenience_const
+generated 6886..8284 <- Encode
+generated 8284..14591 <- Decode
+generated 14591..15258 <- __convenience_const
+generated 15332..16626 <- Encode
+generated 16626..20788 <- Decode
+generated 20788..21489 <- __convenience_const
+generated 21552..22675 <- Encode
+generated 22675..26683 <- Decode
+generated 26683..27316 <- __convenience_const
+generated 27377..28523 <- Encode
+generated 28523..32395 <- Decode
+generated 32395..33045 <- __convenience_const
+generated 33089..34404 <- Encode
+generated 34404..38590 <- Decode
+generated 38590..39099 <- __convenience_const
+
+## Metadata
+
+interface Point: {"body_span":{"end":256,"start":207},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":183,"start":153}}],"fields":[{"decorators":[{"args_src":"nonNegative","name":"endec","span":{"end":239,"start":213}}],"name":"x","optional":false,"readonly":false,"span":{"end":254,"start":244},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Point","span":{"end":256,"start":191},"type_params":[]}
+interface Labeled: {"body_span":{"end":527,"start":459},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":433,"start":403}}],"fields":[{"decorators":[],"name":"label","optional":false,"readonly":false,"span":{"end":479,"start":465},"ts_type":"string"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":506,"start":484}}],"name":"origin","optional":false,"readonly":false,"span":{"end":525,"start":511},"ts_type":"Point"}],"heritage":[],"methods":[],"name":"Labeled","span":{"end":527,"start":441},"type_params":[]}
+interface Box: {"body_span":{"end":620,"start":584},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":559,"start":529}}],"fields":[{"decorators":[],"name":"label","optional":false,"readonly":false,"span":{"end":604,"start":590},"ts_type":"string"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":618,"start":609},"ts_type":"T"}],"heritage":[],"methods":[],"name":"Box","span":{"end":620,"start":567},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+type Route: {"body":{"Object":{"fields":[{"decorators":[],"name":"stops","optional":false,"readonly":false,"span":{"end":330,"start":315},"ts_type":"Point[]"},{"decorators":[],"name":"named","optional":false,"readonly":false,"span":{"end":364,"start":335},"ts_type":"Record<string, Point>"},{"decorators":[],"name":"visits","optional":true,"readonly":false,"span":{"end":398,"start":369},"ts_type":"Map<string, number>"}]}},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":288,"start":258}}],"name":"Route","span":{"end":401,"start":296},"type_params":[]}
+type Pair: {"body":{"Object":{"fields":[{"decorators":[],"name":"first","optional":false,"readonly":false,"span":{"end":693,"start":684},"ts_type":"A"},{"decorators":[],"name":"second","optional":false,"readonly":false,"span":{"end":708,"start":698},"ts_type":"B"}]}},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":652,"start":622}}],"name":"Pair","span":{"end":711,"start":660},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"A"},{"constraint":null,"default":null,"is_const":false,"name":"B"}]}
+type Outcome: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"Box<T>"}},{"decorators":[],"kind":{"Literal":"'none'"}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":743,"start":713}}],"name":"Outcome","span":{"end":785,"start":751},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

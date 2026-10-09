@@ -38,9 +38,9 @@ class API {
 
         // Check for static method and standalone function
         assert!(type_output.contains("static toString(value: API): string"));
-        assert!(type_output.contains("export function apiToString"));
+        assert!(type_output.contains("export declare function apiToString"));
         // Original methods should still be present
-        assert!(type_output.contains("async fetch<T>"));
+        assert!(type_output.contains("fetch<T>("));
         assert!(type_output.contains("subscribe("));
     }
 }
@@ -84,7 +84,7 @@ class Account {
 
         // Check for static method and standalone function
         assert!(type_output.contains("static clone(value: Account): Account"));
-        assert!(type_output.contains("export function accountClone"));
+        assert!(type_output.contains("export declare function accountClone"));
     }
 }
 
@@ -125,9 +125,9 @@ class Config {
         assert!(type_output.contains("static toString(value: Config): string"));
         assert!(type_output.contains("static equals(a: Config, b: Config): boolean"));
         assert!(type_output.contains("static hashCode(value: Config): number"));
-        assert!(type_output.contains("export function configToString"));
-        assert!(type_output.contains("export function configEquals"));
-        assert!(type_output.contains("export function configHashCode"));
+        assert!(type_output.contains("export declare function configToString"));
+        assert!(type_output.contains("export declare function configEquals"));
+        assert!(type_output.contains("export declare function configHashCode"));
     }
 }
 
@@ -165,7 +165,7 @@ class Singleton {
 
         // Check for static method and standalone function
         assert!(type_output.contains("static toString(value: Singleton): string"));
-        assert!(type_output.contains("export function singletonToString"));
+        assert!(type_output.contains("export declare function singletonToString"));
     }
 }
 
@@ -200,7 +200,7 @@ class ValidationExample {
 
         // Check for static method and standalone function
         assert!(type_output.contains("static toString(value: ValidationExample): string"));
-        assert!(type_output.contains("export function validationExampleToString"));
+        assert!(type_output.contains("export declare function validationExampleToString"));
     }
 }
 
@@ -337,7 +337,7 @@ class ServerConfig {
         );
         // Check for standalone exported function
         assert!(
-            type_output.contains("export function serverConfigToString"),
+            type_output.contains("export declare function serverConfigToString"),
             "should have exported serverConfigToString function, got:\n{}",
             type_output
         );
@@ -383,7 +383,7 @@ class EventEmitter {
         );
         // Check for standalone exported function
         assert!(
-            type_output.contains("export function eventEmitterClone"),
+            type_output.contains("export declare function eventEmitterClone"),
             "should have exported eventEmitterClone function, got:\n{}",
             type_output
         );

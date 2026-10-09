@@ -10,6 +10,7 @@ const BUILTIN_MACRO_NAMES: &[&str] = &[
     "Clone",
     "Default",
     "Hash",
+    "Eq",
     "Ord",
     "PartialEq",
     "PartialOrd",

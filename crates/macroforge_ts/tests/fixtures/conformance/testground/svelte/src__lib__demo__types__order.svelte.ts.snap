@@ -1,0 +1,2314 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/order.svelte.ts
+sha256 79ae09224ad7ec4772ece433fefe2ff57cdc4f5bbe8f6b23838014f4c8f06995
+
+## Changed
+
+true
+
+## Output
+
+import { accountDecodeWithContext, accountEncodeWithContext } from "./account.svelte";
+import { appointmentDecodeWithContext, appointmentEncodeWithContext } from "./appointment.svelte";
+import { billedItemDecode, billedItemEncodeWithContext } from "./billed-item.svelte";
+import { employeeDecode, employeeDecodeWithContext, employeeEncodeWithContext } from "./employee.svelte";
+import { orderStageDecodeWithContext, orderStageEncodeWithContext } from "./order-stage.svelte";
+import { paymentDecode, paymentEncodeWithContext } from "./payment.svelte";
+import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
+import { __foreign__dateTimeDateTimeDefault, __foreign__optionOptionDefault, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeDecode, __foreign__optionOptionDecode } from "#macroforge/config";
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Exit } from "effect";
+import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+import { type DateTime, Option } from 'effect';
+import type { Account } from './account.svelte';
+import type { Appointment } from './appointment.svelte';
+import type { BilledItem } from './billed-item.svelte';
+import type { Employee } from './employee.svelte';
+import type { OrderStage } from './order-stage.svelte';
+import type { Package } from './package.svelte';
+import type { Payment } from './payment.svelte';
+import type { Promotion } from './promotion.svelte';
+import type { Site } from './site.svelte';
+
+
+export interface Order {
+    
+    id: string;
+    
+    
+    account: string | Account;
+    
+    
+    stage: OrderStage;
+    
+    number: number;
+    
+    payments: Array<string | Payment>;
+    
+    
+    opportunity: string;
+    
+    
+    reference: string;
+    
+    
+    leadSource: string;
+    
+    
+    salesRep: string | Employee;
+    
+    
+    group: string;
+    
+    
+    subgroup: string;
+    
+    isPosted: boolean;
+    
+    needsReview: boolean;
+    
+    
+    actionItem: string;
+    
+    upsale: number;
+    
+    dateCreated: DateTime.DateTime;
+    
+    
+    appointment: string | Appointment;
+    
+    lastTechs: Array<string | Employee>;
+    
+    package: Array<string | Package> | null;
+    
+    promotion: Array<string | Promotion> | null;
+    
+    balance: number;
+    
+    due: DateTime.DateTime;
+    
+    total: number;
+    
+    
+    site: string | Site;
+    
+    billedItems: Array<BilledItem>;
+    
+    memo: Option.Option<string>;
+    
+    discount: number;
+    
+    tip: number;
+    
+    commissions: Array<number>;
+}
+
+export function orderDefaultValue(): Order {
+    return {
+        id: "",
+        account: "",
+        stage: "Estimate",
+        number: 0,
+        payments: [],
+        opportunity: "",
+        reference: "",
+        leadSource: "",
+        salesRep: "",
+        group: "",
+        subgroup: "",
+        isPosted: false,
+        needsReview: false,
+        actionItem: "",
+        upsale: 0,
+        dateCreated: __foreign__dateTimeDateTimeDefault(),
+        appointment: "",
+        lastTechs: [],
+        package: null,
+        promotion: null,
+        balance: 0,
+        due: __foreign__dateTimeDateTimeDefault(),
+        total: 0,
+        site: "",
+        billedItems: [],
+        memo: __foreign__optionOptionDefault(),
+        discount: 0,
+        tip: 0,
+        commissions: [],
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function orderEncode(value: Order, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = orderEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function orderEncodeWithContext(value: Order, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Order",
+        __id,
+    };
+
+    
+    result.id = value.id;
+    result.account = typeof value.account === "string"
+        ? value.account
+        : accountEncodeWithContext(value.account, ctx);
+    result.stage = orderStageEncodeWithContext(value.stage, ctx);
+    result.number = value.number;
+    result.payments = value.payments.map(
+        (item) => typeof item === "string"
+            ? item
+            : paymentEncodeWithContext(item, ctx)
+    );
+    result.opportunity = value.opportunity;
+    result.reference = value.reference;
+    result.leadSource = value.leadSource;
+    result.salesRep = typeof value.salesRep === "string"
+        ? value.salesRep
+        : employeeEncodeWithContext(value.salesRep, ctx);
+    result.group = value.group;
+    result.subgroup = value.subgroup;
+    result.isPosted = value.isPosted;
+    result.needsReview = value.needsReview;
+    result.actionItem = value.actionItem;
+    result.upsale = value.upsale;
+    result.dateCreated = __foreign__dateTimeDateTimeEncode(value.dateCreated);
+    result.appointment = typeof value.appointment === "string"
+        ? value.appointment
+        : appointmentEncodeWithContext(value.appointment, ctx);
+    result.lastTechs = value.lastTechs.map(
+        (item) => typeof item === "string"
+            ? item
+            : employeeEncodeWithContext(item, ctx)
+    );
+    if (value.package !== null) {
+        result.package = value.package;
+    } else {
+        result.package = null;
+    }
+    if (value.promotion !== null) {
+        result.promotion = value.promotion;
+    } else {
+        result.promotion = null;
+    }
+    result.balance = value.balance;
+    result.due = __foreign__dateTimeDateTimeEncode(value.due);
+    result.total = value.total;
+    result.site = typeof value.site === "string"
+        ? value.site
+        : siteEncodeWithContext(value.site, ctx);
+    result.billedItems = value.billedItems.map(
+        (item) => billedItemEncodeWithContext(item, ctx)
+    );
+    result.memo = __foreign__optionOptionEncode(value.memo);
+    result.discount = value.discount;
+    result.tip = value.tip;
+    result.commissions = value.commissions;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function orderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Order } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = orderDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Order.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Order | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Order.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Order | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Order.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+    if (!("account" in obj)) {
+        errors.push({ field: "account", message: "missing required field" });
+    }
+    if (!("stage" in obj)) {
+        errors.push({ field: "stage", message: "missing required field" });
+    }
+    if (!("number" in obj)) {
+        errors.push({ field: "number", message: "missing required field" });
+    }
+    if (!("payments" in obj)) {
+        errors.push({ field: "payments", message: "missing required field" });
+    }
+    if (!("opportunity" in obj)) {
+        errors.push({ field: "opportunity", message: "missing required field" });
+    }
+    if (!("reference" in obj)) {
+        errors.push({ field: "reference", message: "missing required field" });
+    }
+    if (!("leadSource" in obj)) {
+        errors.push({ field: "leadSource", message: "missing required field" });
+    }
+    if (!("salesRep" in obj)) {
+        errors.push({ field: "salesRep", message: "missing required field" });
+    }
+    if (!("group" in obj)) {
+        errors.push({ field: "group", message: "missing required field" });
+    }
+    if (!("subgroup" in obj)) {
+        errors.push({ field: "subgroup", message: "missing required field" });
+    }
+    if (!("isPosted" in obj)) {
+        errors.push({ field: "isPosted", message: "missing required field" });
+    }
+    if (!("needsReview" in obj)) {
+        errors.push({ field: "needsReview", message: "missing required field" });
+    }
+    if (!("actionItem" in obj)) {
+        errors.push({ field: "actionItem", message: "missing required field" });
+    }
+    if (!("upsale" in obj)) {
+        errors.push({ field: "upsale", message: "missing required field" });
+    }
+    if (!("dateCreated" in obj)) {
+        errors.push({ field: "dateCreated", message: "missing required field" });
+    }
+    if (!("appointment" in obj)) {
+        errors.push({ field: "appointment", message: "missing required field" });
+    }
+    if (!("lastTechs" in obj)) {
+        errors.push({ field: "lastTechs", message: "missing required field" });
+    }
+    if (!("package" in obj)) {
+        errors.push({ field: "package", message: "missing required field" });
+    }
+    if (!("promotion" in obj)) {
+        errors.push({ field: "promotion", message: "missing required field" });
+    }
+    if (!("balance" in obj)) {
+        errors.push({ field: "balance", message: "missing required field" });
+    }
+    if (!("due" in obj)) {
+        errors.push({ field: "due", message: "missing required field" });
+    }
+    if (!("total" in obj)) {
+        errors.push({ field: "total", message: "missing required field" });
+    }
+    if (!("site" in obj)) {
+        errors.push({ field: "site", message: "missing required field" });
+    }
+    if (!("billedItems" in obj)) {
+        errors.push({ field: "billedItems", message: "missing required field" });
+    }
+    if (!("memo" in obj)) {
+        errors.push({ field: "memo", message: "missing required field" });
+    }
+    if (!("discount" in obj)) {
+        errors.push({ field: "discount", message: "missing required field" });
+    }
+    if (!("tip" in obj)) {
+        errors.push({ field: "tip", message: "missing required field" });
+    }
+    if (!("commissions" in obj)) {
+        errors.push({ field: "commissions", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_id = obj["id"] as string;
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "Order.id is required" : "expected string" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    {
+        const __raw_account = obj["account"] as string | Account;
+
+        if (typeof __raw_account === "string") {
+            instance.account = __raw_account;
+        } else {
+            ctx.pushScope("account");
+            try {
+                const __result = accountDecodeWithContext(__raw_account, ctx);
+                ctx.assignOrDefer(instance, "account", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "account" : "account." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+    {
+        const __raw_stage = obj["stage"] as OrderStage;
+
+        ctx.pushScope("stage");
+        try {
+            const __result = orderStageDecodeWithContext(__raw_stage, ctx);
+            ctx.assignOrDefer(instance, "stage", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "stage" : "stage." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_number = obj["number"] as number;
+
+        if (!(typeof __raw_number === "number")) {
+            errors.push({ field: "number", message: __raw_number == null ? "Order.number is required" : "expected number" });
+        } else {
+            instance.number = __raw_number;
+        }
+    }
+    {
+        const __raw_payments = obj["payments"] as Array<string | Payment>;
+
+        if (Array.isArray(__raw_payments)) {
+            const __arr = __raw_payments.map((item: string | Payment | { __ref: number }, idx) => {
+                if (typeof item === "string") {
+                    return item;
+                }
+                if (typeof item === "object" && item !== null && "__ref" in item) {
+                    const result = ctx.getOrDefer(item.__ref);
+                    if (__mf_PendingRef.is(result)) {
+                        return { __pendingIdx: idx, __refId: result.id };
+                    }
+                    return result;
+                }
+                const __elemResult = paymentDecode(item);
+                if (!__elemResult.success) {
+                    for (const __err of __elemResult.errors) {
+                        errors.push({
+                            field: __err.field === "_root"
+                                ? "payments[" + idx + "]"
+                                : "payments[" + idx + "]." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                }
+                return __elemResult.success ? __elemResult.value : item;
+            });
+            instance.payments = __arr;
+            __arr.forEach((item, idx) => {
+                if (item && typeof item === "object" && "__pendingIdx" in item) {
+                    ctx.addPatch(instance.payments, idx, (item as any).__refId);
+                }
+            });
+        }
+    }
+    {
+        const __raw_opportunity = obj["opportunity"] as string;
+
+        if (!(typeof __raw_opportunity === "string")) {
+            errors.push({ field: "opportunity", message: __raw_opportunity == null ? "Order.opportunity is required" : "expected string" });
+        } else {
+            if (__raw_opportunity == null) { errors.push({ field: "opportunity", message: "Order.opportunity is required" }); } else {
+                if (__raw_opportunity.length === 0) { errors.push({ field: "opportunity", message: "Order.opportunity must not be empty" }); }
+            }
+            instance.opportunity = __raw_opportunity;
+        }
+    }
+    {
+        const __raw_reference = obj["reference"] as string;
+
+        if (!(typeof __raw_reference === "string")) {
+            errors.push({ field: "reference", message: __raw_reference == null ? "Order.reference is required" : "expected string" });
+        } else {
+            if (__raw_reference == null) { errors.push({ field: "reference", message: "Order.reference is required" }); } else {
+                if (__raw_reference.length === 0) { errors.push({ field: "reference", message: "Order.reference must not be empty" }); }
+            }
+            instance.reference = __raw_reference;
+        }
+    }
+    {
+        const __raw_leadSource = obj["leadSource"] as string;
+
+        if (!(typeof __raw_leadSource === "string")) {
+            errors.push({ field: "leadSource", message: __raw_leadSource == null ? "Order.leadSource is required" : "expected string" });
+        } else {
+            if (__raw_leadSource == null) { errors.push({ field: "leadSource", message: "Order.leadSource is required" }); } else {
+                if (__raw_leadSource.length === 0) { errors.push({ field: "leadSource", message: "Order.leadSource must not be empty" }); }
+            }
+            instance.leadSource = __raw_leadSource;
+        }
+    }
+    {
+        const __raw_salesRep = obj["salesRep"] as string | Employee;
+
+        if (typeof __raw_salesRep === "string") {
+            instance.salesRep = __raw_salesRep;
+        } else {
+            ctx.pushScope("salesRep");
+            try {
+                const __result = employeeDecodeWithContext(__raw_salesRep, ctx);
+                ctx.assignOrDefer(instance, "salesRep", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "salesRep" : "salesRep." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+    {
+        const __raw_group = obj["group"] as string;
+
+        if (!(typeof __raw_group === "string")) {
+            errors.push({ field: "group", message: __raw_group == null ? "Order.group is required" : "expected string" });
+        } else {
+            if (__raw_group == null) { errors.push({ field: "group", message: "Order.group is required" }); } else {
+                if (__raw_group.length === 0) { errors.push({ field: "group", message: "Order.group must not be empty" }); }
+            }
+            instance.group = __raw_group;
+        }
+    }
+    {
+        const __raw_subgroup = obj["subgroup"] as string;
+
+        if (!(typeof __raw_subgroup === "string")) {
+            errors.push({ field: "subgroup", message: __raw_subgroup == null ? "Order.subgroup is required" : "expected string" });
+        } else {
+            if (__raw_subgroup == null) { errors.push({ field: "subgroup", message: "Order.subgroup is required" }); } else {
+                if (__raw_subgroup.length === 0) { errors.push({ field: "subgroup", message: "Order.subgroup must not be empty" }); }
+            }
+            instance.subgroup = __raw_subgroup;
+        }
+    }
+    {
+        const __raw_isPosted = obj["isPosted"] as boolean;
+
+        if (!(typeof __raw_isPosted === "boolean")) {
+            errors.push({ field: "isPosted", message: __raw_isPosted == null ? "Order.isPosted is required" : "expected boolean" });
+        } else {
+            instance.isPosted = __raw_isPosted;
+        }
+    }
+    {
+        const __raw_needsReview = obj["needsReview"] as boolean;
+
+        if (!(typeof __raw_needsReview === "boolean")) {
+            errors.push({ field: "needsReview", message: __raw_needsReview == null ? "Order.needsReview is required" : "expected boolean" });
+        } else {
+            instance.needsReview = __raw_needsReview;
+        }
+    }
+    {
+        const __raw_actionItem = obj["actionItem"] as string;
+
+        if (!(typeof __raw_actionItem === "string")) {
+            errors.push({ field: "actionItem", message: __raw_actionItem == null ? "Order.actionItem is required" : "expected string" });
+        } else {
+            if (__raw_actionItem == null) { errors.push({ field: "actionItem", message: "Order.actionItem is required" }); } else {
+                if (__raw_actionItem.length === 0) { errors.push({ field: "actionItem", message: "Order.actionItem must not be empty" }); }
+            }
+            instance.actionItem = __raw_actionItem;
+        }
+    }
+    {
+        const __raw_upsale = obj["upsale"] as number;
+
+        if (!(typeof __raw_upsale === "number")) {
+            errors.push({ field: "upsale", message: __raw_upsale == null ? "Order.upsale is required" : "expected number" });
+        } else {
+            instance.upsale = __raw_upsale;
+        }
+    }
+    try {
+        instance.dateCreated = __foreign__dateTimeDateTimeDecode(obj["dateCreated"]);
+    } catch (__error) {
+        errors.push({ field: "dateCreated", message: __error instanceof Error ? __error.message : String(__error) });
+    }
+    {
+        const __raw_appointment = obj["appointment"] as string | Appointment;
+
+        if (typeof __raw_appointment === "string") {
+            instance.appointment = __raw_appointment;
+        } else {
+            ctx.pushScope("appointment");
+            try {
+                const __result = appointmentDecodeWithContext(__raw_appointment, ctx);
+                ctx.assignOrDefer(instance, "appointment", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "appointment" : "appointment." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+    {
+        const __raw_lastTechs = obj["lastTechs"] as Array<string | Employee>;
+
+        if (Array.isArray(__raw_lastTechs)) {
+            const __arr = __raw_lastTechs.map((item: string | Employee | { __ref: number }, idx) => {
+                if (typeof item === "string") {
+                    return item;
+                }
+                if (typeof item === "object" && item !== null && "__ref" in item) {
+                    const result = ctx.getOrDefer(item.__ref);
+                    if (__mf_PendingRef.is(result)) {
+                        return { __pendingIdx: idx, __refId: result.id };
+                    }
+                    return result;
+                }
+                const __elemResult = employeeDecode(item);
+                if (!__elemResult.success) {
+                    for (const __err of __elemResult.errors) {
+                        errors.push({
+                            field: __err.field === "_root"
+                                ? "lastTechs[" + idx + "]"
+                                : "lastTechs[" + idx + "]." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                }
+                return __elemResult.success ? __elemResult.value : item;
+            });
+            instance.lastTechs = __arr;
+            __arr.forEach((item, idx) => {
+                if (item && typeof item === "object" && "__pendingIdx" in item) {
+                    ctx.addPatch(instance.lastTechs, idx, (item as any).__refId);
+                }
+            });
+        }
+    }
+    {
+        const __raw_package = obj["package"] as Array<string | Package> | null;
+
+        if (__raw_package === null) {
+            instance.package = null;
+        } else {
+            instance.package = __raw_package;
+        }
+    }
+    {
+        const __raw_promotion = obj["promotion"] as Array<string | Promotion> | null;
+
+        if (__raw_promotion === null) {
+            instance.promotion = null;
+        } else {
+            instance.promotion = __raw_promotion;
+        }
+    }
+    {
+        const __raw_balance = obj["balance"] as number;
+
+        if (!(typeof __raw_balance === "number")) {
+            errors.push({ field: "balance", message: __raw_balance == null ? "Order.balance is required" : "expected number" });
+        } else {
+            instance.balance = __raw_balance;
+        }
+    }
+    try {
+        instance.due = __foreign__dateTimeDateTimeDecode(obj["due"]);
+    } catch (__error) {
+        errors.push({ field: "due", message: __error instanceof Error ? __error.message : String(__error) });
+    }
+    {
+        const __raw_total = obj["total"] as number;
+
+        if (!(typeof __raw_total === "number")) {
+            errors.push({ field: "total", message: __raw_total == null ? "Order.total is required" : "expected number" });
+        } else {
+            instance.total = __raw_total;
+        }
+    }
+    {
+        const __raw_site = obj["site"] as string | Site;
+
+        if (typeof __raw_site === "string") {
+            instance.site = __raw_site;
+        } else {
+            ctx.pushScope("site");
+            try {
+                const __result = siteDecodeWithContext(__raw_site, ctx);
+                ctx.assignOrDefer(instance, "site", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "site" : "site." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+    {
+        const __raw_billedItems = obj["billedItems"] as Array<BilledItem>;
+
+        if (Array.isArray(__raw_billedItems)) {
+            const __arr = __raw_billedItems.map((item: BilledItem | { __ref: number }, idx) => {
+                if (typeof item === "object" && item !== null && "__ref" in item) {
+                    const result = ctx.getOrDefer(item.__ref);
+                    if (__mf_PendingRef.is(result)) {
+                        return { __pendingIdx: idx, __refId: result.id };
+                    }
+                    return result;
+                }
+                const __elemResult = billedItemDecode(item);
+                if (!__elemResult.success) {
+                    for (const __err of __elemResult.errors) {
+                        errors.push({
+                            field: __err.field === "_root"
+                                ? "billedItems[" + idx + "]"
+                                : "billedItems[" + idx + "]." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                }
+                return __elemResult.success ? __elemResult.value : item;
+            });
+            instance.billedItems = __arr;
+            __arr.forEach((item, idx) => {
+                if (item && typeof item === "object" && "__pendingIdx" in item) {
+                    ctx.addPatch(instance.billedItems, idx, (item as any).__refId);
+                }
+            });
+        }
+    }
+    try {
+        instance.memo = __foreign__optionOptionDecode(obj["memo"]);
+    } catch (__error) {
+        errors.push({ field: "memo", message: __error instanceof Error ? __error.message : String(__error) });
+    }
+    {
+        const __raw_discount = obj["discount"] as number;
+
+        if (!(typeof __raw_discount === "number")) {
+            errors.push({ field: "discount", message: __raw_discount == null ? "Order.discount is required" : "expected number" });
+        } else {
+            instance.discount = __raw_discount;
+        }
+    }
+    {
+        const __raw_tip = obj["tip"] as number;
+
+        if (!(typeof __raw_tip === "number")) {
+            errors.push({ field: "tip", message: __raw_tip == null ? "Order.tip is required" : "expected number" });
+        } else {
+            instance.tip = __raw_tip;
+        }
+    }
+    {
+        const __raw_commissions = obj["commissions"] as Array<number>;
+
+        if (Array.isArray(__raw_commissions)) {
+            instance.commissions = __raw_commissions as number[];
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Order;
+}
+export function orderValidateField<K extends keyof Order>(field: K, value: unknown): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if (field === "opportunity") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "opportunity", message: "Order.opportunity is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "opportunity", message: "Order.opportunity must not be empty" }); }
+        }
+    }
+    if (field === "reference") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "reference", message: "Order.reference is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "reference", message: "Order.reference must not be empty" }); }
+        }
+    }
+    if (field === "leadSource") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "leadSource", message: "Order.leadSource is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "leadSource", message: "Order.leadSource must not be empty" }); }
+        }
+    }
+    if (field === "group") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "group", message: "Order.group is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "group", message: "Order.group must not be empty" }); }
+        }
+    }
+    if (field === "subgroup") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "subgroup", message: "Order.subgroup is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "subgroup", message: "Order.subgroup must not be empty" }); }
+        }
+    }
+    if (field === "actionItem") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "actionItem", message: "Order.actionItem is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "actionItem", message: "Order.actionItem must not be empty" }); }
+        }
+    }
+    return errors;
+}
+
+export function orderValidateFields(partial: { readonly [K in keyof Order]?: unknown }): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("opportunity" in partial && partial.opportunity !== undefined) {
+        const __val = partial.opportunity as string;
+        if (__val == null) { errors.push({ field: "opportunity", message: "Order.opportunity is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "opportunity", message: "Order.opportunity must not be empty" }); }
+        }
+    }
+    if ("reference" in partial && partial.reference !== undefined) {
+        const __val = partial.reference as string;
+        if (__val == null) { errors.push({ field: "reference", message: "Order.reference is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "reference", message: "Order.reference must not be empty" }); }
+        }
+    }
+    if ("leadSource" in partial && partial.leadSource !== undefined) {
+        const __val = partial.leadSource as string;
+        if (__val == null) { errors.push({ field: "leadSource", message: "Order.leadSource is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "leadSource", message: "Order.leadSource must not be empty" }); }
+        }
+    }
+    if ("group" in partial && partial.group !== undefined) {
+        const __val = partial.group as string;
+        if (__val == null) { errors.push({ field: "group", message: "Order.group is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "group", message: "Order.group must not be empty" }); }
+        }
+    }
+    if ("subgroup" in partial && partial.subgroup !== undefined) {
+        const __val = partial.subgroup as string;
+        if (__val == null) { errors.push({ field: "subgroup", message: "Order.subgroup is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "subgroup", message: "Order.subgroup must not be empty" }); }
+        }
+    }
+    if ("actionItem" in partial && partial.actionItem !== undefined) {
+        const __val = partial.actionItem as string;
+        if (__val == null) { errors.push({ field: "actionItem", message: "Order.actionItem is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "actionItem", message: "Order.actionItem must not be empty" }); }
+        }
+    }
+    return errors;
+}
+export function orderHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "id" in o && "account" in o && "stage" in o && "number" in o && "payments" in o && "opportunity" in o && "reference" in o && "leadSource" in o && "salesRep" in o && "group" in o && "subgroup" in o && "isPosted" in o && "needsReview" in o && "actionItem" in o && "upsale" in o && "dateCreated" in o && "appointment" in o && "lastTechs" in o && "package" in o && "promotion" in o && "balance" in o && "due" in o && "total" in o && "site" in o && "billedItems" in o && "memo" in o && "discount" in o && "tip" in o && "commissions" in o;
+}
+
+export function orderIs(obj: unknown): obj is Order {
+    return orderHasShape(obj) && orderDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type OrderErrors = {
+    _errors: Option.Option<Array<string>>;
+    id: Option.Option<Array<string>>;
+    account: Option.Option<Array<string>>;
+    stage: Option.Option<Array<string>>;
+    number: Option.Option<Array<string>>;
+    payments: Option.Option<Array<string>>;
+    opportunity: Option.Option<Array<string>>;
+    reference: Option.Option<Array<string>>;
+    leadSource: Option.Option<Array<string>>;
+    salesRep: Option.Option<Array<string>>;
+    group: Option.Option<Array<string>>;
+    subgroup: Option.Option<Array<string>>;
+    isPosted: Option.Option<Array<string>>;
+    needsReview: Option.Option<Array<string>>;
+    actionItem: Option.Option<Array<string>>;
+    upsale: Option.Option<Array<string>>;
+    dateCreated: Option.Option<Array<string>>;
+    appointment: Option.Option<Array<string>>;
+    lastTechs: Option.Option<Array<string>>;
+    package: Option.Option<Array<string>>;
+    promotion: Option.Option<Array<string>>;
+    balance: Option.Option<Array<string>>;
+    due: Option.Option<Array<string>>;
+    total: Option.Option<Array<string>>;
+    site: Option.Option<Array<string>>;
+    billedItems: Option.Option<Array<string>>;
+    memo: Option.Option<Array<string>>;
+    discount: Option.Option<Array<string>>;
+    tip: Option.Option<Array<string>>;
+    commissions: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type OrderTainted = {
+    id: Option.Option<boolean>;
+    account: Option.Option<boolean>;
+    stage: Option.Option<boolean>;
+    number: Option.Option<boolean>;
+    payments: Option.Option<boolean>;
+    opportunity: Option.Option<boolean>;
+    reference: Option.Option<boolean>;
+    leadSource: Option.Option<boolean>;
+    salesRep: Option.Option<boolean>;
+    group: Option.Option<boolean>;
+    subgroup: Option.Option<boolean>;
+    isPosted: Option.Option<boolean>;
+    needsReview: Option.Option<boolean>;
+    actionItem: Option.Option<boolean>;
+    upsale: Option.Option<boolean>;
+    dateCreated: Option.Option<boolean>;
+    appointment: Option.Option<boolean>;
+    lastTechs: Option.Option<boolean>;
+    package: Option.Option<boolean>;
+    promotion: Option.Option<boolean>;
+    balance: Option.Option<boolean>;
+    due: Option.Option<boolean>;
+    total: Option.Option<boolean>;
+    site: Option.Option<boolean>;
+    billedItems: Option.Option<boolean>;
+    memo: Option.Option<boolean>;
+    discount: Option.Option<boolean>;
+    tip: Option.Option<boolean>;
+    commissions: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface OrderFieldControllers {
+    readonly id: FieldController<string>;
+    readonly account: FieldController<string | Account>;
+    readonly stage: FieldController<OrderStage>;
+    readonly number: FieldController<number>;
+    readonly payments: ArrayFieldController<string | Payment>;
+    readonly opportunity: FieldController<string>;
+    readonly reference: FieldController<string>;
+    readonly leadSource: FieldController<string>;
+    readonly salesRep: FieldController<string | Employee>;
+    readonly group: FieldController<string>;
+    readonly subgroup: FieldController<string>;
+    readonly isPosted: FieldController<boolean>;
+    readonly needsReview: FieldController<boolean>;
+    readonly actionItem: FieldController<string>;
+    readonly upsale: FieldController<number>;
+    readonly dateCreated: FieldController<DateTime.DateTime>;
+    readonly appointment: FieldController<string | Appointment>;
+    readonly lastTechs: ArrayFieldController<string | Employee>;
+    readonly package: FieldController<Array<string | Package> | null>;
+    readonly promotion: FieldController<Array<string | Promotion> | null>;
+    readonly balance: FieldController<number>;
+    readonly due: FieldController<DateTime.DateTime>;
+    readonly total: FieldController<number>;
+    readonly site: FieldController<string | Site>;
+    readonly billedItems: ArrayFieldController<BilledItem>;
+    readonly memo: FieldController<Option.Option<string>>;
+    readonly discount: FieldController<number>;
+    readonly tip: FieldController<number>;
+    readonly commissions: ArrayFieldController<number>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface OrderGigaform {
+    readonly data: Order;
+    readonly errors: OrderErrors;
+    readonly tainted: OrderTainted;
+    readonly fields: OrderFieldControllers;
+    validate(): Exit.Exit<Order, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Order>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function orderCreateForm(overrides?: Partial<Order>): OrderGigaform {
+    let data = $state({ ...orderDefaultValue(), ...overrides });
+    let errors = $state<OrderErrors>({
+        _errors: Option.none(),
+        id: Option.none(),
+        account: Option.none(),
+        stage: Option.none(),
+        number: Option.none(),
+        payments: Option.none(),
+        opportunity: Option.none(),
+        reference: Option.none(),
+        leadSource: Option.none(),
+        salesRep: Option.none(),
+        group: Option.none(),
+        subgroup: Option.none(),
+        isPosted: Option.none(),
+        needsReview: Option.none(),
+        actionItem: Option.none(),
+        upsale: Option.none(),
+        dateCreated: Option.none(),
+        appointment: Option.none(),
+        lastTechs: Option.none(),
+        package: Option.none(),
+        promotion: Option.none(),
+        balance: Option.none(),
+        due: Option.none(),
+        total: Option.none(),
+        site: Option.none(),
+        billedItems: Option.none(),
+        memo: Option.none(),
+        discount: Option.none(),
+        tip: Option.none(),
+        commissions: Option.none(),
+    });
+    let tainted = $state<OrderTainted>({
+        id: Option.none(),
+        account: Option.none(),
+        stage: Option.none(),
+        number: Option.none(),
+        payments: Option.none(),
+        opportunity: Option.none(),
+        reference: Option.none(),
+        leadSource: Option.none(),
+        salesRep: Option.none(),
+        group: Option.none(),
+        subgroup: Option.none(),
+        isPosted: Option.none(),
+        needsReview: Option.none(),
+        actionItem: Option.none(),
+        upsale: Option.none(),
+        dateCreated: Option.none(),
+        appointment: Option.none(),
+        lastTechs: Option.none(),
+        package: Option.none(),
+        promotion: Option.none(),
+        balance: Option.none(),
+        due: Option.none(),
+        total: Option.none(),
+        site: Option.none(),
+        billedItems: Option.none(),
+        memo: Option.none(),
+        discount: Option.none(),
+        tip: Option.none(),
+        commissions: Option.none(),
+    });
+    const fields = {
+        id: {
+            name: "id",
+            label: "id",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["id"],
+            get: () => data.id,
+            set: (value: string) => { data.id = value; },
+            getError: () => errors.id,
+            setError: (value: Option.Option<Array<string>>) => { errors.id = value; },
+            getTainted: () => tainted.id,
+            setTainted: (value: Option.Option<boolean>) => { tainted.id = value; },
+            validate: () => orderValidateField("id", data.id).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        account: {
+            name: "account",
+            label: "Account",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["account"],
+            get: () => data.account,
+            set: (value: string | Account) => { data.account = value; },
+            getError: () => errors.account,
+            setError: (value: Option.Option<Array<string>>) => { errors.account = value; },
+            getTainted: () => tainted.account,
+            setTainted: (value: Option.Option<boolean>) => { tainted.account = value; },
+            validate: () => orderValidateField("account", data.account).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        stage: {
+            name: "stage",
+            label: "Stage",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["stage"],
+            get: () => data.stage,
+            set: (value: OrderStage) => { data.stage = value; },
+            getError: () => errors.stage,
+            setError: (value: Option.Option<Array<string>>) => { errors.stage = value; },
+            getTainted: () => tainted.stage,
+            setTainted: (value: Option.Option<boolean>) => { tainted.stage = value; },
+            validate: () => orderValidateField("stage", data.stage).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        number: {
+            name: "number",
+            label: "number",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["number"],
+            get: () => data.number,
+            set: (value: number) => { data.number = value; },
+            getError: () => errors.number,
+            setError: (value: Option.Option<Array<string>>) => { errors.number = value; },
+            getTainted: () => tainted.number,
+            setTainted: (value: Option.Option<boolean>) => { tainted.number = value; },
+            validate: () => orderValidateField("number", data.number).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        payments: {
+            name: "payments",
+            label: "payments",
+            type: "text",
+            optional: false,
+            array: true,
+            path: ["payments"],
+            get: () => data.payments,
+            set: (value: Array<string | Payment>) => { data.payments = value; },
+            getError: () => errors.payments,
+            setError: (value: Option.Option<Array<string>>) => { errors.payments = value; },
+            getTainted: () => tainted.payments,
+            setTainted: (value: Option.Option<boolean>) => { tainted.payments = value; },
+            validate: () => orderValidateField("payments", data.payments).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.payments[index],
+                set: (value: string | Payment) => { data.payments[index] = value; },
+                getError: () => errors.payments,
+                setError: (value: Option.Option<Array<string>>) => { errors.payments = value; },
+            }),
+            push: (item: string | Payment) => { data.payments.push(item); },
+            remove: (index: number) => { data.payments.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.payments[a];
+                data.payments[a] = data.payments[b];
+                data.payments[b] = temp;
+            },
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        opportunity: {
+            name: "opportunity",
+            label: "Opportunity",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["opportunity"],
+            get: () => data.opportunity,
+            set: (value: string) => { data.opportunity = value; },
+            getError: () => errors.opportunity,
+            setError: (value: Option.Option<Array<string>>) => { errors.opportunity = value; },
+            getTainted: () => tainted.opportunity,
+            setTainted: (value: Option.Option<boolean>) => { tainted.opportunity = value; },
+            validate: () => orderValidateField("opportunity", data.opportunity).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        reference: {
+            name: "reference",
+            label: "Reference",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["reference"],
+            get: () => data.reference,
+            set: (value: string) => { data.reference = value; },
+            getError: () => errors.reference,
+            setError: (value: Option.Option<Array<string>>) => { errors.reference = value; },
+            getTainted: () => tainted.reference,
+            setTainted: (value: Option.Option<boolean>) => { tainted.reference = value; },
+            validate: () => orderValidateField("reference", data.reference).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        leadSource: {
+            name: "leadSource",
+            label: "Lead Source",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["leadSource"],
+            get: () => data.leadSource,
+            set: (value: string) => { data.leadSource = value; },
+            getError: () => errors.leadSource,
+            setError: (value: Option.Option<Array<string>>) => { errors.leadSource = value; },
+            getTainted: () => tainted.leadSource,
+            setTainted: (value: Option.Option<boolean>) => { tainted.leadSource = value; },
+            validate: () => orderValidateField("leadSource", data.leadSource).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        salesRep: {
+            name: "salesRep",
+            label: "Sales Rep",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["salesRep"],
+            get: () => data.salesRep,
+            set: (value: string | Employee) => { data.salesRep = value; },
+            getError: () => errors.salesRep,
+            setError: (value: Option.Option<Array<string>>) => { errors.salesRep = value; },
+            getTainted: () => tainted.salesRep,
+            setTainted: (value: Option.Option<boolean>) => { tainted.salesRep = value; },
+            validate: () => orderValidateField("salesRep", data.salesRep).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        group: {
+            name: "group",
+            label: "Group",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["group"],
+            get: () => data.group,
+            set: (value: string) => { data.group = value; },
+            getError: () => errors.group,
+            setError: (value: Option.Option<Array<string>>) => { errors.group = value; },
+            getTainted: () => tainted.group,
+            setTainted: (value: Option.Option<boolean>) => { tainted.group = value; },
+            validate: () => orderValidateField("group", data.group).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        subgroup: {
+            name: "subgroup",
+            label: "Subgroup",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["subgroup"],
+            get: () => data.subgroup,
+            set: (value: string) => { data.subgroup = value; },
+            getError: () => errors.subgroup,
+            setError: (value: Option.Option<Array<string>>) => { errors.subgroup = value; },
+            getTainted: () => tainted.subgroup,
+            setTainted: (value: Option.Option<boolean>) => { tainted.subgroup = value; },
+            validate: () => orderValidateField("subgroup", data.subgroup).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        isPosted: {
+            name: "isPosted",
+            label: "Posted",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["isPosted"],
+            get: () => data.isPosted,
+            set: (value: boolean) => { data.isPosted = value; },
+            getError: () => errors.isPosted,
+            setError: (value: Option.Option<Array<string>>) => { errors.isPosted = value; },
+            getTainted: () => tainted.isPosted,
+            setTainted: (value: Option.Option<boolean>) => { tainted.isPosted = value; },
+            validate: () => orderValidateField("isPosted", data.isPosted).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        needsReview: {
+            name: "needsReview",
+            label: "Needs Review",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["needsReview"],
+            get: () => data.needsReview,
+            set: (value: boolean) => { data.needsReview = value; },
+            getError: () => errors.needsReview,
+            setError: (value: Option.Option<Array<string>>) => { errors.needsReview = value; },
+            getTainted: () => tainted.needsReview,
+            setTainted: (value: Option.Option<boolean>) => { tainted.needsReview = value; },
+            validate: () => orderValidateField("needsReview", data.needsReview).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        actionItem: {
+            name: "actionItem",
+            label: "Action Item",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["actionItem"],
+            get: () => data.actionItem,
+            set: (value: string) => { data.actionItem = value; },
+            getError: () => errors.actionItem,
+            setError: (value: Option.Option<Array<string>>) => { errors.actionItem = value; },
+            getTainted: () => tainted.actionItem,
+            setTainted: (value: Option.Option<boolean>) => { tainted.actionItem = value; },
+            validate: () => orderValidateField("actionItem", data.actionItem).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        upsale: {
+            name: "upsale",
+            label: "upsale",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["upsale"],
+            get: () => data.upsale,
+            set: (value: number) => { data.upsale = value; },
+            getError: () => errors.upsale,
+            setError: (value: Option.Option<Array<string>>) => { errors.upsale = value; },
+            getTainted: () => tainted.upsale,
+            setTainted: (value: Option.Option<boolean>) => { tainted.upsale = value; },
+            validate: () => orderValidateField("upsale", data.upsale).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        dateCreated: {
+            name: "dateCreated",
+            label: "dateCreated",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["dateCreated"],
+            get: () => data.dateCreated,
+            set: (value: DateTime.DateTime) => { data.dateCreated = value; },
+            getError: () => errors.dateCreated,
+            setError: (value: Option.Option<Array<string>>) => { errors.dateCreated = value; },
+            getTainted: () => tainted.dateCreated,
+            setTainted: (value: Option.Option<boolean>) => { tainted.dateCreated = value; },
+            validate: () => orderValidateField("dateCreated", data.dateCreated).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        appointment: {
+            name: "appointment",
+            label: "Appointment",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["appointment"],
+            get: () => data.appointment,
+            set: (value: string | Appointment) => { data.appointment = value; },
+            getError: () => errors.appointment,
+            setError: (value: Option.Option<Array<string>>) => { errors.appointment = value; },
+            getTainted: () => tainted.appointment,
+            setTainted: (value: Option.Option<boolean>) => { tainted.appointment = value; },
+            validate: () => orderValidateField("appointment", data.appointment).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        lastTechs: {
+            name: "lastTechs",
+            label: "Technicians",
+            type: "text",
+            optional: false,
+            array: true,
+            path: ["lastTechs"],
+            get: () => data.lastTechs,
+            set: (value: Array<string | Employee>) => { data.lastTechs = value; },
+            getError: () => errors.lastTechs,
+            setError: (value: Option.Option<Array<string>>) => { errors.lastTechs = value; },
+            getTainted: () => tainted.lastTechs,
+            setTainted: (value: Option.Option<boolean>) => { tainted.lastTechs = value; },
+            validate: () => orderValidateField("lastTechs", data.lastTechs).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.lastTechs[index],
+                set: (value: string | Employee) => { data.lastTechs[index] = value; },
+                getError: () => errors.lastTechs,
+                setError: (value: Option.Option<Array<string>>) => { errors.lastTechs = value; },
+            }),
+            push: (item: string | Employee) => { data.lastTechs.push(item); },
+            remove: (index: number) => { data.lastTechs.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.lastTechs[a];
+                data.lastTechs[a] = data.lastTechs[b];
+                data.lastTechs[b] = temp;
+            },
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        package: {
+            name: "package",
+            label: "package",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["package"],
+            get: () => data.package,
+            set: (value: Array<string | Package> | null) => { data.package = value; },
+            getError: () => errors.package,
+            setError: (value: Option.Option<Array<string>>) => { errors.package = value; },
+            getTainted: () => tainted.package,
+            setTainted: (value: Option.Option<boolean>) => { tainted.package = value; },
+            validate: () => orderValidateField("package", data.package).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        promotion: {
+            name: "promotion",
+            label: "promotion",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["promotion"],
+            get: () => data.promotion,
+            set: (value: Array<string | Promotion> | null) => { data.promotion = value; },
+            getError: () => errors.promotion,
+            setError: (value: Option.Option<Array<string>>) => { errors.promotion = value; },
+            getTainted: () => tainted.promotion,
+            setTainted: (value: Option.Option<boolean>) => { tainted.promotion = value; },
+            validate: () => orderValidateField("promotion", data.promotion).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        balance: {
+            name: "balance",
+            label: "balance",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["balance"],
+            get: () => data.balance,
+            set: (value: number) => { data.balance = value; },
+            getError: () => errors.balance,
+            setError: (value: Option.Option<Array<string>>) => { errors.balance = value; },
+            getTainted: () => tainted.balance,
+            setTainted: (value: Option.Option<boolean>) => { tainted.balance = value; },
+            validate: () => orderValidateField("balance", data.balance).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        due: {
+            name: "due",
+            label: "Due",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["due"],
+            get: () => data.due,
+            set: (value: DateTime.DateTime) => { data.due = value; },
+            getError: () => errors.due,
+            setError: (value: Option.Option<Array<string>>) => { errors.due = value; },
+            getTainted: () => tainted.due,
+            setTainted: (value: Option.Option<boolean>) => { tainted.due = value; },
+            validate: () => orderValidateField("due", data.due).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        total: {
+            name: "total",
+            label: "total",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["total"],
+            get: () => data.total,
+            set: (value: number) => { data.total = value; },
+            getError: () => errors.total,
+            setError: (value: Option.Option<Array<string>>) => { errors.total = value; },
+            getTainted: () => tainted.total,
+            setTainted: (value: Option.Option<boolean>) => { tainted.total = value; },
+            validate: () => orderValidateField("total", data.total).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        site: {
+            name: "site",
+            label: "Site",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["site"],
+            get: () => data.site,
+            set: (value: string | Site) => { data.site = value; },
+            getError: () => errors.site,
+            setError: (value: Option.Option<Array<string>>) => { errors.site = value; },
+            getTainted: () => tainted.site,
+            setTainted: (value: Option.Option<boolean>) => { tainted.site = value; },
+            validate: () => orderValidateField("site", data.site).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        billedItems: {
+            name: "billedItems",
+            label: "billedItems",
+            type: "fieldset",
+            optional: false,
+            array: true,
+            path: ["billedItems"],
+            get: () => data.billedItems,
+            set: (value: Array<BilledItem>) => { data.billedItems = value; },
+            getError: () => errors.billedItems,
+            setError: (value: Option.Option<Array<string>>) => { errors.billedItems = value; },
+            getTainted: () => tainted.billedItems,
+            setTainted: (value: Option.Option<boolean>) => { tainted.billedItems = value; },
+            validate: () => orderValidateField("billedItems", data.billedItems).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.billedItems[index],
+                set: (value: BilledItem) => { data.billedItems[index] = value; },
+                getError: () => errors.billedItems,
+                setError: (value: Option.Option<Array<string>>) => { errors.billedItems = value; },
+            }),
+            push: (item: BilledItem) => { data.billedItems.push(item); },
+            remove: (index: number) => { data.billedItems.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.billedItems[a];
+                data.billedItems[a] = data.billedItems[b];
+                data.billedItems[b] = temp;
+            },
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        memo: {
+            name: "memo",
+            label: "Memo",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["memo"],
+            get: () => data.memo,
+            set: (value: Option.Option<string>) => { data.memo = value; },
+            getError: () => errors.memo,
+            setError: (value: Option.Option<Array<string>>) => { errors.memo = value; },
+            getTainted: () => tainted.memo,
+            setTainted: (value: Option.Option<boolean>) => { tainted.memo = value; },
+            validate: () => orderValidateField("memo", data.memo).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        discount: {
+            name: "discount",
+            label: "discount",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["discount"],
+            get: () => data.discount,
+            set: (value: number) => { data.discount = value; },
+            getError: () => errors.discount,
+            setError: (value: Option.Option<Array<string>>) => { errors.discount = value; },
+            getTainted: () => tainted.discount,
+            setTainted: (value: Option.Option<boolean>) => { tainted.discount = value; },
+            validate: () => orderValidateField("discount", data.discount).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        tip: {
+            name: "tip",
+            label: "tip",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["tip"],
+            get: () => data.tip,
+            set: (value: number) => { data.tip = value; },
+            getError: () => errors.tip,
+            setError: (value: Option.Option<Array<string>>) => { errors.tip = value; },
+            getTainted: () => tainted.tip,
+            setTainted: (value: Option.Option<boolean>) => { tainted.tip = value; },
+            validate: () => orderValidateField("tip", data.tip).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        commissions: {
+            name: "commissions",
+            label: "commissions",
+            type: "text",
+            optional: false,
+            array: true,
+            path: ["commissions"],
+            get: () => data.commissions,
+            set: (value: Array<number>) => { data.commissions = value; },
+            getError: () => errors.commissions,
+            setError: (value: Option.Option<Array<string>>) => { errors.commissions = value; },
+            getTainted: () => tainted.commissions,
+            setTainted: (value: Option.Option<boolean>) => { tainted.commissions = value; },
+            validate: () => orderValidateField("commissions", data.commissions).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.commissions[index],
+                set: (value: number) => { data.commissions[index] = value; },
+                getError: () => errors.commissions,
+                setError: (value: Option.Option<Array<string>>) => { errors.commissions = value; },
+            }),
+            push: (item: number) => { data.commissions.push(item); },
+            remove: (index: number) => { data.commissions.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.commissions[a];
+                data.commissions[a] = data.commissions[b];
+                data.commissions[b] = temp;
+            },
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as OrderFieldControllers;
+
+    function validate(): Exit.Exit<Order, Array<{ field: string; message: string }>> {
+        return toExit(orderDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<Order>): void {
+        data = { ...orderDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            id: Option.none(),
+            account: Option.none(),
+            stage: Option.none(),
+            number: Option.none(),
+            payments: Option.none(),
+            opportunity: Option.none(),
+            reference: Option.none(),
+            leadSource: Option.none(),
+            salesRep: Option.none(),
+            group: Option.none(),
+            subgroup: Option.none(),
+            isPosted: Option.none(),
+            needsReview: Option.none(),
+            actionItem: Option.none(),
+            upsale: Option.none(),
+            dateCreated: Option.none(),
+            appointment: Option.none(),
+            lastTechs: Option.none(),
+            package: Option.none(),
+            promotion: Option.none(),
+            balance: Option.none(),
+            due: Option.none(),
+            total: Option.none(),
+            site: Option.none(),
+            billedItems: Option.none(),
+            memo: Option.none(),
+            discount: Option.none(),
+            tip: Option.none(),
+            commissions: Option.none(),
+        };
+        tainted = {
+            id: Option.none(),
+            account: Option.none(),
+            stage: Option.none(),
+            number: Option.none(),
+            payments: Option.none(),
+            opportunity: Option.none(),
+            reference: Option.none(),
+            leadSource: Option.none(),
+            salesRep: Option.none(),
+            group: Option.none(),
+            subgroup: Option.none(),
+            isPosted: Option.none(),
+            needsReview: Option.none(),
+            actionItem: Option.none(),
+            upsale: Option.none(),
+            dateCreated: Option.none(),
+            appointment: Option.none(),
+            lastTechs: Option.none(),
+            package: Option.none(),
+            promotion: Option.none(),
+            balance: Option.none(),
+            due: Option.none(),
+            total: Option.none(),
+            site: Option.none(),
+            billedItems: Option.none(),
+            memo: Option.none(),
+            discount: Option.none(),
+            tip: Option.none(),
+            commissions: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function orderFromFormData(formData: FormData): Exit.Exit<Order, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    obj.id = formData.get("id") ?? "";
+    obj.account = formData.get("account") ?? "";
+    {
+
+        const stageObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("stage.")) {
+                const fieldName = key.slice("stage.".length);
+
+                const parts = fieldName.split(".");
+                let current = stageObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.stage = stageObj;
+    }
+    {
+        const numberStr = formData.get("number");
+        obj.number = numberStr ? parseFloat(numberStr as string) : 0;
+        if (obj.number !== undefined && isNaN(obj.number as number)) obj.number = 0;
+    }
+    obj.payments = formData.getAll("payments") as Array<string>;
+    obj.opportunity = formData.get("opportunity") ?? "";
+    obj.reference = formData.get("reference") ?? "";
+    obj.leadSource = formData.get("leadSource") ?? "";
+    obj.salesRep = formData.get("salesRep") ?? "";
+    obj.group = formData.get("group") ?? "";
+    obj.subgroup = formData.get("subgroup") ?? "";
+    {
+        const isPostedVal = formData.get("isPosted");
+        obj.isPosted = isPostedVal === "true" || isPostedVal === "on" || isPostedVal === "1";
+    }
+    {
+        const needsReviewVal = formData.get("needsReview");
+        obj.needsReview = needsReviewVal === "true" || needsReviewVal === "on" || needsReviewVal === "1";
+    }
+    obj.actionItem = formData.get("actionItem") ?? "";
+    {
+        const upsaleStr = formData.get("upsale");
+        obj.upsale = upsaleStr ? parseFloat(upsaleStr as string) : 0;
+        if (obj.upsale !== undefined && isNaN(obj.upsale as number)) obj.upsale = 0;
+    }
+    {
+
+        const dateCreatedObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("dateCreated.")) {
+                const fieldName = key.slice("dateCreated.".length);
+
+                const parts = fieldName.split(".");
+                let current = dateCreatedObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.dateCreated = dateCreatedObj;
+    }
+    obj.appointment = formData.get("appointment") ?? "";
+    obj.lastTechs = formData.getAll("lastTechs") as Array<string>;
+    obj.package = formData.get("package") ?? "";
+    obj.promotion = formData.get("promotion") ?? "";
+    {
+        const balanceStr = formData.get("balance");
+        obj.balance = balanceStr ? parseFloat(balanceStr as string) : 0;
+        if (obj.balance !== undefined && isNaN(obj.balance as number)) obj.balance = 0;
+    }
+    {
+
+        const dueObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("due.")) {
+                const fieldName = key.slice("due.".length);
+
+                const parts = fieldName.split(".");
+                let current = dueObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.due = dueObj;
+    }
+    {
+        const totalStr = formData.get("total");
+        obj.total = totalStr ? parseFloat(totalStr as string) : 0;
+        if (obj.total !== undefined && isNaN(obj.total as number)) obj.total = 0;
+    }
+    obj.site = formData.get("site") ?? "";
+    {
+
+        const billedItemsItems: Array<Record<string, unknown>> = [];
+        let idx = 0;
+        while (formData.has("billedItems." + idx + ".") || idx === 0) {
+
+            const hasAny = Array.from(formData.keys()).some(k => k.startsWith("billedItems." + idx + "."));
+            if (!hasAny && idx > 0) break;
+            if (hasAny) {
+                const item: Record<string, unknown> = {};
+                for (const [key, value] of Array.from(formData.entries())) {
+                    if (key.startsWith("billedItems." + idx + ".")) {
+                        const fieldName = key.slice("billedItems.".length + String(idx).length + 1);
+                        item[fieldName] = value;
+                    }
+                }
+                billedItemsItems.push(item);
+            }
+            idx++;
+            if (idx > 1000) break;
+        }
+        obj.billedItems = billedItemsItems;
+    }
+    {
+
+        const memoObj: Record<string, unknown> = {};
+        for (const [key, value] of Array.from(formData.entries())) {
+            if (key.startsWith("memo.")) {
+                const fieldName = key.slice("memo.".length);
+
+                const parts = fieldName.split(".");
+                let current = memoObj;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i]!;
+                    if (!(part in current)) {
+                        current[part] = {};
+                    }
+                    current = current[part] as Record<string, unknown>;
+                }
+                current[parts[parts.length - 1]!] = value;
+            }
+        }
+        obj.memo = memoObj;
+    }
+    {
+        const discountStr = formData.get("discount");
+        obj.discount = discountStr ? parseFloat(discountStr as string) : 0;
+        if (obj.discount !== undefined && isNaN(obj.discount as number)) obj.discount = 0;
+    }
+    {
+        const tipStr = formData.get("tip");
+        obj.tip = tipStr ? parseFloat(tipStr as string) : 0;
+        if (obj.tip !== undefined && isNaN(obj.tip as number)) obj.tip = 0;
+    }
+    obj.commissions = formData.getAll("commissions").map(v => parseFloat(v as string)).filter(n => !isNaN(n));
+
+    return toExit(orderDecode(obj));
+}
+
+export const Order: {
+  readonly defaultValue: typeof orderDefaultValue;
+  readonly encode: typeof orderEncode;
+  readonly encodeWithContext: typeof orderEncodeWithContext;
+  readonly decode: typeof orderDecode;
+  readonly decodeWithContext: typeof orderDecodeWithContext;
+  readonly validateField: typeof orderValidateField;
+  readonly validateFields: typeof orderValidateFields;
+  readonly hasShape: typeof orderHasShape;
+  readonly is: typeof orderIs;
+  readonly createForm: typeof orderCreateForm;
+  readonly fromFormData: typeof orderFromFormData;
+} = {
+  defaultValue: orderDefaultValue,
+  encode: orderEncode,
+  encodeWithContext: orderEncodeWithContext,
+  decode: orderDecode,
+  decodeWithContext: orderDecodeWithContext,
+  validateField: orderValidateField,
+  validateFields: orderValidateFields,
+  hasShape: orderHasShape,
+  is: orderIs,
+  createForm: orderCreateForm,
+  fromFormData: orderFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+import { type DateTime, Option } from "effect";
+import type { Account } from "./account.svelte";
+import type { Appointment } from "./appointment.svelte";
+import type { BilledItem } from "./billed-item.svelte";
+import type { Employee } from "./employee.svelte";
+import type { OrderStage } from "./order-stage.svelte";
+import type { Package } from "./package.svelte";
+import type { Payment } from "./payment.svelte";
+import type { Promotion } from "./promotion.svelte";
+import type { Site } from "./site.svelte";
+export interface Order {
+	id: string;
+	account: string | Account;
+	stage: OrderStage;
+	number: number;
+	payments: Array<string | Payment>;
+	opportunity: string;
+	reference: string;
+	leadSource: string;
+	salesRep: string | Employee;
+	group: string;
+	subgroup: string;
+	isPosted: boolean;
+	needsReview: boolean;
+	actionItem: string;
+	upsale: number;
+	dateCreated: DateTime.DateTime;
+	appointment: string | Appointment;
+	lastTechs: Array<string | Employee>;
+	package: Array<string | Package> | null;
+	promotion: Array<string | Promotion> | null;
+	balance: number;
+	due: DateTime.DateTime;
+	total: number;
+	site: string | Site;
+	billedItems: Array<BilledItem>;
+	memo: Option.Option<string>;
+	discount: number;
+	tip: number;
+	commissions: Array<number>;
+}
+export declare function orderDefaultValue(): Order;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function orderEncode(value: Order, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function orderEncodeWithContext(value: Order, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function orderDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Order;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Order | __mf_PendingRef;
+export declare function orderValidateField<K extends keyof Order>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function orderValidateFields(partial: { readonly [K in keyof Order]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function orderHasShape(obj: unknown): boolean;
+export declare function orderIs(obj: unknown): obj is Order;
+/** Nested error structure matching the data shape  */
+export type OrderErrors = {
+	_errors: Option.Option<Array<string>>;
+	id: Option.Option<Array<string>>;
+	account: Option.Option<Array<string>>;
+	stage: Option.Option<Array<string>>;
+	number: Option.Option<Array<string>>;
+	payments: Option.Option<Array<string>>;
+	opportunity: Option.Option<Array<string>>;
+	reference: Option.Option<Array<string>>;
+	leadSource: Option.Option<Array<string>>;
+	salesRep: Option.Option<Array<string>>;
+	group: Option.Option<Array<string>>;
+	subgroup: Option.Option<Array<string>>;
+	isPosted: Option.Option<Array<string>>;
+	needsReview: Option.Option<Array<string>>;
+	actionItem: Option.Option<Array<string>>;
+	upsale: Option.Option<Array<string>>;
+	dateCreated: Option.Option<Array<string>>;
+	appointment: Option.Option<Array<string>>;
+	lastTechs: Option.Option<Array<string>>;
+	package: Option.Option<Array<string>>;
+	promotion: Option.Option<Array<string>>;
+	balance: Option.Option<Array<string>>;
+	due: Option.Option<Array<string>>;
+	total: Option.Option<Array<string>>;
+	site: Option.Option<Array<string>>;
+	billedItems: Option.Option<Array<string>>;
+	memo: Option.Option<Array<string>>;
+	discount: Option.Option<Array<string>>;
+	tip: Option.Option<Array<string>>;
+	commissions: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type OrderTainted = {
+	id: Option.Option<boolean>;
+	account: Option.Option<boolean>;
+	stage: Option.Option<boolean>;
+	number: Option.Option<boolean>;
+	payments: Option.Option<boolean>;
+	opportunity: Option.Option<boolean>;
+	reference: Option.Option<boolean>;
+	leadSource: Option.Option<boolean>;
+	salesRep: Option.Option<boolean>;
+	group: Option.Option<boolean>;
+	subgroup: Option.Option<boolean>;
+	isPosted: Option.Option<boolean>;
+	needsReview: Option.Option<boolean>;
+	actionItem: Option.Option<boolean>;
+	upsale: Option.Option<boolean>;
+	dateCreated: Option.Option<boolean>;
+	appointment: Option.Option<boolean>;
+	lastTechs: Option.Option<boolean>;
+	package: Option.Option<boolean>;
+	promotion: Option.Option<boolean>;
+	balance: Option.Option<boolean>;
+	due: Option.Option<boolean>;
+	total: Option.Option<boolean>;
+	site: Option.Option<boolean>;
+	billedItems: Option.Option<boolean>;
+	memo: Option.Option<boolean>;
+	discount: Option.Option<boolean>;
+	tip: Option.Option<boolean>;
+	commissions: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface OrderFieldControllers {
+	readonly id: FieldController<string>;
+	readonly account: FieldController<string | Account>;
+	readonly stage: FieldController<OrderStage>;
+	readonly number: FieldController<number>;
+	readonly payments: ArrayFieldController<string | Payment>;
+	readonly opportunity: FieldController<string>;
+	readonly reference: FieldController<string>;
+	readonly leadSource: FieldController<string>;
+	readonly salesRep: FieldController<string | Employee>;
+	readonly group: FieldController<string>;
+	readonly subgroup: FieldController<string>;
+	readonly isPosted: FieldController<boolean>;
+	readonly needsReview: FieldController<boolean>;
+	readonly actionItem: FieldController<string>;
+	readonly upsale: FieldController<number>;
+	readonly dateCreated: FieldController<DateTime.DateTime>;
+	readonly appointment: FieldController<string | Appointment>;
+	readonly lastTechs: ArrayFieldController<string | Employee>;
+	readonly package: FieldController<Array<string | Package> | null>;
+	readonly promotion: FieldController<Array<string | Promotion> | null>;
+	readonly balance: FieldController<number>;
+	readonly due: FieldController<DateTime.DateTime>;
+	readonly total: FieldController<number>;
+	readonly site: FieldController<string | Site>;
+	readonly billedItems: ArrayFieldController<BilledItem>;
+	readonly memo: FieldController<Option.Option<string>>;
+	readonly discount: FieldController<number>;
+	readonly tip: FieldController<number>;
+	readonly commissions: ArrayFieldController<number>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface OrderGigaform {
+	readonly data: Order;
+	readonly errors: OrderErrors;
+	readonly tainted: OrderTainted;
+	readonly fields: OrderFieldControllers;
+	validate(): Exit.Exit<Order, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<Order>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function orderCreateForm(overrides?: Partial<Order>): OrderGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function orderFromFormData(formData: FormData): Exit.Exit<Order, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const Order: {
+	readonly defaultValue: typeof orderDefaultValue;
+	readonly encode: typeof orderEncode;
+	readonly encodeWithContext: typeof orderEncodeWithContext;
+	readonly decode: typeof orderDecode;
+	readonly decodeWithContext: typeof orderDecodeWithContext;
+	readonly validateField: typeof orderValidateField;
+	readonly validateFields: typeof orderValidateFields;
+	readonly hasShape: typeof orderHasShape;
+	readonly is: typeof orderIs;
+	readonly createForm: typeof orderCreateForm;
+	readonly fromFormData: typeof orderFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..570 -> expanded 1301..1871
+original 619..649 -> expanded 1871..1901
+original 677..698 -> expanded 1901..1922
+original 796..801 -> expanded 1922..1927
+original 820..856 -> expanded 1927..1963
+original 1031..1036 -> expanded 1963..1968
+original 1063..1091 -> expanded 1968..1996
+original 1119..1144 -> expanded 1996..2021
+original 1172..1216 -> expanded 2021..2065
+original 1264..1269 -> expanded 2065..2070
+original 1310..1340 -> expanded 2070..2100
+original 1386..1391 -> expanded 2100..2105
+original 1432..1460 -> expanded 2105..2133
+original 1531..1536 -> expanded 2133..2138
+original 1577..1606 -> expanded 2138..2167
+original 1707..1712 -> expanded 2167..2172
+original 1731..1769 -> expanded 2172..2210
+original 1834..1839 -> expanded 2210..2215
+original 1880..1904 -> expanded 2215..2239
+original 1972..1977 -> expanded 2239..2244
+original 2018..2045 -> expanded 2244..2271
+original 2090..2118 -> expanded 2271..2299
+original 2169..2200 -> expanded 2299..2330
+original 2248..2253 -> expanded 2330..2335
+original 2294..2323 -> expanded 2335..2364
+original 2351..2376 -> expanded 2364..2389
+original 2404..2445 -> expanded 2389..2430
+original 2551..2556 -> expanded 2430..2435
+original 2575..2619 -> expanded 2435..2479
+original 2710..2756 -> expanded 2479..2525
+original 2784..2834 -> expanded 2525..2575
+original 2862..2916 -> expanded 2575..2629
+original 2944..2970 -> expanded 2629..2655
+original 3014..3047 -> expanded 2655..2688
+original 3075..3099 -> expanded 2688..2712
+original 3148..3153 -> expanded 2712..2717
+original 3172..3202 -> expanded 2717..2747
+original 3261..3302 -> expanded 2747..2788
+original 3347..3385 -> expanded 2788..2826
+original 3413..3440 -> expanded 2826..2853
+original 3468..3490 -> expanded 2853..2875
+original 3518..3552 -> expanded 2875..2909
+original 3552..3553 -> expanded 78924..78925
+generated 0..1301 <- imports
+generated 2909..3710 <- Default
+generated 3710..6870 <- Encode
+generated 6870..35284 <- Decode
+generated 35284..78007 <- Gigaform
+generated 78007..78924 <- __convenience_const
+
+## Metadata
+
+interface Order: {"body_span":{"end":3553,"start":644},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":620,"start":571}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":678,"start":650}}],"name":"id","optional":false,"readonly":false,"span":{"end":694,"start":683},"ts_type":"string"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":821,"start":802}},{"args_src":"{ label: \"Account\", allowCustom: false, fetchUrls: [\"/api/accounts\"] }","name":"comboboxController","span":{"end":797,"start":699}}],"name":"account","optional":false,"readonly":false,"span":{"end":852,"start":826},"ts_type":"string | Account"},{"decorators":[{"args_src":"\"Estimate\"","name":"default","span":{"end":1064,"start":1037}},{"args_src":"{ label: \"Stage\", options: [{ label: \"Estimate\", value: \"Estimate\" }, { label: \"Active\", value: \"Active\" }, { label: \"Invoice\", value: \"Invoice\" }] }","name":"selectController","span":{"end":1032,"start":857}}],"name":"stage","optional":false,"readonly":false,"span":{"end":1087,"start":1069},"ts_type":"OrderStage"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1120,"start":1092}}],"name":"number","optional":false,"readonly":false,"span":{"end":1140,"start":1125},"ts_type":"number"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1173,"start":1145}}],"name":"payments","optional":false,"readonly":false,"span":{"end":1212,"start":1178},"ts_type":"Array<string | Payment>"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1311,"start":1270}},{"args_src":"{ label: \"Opportunity\" }","name":"textController","span":{"end":1265,"start":1217}}],"name":"opportunity","optional":false,"readonly":false,"span":{"end":1336,"start":1316},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1433,"start":1392}},{"args_src":"{ label: \"Reference\" }","name":"textController","span":{"end":1387,"start":1341}}],"name":"reference","optional":false,"readonly":false,"span":{"end":1456,"start":1438},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1578,"start":1537}},{"args_src":"{ label: \"Lead Source\", allowCustom: true }","name":"comboboxController","span":{"end":1532,"start":1461}}],"name":"leadSource","optional":false,"readonly":false,"span":{"end":1602,"start":1583},"ts_type":"string"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":1732,"start":1713}},{"args_src":"{ label: \"Sales Rep\", allowCustom: false, fetchUrls: [\"/api/employees\"] }","name":"comboboxController","span":{"end":1708,"start":1607}}],"name":"salesRep","optional":false,"readonly":false,"span":{"end":1765,"start":1737},"ts_type":"string | Employee"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1881,"start":1840}},{"args_src":"{ label: \"Group\", allowCustom: true }","name":"comboboxController","span":{"end":1835,"start":1770}}],"name":"group","optional":false,"readonly":false,"span":{"end":1900,"start":1886},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":2019,"start":1978}},{"args_src":"{ label: \"Subgroup\", allowCustom: true }","name":"comboboxController","span":{"end":1973,"start":1905}}],"name":"subgroup","optional":false,"readonly":false,"span":{"end":2041,"start":2024},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Posted\" }","name":"switchController","span":{"end":2091,"start":2046}}],"name":"isPosted","optional":false,"readonly":false,"span":{"end":2114,"start":2096},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Needs Review\" }","name":"switchController","span":{"end":2170,"start":2119}}],"name":"needsReview","optional":false,"readonly":false,"span":{"end":2196,"start":2175},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":2295,"start":2254}},{"args_src":"{ label: \"Action Item\" }","name":"textController","span":{"end":2249,"start":2201}}],"name":"actionItem","optional":false,"readonly":false,"span":{"end":2319,"start":2300},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":2352,"start":2324}}],"name":"upsale","optional":false,"readonly":false,"span":{"end":2372,"start":2357},"ts_type":"number"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":2405,"start":2377}}],"name":"dateCreated","optional":false,"readonly":false,"span":{"end":2441,"start":2410},"ts_type":"DateTime.DateTime"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":2576,"start":2557}},{"args_src":"{ label: \"Appointment\", allowCustom: false, fetchUrls: [\"/api/appointments\"] }","name":"comboboxController","span":{"end":2552,"start":2446}}],"name":"appointment","optional":false,"readonly":false,"span":{"end":2615,"start":2581},"ts_type":"string | Appointment"},{"decorators":[{"args_src":"{ label: \"Technicians\", fetchUrls: [\"/api/employees\"] }","name":"comboboxMultipleController","span":{"end":2711,"start":2620}}],"name":"lastTechs","optional":false,"readonly":false,"span":{"end":2752,"start":2716},"ts_type":"Array<string | Employee>"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":2785,"start":2757}}],"name":"package","optional":false,"readonly":false,"span":{"end":2830,"start":2790},"ts_type":"Array<string | Package> | null"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":2863,"start":2835}}],"name":"promotion","optional":false,"readonly":false,"span":{"end":2912,"start":2868},"ts_type":"Array<string | Promotion> | null"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":2945,"start":2917}}],"name":"balance","optional":false,"readonly":false,"span":{"end":2966,"start":2950},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"Due\" }","name":"dateTimeController","span":{"end":3015,"start":2971}}],"name":"due","optional":false,"readonly":false,"span":{"end":3043,"start":3020},"ts_type":"DateTime.DateTime"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":3076,"start":3048}}],"name":"total","optional":false,"readonly":false,"span":{"end":3095,"start":3081},"ts_type":"number"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":3173,"start":3154}},{"args_src":"{ label: \"Site\" }","name":"siteFieldsetController","span":{"end":3149,"start":3100}}],"name":"site","optional":false,"readonly":false,"span":{"end":3198,"start":3178},"ts_type":"string | Site"},{"decorators":[{"args_src":"{ legend: \"Billed Items\" }","name":"arrayFieldsetController","span":{"end":3262,"start":3203}}],"name":"billedItems","optional":false,"readonly":false,"span":{"end":3298,"start":3267},"ts_type":"Array<BilledItem>"},{"decorators":[{"args_src":"{ label: \"Memo\" }","name":"textAreaController","span":{"end":3348,"start":3303}}],"name":"memo","optional":false,"readonly":false,"span":{"end":3381,"start":3353},"ts_type":"Option.Option<string>"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":3414,"start":3386}}],"name":"discount","optional":false,"readonly":false,"span":{"end":3436,"start":3419},"ts_type":"number"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":3469,"start":3441}}],"name":"tip","optional":false,"readonly":false,"span":{"end":3486,"start":3474},"ts_type":"number"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":3519,"start":3491}}],"name":"commissions","optional":false,"readonly":false,"span":{"end":3551,"start":3524},"ts_type":"Array<number>"}],"heritage":[],"methods":[],"name":"Order","span":{"end":3553,"start":628},"type_params":[]}
+
+## Registry reads
+
+Name("Array")
+Name("BilledItem")
+Name("DateTime.DateTime")
+Name("Option.Option")
+Name("Option.Option<string>")
+Name("OrderStage")
+Name("boolean")
+Name("number")
+Name("string")
+Name("string | Account")
+Name("string | Appointment")
+Name("string | Employee")
+Name("string | Package")
+Name("string | Payment")
+Name("string | Promotion")
+Name("string | Site")
+
+## Buildtime dependencies
+
+(none)

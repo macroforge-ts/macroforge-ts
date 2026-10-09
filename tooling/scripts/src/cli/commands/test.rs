@@ -1,6 +1,6 @@
 //! Test runner command
 //!
-//! Runs tests for Rust crates, TypeScript packages, and playground.
+//! Runs tests for Rust crates, TypeScript packages, and testground.
 
 use crate::cli::args::TestArgs;
 use crate::core::config::Config;
@@ -17,14 +17,14 @@ pub fn run(args: TestArgs) -> Result<()> {
     match args.suite.as_str() {
         "rust" => run_rust_tests(&config)?,
         "packages" => run_package_tests(&config)?,
-        "playground" => run_playground_tests(&config)?,
+        "testground" => run_testground_tests(&config)?,
         "all" => {
             run_rust_tests(&config)?;
             run_package_tests(&config)?;
-            run_playground_tests(&config)?;
+            run_testground_tests(&config)?;
         }
         other => anyhow::bail!(
-            "Unknown test suite: {}. Use 'rust', 'packages', 'playground', or 'all'",
+            "Unknown test suite: {}. Use 'rust', 'packages', 'testground', or 'all'",
             other
         ),
     }
@@ -42,18 +42,18 @@ pub fn run_rust_tests(config: &Config) -> Result<()> {
     println!("\n{}", "Running Rust tests".bold());
     println!("{}", "─".repeat(40));
 
-    // The conformance corpus expands the playground, whose external macro
+    // The conformance corpus expands the testground, whose external macro
     // resolves from each app's node_modules. It is rebuilt from this
     // checkout every run: a package built from older guest code expands, and
     // records registry reads, as that code did.
     let cli = config.root.join("target/debug/macroforge");
     anyhow::ensure!(
         cli.is_file(),
-        "the conformance tests need the playground macro package, which is built with {}; \
+        "the conformance tests need the testground macro package, which is built with {}; \
          run `pixi run build:cli` first",
         cli.display()
     );
-    prepare_playground_apps(config)?;
+    prepare_testground_apps(config)?;
 
     let mut rust_roots = vec![config.root.clone()];
     rust_roots.extend(crate::diagnostics::clippy::excluded_crates(&config.root)?);
@@ -115,27 +115,27 @@ pub fn run_package_tests(config: &Config) -> Result<()> {
     Ok(())
 }
 
-fn run_playground_tests(config: &Config) -> Result<()> {
-    println!("\n{}", "Running playground tests".bold());
+fn run_testground_tests(config: &Config) -> Result<()> {
+    println!("\n{}", "Running testground tests".bold());
     println!("{}", "─".repeat(40));
-    run_playground_suites(config)
+    run_testground_suites(config)
 }
 
-/// The playground projects that consume the published packages.
-const PLAYGROUND_APPS: [&str; 4] = ["vanilla", "svelte", "library", "tests"];
+/// The testground projects that consume the published packages.
+const TESTGROUND_APPS: [&str; 4] = ["vanilla", "svelte", "library", "tests"];
 
-/// Builds the playground's macro package, then reinstalls every playground
+/// Builds the testground's macro package, then reinstalls every testground
 /// app. Each app is its own project linking the built `npm/` packages and the
 /// macro package, and Deno copies a linked package at install time, so only a
-/// fresh install makes the playground see the current build.
-pub fn prepare_playground_apps(config: &Config) -> Result<()> {
-    let macro_dir = config.root.join("tooling/playground/macro");
-    println!("  {} building the playground macro package...", "→".blue());
+/// fresh install makes the testground see the current build.
+pub fn prepare_testground_apps(config: &Config) -> Result<()> {
+    let macro_dir = config.root.join("tooling/testground/macro");
+    println!("  {} building the testground macro package...", "→".blue());
     shell::deno::task_inherit(&macro_dir, "build")
-        .context("deno task build failed in the playground macro package")?;
+        .context("deno task build failed in the testground macro package")?;
 
-    for app in PLAYGROUND_APPS {
-        let app_dir = config.root.join("tooling/playground").join(app);
+    for app in TESTGROUND_APPS {
+        let app_dir = config.root.join("tooling/testground").join(app);
         println!("  {} installing {app}...", "→".blue());
         shell::deno::install(&app_dir).with_context(|| format!("deno install failed in {app}"))?;
     }
@@ -147,9 +147,14 @@ pub fn prepare_playground_apps(config: &Config) -> Result<()> {
 /// have to finish inside its start-up budget while the suite waits.
 const E2E_APPS: [&str; 2] = ["vanilla", "svelte"];
 
+/// Builds each app against registries scanned from its current sources: the
+/// Vite plugin reads them from `.macroforge/`, and a set left by an earlier run
+/// describes the tree as it was then.
 fn build_e2e_apps(config: &Config) -> Result<()> {
     for app in E2E_APPS {
-        let app_dir = config.root.join("tooling/playground").join(app);
+        let app_dir = config.root.join("tooling/testground").join(app);
+        println!("  {} scanning {app}...", "→".blue());
+        shell::macroforge::cache(&config.root, &app_dir)?;
         println!("  {} building {app}...", "→".blue());
         shell::deno::task(&app_dir, "build")
             .with_context(|| format!("deno task build failed in {app}"))?;
@@ -157,13 +162,13 @@ fn build_e2e_apps(config: &Config) -> Result<()> {
     Ok(())
 }
 
-/// Runs the playground's deno, validator and e2e suites with their output
+/// Runs the testground's deno, validator and e2e suites with their output
 /// shown. The suites drive this checkout's debug CLI (`MACROFORGE_CLI`).
-pub fn run_playground_suites(config: &Config) -> Result<()> {
-    prepare_playground_apps(config)?;
+pub fn run_testground_suites(config: &Config) -> Result<()> {
+    prepare_testground_apps(config)?;
     build_e2e_apps(config)?;
 
-    let playground_tests = config.root.join("tooling/playground/tests");
+    let testground_tests = config.root.join("tooling/testground/tests");
     let suites = [
         ("Deno tests", "test"),
         ("Validator tests", "test:validators"),
@@ -171,7 +176,7 @@ pub fn run_playground_suites(config: &Config) -> Result<()> {
     ];
     for (label, task) in suites {
         println!("  {} {label}...", "→".blue());
-        shell::deno::task_inherit(&playground_tests, task)
+        shell::deno::task_inherit(&testground_tests, task)
             .with_context(|| format!("{label} failed"))?;
         println!("  {} {label} passed", "✓".green());
     }

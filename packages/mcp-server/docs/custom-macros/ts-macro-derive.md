@@ -176,7 +176,7 @@ impl DataClass {
     fn field(&self, name: &str) -> Option<&FieldIR>;
     fn method(&self, name: &str) -> Option<&MethodSigIR>;
     fn body_span(&self) -> SpanIR;      // For inserting code into class body
-    fn type_params(&self) -> &[String]; // Generic type parameters
+    fn type_params(&self) -> &[TypeParamIR]; // Generic type parameters
     fn heritage(&self) -> &[String];    // extends/implements clauses
     fn is_abstract(&self) -> bool;
 }
@@ -188,7 +188,7 @@ impl DataInterface {
     fn field(&self, name: &str) -> Option<&InterfaceFieldIR>;
     fn method(&self, name: &str) -> Option<&InterfaceMethodIR>;
     fn body_span(&self) -> SpanIR;
-    fn type_params(&self) -> &[String];
+    fn type_params(&self) -> &[TypeParamIR];
     fn heritage(&self) -> &[String];    // extends clauses
 }
 
@@ -200,7 +200,7 @@ impl DataEnum {
 
 impl DataTypeAlias {
     fn body(&self) -> &TypeBody;
-    fn type_params(&self) -> &[String];
+    fn type_params(&self) -> &[TypeParamIR];
     fn is_union(&self) -> bool;
     fn is_intersection(&self) -> bool;
     fn is_object(&self) -> bool;
@@ -238,6 +238,7 @@ struct FieldIR {
     pub readonly: bool,             // Whether field is readonly
     pub visibility: Visibility,     // Public, Protected, Private
     pub decorators: Vec<DecoratorIR>, // Field decorators
+    pub initializer: Option<String>,  // Initializer as written, e.g. "dark"
 }
 ```
 
@@ -285,7 +286,7 @@ struct DecoratorIR {
 Note
 
 To check for decorators, iterate through `field.decorators` and check `decorator.name`. `has_flag`
-and `extract_named_string` in `macroforge_ts::builtin::derive_common` read options out of
+and `extract_named_string` in `macroforge_ts::builtin::derive::common` read options out of
 `args_src`; see [Decorators](../../docs/custom-macros/context-and-ir#decorators).
 
 ## Adding Imports

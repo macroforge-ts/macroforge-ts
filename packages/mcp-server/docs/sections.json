@@ -243,7 +243,7 @@
         "category": "builtin-macros",
         "category_title": "Built-in Macros",
         "path": "builtin-macros/ord.md",
-        "use_cases": "compareTo, ordering, sorting, comparison, total order"
+        "use_cases": "compare, ordering, sorting, comparison, total order"
     },
     {
         "id": "partial-eq",
@@ -254,12 +254,20 @@
         "use_cases": "equals, equality, comparison, value equality"
     },
     {
+        "id": "eq",
+        "title": "Eq",
+        "category": "builtin-macros",
+        "category_title": "Built-in Macros",
+        "path": "builtin-macros/eq.md",
+        "use_cases": "Eq, total equality, equivalence relation, marker"
+    },
+    {
         "id": "partial-ord",
         "title": "PartialOrd",
         "category": "builtin-macros",
         "category_title": "Built-in Macros",
         "path": "builtin-macros/partial-ord.md",
-        "use_cases": "compareTo, partial ordering, sorting, nullable comparison"
+        "use_cases": "partialCompare, partial ordering, sorting, nullable comparison"
     },
     {
         "id": "encode",
@@ -324,6 +332,57 @@
         "category_title": "Endec Reference",
         "path": "endec/foreign-types.md",
         "use_cases": "foreign types"
+    },
+    {
+        "id": "expanded-config/overview",
+        "title": "Expanded Config: Overview",
+        "category": "endec",
+        "category_title": "Endec Reference",
+        "path": "endec/expanded-config/overview.md",
+        "use_cases": "expanded config, macroforge.config.ts, @derive(encode), @derive(decode), .macroforge/config/, #macroforge/config",
+        "parent_id": "expanded-config"
+    },
+    {
+        "id": "expanded-config/setup",
+        "title": "Expanded Config: Setup",
+        "category": "endec",
+        "category_title": "Endec Reference",
+        "path": "endec/expanded-config/setup.md",
+        "use_cases": "expanded config, #macroforge/config, #lib",
+        "parent_id": "expanded-config"
+    },
+    {
+        "id": "expanded-config/when-it-is-regenerated",
+        "title": "Expanded Config: When it is regenerated",
+        "category": "endec",
+        "category_title": "Endec Reference",
+        "path": "endec/expanded-config/when-it-is-regenerated.md",
+        "use_cases": "expanded config, .macroforge/config/, .svelte-kit/",
+        "parent_id": "expanded-config"
+    },
+    {
+        "id": "expanded-config/what-the-config-may-contain",
+        "title": "Expanded Config: What the config may contain",
+        "category": "endec",
+        "category_title": "Endec Reference",
+        "path": "endec/expanded-config/what-the-config-may-contain.md",
+        "use_cases": "expanded config, import.meta, import(), .macroforge/config/, /*#__pure__*/",
+        "parent_id": "expanded-config"
+    },
+    {
+        "id": "expanded-config",
+        "title": "Expanded Config",
+        "category": "endec",
+        "category_title": "Endec Reference",
+        "path": "endec/expanded-config.md",
+        "use_cases": "expanded config",
+        "is_chunked": true,
+        "chunk_ids": [
+            "expanded-config/overview",
+            "expanded-config/setup",
+            "expanded-config/when-it-is-regenerated",
+            "expanded-config/what-the-config-may-contain"
+        ]
     },
     {
         "id": "cycles-and-references",
@@ -764,6 +823,15 @@
         "parent_id": "context-and-ir"
     },
     {
+        "id": "context-and-ir/type-parameters",
+        "title": "Context and IR: Type parameters",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/context-and-ir/type-parameters.md",
+        "use_cases": "context, MacroContextIR, declaration(), declare_all, apply_all, <t extends shape>",
+        "parent_id": "context-and-ir"
+    },
+    {
         "id": "context-and-ir/classes",
         "title": "Context and IR: Classes",
         "category": "custom-macros",
@@ -827,6 +895,7 @@
         "is_chunked": true,
         "chunk_ids": [
             "context-and-ir/overview",
+            "context-and-ir/type-parameters",
             "context-and-ir/classes",
             "context-and-ir/interfaces",
             "context-and-ir/enums",

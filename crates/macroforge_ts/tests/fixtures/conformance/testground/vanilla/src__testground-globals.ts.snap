@@ -1,0 +1,44 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/testground-globals.ts
+sha256 261ad0568e96395739707124cb1866e19e0ab3b059de119e259782de009e7be5
+
+## Changed
+
+false
+
+## Output
+
+(unchanged)
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..2740 -> expanded 0..2740
+
+## Metadata
+
+interface MacroTestResults: {"body_span":{"end":726,"start":572},"decorators":[],"fields":[{"decorators":[],"name":"debug","optional":true,"readonly":false,"span":{"end":593,"start":578},"ts_type":"string"},{"decorators":[],"name":"clone","optional":true,"readonly":false,"span":{"end":625,"start":598},"ts_type":"AllMacrosTestClass"},{"decorators":[],"name":"equals","optional":true,"readonly":false,"span":{"end":647,"start":630},"ts_type":"boolean"},{"decorators":[],"name":"hashCode","optional":true,"readonly":false,"span":{"end":670,"start":652},"ts_type":"number"},{"decorators":[],"name":"encode","optional":true,"readonly":false,"span":{"end":691,"start":675},"ts_type":"string"},{"decorators":[],"name":"decode","optional":true,"readonly":false,"span":{"end":724,"start":696},"ts_type":"AllMacrosTestClass"}],"heritage":[],"methods":[],"name":"MacroTestResults","span":{"end":726,"start":545},"type_params":[]}
+interface AttributesResults: {"body_span":{"end":1097,"start":892},"decorators":[],"fields":[{"decorators":[],"name":"keptByFeature","optional":false,"readonly":false,"span":{"end":927,"start":898},"ts_type":"string | null"},{"decorators":[],"name":"strippedByFeature","optional":false,"readonly":false,"span":{"end":965,"start":932},"ts_type":"string | null"},{"decorators":[],"name":"keptByTarget","optional":false,"readonly":false,"span":{"end":998,"start":970},"ts_type":"string | null"},{"decorators":[],"name":"strippedByTarget","optional":false,"readonly":false,"span":{"end":1035,"start":1003},"ts_type":"string | null"},{"decorators":[],"name":"deprecatedCall","optional":false,"readonly":false,"span":{"end":1063,"start":1040},"ts_type":"string"},{"decorators":[],"name":"nonExhaustiveValue","optional":false,"readonly":false,"span":{"end":1095,"start":1068},"ts_type":"string"}],"heritage":[],"methods":[],"name":"AttributesResults","span":{"end":1097,"start":864},"type_params":[]}
+interface RunesTestResults: {"body_span":{"end":1199,"start":1133},"decorators":[],"fields":[{"decorators":[],"name":"passed","optional":false,"readonly":false,"span":{"end":1154,"start":1139},"ts_type":"number"},{"decorators":[],"name":"failed","optional":false,"readonly":false,"span":{"end":1174,"start":1159},"ts_type":"number"},{"decorators":[],"name":"details","optional":false,"readonly":false,"span":{"end":1197,"start":1179},"ts_type":"string[]"}],"heritage":[],"methods":[],"name":"RunesTestResults","span":{"end":1199,"start":1106},"type_params":[]}
+interface BuildtimeDemoResult: {"body_span":{"end":1848,"start":1309},"decorators":[],"fields":[{"decorators":[],"name":"answer","optional":false,"readonly":false,"span":{"end":1330,"start":1315},"ts_type":"number"},{"decorators":[],"name":"schemaHash","optional":false,"readonly":false,"span":{"end":1354,"start":1335},"ts_type":"string"},{"decorators":[],"name":"appName","optional":false,"readonly":false,"span":{"end":1375,"start":1359},"ts_type":"string"},{"decorators":[],"name":"appVersion","optional":false,"readonly":false,"span":{"end":1399,"start":1380},"ts_type":"string"},{"decorators":[],"name":"routes","optional":false,"readonly":false,"span":{"end":1421,"start":1404},"ts_type":"string[]"},{"decorators":[],"name":"constantObject","optional":false,"readonly":false,"span":{"end":1495,"start":1426},"ts_type":"{ thirteen: number; label: string; items: number[] }"},{"decorators":[],"name":"derivedSummary","optional":false,"readonly":false,"span":{"end":1523,"start":1500},"ts_type":"string"},{"decorators":[],"name":"greetingAlice","optional":false,"readonly":false,"span":{"end":1550,"start":1528},"ts_type":"string"},{"decorators":[],"name":"greetingBob","optional":false,"readonly":false,"span":{"end":1575,"start":1555},"ts_type":"string"},{"decorators":[],"name":"greetingKeys","optional":false,"readonly":false,"span":{"end":1603,"start":1580},"ts_type":"string[]"},{"decorators":[],"name":"runtimeStubThrows","optional":false,"readonly":false,"span":{"end":1846,"start":1819},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"BuildtimeDemoResult","span":{"end":1848,"start":1279},"type_params":[]}
+interface ValidatorFormResults: {"body_span":{"end":2093,"start":1888},"decorators":[],"fields":[{"decorators":[],"name":"userRegistration","optional":true,"readonly":false,"span":{"end":1952,"start":1894},"ts_type":"ValidationResult<UserRegistrationForm>"},{"decorators":[],"name":"product","optional":true,"readonly":false,"span":{"end":1997,"start":1957},"ts_type":"ValidationResult<ProductForm>"},{"decorators":[],"name":"event","optional":true,"readonly":false,"span":{"end":2038,"start":2002},"ts_type":"ValidationResult<EventForm>"},{"decorators":[],"name":"measurement","optional":true,"readonly":false,"span":{"end":2091,"start":2043},"ts_type":"ValidationResult<MeasurementForm>"}],"heritage":[],"methods":[],"name":"ValidatorFormResults","span":{"end":2093,"start":1857},"type_params":[]}
+interface VanillaTestground: {"body_span":{"end":2458,"start":2253},"decorators":[],"fields":[{"decorators":[],"name":"macroTests","optional":true,"readonly":false,"span":{"end":2289,"start":2259},"ts_type":"MacroTestResults"},{"decorators":[],"name":"runes","optional":true,"readonly":false,"span":{"end":2319,"start":2294},"ts_type":"RunesTestResults"},{"decorators":[],"name":"e2e","optional":true,"readonly":false,"span":{"end":2341,"start":2324},"ts_type":"E2eResults"},{"decorators":[],"name":"buildtime","optional":true,"readonly":false,"span":{"end":2378,"start":2346},"ts_type":"BuildtimeDemoResult"},{"decorators":[],"name":"attributes","optional":true,"readonly":false,"span":{"end":2414,"start":2383},"ts_type":"AttributesResults"},{"decorators":[],"name":"validatorForm","optional":true,"readonly":false,"span":{"end":2456,"start":2419},"ts_type":"ValidatorFormResults"}],"heritage":[],"methods":[],"name":"VanillaTestground","span":{"end":2458,"start":2225},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

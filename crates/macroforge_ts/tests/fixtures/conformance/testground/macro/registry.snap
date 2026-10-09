@@ -1,0 +1,70 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Types (29)
+
+AddressLookupFieldController 717fc31152a3b281
+ArrayFieldController 4bda9b3eebd943e3
+ArrayFieldsetComboboxConfig 55bd2e2ccf2712fa
+ArrayFieldsetController 6261bd22d5347c53
+ArrayFieldsetItem 0d97787429724bcd
+BaseGigaform 2dbe2b04046a4b00
+CheckboxFieldController 9641fa07592b70b1
+ComboboxFieldController 479988350c469ac9
+ComboboxItem 640700576549f796
+ComboboxMultipleFieldController ccfecffada8c41ac
+DateTimeFieldController dd8961cc6aad564b
+DecodeResult 6a0ca60e9c45003f
+EmailFieldController 737977483732fed5
+EnumFieldController 510bfd5dc8218108
+FieldController 35bb6979f3c6abdc
+HiddenFieldController 3c8292be052b56d9
+NumberFieldController bffc24dfd0454052
+PhoneFieldController 0941b07a19b852b0
+RadioGroupFieldController 4e7dc06dfb38aec8
+RadioGroupOption 30f14977d1a16a8e
+SelectFieldController 7c775bacb81b0d9b
+SiteDuplicateSearchFilters 9477dda1f5919377
+SiteFieldsetController aa66ed66bca2bae4
+SiteManualEntryControllers d92c9702a3d4b461
+SwitchFieldController 7189a21fe82f7c4c
+TagsFieldController 298b901ecf6641d5
+TextAreaFieldController e36117a3e562089a
+ToggleFieldController d6ac7d1ac69443f6
+VariantGigaform 27c43da10cae15b0
+
+## Qualified types (29)
+
+gigaform.ts::AddressLookupFieldController 717fc31152a3b281
+gigaform.ts::ArrayFieldController 4bda9b3eebd943e3
+gigaform.ts::ArrayFieldsetComboboxConfig 55bd2e2ccf2712fa
+gigaform.ts::ArrayFieldsetController 6261bd22d5347c53
+gigaform.ts::ArrayFieldsetItem 0d97787429724bcd
+gigaform.ts::BaseGigaform 2dbe2b04046a4b00
+gigaform.ts::CheckboxFieldController 9641fa07592b70b1
+gigaform.ts::ComboboxFieldController 479988350c469ac9
+gigaform.ts::ComboboxItem 640700576549f796
+gigaform.ts::ComboboxMultipleFieldController ccfecffada8c41ac
+gigaform.ts::DateTimeFieldController dd8961cc6aad564b
+gigaform.ts::DecodeResult 6a0ca60e9c45003f
+gigaform.ts::EmailFieldController 737977483732fed5
+gigaform.ts::EnumFieldController 510bfd5dc8218108
+gigaform.ts::FieldController 35bb6979f3c6abdc
+gigaform.ts::HiddenFieldController 3c8292be052b56d9
+gigaform.ts::NumberFieldController bffc24dfd0454052
+gigaform.ts::PhoneFieldController 0941b07a19b852b0
+gigaform.ts::RadioGroupFieldController 4e7dc06dfb38aec8
+gigaform.ts::RadioGroupOption 30f14977d1a16a8e
+gigaform.ts::SelectFieldController 7c775bacb81b0d9b
+gigaform.ts::SiteDuplicateSearchFilters 9477dda1f5919377
+gigaform.ts::SiteFieldsetController aa66ed66bca2bae4
+gigaform.ts::SiteManualEntryControllers d92c9702a3d4b461
+gigaform.ts::SwitchFieldController 7189a21fe82f7c4c
+gigaform.ts::TagsFieldController 298b901ecf6641d5
+gigaform.ts::TextAreaFieldController e36117a3e562089a
+gigaform.ts::ToggleFieldController d6ac7d1ac69443f6
+gigaform.ts::VariantGigaform 27c43da10cae15b0
+
+## Ambiguous names
+
+(none)

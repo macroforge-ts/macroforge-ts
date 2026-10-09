@@ -1,7 +1,7 @@
 /**
  * Builds every package the monorepo publishes to npm with dnt, into
  * `npm/<name>/` at the repository root. That directory is exactly what
- * `npm publish` uploads and what the playground links against.
+ * `npm publish` uploads and what the testground links against.
  *
  * Each package's `package.json` supplies its publish metadata and dependency
  * ranges; dnt supplies the module output, `exports`, `bin` and declarations.
@@ -34,6 +34,7 @@ const PACKAGES: Record<string, NpmPackage> = {
             { name: './buildtime', path: 'js/buildtime/index.ts' },
             { name: './rules', path: 'js/rules/index.ts' },
             { name: './endec', path: 'js/endec/index.ts' },
+            { name: './structural', path: 'js/structural/index.ts' },
             { name: './traits', path: 'js/traits/index.ts' }
         ],
         moduleFormat: 'esm',
@@ -279,7 +280,7 @@ async function buildPackage(name: string, spec: NpmPackage): Promise<void> {
             esModule: spec.moduleFormat === 'esm',
             declaration: 'inline',
             // The Deno test suites run against the sources; the output is
-            // proven by the playground, which installs it the way a consumer
+            // proven by the testground, which installs it the way a consumer
             // does.
             test: false,
             packageManager: 'deno',

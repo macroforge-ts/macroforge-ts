@@ -18,11 +18,9 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
-import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
-import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { __foreign__dateTimeUtcDefault, __foreign__dateTimeUtcEncode, __foreign__dateTimeUtcDecode } from "#macroforge/config";
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { DateTime } from 'effect';
 
 
@@ -31,928 +29,150 @@ export interface Event {
 }
 
 export function eventDefaultValue(): Event {
-                        return {
-at: (() => {
-	const now = Math.floor(Date.now() / 1e3);
-	return DateTime.make(now);
-})(),
-};
-                    }
+    return {
+        at: __foreign__dateTimeUtcDefault(),
+    };
+}
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function eventEncode(value: Event, keepMetadata?: boolean): string {
-                    const ctx = __mf_EncodeContext.create();
-                    const __raw = eventEncodeWithContext(value, ctx);
-                    if (keepMetadata) return JSON.stringify(__raw);
-                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                }
+export function eventEncode(value: Event, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = eventEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
 
-                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                export function eventEncodeWithContext(value: Event, ctx: __mf_EncodeContext): Record<string, unknown> {
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function eventEncodeWithContext(value: Event, ctx: __mf_EncodeContext): Record<string, unknown> {
 
-                    const existingId = ctx.getId(value);
-                    if (existingId !== undefined) {
-                        return { __ref: existingId };
-                    }
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
 
+    const __id = ctx.register(value);
 
-                    const __id = ctx.register(value);
+    const result: Record<string, unknown> = {
+        "__type": "Event",
+        __id,
+    };
 
-                    const result: Record<string, unknown> = {
-                        "__type": "Event",
-                        __id,
-                    };result.at = ((v: DateTime.Utc) => DateTime.formatIso(v))(value.at);
+    
+    result.at = __foreign__dateTimeUtcEncode(value.at);
 
+    return result;
+}
 
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function eventDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Event } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
 
+        const data = typeof input === "string" ? JSON.parse(input) : input;
 
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = eventDecodeWithContext(data, ctx);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    return result;
-                }
-
-/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-            export function eventDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Event } | { success: false; errors: Array<{ field: string; message: string }> } {
-                try {
-
-                    const data = typeof input === "string" ? JSON.parse(input) : input;
-
-                    const ctx = __mf_DecodeContext.create();
-                    const resultOrRef = eventDecodeWithContext(data, ctx);
-
-                    if (__mf_PendingRef.is(resultOrRef)) {
-                        return ({
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
 	success: false,
 	errors: [{
 		field: "_root",
 		message: "Event.decode: root cannot be a forward reference"
 	}]
 });
-                    }
+        }
 
-                    ctx.applyPatches();
-                    if (opts?.freeze) {
-                        ctx.freezeAll();
-                    }
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
 
-                    const __errors = ctx.getErrors();
-                    if (__errors.length > 0) {
-                        return ({
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
 	success: false,
 	errors: __errors
 });
-                    }
+        }
 
-                    return ({
+        return ({
 	success: true,
 	value: resultOrRef
 });
-                } catch (e) {
-                    if (e instanceof __mf_DecodeError) {
-                        return ({
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
 	success: false,
 	errors: e.errors
 });
-                    }
-                    const message = e instanceof Error ? e.message : String(e);
-                    return ({
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
 	success: false,
 	errors: [{
 		field: "_root",
 		message
 	}]
 });
-                }
-            }
-
-            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-            export function eventDecodeWithContext(value: any, ctx: __mf_DecodeContext): Event | __mf_PendingRef {
-                if (value?.__ref !== undefined) {
-                    return ctx.getOrDefer(value.__ref);
-                }
-
-                if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DecodeError([{ field: "_root", message: "Event.decodeWithContext: expected an object" }]);
-                }
-
-                const obj = value as Record<string, unknown>;
-                const errors: Array<{ field: string; message: string }> = [];if (!("at" in obj)) {
-                            errors.push({ field: "at", message: "missing required field" });
-                        }
-
-
-
-
-
-
-
-                const instance: any = {};
-
-                if (obj.__id !== undefined) {
-                    ctx.register(obj.__id as number, instance);
-                }
-
-                ctx.trackForFreeze(instance);try {
-                                        instance.at = ((raw: unknown) => {
-	if (!Array.isArray(raw) && typeof raw !== "string") {
-		console.error("bad DateTime.Utc payload", raw);
-		return DateTime.make(0);
-	}
-	return DateTime.make(raw as string);
-})(obj["at"]);
-                                    } catch (__error) {
-                                        errors.push({ field: "at", message: __error instanceof Error ? __error.message : String(__error) });
-                                    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                ctx.pushErrors(errors);
-
-                return instance as Event;
-            }
-
-            export function eventValidateField<K extends keyof Event>(
-                _field: K,
-                _value: Event[K]
-            ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-            }
-
-            export function eventValidateFields(
-                _partial: Partial<Event>
-            ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-            }
-
-            export function eventHasShape(obj: unknown): boolean {
-                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-                    return false;
-                }
-                const o = obj as Record<string, unknown>;
-                return "at" in o;
-            }
-
-            export function eventIs(obj: unknown): obj is Event {
-                if (!eventHasShape(obj)) {
-                    return false;
-                }
-                const result = eventDecode(obj);
-                return result.success;
-            }
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function eventDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Event | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Event.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Event | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Event.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("at" in obj)) {
+        errors.push({ field: "at", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    try {
+        instance.at = __foreign__dateTimeUtcDecode(obj["at"]);
+    } catch (__error) {
+        errors.push({ field: "at", message: __error instanceof Error ? __error.message : String(__error) });
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Event;
+}
+export function eventValidateField<K extends keyof Event>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function eventValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function eventValidateFields(partial: { readonly [K in keyof Event]?: unknown }): Array<{ field: string; message: string }>;
+export function eventValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function eventHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "at" in o;
+}
+
+export function eventIs(obj: unknown): obj is Event {
+    return eventHasShape(obj) && eventDecode(obj).success;
+}
 
 export const Event: {
   readonly defaultValue: typeof eventDefaultValue;
@@ -960,6 +180,7 @@ export const Event: {
   readonly encodeWithContext: typeof eventEncodeWithContext;
   readonly decode: typeof eventDecode;
   readonly decodeWithContext: typeof eventDecodeWithContext;
+  readonly validateField: typeof eventValidateField;
   readonly validateFields: typeof eventValidateFields;
   readonly hasShape: typeof eventHasShape;
   readonly is: typeof eventIs;
@@ -969,6 +190,7 @@ export const Event: {
   encodeWithContext: eventEncodeWithContext,
   decode: eventDecode,
   decodeWithContext: eventDecodeWithContext,
+  validateField: eventValidateField,
   validateFields: eventValidateFields,
   hasShape: eventHasShape,
   is: eventIs
@@ -976,955 +198,48 @@ export const Event: {
 
 ## DTS
 
-import { DateTime } from 'effect';
-
-
+import { DateTime } from "effect";
 export interface Event {
-    at: DateTime.Utc;
+	at: DateTime.Utc;
 }
-
-export function eventDefaultValue(): Event {
-                        return {
-at: (() => {
-	const now = Math.floor(Date.now() / 1e3);
-	return DateTime.make(now);
-})(),
-};
-                    }
-
+export declare function eventDefaultValue(): Event;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function eventEncode(value: Event, keepMetadata?: boolean): string {
-                    const ctx = __mf_EncodeContext.create();
-                    const __raw = eventEncodeWithContext(value, ctx);
-                    if (keepMetadata) return JSON.stringify(__raw);
-                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                }
-
-                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                export function eventEncodeWithContext(value: Event, ctx: __mf_EncodeContext): Record<string, unknown> {
-
-                    const existingId = ctx.getId(value);
-                    if (existingId !== undefined) {
-                        return { __ref: existingId };
-                    }
-
-
-                    const __id = ctx.register(value);
-
-                    const result: Record<string, unknown> = {
-                        "__type": "Event",
-                        __id,
-                    };result.at = ((v: DateTime.Utc) => DateTime.formatIso(v))(value.at);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    return result;
-                }
-
-/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-            export function eventDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Event } | { success: false; errors: Array<{ field: string; message: string }> } {
-                try {
-
-                    const data = typeof input === "string" ? JSON.parse(input) : input;
-
-                    const ctx = __mf_DecodeContext.create();
-                    const resultOrRef = eventDecodeWithContext(data, ctx);
-
-                    if (__mf_PendingRef.is(resultOrRef)) {
-                        return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message: "Event.decode: root cannot be a forward reference"
-	}]
-});
-                    }
-
-                    ctx.applyPatches();
-                    if (opts?.freeze) {
-                        ctx.freezeAll();
-                    }
-
-                    const __errors = ctx.getErrors();
-                    if (__errors.length > 0) {
-                        return ({
-	success: false,
-	errors: __errors
-});
-                    }
-
-                    return ({
-	success: true,
-	value: resultOrRef
-});
-                } catch (e) {
-                    if (e instanceof __mf_DecodeError) {
-                        return ({
-	success: false,
-	errors: e.errors
-});
-                    }
-                    const message = e instanceof Error ? e.message : String(e);
-                    return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message
-	}]
-});
-                }
-            }
-
-            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-            export function eventDecodeWithContext(value: any, ctx: __mf_DecodeContext): Event | __mf_PendingRef {
-                if (value?.__ref !== undefined) {
-                    return ctx.getOrDefer(value.__ref);
-                }
-
-                if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DecodeError([{ field: "_root", message: "Event.decodeWithContext: expected an object" }]);
-                }
-
-                const obj = value as Record<string, unknown>;
-                const errors: Array<{ field: string; message: string }> = [];if (!("at" in obj)) {
-                            errors.push({ field: "at", message: "missing required field" });
-                        }
-
-
-
-
-
-
-
-                const instance: any = {};
-
-                if (obj.__id !== undefined) {
-                    ctx.register(obj.__id as number, instance);
-                }
-
-                ctx.trackForFreeze(instance);try {
-                                        instance.at = ((raw: unknown) => {
-	if (!Array.isArray(raw) && typeof raw !== "string") {
-		console.error("bad DateTime.Utc payload", raw);
-		return DateTime.make(0);
-	}
-	return DateTime.make(raw as string);
-})(obj["at"]);
-                                    } catch (__error) {
-                                        errors.push({ field: "at", message: __error instanceof Error ? __error.message : String(__error) });
-                                    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                ctx.pushErrors(errors);
-
-                return instance as Event;
-            }
-
-            export function eventValidateField<K extends keyof Event>(
-                _field: K,
-                _value: Event[K]
-            ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-            }
-
-            export function eventValidateFields(
-                _partial: Partial<Event>
-            ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-            }
-
-            export function eventHasShape(obj: unknown): boolean {
-                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-                    return false;
-                }
-                const o = obj as Record<string, unknown>;
-                return "at" in o;
-            }
-
-            export function eventIs(obj: unknown): obj is Event {
-                if (!eventHasShape(obj)) {
-                    return false;
-                }
-                const result = eventDecode(obj);
-                return result.success;
-            }
-
-export const Event: {
-  readonly defaultValue: typeof eventDefaultValue;
-  readonly encode: typeof eventEncode;
-  readonly encodeWithContext: typeof eventEncodeWithContext;
-  readonly decode: typeof eventDecode;
-  readonly decodeWithContext: typeof eventDecodeWithContext;
-  readonly validateFields: typeof eventValidateFields;
-  readonly hasShape: typeof eventHasShape;
-  readonly is: typeof eventIs;
-} = {
-  defaultValue: eventDefaultValue,
-  encode: eventEncode,
-  encodeWithContext: eventEncodeWithContext,
-  decode: eventDecode,
-  decodeWithContext: eventDecodeWithContext,
-  validateFields: eventValidateFields,
-  hasShape: eventHasShape,
-  is: eventIs
+export declare function eventEncode(value: Event, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function eventEncodeWithContext(value: Event, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function eventDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Event;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function eventDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Event | __mf_PendingRef;
+export declare function eventValidateField<K extends keyof Event>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function eventValidateFields(partial: { readonly [K in keyof Event]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function eventHasShape(obj: unknown): boolean;
+export declare function eventIs(obj: unknown): obj is Event;
+export declare const Event: {
+	readonly defaultValue: typeof eventDefaultValue;
+	readonly encode: typeof eventEncode;
+	readonly encodeWithContext: typeof eventEncodeWithContext;
+	readonly decode: typeof eventDecode;
+	readonly decodeWithContext: typeof eventDecodeWithContext;
+	readonly validateField: typeof eventValidateField;
+	readonly validateFields: typeof eventValidateFields;
+	readonly hasShape: typeof eventHasShape;
+	readonly is: typeof eventIs;
 };
 
 ## Diagnostics
@@ -1933,14 +248,14 @@ export const Event: {
 
 ## Mapping
 
-original 0..36 -> expanded 385..421
-original 75..124 -> expanded 421..470
-original 124..125 -> expanded 7951..7952
-generated 0..385 <- imports
-generated 470..664 <- Default
-generated 664..2180 <- Encode
-generated 2180..7288 <- Decode
-generated 7288..7951 <- __convenience_const
+original 0..36 -> expanded 390..426
+original 75..124 -> expanded 426..475
+original 124..125 -> expanded 6122..6123
+generated 0..390 <- imports
+generated 475..588 <- Default
+generated 588..1700 <- Encode
+generated 1700..5369 <- Decode
+generated 5369..6122 <- __convenience_const
 
 ## Metadata
 

@@ -1,5 +1,5 @@
 import { Schema } from 'effect';
-/** import macro { JSON } from "@playground/macro"; */
+/** import macro { JSON } from "@testground/macro"; */
 
 export class MacroUser {
     id: string;

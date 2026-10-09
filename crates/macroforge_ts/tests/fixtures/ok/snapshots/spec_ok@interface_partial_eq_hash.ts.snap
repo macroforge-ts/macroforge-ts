@@ -23,18 +23,16 @@ interface Point {
 }
 
 export function pointEquals(a: Point, b: Point): boolean {
-                    if (a === b) return true;
-                    return a.x === b.x && a.y === b.y;
-                }
+    if (a === b) return true;
+    return a.x === b.x && a.y === b.y;
+}
 
 export function pointHashCode(value: Point): number {
-                    let hash = 17;hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-
-
-
-
-                    return hash;
-                }
+    let hash = 17;
+    hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    return hash;
+}
 
 const Point: {
   readonly equals: typeof pointEquals;
@@ -47,31 +45,12 @@ const Point: {
 ## DTS
 
 interface Point {
-    x: number;
-    y: number;
+	x: number;
+	y: number;
 }
-
-export function pointEquals(a: Point, b: Point): boolean {
-                    if (a === b) return true;
-                    return a.x === b.x && a.y === b.y;
-                }
-
-export function pointHashCode(value: Point): number {
-                    let hash = 17;hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-
-
-
-
-                    return hash;
-                }
-
-const Point: {
-  readonly equals: typeof pointEquals;
-  readonly hashCode: typeof pointHashCode;
-} = {
-  equals: pointEquals,
-  hashCode: pointHashCode
-};
+export declare function pointEquals(a: Point, b: Point): boolean;
+export declare function pointHashCode(value: Point): number;
+export {};
 
 ## Diagnostics
 
@@ -80,10 +59,10 @@ const Point: {
 ## Mapping
 
 original 31..81 -> expanded 0..50
-original 81..82 -> expanded 826..827
-generated 50..229 <- PartialEq
-generated 229..670 <- Hash
-generated 670..826 <- __convenience_const
+original 81..82 -> expanded 736..737
+generated 50..181 <- PartialEq
+generated 181..580 <- Hash
+generated 580..736 <- __convenience_const
 
 ## Metadata
 

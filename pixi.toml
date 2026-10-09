@@ -25,16 +25,16 @@ build = { cmd = "pixi run build:rust && pixi run build:plugin" }
 "build:rust" = { cmd = "cd crates/macroforge_ts && deno task build" }
 "build:website" = { cmd = "cd website && deno task build" }
 "build:plugin" = { cmd = "cd packages/vite-plugin && deno task build" }
-"build:playground:macro" = { cmd = "cd tooling/playground/macro && deno task build" }
-"build:playground:svelte" = "cd tooling/playground/svelte && deno task build"
-"build:playground:vanilla" = "cd tooling/playground/vanilla && deno task build"
-"build:playground:library" = "cd tooling/playground/library && deno task build"
-"build:playground" = "pixi run build:playground:macro && pixi run build:playground:svelte && pixi run build:playground:vanilla && pixi run build:playground:library"
+"build:testground:macro" = { cmd = "cd tooling/testground/macro && deno task build" }
+"build:testground:svelte" = "cd tooling/testground/svelte && deno task build"
+"build:testground:vanilla" = "cd tooling/testground/vanilla && deno task build"
+"build:testground:library" = "cd tooling/testground/library && deno task build"
+"build:testground" = "pixi run build:testground:macro && pixi run build:testground:svelte && pixi run build:testground:vanilla && pixi run build:testground:library"
 
 # Tests
 "test:rust" = { cmd = "target/debug/mf test rust" }
 "test:packages" = { cmd = "target/debug/mf test packages" }
-"test:playground" = { cmd = "target/debug/mf test playground" }
+"test:testground" = { cmd = "target/debug/mf test testground" }
 "test:all" = { cmd = "target/debug/mf test all" }
 # The conformance corpus alone; `:update` records moved goldens for review.
 "test:conformance" = { cmd = "cargo test -p macroforge_ts --features test-macros --test conformance" }
@@ -74,15 +74,16 @@ publish = { cmd = "target/debug/mf publish-local" }
 "publish:ci:build" = { cmd = "target/debug/mf publish-local --build-only --registry npm --registry jsr" }
 
 # Builds the image GitLab CI jobs run in, on the machine hosting the runner.
-# Rebuild whenever tooling/ci/Dockerfile changes; jobs refuse a stale image.
-"ci:image" = { cmd = "docker build --build-arg DOCKERFILE_SHA256=$(shasum -a 256 tooling/ci/Dockerfile | cut -c1-64) --tag macroforge-ci tooling/ci" }
+# Rebuild whenever an instruction in tooling/ci/Dockerfile changes; jobs refuse
+# a stale image.
+"ci:image" = { cmd = "docker build --build-arg DOCKERFILE_SHA256=$(sh tooling/ci/dockerfile-digest.sh tooling/ci/Dockerfile) --tag macroforge-ci tooling/ci" }
 
 # Builds the CLI into target/debug, which `MACROFORGE_CLI` points every task
 # and test at. Nothing is installed: a `macroforge` on PATH belongs to other
 # projects and stays at the version they pin.
 "build:cli" = { cmd = "cargo build -p macroforge_ts --bin macroforge" }
 bench = { cmd = "deno run -A tooling/scripts/bench.mjs" }
-"build:all-concurrent" = { cmd = "deno run -A npm:concurrently -n cli,wasm,macro 'pixi run build:cli' 'pixi run build:rust' 'pixi run build:playground:macro'" }
+"build:all-concurrent" = { cmd = "deno run -A npm:concurrently -n cli,wasm,macro 'pixi run build:cli' 'pixi run build:rust' 'pixi run build:testground:macro'" }
 
 # wasm-bindgen-cli is not on conda-forge, so we cargo-install it at the
 # exact version pinned by the Rust workspace lockfile. Without this, the

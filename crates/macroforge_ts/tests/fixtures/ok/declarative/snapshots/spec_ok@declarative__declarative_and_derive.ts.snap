@@ -27,36 +27,27 @@ true
 class User {
     name: string;
 
-static toString(value: User): string {
-                    return userToString(value);
-                }}
+    static toString(value: User): string {
+        return userToString(value);
+    }
+}
 
 export function userToString(value: User): string {
-                        const parts: string[] = [];
-                        parts.push("name: " + value.name);
-
-                        return "User { " + parts.join(", ") + " }";
-                    }
+    const parts: string[] = [];
+    parts.push("name: " + String(value.name));
+    return "User { " + parts.join(", ") + " }";
+}
 
 const greeting = 'hello';
 
 ## DTS
 
-class User {
-    name: string;
-
-static toString(value: User): string {
-                    return userToString(value);
-                }}
-
-export function userToString(value: User): string {
-                        const parts: string[] = [];
-                        parts.push("name: " + value.name);
-
-                        return "User { " + parts.join(", ") + " }";
-                    }
-
-const greeting = 'hello';
+declare class User {
+	name: string;
+	static toString(value: User): string;
+}
+export declare function userToString(value: User): string;
+export {};
 
 ## Diagnostics
 
@@ -67,16 +58,16 @@ const greeting = 'hello';
 original 52..54 -> expanded 0..2
 original 104..106 -> expanded 2..4
 original 127..159 -> expanded 4..36
-original 159..160 -> expanded 141..142
-original 160..179 -> expanded 397..416
-original 197..199 -> expanded 423..425
-generated 36..141 <- Debug
-generated 142..397 <- Debug
-generated 416..423 <- $identity
+original 159..160 -> expanded 122..123
+original 160..179 -> expanded 305..324
+original 197..199 -> expanded 331..333
+generated 36..122 <- Debug
+generated 123..305 <- Debug
+generated 324..331 <- $identity
 
 ## Metadata
 
-class User: {"body_span":{"end":59,"start":38},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":26,"start":5}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":57,"start":44},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":59,"start":27},"type_params":[]}
+class User: {"body_span":{"end":59,"start":38},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":26,"start":5}}],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":57,"start":44},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":59,"start":27},"type_params":[]}
 
 ## Registry reads
 

@@ -20,3 +20,6 @@ oxc = { workspace = true }
 thiserror = { workspace = true }
 indexmap = { workspace = true }
 pathdiff = { workspace = true }
+
+[build-dependencies]
+proc-macro2 = { workspace = true }

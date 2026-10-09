@@ -35,18 +35,36 @@ Now any field typed `DateTime.Utc` encodes through your handlers.
 | `encode` | Value → JSON-safe representation |
 | `decode` | Raw JSON → value |
 | `default` | Value used by `@derive(Default)` and by missing-field defaults |
-| `hasShape` | Structural check used for untagged union variant matching |
+| `hasShape` | Whether a value is this type, raw or decoded: tells it apart from the other members of a union |
+
+## In a union with your own types
+
+A field can hold a foreign type or one of your own, as `RecordId | Employee` does, often through a generic alias such as `type RecordLink<T> = /** @default */ RecordId | T` declared in another module. Decoding asks `hasShape` of the raw value and encoding asks it of the live one, so it must recognise both:
+
+```typescript
+hasShape: (v): v is RecordId | string => v instanceof RecordId || typeof v === "string"
+```
+
+Whatever `hasShape` accepts goes through the foreign handlers; everything else goes through your type's own encoder and decoder. Expansion fails when such a union needs a handler the config does not give.
 
 ## Import-source validation
 
 `from` exists to disambiguate types that share a name across packages. A `Decimal` from `decimal.js` and one from your own module are different types that happen to collide.
 
-Be aware of the current behavior: when a type's name matches a foreign-type entry but the **import source doesn't**, the match falls through to generic handling **silently**. There's no diagnostic today, so if a foreign type appears not to be applying, check that the module path in `from` matches how the file actually imports it.
+When a type's name matches a foreign-type entry but its **import source doesn't**, the match falls through to generic handling **silently**: the type may be a different one, and TypeScript reports any mismatch. If a foreign type appears not to be applying, check that the module path in `from` matches how the file actually imports it.
+
+When the name and source match but the qualification doesn't, such as `DateTime` for `"DateTime.DateTime"`, expansion warns and names the alias that would match it.
 
 ## Namespaced names
 
-A dotted key like `"DateTime.Utc"` is interpreted as namespace `DateTime`, type `Utc`. The namespace is derived from the key: there's no separate `namespace` option to set.
+A dotted key like `"DateTime.Utc"` is interpreted as namespace `DateTime`, type `Utc`. The namespace is derived from the key: there's no separate `namespace` option to set. To match the type under another name or path, list it in `aliases`.
 
-## Auto-imports
+## Setup
 
-When a handler references a symbol that isn't imported in the target file, the engine emits an aliased import for it (for example `import { Option as __mf_Option } from "effect"`) so the inlined expression actually runs. Handlers can therefore reference library functions freely without requiring every consuming file to import them.
+Generated code imports your handlers from `#macroforge/config`, which your manifest has to declare once:
+
+```bash
+macroforge init
+```
+
+Expansion fails with an error naming the missing entry until it is declared. [Expanded Config](/docs/endec/foreign-types/expanded-config) shows what the handlers become and why, with generated code before and after.

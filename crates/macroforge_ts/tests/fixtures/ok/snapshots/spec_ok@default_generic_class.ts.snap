@@ -1,0 +1,103 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/default_generic_class.ts
+---
+## Input
+
+/** @derive(Default) */
+export class Shelf<T> {
+    items: T[] = [];
+    label: string = '';
+}
+
+/** @derive(Default) */
+export class Pinned<T extends object> {
+    /** @default(null) */
+    value: T | null;
+}
+
+## Changed
+
+true
+
+## Output
+
+export class Shelf<T> {
+    items: T[] = [];
+    label: string = '';
+
+    static defaultValue<T>(): Shelf<T> {
+
+        const instance: Shelf<T> = Object.create(Shelf.prototype);
+        instance.items = [];
+        instance.label = "";
+        return instance;
+    }
+}
+
+export function shelfDefaultValue<T>(): Shelf<T> {
+    return Shelf.defaultValue<T>();
+}
+
+
+export class Pinned<T extends object> {
+    
+    value: T | null;
+
+    static defaultValue<T extends object>(): Pinned<T> {
+
+        const instance: Pinned<T> = Object.create(Pinned.prototype);
+        instance.value = null;
+        return instance;
+    }
+}
+
+export function pinnedDefaultValue<T extends object>(): Pinned<T> {
+    return Pinned.defaultValue<T>();
+}
+
+## DTS
+
+export declare class Shelf<T> {
+	items: T[];
+	label: string;
+	static defaultValue<T>(): Shelf<T>;
+}
+export declare function shelfDefaultValue<T>(): Shelf<T>;
+export declare class Pinned<T extends object> {
+	value: T | null;
+	static defaultValue<T extends object>(): Pinned<T>;
+}
+export declare function pinnedDefaultValue<T extends object>(): Pinned<T>;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 23..93 -> expanded 0..70
+original 93..94 -> expanded 269..270
+original 94..96 -> expanded 360..362
+original 119..164 -> expanded 362..407
+original 185..207 -> expanded 407..429
+original 207..208 -> expanded 619..620
+original 208..209 -> expanded 728..729
+generated 70..269 <- Default
+generated 270..360 <- Default
+generated 429..619 <- Default
+generated 620..728 <- Default
+
+## Metadata
+
+class Shelf: {"body_span":{"end":95,"start":47},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":24,"start":1}}],"fields":[{"decorators":[],"initializer":"[]","name":"items","optional":false,"readonly":false,"span":{"end":69,"start":53},"ts_type":"T[]","visibility":"Public"},{"decorators":[],"initializer":"''","name":"label","optional":false,"readonly":false,"span":{"end":93,"start":74},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Shelf","span":{"end":95,"start":32},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+class Pinned: {"body_span":{"end":209,"start":159},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":120,"start":97}}],"fields":[{"decorators":[{"args_src":"null","name":"default","span":{"end":186,"start":165}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":207,"start":191},"ts_type":"T | null","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Pinned","span":{"end":209,"start":128},"type_params":[{"constraint":"object","default":null,"is_const":false,"name":"T"}]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

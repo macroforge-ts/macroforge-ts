@@ -52,14 +52,19 @@
 			<td>Value equality comparison</td>
 		</tr>
 		<tr>
+			<td><a href={resolve('/docs/builtin-macros/eq')}><code>Eq</code></a></td>
+			<td>None</td>
+			<td>Marks equality as total; requires <code>PartialEq</code></td>
+		</tr>
+		<tr>
 			<td><a href={resolve('/docs/builtin-macros/ord')}><code>Ord</code></a></td>
-			<td><code>static compareTo(a: T, b: T): number</code></td>
-			<td>Total ordering comparison (-1, 0, 1)</td>
+			<td><code>static compare(a: T, b: T): number</code></td>
+			<td>Total ordering comparison (-1, 0, 1); requires <code>Eq</code> and <code>PartialOrd</code></td>
 		</tr>
 		<tr>
 			<td><a href={resolve('/docs/builtin-macros/partial-ord')}><code>PartialOrd</code></a></td>
-			<td><code>static compareTo(a: T, b: T): number | null</code></td>
-			<td>Partial ordering comparison</td>
+			<td><code>static partialCompare(a: T, b: T): number | null</code></td>
+			<td>Partial ordering comparison; requires <code>PartialEq</code></td>
 		</tr>
 		<tr>
 			<td><a href={resolve('/docs/builtin-macros/encode')}><code>Encode</code></a></td>
@@ -256,6 +261,7 @@ console.log(User.equals(user, copy)); // true`} lang="typescript" />
 	<li><a href={resolve('/docs/builtin-macros/default')}><strong>Default</strong></a> - Default value generation with field attributes</li>
 	<li><a href={resolve('/docs/builtin-macros/hash')}><strong>Hash</strong></a> - Hash code generation for use in maps and sets</li>
 	<li><a href={resolve('/docs/builtin-macros/partial-eq')}><strong>PartialEq</strong></a> - Value-based equality comparison</li>
+	<li><a href={resolve('/docs/builtin-macros/eq')}><strong>Eq</strong></a> - Marks equality as total, as Rust's <code>Eq</code></li>
 	<li><a href={resolve('/docs/builtin-macros/ord')}><strong>Ord</strong></a> - Total ordering for sorting</li>
 	<li><a href={resolve('/docs/builtin-macros/partial-ord')}><strong>PartialOrd</strong></a> - Partial ordering comparison</li>
 	<li><a href={resolve('/docs/builtin-macros/encode')}><strong>Encode</strong></a> - JSON encoding with endec-style options</li>
