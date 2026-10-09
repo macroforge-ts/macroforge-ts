@@ -1,0 +1,41 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/runes-runtime.ts
+sha256 66e3bfef6bf3d1a65f8d0f0a97e9772a21faa00a38326711b09ce84bd90ae0d6
+
+## Changed
+
+false
+
+## Output
+
+(unchanged)
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..2204 -> expanded 0..2204
+
+## Metadata
+
+interface Signal: {"body_span":{"end":697,"start":653},"decorators":[],"fields":[],"heritage":[],"methods":[{"decorators":[],"name":"value","optional":false,"params_src":"","return_type_src":"T","span":{"end":674,"start":659},"type_params":[]},{"decorators":[],"name":"value","optional":false,"params_src":"v: T","return_type_src":"void","span":{"end":695,"start":679},"type_params":[]}],"name":"Signal","span":{"end":697,"start":633},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+interface Derived: {"body_span":{"end":1179,"start":1153},"decorators":[],"fields":[{"decorators":[],"name":"value","optional":false,"readonly":true,"span":{"end":1177,"start":1159},"ts_type":"T"}],"heritage":[],"methods":[],"name":"Derived","span":{"end":1179,"start":1132},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+type Subscriber: {"body":{"Other":"() => void"},"decorators":[],"name":"Subscriber","span":{"end":151,"start":122},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

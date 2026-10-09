@@ -17,8 +17,8 @@ true
 export type UnionType = VariantA | VariantB;
 
 export function unionTypeDefaultValue(): UnionType {
-                            return VariantA.defaultValue();
-                        }
+    return VariantA.defaultValue();
+}
 
 export const UnionType: {
   readonly defaultValue: typeof unionTypeDefaultValue;
@@ -29,15 +29,9 @@ export const UnionType: {
 ## DTS
 
 export type UnionType = VariantA | VariantB;
-
-export function unionTypeDefaultValue(): UnionType {
-                            return VariantA.defaultValue();
-                        }
-
-export const UnionType: {
-  readonly defaultValue: typeof unionTypeDefaultValue;
-} = {
-  defaultValue: unionTypeDefaultValue
+export declare function unionTypeDefaultValue(): UnionType;
+export declare const UnionType: {
+	readonly defaultValue: typeof unionTypeDefaultValue;
 };
 
 ## Diagnostics
@@ -47,9 +41,9 @@ export const UnionType: {
 ## Mapping
 
 original 57..102 -> expanded 0..45
-original 102..103 -> expanded 314..315
-generated 45..185 <- Default
-generated 185..314 <- __convenience_const
+original 102..103 -> expanded 266..267
+generated 45..137 <- Default
+generated 137..266 <- __convenience_const
 
 ## Metadata
 

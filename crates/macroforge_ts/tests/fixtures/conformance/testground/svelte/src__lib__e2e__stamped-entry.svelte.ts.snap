@@ -1,0 +1,962 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/e2e/stamped-entry.svelte.ts
+sha256 7fb81ded85a26353bedc446bf9bcbe03fa7a6fe7ebc3cad390766b9273f740da
+
+## Changed
+
+true
+
+## Output
+
+import { slugDecodeWithContext, slugEncodeWithContext, slugDecode, stampedDecode, slugDefaultValue } from "./stamp";
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedLiteral as __mf_decodedLiteral } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { DateTime } from "effect";
+import { __foreign__dateTimeDateTimeDefault, __foreign__dateTimeDateTimeHasShape, __foreign__dateTimeDateTimeEncode, __foreign__dateTimeDateTimeDecode } from "#macroforge/config";
+/**
+ * Fields typed by `Stamped<T>` from another module, in each position a field
+ * can take it: alone, nullable and as array elements. A literal default that
+ * a type has to decode, for a newtype, a generic alias or an object holding a
+ * newtype, takes it through that type's decoder.
+ */
+
+import type { Slug, Stamped } from './stamp';
+
+
+export interface Note {
+    text: string;
+}
+
+export function noteDefaultValue(): Note {
+    return {
+        text: "",
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function noteEncode(value: Note, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = noteEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function noteEncodeWithContext(value: Note, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Note",
+        __id,
+    };
+
+    
+    result.text = value.text;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function noteDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Note } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = noteDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Note.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function noteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Note | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Note.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Note | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Note.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("text" in obj)) {
+        errors.push({ field: "text", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_text = obj["text"] as string;
+
+        if (!(typeof __raw_text === "string")) {
+            errors.push({ field: "text", message: __raw_text == null ? "Note.text is required" : "expected string" });
+        } else {
+            instance.text = __raw_text;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Note;
+}
+export function noteValidateField<K extends keyof Note>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function noteValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function noteValidateFields(partial: { readonly [K in keyof Note]?: unknown }): Array<{ field: string; message: string }>;
+export function noteValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function noteHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "text" in o;
+}
+
+export function noteIs(obj: unknown): obj is Note {
+    return noteHasShape(obj) && noteDecode(obj).success;
+}
+
+export const Note: {
+  readonly defaultValue: typeof noteDefaultValue;
+  readonly encode: typeof noteEncode;
+  readonly encodeWithContext: typeof noteEncodeWithContext;
+  readonly decode: typeof noteDecode;
+  readonly decodeWithContext: typeof noteDecodeWithContext;
+  readonly validateField: typeof noteValidateField;
+  readonly validateFields: typeof noteValidateFields;
+  readonly hasShape: typeof noteHasShape;
+  readonly is: typeof noteIs;
+} = {
+  defaultValue: noteDefaultValue,
+  encode: noteEncode,
+  encodeWithContext: noteEncodeWithContext,
+  decode: noteDecode,
+  decodeWithContext: noteDecodeWithContext,
+  validateField: noteValidateField,
+  validateFields: noteValidateFields,
+  hasShape: noteHasShape,
+  is: noteIs
+};
+
+
+export interface Label {
+    slug: Slug;
+}
+
+export function labelDefaultValue(): Label {
+    return {
+        slug: slugDefaultValue(),
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function labelEncode(value: Label, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = labelEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function labelEncodeWithContext(value: Label, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Label",
+        __id,
+    };
+
+    
+    result.slug = slugEncodeWithContext(value.slug, ctx);
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function labelDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Label } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = labelDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Label.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function labelDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Label | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Label.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Label | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Label.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("slug" in obj)) {
+        errors.push({ field: "slug", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_slug = obj["slug"] as Slug;
+
+        ctx.pushScope("slug");
+        try {
+            const __result = slugDecodeWithContext(__raw_slug, ctx);
+            ctx.assignOrDefer(instance, "slug", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "slug" : "slug." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Label;
+}
+export function labelValidateField<K extends keyof Label>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function labelValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function labelValidateFields(partial: { readonly [K in keyof Label]?: unknown }): Array<{ field: string; message: string }>;
+export function labelValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function labelHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "slug" in o;
+}
+
+export function labelIs(obj: unknown): obj is Label {
+    return labelHasShape(obj) && labelDecode(obj).success;
+}
+
+export const Label: {
+  readonly defaultValue: typeof labelDefaultValue;
+  readonly encode: typeof labelEncode;
+  readonly encodeWithContext: typeof labelEncodeWithContext;
+  readonly decode: typeof labelDecode;
+  readonly decodeWithContext: typeof labelDecodeWithContext;
+  readonly validateField: typeof labelValidateField;
+  readonly validateFields: typeof labelValidateFields;
+  readonly hasShape: typeof labelHasShape;
+  readonly is: typeof labelIs;
+} = {
+  defaultValue: labelDefaultValue,
+  encode: labelEncode,
+  encodeWithContext: labelEncodeWithContext,
+  decode: labelDecode,
+  decodeWithContext: labelDecodeWithContext,
+  validateField: labelValidateField,
+  validateFields: labelValidateFields,
+  hasShape: labelHasShape,
+  is: labelIs
+};
+
+
+export interface StampedEntry {
+    at: Stamped<Note>;
+    previous: Stamped<Note> | null;
+    history: Array<Stamped<Note>>;
+    
+    slug: Slug;
+    
+    label: Label;
+    
+    since: Stamped<Note>;
+}
+
+export function stampedEntryDefaultValue(): StampedEntry {
+    return {
+        at: __foreign__dateTimeDateTimeDefault(),
+        previous: null,
+        history: [],
+        slug: __mf_decodedLiteral(slugDecode("home")),
+        label: __mf_decodedLiteral(labelDecode({ slug: "pinned" })),
+        since: __mf_decodedLiteral(stampedDecode<Note>("2024-01-01T00:00:00.000Z")),
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function stampedEntryEncode(value: StampedEntry, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = stampedEntryEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function stampedEntryEncodeWithContext(value: StampedEntry, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "StampedEntry",
+        __id,
+    };
+
+    
+    result.at = __foreign__dateTimeDateTimeHasShape(value.at)
+        ? __foreign__dateTimeDateTimeEncode(value.at)
+        : noteEncodeWithContext(value.at, ctx);
+    if (value.previous !== null) {
+        result.previous = __foreign__dateTimeDateTimeHasShape(value.previous)
+            ? __foreign__dateTimeDateTimeEncode(value.previous)
+            : noteEncodeWithContext(value.previous, ctx);
+    } else {
+        result.previous = null;
+    }
+    result.history = value.history.map(
+        (item) => __foreign__dateTimeDateTimeHasShape(item)
+            ? __foreign__dateTimeDateTimeEncode(item)
+            : noteEncodeWithContext(item, ctx)
+    );
+    result.slug = slugEncodeWithContext(value.slug, ctx);
+    result.label = labelEncodeWithContext(value.label, ctx);
+    result.since = __foreign__dateTimeDateTimeHasShape(value.since)
+        ? __foreign__dateTimeDateTimeEncode(value.since)
+        : noteEncodeWithContext(value.since, ctx);
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function stampedEntryDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: StampedEntry } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = stampedEntryDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "StampedEntry.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): StampedEntry | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "StampedEntry.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as StampedEntry | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "StampedEntry.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("at" in obj)) {
+        errors.push({ field: "at", message: "missing required field" });
+    }
+    if (!("previous" in obj)) {
+        errors.push({ field: "previous", message: "missing required field" });
+    }
+    if (!("history" in obj)) {
+        errors.push({ field: "history", message: "missing required field" });
+    }
+    if (!("slug" in obj)) {
+        errors.push({ field: "slug", message: "missing required field" });
+    }
+    if (!("label" in obj)) {
+        errors.push({ field: "label", message: "missing required field" });
+    }
+    if (!("since" in obj)) {
+        errors.push({ field: "since", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_at = obj["at"] as DateTime.DateTime | Note;
+
+        if (__foreign__dateTimeDateTimeHasShape(__raw_at)) {
+            instance.at = __foreign__dateTimeDateTimeDecode(__raw_at);
+        } else {
+            ctx.pushScope("at");
+            try {
+                const __result = noteDecodeWithContext(__raw_at, ctx);
+                ctx.assignOrDefer(instance, "at", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "at" : "at." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+    {
+        const __raw_previous = obj["previous"] as DateTime.DateTime | Note | null;
+
+        if (__raw_previous === null) {
+            instance.previous = null;
+        } else {
+            if (__foreign__dateTimeDateTimeHasShape(__raw_previous)) {
+                instance.previous = __foreign__dateTimeDateTimeDecode(__raw_previous);
+            } else {
+                ctx.pushScope("previous");
+                try {
+                    const __result = noteDecodeWithContext(__raw_previous, ctx);
+                    ctx.assignOrDefer(instance, "previous", __result);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "previous" : "previous." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+                        throw __e;
+                    }
+                } finally {
+                    ctx.popScope();
+                }
+            }
+        }
+    }
+    {
+        const __raw_history = obj["history"] as Array<DateTime.DateTime | Note>;
+
+        if (Array.isArray(__raw_history)) {
+            const __arr = __raw_history.map((item: DateTime.DateTime | Note | { __ref: number }, idx) => {
+                if (__foreign__dateTimeDateTimeHasShape(item)) {
+                    return __foreign__dateTimeDateTimeDecode(item);
+                }
+                if (typeof item === "object" && item !== null && "__ref" in item) {
+                    const result = ctx.getOrDefer(item.__ref);
+                    if (__mf_PendingRef.is(result)) {
+                        return { __pendingIdx: idx, __refId: result.id };
+                    }
+                    return result;
+                }
+                const __elemResult = noteDecode(item);
+                if (!__elemResult.success) {
+                    for (const __err of __elemResult.errors) {
+                        errors.push({
+                            field: __err.field === "_root"
+                                ? "history[" + idx + "]"
+                                : "history[" + idx + "]." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                }
+                return __elemResult.success ? __elemResult.value : item;
+            });
+            instance.history = __arr;
+            __arr.forEach((item, idx) => {
+                if (item && typeof item === "object" && "__pendingIdx" in item) {
+                    ctx.addPatch(instance.history, idx, (item as any).__refId);
+                }
+            });
+        }
+    }
+    {
+        const __raw_slug = obj["slug"] as Slug;
+
+        ctx.pushScope("slug");
+        try {
+            const __result = slugDecodeWithContext(__raw_slug, ctx);
+            ctx.assignOrDefer(instance, "slug", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "slug" : "slug." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_label = obj["label"] as Label;
+
+        ctx.pushScope("label");
+        try {
+            const __result = labelDecodeWithContext(__raw_label, ctx);
+            ctx.assignOrDefer(instance, "label", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "label" : "label." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    {
+        const __raw_since = obj["since"] as DateTime.DateTime | Note;
+
+        if (__foreign__dateTimeDateTimeHasShape(__raw_since)) {
+            instance.since = __foreign__dateTimeDateTimeDecode(__raw_since);
+        } else {
+            ctx.pushScope("since");
+            try {
+                const __result = noteDecodeWithContext(__raw_since, ctx);
+                ctx.assignOrDefer(instance, "since", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "since" : "since." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as StampedEntry;
+}
+export function stampedEntryValidateField<K extends keyof StampedEntry>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function stampedEntryValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function stampedEntryValidateFields(partial: { readonly [K in keyof StampedEntry]?: unknown }): Array<{ field: string; message: string }>;
+export function stampedEntryValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function stampedEntryHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "at" in o && "previous" in o && "history" in o && "slug" in o && "label" in o && "since" in o;
+}
+
+export function stampedEntryIs(obj: unknown): obj is StampedEntry {
+    return stampedEntryHasShape(obj) && stampedEntryDecode(obj).success;
+}
+
+export const StampedEntry: {
+  readonly defaultValue: typeof stampedEntryDefaultValue;
+  readonly encode: typeof stampedEntryEncode;
+  readonly encodeWithContext: typeof stampedEntryEncodeWithContext;
+  readonly decode: typeof stampedEntryDecode;
+  readonly decodeWithContext: typeof stampedEntryDecodeWithContext;
+  readonly validateField: typeof stampedEntryValidateField;
+  readonly validateFields: typeof stampedEntryValidateFields;
+  readonly hasShape: typeof stampedEntryHasShape;
+  readonly is: typeof stampedEntryIs;
+} = {
+  defaultValue: stampedEntryDefaultValue,
+  encode: stampedEntryEncode,
+  encodeWithContext: stampedEntryEncodeWithContext,
+  decode: stampedEntryDecode,
+  decodeWithContext: stampedEntryDecodeWithContext,
+  validateField: stampedEntryValidateField,
+  validateFields: stampedEntryValidateFields,
+  hasShape: stampedEntryHasShape,
+  is: stampedEntryIs
+};
+
+## DTS
+
+/**
+* Fields typed by `Stamped<T>` from another module, in each position a field
+* can take it: alone, nullable and as array elements. A literal default that
+* a type has to decode, for a newtype, a generic alias or an object holding a
+* newtype, takes it through that type's decoder.
+*/
+import type { Slug, Stamped } from "./stamp";
+export interface Note {
+	text: string;
+}
+export declare function noteDefaultValue(): Note;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function noteEncode(value: Note, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function noteEncodeWithContext(value: Note, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function noteDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Note;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function noteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Note | __mf_PendingRef;
+export declare function noteValidateField<K extends keyof Note>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function noteValidateFields(partial: { readonly [K in keyof Note]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function noteHasShape(obj: unknown): boolean;
+export declare function noteIs(obj: unknown): obj is Note;
+export declare const Note: {
+	readonly defaultValue: typeof noteDefaultValue;
+	readonly encode: typeof noteEncode;
+	readonly encodeWithContext: typeof noteEncodeWithContext;
+	readonly decode: typeof noteDecode;
+	readonly decodeWithContext: typeof noteDecodeWithContext;
+	readonly validateField: typeof noteValidateField;
+	readonly validateFields: typeof noteValidateFields;
+	readonly hasShape: typeof noteHasShape;
+	readonly is: typeof noteIs;
+};
+export interface Label {
+	slug: Slug;
+}
+export declare function labelDefaultValue(): Label;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function labelEncode(value: Label, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function labelEncodeWithContext(value: Label, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function labelDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Label;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function labelDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Label | __mf_PendingRef;
+export declare function labelValidateField<K extends keyof Label>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function labelValidateFields(partial: { readonly [K in keyof Label]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function labelHasShape(obj: unknown): boolean;
+export declare function labelIs(obj: unknown): obj is Label;
+export declare const Label: {
+	readonly defaultValue: typeof labelDefaultValue;
+	readonly encode: typeof labelEncode;
+	readonly encodeWithContext: typeof labelEncodeWithContext;
+	readonly decode: typeof labelDecode;
+	readonly decodeWithContext: typeof labelDecodeWithContext;
+	readonly validateField: typeof labelValidateField;
+	readonly validateFields: typeof labelValidateFields;
+	readonly hasShape: typeof labelHasShape;
+	readonly is: typeof labelIs;
+};
+export interface StampedEntry {
+	at: Stamped<Note>;
+	previous: Stamped<Note> | null;
+	history: Array<Stamped<Note>>;
+	slug: Slug;
+	label: Label;
+	since: Stamped<Note>;
+}
+export declare function stampedEntryDefaultValue(): StampedEntry;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function stampedEntryEncode(value: StampedEntry, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function stampedEntryEncodeWithContext(value: StampedEntry, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function stampedEntryDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: StampedEntry;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): StampedEntry | __mf_PendingRef;
+export declare function stampedEntryValidateField<K extends keyof StampedEntry>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function stampedEntryValidateFields(partial: { readonly [K in keyof StampedEntry]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function stampedEntryHasShape(obj: unknown): boolean;
+export declare function stampedEntryIs(obj: unknown): obj is StampedEntry;
+export declare const StampedEntry: {
+	readonly defaultValue: typeof stampedEntryDefaultValue;
+	readonly encode: typeof stampedEntryEncode;
+	readonly encodeWithContext: typeof stampedEntryEncodeWithContext;
+	readonly decode: typeof stampedEntryDecode;
+	readonly decodeWithContext: typeof stampedEntryDecodeWithContext;
+	readonly validateField: typeof stampedEntryValidateField;
+	readonly validateFields: typeof stampedEntryValidateFields;
+	readonly hasShape: typeof stampedEntryHasShape;
+	readonly is: typeof stampedEntryIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..341 -> expanded 633..974
+original 380..424 -> expanded 974..1018
+original 424..426 -> expanded 6656..6658
+original 465..508 -> expanded 6658..6701
+original 508..510 -> expanded 12824..12826
+original 549..680 -> expanded 12826..12957
+original 703..724 -> expanded 12957..12978
+original 759..782 -> expanded 12978..13001
+original 825..853 -> expanded 13001..13029
+original 853..854 -> expanded 26698..26699
+generated 0..633 <- imports
+generated 1018..1102 <- Default
+generated 1102..2182 <- Encode
+generated 2182..5922 <- Decode
+generated 5922..6656 <- __convenience_const
+generated 6701..6803 <- Default
+generated 6803..7917 <- Encode
+generated 7917..12071 <- Decode
+generated 12071..12824 <- __convenience_const
+generated 13029..13415 <- Default
+generated 13415..15466 <- Encode
+generated 15466..25812 <- Decode
+generated 25812..26698 <- __convenience_const
+
+## Metadata
+
+interface Note: {"body_span":{"end":425,"start":404},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":381,"start":342}}],"fields":[{"decorators":[],"name":"text","optional":false,"readonly":false,"span":{"end":423,"start":410},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Note","span":{"end":425,"start":389},"type_params":[]}
+interface Label: {"body_span":{"end":509,"start":490},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":466,"start":427}}],"fields":[{"decorators":[],"name":"slug","optional":false,"readonly":false,"span":{"end":507,"start":496},"ts_type":"Slug"}],"heritage":[],"methods":[],"name":"Label","span":{"end":509,"start":474},"type_params":[]}
+interface StampedEntry: {"body_span":{"end":854,"start":581},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":550,"start":511}}],"fields":[{"decorators":[],"name":"at","optional":false,"readonly":false,"span":{"end":605,"start":587},"ts_type":"Stamped<Note>"},{"decorators":[],"name":"previous","optional":false,"readonly":false,"span":{"end":641,"start":610},"ts_type":"Stamped<Note> | null"},{"decorators":[],"name":"history","optional":false,"readonly":false,"span":{"end":676,"start":646},"ts_type":"Array<Stamped<Note>>"},{"decorators":[{"args_src":"\"home\"","name":"default","span":{"end":704,"start":681}}],"name":"slug","optional":false,"readonly":false,"span":{"end":720,"start":709},"ts_type":"Slug"},{"decorators":[{"args_src":"{ slug: \"pinned\" }","name":"default","span":{"end":760,"start":725}}],"name":"label","optional":false,"readonly":false,"span":{"end":778,"start":765},"ts_type":"Label"},{"decorators":[{"args_src":"\"2024-01-01T00:00:00.000Z\"","name":"default","span":{"end":826,"start":783}}],"name":"since","optional":false,"readonly":false,"span":{"end":852,"start":831},"ts_type":"Stamped<Note>"}],"heritage":[],"methods":[],"name":"StampedEntry","span":{"end":854,"start":558},"type_params":[]}
+
+## Registry reads
+
+Name("Array")
+Name("DateTime")
+Name("Label")
+Name("Note")
+Name("Slug")
+Name("Stamped")
+Name("Stamped<Note>")
+
+## Buildtime dependencies
+
+(none)

@@ -3185,7 +3185,7 @@
         ],
         "packageJson": {
           "dependencies": [
-            "npm:@macroforge/core@0.4.0",
+            "npm:@macroforge/core@0.5.0",
             "npm:@modelcontextprotocol/sdk@^1.30.0",
             "npm:@types/node@^26.6.2",
             "npm:typescript@^5.9.3"
@@ -3225,9 +3225,9 @@
         "packageJson": {
           "dependencies": [
             "npm:@jridgewell/trace-mapping@~0.3.25",
-            "npm:@macroforge/core@0.4.0",
-            "npm:@macroforge/shared@0.4.0",
-            "npm:@macroforge/typescript-plugin@0.4.0",
+            "npm:@macroforge/core@0.5.0",
+            "npm:@macroforge/shared@0.5.0",
+            "npm:@macroforge/typescript-plugin@0.5.0",
             "npm:@types/estree@^0.0.42",
             "npm:@types/globrex@~0.1.4",
             "npm:@types/lodash-es@^4.17.12",
@@ -3262,8 +3262,8 @@
         ],
         "packageJson": {
           "dependencies": [
-            "npm:@macroforge/core@0.4.0",
-            "npm:@macroforge/shared@0.4.0",
+            "npm:@macroforge/core@0.5.0",
+            "npm:@macroforge/shared@0.5.0",
             "npm:@types/node@^26.6.2",
             "npm:svelte@^5.57.1",
             "npm:typescript@^5.9.3"
@@ -3276,8 +3276,8 @@
         ],
         "packageJson": {
           "dependencies": [
-            "npm:@macroforge/core@0.4.0",
-            "npm:@macroforge/shared@0.4.0",
+            "npm:@macroforge/core@0.5.0",
+            "npm:@macroforge/shared@0.5.0",
             "npm:@types/node@^26.6.2",
             "npm:typescript@^5.9.3"
           ]
@@ -3291,8 +3291,8 @@
         "packageJson": {
           "dependencies": [
             "npm:@jridgewell/sourcemap-codec@^1.6.0",
-            "npm:@macroforge/core@0.4.0",
-            "npm:@macroforge/shared@0.4.0",
+            "npm:@macroforge/core@0.5.0",
+            "npm:@macroforge/shared@0.5.0",
             "npm:@types/node@^26.6.2"
           ]
         }
@@ -3302,7 +3302,7 @@
           "dependencies": [
             "npm:@biomejs/biome@^2.5.14",
             "npm:@lucide/svelte@^1.48.0",
-            "npm:@macroforge/core@0.4.0",
+            "npm:@macroforge/core@0.5.0",
             "npm:@sveltejs/adapter-static@^3.0.10",
             "npm:@sveltejs/kit@^2.70.3",
             "npm:@sveltejs/vite-plugin-svelte@^7.3.0",

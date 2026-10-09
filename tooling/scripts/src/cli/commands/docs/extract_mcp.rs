@@ -68,8 +68,12 @@ const USE_CASES: &[(&str, &str)] = &[
         "hashCode, hashing, hash map, equality, hash function",
     ),
     (
+        "/docs/builtin-macros/eq",
+        "Eq, total equality, equivalence relation, marker",
+    ),
+    (
         "/docs/builtin-macros/ord",
-        "compareTo, ordering, sorting, comparison, total order",
+        "compare, ordering, sorting, comparison, total order",
     ),
     (
         "/docs/builtin-macros/partial-eq",
@@ -77,7 +81,7 @@ const USE_CASES: &[(&str, &str)] = &[
     ),
     (
         "/docs/builtin-macros/partial-ord",
-        "compareTo, partial ordering, sorting, nullable comparison",
+        "partialCompare, partial ordering, sorting, nullable comparison",
     ),
     (
         "/docs/builtin-macros/encode",

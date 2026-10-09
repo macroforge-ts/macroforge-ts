@@ -1,0 +1,409 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/macro-user.ts
+sha256 4bd02061075c81af94fd2f42dfff1ebce2a47fb5a2191f21c0508712830ce0a9
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/** import macro { JSON } from "@testground/macro"; */
+
+
+export class MacroUser {
+    
+    id: string;
+    name: string;
+    role: string;
+    favoriteMacro: 'Derive' | 'JsonNative';
+    since: string;
+    
+    apiToken: string;
+
+    static toString(value: MacroUser): string {
+        return macroUserToString(value);
+    }
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: MacroUser, keepMetadata?: boolean): string {
+        return macroUserEncode(value, keepMetadata);
+    }
+
+    /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+    static encodeWithContext(value: MacroUser, ctx: __mf_EncodeContext): Record<string, unknown> {
+        return macroUserEncodeWithContext(value, ctx);
+    }
+
+    constructor(props: { id: string; name: string; role: string; favoriteMacro: 'Derive' | 'JsonNative'; since: string; apiToken: string }) {
+        this.id = props.id;
+        this.name = props.name;
+        this.role = props.role;
+        this.favoriteMacro = props.favoriteMacro;
+        this.since = props.since;
+        this.apiToken = props.apiToken;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MacroUser } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = MacroUser.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "MacroUser.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): MacroUser | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "MacroUser.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as MacroUser | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "MacroUser.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("id" in obj)) {
+            errors.push({ field: "id", message: "missing required field" });
+        }
+        if (!("name" in obj)) {
+            errors.push({ field: "name", message: "missing required field" });
+        }
+        if (!("role" in obj)) {
+            errors.push({ field: "role", message: "missing required field" });
+        }
+        if (!("favoriteMacro" in obj)) {
+            errors.push({ field: "favoriteMacro", message: "missing required field" });
+        }
+        if (!("since" in obj)) {
+            errors.push({ field: "since", message: "missing required field" });
+        }
+        if (!("apiToken" in obj)) {
+            errors.push({ field: "apiToken", message: "missing required field" });
+        }
+
+        const instance = Object.create(MacroUser.prototype) as MacroUser;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_id = obj["id"] as string;
+
+            if (!(typeof __raw_id === "string")) {
+                errors.push({ field: "id", message: __raw_id == null ? "MacroUser.id is required" : "expected string" });
+            } else {
+                instance.id = __raw_id;
+            }
+        }
+        {
+            const __raw_name = obj["name"] as string;
+
+            if (!(typeof __raw_name === "string")) {
+                errors.push({ field: "name", message: __raw_name == null ? "MacroUser.name is required" : "expected string" });
+            } else {
+                instance.name = __raw_name;
+            }
+        }
+        {
+            const __raw_role = obj["role"] as string;
+
+            if (!(typeof __raw_role === "string")) {
+                errors.push({ field: "role", message: __raw_role == null ? "MacroUser.role is required" : "expected string" });
+            } else {
+                instance.role = __raw_role;
+            }
+        }
+        {
+            const __raw_favoriteMacro = obj["favoriteMacro"] as 'Derive' | 'JsonNative';
+
+            if (!(__raw_favoriteMacro === "Derive" || __raw_favoriteMacro === "JsonNative")) {
+                errors.push({ field: "favoriteMacro", message: __raw_favoriteMacro == null ? "MacroUser.favoriteMacro is required" : "expected 'Derive' | 'JsonNative'" });
+            } else {
+                instance.favoriteMacro = __raw_favoriteMacro;
+            }
+        }
+        {
+            const __raw_since = obj["since"] as string;
+
+            if (!(typeof __raw_since === "string")) {
+                errors.push({ field: "since", message: __raw_since == null ? "MacroUser.since is required" : "expected string" });
+            } else {
+                instance.since = __raw_since;
+            }
+        }
+        {
+            const __raw_apiToken = obj["apiToken"] as string;
+
+            if (!(typeof __raw_apiToken === "string")) {
+                errors.push({ field: "apiToken", message: __raw_apiToken == null ? "MacroUser.apiToken is required" : "expected string" });
+            } else {
+                instance.apiToken = __raw_apiToken;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof MacroUser>(field: K, value: unknown): Array<{ field: string; message: string }>;
+    static validateField(): Array<{ field: string; message: string }> {
+        return [];
+    }
+
+    static validateFields(partial: { readonly [K in keyof MacroUser]?: unknown }): Array<{ field: string; message: string }>;
+    static validateFields(): Array<{ field: string; message: string }> {
+        return [];
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "id" in o && "name" in o && "role" in o && "favoriteMacro" in o && "since" in o && "apiToken" in o;
+    }
+
+    static is(obj: unknown): obj is MacroUser {
+        if (obj instanceof MacroUser) {
+            return true;
+        }
+        if (!MacroUser.hasShape(obj)) {
+            return false;
+        }
+        const result = MacroUser.decode(obj);
+        return result.success;
+    }
+}
+
+export function macroUserToString(value: MacroUser): string {
+    const parts: string[] = [];
+    parts.push("userId: " + String(value.id));
+    parts.push("name: " + String(value.name));
+    parts.push("role: " + String(value.role));
+    parts.push("favoriteMacro: " + String(value.favoriteMacro));
+    parts.push("since: " + String(value.since));
+    return "MacroUser { " + parts.join(", ") + " }";
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function macroUserEncode(value: MacroUser, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = macroUserEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function macroUserEncodeWithContext(value: MacroUser, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "MacroUser",
+        __id,
+    };
+
+    
+    result.id = value.id;
+    result.name = value.name;
+    result.role = value.role;
+    result.favoriteMacro = value.favoriteMacro;
+    result.since = value.since;
+    result.apiToken = value.apiToken;
+
+    return result;
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function macroUserDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MacroUser } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return MacroUser.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function macroUserDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): MacroUser | __mf_PendingRef {
+    return MacroUser.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function macroUserIs(value: unknown): value is MacroUser {
+    return MacroUser.is(value);
+}
+
+const showcaseUser = new MacroUser({
+    id: 'usr_2626',
+    name: 'Alya Vector',
+    role: 'Macro Explorer',
+    favoriteMacro: 'Derive',
+    since: '2024-09-12',
+    apiToken: 'svelte-secret-token'
+});
+
+export const showcaseUserSummary = MacroUser.toString(showcaseUser);
+export const showcaseUserJson = JSON.parse(MacroUser.encode(showcaseUser));
+
+## DTS
+
+/** import macro { JSON } from "@testground/macro"; */
+export declare class MacroUser {
+	id: string;
+	name: string;
+	role: string;
+	favoriteMacro: "Derive" | "JsonNative";
+	since: string;
+	apiToken: string;
+	static toString(value: MacroUser): string;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: MacroUser, keepMetadata?: boolean): string;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: MacroUser, ctx: __mf_EncodeContext): Record<string, unknown>;
+	constructor(props: {
+		id: string;
+		name: string;
+		role: string;
+		favoriteMacro: "Derive" | "JsonNative";
+		since: string;
+		apiToken: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: MacroUser;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): MacroUser | __mf_PendingRef;
+	static validateField<K extends keyof MacroUser>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof MacroUser]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is MacroUser;
+}
+export declare function macroUserToString(value: MacroUser): string;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function macroUserEncode(value: MacroUser, keepMetadata?: boolean): string;
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function macroUserEncodeWithContext(value: MacroUser, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function macroUserDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: MacroUser;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function macroUserDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): MacroUser | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function macroUserIs(value: unknown): value is MacroUser;
+export declare const showcaseUserSummary: unknown;
+export declare const showcaseUserJson: unknown;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..56 -> expanded 262..318
+original 93..123 -> expanded 318..348
+original 158..278 -> expanded 348..468
+original 307..330 -> expanded 468..491
+original 330..331 -> expanded 8449..8450
+original 331..683 -> expanded 11212..11564
+generated 0..262 <- imports
+generated 491..587 <- Debug
+generated 587..1230 <- Encode
+generated 1230..8449 <- Decode
+generated 8450..8855 <- Debug
+generated 8855..10149 <- Encode
+generated 10149..11212 <- Decode
+
+## Metadata
+
+class MacroUser: {"body_span":{"end":332,"start":118},"decorators":[{"args_src":"Debug, Encode, Decode","name":"Derive","span":{"end":94,"start":57}}],"fields":[{"decorators":[{"args_src":"{ rename: \"userId\" }","name":"debug","span":{"end":159,"start":124}}],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":175,"start":164},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":193,"start":180},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"role","optional":false,"readonly":false,"span":{"end":211,"start":198},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"favoriteMacro","optional":false,"readonly":false,"span":{"end":255,"start":216},"ts_type":"'Derive' | 'JsonNative'","visibility":"Public"},{"decorators":[],"initializer":null,"name":"since","optional":false,"readonly":false,"span":{"end":274,"start":260},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":308,"start":279}}],"initializer":null,"name":"apiToken","optional":false,"readonly":false,"span":{"end":330,"start":313},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MacroUser","span":{"end":332,"start":102},"type_params":[]}
+
+## Registry reads
+
+Name("'Derive' | 'JsonNative'")
+
+## Buildtime dependencies
+
+(none)

@@ -4,22 +4,25 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use std::iter::Peekable;
 
-use super::parser::{Terminator, parse_fragment};
+use super::parser::{SpacingContext, Terminator, parse_fragment_with_ctx};
 
 /// Parse an if/else-if/else chain starting from the condition.
 pub fn parse_if_chain(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
     initial_cond: TokenStream2,
     open_span: proc_macro2::Span,
+    ctx: &mut SpacingContext,
 ) -> syn::Result<TokenStream2> {
+    let opening = ctx.clone();
     // Parse the true block, stopping at {:else}, {:else if}, or {/if}
-    let (true_block, terminator) = parse_fragment(
+    let (true_block, terminator) = parse_fragment_with_ctx(
         iter,
         Some(&[
             Terminator::Else,
             Terminator::ElseIf(TokenStream2::new()),
             Terminator::EndIf,
         ]),
+        ctx,
     )?;
 
     match terminator {
@@ -33,7 +36,9 @@ pub fn parse_if_chain(
         }
         Some(Terminator::Else) => {
             // if with else - parse else block until {/if}
-            let (else_block, terminator) = parse_fragment(iter, Some(&[Terminator::EndIf]))?;
+            ctx.next_branch(&opening);
+            let (else_block, terminator) =
+                parse_fragment_with_ctx(iter, Some(&[Terminator::EndIf]), ctx)?;
             if !matches!(terminator, Some(Terminator::EndIf)) {
                 return Err(syn::Error::new(
                     open_span,
@@ -50,7 +55,8 @@ pub fn parse_if_chain(
         }
         Some(Terminator::ElseIf(else_if_cond)) => {
             // if with else if - recursively parse the else-if chain
-            let else_if_chain = parse_if_chain(iter, else_if_cond, open_span)?;
+            ctx.next_branch(&opening);
+            let else_if_chain = parse_if_chain(iter, else_if_cond, open_span, ctx)?;
             Ok(quote! {
                 if #initial_cond {
                     #true_block
@@ -73,10 +79,12 @@ pub fn parse_if_let_chain(
     pattern: TokenStream2,
     expr: TokenStream2,
     open_span: proc_macro2::Span,
+    ctx: &mut SpacingContext,
 ) -> syn::Result<TokenStream2> {
+    let opening = ctx.clone();
     // Parse the true block, stopping at {:else} or {/if}
     let (true_block, terminator) =
-        parse_fragment(iter, Some(&[Terminator::Else, Terminator::EndIf]))?;
+        parse_fragment_with_ctx(iter, Some(&[Terminator::Else, Terminator::EndIf]), ctx)?;
 
     match terminator {
         Some(Terminator::EndIf) => {
@@ -89,7 +97,9 @@ pub fn parse_if_let_chain(
         }
         Some(Terminator::Else) => {
             // if let with else - parse else block until {/if}
-            let (else_block, terminator) = parse_fragment(iter, Some(&[Terminator::EndIf]))?;
+            ctx.next_branch(&opening);
+            let (else_block, terminator) =
+                parse_fragment_with_ctx(iter, Some(&[Terminator::EndIf]), ctx)?;
             if !matches!(terminator, Some(Terminator::EndIf)) {
                 return Err(syn::Error::new(
                     open_span,
@@ -117,9 +127,10 @@ pub fn parse_while_chain(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
     condition: TokenStream2,
     open_span: proc_macro2::Span,
+    ctx: &mut SpacingContext,
 ) -> syn::Result<TokenStream2> {
     // Parse the body until {/while}
-    let (body, terminator) = parse_fragment(iter, Some(&[Terminator::EndWhile]))?;
+    let (body, terminator) = parse_fragment_with_ctx(iter, Some(&[Terminator::EndWhile]), ctx)?;
 
     if !matches!(terminator, Some(Terminator::EndWhile)) {
         return Err(syn::Error::new(
@@ -141,9 +152,10 @@ pub fn parse_while_let_chain(
     pattern: TokenStream2,
     expr: TokenStream2,
     open_span: proc_macro2::Span,
+    ctx: &mut SpacingContext,
 ) -> syn::Result<TokenStream2> {
     // Parse the body until {/while}
-    let (body, terminator) = parse_fragment(iter, Some(&[Terminator::EndWhile]))?;
+    let (body, terminator) = parse_fragment_with_ctx(iter, Some(&[Terminator::EndWhile]), ctx)?;
 
     if !matches!(terminator, Some(Terminator::EndWhile)) {
         return Err(syn::Error::new(
@@ -165,15 +177,18 @@ pub fn parse_match_arms(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
     match_expr: TokenStream2,
     open_span: proc_macro2::Span,
+    ctx: &mut SpacingContext,
 ) -> syn::Result<TokenStream2> {
+    let opening = ctx.clone();
     let mut arms = TokenStream2::new();
     let mut current_pattern: Option<TokenStream2> = None;
 
     loop {
         // Parse until we hit {:case} or {/match}
-        let (body, terminator) = parse_fragment(
+        let (body, terminator) = parse_fragment_with_ctx(
             iter,
             Some(&[Terminator::Case(TokenStream2::new()), Terminator::EndMatch]),
+            ctx,
         )?;
 
         match terminator {
@@ -188,6 +203,7 @@ pub fn parse_match_arms(
                 }
                 // Store this pattern for the next iteration
                 current_pattern = Some(pattern);
+                ctx.next_branch(&opening);
             }
             Some(Terminator::EndMatch) => {
                 // Emit the final arm if we have one

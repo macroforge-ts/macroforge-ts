@@ -86,6 +86,10 @@
 //!
 //! - [`oxc`] - The OXC crate, for macros that work on the parsed AST directly
 
+/// Identifies the IR and the lowering that produces it: it changes whenever
+/// either does, so anything that persists lowered IR keys on it.
+pub const IR_FINGERPRINT: &str = env!("MACROFORGE_IR_FINGERPRINT");
+
 pub mod abi;
 pub mod ast;
 pub mod config;

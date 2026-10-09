@@ -432,6 +432,35 @@ function emitDeclarationsFromCode(code, fileName, projectRoot) {
 }
 
 /**
+ * The first of `files` outside `root`. The registries `macroforge cache`
+ * writes record absolute paths, so one listing a file elsewhere was scanned
+ * where the project used to be and describes that tree, not this one. The CLI
+ * records paths with symlinks resolved, so a root reached through a symlink
+ * is matched by its real path as well.
+ *
+ * @param {string[]} files
+ * @param {string} root
+ * @returns {string | undefined}
+ */
+function fileOutsideRoot(files, root) {
+    const prefixes = [path.resolve(root), fs.realpathSync(root)].map((dir) => dir + path.sep);
+    return files.find((file) => {
+        const resolved = path.resolve(file);
+        return !prefixes.some((prefix) => resolved.startsWith(prefix));
+    });
+}
+
+/**
+ * @param {string} name
+ * @param {string} file
+ */
+function warnMisplacedRegistry(name, file) {
+    console.warn(
+        `[@macroforge/vite-plugin] Ignoring .macroforge/${name}: it was scanned at another location (it lists ${file}). Run \`macroforge cache\` to regenerate it.`
+    );
+}
+
+/**
  * Creates a Vite plugin for Macroforge build-time macro expansion.
  *
  * Configuration is loaded from `macroforge.config.js` (or .ts/.mjs/.cjs).
@@ -1190,6 +1219,108 @@ export async function macroforge() {
         return `[@macroforge/vite-plugin] Failed to transform ${relative}: ${String(error)}`;
     }
 
+    /**
+     * The path of the registry `name` the CLI's scan writes for this project.
+     * @param {string} name
+     * @returns {string}
+     */
+    function registryPath(name) {
+        return path.join(projectRoot, '.macroforge', name);
+    }
+
+    /**
+     * The registries' contents as last loaded, so a rewrite that changes
+     * nothing reloads nothing.
+     * @type {string | undefined}
+     */
+    let loadedRegistries;
+
+    /**
+     * A fingerprint of both registries' current contents.
+     * @returns {string}
+     */
+    function registriesFingerprint() {
+        return ['type-registry.json', 'declarative-registry.json']
+            .map((name) => {
+                const file = registryPath(name);
+                return fs.existsSync(file) ? contentHash(fs.readFileSync(file, 'utf-8')) : 'none';
+            })
+            .join(':');
+    }
+
+    /**
+     * Replace the registries the engine keeps with the ones on disk.
+     */
+    function loadRegistries() {
+        // A rebuild replaces the registries the previous build kept.
+        if (typeRegistryId !== undefined) {
+            engine.releaseRegistry(typeRegistryId);
+            typeRegistryId = undefined;
+        }
+        if (declarativeRegistryId !== undefined) {
+            engine.releaseRegistry(declarativeRegistryId);
+            declarativeRegistryId = undefined;
+        }
+
+        const localRegistry = registryPath('type-registry.json');
+        if (fs.existsSync(localRegistry)) {
+            const json = fs.readFileSync(localRegistry, 'utf-8');
+            const misplaced = fileOutsideRoot(
+                Object.values(JSON.parse(json).entries ?? {}).map((entry) => entry.file_path),
+                projectRoot
+            );
+            if (misplaced === undefined) {
+                typeRegistryId = engine.setTypeRegistry(json);
+                console.log(`[@macroforge/vite-plugin] Type registry loaded`);
+            } else {
+                warnMisplacedRegistry('type-registry.json', misplaced);
+            }
+        } else {
+            console.warn(
+                `[@macroforge/vite-plugin] No type registry found at .macroforge/type-registry.json. Run \`macroforge watch\` to generate it.`
+            );
+        }
+
+        // Load the declarative macro registry alongside the type registry.
+        // Produced by the same project scan, so if one exists the other
+        // almost certainly does too. Missing file is a no-op: cross-file
+        // declarative macro imports simply won't resolve.
+        const localDeclarativeRegistry = registryPath('declarative-registry.json');
+        if (fs.existsSync(localDeclarativeRegistry)) {
+            const json = fs.readFileSync(localDeclarativeRegistry, 'utf-8');
+            const misplaced = fileOutsideRoot(
+                Object.keys(JSON.parse(json).by_file ?? {}),
+                projectRoot
+            );
+            if (misplaced === undefined) {
+                declarativeRegistryId = engine.setDeclarativeRegistry(json);
+            } else {
+                warnMisplacedRegistry('declarative-registry.json', misplaced);
+            }
+        }
+        loadedRegistries = registriesFingerprint();
+    }
+
+    /**
+     * Reload changed registries and drop every expansion made against the old
+     * ones: any of them may have looked up a type the registries now describe
+     * differently.
+     * @param {import('vite').ViteDevServer} server
+     */
+    function reloadRegistries(server) {
+        if (registriesFingerprint() === loadedRegistries) return;
+        loadRegistries();
+        if (cacheManifest) {
+            for (const [relPath, entry] of Object.entries(cacheManifest.entries)) {
+                if (entry.hasMacros) delete cacheManifest.entries[relPath];
+            }
+            cacheManifestDirty = true;
+            flushCacheManifest();
+        }
+        server.moduleGraph.invalidateAll();
+        server.ws.send({ type: 'full-reload' });
+    }
+
     /** @type {import('vite').Plugin} */
     const plugin = {
         name: '@macroforge/vite-plugin',
@@ -1229,46 +1360,29 @@ export async function macroforge() {
          * any type in the project.
          */
         buildStart() {
-            // A rebuild replaces the registries the previous build kept.
-            if (typeRegistryId !== undefined) {
-                engine.releaseRegistry(typeRegistryId);
-                typeRegistryId = undefined;
-            }
-            if (declarativeRegistryId !== undefined) {
-                engine.releaseRegistry(declarativeRegistryId);
-                declarativeRegistryId = undefined;
-            }
+            loadRegistries();
+        },
 
-            const localRegistry = path.join(
-                projectRoot,
-                '.macroforge',
-                'type-registry.json'
-            );
-            if (fs.existsSync(localRegistry)) {
-                typeRegistryId = engine.setTypeRegistry(
-                    fs.readFileSync(localRegistry, 'utf-8')
-                );
-                console.log(`[@macroforge/vite-plugin] Type registry loaded`);
-            } else {
-                console.warn(
-                    `[@macroforge/vite-plugin] No type registry found at .macroforge/type-registry.json. Run \`macroforge watch\` to generate it.`
-                );
-            }
-
-            // Load the declarative macro registry alongside the type registry.
-            // Produced by the same project scan, so if one exists the other
-            // almost certainly does too. Missing file is a no-op: cross-file
-            // declarative macro imports simply won't resolve.
-            const localDeclarativeRegistry = path.join(
-                projectRoot,
-                '.macroforge',
-                'declarative-registry.json'
-            );
-            if (fs.existsSync(localDeclarativeRegistry)) {
-                declarativeRegistryId = engine.setDeclarativeRegistry(
-                    fs.readFileSync(localDeclarativeRegistry, 'utf-8')
-                );
-            }
+        /**
+         * Reload the registries whenever the CLI's scan rewrites them, so a type
+         * generated mid-session reaches the macros that look it up.
+         *
+         * @param {import('vite').ViteDevServer} server
+         */
+        configureServer(server) {
+            const registries = [
+                registryPath('type-registry.json'),
+                registryPath('declarative-registry.json')
+            ];
+            server.watcher.add(registries);
+            /** @param {string} file */
+            const onRegistryWritten = (file) => {
+                if (registries.includes(path.resolve(file))) {
+                    reloadRegistries(server);
+                }
+            };
+            server.watcher.on('add', onRegistryWritten);
+            server.watcher.on('change', onRegistryWritten);
         },
 
         /**

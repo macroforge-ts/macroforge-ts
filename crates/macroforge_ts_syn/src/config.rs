@@ -46,6 +46,106 @@ pub struct ForeignTypeAlias {
     pub from: String,
 }
 
+/// The specifier generated code imports foreign-type handlers from: the
+/// expanded config, which exports each handler by name.
+pub const FOREIGN_HANDLERS_MODULE: &str = "#macroforge/config";
+
+/// One of the functions a foreign type declares.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum ForeignHandler {
+    /// `encode`: the value as its wire form.
+    Encode,
+    /// `decode`: the value from its wire form.
+    Decode,
+    /// `default`: a fresh value.
+    Default,
+    /// `hasShape`: whether a raw value could be this type.
+    HasShape,
+}
+
+impl ForeignHandler {
+    /// Every handler, in the order the config declares them.
+    pub const ALL: [Self; 4] = [Self::Encode, Self::Decode, Self::Default, Self::HasShape];
+
+    /// The config key a handler is declared under.
+    pub fn key(self) -> &'static str {
+        match self {
+            Self::Encode => "encode",
+            Self::Decode => "decode",
+            Self::Default => "default",
+            Self::HasShape => "hasShape",
+        }
+    }
+
+    /// The handler a config key declares.
+    pub fn from_key(key: &str) -> Option<Self> {
+        Self::ALL.into_iter().find(|handler| handler.key() == key)
+    }
+
+    fn suffix(self) -> &'static str {
+        match self {
+            Self::Encode => "Encode",
+            Self::Decode => "Decode",
+            Self::Default => "Default",
+            Self::HasShape => "HasShape",
+        }
+    }
+
+    /// The name the expanded config exports `type_name`'s handler under:
+    /// `__foreign__` + the camel-cased type name + the handler, so
+    /// `DateTime.DateTime`'s encode is `__foreign__dateTimeDateTimeEncode`.
+    pub fn export_name(self, type_name: &str) -> String {
+        format!("__foreign__{}{}", camel_type_name(type_name), self.suffix())
+    }
+}
+
+/// A dotted type name as one camel-cased identifier: the first segment's
+/// leading capitals lowered (`URL` to `url`, `HTMLElement` to `htmlElement`),
+/// each later segment kept as written.
+fn camel_type_name(name: &str) -> String {
+    let mut camel = String::with_capacity(name.len());
+    for (index, segment) in name.split('.').enumerate() {
+        if index > 0 {
+            camel.push_str(segment);
+            continue;
+        }
+        let chars: Vec<char> = segment.chars().collect();
+        let capitals = chars.iter().take_while(|c| c.is_uppercase()).count();
+        // Of a run of capitals followed by more letters, the last starts the
+        // next word and stays capital.
+        let lowered = if capitals == chars.len() || capitals <= 1 {
+            capitals
+        } else {
+            capitals - 1
+        };
+        for (position, c) in chars.into_iter().enumerate() {
+            if position < lowered.max(1) {
+                camel.extend(c.to_lowercase());
+            } else {
+                camel.push(c);
+            }
+        }
+    }
+    camel
+}
+
+/// Where a foreign type's handler is written in a config module, so the
+/// expanded config can hoist it into an export.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct HandlerSite {
+    /// Which handler this is.
+    pub handler: ForeignHandler,
+    /// The config module that declares it.
+    pub module: std::path::PathBuf,
+    /// Byte offset where the handler's value starts in that module.
+    pub start: u32,
+    /// Byte offset where the handler's value ends in that module.
+    pub end: u32,
+    /// The handler when written as a bare identifier, which is re-exported
+    /// rather than hoisted.
+    pub identifier: Option<String>,
+}
+
 /// Configuration for a single foreign type.
 ///
 /// Foreign types allow global registration of handlers for external types
@@ -91,11 +191,6 @@ pub struct ForeignTypeConfig {
     /// This is the key from the foreignTypes object.
     pub name: String,
 
-    /// Optional namespace for the type (e.g., "DateTime" for DateTime.DateTime).
-    /// If specified, the type is accessed as `namespace.typeName`.
-    /// If not specified, defaults to the first segment of the name if it contains a dot.
-    pub namespace: Option<String>,
-
     /// Import sources where this type can come from (e.g., ["effect", "effect/DateTime"]).
     /// Used to validate that the type is imported from the correct module.
     pub from: Vec<String>,
@@ -103,20 +198,11 @@ pub struct ForeignTypeConfig {
     /// Encoding function expression (e.g., "(v, ctx) => v.toJSON()").
     pub encode_expr: Option<String>,
 
-    /// Import info if encode is a named function from another module.
-    pub encode_import: Option<ImportInfo>,
-
     /// Decoding function expression.
     pub decode_expr: Option<String>,
 
-    /// Import info if decode is a named function from another module.
-    pub decode_import: Option<ImportInfo>,
-
     /// Default value function expression (e.g., "() => DateTime.now()").
     pub default_expr: Option<String>,
-
-    /// Import info if default is a named function from another module.
-    pub default_import: Option<ImportInfo>,
 
     /// Shape-check predicate expression for union variant matching.
     /// Used when this foreign type appears as a variant in a union type alias.
@@ -124,37 +210,27 @@ pub struct ForeignTypeConfig {
     /// Example: `(v: unknown) => typeof v === "string"` for types decoded from strings.
     pub has_shape_expr: Option<String>,
 
-    /// Import info if hasShape is a named function from another module.
-    pub has_shape_import: Option<ImportInfo>,
-
     /// Aliases for this foreign type, allowing different name-package pairs to use the same config.
     #[serde(default)]
     pub aliases: Vec<ForeignTypeAlias>,
 
-    /// Namespaces referenced in expressions (encode_expr, decode_expr, default_expr).
-    ///
-    /// This is auto-extracted during config parsing by analyzing the expression ASTs.
-    /// For example, if `encode: (v) => DateTime.formatIso(v)`, this would contain `["DateTime"]`.
-    ///
-    /// Used to determine which namespaces need to be imported for the generated code to work.
+    /// Whether macroforge itself declares this type rather than a config.
+    /// A builtin's handlers read only JavaScript globals and are written
+    /// into generated code; a config's are imported from the expanded config.
     #[serde(default)]
-    pub expression_namespaces: Vec<String>,
+    pub builtin: bool,
+
+    /// Where each of this type's handlers is written in the config, for
+    /// expanding the config. Host-side only.
+    #[serde(skip)]
+    pub handler_sites: Vec<HandlerSite>,
 }
 
 impl ForeignTypeConfig {
-    /// Returns the namespace for this type.
-    /// If `namespace` is explicitly set, returns that.
-    /// Otherwise, if the name contains a dot (e.g., "Deep.A.B.Type"), returns everything before the last dot.
-    /// Otherwise, returns None.
+    /// The namespace of a dotted name: everything before its last dot, so
+    /// `"Deep.A.B.Type"` gives `"Deep.A.B"`. `None` for an undotted name.
     pub fn get_namespace(&self) -> Option<&str> {
-        if let Some(ref ns) = self.namespace {
-            return Some(ns);
-        }
-        // If name contains a dot, extract namespace (everything before the last dot)
-        if let Some(dot_idx) = self.name.rfind('.') {
-            return Some(&self.name[..dot_idx]);
-        }
-        None
+        self.name.rsplit_once('.').map(|(namespace, _)| namespace)
     }
 
     /// Returns the simple type name (last segment after dots).
@@ -164,17 +240,26 @@ impl ForeignTypeConfig {
         self.name.rsplit('.').next().unwrap_or(&self.name)
     }
 
-    /// Returns the full qualified name to match against.
-    /// If namespace is set: "namespace.typeName"
-    /// Otherwise: the name as-is
-    pub fn get_qualified_name(&self) -> String {
-        if let Some(ns) = self.get_namespace() {
-            let type_name = self.get_type_name();
-            if ns != type_name {
-                return format!("{}.{}", ns, type_name);
-            }
+    /// What generated code calls to run `handler`, or `None` when the type
+    /// declares no such handler. A config's handler is called by its export
+    /// from the expanded config, whose import from [`FOREIGN_HANDLERS_MODULE`]
+    /// this requests; a builtin, which no config declares and which reads only
+    /// JavaScript globals, is its own expression.
+    pub fn handler_callee(&self, handler: ForeignHandler) -> Option<String> {
+        let expression = match handler {
+            ForeignHandler::Encode => self.encode_expr.as_deref(),
+            ForeignHandler::Decode => self.decode_expr.as_deref(),
+            ForeignHandler::Default => self.default_expr.as_deref(),
+            ForeignHandler::HasShape => self.has_shape_expr.as_deref(),
+        }?;
+        if self.builtin {
+            return Some(format!("({expression})"));
         }
-        self.name.clone()
+        let name = handler.export_name(&self.name);
+        crate::import_registry::with_registry_mut(|registry| {
+            registry.request_import(&name, None, FOREIGN_HANDLERS_MODULE, false);
+        });
+        Some(name)
     }
 }
 
@@ -391,14 +476,6 @@ pub struct MacroforgeConfig {
     /// Sandbox settings for `@buildtime`. Missing key uses the defaults.
     #[serde(default)]
     pub buildtime: BuildtimeConfig,
-
-    /// Import sources from the config file itself.
-    ///
-    /// Maps imported names (e.g., "DateTime", "Option") to their import info
-    /// (module source). This is used to determine the correct import source
-    /// when generating namespace imports for foreign type expressions.
-    #[serde(default, skip_serializing)]
-    pub config_imports: HashMap<String, ImportInfo>,
 }
 
 /// Returns the default for generate_convenience_const (true).
@@ -417,7 +494,6 @@ impl Default for MacroforgeConfig {
             must_use: MustUseConfig::default(),
             non_exhaustive: NonExhaustiveConfig::default(),
             buildtime: BuildtimeConfig::default(),
-            config_imports: HashMap::new(),
         }
     }
 }

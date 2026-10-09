@@ -1,0 +1,393 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/status.svelte.ts
+sha256 36514ab9c6cd5bef20e29caf945ecb2b26cf90e3d79e632ad53f1a38e09991fd
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+
+export type Status = /** @default */ 'Scheduled' | 'OnDeck' | 'Waiting';
+
+export function statusDefaultValue(): Status {
+    return "Scheduled";
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function statusEncode(value: Status, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = statusEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    }
+    return __variant;
+}
+
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+export function statusDecode(input: unknown): { success: true; value: Status } | { success: false; errors: Array<{ field: string; message: string }> } {
+    switch (input) {
+        case 'Scheduled':
+        case 'OnDeck':
+        case 'Waiting':
+            return { success: true, value: input as Status };
+        default:
+            return { success: false, errors: [{ field: "_root", message: "Invalid value for Status: expected one of " + ['Scheduled', 'OnDeck', 'Waiting'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
+    }
+}
+
+/** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+export function statusDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Status | __mf_PendingRef {
+    switch (value) {
+        case 'Scheduled':
+        case 'OnDeck':
+        case 'Waiting':
+            return value as Status;
+        default:
+            throw new __mf_DecodeError([{
+                field: "_root",
+                message: "Invalid value for Status: expected one of " + ['Scheduled', 'OnDeck', 'Waiting'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+            }]);
+    }
+}
+
+export function statusHasShape(value: unknown): boolean {
+    switch (value) {
+        case 'Scheduled':
+        case 'OnDeck':
+        case 'Waiting':
+            return true;
+        default:
+            return false;
+    }
+}
+
+export function statusIs(value: unknown): value is Status {
+    return statusHasShape(value);
+}
+
+/** Per-variant error types  */
+
+export type StatusScheduledErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+export type StatusOnDeckErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+export type StatusWaitingErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+
+/** Per-variant tainted types  */
+
+export type StatusScheduledTainted = {
+};
+export type StatusOnDeckTainted = {
+};
+export type StatusWaitingTainted = {
+};
+
+/** Union error type  */
+export type StatusErrors = ({ _value: "Scheduled" } & StatusScheduledErrors) | ({ _value: "OnDeck" } & StatusOnDeckErrors) | ({ _value: "Waiting" } & StatusWaitingErrors);
+
+/** Union tainted type  */
+export type StatusTainted = ({ _value: "Scheduled" } & StatusScheduledTainted) | ({ _value: "OnDeck" } & StatusOnDeckTainted) | ({ _value: "Waiting" } & StatusWaitingTainted);
+
+/** Per-variant field controller types  */
+
+export interface StatusScheduledFieldControllers {
+}
+export interface StatusOnDeckFieldControllers {
+}
+export interface StatusWaitingFieldControllers {
+}
+
+/** Union Gigaform interface with variant switching  */
+export interface StatusGigaform {
+    readonly currentVariant: "Scheduled" | "OnDeck" | "Waiting";
+    readonly data: Status;
+    readonly errors: StatusErrors;
+    readonly tainted: StatusTainted;
+    readonly variants: StatusVariantFields;
+    switchVariant(variant: "Scheduled" | "OnDeck" | "Waiting"): void;
+    validate(): Exit.Exit<Status, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Status>): void;
+}
+
+/** Variant fields container  */
+export interface StatusVariantFields {
+    readonly Scheduled: { readonly fields: StatusScheduledFieldControllers };
+    readonly OnDeck: { readonly fields: StatusOnDeckFieldControllers };
+    readonly Waiting: { readonly fields: StatusWaitingFieldControllers };
+}
+/** Gets default value for a specific variant  */
+function statusGetDefaultForVariant(variant: string): Status {
+    if (variant === "Scheduled") { return "Scheduled" as Status; }
+    if (variant === "OnDeck") { return "OnDeck" as Status; }
+    if (variant === "Waiting") { return "Waiting" as Status; }
+    return "Scheduled" as Status;
+}
+
+/** Creates a new discriminated union Gigaform with variant switching  */
+export function statusCreateForm(initial?: Status): StatusGigaform {
+
+    const initialVariant: "Scheduled" | "OnDeck" | "Waiting" = (initial as "Scheduled" | "OnDeck" | "Waiting") ?? "Scheduled";
+
+    let currentVariant = $state<"Scheduled" | "OnDeck" | "Waiting">(initialVariant);
+    let data = $state<Status>(initial ?? statusGetDefaultForVariant(initialVariant));
+    let errors = $state<StatusErrors>({} as StatusErrors);
+    let tainted = $state<StatusTainted>({} as StatusTainted);
+
+    const variants = {
+        "Scheduled": { fields: {  } as unknown as StatusScheduledFieldControllers },
+        "OnDeck": { fields: {  } as unknown as StatusOnDeckFieldControllers },
+        "Waiting": { fields: {  } as unknown as StatusWaitingFieldControllers },
+    } as unknown as StatusVariantFields;
+
+    function switchVariant(variant: "Scheduled" | "OnDeck" | "Waiting"): void {
+        currentVariant = variant;
+        data = statusGetDefaultForVariant(variant);
+        errors = {} as StatusErrors;
+        tainted = {} as StatusTainted;
+    }
+
+    function validate(): Exit.Exit<Status, Array<{ field: string; message: string }>> {
+        return toExit(statusDecode(data));
+    }
+
+    function reset(overrides?: Partial<Status>): void {
+        data = overrides ? overrides as typeof data : statusGetDefaultForVariant(currentVariant);
+        errors = {} as StatusErrors;
+        tainted = {} as StatusTainted;
+    }
+
+    return {
+        get currentVariant() { return currentVariant; },
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        variants,
+        switchVariant,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData for union type, determining variant from discriminant field  */
+export function statusFromFormData(formData: FormData): Exit.Exit<Status, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as "Scheduled" | "OnDeck" | "Waiting" | null;
+
+    if (!discriminant) {
+        return toExit({ success: false, errors: [{ field: "_value", message: "Missing discriminant field" }] });
+    }
+
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+
+    {
+
+        if (discriminant === "Scheduled") {
+
+        }
+    }
+    {
+
+        if (discriminant === "OnDeck") {
+
+        }
+    }
+    {
+
+        if (discriminant === "Waiting") {
+
+        }
+    }
+
+    return toExit(statusDecode(obj));
+}
+
+export const Status: {
+  readonly defaultValue: typeof statusDefaultValue;
+  readonly encode: typeof statusEncode;
+  readonly encodeWithContext: typeof statusEncodeWithContext;
+  readonly decode: typeof statusDecode;
+  readonly decodeWithContext: typeof statusDecodeWithContext;
+  readonly hasShape: typeof statusHasShape;
+  readonly is: typeof statusIs;
+  readonly createForm: typeof statusCreateForm;
+  readonly fromFormData: typeof statusFromFormData;
+} = {
+  defaultValue: statusDefaultValue,
+  encode: statusEncode,
+  encodeWithContext: statusEncodeWithContext,
+  decode: statusDecode,
+  decodeWithContext: statusDecodeWithContext,
+  hasShape: statusHasShape,
+  is: statusIs,
+  createForm: statusCreateForm,
+  fromFormData: statusFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+export type Status = "Scheduled" | "OnDeck" | "Waiting";
+export declare function statusDefaultValue(): Status;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function statusEncode(value: Status, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext): unknown;
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+export declare function statusDecode(input: unknown): {
+	success: true;
+	value: Status;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+export declare function statusDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Status | __mf_PendingRef;
+export declare function statusHasShape(value: unknown): boolean;
+export declare function statusIs(value: unknown): value is Status;
+/** Per-variant error types  */
+export type StatusScheduledErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+export type StatusOnDeckErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+export type StatusWaitingErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+/** Per-variant tainted types  */
+export type StatusScheduledTainted = {};
+export type StatusOnDeckTainted = {};
+export type StatusWaitingTainted = {};
+/** Union error type  */
+export type StatusErrors = ({
+	_value: "Scheduled";
+} & StatusScheduledErrors) | ({
+	_value: "OnDeck";
+} & StatusOnDeckErrors) | ({
+	_value: "Waiting";
+} & StatusWaitingErrors);
+/** Union tainted type  */
+export type StatusTainted = ({
+	_value: "Scheduled";
+} & StatusScheduledTainted) | ({
+	_value: "OnDeck";
+} & StatusOnDeckTainted) | ({
+	_value: "Waiting";
+} & StatusWaitingTainted);
+/** Per-variant field controller types  */
+export interface StatusScheduledFieldControllers {}
+export interface StatusOnDeckFieldControllers {}
+export interface StatusWaitingFieldControllers {}
+/** Union Gigaform interface with variant switching  */
+export interface StatusGigaform {
+	readonly currentVariant: "Scheduled" | "OnDeck" | "Waiting";
+	readonly data: Status;
+	readonly errors: StatusErrors;
+	readonly tainted: StatusTainted;
+	readonly variants: StatusVariantFields;
+	switchVariant(variant: "Scheduled" | "OnDeck" | "Waiting"): void;
+	validate(): Exit.Exit<Status, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<Status>): void;
+}
+/** Variant fields container  */
+export interface StatusVariantFields {
+	readonly Scheduled: {
+		readonly fields: StatusScheduledFieldControllers;
+	};
+	readonly OnDeck: {
+		readonly fields: StatusOnDeckFieldControllers;
+	};
+	readonly Waiting: {
+		readonly fields: StatusWaitingFieldControllers;
+	};
+}
+/** Creates a new discriminated union Gigaform with variant switching  */
+export declare function statusCreateForm(initial?: Status): StatusGigaform;
+/** Parses FormData for union type, determining variant from discriminant field  */
+export declare function statusFromFormData(formData: FormData): Exit.Exit<Status, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const Status: {
+	readonly defaultValue: typeof statusDefaultValue;
+	readonly encode: typeof statusEncode;
+	readonly encodeWithContext: typeof statusEncodeWithContext;
+	readonly decode: typeof statusDecode;
+	readonly decodeWithContext: typeof statusDecodeWithContext;
+	readonly hasShape: typeof statusHasShape;
+	readonly is: typeof statusIs;
+	readonly createForm: typeof statusCreateForm;
+	readonly fromFormData: typeof statusFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 460..518
+original 107..180 -> expanded 518..591
+original 180..181 -> expanded 9275..9276
+generated 0..460 <- imports
+generated 591..665 <- Default
+generated 665..1963 <- Encode
+generated 1963..3701 <- Decode
+generated 3701..8523 <- Gigaform
+generated 8523..9275 <- __convenience_const
+
+## Metadata
+
+type Status: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":145,"start":130}}],"kind":{"Literal":"'Scheduled'"}},{"decorators":[],"kind":{"Literal":"'OnDeck'"}},{"decorators":[],"kind":{"Literal":"'Waiting'"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"name":"Status","span":{"end":181,"start":116},"type_params":[]}
+
+## Registry reads
+
+Name("Status")
+
+## Buildtime dependencies
+
+(none)

@@ -286,6 +286,29 @@ impl TsStream {
         std::mem::take(&mut self.source)
     }
 
+    /// Appends the stream's source to `out` where `out`'s last line leaves
+    /// off: every later line is indented as that line is, so a splice keeps
+    /// the nesting of the code around it.
+    pub fn splice_source_into(&mut self, out: &mut String) {
+        let line_start = out.rfind('\n').map_or(0, |newline| newline + 1);
+        let current = out.get(line_start..).unwrap_or_default();
+        let indent = current
+            .get(..current.len() - current.trim_start_matches(' ').len())
+            .unwrap_or_default()
+            .to_string();
+        let source = self.take_source();
+        for (index, line) in source.split('\n').enumerate() {
+            if index > 0 {
+                out.push('\n');
+                if line.trim().is_empty() {
+                    continue;
+                }
+                out.push_str(&indent);
+            }
+            out.push_str(line);
+        }
+    }
+
     /// Reports a diagnostic, usually a warning or a note, alongside the
     /// stream's output. To fail the macro, return a
     /// [`MacroforgeError`](crate::MacroforgeError) instead.

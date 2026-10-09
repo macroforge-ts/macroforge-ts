@@ -27,45 +27,37 @@ enum Role {
 }
 
 /** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
-        export function roleDecode(input: unknown): Role {
-            return roleDecodeWithContext(input);
-        }
+export function roleDecode(input: unknown): Role {
+    return roleDecodeWithContext(input);
+}
 
-        /** Decodes with an existing context (for consistency with other types).  */
-        export function roleDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Role;
-        export function roleDecodeWithContext(data: unknown): Role {
-            if (Role["Admin"] === data) {
-                    return Role["Admin"];
-                }
-            if (Role["User"] === data) {
-                    return Role["User"];
-                }
-            if (Role["Guest"] === data) {
-                    return Role["Guest"];
-                }
+/** Decodes with an existing context (for consistency with other types).  */
+export function roleDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Role;
+export function roleDecodeWithContext(data: unknown): Role {
+    if (Role["Admin"] === data) {
+        return Role["Admin"];
+    }
+    if (Role["User"] === data) {
+        return Role["User"];
+    }
+    if (Role["Guest"] === data) {
+        return Role["Guest"];
+    }
+    throw new Error("Invalid Role value: " + JSON.stringify(data));
+}
 
-
-
-
-            throw new Error("Invalid Role value: " + JSON.stringify(data));
-        }
-
-        export function roleIs(value: unknown): value is Role {
-            if (Role["Admin"] === value) {
-                    return true;
-                }
-            if (Role["User"] === value) {
-                    return true;
-                }
-            if (Role["Guest"] === value) {
-                    return true;
-                }
-
-
-
-
-            return false;
-        }
+export function roleIs(value: unknown): value is Role {
+    if (Role["Admin"] === value) {
+        return true;
+    }
+    if (Role["User"] === value) {
+        return true;
+    }
+    if (Role["Guest"] === value) {
+        return true;
+    }
+    return false;
+}
 
 namespace Role {
   export const decode: typeof roleDecode = roleDecode;
@@ -75,58 +67,22 @@ namespace Role {
 
 ## DTS
 
-enum Role {
-    Admin = 'admin',
-    User = 'user',
-    Guest = 'guest'
+declare enum Role {
+	Admin = "admin",
+	User = "user",
+	Guest = "guest"
 }
-
 /** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
-        export function roleDecode(input: unknown): Role {
-            return roleDecodeWithContext(input);
-        }
-
-        /** Decodes with an existing context (for consistency with other types).  */
-        export function roleDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Role;
-        export function roleDecodeWithContext(data: unknown): Role {
-            if (Role["Admin"] === data) {
-                    return Role["Admin"];
-                }
-            if (Role["User"] === data) {
-                    return Role["User"];
-                }
-            if (Role["Guest"] === data) {
-                    return Role["Guest"];
-                }
-
-
-
-
-            throw new Error("Invalid Role value: " + JSON.stringify(data));
-        }
-
-        export function roleIs(value: unknown): value is Role {
-            if (Role["Admin"] === value) {
-                    return true;
-                }
-            if (Role["User"] === value) {
-                    return true;
-                }
-            if (Role["Guest"] === value) {
-                    return true;
-                }
-
-
-
-
-            return false;
-        }
-
-namespace Role {
-  export const decode: typeof roleDecode = roleDecode;
-  export const decodeWithContext: typeof roleDecodeWithContext = roleDecodeWithContext;
-  export const is: typeof roleIs = roleIs;
+export declare function roleDecode(input: unknown): Role;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function roleDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Role;
+export declare function roleIs(value: unknown): value is Role;
+declare namespace Role {
+	const decode: typeof roleDecode;
+	const decodeWithContext: typeof roleDecodeWithContext;
+	const is: typeof roleIs;
 }
+export {};
 
 ## Diagnostics
 
@@ -135,10 +91,10 @@ namespace Role {
 ## Mapping
 
 original 22..96 -> expanded 78..152
-original 96..97 -> expanded 1655..1656
+original 96..97 -> expanded 1367..1368
 generated 0..78 <- imports
-generated 152..1449 <- Decode
-generated 1449..1655 <- __convenience_const
+generated 152..1161 <- Decode
+generated 1161..1367 <- __convenience_const
 
 ## Metadata
 

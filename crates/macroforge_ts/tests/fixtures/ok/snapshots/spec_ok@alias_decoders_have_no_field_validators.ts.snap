@@ -1,0 +1,291 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/alias_decoders_have_no_field_validators.ts
+---
+## Input
+
+/** @derive(Decode) */
+/** @endec(nonNegative) */
+type Meters = number;
+
+/** @derive(Decode) */
+type Span = [number, number];
+
+## Changed
+
+true
+
+## Output
+
+import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+
+type Meters = number;
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = metersDecodeWithContext(data, ctx);
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters {
+    const __decoded: unknown = value;
+    if (typeof __decoded !== "number") {
+        throw new __mf_DecodeError([{ field: "_root", message: "Meters.decodeWithContext: expected number" }]);
+    }
+    const errors: Array<{ field: string; message: string }> = [];
+    if (__decoded < 0) { errors.push({ field: "_root", message: "Meters must be non-negative" }); }
+    ctx.pushErrors(errors);
+    return __decoded as Meters;
+}
+
+export function metersHasShape(value: unknown): boolean {
+    return typeof value === "number";
+}
+
+export function metersIs(value: unknown): value is Meters {
+    return typeof value === "number" && metersDecode(value).success;
+}
+
+const Meters: {
+  readonly decode: typeof metersDecode;
+  readonly decodeWithContext: typeof metersDecodeWithContext;
+  readonly hasShape: typeof metersHasShape;
+  readonly is: typeof metersIs;
+} = {
+  decode: metersDecode,
+  decodeWithContext: metersDecodeWithContext,
+  hasShape: metersHasShape,
+  is: metersIs
+};
+
+
+type Span = [number, number];
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function spanDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Span } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = spanDecodeWithContext(data, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+export function spanIs(value: unknown): value is Span {
+    return spanHasShape(value);
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function spanDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Span {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Span.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Span;
+    }
+    if (!Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Span.decodeWithContext: expected an array" }]);
+    }
+    const errors: Array<{ field: string; message: string }> = [];
+    if (value.length <= 0) {
+        errors.push({ field: "0", message: "missing required element" });
+    }
+    if (value.length <= 1) {
+        errors.push({ field: "1", message: "missing required element" });
+    }
+    if (value.length > 2) {
+        errors.push({ field: "_root", message: "too many elements" });
+    }
+    const obj: Record<string, unknown> = {};
+    for (let __index = 0; __index < Math.min(value.length, 2); __index++) {
+        obj[__index] = value[__index];
+    }
+
+    const tuple: unknown[] = [];
+    const instance: any = {};
+    Object.defineProperty(instance, "e0", {
+        get: () => tuple[0],
+        set: (item: unknown) => {
+            tuple[0] = item;
+        }
+    });
+    Object.defineProperty(instance, "e1", {
+        get: () => tuple[1],
+        set: (item: unknown) => {
+            tuple[1] = item;
+        }
+    });
+    ctx.trackForFreeze(tuple);
+
+    {
+        const __raw_e0 = obj["0"] as number;
+
+        if (!(typeof __raw_e0 === "number")) {
+            errors.push({ field: "0", message: __raw_e0 == null ? "Span.0 is required" : "expected number" });
+        } else {
+            instance.e0 = __raw_e0;
+        }
+    }
+    {
+        const __raw_e1 = obj["1"] as number;
+
+        if (!(typeof __raw_e1 === "number")) {
+            errors.push({ field: "1", message: __raw_e1 == null ? "Span.1 is required" : "expected number" });
+        } else {
+            instance.e1 = __raw_e1;
+        }
+    }
+
+    ctx.pushErrors(errors);
+    return tuple as Span;
+}
+
+export function spanHasShape(value: unknown): boolean {
+    return Array.isArray(value) && value.length >= 2 && value.length <= 2;
+}
+
+const Span: {
+  readonly decode: typeof spanDecode;
+  readonly is: typeof spanIs;
+  readonly decodeWithContext: typeof spanDecodeWithContext;
+  readonly hasShape: typeof spanHasShape;
+} = {
+  decode: spanDecode,
+  is: spanIs,
+  decodeWithContext: spanDecodeWithContext,
+  hasShape: spanHasShape
+};
+
+## DTS
+
+type Meters = number;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function metersDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Meters;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters;
+export declare function metersHasShape(value: unknown): boolean;
+export declare function metersIs(value: unknown): value is Meters;
+type Span = [number, number];
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function spanDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Span;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare function spanIs(value: unknown): value is Span;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function spanDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Span;
+export declare function spanHasShape(value: unknown): boolean;
+export {};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 49..71 -> expanded 194..216
+original 71..73 -> expanded 2540..2542
+original 95..125 -> expanded 2542..2572
+original 125..126 -> expanded 6500..6501
+generated 0..194 <- imports
+generated 216..2223 <- Decode
+generated 2223..2540 <- __convenience_const
+generated 2572..6201 <- Decode
+generated 6201..6500 <- __convenience_const
+
+## Metadata
+
+type Meters: {"body":{"Alias":"number"},"decorators":[{"args_src":"nonNegative","name":"endec","span":{"end":50,"start":24}},{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"name":"Meters","span":{"end":72,"start":51},"type_params":[]}
+type Span: {"body":{"Tuple":["number","number"]},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":96,"start":74}}],"name":"Span","span":{"end":126,"start":97},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

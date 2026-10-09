@@ -85,7 +85,7 @@ fn collect_from_class(
 
             out.push(DeriveTarget {
                 macro_names,
-                decorator_span: span_ir_with_at(decorator.span, source),
+                decorator_span: decorator.span,
                 target_ir: DeriveTargetIR::Class(class_ir.clone()),
             });
             return;
@@ -122,7 +122,7 @@ fn collect_from_interface(
 
             out.push(DeriveTarget {
                 macro_names,
-                decorator_span: span_ir_with_at(decorator.span, source),
+                decorator_span: decorator.span,
                 target_ir: DeriveTargetIR::Interface(interface_ir.clone()),
             });
             return;
@@ -159,7 +159,7 @@ fn collect_from_enum(
 
             out.push(DeriveTarget {
                 macro_names,
-                decorator_span: span_ir_with_at(decorator.span, source),
+                decorator_span: decorator.span,
                 target_ir: DeriveTargetIR::Enum(enum_ir.clone()),
             });
             return;
@@ -214,9 +214,7 @@ fn collect_from_type_alias(
             }
 
             // Use combined span to remove ALL adjacent JSDoc comments
-            let decorator_span = combined_span
-                .map(|s| span_ir_with_at(s, source))
-                .unwrap_or_else(|| span_ir_with_at(decorator.span, source));
+            let decorator_span = combined_span.unwrap_or(decorator.span);
 
             out.push(DeriveTarget {
                 macro_names,
@@ -239,60 +237,32 @@ fn collect_from_type_alias(
     }
 }
 
-pub(crate) fn span_ir_with_at(span: SpanIR, source: &str) -> SpanIR {
-    let mut ir = span;
-    let start = ir.start as usize;
-    if start > 0 && start <= source.len() {
-        let bytes = source.as_bytes();
-        if bytes[start - 1] == b'@' {
-            ir.start -= 1;
-        }
-    }
-    ir
-}
-
+/// The 1-based span of `macro_name` among the arguments of the decorator at
+/// `decorator_span`, matched as a whole identifier.
 pub(crate) fn find_macro_name_span(
     source: &str,
     decorator_span: SpanIR,
     macro_name: &str,
 ) -> Option<SpanIR> {
-    let start = decorator_span.start.saturating_sub(1) as usize;
-    let end = decorator_span.end.saturating_sub(1) as usize;
+    let range = decorator_span.source_range();
+    let decorator_source = source.get(range.clone())?;
+    let args_start = range.start + decorator_source.find('(')? + 1;
+    let args = source.get(args_start..range.end)?;
 
-    if start >= source.len() || end > source.len() {
-        return None;
-    }
+    let is_ident = |c: char| c.is_alphanumeric() || c == '_' || c == '$';
+    let (offset, _) = args.match_indices(macro_name).find(|(offset, _)| {
+        let before = args
+            .get(..*offset)
+            .and_then(|text| text.chars().next_back());
+        let after = args
+            .get(offset + macro_name.len()..)
+            .and_then(|text| text.chars().next());
+        !before.is_some_and(is_ident) && !after.is_some_and(is_ident)
+    })?;
 
-    let decorator_source = &source[start..end];
-
-    let paren_start = decorator_source.find('(')?;
-    let args_slice = &decorator_source[paren_start + 1..];
-
-    let mut search_start = 0;
-    while let Some(pos) = args_slice[search_start..].find(macro_name) {
-        let abs_pos = search_start + pos;
-
-        let before_ok = abs_pos == 0
-            || !args_slice
-                .chars()
-                .nth(abs_pos - 1)
-                .is_some_and(|c| c.is_alphanumeric() || c == '_');
-        let after_ok = abs_pos + macro_name.len() >= args_slice.len()
-            || !args_slice
-                .chars()
-                .nth(abs_pos + macro_name.len())
-                .is_some_and(|c| c.is_alphanumeric() || c == '_');
-
-        if before_ok && after_ok {
-            let macro_start = start + paren_start + 1 + abs_pos;
-            let macro_end = macro_start + macro_name.len();
-            return Some(SpanIR::new(macro_start as u32 + 1, macro_end as u32 + 1));
-        }
-
-        search_start = abs_pos + 1;
-    }
-
-    None
+    let macro_start = u32::try_from(args_start + offset).ok()?;
+    let macro_len = u32::try_from(macro_name.len()).ok()?;
+    Some(SpanIR::new(macro_start + 1, macro_start + macro_len + 1))
 }
 
 /// `span` narrowed to the `@derive(...)` directive when it covers the JSDoc
@@ -459,7 +429,7 @@ pub(crate) fn collect_attribute_targets(
                 targets.push(AttributeTarget {
                     macro_name: decorator.name.clone(),
                     module_path,
-                    decorator_span: span_ir_with_at(decorator.span, source),
+                    decorator_span: decorator.span,
                     target_ir: AttributeTargetIR::Function(func_ir.clone()),
                 });
             }
@@ -478,7 +448,6 @@ pub(crate) fn collect_attribute_targets(
         collect_attribute_from_decorators(
             &class_ir.decorators,
             || AttributeTargetIR::Class(class_ir.clone()),
-            source,
             import_sources,
             &mut targets,
         );
@@ -489,7 +458,6 @@ pub(crate) fn collect_attribute_targets(
         collect_attribute_from_decorators(
             &iface_ir.decorators,
             || AttributeTargetIR::Interface(iface_ir.clone()),
-            source,
             import_sources,
             &mut targets,
         );
@@ -500,7 +468,6 @@ pub(crate) fn collect_attribute_targets(
         collect_attribute_from_decorators(
             &enum_ir.decorators,
             || AttributeTargetIR::Enum(enum_ir.clone()),
-            source,
             import_sources,
             &mut targets,
         );
@@ -511,7 +478,6 @@ pub(crate) fn collect_attribute_targets(
         collect_attribute_from_decorators(
             &ta_ir.decorators,
             || AttributeTargetIR::TypeAlias(ta_ir.clone()),
-            source,
             import_sources,
             &mut targets,
         );
@@ -529,7 +495,6 @@ pub(crate) fn collect_attribute_targets(
 fn collect_attribute_from_decorators(
     decorators: &[crate::ts_syn::abi::DecoratorIR],
     target_ir: impl Fn() -> AttributeTargetIR,
-    source: &str,
     import_sources: &HashMap<String, String>,
     out: &mut Vec<AttributeTarget>,
 ) {
@@ -541,7 +506,7 @@ fn collect_attribute_from_decorators(
             out.push(AttributeTarget {
                 macro_name: decorator.name.clone(),
                 module_path,
-                decorator_span: span_ir_with_at(decorator.span, source),
+                decorator_span: decorator.span,
                 target_ir: target_ir(),
             });
         }
@@ -569,7 +534,7 @@ fn collect_attribute_from_method(
             out.push(AttributeTarget {
                 macro_name: decorator.name.clone(),
                 module_path,
-                decorator_span: span_ir_with_at(decorator.span, source),
+                decorator_span: decorator.span,
                 target_ir: AttributeTargetIR::Function(func_ir),
             });
         }
@@ -637,11 +602,7 @@ fn method_to_function_ir(method: &MethodSigIR, source: &str) -> FunctionIR {
         is_generator: false,
         is_exported: false,
         is_default_export: false,
-        type_params: if method.type_params_src.is_empty() {
-            vec![]
-        } else {
-            vec![method.type_params_src.clone()]
-        },
+        type_params: method.type_params.clone(),
         params,
         return_type_src: method.return_type_src.clone(),
         body_src,

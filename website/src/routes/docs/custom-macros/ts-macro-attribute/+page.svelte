@@ -174,13 +174,13 @@ export function traced(): void;`}
 
 <p>
     The <code>@traced</code> macro in
-    <code>tooling/playground/macro/src/attrs.rs</code> wraps a function
+    <code>tooling/testground/macro/src/attrs.rs</code> wraps a function
     so every call increments a counter on
     <code>globalThis.__traced[fnName]</code>:
 </p>
 
 <CodeBlock
-    code={`/** import macro { traced } from "@playground/macro" */
+    code={`/** import macro { traced } from "@testground/macro" */
 
 /** @traced */
 export function add(a: number, b: number): number {

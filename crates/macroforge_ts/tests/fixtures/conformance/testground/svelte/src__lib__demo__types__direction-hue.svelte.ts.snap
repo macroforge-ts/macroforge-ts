@@ -1,0 +1,461 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/direction-hue.svelte.ts
+sha256 78dd8d0d9100932222f9e8766a735bfe4c6260fe8afce97b1cd6986b0c388247
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+
+export interface DirectionHue {
+    bearing: number;
+    hue: number;
+}
+
+export function directionHueDefaultValue(): DirectionHue {
+    return {
+        bearing: 0,
+        hue: 0,
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function directionHueEncode(value: DirectionHue, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = directionHueEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function directionHueEncodeWithContext(value: DirectionHue, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "DirectionHue",
+        __id,
+    };
+
+    
+    result.bearing = value.bearing;
+    result.hue = value.hue;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function directionHueDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DirectionHue } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = directionHueDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "DirectionHue.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function directionHueDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DirectionHue | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "DirectionHue.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as DirectionHue | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "DirectionHue.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("bearing" in obj)) {
+        errors.push({ field: "bearing", message: "missing required field" });
+    }
+    if (!("hue" in obj)) {
+        errors.push({ field: "hue", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_bearing = obj["bearing"] as number;
+
+        if (!(typeof __raw_bearing === "number")) {
+            errors.push({ field: "bearing", message: __raw_bearing == null ? "DirectionHue.bearing is required" : "expected number" });
+        } else {
+            instance.bearing = __raw_bearing;
+        }
+    }
+    {
+        const __raw_hue = obj["hue"] as number;
+
+        if (!(typeof __raw_hue === "number")) {
+            errors.push({ field: "hue", message: __raw_hue == null ? "DirectionHue.hue is required" : "expected number" });
+        } else {
+            instance.hue = __raw_hue;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as DirectionHue;
+}
+export function directionHueValidateField<K extends keyof DirectionHue>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function directionHueValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function directionHueValidateFields(partial: { readonly [K in keyof DirectionHue]?: unknown }): Array<{ field: string; message: string }>;
+export function directionHueValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function directionHueHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "bearing" in o && "hue" in o;
+}
+
+export function directionHueIs(obj: unknown): obj is DirectionHue {
+    return directionHueHasShape(obj) && directionHueDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type DirectionHueErrors = {
+    _errors: Option.Option<Array<string>>;
+    bearing: Option.Option<Array<string>>;
+    hue: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type DirectionHueTainted = {
+    bearing: Option.Option<boolean>;
+    hue: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface DirectionHueFieldControllers {
+    readonly bearing: FieldController<number>;
+    readonly hue: FieldController<number>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface DirectionHueGigaform {
+    readonly data: DirectionHue;
+    readonly errors: DirectionHueErrors;
+    readonly tainted: DirectionHueTainted;
+    readonly fields: DirectionHueFieldControllers;
+    validate(): Exit.Exit<DirectionHue, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<DirectionHue>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function directionHueCreateForm(overrides?: Partial<DirectionHue>): DirectionHueGigaform {
+    let data = $state({ ...directionHueDefaultValue(), ...overrides });
+    let errors = $state<DirectionHueErrors>({
+        _errors: Option.none(),
+        bearing: Option.none(),
+        hue: Option.none(),
+    });
+    let tainted = $state<DirectionHueTainted>({
+        bearing: Option.none(),
+        hue: Option.none(),
+    });
+    const fields = {
+        bearing: {
+            name: "bearing",
+            label: "bearing",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["bearing"],
+            get: () => data.bearing,
+            set: (value: number) => { data.bearing = value; },
+            getError: () => errors.bearing,
+            setError: (value: Option.Option<Array<string>>) => { errors.bearing = value; },
+            getTainted: () => tainted.bearing,
+            setTainted: (value: Option.Option<boolean>) => { tainted.bearing = value; },
+            validate: () => directionHueValidateField("bearing", data.bearing).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        hue: {
+            name: "hue",
+            label: "hue",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["hue"],
+            get: () => data.hue,
+            set: (value: number) => { data.hue = value; },
+            getError: () => errors.hue,
+            setError: (value: Option.Option<Array<string>>) => { errors.hue = value; },
+            getTainted: () => tainted.hue,
+            setTainted: (value: Option.Option<boolean>) => { tainted.hue = value; },
+            validate: () => directionHueValidateField("hue", data.hue).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as DirectionHueFieldControllers;
+
+    function validate(): Exit.Exit<DirectionHue, Array<{ field: string; message: string }>> {
+        return toExit(directionHueDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<DirectionHue>): void {
+        data = { ...directionHueDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            bearing: Option.none(),
+            hue: Option.none(),
+        };
+        tainted = {
+            bearing: Option.none(),
+            hue: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function directionHueFromFormData(formData: FormData): Exit.Exit<DirectionHue, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    {
+        const bearingStr = formData.get("bearing");
+        obj.bearing = bearingStr ? parseFloat(bearingStr as string) : 0;
+        if (obj.bearing !== undefined && isNaN(obj.bearing as number)) obj.bearing = 0;
+    }
+    {
+        const hueStr = formData.get("hue");
+        obj.hue = hueStr ? parseFloat(hueStr as string) : 0;
+        if (obj.hue !== undefined && isNaN(obj.hue as number)) obj.hue = 0;
+    }
+
+    return toExit(directionHueDecode(obj));
+}
+
+export const DirectionHue: {
+  readonly defaultValue: typeof directionHueDefaultValue;
+  readonly encode: typeof directionHueEncode;
+  readonly encodeWithContext: typeof directionHueEncodeWithContext;
+  readonly decode: typeof directionHueDecode;
+  readonly decodeWithContext: typeof directionHueDecodeWithContext;
+  readonly validateField: typeof directionHueValidateField;
+  readonly validateFields: typeof directionHueValidateFields;
+  readonly hasShape: typeof directionHueHasShape;
+  readonly is: typeof directionHueIs;
+  readonly createForm: typeof directionHueCreateForm;
+  readonly fromFormData: typeof directionHueFromFormData;
+} = {
+  defaultValue: directionHueDefaultValue,
+  encode: directionHueEncode,
+  encodeWithContext: directionHueEncodeWithContext,
+  decode: directionHueDecode,
+  decodeWithContext: directionHueDecodeWithContext,
+  validateField: directionHueValidateField,
+  validateFields: directionHueValidateFields,
+  hasShape: directionHueHasShape,
+  is: directionHueIs,
+  createForm: directionHueCreateForm,
+  fromFormData: directionHueFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+export interface DirectionHue {
+	bearing: number;
+	hue: number;
+}
+export declare function directionHueDefaultValue(): DirectionHue;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function directionHueEncode(value: DirectionHue, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function directionHueEncodeWithContext(value: DirectionHue, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function directionHueDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: DirectionHue;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function directionHueDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): DirectionHue | __mf_PendingRef;
+export declare function directionHueValidateField<K extends keyof DirectionHue>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function directionHueValidateFields(partial: { readonly [K in keyof DirectionHue]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function directionHueHasShape(obj: unknown): boolean;
+export declare function directionHueIs(obj: unknown): obj is DirectionHue;
+/** Nested error structure matching the data shape  */
+export type DirectionHueErrors = {
+	_errors: Option.Option<Array<string>>;
+	bearing: Option.Option<Array<string>>;
+	hue: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type DirectionHueTainted = {
+	bearing: Option.Option<boolean>;
+	hue: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface DirectionHueFieldControllers {
+	readonly bearing: FieldController<number>;
+	readonly hue: FieldController<number>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface DirectionHueGigaform {
+	readonly data: DirectionHue;
+	readonly errors: DirectionHueErrors;
+	readonly tainted: DirectionHueTainted;
+	readonly fields: DirectionHueFieldControllers;
+	validate(): Exit.Exit<DirectionHue, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<DirectionHue>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function directionHueCreateForm(overrides?: Partial<DirectionHue>): DirectionHueGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function directionHueFromFormData(formData: FormData): Exit.Exit<DirectionHue, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const DirectionHue: {
+	readonly defaultValue: typeof directionHueDefaultValue;
+	readonly encode: typeof directionHueEncode;
+	readonly encodeWithContext: typeof directionHueEncodeWithContext;
+	readonly decode: typeof directionHueDecode;
+	readonly decodeWithContext: typeof directionHueDecodeWithContext;
+	readonly validateField: typeof directionHueValidateField;
+	readonly validateFields: typeof directionHueValidateFields;
+	readonly hasShape: typeof directionHueHasShape;
+	readonly is: typeof directionHueIs;
+	readonly createForm: typeof directionHueCreateForm;
+	readonly fromFormData: typeof directionHueFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 421..479
+original 107..179 -> expanded 479..551
+original 179..180 -> expanded 12054..12055
+generated 0..421 <- imports
+generated 551..669 <- Default
+generated 669..1831 <- Encode
+generated 1831..6199 <- Decode
+generated 6199..10976 <- Gigaform
+generated 10976..12054 <- __convenience_const
+
+## Metadata
+
+interface DirectionHue: {"body_span":{"end":180,"start":139},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"bearing","optional":false,"readonly":false,"span":{"end":161,"start":145},"ts_type":"number"},{"decorators":[],"name":"hue","optional":false,"readonly":false,"span":{"end":178,"start":166},"ts_type":"number"}],"heritage":[],"methods":[],"name":"DirectionHue","span":{"end":180,"start":116},"type_params":[]}
+
+## Registry reads
+
+Name("number")
+
+## Buildtime dependencies
+
+(none)

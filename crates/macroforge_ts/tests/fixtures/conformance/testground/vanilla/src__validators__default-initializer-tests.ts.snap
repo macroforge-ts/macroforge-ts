@@ -1,0 +1,718 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/validators/default-initializer-tests.ts
+sha256 0b31303a575f2daba8a5729c9cd19981eb04817e3f71df4b319dbc4d41912cec
+
+## Changed
+
+true
+
+## Output
+
+import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+// Default on classes whose fields have initializers, derived beside Decode,
+// whose constructor takes arguments.
+
+/** @derive(Default, Decode) */
+export class Settings {
+    theme: string = 'dark';
+    retries?: number = 3;
+    label?: string;
+    tags: string[] = ['general'];
+    /** @default(7) */
+    limit: number = 5;
+    createdAt: number = Date.now();
+    static instances: number = 0;
+
+    static defaultValue(): Settings {
+
+        const instance: Settings = Object.create(Settings.prototype);
+        instance.theme = "dark";
+        instance.retries = 3;
+        instance.tags = ["general"];
+        instance.limit = 7;
+        instance.createdAt = Date.now();
+        return instance;
+    }
+
+    constructor(props: { theme: string; retries?: number; label?: string; tags: string[]; limit: number; createdAt: number }) {
+        this.theme = props.theme;
+        this.retries = props.retries;
+        this.label = props.label;
+        this.tags = props.tags;
+        this.limit = props.limit;
+        this.createdAt = props.createdAt;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = Settings.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "Settings.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "Settings.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as Settings | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "Settings.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("theme" in obj)) {
+            errors.push({ field: "theme", message: "missing required field" });
+        }
+        if (!("tags" in obj)) {
+            errors.push({ field: "tags", message: "missing required field" });
+        }
+        if (!("limit" in obj)) {
+            errors.push({ field: "limit", message: "missing required field" });
+        }
+        if (!("createdAt" in obj)) {
+            errors.push({ field: "createdAt", message: "missing required field" });
+        }
+
+        const instance = Object.create(Settings.prototype) as Settings;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_theme = obj["theme"] as string;
+
+            if (!(typeof __raw_theme === "string")) {
+                errors.push({ field: "theme", message: __raw_theme == null ? "Settings.theme is required" : "expected string" });
+            } else {
+                instance.theme = __raw_theme;
+            }
+        }
+        if ("retries" in obj && obj["retries"] !== undefined) {
+            const __raw_retries = obj["retries"] as number;
+
+            if (!(typeof __raw_retries === "number")) {
+                errors.push({ field: "retries", message: "expected number" });
+            } else {
+                instance.retries = __raw_retries;
+            }
+        }
+        if ("label" in obj && obj["label"] !== undefined) {
+            const __raw_label = obj["label"] as string;
+
+            if (!(typeof __raw_label === "string")) {
+                errors.push({ field: "label", message: "expected string" });
+            } else {
+                instance.label = __raw_label;
+            }
+        }
+        {
+            const __raw_tags = obj["tags"] as string[];
+
+            if (Array.isArray(__raw_tags)) {
+                instance.tags = __raw_tags as string[];
+            }
+        }
+        {
+            const __raw_limit = obj["limit"] as number;
+
+            if (!(typeof __raw_limit === "number")) {
+                errors.push({ field: "limit", message: __raw_limit == null ? "Settings.limit is required" : "expected number" });
+            } else {
+                instance.limit = __raw_limit;
+            }
+        }
+        {
+            const __raw_createdAt = obj["createdAt"] as number;
+
+            if (!(typeof __raw_createdAt === "number")) {
+                errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Settings.createdAt is required" : "expected number" });
+            } else {
+                instance.createdAt = __raw_createdAt;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof Settings>(field: K, value: unknown): Array<{ field: string; message: string }>;
+    static validateField(): Array<{ field: string; message: string }> {
+        return [];
+    }
+
+    static validateFields(partial: { readonly [K in keyof Settings]?: unknown }): Array<{ field: string; message: string }>;
+    static validateFields(): Array<{ field: string; message: string }> {
+        return [];
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "theme" in o && "tags" in o && "limit" in o && "createdAt" in o;
+    }
+
+    static is(obj: unknown): obj is Settings {
+        if (obj instanceof Settings) {
+            return true;
+        }
+        if (!Settings.hasShape(obj)) {
+            return false;
+        }
+        const result = Settings.decode(obj);
+        return result.success;
+    }
+}
+
+export function settingsDefaultValue(): Settings {
+    return Settings.defaultValue();
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return Settings.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef {
+    return Settings.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function settingsIs(value: unknown): value is Settings {
+    return Settings.is(value);
+}
+
+/** @derive(Default) */
+export class Greeter {
+    name: string = 'world';
+    greet: () => string = function (this: Greeter): string {
+        return `hello ${this.name}`;
+    };
+
+static defaultValue(): Greeter {
+
+    const instance: Greeter = Object.create(Greeter.prototype);
+    instance.name = "world";
+    instance.greet = (function(this: Greeter): string {
+	return `hello ${this.name}`;
+});
+    return instance;
+}
+}
+
+export function greeterDefaultValue(): Greeter {
+    return Greeter.defaultValue();
+}
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode, Default) */
+export class Counter {
+    static created: number = 0;
+    count: number = 1;
+
+    static toString(value: Counter): string {
+        return counterToString(value);
+    }
+
+    static clone(value: Counter): Counter {
+        return counterClone(value);
+    }
+
+    static equals(a: Counter, b: Counter): boolean {
+        return counterEquals(a, b);
+    }
+
+    static hashCode(value: Counter): number {
+        return counterHashCode(value);
+    }
+
+    static partialCompare(a: Counter, b: Counter): number | null {
+        return counterPartialCompare(a, b);
+    }
+
+    static compare(a: Counter, b: Counter): number {
+        return counterCompare(a, b);
+    }
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: Counter, keepMetadata?: boolean): string {
+        return counterEncode(value, keepMetadata);
+    }
+
+    /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+    static encodeWithContext(value: Counter, ctx: __mf_EncodeContext): Record<string, unknown> {
+        return counterEncodeWithContext(value, ctx);
+    }
+
+    constructor(props: { count: number }) {
+        this.count = props.count;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Counter } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = Counter.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "Counter.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Counter | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "Counter.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as Counter | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "Counter.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("count" in obj)) {
+            errors.push({ field: "count", message: "missing required field" });
+        }
+
+        const instance = Object.create(Counter.prototype) as Counter;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_count = obj["count"] as number;
+
+            if (!(typeof __raw_count === "number")) {
+                errors.push({ field: "count", message: __raw_count == null ? "Counter.count is required" : "expected number" });
+            } else {
+                instance.count = __raw_count;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof Counter>(field: K, value: unknown): Array<{ field: string; message: string }>;
+    static validateField(): Array<{ field: string; message: string }> {
+        return [];
+    }
+
+    static validateFields(partial: { readonly [K in keyof Counter]?: unknown }): Array<{ field: string; message: string }>;
+    static validateFields(): Array<{ field: string; message: string }> {
+        return [];
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "count" in o;
+    }
+
+    static is(obj: unknown): obj is Counter {
+        if (obj instanceof Counter) {
+            return true;
+        }
+        if (!Counter.hasShape(obj)) {
+            return false;
+        }
+        const result = Counter.decode(obj);
+        return result.success;
+    }
+
+    static defaultValue(): Counter {
+
+        const instance: Counter = Object.create(Counter.prototype);
+        instance.count = 1;
+        return instance;
+    }
+}
+
+export function counterToString(value: Counter): string {
+    const parts: string[] = [];
+    parts.push("count: " + String(value.count));
+    return "Counter { " + parts.join(", ") + " }";
+}
+
+export function counterClone(value: Counter): Counter {
+    const cloned = Object.create(Object.getPrototypeOf(value));
+    cloned.count = value.count;
+    return cloned;
+}
+
+export function counterEquals(a: Counter, b: Counter): boolean {
+    if (a === b) return true;
+    return a.count === b.count;
+}
+
+export function counterHashCode(value: Counter): number {
+    let hash = 17;
+    hash = (hash * 31 + (Number.isInteger(value.count) ? value.count | 0 : value.count.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    return hash;
+}
+
+export function counterPartialCompare(a: Counter, b: Counter): number | null {
+    if (a === b) return 0;
+    const cmp0 = (a.count < b.count ? -1 : a.count > b.count ? 1 : a.count === b.count ? 0 : null);
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    return 0;
+}
+
+export function counterCompare(a: Counter, b: Counter): number {
+    if (a === b) return 0;
+    const cmp0 = a.count < b.count ? -1 : a.count > b.count ? 1 : 0;
+    if (cmp0 !== 0) return cmp0;
+    return 0;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function counterEncode(value: Counter, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = counterEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function counterEncodeWithContext(value: Counter, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Counter",
+        __id,
+    };
+
+    
+    result.count = value.count;
+
+    return result;
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function counterDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Counter } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return Counter.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function counterDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Counter | __mf_PendingRef {
+    return Counter.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function counterIs(value: unknown): value is Counter {
+    return Counter.is(value);
+}
+
+export function counterDefaultValue(): Counter {
+    return Counter.defaultValue();
+}
+
+## DTS
+
+/** @derive(Default, Decode) */
+export declare class Settings {
+	theme: string;
+	retries?: number;
+	label?: string;
+	tags: string[];
+	/** @default(7) */
+	limit: number;
+	createdAt: number;
+	static instances: number;
+	static defaultValue(): Settings;
+	constructor(props: {
+		theme: string;
+		retries?: number;
+		label?: string;
+		tags: string[];
+		limit: number;
+		createdAt: number;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: Settings;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef;
+	static validateField<K extends keyof Settings>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof Settings]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is Settings;
+}
+export declare function settingsDefaultValue(): Settings;
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Settings;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function settingsIs(value: unknown): value is Settings;
+/** @derive(Default) */
+export declare class Greeter {
+	name: string;
+	greet: () => string;
+	static defaultValue(): Greeter;
+}
+export declare function greeterDefaultValue(): Greeter;
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode, Default) */
+export declare class Counter {
+	static created: number;
+	count: number;
+	static toString(value: Counter): string;
+	static clone(value: Counter): Counter;
+	static equals(a: Counter, b: Counter): boolean;
+	static hashCode(value: Counter): number;
+	static partialCompare(a: Counter, b: Counter): number | null;
+	static compare(a: Counter, b: Counter): number;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: Counter, keepMetadata?: boolean): string;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: Counter, ctx: __mf_EncodeContext): Record<string, unknown>;
+	constructor(props: {
+		count: number;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: Counter;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Counter | __mf_PendingRef;
+	static validateField<K extends keyof Counter>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof Counter]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is Counter;
+	static defaultValue(): Counter;
+}
+export declare function counterToString(value: Counter): string;
+export declare function counterClone(value: Counter): Counter;
+export declare function counterEquals(a: Counter, b: Counter): boolean;
+export declare function counterHashCode(value: Counter): number;
+export declare function counterPartialCompare(a: Counter, b: Counter): number | null;
+export declare function counterCompare(a: Counter, b: Counter): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function counterEncode(value: Counter, keepMetadata?: boolean): string;
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function counterEncodeWithContext(value: Counter, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function counterDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Counter;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function counterDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Counter | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function counterIs(value: unknown): value is Counter;
+export declare function counterDefaultValue(): Counter;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..396 -> expanded 262..658
+original 396..397 -> expanded 7640..7641
+original 397..579 -> expanded 8785..8967
+original 579..580 -> expanded 9208..9209
+original 580..752 -> expanded 9296..9468
+original 752..753 -> expanded 15215..15216
+original 753..754 -> expanded 18720..18721
+generated 0..262 <- imports
+generated 658..968 <- Default
+generated 968..7640 <- Decode
+generated 7641..7731 <- Default
+generated 7731..8785 <- Decode
+generated 8967..9208 <- Default
+generated 9209..9296 <- Default
+generated 9468..9560 <- Debug
+generated 9560..9647 <- Clone
+generated 9647..9743 <- PartialEq
+generated 9743..9835 <- Hash
+generated 9835..9953 <- PartialOrd
+generated 9953..10050 <- Ord
+generated 10050..10685 <- Encode
+generated 10685..15049 <- Decode
+generated 15049..15215 <- Default
+generated 15216..15409 <- Debug
+generated 15409..15583 <- Clone
+generated 15583..15713 <- PartialEq
+generated 15713..15975 <- Hash
+generated 15975..16267 <- PartialOrd
+generated 16267..16478 <- Ord
+generated 16478..17588 <- Encode
+generated 17588..18633 <- Decode
+generated 18633..18720 <- Default
+
+## Metadata
+
+class Settings: {"body_span":{"end":398,"start":171},"decorators":[{"args_src":"Default, Decode","name":"Derive","span":{"end":148,"start":117}}],"fields":[{"decorators":[],"initializer":"'dark'","name":"theme","optional":false,"readonly":false,"span":{"end":200,"start":177},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"3","name":"retries","optional":true,"readonly":false,"span":{"end":226,"start":205},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"name":"label","optional":true,"readonly":false,"span":{"end":246,"start":231},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"['general']","name":"tags","optional":false,"readonly":false,"span":{"end":280,"start":251},"ts_type":"string[]","visibility":"Public"},{"decorators":[{"args_src":"7","name":"default","span":{"end":303,"start":285}}],"initializer":"5","name":"limit","optional":false,"readonly":false,"span":{"end":326,"start":308},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"Date.now()","name":"createdAt","optional":false,"readonly":false,"span":{"end":362,"start":331},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Settings","span":{"end":398,"start":156},"type_params":[]}
+class Greeter: {"body_span":{"end":581,"start":445},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":423,"start":400}}],"fields":[{"decorators":[],"initializer":"'world'","name":"name","optional":false,"readonly":false,"span":{"end":474,"start":451},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"function (this: Greeter): string {\n        return `hello ${this.name}`;\n    }","name":"greet","optional":false,"readonly":false,"span":{"end":579,"start":479},"ts_type":"() => string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Greeter","span":{"end":581,"start":431},"type_params":[]}
+class Counter: {"body_span":{"end":754,"start":696},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode, Default","name":"Derive","span":{"end":674,"start":583}}],"fields":[{"decorators":[],"initializer":"1","name":"count","optional":false,"readonly":false,"span":{"end":752,"start":734},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Counter","span":{"end":754,"start":682},"type_params":[]}
+
+## Registry reads
+
+Name("() => string")
+
+## Buildtime dependencies
+
+(none)

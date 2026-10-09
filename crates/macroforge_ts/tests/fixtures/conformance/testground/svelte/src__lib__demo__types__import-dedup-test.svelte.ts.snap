@@ -1,0 +1,953 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/import-dedup-test.svelte.ts
+sha256 4ed852adc41aff68f0b36607bb0c2fd00e04bdf43f666ceb5c287137b388f968
+
+## Changed
+
+true
+
+## Output
+
+import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * Stress test for aliased imports and tree-shaking.
+ *
+ * Macroforge now imports specific functions with `__mf_` prefixed aliases
+ * to avoid any risk of collision with user imports:
+ *
+ * - `import { succeed as __mf_exitSucceed } from "effect/Exit";`
+ * - `import { some as __mf_optionSome } from "effect/Option";`
+ *
+ * This approach:
+ * - Eliminates namespace collisions with user imports
+ * - Enables better tree-shaking (only specific functions imported)
+ * - Is explicit about what macroforge uses
+ *
+ * The user's `import { Exit, Option } from "effect"` is preserved and works
+ * alongside the aliased imports without any conflict.
+ */
+
+import { Exit, Option } from 'effect';
+
+// Test 1: Type with Decode (uses Exit for return type)
+
+export interface UserWithDecode {
+    name: string;
+    age: number;
+    email: string;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function userWithDecodeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserWithDecode } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = userWithDecodeDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "UserWithDecode.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UserWithDecode | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "UserWithDecode.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as UserWithDecode | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "UserWithDecode.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("name" in obj)) {
+        errors.push({ field: "name", message: "missing required field" });
+    }
+    if (!("age" in obj)) {
+        errors.push({ field: "age", message: "missing required field" });
+    }
+    if (!("email" in obj)) {
+        errors.push({ field: "email", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_name = obj["name"] as string;
+
+        if (!(typeof __raw_name === "string")) {
+            errors.push({ field: "name", message: __raw_name == null ? "UserWithDecode.name is required" : "expected string" });
+        } else {
+            instance.name = __raw_name;
+        }
+    }
+    {
+        const __raw_age = obj["age"] as number;
+
+        if (!(typeof __raw_age === "number")) {
+            errors.push({ field: "age", message: __raw_age == null ? "UserWithDecode.age is required" : "expected number" });
+        } else {
+            instance.age = __raw_age;
+        }
+    }
+    {
+        const __raw_email = obj["email"] as string;
+
+        if (!(typeof __raw_email === "string")) {
+            errors.push({ field: "email", message: __raw_email == null ? "UserWithDecode.email is required" : "expected string" });
+        } else {
+            instance.email = __raw_email;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as UserWithDecode;
+}
+export function userWithDecodeValidateField<K extends keyof UserWithDecode>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function userWithDecodeValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function userWithDecodeValidateFields(partial: { readonly [K in keyof UserWithDecode]?: unknown }): Array<{ field: string; message: string }>;
+export function userWithDecodeValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function userWithDecodeHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "name" in o && "age" in o && "email" in o;
+}
+
+export function userWithDecodeIs(obj: unknown): obj is UserWithDecode {
+    return userWithDecodeHasShape(obj) && userWithDecodeDecode(obj).success;
+}
+
+export const UserWithDecode: {
+  readonly decode: typeof userWithDecodeDecode;
+  readonly decodeWithContext: typeof userWithDecodeDecodeWithContext;
+  readonly validateField: typeof userWithDecodeValidateField;
+  readonly validateFields: typeof userWithDecodeValidateFields;
+  readonly hasShape: typeof userWithDecodeHasShape;
+  readonly is: typeof userWithDecodeIs;
+} = {
+  decode: userWithDecodeDecode,
+  decodeWithContext: userWithDecodeDecodeWithContext,
+  validateField: userWithDecodeValidateField,
+  validateFields: userWithDecodeValidateFields,
+  hasShape: userWithDecodeHasShape,
+  is: userWithDecodeIs
+};
+
+// Test 2: Type with PartialOrd (uses Option for return type)
+
+export interface ComparableItem {
+    priority: number;
+    name: string;
+}
+
+export function comparableItemEquals(a: ComparableItem, b: ComparableItem): boolean {
+    if (a === b) return true;
+    return a.priority === b.priority && a.name === b.name;
+}
+
+export function comparableItemPartialCompare(a: ComparableItem, b: ComparableItem): number | null {
+    if (a === b) return 0;
+    const cmp0 = (a.priority < b.priority ? -1 : a.priority > b.priority ? 1 : a.priority === b.priority ? 0 : null);
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+    if (cmp1 === null) return null;
+    if (cmp1 !== 0) return cmp1;
+    return 0;
+}
+
+export const ComparableItem: {
+  readonly equals: typeof comparableItemEquals;
+  readonly partialCompare: typeof comparableItemPartialCompare;
+} = {
+  equals: comparableItemEquals,
+  partialCompare: comparableItemPartialCompare
+};
+
+// Test 3: Type with both Decode and PartialOrd
+
+export interface FullFeaturedType {
+    id: number;
+    value: string;
+    score: number;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function fullFeaturedTypeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: FullFeaturedType } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = fullFeaturedTypeDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "FullFeaturedType.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): FullFeaturedType | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "FullFeaturedType.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as FullFeaturedType | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "FullFeaturedType.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+    if (!("value" in obj)) {
+        errors.push({ field: "value", message: "missing required field" });
+    }
+    if (!("score" in obj)) {
+        errors.push({ field: "score", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_id = obj["id"] as number;
+
+        if (!(typeof __raw_id === "number")) {
+            errors.push({ field: "id", message: __raw_id == null ? "FullFeaturedType.id is required" : "expected number" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    {
+        const __raw_value = obj["value"] as string;
+
+        if (!(typeof __raw_value === "string")) {
+            errors.push({ field: "value", message: __raw_value == null ? "FullFeaturedType.value is required" : "expected string" });
+        } else {
+            instance.value = __raw_value;
+        }
+    }
+    {
+        const __raw_score = obj["score"] as number;
+
+        if (!(typeof __raw_score === "number")) {
+            errors.push({ field: "score", message: __raw_score == null ? "FullFeaturedType.score is required" : "expected number" });
+        } else {
+            instance.score = __raw_score;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as FullFeaturedType;
+}
+export function fullFeaturedTypeValidateField<K extends keyof FullFeaturedType>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function fullFeaturedTypeValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function fullFeaturedTypeValidateFields(partial: { readonly [K in keyof FullFeaturedType]?: unknown }): Array<{ field: string; message: string }>;
+export function fullFeaturedTypeValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function fullFeaturedTypeHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "id" in o && "value" in o && "score" in o;
+}
+
+export function fullFeaturedTypeIs(obj: unknown): obj is FullFeaturedType {
+    return fullFeaturedTypeHasShape(obj) && fullFeaturedTypeDecode(obj).success;
+}
+
+export function fullFeaturedTypeEquals(a: FullFeaturedType, b: FullFeaturedType): boolean {
+    if (a === b) return true;
+    return a.id === b.id && a.value === b.value && a.score === b.score;
+}
+
+export function fullFeaturedTypePartialCompare(a: FullFeaturedType, b: FullFeaturedType): number | null {
+    if (a === b) return 0;
+    const cmp0 = (a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id ? 0 : null);
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = (a.value < b.value ? -1 : a.value > b.value ? 1 : 0);
+    if (cmp1 === null) return null;
+    if (cmp1 !== 0) return cmp1;
+    const cmp2 = (a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score ? 0 : null);
+    if (cmp2 === null) return null;
+    if (cmp2 !== 0) return cmp2;
+    return 0;
+}
+
+export const FullFeaturedType: {
+  readonly decode: typeof fullFeaturedTypeDecode;
+  readonly decodeWithContext: typeof fullFeaturedTypeDecodeWithContext;
+  readonly validateField: typeof fullFeaturedTypeValidateField;
+  readonly validateFields: typeof fullFeaturedTypeValidateFields;
+  readonly hasShape: typeof fullFeaturedTypeHasShape;
+  readonly is: typeof fullFeaturedTypeIs;
+  readonly equals: typeof fullFeaturedTypeEquals;
+  readonly partialCompare: typeof fullFeaturedTypePartialCompare;
+} = {
+  decode: fullFeaturedTypeDecode,
+  decodeWithContext: fullFeaturedTypeDecodeWithContext,
+  validateField: fullFeaturedTypeValidateField,
+  validateFields: fullFeaturedTypeValidateFields,
+  hasShape: fullFeaturedTypeHasShape,
+  is: fullFeaturedTypeIs,
+  equals: fullFeaturedTypeEquals,
+  partialCompare: fullFeaturedTypePartialCompare
+};
+
+// Test 4: Multiple types to stress test deduplication across types
+
+export interface TypeA {
+    fieldA: string;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function typeADecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TypeA } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = typeADecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "TypeA.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function typeADecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TypeA | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "TypeA.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as TypeA | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "TypeA.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("fieldA" in obj)) {
+        errors.push({ field: "fieldA", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_fieldA = obj["fieldA"] as string;
+
+        if (!(typeof __raw_fieldA === "string")) {
+            errors.push({ field: "fieldA", message: __raw_fieldA == null ? "TypeA.fieldA is required" : "expected string" });
+        } else {
+            instance.fieldA = __raw_fieldA;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as TypeA;
+}
+export function typeAValidateField<K extends keyof TypeA>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function typeAValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function typeAValidateFields(partial: { readonly [K in keyof TypeA]?: unknown }): Array<{ field: string; message: string }>;
+export function typeAValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function typeAHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "fieldA" in o;
+}
+
+export function typeAIs(obj: unknown): obj is TypeA {
+    return typeAHasShape(obj) && typeADecode(obj).success;
+}
+
+export const TypeA: {
+  readonly decode: typeof typeADecode;
+  readonly decodeWithContext: typeof typeADecodeWithContext;
+  readonly validateField: typeof typeAValidateField;
+  readonly validateFields: typeof typeAValidateFields;
+  readonly hasShape: typeof typeAHasShape;
+  readonly is: typeof typeAIs;
+} = {
+  decode: typeADecode,
+  decodeWithContext: typeADecodeWithContext,
+  validateField: typeAValidateField,
+  validateFields: typeAValidateFields,
+  hasShape: typeAHasShape,
+  is: typeAIs
+};
+
+
+export interface TypeB {
+    fieldB: number;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function typeBDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TypeB } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = typeBDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "TypeB.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TypeB | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "TypeB.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as TypeB | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "TypeB.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("fieldB" in obj)) {
+        errors.push({ field: "fieldB", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_fieldB = obj["fieldB"] as number;
+
+        if (!(typeof __raw_fieldB === "number")) {
+            errors.push({ field: "fieldB", message: __raw_fieldB == null ? "TypeB.fieldB is required" : "expected number" });
+        } else {
+            instance.fieldB = __raw_fieldB;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as TypeB;
+}
+export function typeBValidateField<K extends keyof TypeB>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function typeBValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function typeBValidateFields(partial: { readonly [K in keyof TypeB]?: unknown }): Array<{ field: string; message: string }>;
+export function typeBValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function typeBHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "fieldB" in o;
+}
+
+export function typeBIs(obj: unknown): obj is TypeB {
+    return typeBHasShape(obj) && typeBDecode(obj).success;
+}
+
+export const TypeB: {
+  readonly decode: typeof typeBDecode;
+  readonly decodeWithContext: typeof typeBDecodeWithContext;
+  readonly validateField: typeof typeBValidateField;
+  readonly validateFields: typeof typeBValidateFields;
+  readonly hasShape: typeof typeBHasShape;
+  readonly is: typeof typeBIs;
+} = {
+  decode: typeBDecode,
+  decodeWithContext: typeBDecodeWithContext,
+  validateField: typeBValidateField,
+  validateFields: typeBValidateFields,
+  hasShape: typeBHasShape,
+  is: typeBIs
+};
+
+
+export interface TypeC {
+    fieldC: number;
+}
+
+export function typeCEquals(a: TypeC, b: TypeC): boolean {
+    if (a === b) return true;
+    return a.fieldC === b.fieldC;
+}
+
+export function typeCPartialCompare(a: TypeC, b: TypeC): number | null {
+    if (a === b) return 0;
+    const cmp0 = (a.fieldC < b.fieldC ? -1 : a.fieldC > b.fieldC ? 1 : a.fieldC === b.fieldC ? 0 : null);
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    return 0;
+}
+
+export const TypeC: {
+  readonly equals: typeof typeCEquals;
+  readonly partialCompare: typeof typeCPartialCompare;
+} = {
+  equals: typeCEquals,
+  partialCompare: typeCPartialCompare
+};
+
+// Export a helper to verify imports work at runtime
+export function verifyImports(): void {
+    // These should work because we imported from "effect"
+    const success = Exit.succeed({
+        name: 'test',
+        age: 25,
+        email: 'test@example.com'
+    });
+    const failure = Exit.fail([{ field: 'name', message: 'required' }]);
+    const some = Option.some(42);
+    const none = Option.none();
+
+    console.log('Exit.isSuccess:', Exit.isSuccess(success));
+    console.log('Exit.isFailure:', Exit.isFailure(failure));
+    console.log('Option.isSome:', Option.isSome(some));
+    console.log('Option.isNone:', Option.isNone(none));
+}
+
+## DTS
+
+export interface UserWithDecode {
+	name: string;
+	age: number;
+	email: string;
+}
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function userWithDecodeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: UserWithDecode;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UserWithDecode | __mf_PendingRef;
+export declare function userWithDecodeValidateField<K extends keyof UserWithDecode>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function userWithDecodeValidateFields(partial: { readonly [K in keyof UserWithDecode]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function userWithDecodeHasShape(obj: unknown): boolean;
+export declare function userWithDecodeIs(obj: unknown): obj is UserWithDecode;
+export declare const UserWithDecode: {
+	readonly decode: typeof userWithDecodeDecode;
+	readonly decodeWithContext: typeof userWithDecodeDecodeWithContext;
+	readonly validateField: typeof userWithDecodeValidateField;
+	readonly validateFields: typeof userWithDecodeValidateFields;
+	readonly hasShape: typeof userWithDecodeHasShape;
+	readonly is: typeof userWithDecodeIs;
+};
+export interface ComparableItem {
+	priority: number;
+	name: string;
+}
+export declare function comparableItemEquals(a: ComparableItem, b: ComparableItem): boolean;
+export declare function comparableItemPartialCompare(a: ComparableItem, b: ComparableItem): number | null;
+export declare const ComparableItem: {
+	readonly equals: typeof comparableItemEquals;
+	readonly partialCompare: typeof comparableItemPartialCompare;
+};
+export interface FullFeaturedType {
+	id: number;
+	value: string;
+	score: number;
+}
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function fullFeaturedTypeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: FullFeaturedType;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): FullFeaturedType | __mf_PendingRef;
+export declare function fullFeaturedTypeValidateField<K extends keyof FullFeaturedType>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function fullFeaturedTypeValidateFields(partial: { readonly [K in keyof FullFeaturedType]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function fullFeaturedTypeHasShape(obj: unknown): boolean;
+export declare function fullFeaturedTypeIs(obj: unknown): obj is FullFeaturedType;
+export declare function fullFeaturedTypeEquals(a: FullFeaturedType, b: FullFeaturedType): boolean;
+export declare function fullFeaturedTypePartialCompare(a: FullFeaturedType, b: FullFeaturedType): number | null;
+export declare const FullFeaturedType: {
+	readonly decode: typeof fullFeaturedTypeDecode;
+	readonly decodeWithContext: typeof fullFeaturedTypeDecodeWithContext;
+	readonly validateField: typeof fullFeaturedTypeValidateField;
+	readonly validateFields: typeof fullFeaturedTypeValidateFields;
+	readonly hasShape: typeof fullFeaturedTypeHasShape;
+	readonly is: typeof fullFeaturedTypeIs;
+	readonly equals: typeof fullFeaturedTypeEquals;
+	readonly partialCompare: typeof fullFeaturedTypePartialCompare;
+};
+export interface TypeA {
+	fieldA: string;
+}
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function typeADecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: TypeA;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function typeADecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TypeA | __mf_PendingRef;
+export declare function typeAValidateField<K extends keyof TypeA>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function typeAValidateFields(partial: { readonly [K in keyof TypeA]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function typeAHasShape(obj: unknown): boolean;
+export declare function typeAIs(obj: unknown): obj is TypeA;
+export declare const TypeA: {
+	readonly decode: typeof typeADecode;
+	readonly decodeWithContext: typeof typeADecodeWithContext;
+	readonly validateField: typeof typeAValidateField;
+	readonly validateFields: typeof typeAValidateFields;
+	readonly hasShape: typeof typeAHasShape;
+	readonly is: typeof typeAIs;
+};
+export interface TypeB {
+	fieldB: number;
+}
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function typeBDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: TypeB;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TypeB | __mf_PendingRef;
+export declare function typeBValidateField<K extends keyof TypeB>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function typeBValidateFields(partial: { readonly [K in keyof TypeB]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function typeBHasShape(obj: unknown): boolean;
+export declare function typeBIs(obj: unknown): obj is TypeB;
+export declare const TypeB: {
+	readonly decode: typeof typeBDecode;
+	readonly decodeWithContext: typeof typeBDecodeWithContext;
+	readonly validateField: typeof typeBValidateField;
+	readonly validateFields: typeof typeBValidateFields;
+	readonly hasShape: typeof typeBHasShape;
+	readonly is: typeof typeBIs;
+};
+export interface TypeC {
+	fieldC: number;
+}
+export declare function typeCEquals(a: TypeC, b: TypeC): boolean;
+export declare function typeCPartialCompare(a: TypeC, b: TypeC): number | null;
+export declare const TypeC: {
+	readonly equals: typeof typeCEquals;
+	readonly partialCompare: typeof typeCPartialCompare;
+};
+export declare function verifyImports(): void;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..745 -> expanded 225..970
+original 767..857 -> expanded 970..1060
+original 857..921 -> expanded 6500..6564
+original 958..1034 -> expanded 6564..6640
+original 1034..1084 -> expanded 7517..7567
+original 1129..1221 -> expanded 7567..7659
+original 1221..1291 -> expanded 14180..14250
+original 1313..1360 -> expanded 14250..14297
+original 1360..1362 -> expanded 18580..18582
+original 1384..1431 -> expanded 18582..18629
+original 1431..1433 -> expanded 22912..22914
+original 1470..1517 -> expanded 22914..22961
+original 1517..2163 -> expanded 23566..24212
+generated 0..225 <- imports
+generated 1060..5884 <- Decode
+generated 5884..6500 <- __convenience_const
+generated 6640..6818 <- PartialEq
+generated 6818..7285 <- PartialOrd
+generated 7285..7517 <- __convenience_const
+generated 7659..12531 <- Decode
+generated 12531..12728 <- PartialEq
+generated 12728..13338 <- PartialOrd
+generated 13338..14180 <- __convenience_const
+generated 14297..18081 <- Decode
+generated 18081..18580 <- __convenience_const
+generated 18629..22413 <- Decode
+generated 22413..22912 <- __convenience_const
+generated 22961..23087 <- PartialEq
+generated 23087..23379 <- PartialOrd
+generated 23379..23566 <- __convenience_const
+
+## Metadata
+
+interface UserWithDecode: {"body_span":{"end":858,"start":801},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":768,"start":746}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":820,"start":807},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":837,"start":825},"ts_type":"number"},{"decorators":[],"name":"email","optional":false,"readonly":false,"span":{"end":856,"start":842},"ts_type":"string"}],"heritage":[],"methods":[],"name":"UserWithDecode","span":{"end":858,"start":776},"type_params":[]}
+interface ComparableItem: {"body_span":{"end":1035,"start":992},"decorators":[{"args_src":"PartialEq, PartialOrd","name":"Derive","span":{"end":959,"start":922}}],"fields":[{"decorators":[],"name":"priority","optional":false,"readonly":false,"span":{"end":1015,"start":998},"ts_type":"number"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":1033,"start":1020},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ComparableItem","span":{"end":1035,"start":967},"type_params":[]}
+interface FullFeaturedType: {"body_span":{"end":1222,"start":1165},"decorators":[{"args_src":"Decode, PartialEq, PartialOrd","name":"Derive","span":{"end":1130,"start":1085}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":1182,"start":1171},"ts_type":"number"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":1201,"start":1187},"ts_type":"string"},{"decorators":[],"name":"score","optional":false,"readonly":false,"span":{"end":1220,"start":1206},"ts_type":"number"}],"heritage":[],"methods":[],"name":"FullFeaturedType","span":{"end":1222,"start":1138},"type_params":[]}
+interface TypeA: {"body_span":{"end":1361,"start":1338},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1314,"start":1292}}],"fields":[{"decorators":[],"name":"fieldA","optional":false,"readonly":false,"span":{"end":1359,"start":1344},"ts_type":"string"}],"heritage":[],"methods":[],"name":"TypeA","span":{"end":1361,"start":1322},"type_params":[]}
+interface TypeB: {"body_span":{"end":1432,"start":1409},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1385,"start":1363}}],"fields":[{"decorators":[],"name":"fieldB","optional":false,"readonly":false,"span":{"end":1430,"start":1415},"ts_type":"number"}],"heritage":[],"methods":[],"name":"TypeB","span":{"end":1432,"start":1393},"type_params":[]}
+interface TypeC: {"body_span":{"end":1518,"start":1495},"decorators":[{"args_src":"PartialEq, PartialOrd","name":"Derive","span":{"end":1471,"start":1434}}],"fields":[{"decorators":[],"name":"fieldC","optional":false,"readonly":false,"span":{"end":1516,"start":1501},"ts_type":"number"}],"heritage":[],"methods":[],"name":"TypeC","span":{"end":1518,"start":1479},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

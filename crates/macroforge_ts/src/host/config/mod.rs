@@ -91,7 +91,10 @@
 //! name are ignored, falling back to generic handling.
 
 mod attribute_blocks;
+pub mod hoist;
+mod hoist_module;
 mod loader;
+pub mod manifest;
 mod resolve;
 
 #[cfg(test)]
@@ -151,6 +154,14 @@ pub(crate) const CONFIG_FILES: &[&str] = &[
     "macroforge.config.mjs",
     "macroforge.config.cjs",
 ];
+
+/// The config file in `dir`, taking the first of [`CONFIG_FILES`] present.
+pub fn config_file(dir: &std::path::Path) -> Option<std::path::PathBuf> {
+    CONFIG_FILES
+        .iter()
+        .map(|name| dir.join(name))
+        .find(|path| path.exists())
+}
 
 /// Package manifests that mark a directory as a project root.
 const PROJECT_MANIFESTS: &[&str] = &["package.json", "deno.json", "deno.jsonc"];

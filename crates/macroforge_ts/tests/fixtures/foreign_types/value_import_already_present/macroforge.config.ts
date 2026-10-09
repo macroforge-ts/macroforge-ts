@@ -1,6 +1,5 @@
-// Target file imports DateTime as a value at the top, so the inlined
-// expression can reference `DateTime.foo` directly: the engine must
-// NOT add a redundant `__mf_DateTime` alias.
+// The target file already imports DateTime as a value. The generated file
+// still imports only the handler exports, adding no alias of DateTime.
 import { DateTime } from 'effect';
 
 export default {

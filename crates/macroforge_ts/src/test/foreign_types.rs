@@ -11,18 +11,11 @@ use crate::ts_syn::abi::DiagnosticLevel;
 // ============================================================================
 
 #[test]
-fn test_default_inlines_foreign_expression_with_cross_namespace_reference() {
-    // User repro: foreign type DateTime.Utc whose default body uses Option.
-    // Target file imports only DateTime; Option appears only inside the
-    // inlined default expression. Without aliasing + import generation, the
-    // emitted file references `Option.match` against an undefined symbol.
-    //
-    // Drive the full production flow: load a config file via
-    // `MacroforgeConfigLoader::load_and_cache` (which extracts
-    // `expression_namespaces` and `config_imports` from a real source string),
-    // then call the public expand entry point with `config_path` so the
-    // CONFIG_CACHE -> registry hand-off mirrors what the CLI / WASM bindings
-    // do at runtime.
+fn test_a_foreign_default_is_called_through_its_export() {
+    // A handler whose body reads names the target file never imports (here
+    // `Option`) is not copied into generated code: generated code imports its
+    // export from the expanded config, where the body keeps the config's own
+    // imports.
     let config_source = r#"
 import { DateTime, Option } from 'effect';
 
@@ -94,57 +87,31 @@ export interface Foo {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Option appears only in the inlined default body. The engine must
-        // emit a value import for it (aliased) so the IIFE actually runs.
         assert!(
-            result
-                .code
-                .contains("import { Option as __mf_Option } from"),
-            "Expected `import {{ Option as __mf_Option }}` to be emitted. Got:\n{}",
-            result.code
-        );
-
-        // The inlined default must use the aliased namespace, not bare Option.
-        assert!(
-            result.code.contains("__mf_Option.match"),
-            "Default IIFE should use __mf_Option.match. Got:\n{}",
+            result.code.lines().any(|line| line.starts_with("import {")
+                && line.contains("__foreign__dateTimeUtcDefault")
+                && line.ends_with(r##"} from "#macroforge/config";"##)),
+            "the default is imported by name from the expanded config. Got:\n{}",
             result.code
         );
         assert!(
-            result.code.contains("__mf_Option.getOrElse"),
-            "Default IIFE should use __mf_Option.getOrElse. Got:\n{}",
-            result.code
-        );
-
-        // DateTime is already a value import in the target, so it should NOT be
-        // re-imported under an __mf_ alias, and the body should reference it
-        // directly.
-        assert!(
-            !result.code.contains("__mf_DateTime"),
-            "DateTime is already value-imported; should not be aliased. Got:\n{}",
+            result.code.contains("__foreign__dateTimeUtcDefault()"),
+            "the default is called through its export. Got:\n{}",
             result.code
         );
         assert!(
-            result.code.contains("DateTime.make"),
-            "Default IIFE should call DateTime.make directly. Got:\n{}",
+            !result.code.contains("Option.match") && !result.code.contains("__mf_Option"),
+            "the handler body is not copied into generated code. Got:\n{}",
             result.code
         );
     }
 }
 
 #[test]
-fn test_default_inlines_foreign_expression_when_namespace_only_in_ft_from() {
-    // Variant of the user repro: the namespace referenced in the default body
-    // (here `Option`) is the foreign type's *own* surface type, but at the
-    // point we're processing a *different* foreign type (`DateTime.Utc`)
-    // whose default body also calls `Option.match`, neither
-    //   - the target file's source imports
-    //   - nor the config file's top-level imports
-    // contain `Option`. The engine must still emit a value import for it,
-    // resolving the module from the foreign type's `from` list.
-    //
-    // Pre-fix this skips silently and the inlined IIFE references undefined
-    // `Option`. After the fix, the alias and import are emitted.
+fn test_a_foreign_default_reading_another_foreign_namespace_is_called_by_export() {
+    // The default reads `Option`, which neither the target nor the config
+    // imports. Nothing needs importing in generated code: the default is
+    // called through its export, and its body stays in the expanded config.
     let config_source = r#"
 // Note: NO top-level `Option` import in the config: the namespace is
 // only known to the engine via the `Option` foreign type's `from` list.
@@ -217,28 +184,23 @@ export interface Foo {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // The default body references Option.match. The engine must emit a
-        // value import for Option even though it's not in source_imports
-        // (target only imports DateTime) and not in config_imports (config
-        // only imports DateTime). It IS configured as a foreign type, so its
-        // module is known via the Option foreign type's `from = ['effect']`.
         assert!(
-            result
-                .code
-                .contains("import { Option as __mf_Option } from"),
-            "Expected `import {{ Option as __mf_Option }}` to be emitted. Got:\n{}",
+            result.code.lines().any(|line| line.starts_with("import {")
+                && line.contains("__foreign__dateTimeUtcDefault")
+                && line.ends_with(r##"} from "#macroforge/config";"##)),
+            "the default is imported by name from the expanded config. Got:\n{}",
             result.code
         );
         assert!(
-            result.code.contains("__mf_Option.match"),
-            "Default IIFE should use __mf_Option.match. Got:\n{}",
+            !result.code.contains("Option.match") && !result.code.contains("__mf_Option"),
+            "the handler body is not copied into generated code. Got:\n{}",
             result.code
         );
     }
 }
 
 #[test]
-fn test_default_does_not_import_js_globals_referenced_in_foreign_body() {
+fn test_foreign_handlers_reading_js_globals_import_only_their_exports() {
     // Regression: a foreign-type expression body that references a JS
     // global (`console`, `Math`, `Array`, `Object`, `BigInt`, `JSON`, …)
     // must NOT cause the engine to synthesise an
@@ -335,20 +297,27 @@ export interface Foo {
             );
         }
 
-        // Globals stay unrewritten in the inlined bodies.
+        // The bodies that read the globals stay in the expanded config;
+        // generated code only imports and calls the exports.
+        let handler_imports: Vec<&str> = result
+            .code
+            .lines()
+            .filter(|line| line.ends_with(r##"} from "#macroforge/config";"##))
+            .collect();
         assert!(
-            result.code.contains("Array.isArray"),
-            "Default/decode should call Array.isArray directly. Got:\n{}",
+            handler_imports.len() == 1
+                && [
+                    "__foreign__dateTimeUtcDecode",
+                    "__foreign__dateTimeUtcDefault"
+                ]
+                .iter()
+                .all(|name| handler_imports[0].contains(name)),
+            "the handlers are imported from the expanded config in one declaration. Got:\n{}",
             result.code
         );
         assert!(
-            result.code.contains("console.error"),
-            "Decode should call console.error directly. Got:\n{}",
-            result.code
-        );
-        assert!(
-            result.code.contains("Math.floor"),
-            "Default should call Math.floor directly. Got:\n{}",
+            !result.code.contains("console.error") && !result.code.contains("Math.floor"),
+            "the handler bodies are not copied into generated code. Got:\n{}",
             result.code
         );
     }
@@ -375,7 +344,6 @@ type FlexibleValue = DateTime.DateTime | RegularType;
             Some("(raw) => DateTime.unsafeFromDate(new Date(raw))"),
             Some("() => DateTime.unsafeNow()"),
             Some("(v) => typeof v === \"string\""),
-            vec!["DateTime"],
         )]);
 
         let result = expand_test(source);
@@ -392,8 +360,7 @@ type FlexibleValue = DateTime.DateTime | RegularType;
 
         // Should use the configured decode expression, not broken camelCase helpers
         assert!(
-            result.code.contains("DateTime.unsafeFromDate")
-                || result.code.contains("__mf_DateTime.unsafeFromDate"),
+            result.code.contains("__foreign__dateTimeDateTimeDecode("),
             "Should use foreign type decode expression. Got:\n{}",
             result.code
         );
@@ -407,11 +374,72 @@ type FlexibleValue = DateTime.DateTime | RegularType;
 
         // Should use the hasShape expression for shape matching
         assert!(
-            result.code.contains("typeof v === \"string\""),
+            result.code.contains("__foreign__dateTimeDateTimeHasShape("),
             "Should use foreign type hasShape expression. Got:\n{}",
             result.code
         );
     }
+}
+
+// A string input to a union with a foreign member is that member's value when
+// its hasShape accepts the string, and JSON text otherwise. The handler is
+// imported, so the check runs at runtime rather than reading its source.
+#[test]
+fn test_derive_decode_union_keeps_a_string_its_foreign_has_shape_accepts() {
+    let source = r#"
+import type { DateTime } from 'effect';
+
+/** @derive(Decode) */
+type FlexibleValue = DateTime.DateTime | RegularType;
+"#;
+    for has_shape in ["isIsoString", "(v) => typeof v === \"number\""] {
+        set_foreign_types(vec![make_foreign_type(
+            "DateTime.DateTime",
+            vec!["effect"],
+            None,
+            Some("(raw) => DateTime.unsafeFromDate(new Date(raw))"),
+            None,
+            Some(has_shape),
+        )]);
+        let result = expand_test(source);
+        clear_foreign_types();
+
+        assert!(
+            result.code.contains(
+                r#"const data = typeof input === "string" && !__foreign__dateTimeDateTimeHasShape(input) ? JSON.parse(input) : input;"#
+            ),
+            "hasShape `{has_shape}` decides whether a string is parsed. Got:\n{}",
+            result.code
+        );
+    }
+}
+
+#[test]
+fn test_derive_decode_union_without_has_shape_parses_strings() {
+    let source = r#"
+import type { DateTime } from 'effect';
+
+/** @derive(Decode) */
+type FlexibleValue = DateTime.DateTime | RegularType;
+"#;
+    set_foreign_types(vec![make_foreign_type(
+        "DateTime.DateTime",
+        vec!["effect"],
+        None,
+        Some("(raw) => DateTime.unsafeFromDate(new Date(raw))"),
+        None,
+        None,
+    )]);
+    let result = expand_test(source);
+    clear_foreign_types();
+
+    assert!(
+        result
+            .code
+            .contains(r#"const data = typeof input === "string" ? JSON.parse(input) : input;"#),
+        "with no hasShape a string is JSON text. Got:\n{}",
+        result.code
+    );
 }
 
 #[test]
@@ -432,7 +460,6 @@ type FlexValue = DateTime.DateTime | BigDecimal.BigDecimal;
                 Some("(raw) => DateTime.unsafeFromDate(new Date(raw))"),
                 Some("() => DateTime.unsafeNow()"),
                 Some("(v) => typeof v === \"string\""),
-                vec!["DateTime"],
             ),
             make_foreign_type(
                 "BigDecimal.BigDecimal",
@@ -441,7 +468,6 @@ type FlexValue = DateTime.DateTime | BigDecimal.BigDecimal;
                 Some("(raw) => BigDecimal.fromString(String(raw))"),
                 Some("() => BigDecimal.unsafeFromNumber(0)"),
                 Some("(v) => typeof v === \"string\" || typeof v === \"number\""),
-                vec!["BigDecimal"],
             ),
         ]);
 
@@ -458,14 +484,14 @@ type FlexValue = DateTime.DateTime | BigDecimal.BigDecimal;
 
         // Both foreign decode expressions should be present
         assert!(
-            result.code.contains("DateTime.unsafeFromDate")
-                || result.code.contains("__mf_DateTime.unsafeFromDate"),
+            result.code.contains("__foreign__dateTimeDateTimeDecode("),
             "Should have DateTime foreign decode. Got:\n{}",
             result.code
         );
         assert!(
-            result.code.contains("BigDecimal.fromString")
-                || result.code.contains("__mf_BigDecimal.fromString"),
+            result
+                .code
+                .contains("__foreign__bigDecimalBigDecimalDecode("),
             "Should have BigDecimal foreign decode. Got:\n{}",
             result.code
         );
@@ -512,7 +538,6 @@ type Value = DateTime.DateTime | RegularType;
             Some("(raw) => DateTime.unsafeFromDate(new Date(raw))"),
             Some("() => DateTime.unsafeNow()"),
             None, // No hasShape
-            vec!["DateTime"],
         )]);
 
         let result = expand_test(source);
@@ -528,8 +553,7 @@ type Value = DateTime.DateTime | RegularType;
 
         // Should still use foreign decode for __type-based dispatch
         assert!(
-            result.code.contains("DateTime.unsafeFromDate")
-                || result.code.contains("__mf_DateTime.unsafeFromDate"),
+            result.code.contains("__foreign__dateTimeDateTimeDecode("),
             "Should use foreign decode even without hasShape. Got:\n{}",
             result.code
         );
@@ -560,7 +584,6 @@ type MaybeDate = DateTime.DateTime | string | number;
             Some("(raw) => DateTime.unsafeFromDate(new Date(raw))"),
             Some("() => DateTime.unsafeNow()"),
             Some("(v) => typeof v === \"string\""),
-            vec!["DateTime"],
         )]);
 
         let result = expand_test(source);
@@ -576,8 +599,7 @@ type MaybeDate = DateTime.DateTime | string | number;
 
         // Should use foreign type decode
         assert!(
-            result.code.contains("DateTime.unsafeFromDate")
-                || result.code.contains("__mf_DateTime.unsafeFromDate"),
+            result.code.contains("__foreign__dateTimeDateTimeDecode("),
             "Should use foreign type decode in mixed union. Got:\n{}",
             result.code
         );

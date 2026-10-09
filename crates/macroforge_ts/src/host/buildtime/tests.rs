@@ -676,7 +676,7 @@ const TOTAL = MULTIPLIER * 5;
 
 #[test]
 fn prepass_iife_with_ts_annotations_in_body() {
-    // Reproduces the GREETINGS issue from the vanilla playground:
+    // Reproduces the GREETINGS issue from the vanilla testground:
     // a Tier 1 IIFE whose body contains TS-only constructs.
     let src = r#"/** @buildtime */
 const GREETINGS = ((): Record<string, string> => {
@@ -708,12 +708,12 @@ const GREETINGS = ((): Record<string, string> => {
 }
 
 #[test]
-fn prepass_actual_playground_demo_file() {
-    // Loads the playground demo source from disk and runs the prepass
+fn prepass_actual_testground_demo_file() {
+    // Loads the testground demo source from disk and runs the prepass
     // against it. Catches integration regressions visible only with
     // the real demo's full structure.
     let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../tooling/playground/vanilla/src/buildtime-demo.ts");
+        .join("../../tooling/testground/vanilla/src/buildtime-demo.ts");
     let Ok(src) = std::fs::read_to_string(&path) else {
         eprintln!("skip: demo file not present at {}", path.display());
         return;
@@ -749,8 +749,8 @@ fn prepass_actual_playground_demo_file() {
 }
 
 #[test]
-fn prepass_full_playground_demo() {
-    // Full reproduction of the vanilla playground's buildtime-demo.ts.
+fn prepass_full_testground_demo() {
+    // Full reproduction of the vanilla testground's buildtime-demo.ts.
     // Catches integration regressions between discovery, TS-strip,
     // prelude builder, sandbox, and patch application.
     let src = r#"import { buildtime } from '@macroforge/core/buildtime';

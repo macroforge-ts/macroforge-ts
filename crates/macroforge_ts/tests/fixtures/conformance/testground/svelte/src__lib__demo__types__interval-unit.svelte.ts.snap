@@ -1,0 +1,424 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/interval-unit.svelte.ts
+sha256 f176955d34340cdaf8e901812bc3f28fa3694708cdc8eaa43e4ca08ad97e6d4c
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+
+export type IntervalUnit = /** @default */ 'Day' | 'Week' | 'Month' | 'Year';
+
+export function intervalUnitDefaultValue(): IntervalUnit {
+    return "Day";
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function intervalUnitEncode(value: IntervalUnit, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = intervalUnitEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function intervalUnitEncodeWithContext(value: IntervalUnit, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    }
+    return __variant;
+}
+
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+export function intervalUnitDecode(input: unknown): { success: true; value: IntervalUnit } | { success: false; errors: Array<{ field: string; message: string }> } {
+    switch (input) {
+        case 'Day':
+        case 'Week':
+        case 'Month':
+        case 'Year':
+            return { success: true, value: input as IntervalUnit };
+        default:
+            return { success: false, errors: [{ field: "_root", message: "Invalid value for IntervalUnit: expected one of " + ['Day', 'Week', 'Month', 'Year'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
+    }
+}
+
+/** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+export function intervalUnitDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): IntervalUnit | __mf_PendingRef {
+    switch (value) {
+        case 'Day':
+        case 'Week':
+        case 'Month':
+        case 'Year':
+            return value as IntervalUnit;
+        default:
+            throw new __mf_DecodeError([{
+                field: "_root",
+                message: "Invalid value for IntervalUnit: expected one of " + ['Day', 'Week', 'Month', 'Year'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+            }]);
+    }
+}
+
+export function intervalUnitHasShape(value: unknown): boolean {
+    switch (value) {
+        case 'Day':
+        case 'Week':
+        case 'Month':
+        case 'Year':
+            return true;
+        default:
+            return false;
+    }
+}
+
+export function intervalUnitIs(value: unknown): value is IntervalUnit {
+    return intervalUnitHasShape(value);
+}
+
+/** Per-variant error types  */
+
+export type IntervalUnitDayErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+export type IntervalUnitWeekErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+export type IntervalUnitMonthErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+export type IntervalUnitYearErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+
+/** Per-variant tainted types  */
+
+export type IntervalUnitDayTainted = {
+};
+export type IntervalUnitWeekTainted = {
+};
+export type IntervalUnitMonthTainted = {
+};
+export type IntervalUnitYearTainted = {
+};
+
+/** Union error type  */
+export type IntervalUnitErrors = ({ _value: "Day" } & IntervalUnitDayErrors) | ({ _value: "Week" } & IntervalUnitWeekErrors) | ({ _value: "Month" } & IntervalUnitMonthErrors) | ({ _value: "Year" } & IntervalUnitYearErrors);
+
+/** Union tainted type  */
+export type IntervalUnitTainted = ({ _value: "Day" } & IntervalUnitDayTainted) | ({ _value: "Week" } & IntervalUnitWeekTainted) | ({ _value: "Month" } & IntervalUnitMonthTainted) | ({ _value: "Year" } & IntervalUnitYearTainted);
+
+/** Per-variant field controller types  */
+
+export interface IntervalUnitDayFieldControllers {
+}
+export interface IntervalUnitWeekFieldControllers {
+}
+export interface IntervalUnitMonthFieldControllers {
+}
+export interface IntervalUnitYearFieldControllers {
+}
+
+/** Union Gigaform interface with variant switching  */
+export interface IntervalUnitGigaform {
+    readonly currentVariant: "Day" | "Week" | "Month" | "Year";
+    readonly data: IntervalUnit;
+    readonly errors: IntervalUnitErrors;
+    readonly tainted: IntervalUnitTainted;
+    readonly variants: IntervalUnitVariantFields;
+    switchVariant(variant: "Day" | "Week" | "Month" | "Year"): void;
+    validate(): Exit.Exit<IntervalUnit, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<IntervalUnit>): void;
+}
+
+/** Variant fields container  */
+export interface IntervalUnitVariantFields {
+    readonly Day: { readonly fields: IntervalUnitDayFieldControllers };
+    readonly Week: { readonly fields: IntervalUnitWeekFieldControllers };
+    readonly Month: { readonly fields: IntervalUnitMonthFieldControllers };
+    readonly Year: { readonly fields: IntervalUnitYearFieldControllers };
+}
+/** Gets default value for a specific variant  */
+function intervalUnitGetDefaultForVariant(variant: string): IntervalUnit {
+    if (variant === "Day") { return "Day" as IntervalUnit; }
+    if (variant === "Week") { return "Week" as IntervalUnit; }
+    if (variant === "Month") { return "Month" as IntervalUnit; }
+    if (variant === "Year") { return "Year" as IntervalUnit; }
+    return "Day" as IntervalUnit;
+}
+
+/** Creates a new discriminated union Gigaform with variant switching  */
+export function intervalUnitCreateForm(initial?: IntervalUnit): IntervalUnitGigaform {
+
+    const initialVariant: "Day" | "Week" | "Month" | "Year" = (initial as "Day" | "Week" | "Month" | "Year") ?? "Day";
+
+    let currentVariant = $state<"Day" | "Week" | "Month" | "Year">(initialVariant);
+    let data = $state<IntervalUnit>(initial ?? intervalUnitGetDefaultForVariant(initialVariant));
+    let errors = $state<IntervalUnitErrors>({} as IntervalUnitErrors);
+    let tainted = $state<IntervalUnitTainted>({} as IntervalUnitTainted);
+
+    const variants = {
+        "Day": { fields: {  } as unknown as IntervalUnitDayFieldControllers },
+        "Week": { fields: {  } as unknown as IntervalUnitWeekFieldControllers },
+        "Month": { fields: {  } as unknown as IntervalUnitMonthFieldControllers },
+        "Year": { fields: {  } as unknown as IntervalUnitYearFieldControllers },
+    } as unknown as IntervalUnitVariantFields;
+
+    function switchVariant(variant: "Day" | "Week" | "Month" | "Year"): void {
+        currentVariant = variant;
+        data = intervalUnitGetDefaultForVariant(variant);
+        errors = {} as IntervalUnitErrors;
+        tainted = {} as IntervalUnitTainted;
+    }
+
+    function validate(): Exit.Exit<IntervalUnit, Array<{ field: string; message: string }>> {
+        return toExit(intervalUnitDecode(data));
+    }
+
+    function reset(overrides?: Partial<IntervalUnit>): void {
+        data = overrides ? overrides as typeof data : intervalUnitGetDefaultForVariant(currentVariant);
+        errors = {} as IntervalUnitErrors;
+        tainted = {} as IntervalUnitTainted;
+    }
+
+    return {
+        get currentVariant() { return currentVariant; },
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        variants,
+        switchVariant,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData for union type, determining variant from discriminant field  */
+export function intervalUnitFromFormData(formData: FormData): Exit.Exit<IntervalUnit, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as "Day" | "Week" | "Month" | "Year" | null;
+
+    if (!discriminant) {
+        return toExit({ success: false, errors: [{ field: "_value", message: "Missing discriminant field" }] });
+    }
+
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+
+    {
+
+        if (discriminant === "Day") {
+
+        }
+    }
+    {
+
+        if (discriminant === "Week") {
+
+        }
+    }
+    {
+
+        if (discriminant === "Month") {
+
+        }
+    }
+    {
+
+        if (discriminant === "Year") {
+
+        }
+    }
+
+    return toExit(intervalUnitDecode(obj));
+}
+
+export const IntervalUnit: {
+  readonly defaultValue: typeof intervalUnitDefaultValue;
+  readonly encode: typeof intervalUnitEncode;
+  readonly encodeWithContext: typeof intervalUnitEncodeWithContext;
+  readonly decode: typeof intervalUnitDecode;
+  readonly decodeWithContext: typeof intervalUnitDecodeWithContext;
+  readonly hasShape: typeof intervalUnitHasShape;
+  readonly is: typeof intervalUnitIs;
+  readonly createForm: typeof intervalUnitCreateForm;
+  readonly fromFormData: typeof intervalUnitFromFormData;
+} = {
+  defaultValue: intervalUnitDefaultValue,
+  encode: intervalUnitEncode,
+  encodeWithContext: intervalUnitEncodeWithContext,
+  decode: intervalUnitDecode,
+  decodeWithContext: intervalUnitDecodeWithContext,
+  hasShape: intervalUnitHasShape,
+  is: intervalUnitIs,
+  createForm: intervalUnitCreateForm,
+  fromFormData: intervalUnitFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+export type IntervalUnit = "Day" | "Week" | "Month" | "Year";
+export declare function intervalUnitDefaultValue(): IntervalUnit;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function intervalUnitEncode(value: IntervalUnit, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function intervalUnitEncodeWithContext(value: IntervalUnit, ctx: __mf_EncodeContext): unknown;
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+export declare function intervalUnitDecode(input: unknown): {
+	success: true;
+	value: IntervalUnit;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+export declare function intervalUnitDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): IntervalUnit | __mf_PendingRef;
+export declare function intervalUnitHasShape(value: unknown): boolean;
+export declare function intervalUnitIs(value: unknown): value is IntervalUnit;
+/** Per-variant error types  */
+export type IntervalUnitDayErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+export type IntervalUnitWeekErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+export type IntervalUnitMonthErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+export type IntervalUnitYearErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+/** Per-variant tainted types  */
+export type IntervalUnitDayTainted = {};
+export type IntervalUnitWeekTainted = {};
+export type IntervalUnitMonthTainted = {};
+export type IntervalUnitYearTainted = {};
+/** Union error type  */
+export type IntervalUnitErrors = ({
+	_value: "Day";
+} & IntervalUnitDayErrors) | ({
+	_value: "Week";
+} & IntervalUnitWeekErrors) | ({
+	_value: "Month";
+} & IntervalUnitMonthErrors) | ({
+	_value: "Year";
+} & IntervalUnitYearErrors);
+/** Union tainted type  */
+export type IntervalUnitTainted = ({
+	_value: "Day";
+} & IntervalUnitDayTainted) | ({
+	_value: "Week";
+} & IntervalUnitWeekTainted) | ({
+	_value: "Month";
+} & IntervalUnitMonthTainted) | ({
+	_value: "Year";
+} & IntervalUnitYearTainted);
+/** Per-variant field controller types  */
+export interface IntervalUnitDayFieldControllers {}
+export interface IntervalUnitWeekFieldControllers {}
+export interface IntervalUnitMonthFieldControllers {}
+export interface IntervalUnitYearFieldControllers {}
+/** Union Gigaform interface with variant switching  */
+export interface IntervalUnitGigaform {
+	readonly currentVariant: "Day" | "Week" | "Month" | "Year";
+	readonly data: IntervalUnit;
+	readonly errors: IntervalUnitErrors;
+	readonly tainted: IntervalUnitTainted;
+	readonly variants: IntervalUnitVariantFields;
+	switchVariant(variant: "Day" | "Week" | "Month" | "Year"): void;
+	validate(): Exit.Exit<IntervalUnit, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<IntervalUnit>): void;
+}
+/** Variant fields container  */
+export interface IntervalUnitVariantFields {
+	readonly Day: {
+		readonly fields: IntervalUnitDayFieldControllers;
+	};
+	readonly Week: {
+		readonly fields: IntervalUnitWeekFieldControllers;
+	};
+	readonly Month: {
+		readonly fields: IntervalUnitMonthFieldControllers;
+	};
+	readonly Year: {
+		readonly fields: IntervalUnitYearFieldControllers;
+	};
+}
+/** Creates a new discriminated union Gigaform with variant switching  */
+export declare function intervalUnitCreateForm(initial?: IntervalUnit): IntervalUnitGigaform;
+/** Parses FormData for union type, determining variant from discriminant field  */
+export declare function intervalUnitFromFormData(formData: FormData): Exit.Exit<IntervalUnit, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const IntervalUnit: {
+	readonly defaultValue: typeof intervalUnitDefaultValue;
+	readonly encode: typeof intervalUnitEncode;
+	readonly encodeWithContext: typeof intervalUnitEncodeWithContext;
+	readonly decode: typeof intervalUnitDecode;
+	readonly decodeWithContext: typeof intervalUnitDecodeWithContext;
+	readonly hasShape: typeof intervalUnitHasShape;
+	readonly is: typeof intervalUnitIs;
+	readonly createForm: typeof intervalUnitCreateForm;
+	readonly fromFormData: typeof intervalUnitFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 460..518
+original 107..185 -> expanded 518..596
+original 185..186 -> expanded 10286..10287
+generated 0..460 <- imports
+generated 596..676 <- Default
+generated 676..2004 <- Encode
+generated 2004..3843 <- Decode
+generated 3843..9420 <- Gigaform
+generated 9420..10286 <- __convenience_const
+
+## Metadata
+
+type IntervalUnit: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":151,"start":136}}],"kind":{"Literal":"'Day'"}},{"decorators":[],"kind":{"Literal":"'Week'"}},{"decorators":[],"kind":{"Literal":"'Month'"}},{"decorators":[],"kind":{"Literal":"'Year'"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"name":"IntervalUnit","span":{"end":186,"start":116},"type_params":[]}
+
+## Registry reads
+
+Name("IntervalUnit")
+
+## Buildtime dependencies
+
+(none)

@@ -84,7 +84,7 @@ pub struct ResolvedTypeRef {
 Rust
 
 ```
-use macroforge_ts::builtin::derive_common::resolved_type_has_derive;
+use macroforge_ts::builtin::derive::common::resolved_type_has_derive;
 
 if let Some(resolved) = input.context.resolved_fields.as_ref().and_then(|f| f.get(&field.name)) {
     // Does the field's type, or its element type, also derive Clone?
@@ -114,7 +114,7 @@ let shape = resolve_generic_aliases(
 
 ### Helpers
 
-`macroforge_ts::builtin::derive_common` holds the helpers the built-in macros use:
+`macroforge_ts::builtin::derive::common` holds the helpers the built-in macros use:
 
 | Helper                                                                        | Use                                                          |
 | ----------------------------------------------------------------------------- | ------------------------------------------------------------ |

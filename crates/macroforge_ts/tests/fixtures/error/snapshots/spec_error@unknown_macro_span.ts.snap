@@ -23,7 +23,7 @@ interface Data {
 ## DTS
 
 interface Data {
-    value: string;
+	value: string;
 }
 
 ## Diagnostics

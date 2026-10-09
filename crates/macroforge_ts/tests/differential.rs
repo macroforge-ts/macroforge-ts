@@ -11,11 +11,11 @@
 //! Dev and prod produce different SOURCE for reverse-monomorphization
 //! macros (inline expansion vs shared runtime helper), but their
 //! observable BEHAVIOR must be identical. Any divergence is either
-//! a bug in the expander or a bug in the share-mode emission — the
+//! a bug in the expander or a bug in the share-mode emission: the
 //! harness catches both.
 //!
 //! The harness skips with a warning if `deno` isn't on the `PATH`,
-//! rather than failing hard. CI always has Deno (the playground tests
+//! rather than failing hard. CI always has Deno (the testground tests
 //! depend on it).
 
 use std::path::Path;
@@ -116,7 +116,7 @@ fn run_differential(path: &Path) {
 fn differential_declarative_macros() {
     if !deno_available() {
         eprintln!(
-            "[differential] deno not found on PATH — skipping. Install Deno to run this test."
+            "[differential] deno not found on PATH, so skipping it. Install Deno to run this test."
         );
         return;
     }

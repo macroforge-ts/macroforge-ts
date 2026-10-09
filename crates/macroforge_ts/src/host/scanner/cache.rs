@@ -12,7 +12,8 @@
 //! - Does not trust the stamp of a file written in the last moments: another
 //!   write within the filesystem's timestamp resolution could leave it equal.
 //! - Persists across processes as `.macroforge/scan-cache.bin`, discarded
-//!   whole when the macroforge version that wrote it differs.
+//!   whole when it was written by another macroforge version or another IR
+//!   (the lowering can change without the version moving).
 
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
@@ -65,11 +66,21 @@ pub struct ScanCache {
     entries: HashMap<PathBuf, Arc<CacheEntry>>,
 }
 
-/// What a persisted cache starts with, so one written by another release is
-/// never read as this one's.
+/// What a persisted cache starts with, so one written by another release or
+/// another IR is never read as this one's.
 #[derive(serde::Serialize, serde::Deserialize)]
 struct PersistedHeader {
+    /// The macroforge version and IR fingerprint that wrote the cache.
     version: String,
+}
+
+/// What a persisted cache must have been written by to be read.
+fn cache_generation() -> String {
+    format!(
+        "{}+{}",
+        env!("CARGO_PKG_VERSION"),
+        crate::ts_syn::IR_FINGERPRINT
+    )
 }
 
 /// Where a project's scan cache persists, under its root.
@@ -83,10 +94,10 @@ impl ScanCache {
         Self::default()
     }
 
-    /// The cache persisted at `path` by this macroforge version. A missing
-    /// file is an empty cache; one that is unreadable, from another version,
-    /// or corrupt is reported and also starts empty, since every entry in it
-    /// can be rebuilt.
+    /// The cache persisted at `path` by this macroforge version and IR. A
+    /// missing file is an empty cache; one from another version or IR is
+    /// rebuilt silently, and one that is unreadable or corrupt is reported and
+    /// also starts empty, since every entry in it can be rebuilt.
     pub fn load(path: &Path) -> Self {
         let bytes = match std::fs::read(path) {
             Ok(bytes) => bytes,
@@ -101,7 +112,7 @@ impl ScanCache {
         };
         let decoded =
             postcard::take_from_bytes::<PersistedHeader>(&bytes).and_then(|(header, rest)| {
-                if header.version == env!("CARGO_PKG_VERSION") {
+                if header.version == cache_generation() {
                     postcard::from_bytes::<ScanCache>(rest).map(Some)
                 } else {
                     Ok(None)
@@ -125,7 +136,7 @@ impl ScanCache {
         use anyhow::Context;
 
         let mut bytes = postcard::to_stdvec(&PersistedHeader {
-            version: env!("CARGO_PKG_VERSION").to_string(),
+            version: cache_generation(),
         })
         .context("failed to encode the scan cache header")?;
         bytes.extend(postcard::to_stdvec(self).context("failed to encode the scan cache")?);
@@ -375,6 +386,28 @@ mod tests {
 
         let loaded = ScanCache::load(&path);
         assert!(loaded.get(Path::new("/tmp/a.ts"), stamp(1, 10)).is_some());
+        std::fs::remove_dir_all(&dir).expect("remove temp dir");
+    }
+
+    #[test]
+    fn a_cache_from_another_ir_loads_empty() {
+        let dir = temp_dir("cache_other_ir");
+        let path = persisted_path(&dir);
+        let mut cache = ScanCache::new();
+        cache.insert(PathBuf::from("/tmp/a.ts"), empty_entry(1, 10));
+        cache.save(&path).expect("save");
+
+        // The same release with a different lowering: only the IR moved.
+        let bytes = std::fs::read(&path).expect("read");
+        let (_, body) = postcard::take_from_bytes::<PersistedHeader>(&bytes).expect("header");
+        let mut stale = postcard::to_stdvec(&PersistedHeader {
+            version: format!("{}+another-ir", env!("CARGO_PKG_VERSION")),
+        })
+        .expect("encode header");
+        stale.extend_from_slice(body);
+        std::fs::write(&path, stale).expect("write");
+
+        assert!(ScanCache::load(&path).is_empty());
         std::fs::remove_dir_all(&dir).expect("remove temp dir");
     }
 

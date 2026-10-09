@@ -478,14 +478,41 @@ impl std::fmt::Display for JsGlueCalled {
 
 impl std::error::Error for JsGlueCalled {}
 
+/// The part of a package's `package.json` that names its entry module.
+#[derive(serde::Deserialize)]
+struct PackageManifest {
+    main: Option<String>,
+}
+
 /// Finds the wasm artifact for a package, if it ships one.
 ///
-/// `macroforge build` writes to `<pkg>/pkg/<name>_bg.wasm`; a bare
-/// `cargo build --target wasm32-*` leaves `<pkg>/<name>.wasm`. Both are checked
-/// so a package built either way is loadable.
-pub(crate) fn find_wasm_module(package_dir: &Path) -> Option<PathBuf> {
-    let mut candidates: Vec<PathBuf> = Vec::new();
+/// `macroforge build` writes `<pkg>/pkg/<name>.js` with `<name>_bg.wasm` beside
+/// it, and the package's `main` names the glue, so that is the wasm the
+/// package means even when the directory holds others left by an earlier
+/// build under another name. Without a `main`, a lone wasm in `<pkg>/pkg` or
+/// `<pkg>` (a bare `cargo build --target wasm32-*`) is used.
+pub(crate) fn find_wasm_module(package_dir: &Path) -> Result<Option<PathBuf>> {
+    let manifest_path = package_dir.join("package.json");
+    if manifest_path.is_file() {
+        let text = std::fs::read_to_string(&manifest_path)
+            .with_context(|| format!("failed to read {}", manifest_path.display()))?;
+        let manifest: PackageManifest = serde_json::from_str(&text)
+            .with_context(|| format!("failed to parse {}", manifest_path.display()))?;
+        if let Some(main) = manifest.main {
+            let glue = package_dir.join(main);
+            if let (Some(dir), Some(stem)) = (glue.parent(), glue.file_stem()) {
+                let stem = stem.to_string_lossy();
+                for name in [format!("{stem}_bg.wasm"), format!("{stem}.wasm")] {
+                    let wasm = dir.join(name);
+                    if wasm.is_file() {
+                        return Ok(Some(wasm));
+                    }
+                }
+            }
+        }
+    }
 
+    let mut candidates: Vec<PathBuf> = Vec::new();
     for dir in [package_dir.join("pkg"), package_dir.to_path_buf()] {
         let Ok(entries) = std::fs::read_dir(&dir) else {
             continue;
@@ -497,10 +524,22 @@ pub(crate) fn find_wasm_module(package_dir: &Path) -> Option<PathBuf> {
             }
         }
     }
-
-    // Deterministic across platforms, where readdir order is not.
-    candidates.sort();
-    candidates.into_iter().next()
+    match candidates.as_slice() {
+        [] => Ok(None),
+        [only] => Ok(Some(only.clone())),
+        _ => {
+            candidates.sort();
+            bail!(
+                "{} has several wasm modules ({}) and no package.json `main` naming one",
+                package_dir.display(),
+                candidates
+                    .iter()
+                    .map(|path| path.display().to_string())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )
+        }
+    }
 }
 
 #[cfg(test)]
@@ -508,26 +547,75 @@ mod tests {
     use super::{find_wasm_module, with_instance};
     use std::path::PathBuf;
 
-    /// The playground's macro package, built from this checkout's guest code
+    /// The testground's macro package, built from this checkout's guest code
     /// by `mf test` before the Rust tests run.
-    fn playground_macro() -> PathBuf {
+    fn testground_macro() -> PathBuf {
         let package =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tooling/playground/macro");
-        find_wasm_module(&package).unwrap_or_else(|| {
-            panic!(
-                "no wasm in {}; build it with `target/debug/mf test playground` or \
-                 `pixi run build:playground:macro`",
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tooling/testground/macro");
+        match find_wasm_module(&package) {
+            Ok(Some(wasm)) => wasm,
+            Ok(None) => panic!(
+                "no wasm in {}; build it with `target/debug/mf test testground` or \
+                 `pixi run build:testground:macro`",
                 package.display()
-            )
-        })
+            ),
+            Err(error) => panic!("finding the testground wasm failed: {error:#}"),
+        }
+    }
+
+    fn package_with(files: &[(&str, &str)]) -> PathBuf {
+        let dir = std::env::temp_dir().join(format!(
+            "mf-wasm-lookup-{}-{}",
+            std::process::id(),
+            files.len()
+        ));
+        for (name, contents) in files {
+            let path = dir.join(name);
+            if let Some(parent) = path.parent() {
+                std::fs::create_dir_all(parent)
+                    .unwrap_or_else(|error| panic!("creating {}: {error}", parent.display()));
+            }
+            std::fs::write(&path, contents)
+                .unwrap_or_else(|error| panic!("writing {}: {error}", path.display()));
+        }
+        dir
+    }
+
+    /// Removes a scratch package, reporting a failure rather than failing the
+    /// test that already ran.
+    fn remove_package(dir: &std::path::Path) {
+        if let Err(error) = std::fs::remove_dir_all(dir) {
+            eprintln!("could not remove {}: {error}", dir.display());
+        }
+    }
+
+    #[test]
+    fn the_wasm_beside_the_main_glue_wins_over_a_stale_one() {
+        let dir = package_with(&[
+            ("package.json", r#"{ "main": "pkg/current.js" }"#),
+            ("pkg/current.js", ""),
+            ("pkg/current_bg.wasm", ""),
+            ("pkg/aaa_stale_bg.wasm", ""),
+        ]);
+        let found = find_wasm_module(&dir);
+        remove_package(&dir);
+        assert_eq!(found.ok().flatten(), Some(dir.join("pkg/current_bg.wasm")));
+    }
+
+    #[test]
+    fn several_wasm_modules_without_a_main_are_an_error() {
+        let dir = package_with(&[("pkg/one_bg.wasm", ""), ("pkg/two_bg.wasm", ""), ("x", "")]);
+        let found = find_wasm_module(&dir);
+        remove_package(&dir);
+        assert!(found.is_err(), "{found:?}");
     }
 
     #[test]
     fn a_guest_built_from_this_checkout_takes_resident_registries() {
-        let accepts = with_instance(&playground_macro(), |module| {
+        let accepts = with_instance(&testground_macro(), |module| {
             Ok(module.accepts_resident_registry())
         })
-        .expect("the playground macro package instantiates");
+        .expect("the testground macro package instantiates");
         assert!(
             accepts,
             "a guest built from this checkout must export `__macroforge_ffi_set_registry`"

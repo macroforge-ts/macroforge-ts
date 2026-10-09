@@ -14,7 +14,7 @@
 //! - **Clone** - Generates `clone()` methods for deep copying
 //! - **PartialEq** - Generates `equals()` methods for equality comparison
 //! - **Hash** - Generates `hashCode()` methods for hash-based collections
-//! - **Ord/PartialOrd** - Generates `compareTo()` methods for ordering
+//! - **Ord/PartialOrd** - Generates `compare()` and `partialCompare()` methods for ordering
 //! - **Default** - Generates `defaultValue()` factory methods
 //! - **Encode** - Generates JSON encoding methods
 //! - **Decode** - Generates JSON decoding methods with validation
@@ -90,28 +90,16 @@ fn make_foreign_type(
     decode_expr: Option<&str>,
     default_expr: Option<&str>,
     has_shape_expr: Option<&str>,
-    expression_namespaces: Vec<&str>,
 ) -> ForeignTypeConfig {
     ForeignTypeConfig {
         name: name.to_string(),
-        namespace: if name.contains('.') {
-            Some(name.rsplit_once('.').unwrap().0.to_string())
-        } else {
-            None
-        },
         from: from.into_iter().map(|s| s.to_string()).collect(),
         encode_expr: encode_expr.map(|s| s.to_string()),
-        encode_import: None,
         decode_expr: decode_expr.map(|s| s.to_string()),
-        decode_import: None,
         default_expr: default_expr.map(|s| s.to_string()),
-        default_import: None,
         has_shape_expr: has_shape_expr.map(|s| s.to_string()),
-        has_shape_import: None,
         aliases: vec![],
-        expression_namespaces: expression_namespaces
-            .into_iter()
-            .map(|s| s.to_string())
-            .collect(),
+        builtin: false,
+        handler_sites: Vec::new(),
     }
 }

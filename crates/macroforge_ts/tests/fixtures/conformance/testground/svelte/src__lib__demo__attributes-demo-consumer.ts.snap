@@ -1,0 +1,39 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/attributes-demo-consumer.ts
+sha256 8c89add3b7ea9bf4bba497ffec5395fb59032041e71d93c18385e4bd949411e4
+
+## Changed
+
+false
+
+## Output
+
+(unchanged)
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..1228 -> expanded 0..1228
+
+## Metadata
+
+type AttributesDemoResults: {"body":{"Object":{"fields":[{"decorators":[],"name":"keptByFeature","optional":false,"readonly":false,"span":{"end":398,"start":369},"ts_type":"string | null"},{"decorators":[],"name":"strippedByFeature","optional":false,"readonly":false,"span":{"end":436,"start":403},"ts_type":"string | null"},{"decorators":[],"name":"keptByTarget","optional":false,"readonly":false,"span":{"end":469,"start":441},"ts_type":"string | null"},{"decorators":[],"name":"strippedByTarget","optional":false,"readonly":false,"span":{"end":506,"start":474},"ts_type":"string | null"},{"decorators":[],"name":"deprecatedCall","optional":false,"readonly":false,"span":{"end":534,"start":511},"ts_type":"string"},{"decorators":[],"name":"nonExhaustiveValue","optional":false,"readonly":false,"span":{"end":566,"start":539},"ts_type":"string"}]}},"decorators":[],"name":"AttributesDemoResults","span":{"end":569,"start":334},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

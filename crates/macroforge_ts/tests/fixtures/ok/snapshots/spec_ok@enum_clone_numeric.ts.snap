@@ -25,8 +25,8 @@ enum Priority {
 }
 
 export function priorityClone(value: Priority): Priority {
-                    return value;
-                }
+    return value;
+}
 
 namespace Priority {
   export const clone: typeof priorityClone = priorityClone;
@@ -34,19 +34,16 @@ namespace Priority {
 
 ## DTS
 
-enum Priority {
-    Low = 1,
-    Medium = 2,
-    High = 3
+declare enum Priority {
+	Low = 1,
+	Medium = 2,
+	High = 3
 }
-
-export function priorityClone(value: Priority): Priority {
-                    return value;
-                }
-
-namespace Priority {
-  export const clone: typeof priorityClone = priorityClone;
+export declare function priorityClone(value: Priority): Priority;
+declare namespace Priority {
+	const clone: typeof priorityClone;
 }
+export {};
 
 ## Diagnostics
 
@@ -55,9 +52,9 @@ namespace Priority {
 ## Mapping
 
 original 21..81 -> expanded 0..60
-original 81..82 -> expanded 256..257
-generated 60..172 <- Clone
-generated 172..256 <- __convenience_const
+original 81..82 -> expanded 224..225
+generated 60..140 <- Clone
+generated 140..224 <- __convenience_const
 
 ## Metadata
 

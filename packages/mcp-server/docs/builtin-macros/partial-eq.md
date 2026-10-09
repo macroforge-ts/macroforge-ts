@@ -22,14 +22,16 @@ The generated equality check:
 
 ## Type-Specific Comparisons
 
-| Type       | Comparison Method                         |
-| ---------- | ----------------------------------------- |
-| Primitives | Strict equality (`===`)                   |
-| Arrays     | Length + element-by-element (recursive)   |
-| `Date`     | `getTime()` comparison                    |
-| `Map`      | Size + entry-by-entry comparison          |
-| `Set`      | Size + membership check                   |
-| Objects    | Calls `equals()` if available, else `===` |
+| Type                                  | Comparison Method                                     |
+| ------------------------------------- | ----------------------------------------------------- |
+| Primitives and literals               | Strict equality (`===`)                               |
+| Arrays                                | Length, then each element by its own type             |
+| `Date`, `RegExp`, `URL`, typed arrays | By value                                              |
+| `Map`                                 | Size, then each key's value by its own type           |
+| `Set`                                 | Size, then each element matched by an equal element   |
+| Optional and nullable                 | Equal when both are the same absent value             |
+| Types deriving `PartialEq`            | Their `equals` function                               |
+| Anything else                         | `structuralEquals` from `@macroforge/core/structural` |
 
 ## Field-Level Options
 
@@ -72,8 +74,8 @@ export function userEquals(a: User, b: User): boolean {
 
 When implementing `PartialEq`, consider also implementing `Hash`:
 
-- **Reflexivity**: `a.equals(a)` is always true
-- **Symmetry**: `a.equals(b)` implies `b.equals(a)`
+- **Reflexivity**: `User.equals(a, a)` is always true
+- **Symmetry**: `User.equals(a, b)` implies `User.equals(b, a)`
 - **Hash consistency**: Equal objects must have equal hash codes
 
 To maintain the hash contract, skip the same fields in both `PartialEq` and `Hash`, as shown in the

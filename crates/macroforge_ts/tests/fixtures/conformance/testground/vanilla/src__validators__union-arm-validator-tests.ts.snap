@@ -1,0 +1,651 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/validators/union-arm-validator-tests.ts
+sha256 393fdbfa8aae1b85783460b94b82bc25a27f74ed02f1578d284e861a5f3aa3f6
+
+## Changed
+
+true
+
+## Output
+
+import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * Untagged unions whose primitive arms carry their own validators.
+ */
+
+/** @derive(Decode) */
+export type Contact = /** @endec(email) */ string | number;
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function contactDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Contact } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = contactDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Contact.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function contactDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Contact | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Contact.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Contact | __mf_PendingRef;
+    }
+
+    
+    if (typeof value === "string") {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) { errors.push({ field: "_root", message: "Contact must be a valid email" }); }
+        ctx.pushErrors(errors);
+        return value as Contact;
+    }
+    if (typeof value === "number") {
+        return value as Contact;
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "Contact.decodeWithContext: expected string, number, got " + typeof value
+    }]);
+}
+export function contactHasShape(value: unknown): boolean {
+                return typeof value === "string" || typeof value === "number";
+}
+export function contactIs(value: unknown): value is Contact {
+    return contactHasShape(value) && contactDecode(value).success;
+}
+
+export const Contact: {
+  readonly decode: typeof contactDecode;
+  readonly decodeWithContext: typeof contactDecodeWithContext;
+  readonly hasShape: typeof contactHasShape;
+  readonly is: typeof contactIs;
+} = {
+  decode: contactDecode,
+  decodeWithContext: contactDecodeWithContext,
+  hasShape: contactHasShape,
+  is: contactIs
+};
+
+/** @derive(Decode) */
+export interface Phone {
+    digits: string;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function phoneDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Phone } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = phoneDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Phone.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Phone | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Phone.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Phone | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Phone.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("digits" in obj)) {
+        errors.push({ field: "digits", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_digits = obj["digits"] as string;
+
+        if (!(typeof __raw_digits === "string")) {
+            errors.push({ field: "digits", message: __raw_digits == null ? "Phone.digits is required" : "expected string" });
+        } else {
+            instance.digits = __raw_digits;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Phone;
+}
+export function phoneValidateField<K extends keyof Phone>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function phoneValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function phoneValidateFields(partial: { readonly [K in keyof Phone]?: unknown }): Array<{ field: string; message: string }>;
+export function phoneValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function phoneHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "digits" in o;
+}
+
+export function phoneIs(obj: unknown): obj is Phone {
+    return phoneHasShape(obj) && phoneDecode(obj).success;
+}
+
+export const Phone: {
+  readonly decode: typeof phoneDecode;
+  readonly decodeWithContext: typeof phoneDecodeWithContext;
+  readonly validateField: typeof phoneValidateField;
+  readonly validateFields: typeof phoneValidateFields;
+  readonly hasShape: typeof phoneHasShape;
+  readonly is: typeof phoneIs;
+} = {
+  decode: phoneDecode,
+  decodeWithContext: phoneDecodeWithContext,
+  validateField: phoneValidateField,
+  validateFields: phoneValidateFields,
+  hasShape: phoneHasShape,
+  is: phoneIs
+};
+
+/** @derive(Decode) */
+export type Reachable =
+    | /** @endec(nonEmpty, maxLength(32)) */ string
+    | Phone;
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function reachableDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Reachable } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = reachableDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Reachable.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function reachableDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Reachable | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Reachable.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Reachable | __mf_PendingRef;
+    }
+
+    
+    if (typeof value === "string") {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (value.length === 0) { errors.push({ field: "_root", message: "Reachable must not be empty" }); }
+        if (value.length > 32) { errors.push({ field: "_root", message: "Reachable must have at most 32 characters" }); }
+        ctx.pushErrors(errors);
+        return value as Reachable;
+    }
+
+    if (typeof value === "object" && value !== null) {
+        const __typeName = (value as any)["__type"];
+        if (typeof __typeName === "string") {
+            if (__typeName === "Phone") {
+                return phoneDecodeWithContext(value, ctx) as Reachable;
+            }
+        } else {
+
+            const __shapeMatches: Array<string> = [];
+            if (phoneHasShape(value)) __shapeMatches.push("Phone");
+            if (__shapeMatches.length === 1) {
+                if (__shapeMatches[0] === "Phone") {
+                    return phoneDecodeWithContext(value, ctx) as Reachable;
+                }
+            }
+        }
+    } else {
+
+        const __shapeMatches: Array<string> = [];
+        if (phoneHasShape(value)) __shapeMatches.push("Phone");
+        if (__shapeMatches.length === 1) {
+            if (__shapeMatches[0] === "Phone") {
+                return phoneDecodeWithContext(value, ctx) as Reachable;
+            }
+        }
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "Reachable.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function reachableHasShape(value: unknown): boolean {
+                if (typeof value === "string") return true;
+
+                if (typeof value === "object" && value !== null) {
+                    const __typeName = (value as any)["__type"];
+                    if (typeof __typeName === "string") {
+                        if (__typeName === "Phone") return true;
+                    } else {
+                        let __matchCount = 0;
+                        if (phoneHasShape(value)) __matchCount++;
+                        if (__matchCount === 1) return true;
+                    }
+                } else {
+
+                    let __matchCount = 0;
+                    if (phoneHasShape(value)) __matchCount++;
+                    if (__matchCount === 1) return true;
+                }
+                return false;
+}
+export function reachableIs(value: unknown): value is Reachable {
+    return reachableHasShape(value) && reachableDecode(value).success;
+}
+
+export const Reachable: {
+  readonly decode: typeof reachableDecode;
+  readonly decodeWithContext: typeof reachableDecodeWithContext;
+  readonly hasShape: typeof reachableHasShape;
+  readonly is: typeof reachableIs;
+} = {
+  decode: reachableDecode,
+  decodeWithContext: reachableDecodeWithContext,
+  hasShape: reachableHasShape,
+  is: reachableIs
+};
+
+/** @derive(Decode) */
+export type Fallback = 'none' | /** @endec(email) */ string;
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function fallbackDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Fallback } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = fallbackDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Fallback.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function fallbackDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Fallback | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Fallback.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Fallback | __mf_PendingRef;
+    }
+
+    
+    const allowedLiterals = ['none'] as const;
+    if (allowedLiterals.includes(value as any)) {
+        return value as Fallback;
+    }
+    if (typeof value === "string") {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) { errors.push({ field: "_root", message: "Fallback must be a valid email" }); }
+        ctx.pushErrors(errors);
+        return value as Fallback;
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "Fallback.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function fallbackHasShape(value: unknown): boolean {
+                const allowedLiterals = ['none'] as const;
+                if (allowedLiterals.includes(value as any)) return true;
+                if (typeof value === "string") return true;
+                return false;
+}
+export function fallbackIs(value: unknown): value is Fallback {
+    return fallbackHasShape(value) && fallbackDecode(value).success;
+}
+
+export const Fallback: {
+  readonly decode: typeof fallbackDecode;
+  readonly decodeWithContext: typeof fallbackDecodeWithContext;
+  readonly hasShape: typeof fallbackHasShape;
+  readonly is: typeof fallbackIs;
+} = {
+  decode: fallbackDecode,
+  decodeWithContext: fallbackDecodeWithContext,
+  hasShape: fallbackHasShape,
+  is: fallbackIs
+};
+
+## DTS
+
+/**
+* Untagged unions whose primitive arms carry their own validators.
+*/
+/** @derive(Decode) */
+export type Contact = string | number;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function contactDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Contact;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function contactDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Contact | __mf_PendingRef;
+export declare function contactHasShape(value: unknown): boolean;
+export declare function contactIs(value: unknown): value is Contact;
+export declare const Contact: {
+	readonly decode: typeof contactDecode;
+	readonly decodeWithContext: typeof contactDecodeWithContext;
+	readonly hasShape: typeof contactHasShape;
+	readonly is: typeof contactIs;
+};
+/** @derive(Decode) */
+export interface Phone {
+	digits: string;
+}
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function phoneDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Phone;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Phone | __mf_PendingRef;
+export declare function phoneValidateField<K extends keyof Phone>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function phoneValidateFields(partial: { readonly [K in keyof Phone]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function phoneHasShape(obj: unknown): boolean;
+export declare function phoneIs(obj: unknown): obj is Phone;
+export declare const Phone: {
+	readonly decode: typeof phoneDecode;
+	readonly decodeWithContext: typeof phoneDecodeWithContext;
+	readonly validateField: typeof phoneValidateField;
+	readonly validateFields: typeof phoneValidateFields;
+	readonly hasShape: typeof phoneHasShape;
+	readonly is: typeof phoneIs;
+};
+/** @derive(Decode) */
+export type Reachable = string | Phone;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function reachableDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Reachable;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function reachableDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Reachable | __mf_PendingRef;
+export declare function reachableHasShape(value: unknown): boolean;
+export declare function reachableIs(value: unknown): value is Reachable;
+export declare const Reachable: {
+	readonly decode: typeof reachableDecode;
+	readonly decodeWithContext: typeof reachableDecodeWithContext;
+	readonly hasShape: typeof reachableHasShape;
+	readonly is: typeof reachableIs;
+};
+/** @derive(Decode) */
+export type Fallback = "none" | string;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function fallbackDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Fallback;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function fallbackDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Fallback | __mf_PendingRef;
+export declare function fallbackHasShape(value: unknown): boolean;
+export declare function fallbackIs(value: unknown): value is Fallback;
+export declare const Fallback: {
+	readonly decode: typeof fallbackDecode;
+	readonly decodeWithContext: typeof fallbackDecodeWithContext;
+	readonly hasShape: typeof fallbackHasShape;
+	readonly is: typeof fallbackIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..159 -> expanded 225..384
+original 159..230 -> expanded 3441..3512
+original 230..343 -> expanded 7795..7908
+original 343..428 -> expanded 12686..12771
+original 428..429 -> expanded 16050..16051
+generated 0..225 <- imports
+generated 384..3108 <- Decode
+generated 3108..3441 <- __convenience_const
+generated 3512..7296 <- Decode
+generated 7296..7795 <- __convenience_const
+generated 7908..12335 <- Decode
+generated 12335..12686 <- __convenience_const
+generated 12771..15708 <- Decode
+generated 15708..16050 <- __convenience_const
+
+## Metadata
+
+interface Phone: {"body_span":{"end":231,"start":208},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":184,"start":162}}],"fields":[{"decorators":[],"name":"digits","optional":false,"readonly":false,"span":{"end":229,"start":214},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Phone","span":{"end":231,"start":192},"type_params":[]}
+type Contact: {"body":{"Union":[{"decorators":[{"args_src":"email","name":"endec","span":{"end":143,"start":123}}],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"TypeRef":"number"}}]},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":100,"start":78}}],"name":"Contact","span":{"end":160,"start":108},"type_params":[]}
+type Reachable: {"body":{"Union":[{"decorators":[{"args_src":"nonEmpty, maxLength(32)","name":"endec","span":{"end":324,"start":286}}],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"TypeRef":"Phone"}}]},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":255,"start":233}}],"name":"Reachable","span":{"end":344,"start":263},"type_params":[]}
+type Fallback: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"'none'"}},{"decorators":[{"args_src":"email","name":"endec","span":{"end":421,"start":401}}],"kind":{"TypeRef":"string"}}]},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":368,"start":346}}],"name":"Fallback","span":{"end":429,"start":376},"type_params":[]}
+
+## Registry reads
+
+Name("Contact")
+Name("Fallback")
+Name("Phone")
+Name("Reachable")
+Name("number")
+Name("string")
+
+## Buildtime dependencies
+
+(none)

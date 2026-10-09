@@ -16,12 +16,11 @@ true
 export type Point = { x: number; y: number };
 
 export function pointToString(value: Point): string {
-                            const parts: string[] = [];
-                            parts.push("x: " + value.x);
-parts.push("y: " + value.y);
-
-                            return "Point { " + parts.join(", ") + " }";
-                        }
+    const parts: string[] = [];
+    parts.push("x: " + String(value.x));
+    parts.push("y: " + String(value.y));
+    return "Point { " + parts.join(", ") + " }";
+}
 
 export const Point: {
   readonly toString: typeof pointToString;
@@ -31,20 +30,13 @@ export const Point: {
 
 ## DTS
 
-export type Point = { x: number; y: number };
-
-export function pointToString(value: Point): string {
-                            const parts: string[] = [];
-                            parts.push("x: " + value.x);
-parts.push("y: " + value.y);
-
-                            return "Point { " + parts.join(", ") + " }";
-                        }
-
-export const Point: {
-  readonly toString: typeof pointToString;
-} = {
-  toString: pointToString
+export type Point = {
+	x: number;
+	y: number;
+};
+export declare function pointToString(value: Point): string;
+export declare const Point: {
+	readonly toString: typeof pointToString;
 };
 
 ## Diagnostics
@@ -54,9 +46,9 @@ export const Point: {
 ## Mapping
 
 original 21..67 -> expanded 0..46
-original 67..68 -> expanded 444..445
-generated 46..343 <- Debug
-generated 343..444 <- __convenience_const
+original 67..68 -> expanded 367..368
+generated 46..266 <- Debug
+generated 266..367 <- __convenience_const
 
 ## Metadata
 

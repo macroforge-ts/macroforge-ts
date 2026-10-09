@@ -60,14 +60,13 @@ use oxc::ast::ast::{Statement, TSType};
 use oxc::parser::Parser;
 use oxc::span::{GetSpan, SourceType};
 
-use crate::macros::ts_macro;
-use crate::ts_syn::abi::ir::typeof_primitive;
-use crate::ts_syn::{MacroforgeError, Patch, SpanIR, TsStream};
+use crate::builtin::derive::common::rendered;
+use crate::macros::{ts_macro, ts_template};
+use crate::ts_syn::abi::ir::{NEWTYPE_BRAND_PREFIX, NEWTYPE_MACRO};
+use crate::ts_syn::{MacroforgeError, Patch, SpanIR, TsStream, ts_ident};
 
 #[cfg(test)]
 mod tests;
-
-const NAME_PREFIX: &str = "$Newtype<";
 
 #[ts_macro(
     Newtype,
@@ -80,20 +79,14 @@ pub fn newtype_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
     let base = single_type_argument(input.source())
         .map_err(|message| MacroforgeError::new(ctx.target_span, format!("$Newtype {message}")))?;
 
-    let symbol = format!("__mf_newtype_{}", ctx.expansion_id);
-    let mut out = TsStream::from_string(format!("{base} & {{ readonly [{symbol}]: true }}"));
+    let symbol = ts_ident!("{}{}", NEWTYPE_BRAND_PREFIX, ctx.expansion_id);
+    let mut out = ts_template! { @{base} & { readonly [@{&symbol}]: true } };
     out.runtime_patches.push(Patch::Insert {
         at: SpanIR::new(1, 1),
-        code: format!("declare const {symbol}: unique symbol;\n"),
-        source_macro: Some("$Newtype".to_string()),
+        code: rendered(ts_template! { declare const @{&symbol}: unique symbol; }) + "\n",
+        source_macro: Some(NEWTYPE_MACRO.to_string()),
     });
     Ok(out)
-}
-
-/// The base type of an unexpanded `$Newtype<primitive>` body, as the project
-/// scan records it before any pre-pass runs.
-pub fn unexpanded_base(text: &str) -> Option<&str> {
-    typeof_primitive(text.trim().strip_prefix(NAME_PREFIX)?.strip_suffix('>')?)
 }
 
 /// Parse the macro's type-argument text and return it as the left operand of
@@ -136,7 +129,7 @@ fn single_type_argument(args: &str) -> Result<String, String> {
             | TSType::TSConditionalType(_)
     );
     Ok(if needs_parens {
-        format!("({text})")
+        rendered(ts_template! { (@{text}) })
     } else {
         text.to_string()
     })

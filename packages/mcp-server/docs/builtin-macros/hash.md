@@ -29,17 +29,20 @@ to `i32` in Rust and consistent with Java's `Objects.hash()` implementation.
 
 ## Type-Specific Hashing
 
-| Type      | Hash Strategy                                          |
-| --------- | ------------------------------------------------------ |
-| `number`  | Integer: direct value; Float: string hash of decimal   |
-| `bigint`  | String hash of decimal representation                  |
-| `string`  | Character-by-character polynomial hash                 |
-| `boolean` | 1231 for true, 1237 for false (Java convention)        |
-| `Date`    | `getTime()` timestamp                                  |
-| Arrays    | Element-by-element hash combination                    |
-| `Map`     | Entry-by-entry key+value hash                          |
-| `Set`     | Element-by-element hash                                |
-| Objects   | Calls `hashCode()` if available, else JSON string hash |
+| Type                  | Hash Strategy                                           |
+| --------------------- | ------------------------------------------------------- |
+| `number`              | Integer: direct value; Float: string hash of decimal    |
+| `bigint`              | String hash of decimal representation                   |
+| `string`              | Character-by-character polynomial hash                  |
+| `boolean`             | 1231 for true, 1237 for false (Java convention)         |
+| `Date`                | `getTime()` timestamp                                   |
+| Arrays                | Element hashes combined in order                        |
+| `Map`, `Set`          | Entry hashes summed, since equality ignores their order |
+| Optional and nullable | `0` when absent                                         |
+| Types deriving `Hash` | Their `hashCode` function                               |
+| Anything else         | `structuralHash` from `@macroforge/core/structural`     |
+
+Values equal under the derived `PartialEq` always hash the same.
 
 ## Field-Level Options
 

@@ -18,7 +18,9 @@ type Shape = /** @endec(email) */ { address: string } | string;
 
 ## DTS
 
-type Shape = /** @endec(email) */ { address: string } | string;
+type Shape = {
+	address: string;
+} | string;
 
 ## Diagnostics
 

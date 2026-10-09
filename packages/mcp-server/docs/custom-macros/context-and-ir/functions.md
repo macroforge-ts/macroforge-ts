@@ -14,7 +14,7 @@ pub struct FunctionIR {
     pub is_generator: bool,
     pub is_exported: bool,
     pub is_default_export: bool,
-    pub type_params: Vec<String>,
+    pub type_params: Vec<TypeParamIR>,
     pub params: Vec<FunctionParamIR>,
     pub return_type_src: String,
     pub body_src: String,

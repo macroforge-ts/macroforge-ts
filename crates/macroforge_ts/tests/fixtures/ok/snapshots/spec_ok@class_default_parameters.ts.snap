@@ -74,49 +74,33 @@ class ServerConfig {
         return new ServerConfig();
     }
 
-static toString(value: ServerConfig): string {
-                    return serverConfigToString(value);
-                }}
+    static toString(value: ServerConfig): string {
+        return serverConfigToString(value);
+    }
+}
 
 export function serverConfigToString(value: ServerConfig): string {
-                        const parts: string[] = [];
-                        parts.push("host: " + value.host);
-parts.push("port: " + value.port);
-
-                        return "ServerConfig { " + parts.join(", ") + " }";
-                    }
+    const parts: string[] = [];
+    parts.push("host: " + String(value.host));
+    parts.push("port: " + String(value.port));
+    return "ServerConfig { " + parts.join(", ") + " }";
+}
 
 ## DTS
 
-import { Derive } from '@macro/derive';
-
-
-class ServerConfig {
-    host: string;
-    port: number;
-
-    constructor(host: string = 'localhost',
-        port: number = 8080,
-        secure: boolean = false);
-
-    connect(timeout: number = 5000,
-        retries: number = 3,
-        onError?: (err: Error) => void): Promise<void>;
-
-    static create(config: Partial<ServerConfig> = {},
-        defaults: { host?: string; port?: number } = { host: '0.0.0.0', port: 3000 }): ServerConfig;
-
-static toString(value: ServerConfig): string {
-                    return serverConfigToString(value);
-                }}
-
-export function serverConfigToString(value: ServerConfig): string {
-                        const parts: string[] = [];
-                        parts.push("host: " + value.host);
-parts.push("port: " + value.port);
-
-                        return "ServerConfig { " + parts.join(", ") + " }";
-                    }
+declare class ServerConfig {
+	host: string;
+	port: number;
+	constructor(host?: string, port?: number, secure?: boolean);
+	connect(timeout?: number, retries?: number, onError?: (err: Error) => void): Promise<void>;
+	static create(config?: Partial<ServerConfig>, defaults?: {
+		host?: string;
+		port?: number;
+	}): ServerConfig;
+	static toString(value: ServerConfig): string;
+}
+export declare function serverConfigToString(value: ServerConfig): string;
+export {};
 
 ## Diagnostics
 
@@ -126,14 +110,14 @@ parts.push("port: " + value.port);
 
 original 0..41 -> expanded 0..41
 original 62..690 -> expanded 41..669
-original 690..691 -> expanded 790..791
-original 691..692 -> expanded 1105..1106
-generated 669..790 <- Debug
-generated 791..1105 <- Debug
+original 690..691 -> expanded 771..772
+original 691..692 -> expanded 1025..1026
+generated 669..771 <- Debug
+generated 772..1025 <- Debug
 
 ## Metadata
 
-class ServerConfig: {"body_span":{"end":692,"start":83},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"name":"host","optional":false,"readonly":false,"span":{"end":102,"start":89},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"port","optional":false,"readonly":false,"span":{"end":120,"start":107},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":301,"start":242},"body_src":"\n        this.host = host;\n        this.port = port;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"host: string = 'localhost',\n        port: number = 8080,\n        secure: boolean = false","return_type_src":"","span":{"end":301,"start":126},"type_params_src":"","visibility":"Public"},{"body_span":{"end":478,"start":437},"body_src":"\n        return Promise.resolve();\n    ","decorators":[],"is_async":false,"is_static":false,"name":"connect","params_src":"timeout: number = 5000,\n        retries: number = 3,\n        onError?: (err: Error) => void","return_type_src":"Promise<void>","span":{"end":478,"start":307},"type_params_src":"","visibility":"Public"},{"body_span":{"end":690,"start":648},"body_src":"\n        return new ServerConfig();\n    ","decorators":[],"is_async":false,"is_static":true,"name":"create","params_src":"config: Partial<ServerConfig> = {},\n        defaults: { host?: string; port?: number } = { host: '0.0.0.0', port: 3000 }","return_type_src":"ServerConfig","span":{"end":690,"start":484},"type_params_src":"","visibility":"Public"}],"name":"ServerConfig","span":{"end":692,"start":64},"type_params":[]}
+class ServerConfig: {"body_span":{"end":692,"start":83},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"host","optional":false,"readonly":false,"span":{"end":102,"start":89},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"port","optional":false,"readonly":false,"span":{"end":120,"start":107},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":301,"start":242},"body_src":"\n        this.host = host;\n        this.port = port;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"host: string = 'localhost',\n        port: number = 8080,\n        secure: boolean = false","return_type_src":"","span":{"end":301,"start":126},"type_params":[],"visibility":"Public"},{"body_span":{"end":478,"start":437},"body_src":"\n        return Promise.resolve();\n    ","decorators":[],"is_async":false,"is_static":false,"name":"connect","params_src":"timeout: number = 5000,\n        retries: number = 3,\n        onError?: (err: Error) => void","return_type_src":"Promise<void>","span":{"end":478,"start":307},"type_params":[],"visibility":"Public"},{"body_span":{"end":690,"start":648},"body_src":"\n        return new ServerConfig();\n    ","decorators":[],"is_async":false,"is_static":true,"name":"create","params_src":"config: Partial<ServerConfig> = {},\n        defaults: { host?: string; port?: number } = { host: '0.0.0.0', port: 3000 }","return_type_src":"ServerConfig","span":{"end":690,"start":484},"type_params":[],"visibility":"Public"}],"name":"ServerConfig","span":{"end":692,"start":64},"type_params":[]}
 
 ## Registry reads
 

@@ -17,1855 +17,267 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
-import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
-import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 class Config {
     host: string;
     port: number;
 
-/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                static encode(value: Config, keepMetadata?: boolean): string {
-                    return configEncode(value, keepMetadata);
-                }
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: Config, keepMetadata?: boolean): string {
+        return configEncode(value, keepMetadata);
+    }
 
-                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                static encodeWithContext(value: Config, ctx: __mf_EncodeContext): Record<string, unknown> {
-                    return configEncodeWithContext(value, ctx);
-                }
-constructor(props: { host: string; port: number }) {
-            this.host = props.host;
-            this.port = props.port;
+    /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+    static encodeWithContext(value: Config, ctx: __mf_EncodeContext): Record<string, unknown> {
+        return configEncodeWithContext(value, ctx);
+    }
 
+    constructor(props: { host: string; port: number }) {
+        this.host = props.host;
+        this.port = props.port;
+    }
 
-        }
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Config } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
 
-        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Config } | { success: false; errors: Array<{ field: string; message: string }> } {
-            try {
+            const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const data = typeof input === "string" ? JSON.parse(input) : input;
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = Config.decodeWithContext(data, ctx);
 
-                const ctx = __mf_DecodeContext.create();
-                const resultOrRef = Config.decodeWithContext(data, ctx);
-
-                if (__mf_PendingRef.is(resultOrRef)) {
-                    return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message: "Config.decode: root cannot be a forward reference"
-	}]
-});
-                }
-
-                ctx.applyPatches();
-                if (opts?.freeze) {
-                    ctx.freezeAll();
-                }
-
-                const __errors = ctx.getErrors();
-                if (__errors.length > 0) {
-                    return ({
-	success: false,
-	errors: __errors
-});
-                }
-
+            if (__mf_PendingRef.is(resultOrRef)) {
                 return ({
-	success: true,
-	value: resultOrRef
-});
-            } catch (e) {
-                if (e instanceof __mf_DecodeError) {
-                    return ({
-	success: false,
-	errors: e.errors
-});
-                }
-                const message = e instanceof Error ? e.message : String(e);
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "Config.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
                 return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message
-	}]
-});
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Config | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "Config.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as Config | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "Config.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("host" in obj)) {
+            errors.push({ field: "host", message: "missing required field" });
+        }
+        if (!("port" in obj)) {
+            errors.push({ field: "port", message: "missing required field" });
+        }
+
+        const instance = Object.create(Config.prototype) as Config;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_host = obj["host"] as string;
+
+            if (!(typeof __raw_host === "string")) {
+                errors.push({ field: "host", message: __raw_host == null ? "Config.host is required" : "expected string" });
+            } else {
+                instance.host = __raw_host;
+            }
+        }
+        {
+            const __raw_port = obj["port"] as number;
+
+            if (!(typeof __raw_port === "number")) {
+                errors.push({ field: "port", message: __raw_port == null ? "Config.port is required" : "expected number" });
+            } else {
+                instance.port = __raw_port;
             }
         }
 
-        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-        static decodeWithContext(value: any, ctx: __mf_DecodeContext): Config | __mf_PendingRef {
-
-            if (value?.__ref !== undefined) {
-                return ctx.getOrDefer(value.__ref);
-            }
-
-            if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DecodeError([{ field: "_root", message: "Config.decodeWithContext: expected an object" }]);
-            }
-
-            const obj = value as Record<string, unknown>;
-            const errors: Array<{ field: string; message: string }> = [];if (!("host" in obj)) {
-                        errors.push({ field: "host", message: "missing required field" });
-                    }if (!("port" in obj)) {
-                        errors.push({ field: "port", message: "missing required field" });
-                    }
-
-
-
-
-
-
-
-
-            const instance = Object.create(Config.prototype) as Config;
-
-
-            if (obj.__id !== undefined) {
-                ctx.register(obj.__id as number, instance);
-            }
-
-
-            ctx.trackForFreeze(instance);{
-                            const __raw_host = obj["host"] as string;if (!(typeof __raw_host === "string")) {
-                                                errors.push({ field: "host", message: __raw_host == null ? "Config.host is required" : "expected string" });
-                                            } else {
-
-
-
-                                                instance.host = __raw_host;
-                                            }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                        }{
-                            const __raw_port = obj["port"] as number;if (!(typeof __raw_port === "number")) {
-                                                errors.push({ field: "port", message: __raw_port == null ? "Config.port is required" : "expected number" });
-                                            } else {
-
-
-
-                                                instance.port = __raw_port;
-                                            }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            ctx.pushErrors(errors);
-
-            return instance;
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof Config>(field: K, value: unknown): Array<{ field: string; message: string }>;
+    static validateField(): Array<{ field: string; message: string }> {
+        return [];
+    }
+
+    static validateFields(partial: { readonly [K in keyof Config]?: unknown }): Array<{ field: string; message: string }>;
+    static validateFields(): Array<{ field: string; message: string }> {
+        return [];
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
         }
+        const o = obj as Record<string, unknown>;
+        return "host" in o && "port" in o;
+    }
 
-        static validateField<K extends keyof Config>(
-            _field: K,
-            _value: Config[K]
-        ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
+    static is(obj: unknown): obj is Config {
+        if (obj instanceof Config) {
+            return true;
         }
-
-        static validateFields(
-            _partial: Partial<Config>
-        ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
+        if (!Config.hasShape(obj)) {
+            return false;
         }
-
-        static hasShape(obj: unknown): boolean {
-            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-                return false;
-            }
-            const o = obj as Record<string, unknown>;
-            return "host" in o && "port" in o;
-        }
-
-        static is(obj: unknown): obj is Config {
-            if (obj instanceof Config) {
-                return true;
-            }
-            if (!Config.hasShape(obj)) {
-                return false;
-            }
-            const result = Config.decode(obj);
-            return result.success;
-        }}
+        const result = Config.decode(obj);
+        return result.success;
+    }
+}
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function configEncode(value: Config, keepMetadata?: boolean): string {
-                    const ctx = __mf_EncodeContext.create();
-                    const __raw = configEncodeWithContext(value, ctx);
-                    if (keepMetadata) return JSON.stringify(__raw);
-                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                }
-
-                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                export function configEncodeWithContext(value: Config, ctx: __mf_EncodeContext): Record<string, unknown> {
-
-                    const existingId = ctx.getId(value);
-                    if (existingId !== undefined) {
-                        return { __ref: existingId };
-                    }
-
-
-                    const __id = ctx.register(value);
-
-                    const result: Record<string, unknown> = {
-                        "__type": "Config",
-                        __id,
-                    };result.host = value.host;result.port = value.port;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    return result;
-                }
+export function configEncode(value: Config, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = configEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function configEncodeWithContext(value: Config, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Config",
+        __id,
+    };
+
+    
+    result.host = value.host;
+    result.port = value.port;
+
+    return result;
+}
 
 /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-        export function configDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Config } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return Config.decode(input, opts);
-        }
+export function configDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Config } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return Config.decode(input, opts);
+}
 
-        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-        export function configDecodeWithContext(value: any, ctx: __mf_DecodeContext): Config | __mf_PendingRef {
-            return Config.decodeWithContext(value, ctx);
-        }
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function configDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Config | __mf_PendingRef {
+    return Config.decodeWithContext(value, ctx);
+}
 
-        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
-        export function configIs(value: unknown): value is Config {
-            return Config.is(value);
-        }
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function configIs(value: unknown): value is Config {
+    return Config.is(value);
+}
 
 ## DTS
 
-class Config {
-    host: string;
-    port: number;
-
+declare class Config {
+	host: string;
+	port: number;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: Config, keepMetadata?: boolean): string;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: Config, ctx: __mf_EncodeContext): Record<string, unknown>;
+	constructor(props: {
+		host: string;
+		port: number;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: Config;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Config | __mf_PendingRef;
+	static validateField<K extends keyof Config>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof Config]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is Config;
+}
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                static encode(value: Config, keepMetadata?: boolean): string {
-                    return configEncode(value, keepMetadata);
-                }
-
-                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                static encodeWithContext(value: Config, ctx: __mf_EncodeContext): Record<string, unknown> {
-                    return configEncodeWithContext(value, ctx);
-                }
-constructor(props: { host: string; port: number }) {
-            this.host = props.host;
-            this.port = props.port;
-
-
-        }
-
-        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Config } | { success: false; errors: Array<{ field: string; message: string }> } {
-            try {
-
-                const data = typeof input === "string" ? JSON.parse(input) : input;
-
-                const ctx = __mf_DecodeContext.create();
-                const resultOrRef = Config.decodeWithContext(data, ctx);
-
-                if (__mf_PendingRef.is(resultOrRef)) {
-                    return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message: "Config.decode: root cannot be a forward reference"
-	}]
-});
-                }
-
-                ctx.applyPatches();
-                if (opts?.freeze) {
-                    ctx.freezeAll();
-                }
-
-                const __errors = ctx.getErrors();
-                if (__errors.length > 0) {
-                    return ({
-	success: false,
-	errors: __errors
-});
-                }
-
-                return ({
-	success: true,
-	value: resultOrRef
-});
-            } catch (e) {
-                if (e instanceof __mf_DecodeError) {
-                    return ({
-	success: false,
-	errors: e.errors
-});
-                }
-                const message = e instanceof Error ? e.message : String(e);
-                return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message
-	}]
-});
-            }
-        }
-
-        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-        static decodeWithContext(value: any, ctx: __mf_DecodeContext): Config | __mf_PendingRef {
-
-            if (value?.__ref !== undefined) {
-                return ctx.getOrDefer(value.__ref);
-            }
-
-            if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DecodeError([{ field: "_root", message: "Config.decodeWithContext: expected an object" }]);
-            }
-
-            const obj = value as Record<string, unknown>;
-            const errors: Array<{ field: string; message: string }> = [];if (!("host" in obj)) {
-                        errors.push({ field: "host", message: "missing required field" });
-                    }if (!("port" in obj)) {
-                        errors.push({ field: "port", message: "missing required field" });
-                    }
-
-
-
-
-
-
-
-
-            const instance = Object.create(Config.prototype) as Config;
-
-
-            if (obj.__id !== undefined) {
-                ctx.register(obj.__id as number, instance);
-            }
-
-
-            ctx.trackForFreeze(instance);{
-                            const __raw_host = obj["host"] as string;if (!(typeof __raw_host === "string")) {
-                                                errors.push({ field: "host", message: __raw_host == null ? "Config.host is required" : "expected string" });
-                                            } else {
-
-
-
-                                                instance.host = __raw_host;
-                                            }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                        }{
-                            const __raw_port = obj["port"] as number;if (!(typeof __raw_port === "number")) {
-                                                errors.push({ field: "port", message: __raw_port == null ? "Config.port is required" : "expected number" });
-                                            } else {
-
-
-
-                                                instance.port = __raw_port;
-                                            }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            ctx.pushErrors(errors);
-
-            return instance;
-        }
-
-        static validateField<K extends keyof Config>(
-            _field: K,
-            _value: Config[K]
-        ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-        }
-
-        static validateFields(
-            _partial: Partial<Config>
-        ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-        }
-
-        static hasShape(obj: unknown): boolean {
-            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-                return false;
-            }
-            const o = obj as Record<string, unknown>;
-            return "host" in o && "port" in o;
-        }
-
-        static is(obj: unknown): obj is Config {
-            if (obj instanceof Config) {
-                return true;
-            }
-            if (!Config.hasShape(obj)) {
-                return false;
-            }
-            const result = Config.decode(obj);
-            return result.success;
-        }}
-
-/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function configEncode(value: Config, keepMetadata?: boolean): string {
-                    const ctx = __mf_EncodeContext.create();
-                    const __raw = configEncodeWithContext(value, ctx);
-                    if (keepMetadata) return JSON.stringify(__raw);
-                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                }
-
-                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                export function configEncodeWithContext(value: Config, ctx: __mf_EncodeContext): Record<string, unknown> {
-
-                    const existingId = ctx.getId(value);
-                    if (existingId !== undefined) {
-                        return { __ref: existingId };
-                    }
-
-
-                    const __id = ctx.register(value);
-
-                    const result: Record<string, unknown> = {
-                        "__type": "Config",
-                        __id,
-                    };result.host = value.host;result.port = value.port;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    return result;
-                }
-
+export declare function configEncode(value: Config, keepMetadata?: boolean): string;
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function configEncodeWithContext(value: Config, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-        export function configDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Config } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return Config.decode(input, opts);
-        }
-
-        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-        export function configDecodeWithContext(value: any, ctx: __mf_DecodeContext): Config | __mf_PendingRef {
-            return Config.decodeWithContext(value, ctx);
-        }
-
-        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
-        export function configIs(value: unknown): value is Config {
-            return Config.is(value);
-        }
+export declare function configDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Config;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function configDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Config | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function configIs(value: unknown): value is Config;
+export {};
 
 ## Diagnostics
 
@@ -1873,18 +285,18 @@ constructor(props: { host: string; port: number }) {
 
 ## Mapping
 
-original 30..82 -> expanded 385..437
-original 82..83 -> expanded 6743..6744
-original 83..84 -> expanded 9371..9372
-generated 0..385 <- imports
-generated 437..1147 <- Encode
-generated 1147..6743 <- Decode
-generated 6744..8251 <- Encode
-generated 8251..9371 <- Decode
+original 30..82 -> expanded 262..314
+original 82..83 -> expanded 5793..5794
+original 83..84 -> expanded 7962..7963
+generated 0..262 <- imports
+generated 314..945 <- Encode
+generated 945..5793 <- Decode
+generated 5794..6926 <- Encode
+generated 6926..7962 <- Decode
 
 ## Metadata
 
-class Config: {"body_span":{"end":84,"start":45},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"name":"host","optional":false,"readonly":false,"span":{"end":64,"start":51},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"port","optional":false,"readonly":false,"span":{"end":82,"start":69},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Config","span":{"end":84,"start":32},"type_params":[]}
+class Config: {"body_span":{"end":84,"start":45},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"initializer":null,"name":"host","optional":false,"readonly":false,"span":{"end":64,"start":51},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"port","optional":false,"readonly":false,"span":{"end":82,"start":69},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Config","span":{"end":84,"start":32},"type_params":[]}
 
 ## Registry reads
 

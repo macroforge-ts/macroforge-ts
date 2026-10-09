@@ -84,7 +84,7 @@ pub struct ResolvedTypeRef {
 Rust
 
 ```
-use macroforge_ts::builtin::derive_common::resolved_type_has_derive;
+use macroforge_ts::builtin::derive::common::resolved_type_has_derive;
 
 if let Some(resolved) = input.context.resolved_fields.as_ref().and_then(|f| f.get(&field.name)) {
     // Does the field's type, or its element type, also derive Clone?
@@ -114,7 +114,7 @@ let shape = resolve_generic_aliases(
 
 ### Helpers
 
-`macroforge_ts::builtin::derive_common` holds the helpers the built-in macros use:
+`macroforge_ts::builtin::derive::common` holds the helpers the built-in macros use:
 
 | Helper                                                                        | Use                                                          |
 | ----------------------------------------------------------------------------- | ------------------------------------------------------------ |
@@ -149,7 +149,6 @@ pub struct MacroforgeConfig {
     pub must_use: MustUseConfig,
     pub non_exhaustive: NonExhaustiveConfig,
     pub buildtime: BuildtimeConfig,
-    pub config_imports: HashMap<String, ImportInfo>, // the config file's own imports
 }
 ```
 
@@ -160,17 +159,25 @@ way the project configured it.
 Rust
 
 ```
-let foreign = input
-    .context
-    .config
-    .as_ref()
-    .and_then(|config| config.foreign_types.iter().find(|ft| ft.name == field.ts_type));
+let foreign = input
+    .context
+    .config
+    .as_ref()
+    .and_then(|config| config.foreign_types.iter().find(|ft| ft.name == field.ts_type));
 
-if let Some(foreign) = foreign {
-    // foreign.encode_expr, decode_expr, default_expr, has_shape_expr
-    // hold the configured expressions, as source text
+if let Some(foreign) = foreign {
+    // Imports the handler from #macroforge/config and names it, so the
+    // generated code calls the project's own function.
+    if let Some(encode) = foreign.handler_callee(ForeignHandler::Encode) {
+        // emit `${encode}(value.field)`
+    }
 }
 ```
+
+A handler runs in the project's config, not in your macro's output: `handler_callee` requests its
+import and returns the name to call. See
+[Expanded Config](../../docs/endec/foreign-types/expanded-config) for how the config is expanded so
+each handler can be imported.
 
 ## Next Steps
 

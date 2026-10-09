@@ -1,0 +1,146 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/derive_requirements.ts
+---
+## Input
+
+/** @derive(Eq) */
+export interface OnlyEq {
+    id: number;
+}
+
+/** @derive(PartialOrd) */
+export interface OnlyPartialOrd {
+    id: number;
+}
+
+/** @derive(PartialEq, PartialOrd, Ord) */
+export interface OrdWithoutEq {
+    id: number;
+}
+
+## Changed
+
+true
+
+## Output
+
+export interface OnlyEq {
+    id: number;
+}
+
+
+export interface OnlyPartialOrd {
+    id: number;
+}
+
+export function onlyPartialOrdPartialCompare(a: OnlyPartialOrd, b: OnlyPartialOrd): number | null {
+    if (a === b) return 0;
+    const cmp0 = (a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id ? 0 : null);
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    return 0;
+}
+
+export const OnlyPartialOrd: {
+  readonly partialCompare: typeof onlyPartialOrdPartialCompare;
+} = {
+  partialCompare: onlyPartialOrdPartialCompare
+};
+
+
+export interface OrdWithoutEq {
+    id: number;
+}
+
+export function ordWithoutEqEquals(a: OrdWithoutEq, b: OrdWithoutEq): boolean {
+    if (a === b) return true;
+    return a.id === b.id;
+}
+
+export function ordWithoutEqPartialCompare(a: OrdWithoutEq, b: OrdWithoutEq): number | null {
+    if (a === b) return 0;
+    const cmp0 = (a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id ? 0 : null);
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    return 0;
+}
+
+export function ordWithoutEqCompare(a: OrdWithoutEq, b: OrdWithoutEq): number {
+    if (a === b) return 0;
+    const cmp0 = a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+    if (cmp0 !== 0) return cmp0;
+    return 0;
+}
+
+export const OrdWithoutEq: {
+  readonly equals: typeof ordWithoutEqEquals;
+  readonly partialCompare: typeof ordWithoutEqPartialCompare;
+  readonly compare: typeof ordWithoutEqCompare;
+} = {
+  equals: ordWithoutEqEquals,
+  partialCompare: ordWithoutEqPartialCompare,
+  compare: ordWithoutEqCompare
+};
+
+## DTS
+
+export interface OnlyEq {
+	id: number;
+}
+export interface OnlyPartialOrd {
+	id: number;
+}
+export declare function onlyPartialOrdPartialCompare(a: OnlyPartialOrd, b: OnlyPartialOrd): number | null;
+export declare const OnlyPartialOrd: {
+	readonly partialCompare: typeof onlyPartialOrdPartialCompare;
+};
+export interface OrdWithoutEq {
+	id: number;
+}
+export declare function ordWithoutEqEquals(a: OrdWithoutEq, b: OrdWithoutEq): boolean;
+export declare function ordWithoutEqPartialCompare(a: OrdWithoutEq, b: OrdWithoutEq): number | null;
+export declare function ordWithoutEqCompare(a: OrdWithoutEq, b: OrdWithoutEq): number;
+export declare const OrdWithoutEq: {
+	readonly equals: typeof ordWithoutEqEquals;
+	readonly partialCompare: typeof ordWithoutEqPartialCompare;
+	readonly compare: typeof ordWithoutEqCompare;
+};
+
+## Diagnostics
+
+Error [13..15]: `Eq` requires `PartialEq`, which `OnlyEq` does not derive
+  help: add `PartialEq` to `@derive(...)`
+Error [77..87]: `PartialOrd` requires `PartialEq`, which `OnlyPartialOrd` does not derive
+  help: add `PartialEq` to `@derive(...)`
+Error [180..183]: `Ord` requires `Eq`, which `OrdWithoutEq` does not derive
+  help: add `Eq` to `@derive(...)`
+
+## Mapping
+
+original 18..64 -> expanded 0..46
+original 90..142 -> expanded 46..98
+original 142..144 -> expanded 545..547
+original 186..236 -> expanded 547..597
+original 236..237 -> expanded 1541..1542
+generated 98..393 <- PartialOrd
+generated 393..545 <- __convenience_const
+generated 597..736 <- PartialEq
+generated 736..1025 <- PartialOrd
+generated 1025..1239 <- Ord
+generated 1239..1541 <- __convenience_const
+
+## Metadata
+
+interface OnlyEq: {"body_span":{"end":63,"start":44},"decorators":[{"args_src":"Eq","name":"Derive","span":{"end":19,"start":1}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":61,"start":50},"ts_type":"number"}],"heritage":[],"methods":[],"name":"OnlyEq","span":{"end":63,"start":27},"type_params":[]}
+interface OnlyPartialOrd: {"body_span":{"end":143,"start":124},"decorators":[{"args_src":"PartialOrd","name":"Derive","span":{"end":91,"start":65}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":141,"start":130},"ts_type":"number"}],"heritage":[],"methods":[],"name":"OnlyPartialOrd","span":{"end":143,"start":99},"type_params":[]}
+interface OrdWithoutEq: {"body_span":{"end":237,"start":218},"decorators":[{"args_src":"PartialEq, PartialOrd, Ord","name":"Derive","span":{"end":187,"start":145}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":235,"start":224},"ts_type":"number"}],"heritage":[],"methods":[],"name":"OrdWithoutEq","span":{"end":237,"start":195},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

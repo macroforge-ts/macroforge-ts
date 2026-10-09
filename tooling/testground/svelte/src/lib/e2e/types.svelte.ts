@@ -1,0 +1,170 @@
+/**
+ * Hyper-complex nested type graph for decoding e2e testing.
+ *
+ * Shape:
+ *   Organization
+ *   ├── departments: Department[]
+ *   │   ├── lead: Employee
+ *   │   ├── employees: Employee[]
+ *   │   │   ├── address: Address
+ *   │   │   ├── skills: Set<Skill>
+ *   │   │   │   └── Skill { name, level, certifiedAt: Date }
+ *   │   │   ├── projects: Project[]
+ *   │   │   │   ├── milestones: Milestone[]
+ *   │   │   │   │   └── Milestone { title, dueDate: Date, completedAt: Date | null }
+ *   │   │   │   └── metadata: Map<string, MetadataValue>
+ *   │   │   │       └── MetadataValue { value: string, updatedAt: Date }
+ *   │   │   └── hireDate: Date
+ *   │   ├── budget: Budget
+ *   │   │   └── Budget { amount, currency, approvedAt: Date }
+ *   │   └── createdAt: Date
+ *   ├── tags: Tag[]
+ *   │   └── Tag { label, color, createdAt: Date }
+ *   ├── config: OrgConfig
+ *   │   ├── features: Set<Feature>
+ *   │   │   └── Feature { name, enabledAt: Date }
+ *   │   └── limits: Map<string, Limit>
+ *   │       └── Limit { max, resetAt: Date }
+ *   └── foundedAt: Date
+ */
+
+import type { DateTime } from 'effect';
+
+// --- Leaf types ---
+
+/** @derive(Encode, Decode) */
+export interface Address {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+    country: string;
+}
+
+/** @derive(Encode, Decode) */
+export interface Skill {
+    name: string;
+    level: number;
+    certifiedAt: Date;
+}
+
+/** @derive(Encode, Decode) */
+export interface Milestone {
+    title: string;
+    dueDate: Date;
+    completedAt: Date | null;
+}
+
+/** @derive(Encode, Decode) */
+export interface MetadataValue {
+    value: string;
+    updatedAt: Date;
+}
+
+/** @derive(Encode, Decode) */
+export interface Tag {
+    label: string;
+    color: string;
+    createdAt: Date;
+}
+
+/** @derive(Encode, Decode) */
+export interface Feature {
+    name: string;
+    enabledAt: Date;
+}
+
+/** @derive(Encode, Decode) */
+export interface Limit {
+    max: number;
+    resetAt: Date;
+}
+
+/** @derive(Encode, Decode) */
+export interface Budget {
+    amount: number;
+    currency: string;
+    approvedAt: Date;
+}
+
+// --- Mid-level types ---
+
+/** @derive(Encode, Decode) */
+export interface Project {
+    id: string;
+    name: string;
+    milestones: Milestone[];
+    metadata: Map<string, MetadataValue>;
+    startedAt: Date;
+}
+
+/** @derive(Encode, Decode) */
+export interface Employee {
+    id: string;
+    name: string;
+    email: string;
+    address: Address;
+    skills: Set<Skill>;
+    projects: Project[];
+    hireDate: Date;
+    terminatedAt: Date | null;
+}
+
+/** @derive(Encode, Decode) */
+export interface OrgConfig {
+    features: Set<Feature>;
+    limits: Map<string, Limit>;
+}
+
+// --- Top-level type ---
+
+/** @derive(Encode, Decode) */
+export interface Department {
+    id: string;
+    name: string;
+    lead: Employee;
+    employees: Employee[];
+    budget: Budget;
+    createdAt: Date;
+}
+
+/** @derive(Encode, Decode) */
+export interface Organization {
+    id: string;
+    name: string;
+    departments: Department[];
+    tags: Tag[];
+    config: OrgConfig;
+    foundedAt: Date;
+}
+
+// --- Intersection types ---
+
+/** @derive(Encode, Decode) */
+export interface AccountBase {
+    id: string;
+    name: string;
+    balance: number;
+    createdAt: Date;
+}
+
+/** @derive(Encode, Decode) */
+export type SavingsAccount =
+    & { variant: 'savings'; interestRate: number }
+    & AccountBase;
+
+/** @derive(Encode, Decode) */
+export type CheckingAccount =
+    & { variant: 'checking'; overdraftLimit: number }
+    & AccountBase;
+
+// --- Union with a foreign member ---
+
+/** @derive(Encode, Decode) */
+export interface Holiday {
+    name: string;
+}
+
+// An ISO timestamp, or a holiday sent as JSON text.
+/** @derive(Decode) */
+export type Moment = DateTime.DateTime | Holiday;

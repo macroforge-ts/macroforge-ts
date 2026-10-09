@@ -23,12 +23,11 @@ type Config = {
 };
 
 export function configClone(value: Config): Config {
-                        const result = {} as any;
-                        result.host = value.host;
-result.port = value.port;
-
-                        return result as Config;
-                    }
+    return ({
+	host: value.host,
+	port: value.port
+});
+}
 
 const Config: {
   readonly clone: typeof configClone;
@@ -39,23 +38,11 @@ const Config: {
 ## DTS
 
 type Config = {
-    host: string;
-    port: number;
+	host: string;
+	port: number;
 };
-
-export function configClone(value: Config): Config {
-                        const result = {} as any;
-                        result.host = value.host;
-result.port = value.port;
-
-                        return result as Config;
-                    }
-
-const Config: {
-  readonly clone: typeof configClone;
-} = {
-  clone: configClone
-};
+export declare function configClone(value: Config): Config;
+export {};
 
 ## Diagnostics
 
@@ -64,9 +51,9 @@ const Config: {
 ## Mapping
 
 original 21..76 -> expanded 0..55
-original 76..77 -> expanded 392..393
-generated 55..307 <- Clone
-generated 307..392 <- __convenience_const
+original 76..77 -> expanded 251..252
+generated 55..166 <- Clone
+generated 166..251 <- __convenience_const
 
 ## Metadata
 

@@ -23,11 +23,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
-import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
-import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 export enum Stage {
     Draft = 0,
@@ -36,56 +33,48 @@ export enum Stage {
 }
 
 /** Encodes this enum value to a JSON string.  */
-                export function stageEncode(value: Stage): string {
-                    return JSON.stringify(value);
-                }
+export function stageEncode(value: Stage): string {
+    return JSON.stringify(value);
+}
 
-                /** Encodes with an existing context for nested/cyclic object graphs.  */
-                export function stageEncodeWithContext(value: Stage, ctx: __mf_EncodeContext): string | number;
-                export function stageEncodeWithContext(value: Stage): string | number {
-                    return value;
-                }
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function stageEncodeWithContext(value: Stage, ctx: __mf_EncodeContext): string | number;
+export function stageEncodeWithContext(value: Stage): string | number {
+    return value;
+}
 
 /** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
-        export function stageDecode(input: unknown): Stage {
-            return stageDecodeWithContext(input);
-        }
+export function stageDecode(input: unknown): Stage {
+    return stageDecodeWithContext(input);
+}
 
-        /** Decodes with an existing context (for consistency with other types).  */
-        export function stageDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Stage;
-        export function stageDecodeWithContext(data: unknown): Stage {
-            if (Stage["Draft"] === data) {
-                    return Stage["Draft"];
-                }
-            if (Stage["Active"] === data) {
-                    return Stage["Active"];
-                }
-            if (Stage["Needs Review"] === data) {
-                    return Stage["Needs Review"];
-                }
+/** Decodes with an existing context (for consistency with other types).  */
+export function stageDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Stage;
+export function stageDecodeWithContext(data: unknown): Stage {
+    if (Stage["Draft"] === data) {
+        return Stage["Draft"];
+    }
+    if (Stage["Active"] === data) {
+        return Stage["Active"];
+    }
+    if (Stage["Needs Review"] === data) {
+        return Stage["Needs Review"];
+    }
+    throw new Error("Invalid Stage value: " + JSON.stringify(data));
+}
 
-
-
-
-            throw new Error("Invalid Stage value: " + JSON.stringify(data));
-        }
-
-        export function stageIs(value: unknown): value is Stage {
-            if (Stage["Draft"] === value) {
-                    return true;
-                }
-            if (Stage["Active"] === value) {
-                    return true;
-                }
-            if (Stage["Needs Review"] === value) {
-                    return true;
-                }
-
-
-
-
-            return false;
-        }
+export function stageIs(value: unknown): value is Stage {
+    if (Stage["Draft"] === value) {
+        return true;
+    }
+    if (Stage["Active"] === value) {
+        return true;
+    }
+    if (Stage["Needs Review"] === value) {
+        return true;
+    }
+    return false;
+}
 
 export namespace Stage {
   export const encode: typeof stageEncode = stageEncode;
@@ -101,1224 +90,168 @@ export interface Job {
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function jobEncode(value: Job, keepMetadata?: boolean): string {
-                    const ctx = __mf_EncodeContext.create();
-                    const __raw = jobEncodeWithContext(value, ctx);
-                    if (keepMetadata) return JSON.stringify(__raw);
-                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                }
+export function jobEncode(value: Job, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = jobEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
 
-                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                export function jobEncodeWithContext(value: Job, ctx: __mf_EncodeContext): Record<string, unknown> {
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function jobEncodeWithContext(value: Job, ctx: __mf_EncodeContext): Record<string, unknown> {
 
-                    const existingId = ctx.getId(value);
-                    if (existingId !== undefined) {
-                        return { __ref: existingId };
-                    }
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
 
+    const __id = ctx.register(value);
 
-                    const __id = ctx.register(value);
+    const result: Record<string, unknown> = {
+        "__type": "Job",
+        __id,
+    };
 
-                    const result: Record<string, unknown> = {
-                        "__type": "Job",
-                        __id,
-                    };result.stage = stageEncodeWithContext(value.stage, ctx);
+    
+    result.stage = stageEncodeWithContext(value.stage, ctx);
 
+    return result;
+}
 
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function jobDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Job } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
 
+        const data = typeof input === "string" ? JSON.parse(input) : input;
 
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = jobDecodeWithContext(data, ctx);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    return result;
-                }
-
-/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-            export function jobDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Job } | { success: false; errors: Array<{ field: string; message: string }> } {
-                try {
-
-                    const data = typeof input === "string" ? JSON.parse(input) : input;
-
-                    const ctx = __mf_DecodeContext.create();
-                    const resultOrRef = jobDecodeWithContext(data, ctx);
-
-                    if (__mf_PendingRef.is(resultOrRef)) {
-                        return ({
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
 	success: false,
 	errors: [{
 		field: "_root",
 		message: "Job.decode: root cannot be a forward reference"
 	}]
 });
-                    }
+        }
 
-                    ctx.applyPatches();
-                    if (opts?.freeze) {
-                        ctx.freezeAll();
-                    }
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
 
-                    const __errors = ctx.getErrors();
-                    if (__errors.length > 0) {
-                        return ({
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
 	success: false,
 	errors: __errors
 });
-                    }
+        }
 
-                    return ({
+        return ({
 	success: true,
 	value: resultOrRef
 });
-                } catch (e) {
-                    if (e instanceof __mf_DecodeError) {
-                        return ({
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
 	success: false,
 	errors: e.errors
 });
-                    }
-                    const message = e instanceof Error ? e.message : String(e);
-                    return ({
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
 	success: false,
 	errors: [{
 		field: "_root",
 		message
 	}]
 });
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function jobDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Job | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Job.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Job | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Job.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("stage" in obj)) {
+        errors.push({ field: "stage", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_stage = obj["stage"] as Stage;
+
+        ctx.pushScope("stage");
+        try {
+            const __result = stageDecodeWithContext(__raw_stage, ctx);
+            ctx.assignOrDefer(instance, "stage", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "stage" : "stage." + __err.field,
+                        message: __err.message
+                    });
                 }
+            } else {
+                throw __e;
             }
-
-            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-            export function jobDecodeWithContext(value: any, ctx: __mf_DecodeContext): Job | __mf_PendingRef {
-                if (value?.__ref !== undefined) {
-                    return ctx.getOrDefer(value.__ref);
-                }
-
-                if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DecodeError([{ field: "_root", message: "Job.decodeWithContext: expected an object" }]);
-                }
-
-                const obj = value as Record<string, unknown>;
-                const errors: Array<{ field: string; message: string }> = [];if (!("stage" in obj)) {
-                            errors.push({ field: "stage", message: "missing required field" });
-                        }
-
-
-
-
-
-
-
-                const instance: any = {};
-
-                if (obj.__id !== undefined) {
-                    ctx.register(obj.__id as number, instance);
-                }
-
-                ctx.trackForFreeze(instance);{
-                                const __raw_stage = obj["stage"] as Stage;ctx.pushScope("stage");
-                                            try {
-                                                const __result = stageDecodeWithContext(__raw_stage, ctx);
-                                                ctx.assignOrDefer(instance, "stage", __result);
-                                            } catch (__e) {
-                                                if (__e instanceof __mf_DecodeError) {
-                                                    for (const __err of __e.errors) {
-                                                        errors.push({
-                                                            field: __err.field === "_root" ? "stage" : "stage." + __err.field,
-                                                            message: __err.message
-                                                        });
-                                                    }
-                                                } else {
-                                                    throw __e;
-                                                }
-                                            } finally {
-                                                ctx.popScope();
-                                            }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                            }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                ctx.pushErrors(errors);
-
-                return instance as Job;
-            }
-
-            export function jobValidateField<K extends keyof Job>(
-                _field: K,
-                _value: Job[K]
-            ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-            }
-
-            export function jobValidateFields(
-                _partial: Partial<Job>
-            ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-            }
-
-            export function jobHasShape(obj: unknown): boolean {
-                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-                    return false;
-                }
-                const o = obj as Record<string, unknown>;
-                return "stage" in o;
-            }
-
-            export function jobIs(obj: unknown): obj is Job {
-                if (!jobHasShape(obj)) {
-                    return false;
-                }
-                const result = jobDecode(obj);
-                return result.success;
-            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Job;
+}
+export function jobValidateField<K extends keyof Job>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function jobValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function jobValidateFields(partial: { readonly [K in keyof Job]?: unknown }): Array<{ field: string; message: string }>;
+export function jobValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function jobHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "stage" in o;
+}
+
+export function jobIs(obj: unknown): obj is Job {
+    return jobHasShape(obj) && jobDecode(obj).success;
+}
 
 export const Job: {
   readonly encode: typeof jobEncode;
   readonly encodeWithContext: typeof jobEncodeWithContext;
   readonly decode: typeof jobDecode;
   readonly decodeWithContext: typeof jobDecodeWithContext;
+  readonly validateField: typeof jobValidateField;
   readonly validateFields: typeof jobValidateFields;
   readonly hasShape: typeof jobHasShape;
   readonly is: typeof jobIs;
@@ -1327,6 +260,7 @@ export const Job: {
   encodeWithContext: jobEncodeWithContext,
   decode: jobDecode,
   decodeWithContext: jobDecodeWithContext,
+  validateField: jobValidateField,
   validateFields: jobValidateFields,
   hasShape: jobHasShape,
   is: jobIs
@@ -1334,1307 +268,66 @@ export const Job: {
 
 ## DTS
 
-export enum Stage {
-    Draft = 0,
-    Active = 1,
-    'Needs Review' = 2
+export declare enum Stage {
+	Draft = 0,
+	Active = 1,
+	"Needs Review" = 2
 }
-
 /** Encodes this enum value to a JSON string.  */
-                export function stageEncode(value: Stage): string {
-                    return JSON.stringify(value);
-                }
-
-                /** Encodes with an existing context for nested/cyclic object graphs.  */
-                export function stageEncodeWithContext(value: Stage, ctx: __mf_EncodeContext): string | number;
-                export function stageEncodeWithContext(value: Stage): string | number {
-                    return value;
-                }
-
+export declare function stageEncode(value: Stage): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function stageEncodeWithContext(value: Stage, ctx: __mf_EncodeContext): string | number;
 /** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
-        export function stageDecode(input: unknown): Stage {
-            return stageDecodeWithContext(input);
-        }
-
-        /** Decodes with an existing context (for consistency with other types).  */
-        export function stageDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Stage;
-        export function stageDecodeWithContext(data: unknown): Stage {
-            if (Stage["Draft"] === data) {
-                    return Stage["Draft"];
-                }
-            if (Stage["Active"] === data) {
-                    return Stage["Active"];
-                }
-            if (Stage["Needs Review"] === data) {
-                    return Stage["Needs Review"];
-                }
-
-
-
-
-            throw new Error("Invalid Stage value: " + JSON.stringify(data));
-        }
-
-        export function stageIs(value: unknown): value is Stage {
-            if (Stage["Draft"] === value) {
-                    return true;
-                }
-            if (Stage["Active"] === value) {
-                    return true;
-                }
-            if (Stage["Needs Review"] === value) {
-                    return true;
-                }
-
-
-
-
-            return false;
-        }
-
-export namespace Stage {
-  export const encode: typeof stageEncode = stageEncode;
-  export const encodeWithContext: typeof stageEncodeWithContext = stageEncodeWithContext;
-  export const decode: typeof stageDecode = stageDecode;
-  export const decodeWithContext: typeof stageDecodeWithContext = stageDecodeWithContext;
-  export const is: typeof stageIs = stageIs;
+export declare function stageDecode(input: unknown): Stage;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function stageDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Stage;
+export declare function stageIs(value: unknown): value is Stage;
+export declare namespace Stage {
+	const encode: typeof stageEncode;
+	const encodeWithContext: typeof stageEncodeWithContext;
+	const decode: typeof stageDecode;
+	const decodeWithContext: typeof stageDecodeWithContext;
+	const is: typeof stageIs;
 }
-
-
 export interface Job {
-    stage: Stage;
+	stage: Stage;
 }
-
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function jobEncode(value: Job, keepMetadata?: boolean): string {
-                    const ctx = __mf_EncodeContext.create();
-                    const __raw = jobEncodeWithContext(value, ctx);
-                    if (keepMetadata) return JSON.stringify(__raw);
-                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                }
-
-                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                export function jobEncodeWithContext(value: Job, ctx: __mf_EncodeContext): Record<string, unknown> {
-
-                    const existingId = ctx.getId(value);
-                    if (existingId !== undefined) {
-                        return { __ref: existingId };
-                    }
-
-
-                    const __id = ctx.register(value);
-
-                    const result: Record<string, unknown> = {
-                        "__type": "Job",
-                        __id,
-                    };result.stage = stageEncodeWithContext(value.stage, ctx);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    return result;
-                }
-
-/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-            export function jobDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Job } | { success: false; errors: Array<{ field: string; message: string }> } {
-                try {
-
-                    const data = typeof input === "string" ? JSON.parse(input) : input;
-
-                    const ctx = __mf_DecodeContext.create();
-                    const resultOrRef = jobDecodeWithContext(data, ctx);
-
-                    if (__mf_PendingRef.is(resultOrRef)) {
-                        return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message: "Job.decode: root cannot be a forward reference"
-	}]
-});
-                    }
-
-                    ctx.applyPatches();
-                    if (opts?.freeze) {
-                        ctx.freezeAll();
-                    }
-
-                    const __errors = ctx.getErrors();
-                    if (__errors.length > 0) {
-                        return ({
-	success: false,
-	errors: __errors
-});
-                    }
-
-                    return ({
-	success: true,
-	value: resultOrRef
-});
-                } catch (e) {
-                    if (e instanceof __mf_DecodeError) {
-                        return ({
-	success: false,
-	errors: e.errors
-});
-                    }
-                    const message = e instanceof Error ? e.message : String(e);
-                    return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message
-	}]
-});
-                }
-            }
-
-            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-            export function jobDecodeWithContext(value: any, ctx: __mf_DecodeContext): Job | __mf_PendingRef {
-                if (value?.__ref !== undefined) {
-                    return ctx.getOrDefer(value.__ref);
-                }
-
-                if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DecodeError([{ field: "_root", message: "Job.decodeWithContext: expected an object" }]);
-                }
-
-                const obj = value as Record<string, unknown>;
-                const errors: Array<{ field: string; message: string }> = [];if (!("stage" in obj)) {
-                            errors.push({ field: "stage", message: "missing required field" });
-                        }
-
-
-
-
-
-
-
-                const instance: any = {};
-
-                if (obj.__id !== undefined) {
-                    ctx.register(obj.__id as number, instance);
-                }
-
-                ctx.trackForFreeze(instance);{
-                                const __raw_stage = obj["stage"] as Stage;ctx.pushScope("stage");
-                                            try {
-                                                const __result = stageDecodeWithContext(__raw_stage, ctx);
-                                                ctx.assignOrDefer(instance, "stage", __result);
-                                            } catch (__e) {
-                                                if (__e instanceof __mf_DecodeError) {
-                                                    for (const __err of __e.errors) {
-                                                        errors.push({
-                                                            field: __err.field === "_root" ? "stage" : "stage." + __err.field,
-                                                            message: __err.message
-                                                        });
-                                                    }
-                                                } else {
-                                                    throw __e;
-                                                }
-                                            } finally {
-                                                ctx.popScope();
-                                            }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                            }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                ctx.pushErrors(errors);
-
-                return instance as Job;
-            }
-
-            export function jobValidateField<K extends keyof Job>(
-                _field: K,
-                _value: Job[K]
-            ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-            }
-
-            export function jobValidateFields(
-                _partial: Partial<Job>
-            ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-            }
-
-            export function jobHasShape(obj: unknown): boolean {
-                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-                    return false;
-                }
-                const o = obj as Record<string, unknown>;
-                return "stage" in o;
-            }
-
-            export function jobIs(obj: unknown): obj is Job {
-                if (!jobHasShape(obj)) {
-                    return false;
-                }
-                const result = jobDecode(obj);
-                return result.success;
-            }
-
-export const Job: {
-  readonly encode: typeof jobEncode;
-  readonly encodeWithContext: typeof jobEncodeWithContext;
-  readonly decode: typeof jobDecode;
-  readonly decodeWithContext: typeof jobDecodeWithContext;
-  readonly validateFields: typeof jobValidateFields;
-  readonly hasShape: typeof jobHasShape;
-  readonly is: typeof jobIs;
-} = {
-  encode: jobEncode,
-  encodeWithContext: jobEncodeWithContext,
-  decode: jobDecode,
-  decodeWithContext: jobDecodeWithContext,
-  validateFields: jobValidateFields,
-  hasShape: jobHasShape,
-  is: jobIs
+export declare function jobEncode(value: Job, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function jobEncodeWithContext(value: Job, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function jobDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Job;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function jobDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Job | __mf_PendingRef;
+export declare function jobValidateField<K extends keyof Job>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function jobValidateFields(partial: { readonly [K in keyof Job]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function jobHasShape(obj: unknown): boolean;
+export declare function jobIs(obj: unknown): obj is Job;
+export declare const Job: {
+	readonly encode: typeof jobEncode;
+	readonly encodeWithContext: typeof jobEncodeWithContext;
+	readonly decode: typeof jobDecode;
+	readonly decodeWithContext: typeof jobDecodeWithContext;
+	readonly validateField: typeof jobValidateField;
+	readonly validateFields: typeof jobValidateFields;
+	readonly hasShape: typeof jobHasShape;
+	readonly is: typeof jobIs;
 };
 
 ## Diagnostics
@@ -2643,17 +336,17 @@ export const Job: {
 
 ## Mapping
 
-original 30..106 -> expanded 385..461
-original 106..108 -> expanded 2701..2703
-original 138..181 -> expanded 2703..2746
-original 181..182 -> expanded 10999..11000
-generated 0..385 <- imports
-generated 461..991 <- Encode
-generated 991..2334 <- Decode
-generated 2334..2701 <- __convenience_const
-generated 2746..4239 <- Encode
-generated 4239..10452 <- Decode
-generated 10452..10999 <- __convenience_const
+original 30..106 -> expanded 262..338
+original 106..108 -> expanded 2162..2164
+original 138..181 -> expanded 2164..2207
+original 181..182 -> expanded 8069..8070
+generated 0..262 <- imports
+generated 338..740 <- Encode
+generated 740..1795 <- Decode
+generated 1795..2162 <- __convenience_const
+generated 2207..3312 <- Encode
+generated 3312..7436 <- Decode
+generated 7436..8069 <- __convenience_const
 
 ## Metadata
 

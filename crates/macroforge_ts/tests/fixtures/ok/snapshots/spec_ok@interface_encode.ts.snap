@@ -25,125 +25,34 @@ interface Point {
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function pointEncode(value: Point, keepMetadata?: boolean): string {
-                    const ctx = __mf_EncodeContext.create();
-                    const __raw = pointEncodeWithContext(value, ctx);
-                    if (keepMetadata) return JSON.stringify(__raw);
-                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                }
-
-                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                export function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
-
-                    const existingId = ctx.getId(value);
-                    if (existingId !== undefined) {
-                        return { __ref: existingId };
-                    }
-
-
-                    const __id = ctx.register(value);
-
-                    const result: Record<string, unknown> = {
-                        "__type": "Point",
-                        __id,
-                    };result.x = value.x;result.y = value.y;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    return result;
-                }
+export function pointEncode(value: Point, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = pointEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Point",
+        __id,
+    };
+
+    
+    result.x = value.x;
+    result.y = value.y;
+
+    return result;
+}
 
 const Point: {
   readonly encode: typeof pointEncode;
@@ -156,138 +65,14 @@ const Point: {
 ## DTS
 
 interface Point {
-    x: number;
-    y: number;
+	x: number;
+	y: number;
 }
-
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function pointEncode(value: Point, keepMetadata?: boolean): string {
-                    const ctx = __mf_EncodeContext.create();
-                    const __raw = pointEncodeWithContext(value, ctx);
-                    if (keepMetadata) return JSON.stringify(__raw);
-                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                }
-
-                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                export function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
-
-                    const existingId = ctx.getId(value);
-                    if (existingId !== undefined) {
-                        return { __ref: existingId };
-                    }
-
-
-                    const __id = ctx.register(value);
-
-                    const result: Record<string, unknown> = {
-                        "__type": "Point",
-                        __id,
-                    };result.x = value.x;result.y = value.y;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    return result;
-                }
-
-const Point: {
-  readonly encode: typeof pointEncode;
-  readonly encodeWithContext: typeof pointEncodeWithContext;
-} = {
-  encode: pointEncode,
-  encodeWithContext: pointEncodeWithContext
-};
+export declare function pointEncode(value: Point, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown>;
+export {};
 
 ## Diagnostics
 
@@ -296,10 +81,10 @@ const Point: {
 ## Mapping
 
 original 22..72 -> expanded 78..128
-original 72..73 -> expanded 1807..1808
+original 72..73 -> expanded 1424..1425
 generated 0..78 <- imports
-generated 128..1615 <- Encode
-generated 1615..1807 <- __convenience_const
+generated 128..1232 <- Encode
+generated 1232..1424 <- __convenience_const
 
 ## Metadata
 

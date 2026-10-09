@@ -14,28 +14,22 @@ true
 
 ## Output
 
+import { structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
+
 type Status = 'active' | 'inactive' | 'pending';
 
 export function statusToString(value: Status): string {
-                        return "Status(" + JSON.stringify(value) + ")";
-                    }
+    return "Status(" + String(value) + ")";
+}
 
 export function statusEquals(a: Status, b: Status): boolean {
-                        if (a === b) return true;
-                        if (typeof a === "object" && typeof b === "object" && a !== null && b !== null) {
-                            return JSON.stringify(a) === JSON.stringify(b);
-                        }
-                        return false;
-                    }
+    if (a === b) return true;
+    return a === b;
+}
 
 export function statusHashCode(value: Status): number {
-                        const str = JSON.stringify(value);
-                        let hash = 0;
-                        for (let i = 0; i < str.length; i++) {
-                            hash = (hash * 31 + str.charCodeAt(i)) | 0;
-                        }
-                        return hash;
-                    }
+    return __mf_structuralHash(value);
+}
 
 const Status: {
   readonly toString: typeof statusToString;
@@ -49,38 +43,11 @@ const Status: {
 
 ## DTS
 
-type Status = 'active' | 'inactive' | 'pending';
-
-export function statusToString(value: Status): string {
-                        return "Status(" + JSON.stringify(value) + ")";
-                    }
-
-export function statusEquals(a: Status, b: Status): boolean {
-                        if (a === b) return true;
-                        if (typeof a === "object" && typeof b === "object" && a !== null && b !== null) {
-                            return JSON.stringify(a) === JSON.stringify(b);
-                        }
-                        return false;
-                    }
-
-export function statusHashCode(value: Status): number {
-                        const str = JSON.stringify(value);
-                        let hash = 0;
-                        for (let i = 0; i < str.length; i++) {
-                            hash = (hash * 31 + str.charCodeAt(i)) | 0;
-                        }
-                        return hash;
-                    }
-
-const Status: {
-  readonly toString: typeof statusToString;
-  readonly equals: typeof statusEquals;
-  readonly hashCode: typeof statusHashCode;
-} = {
-  toString: statusToString,
-  equals: statusEquals,
-  hashCode: statusHashCode
-};
+type Status = "active" | "inactive" | "pending";
+export declare function statusToString(value: Status): string;
+export declare function statusEquals(a: Status, b: Status): boolean;
+export declare function statusHashCode(value: Status): number;
+export {};
 
 ## Diagnostics
 
@@ -88,12 +55,13 @@ const Status: {
 
 ## Mapping
 
-original 38..87 -> expanded 0..49
-original 87..88 -> expanded 1188..1189
-generated 49..200 <- Debug
-generated 200..581 <- PartialEq
-generated 581..955 <- Hash
-generated 955..1188 <- __convenience_const
+original 38..87 -> expanded 85..134
+original 87..88 -> expanded 683..684
+generated 0..85 <- imports
+generated 134..237 <- Debug
+generated 237..352 <- PartialEq
+generated 352..450 <- Hash
+generated 450..683 <- __convenience_const
 
 ## Metadata
 

@@ -1,0 +1,221 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/ord_nested_array.ts
+---
+## Input
+
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
+export class Version {
+    major: number = 0;
+}
+
+/** @derive(PartialEq, Eq, PartialOrd, Ord) */
+export class Release {
+    versions: Version[] = [];
+    tags: string[] = [];
+}
+
+## Changed
+
+true
+
+## Output
+
+import { structuralEquals as __mf_structuralEquals, structuralCompare as __mf_structuralCompare } from "@macroforge/core/structural";
+
+export class Version {
+    major: number = 0;
+
+    static equals(a: Version, b: Version): boolean {
+        return versionEquals(a, b);
+    }
+
+    static partialCompare(a: Version, b: Version): number | null {
+        return versionPartialCompare(a, b);
+    }
+
+    static compare(a: Version, b: Version): number {
+        return versionCompare(a, b);
+    }
+}
+
+export function versionEquals(a: Version, b: Version): boolean {
+    if (a === b) return true;
+    return a.major === b.major;
+}
+
+export function versionPartialCompare(a: Version, b: Version): number | null {
+    if (a === b) return 0;
+    const cmp0 = (a.major < b.major ? -1 : a.major > b.major ? 1 : a.major === b.major ? 0 : null);
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    return 0;
+}
+
+export function versionCompare(a: Version, b: Version): number {
+    if (a === b) return 0;
+    const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : 0;
+    if (cmp0 !== 0) return cmp0;
+    return 0;
+}
+
+
+export class Release {
+    versions: Version[] = [];
+    tags: string[] = [];
+
+    static equals(a: Release, b: Release): boolean {
+        return releaseEquals(a, b);
+    }
+
+    static partialCompare(a: Release, b: Release): number | null {
+        return releasePartialCompare(a, b);
+    }
+
+    static compare(a: Release, b: Release): number {
+        return releaseCompare(a, b);
+    }
+}
+
+export function releaseEquals(a: Release, b: Release): boolean {
+    if (a === b) return true;
+    return a.versions.length === b.versions.length && a.versions.every((__item0, __index0) => {
+	const __other0 = b.versions[__index0];
+	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
+}) && a.tags.length === b.tags.length && a.tags.every((__item0, __index0) => {
+	const __other0 = b.tags[__index0];
+	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
+});
+}
+
+export function releasePartialCompare(a: Release, b: Release): number | null {
+    if (a === b) return 0;
+    const cmp0 = (() => {
+        const __left0 = a.versions;
+        const __right0 = b.versions;
+        const __shared0 = Math.min(__left0.length, __right0.length);
+        for (let __index0 = 0; __index0 < __shared0; __index0++) {
+            const __item0 = __left0[__index0];
+            const __other0 = __right0[__index0];
+            const __order0 = __item0 === undefined || __other0 === undefined
+                ? __mf_structuralCompare(__item0, __other0)
+                : __mf_structuralCompare(__item0, __other0);
+            if (__order0 !== 0) return __order0;
+        }
+        return __left0.length < __right0.length ? -1
+            : __left0.length > __right0.length ? 1 : 0;
+    })();
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = (() => {
+        const __left0 = a.tags;
+        const __right0 = b.tags;
+        const __shared0 = Math.min(__left0.length, __right0.length);
+        for (let __index0 = 0; __index0 < __shared0; __index0++) {
+            const __item0 = __left0[__index0];
+            const __other0 = __right0[__index0];
+            const __order0 = __item0 === undefined || __other0 === undefined
+                ? __mf_structuralCompare(__item0, __other0)
+                : (__item0 < __other0 ? -1 : __item0 > __other0 ? 1 : 0);
+            if (__order0 !== 0) return __order0;
+        }
+        return __left0.length < __right0.length ? -1
+            : __left0.length > __right0.length ? 1 : 0;
+    })();
+    if (cmp1 === null) return null;
+    if (cmp1 !== 0) return cmp1;
+    return 0;
+}
+
+export function releaseCompare(a: Release, b: Release): number {
+    if (a === b) return 0;
+    const cmp0 = (() => {
+	const __left0 = a.versions;
+	const __right0 = b.versions;
+	const __shared0 = Math.min(__left0.length, __right0.length);
+	for (let __index0 = 0; __index0 < __shared0; __index0++) {
+		const __item0 = __left0[__index0];
+		const __other0 = __right0[__index0];
+		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : __mf_structuralCompare(__item0, __other0);
+		if (__order0 !== 0) return __order0;
+	}
+	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
+})();
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = (() => {
+	const __left0 = a.tags;
+	const __right0 = b.tags;
+	const __shared0 = Math.min(__left0.length, __right0.length);
+	for (let __index0 = 0; __index0 < __shared0; __index0++) {
+		const __item0 = __left0[__index0];
+		const __other0 = __right0[__index0];
+		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : __item0 < __other0 ? -1 : __item0 > __other0 ? 1 : 0;
+		if (__order0 !== 0) return __order0;
+	}
+	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
+})();
+    if (cmp1 !== 0) return cmp1;
+    return 0;
+}
+
+## DTS
+
+export declare class Version {
+	major: number;
+	static equals(a: Version, b: Version): boolean;
+	static partialCompare(a: Version, b: Version): number | null;
+	static compare(a: Version, b: Version): number;
+}
+export declare function versionEquals(a: Version, b: Version): boolean;
+export declare function versionPartialCompare(a: Version, b: Version): number | null;
+export declare function versionCompare(a: Version, b: Version): number;
+export declare class Release {
+	versions: Version[];
+	tags: string[];
+	static equals(a: Release, b: Release): boolean;
+	static partialCompare(a: Release, b: Release): number | null;
+	static compare(a: Release, b: Release): number;
+}
+export declare function releaseEquals(a: Release, b: Release): boolean;
+export declare function releasePartialCompare(a: Release, b: Release): number | null;
+export declare function releaseCompare(a: Release, b: Release): number;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 46..93 -> expanded 134..181
+original 93..94 -> expanded 492..493
+original 94..96 -> expanded 1126..1128
+original 142..221 -> expanded 1128..1207
+original 221..222 -> expanded 1518..1519
+original 222..223 -> expanded 5062..5063
+generated 0..134 <- imports
+generated 181..277 <- PartialEq
+generated 277..395 <- PartialOrd
+generated 395..492 <- Ord
+generated 493..623 <- PartialEq
+generated 623..915 <- PartialOrd
+generated 915..1126 <- Ord
+generated 1207..1303 <- PartialEq
+generated 1303..1421 <- PartialOrd
+generated 1421..1518 <- Ord
+generated 1519..2050 <- PartialEq
+generated 2050..3730 <- PartialOrd
+generated 3730..5062 <- Ord
+
+## Metadata
+
+class Version: {"body_span":{"end":95,"start":69},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":47,"start":1}}],"fields":[{"decorators":[],"initializer":"0","name":"major","optional":false,"readonly":false,"span":{"end":93,"start":75},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Version","span":{"end":95,"start":55},"type_params":[]}
+class Release: {"body_span":{"end":223,"start":165},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":143,"start":97}}],"fields":[{"decorators":[],"initializer":"[]","name":"versions","optional":false,"readonly":false,"span":{"end":196,"start":171},"ts_type":"Version[]","visibility":"Public"},{"decorators":[],"initializer":"[]","name":"tags","optional":false,"readonly":false,"span":{"end":221,"start":201},"ts_type":"string[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Release","span":{"end":223,"start":151},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

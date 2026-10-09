@@ -173,15 +173,15 @@ pub fn run(args: VerifyArgs) -> Result<()> {
                     build_repo(repo).with_context(|| format!("Build failed for {}", repo.name))?;
                     println!("{}", "done".green());
                 }
-                // The playground macro package and the test suites run this
+                // The testground macro package and the test suites run this
                 // checkout's CLI, so a stale one would test older engine code.
                 print!("  {} {}... ", "Building:".bold(), "cli".cyan());
                 io::stdout().flush()?;
                 shell::cargo::build_bin(&config.root, "macroforge_ts", "macroforge")
                     .context("Build failed for the macroforge CLI")?;
                 println!("{}", "done".green());
-                // The playground is type-checked next, against the packages it links.
-                super::test::prepare_playground_apps(&config)?;
+                // The testground is type-checked next, against the packages it links.
+                super::test::prepare_testground_apps(&config)?;
             }
             Step::Diagnostics => run_diagnostics(&config, args.check)?,
             Step::PublishCheck => {
@@ -191,7 +191,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
             Step::Tests => {
                 super::test::run_rust_tests(&config)?;
                 super::test::run_package_tests(&config)?;
-                super::test::run_playground_suites(&config)?;
+                super::test::run_testground_suites(&config)?;
             }
             Step::BuildExtensions => build_extensions(&config)?,
             Step::CheckDocs => check_freshness::check(&config.root)?,

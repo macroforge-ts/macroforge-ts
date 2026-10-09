@@ -720,3 +720,71 @@ fn expand_outside_any_project_writes_no_state() {
     assert!(temp.path().join("loose.out.ts").exists());
     assert!(!temp.path().join(".macroforge").exists());
 }
+
+// ============================================================================
+// Default requirements
+// ============================================================================
+
+/// Expands `source` as `src/types.ts` of a fresh project, returning the exit
+/// code and everything printed.
+fn expand_in_project(source: &str) -> (Option<i32>, String) {
+    let temp_dir = TempDir::new().expect("temp dir");
+    let root = temp_dir.path();
+    std::fs::write(
+        root.join("package.json"),
+        "{ \"name\": \"default-fixture\" }",
+    )
+    .expect("write package.json");
+    std::fs::create_dir_all(root.join("src")).expect("create src");
+    std::fs::write(root.join("src/types.ts"), source).expect("write source");
+    let output = macroforge_bin()
+        .arg("expand")
+        .arg("src/types.ts")
+        .current_dir(root)
+        .output()
+        .expect("failed to run macroforge");
+    let printed = format!(
+        "{}{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    (output.status.code(), printed)
+}
+
+#[test]
+fn default_requires_a_field_type_to_derive_default() {
+    let (code, printed) = expand_in_project(
+        "/** @derive(Encode) */\nexport interface Point {\n  x: number;\n}\n\n\
+         /** @derive(Default) */\nexport interface Route {\n  start: Point;\n}\n",
+    );
+    assert_ne!(code, Some(0), "{printed}");
+    assert!(
+        printed.contains(
+            "field 'start' has type 'Point', which does not derive Default; derive it or add @default(value)"
+        ),
+        "{printed}"
+    );
+}
+
+#[test]
+fn default_requires_a_type_parameter_field_to_name_its_default() {
+    let (code, printed) =
+        expand_in_project("/** @derive(Default) */\nexport interface Box<T> {\n  value: T;\n}\n");
+    assert_ne!(code, Some(0), "{printed}");
+    assert!(
+        printed.contains("field 'value' has type parameter 'T', which has no default"),
+        "{printed}"
+    );
+}
+
+#[test]
+fn default_on_a_generic_interface_is_generic() {
+    let (code, printed) = expand_in_project(
+        "/** @derive(Default) */\nexport interface Box<T> {\n  /** @default(null as T) */\n  value: T;\n  label: string;\n}\n",
+    );
+    assert_eq!(code, Some(0), "{printed}");
+    assert!(
+        printed.contains("export function boxDefaultValue<T>(): Box<T>"),
+        "{printed}"
+    );
+}

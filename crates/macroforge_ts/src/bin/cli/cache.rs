@@ -612,6 +612,9 @@ pub(crate) fn warm_cache(
 /// `root` is the resolved project root, the same path the project lock is
 /// keyed on, so every subcommand agrees on which `.macroforge/` it is using.
 pub(crate) fn init_cache(root: &Path, label: &str) -> Result<(PathBuf, CacheManifest)> {
+    // The cached expansions import their foreign-type handlers from it.
+    macroforge_ts::host::config::hoist::sync_expanded_config(root)
+        .with_context(|| format!("failed to expand the config of {}", root.display()))?;
     let cache_dir = root.join(".macroforge").join("cache");
     let version = env!("CARGO_PKG_VERSION").to_string();
     let config_hash = compute_config_hash(root);

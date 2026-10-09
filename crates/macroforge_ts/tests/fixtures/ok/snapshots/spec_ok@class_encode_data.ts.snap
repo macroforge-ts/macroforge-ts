@@ -25,259 +25,60 @@ import { Derive } from '@macro/derive';
 class Data {
     val: number;
 
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: Data, keepMetadata?: boolean): string {
+        return dataEncode(value, keepMetadata);
+    }
+
+    /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+    static encodeWithContext(value: Data, ctx: __mf_EncodeContext): Record<string, unknown> {
+        return dataEncodeWithContext(value, ctx);
+    }
+}
+
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                static encode(value: Data, keepMetadata?: boolean): string {
-                    return dataEncode(value, keepMetadata);
-                }
-
-                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                static encodeWithContext(value: Data, ctx: __mf_EncodeContext): Record<string, unknown> {
-                    return dataEncodeWithContext(value, ctx);
-                }}
-
-/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function dataEncode(value: Data, keepMetadata?: boolean): string {
-                    const ctx = __mf_EncodeContext.create();
-                    const __raw = dataEncodeWithContext(value, ctx);
-                    if (keepMetadata) return JSON.stringify(__raw);
-                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                }
-
-                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                export function dataEncodeWithContext(value: Data, ctx: __mf_EncodeContext): Record<string, unknown> {
-
-                    const existingId = ctx.getId(value);
-                    if (existingId !== undefined) {
-                        return { __ref: existingId };
-                    }
-
-
-                    const __id = ctx.register(value);
-
-                    const result: Record<string, unknown> = {
-                        "__type": "Data",
-                        __id,
-                    };result.val = value.val;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    return result;
-                }
+export function dataEncode(value: Data, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = dataEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function dataEncodeWithContext(value: Data, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Data",
+        __id,
+    };
+
+    
+    result.val = value.val;
+
+    return result;
+}
 
 ## DTS
 
-import { Derive } from '@macro/derive';
-
-
-class Data {
-    val: number;
-
+declare class Data {
+	val: number;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: Data, keepMetadata?: boolean): string;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: Data, ctx: __mf_EncodeContext): Record<string, unknown>;
+}
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                static encode(value: Data, keepMetadata?: boolean): string {
-                    return dataEncode(value, keepMetadata);
-                }
-
-                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                static encodeWithContext(value: Data, ctx: __mf_EncodeContext): Record<string, unknown> {
-                    return dataEncodeWithContext(value, ctx);
-                }}
-
-/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function dataEncode(value: Data, keepMetadata?: boolean): string {
-                    const ctx = __mf_EncodeContext.create();
-                    const __raw = dataEncodeWithContext(value, ctx);
-                    if (keepMetadata) return JSON.stringify(__raw);
-                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                }
-
-                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                export function dataEncodeWithContext(value: Data, ctx: __mf_EncodeContext): Record<string, unknown> {
-
-                    const existingId = ctx.getId(value);
-                    if (existingId !== undefined) {
-                        return { __ref: existingId };
-                    }
-
-
-                    const __id = ctx.register(value);
-
-                    const result: Record<string, unknown> = {
-                        "__type": "Data",
-                        __id,
-                    };result.val = value.val;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    return result;
-                }
+export declare function dataEncode(value: Data, keepMetadata?: boolean): string;
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function dataEncodeWithContext(value: Data, ctx: __mf_EncodeContext): Record<string, unknown>;
+export {};
 
 ## Diagnostics
 
@@ -287,15 +88,15 @@ class Data {
 
 original 0..41 -> expanded 78..119
 original 63..94 -> expanded 119..150
-original 94..95 -> expanded 852..853
-original 95..96 -> expanded 2321..2322
+original 94..95 -> expanded 773..774
+original 95..96 -> expanded 1862..1863
 generated 0..78 <- imports
-generated 150..852 <- Encode
-generated 853..2321 <- Encode
+generated 150..773 <- Encode
+generated 774..1862 <- Encode
 
 ## Metadata
 
-class Data: {"body_span":{"end":96,"start":76},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"decorators":[],"name":"val","optional":false,"readonly":false,"span":{"end":94,"start":82},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Data","span":{"end":96,"start":65},"type_params":[]}
+class Data: {"body_span":{"end":96,"start":76},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"val","optional":false,"readonly":false,"span":{"end":94,"start":82},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Data","span":{"end":96,"start":65},"type_params":[]}
 
 ## Registry reads
 

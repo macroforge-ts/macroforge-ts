@@ -1,0 +1,664 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/validators/field-type-tests.ts
+sha256 5e603d6364520237e6c1d6d3d38851655649083e4c3d9ce746b0da64f817c9cd
+
+## Changed
+
+true
+
+## Output
+
+import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+declare const __mf_newtype_1: unique symbol;
+declare const __mf_newtype_2: unique symbol;
+/**
+ * Field types decode checks: primitive-like fields, foreign-type fields,
+ * and primitive aliases branded by string keys.
+ */
+
+/** @derive(Decode) */
+export interface Profile {
+    name: string;
+    age: number;
+    active: boolean;
+    kind: 'user';
+    mode: 'light' | 'dark';
+    nickname: string | null;
+    bio?: string;
+    rank: number | undefined;
+    height: number & { readonly [__mf_newtype_1]: true };
+    balance: bigint;
+    site: URL;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function profileDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Profile } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = profileDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Profile.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Profile | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Profile.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Profile | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Profile.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("name" in obj)) {
+        errors.push({ field: "name", message: "missing required field" });
+    }
+    if (!("age" in obj)) {
+        errors.push({ field: "age", message: "missing required field" });
+    }
+    if (!("active" in obj)) {
+        errors.push({ field: "active", message: "missing required field" });
+    }
+    if (!("kind" in obj)) {
+        errors.push({ field: "kind", message: "missing required field" });
+    }
+    if (!("mode" in obj)) {
+        errors.push({ field: "mode", message: "missing required field" });
+    }
+    if (!("nickname" in obj)) {
+        errors.push({ field: "nickname", message: "missing required field" });
+    }
+    if (!("rank" in obj)) {
+        errors.push({ field: "rank", message: "missing required field" });
+    }
+    if (!("height" in obj)) {
+        errors.push({ field: "height", message: "missing required field" });
+    }
+    if (!("balance" in obj)) {
+        errors.push({ field: "balance", message: "missing required field" });
+    }
+    if (!("site" in obj)) {
+        errors.push({ field: "site", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_name = obj["name"] as string;
+
+        if (!(typeof __raw_name === "string")) {
+            errors.push({ field: "name", message: __raw_name == null ? "Profile.name is required" : "expected string" });
+        } else {
+            instance.name = __raw_name;
+        }
+    }
+    {
+        const __raw_age = obj["age"] as number;
+
+        if (!(typeof __raw_age === "number")) {
+            errors.push({ field: "age", message: __raw_age == null ? "Profile.age is required" : "expected number" });
+        } else {
+            instance.age = __raw_age;
+        }
+    }
+    {
+        const __raw_active = obj["active"] as boolean;
+
+        if (!(typeof __raw_active === "boolean")) {
+            errors.push({ field: "active", message: __raw_active == null ? "Profile.active is required" : "expected boolean" });
+        } else {
+            instance.active = __raw_active;
+        }
+    }
+    {
+        const __raw_kind = obj["kind"] as 'user';
+
+        if (!(__raw_kind === "user")) {
+            errors.push({ field: "kind", message: __raw_kind == null ? "Profile.kind is required" : "expected 'user'" });
+        } else {
+            instance.kind = __raw_kind;
+        }
+    }
+    {
+        const __raw_mode = obj["mode"] as 'light' | 'dark';
+
+        if (!(__raw_mode === "light" || __raw_mode === "dark")) {
+            errors.push({ field: "mode", message: __raw_mode == null ? "Profile.mode is required" : "expected 'light' | 'dark'" });
+        } else {
+            instance.mode = __raw_mode;
+        }
+    }
+    {
+        const __raw_nickname = obj["nickname"] as string | null;
+
+        if (!(typeof __raw_nickname === "string" || __raw_nickname === null)) {
+            errors.push({ field: "nickname", message: "expected string | null" });
+        } else {
+            instance.nickname = __raw_nickname;
+        }
+    }
+    if ("bio" in obj && obj["bio"] !== undefined) {
+        const __raw_bio = obj["bio"] as string;
+
+        if (!(typeof __raw_bio === "string")) {
+            errors.push({ field: "bio", message: "expected string" });
+        } else {
+            instance.bio = __raw_bio;
+        }
+    }
+    {
+        const __raw_rank = obj["rank"] as number | undefined;
+
+        if (!(typeof __raw_rank === "number" || __raw_rank === undefined)) {
+            errors.push({ field: "rank", message: "expected number | undefined" });
+        } else {
+            instance.rank = __raw_rank;
+        }
+    }
+    {
+        const __raw_height = obj["height"] as number & { readonly [__mf_newtype_1]: true };
+
+        if (!(typeof __raw_height === "number")) {
+            errors.push({ field: "height", message: __raw_height == null ? "Profile.height is required" : "expected number & { readonly [__mf_newtype_1]: true }" });
+        } else {
+            instance.height = __raw_height;
+        }
+    }
+    try {
+        instance.balance = ((v) => BigInt(v as string))(obj["balance"]);
+    } catch (__error) {
+        errors.push({ field: "balance", message: __error instanceof Error ? __error.message : String(__error) });
+    }
+    try {
+        instance.site = ((v) => new URL(v as string))(obj["site"]);
+    } catch (__error) {
+        errors.push({ field: "site", message: __error instanceof Error ? __error.message : String(__error) });
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Profile;
+}
+export function profileValidateField<K extends keyof Profile>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function profileValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function profileValidateFields(partial: { readonly [K in keyof Profile]?: unknown }): Array<{ field: string; message: string }>;
+export function profileValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function profileHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "name" in o && "age" in o && "active" in o && "kind" in o && "mode" in o && "nickname" in o && "rank" in o && "height" in o && "balance" in o && "site" in o;
+}
+
+export function profileIs(obj: unknown): obj is Profile {
+    return profileHasShape(obj) && profileDecode(obj).success;
+}
+
+export const Profile: {
+  readonly decode: typeof profileDecode;
+  readonly decodeWithContext: typeof profileDecodeWithContext;
+  readonly validateField: typeof profileValidateField;
+  readonly validateFields: typeof profileValidateFields;
+  readonly hasShape: typeof profileHasShape;
+  readonly is: typeof profileIs;
+} = {
+  decode: profileDecode,
+  decodeWithContext: profileDecodeWithContext,
+  validateField: profileValidateField,
+  validateFields: profileValidateFields,
+  hasShape: profileHasShape,
+  is: profileIs
+};
+
+/** @derive(Encode, Decode, Hash, Debug) */
+export type Tagged = number & { readonly __brand: 'Tagged' };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export function taggedEncode(value: Tagged, keepMetadata?: boolean): string;
+export function taggedEncode(value: Tagged): string {
+    return JSON.stringify(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export function taggedEncodeWithContext(value: Tagged, ctx: __mf_EncodeContext): unknown;
+export function taggedEncodeWithContext(value: Tagged): unknown {
+    return value;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function taggedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Tagged } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = taggedDecodeWithContext(data, ctx);
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function taggedDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Tagged {
+    const __decoded: unknown = value;
+    if (typeof __decoded !== "number") {
+        throw new __mf_DecodeError([{ field: "_root", message: "Tagged.decodeWithContext: expected number" }]);
+    }
+    return __decoded as Tagged;
+}
+
+export function taggedHasShape(value: unknown): boolean {
+    return typeof value === "number";
+}
+
+export function taggedIs(value: unknown): value is Tagged {
+    return typeof value === "number";
+}
+
+export function taggedHashCode(value: Tagged): number {
+    return Number.isInteger(value) ? value | 0 : value.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
+}
+
+export function taggedToString(value: Tagged): string {
+    return "Tagged(" + String(value) + ")";
+}
+
+export const Tagged: {
+  readonly encode: typeof taggedEncode;
+  readonly encodeWithContext: typeof taggedEncodeWithContext;
+  readonly decode: typeof taggedDecode;
+  readonly decodeWithContext: typeof taggedDecodeWithContext;
+  readonly hasShape: typeof taggedHasShape;
+  readonly is: typeof taggedIs;
+  readonly hashCode: typeof taggedHashCode;
+  readonly toString: typeof taggedToString;
+} = {
+  encode: taggedEncode,
+  encodeWithContext: taggedEncodeWithContext,
+  decode: taggedDecode,
+  decodeWithContext: taggedDecodeWithContext,
+  hasShape: taggedHasShape,
+  is: taggedIs,
+  hashCode: taggedHashCode,
+  toString: taggedToString
+};
+
+/** @derive(Encode, Decode, Hash, Debug) */
+export type Cents = bigint & { readonly [__mf_newtype_2]: true };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export function centsEncode(value: Cents, keepMetadata?: boolean): string;
+export function centsEncode(value: Cents): string {
+    return JSON.stringify(((v) => String(v))(value));
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export function centsEncodeWithContext(value: Cents, ctx: __mf_EncodeContext): unknown;
+export function centsEncodeWithContext(value: Cents): unknown {
+    return ((v) => String(v))(value);
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function centsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Cents } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = centsDecodeWithContext(data, ctx);
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function centsDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Cents {
+    let __decoded: unknown = value;
+    if (typeof value !== "bigint") {
+        try {
+            __decoded = ((v) => BigInt(v as string))(value);
+        } catch (__error) {
+            throw new __mf_DecodeError([{ field: "_root", message: "Cents.decodeWithContext: expected bigint, " + String(__error) }]);
+        }
+    }
+    if (typeof __decoded !== "bigint") {
+        throw new __mf_DecodeError([{ field: "_root", message: "Cents.decodeWithContext: expected bigint" }]);
+    }
+    return __decoded as Cents;
+}
+
+export function centsHasShape(value: unknown): boolean {
+    return typeof value === "bigint" || typeof value === "string";
+}
+
+export function centsIs(value: unknown): value is Cents {
+    return typeof value === "bigint";
+}
+
+export function centsHashCode(value: Cents): number {
+    return value.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
+}
+
+export function centsToString(value: Cents): string {
+    return "Cents(" + String(value) + ")";
+}
+
+export const Cents: {
+  readonly encode: typeof centsEncode;
+  readonly encodeWithContext: typeof centsEncodeWithContext;
+  readonly decode: typeof centsDecode;
+  readonly decodeWithContext: typeof centsDecodeWithContext;
+  readonly hasShape: typeof centsHasShape;
+  readonly is: typeof centsIs;
+  readonly hashCode: typeof centsHashCode;
+  readonly toString: typeof centsToString;
+} = {
+  encode: centsEncode,
+  encodeWithContext: centsEncodeWithContext,
+  decode: centsDecode,
+  decodeWithContext: centsDecodeWithContext,
+  hasShape: centsHasShape,
+  is: centsIs,
+  hashCode: centsHashCode,
+  toString: centsToString
+};
+
+## DTS
+
+declare const __mf_newtype_1: unique symbol;
+declare const __mf_newtype_2: unique symbol;
+/**
+* Field types decode checks: primitive-like fields, foreign-type fields,
+* and primitive aliases branded by string keys.
+*/
+/** @derive(Decode) */
+export interface Profile {
+	name: string;
+	age: number;
+	active: boolean;
+	kind: "user";
+	mode: "light" | "dark";
+	nickname: string | null;
+	bio?: string;
+	rank: number | undefined;
+	height: number & {
+		readonly [__mf_newtype_1]: true;
+	};
+	balance: bigint;
+	site: URL;
+}
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function profileDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Profile;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Profile | __mf_PendingRef;
+export declare function profileValidateField<K extends keyof Profile>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function profileValidateFields(partial: { readonly [K in keyof Profile]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function profileHasShape(obj: unknown): boolean;
+export declare function profileIs(obj: unknown): obj is Profile;
+export declare const Profile: {
+	readonly decode: typeof profileDecode;
+	readonly decodeWithContext: typeof profileDecodeWithContext;
+	readonly validateField: typeof profileValidateField;
+	readonly validateFields: typeof profileValidateFields;
+	readonly hasShape: typeof profileHasShape;
+	readonly is: typeof profileIs;
+};
+/** @derive(Encode, Decode, Hash, Debug) */
+export type Tagged = number & {
+	readonly __brand: "Tagged";
+};
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export declare function taggedEncode(value: Tagged, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export declare function taggedEncodeWithContext(value: Tagged, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function taggedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Tagged;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function taggedDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Tagged;
+export declare function taggedHasShape(value: unknown): boolean;
+export declare function taggedIs(value: unknown): value is Tagged;
+export declare function taggedHashCode(value: Tagged): number;
+export declare function taggedToString(value: Tagged): string;
+export declare const Tagged: {
+	readonly encode: typeof taggedEncode;
+	readonly encodeWithContext: typeof taggedEncodeWithContext;
+	readonly decode: typeof taggedDecode;
+	readonly decodeWithContext: typeof taggedDecodeWithContext;
+	readonly hasShape: typeof taggedHasShape;
+	readonly is: typeof taggedIs;
+	readonly hashCode: typeof taggedHashCode;
+	readonly toString: typeof taggedToString;
+};
+/** @derive(Encode, Decode, Hash, Debug) */
+export type Cents = bigint & {
+	readonly [__mf_newtype_2]: true;
+};
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export declare function centsEncode(value: Cents, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export declare function centsEncodeWithContext(value: Cents, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function centsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Cents;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function centsDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Cents;
+export declare function centsHasShape(value: unknown): boolean;
+export declare function centsIs(value: unknown): value is Cents;
+export declare function centsHashCode(value: Cents): number;
+export declare function centsToString(value: Cents): string;
+export declare const Cents: {
+	readonly encode: typeof centsEncode;
+	readonly encodeWithContext: typeof centsEncodeWithContext;
+	readonly decode: typeof centsDecode;
+	readonly decodeWithContext: typeof centsDecodeWithContext;
+	readonly hasShape: typeof centsHasShape;
+	readonly is: typeof centsIs;
+	readonly hashCode: typeof centsHashCode;
+	readonly toString: typeof centsToString;
+};
+export {};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..373 -> expanded 352..725
+original 389..428 -> expanded 769..808
+original 428..535 -> expanded 9277..9384
+original 535..601 -> expanded 12802..12868
+original 617..618 -> expanded 12912..12913
+original 618..619 -> expanded 16563..16564
+generated 0..262 <- imports
+generated 262..307 <- $Newtype
+generated 307..352 <- $Newtype
+generated 725..769 <- $Newtype
+generated 808..8752 <- Decode
+generated 8752..9277 <- __convenience_const
+generated 9384..10090 <- Encode
+generated 10090..11873 <- Decode
+generated 11873..12059 <- Hash
+generated 12059..12162 <- Debug
+generated 12162..12802 <- __convenience_const
+generated 12868..12912 <- $Newtype
+generated 12913..13651 <- Encode
+generated 13651..15694 <- Decode
+generated 15694..15840 <- Hash
+generated 15840..15940 <- Debug
+generated 15940..16563 <- __convenience_const
+
+## Metadata
+
+interface Profile: {"body_span":{"end":547,"start":271},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":245,"start":223}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":290,"start":277},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":307,"start":295},"ts_type":"number"},{"decorators":[],"name":"active","optional":false,"readonly":false,"span":{"end":328,"start":312},"ts_type":"boolean"},{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":346,"start":333},"ts_type":"'user'"},{"decorators":[],"name":"mode","optional":false,"readonly":false,"span":{"end":374,"start":351},"ts_type":"'light' | 'dark'"},{"decorators":[],"name":"nickname","optional":false,"readonly":false,"span":{"end":403,"start":379},"ts_type":"string | null"},{"decorators":[],"name":"bio","optional":true,"readonly":false,"span":{"end":421,"start":408},"ts_type":"string"},{"decorators":[],"name":"rank","optional":false,"readonly":false,"span":{"end":451,"start":426},"ts_type":"number | undefined"},{"decorators":[],"name":"height","optional":false,"readonly":false,"span":{"end":509,"start":456},"ts_type":"number & { readonly [__mf_newtype_1]: true }"},{"decorators":[],"name":"balance","optional":false,"readonly":false,"span":{"end":530,"start":514},"ts_type":"bigint"},{"decorators":[],"name":"site","optional":false,"readonly":false,"span":{"end":545,"start":535},"ts_type":"URL"}],"heritage":[],"methods":[],"name":"Profile","span":{"end":547,"start":253},"type_params":[]}
+type Tagged: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"__brand","optional":false,"readonly":true,"span":{"end":651,"start":625},"ts_type":"'Tagged'"}]}}}]},"decorators":[{"args_src":"Encode, Decode, Hash, Debug","name":"Derive","span":{"end":592,"start":549}}],"name":"Tagged","span":{"end":654,"start":600},"type_params":[]}
+type Cents: {"body":{"Newtype":{"Alias":"bigint"}},"decorators":[{"args_src":"Encode, Decode, Hash, Debug","name":"Derive","span":{"end":699,"start":656}}],"name":"Cents","span":{"end":765,"start":707},"type_params":[]}
+
+## Registry reads
+
+Name("'Tagged'")
+Name("'light' | 'dark'")
+Name("'user'")
+Name("Cents")
+Name("Tagged")
+Name("URL")
+Name("number")
+Name("number & { readonly [__mf_newtype_1]: true }")
+
+## Buildtime dependencies
+
+(none)

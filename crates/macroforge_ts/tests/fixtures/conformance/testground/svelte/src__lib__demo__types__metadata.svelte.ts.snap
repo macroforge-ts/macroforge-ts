@@ -1,0 +1,564 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/metadata.svelte.ts
+sha256 5e6023bdbbe7fda15cea1a5ca70101b0c2a24b1f4e73f95f528f7e620ad08422
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+
+export interface Metadata {
+    createdAt: string;
+    lastLogin: string | null;
+    isActive: boolean;
+    roles: Array<string>;
+}
+
+export function metadataDefaultValue(): Metadata {
+    return {
+        createdAt: "",
+        lastLogin: null,
+        isActive: false,
+        roles: [],
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function metadataEncode(value: Metadata, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = metadataEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function metadataEncodeWithContext(value: Metadata, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Metadata",
+        __id,
+    };
+
+    
+    result.createdAt = value.createdAt;
+    result.lastLogin = value.lastLogin;
+    result.isActive = value.isActive;
+    result.roles = value.roles;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function metadataDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Metadata } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = metadataDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Metadata.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function metadataDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Metadata | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Metadata.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Metadata | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Metadata.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("createdAt" in obj)) {
+        errors.push({ field: "createdAt", message: "missing required field" });
+    }
+    if (!("lastLogin" in obj)) {
+        errors.push({ field: "lastLogin", message: "missing required field" });
+    }
+    if (!("isActive" in obj)) {
+        errors.push({ field: "isActive", message: "missing required field" });
+    }
+    if (!("roles" in obj)) {
+        errors.push({ field: "roles", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_createdAt = obj["createdAt"] as string;
+
+        if (!(typeof __raw_createdAt === "string")) {
+            errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Metadata.createdAt is required" : "expected string" });
+        } else {
+            instance.createdAt = __raw_createdAt;
+        }
+    }
+    {
+        const __raw_lastLogin = obj["lastLogin"] as string | null;
+
+        if (!(typeof __raw_lastLogin === "string" || __raw_lastLogin === null)) {
+            errors.push({ field: "lastLogin", message: "expected string | null" });
+        } else {
+            instance.lastLogin = __raw_lastLogin;
+        }
+    }
+    {
+        const __raw_isActive = obj["isActive"] as boolean;
+
+        if (!(typeof __raw_isActive === "boolean")) {
+            errors.push({ field: "isActive", message: __raw_isActive == null ? "Metadata.isActive is required" : "expected boolean" });
+        } else {
+            instance.isActive = __raw_isActive;
+        }
+    }
+    {
+        const __raw_roles = obj["roles"] as Array<string>;
+
+        if (Array.isArray(__raw_roles)) {
+            instance.roles = __raw_roles as string[];
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Metadata;
+}
+export function metadataValidateField<K extends keyof Metadata>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function metadataValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function metadataValidateFields(partial: { readonly [K in keyof Metadata]?: unknown }): Array<{ field: string; message: string }>;
+export function metadataValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function metadataHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "createdAt" in o && "lastLogin" in o && "isActive" in o && "roles" in o;
+}
+
+export function metadataIs(obj: unknown): obj is Metadata {
+    return metadataHasShape(obj) && metadataDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type MetadataErrors = {
+    _errors: Option.Option<Array<string>>;
+    createdAt: Option.Option<Array<string>>;
+    lastLogin: Option.Option<Array<string>>;
+    isActive: Option.Option<Array<string>>;
+    roles: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type MetadataTainted = {
+    createdAt: Option.Option<boolean>;
+    lastLogin: Option.Option<boolean>;
+    isActive: Option.Option<boolean>;
+    roles: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface MetadataFieldControllers {
+    readonly createdAt: FieldController<string>;
+    readonly lastLogin: FieldController<string | null>;
+    readonly isActive: FieldController<boolean>;
+    readonly roles: ArrayFieldController<string>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface MetadataGigaform {
+    readonly data: Metadata;
+    readonly errors: MetadataErrors;
+    readonly tainted: MetadataTainted;
+    readonly fields: MetadataFieldControllers;
+    validate(): Exit.Exit<Metadata, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Metadata>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function metadataCreateForm(overrides?: Partial<Metadata>): MetadataGigaform {
+    let data = $state({ ...metadataDefaultValue(), ...overrides });
+    let errors = $state<MetadataErrors>({
+        _errors: Option.none(),
+        createdAt: Option.none(),
+        lastLogin: Option.none(),
+        isActive: Option.none(),
+        roles: Option.none(),
+    });
+    let tainted = $state<MetadataTainted>({
+        createdAt: Option.none(),
+        lastLogin: Option.none(),
+        isActive: Option.none(),
+        roles: Option.none(),
+    });
+    const fields = {
+        createdAt: {
+            name: "createdAt",
+            label: "createdAt",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["createdAt"],
+            get: () => data.createdAt,
+            set: (value: string) => { data.createdAt = value; },
+            getError: () => errors.createdAt,
+            setError: (value: Option.Option<Array<string>>) => { errors.createdAt = value; },
+            getTainted: () => tainted.createdAt,
+            setTainted: (value: Option.Option<boolean>) => { tainted.createdAt = value; },
+            validate: () => metadataValidateField("createdAt", data.createdAt).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        lastLogin: {
+            name: "lastLogin",
+            label: "lastLogin",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["lastLogin"],
+            get: () => data.lastLogin,
+            set: (value: string | null) => { data.lastLogin = value; },
+            getError: () => errors.lastLogin,
+            setError: (value: Option.Option<Array<string>>) => { errors.lastLogin = value; },
+            getTainted: () => tainted.lastLogin,
+            setTainted: (value: Option.Option<boolean>) => { tainted.lastLogin = value; },
+            validate: () => metadataValidateField("lastLogin", data.lastLogin).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        isActive: {
+            name: "isActive",
+            label: "isActive",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["isActive"],
+            get: () => data.isActive,
+            set: (value: boolean) => { data.isActive = value; },
+            getError: () => errors.isActive,
+            setError: (value: Option.Option<Array<string>>) => { errors.isActive = value; },
+            getTainted: () => tainted.isActive,
+            setTainted: (value: Option.Option<boolean>) => { tainted.isActive = value; },
+            validate: () => metadataValidateField("isActive", data.isActive).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        roles: {
+            name: "roles",
+            label: "roles",
+            type: "text",
+            optional: false,
+            array: true,
+            path: ["roles"],
+            get: () => data.roles,
+            set: (value: Array<string>) => { data.roles = value; },
+            getError: () => errors.roles,
+            setError: (value: Option.Option<Array<string>>) => { errors.roles = value; },
+            getTainted: () => tainted.roles,
+            setTainted: (value: Option.Option<boolean>) => { tainted.roles = value; },
+            validate: () => metadataValidateField("roles", data.roles).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.roles[index],
+                set: (value: string) => { data.roles[index] = value; },
+                getError: () => errors.roles,
+                setError: (value: Option.Option<Array<string>>) => { errors.roles = value; },
+            }),
+            push: (item: string) => { data.roles.push(item); },
+            remove: (index: number) => { data.roles.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.roles[a];
+                data.roles[a] = data.roles[b];
+                data.roles[b] = temp;
+            },
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as MetadataFieldControllers;
+
+    function validate(): Exit.Exit<Metadata, Array<{ field: string; message: string }>> {
+        return toExit(metadataDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<Metadata>): void {
+        data = { ...metadataDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            createdAt: Option.none(),
+            lastLogin: Option.none(),
+            isActive: Option.none(),
+            roles: Option.none(),
+        };
+        tainted = {
+            createdAt: Option.none(),
+            lastLogin: Option.none(),
+            isActive: Option.none(),
+            roles: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function metadataFromFormData(formData: FormData): Exit.Exit<Metadata, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    obj.createdAt = formData.get("createdAt") ?? "";
+    obj.lastLogin = formData.get("lastLogin") ?? "";
+    {
+        const isActiveVal = formData.get("isActive");
+        obj.isActive = isActiveVal === "true" || isActiveVal === "on" || isActiveVal === "1";
+    }
+    obj.roles = formData.getAll("roles") as Array<string>;
+
+    return toExit(metadataDecode(obj));
+}
+
+export const Metadata: {
+  readonly defaultValue: typeof metadataDefaultValue;
+  readonly encode: typeof metadataEncode;
+  readonly encodeWithContext: typeof metadataEncodeWithContext;
+  readonly decode: typeof metadataDecode;
+  readonly decodeWithContext: typeof metadataDecodeWithContext;
+  readonly validateField: typeof metadataValidateField;
+  readonly validateFields: typeof metadataValidateFields;
+  readonly hasShape: typeof metadataHasShape;
+  readonly is: typeof metadataIs;
+  readonly createForm: typeof metadataCreateForm;
+  readonly fromFormData: typeof metadataFromFormData;
+} = {
+  defaultValue: metadataDefaultValue,
+  encode: metadataEncode,
+  encodeWithContext: metadataEncodeWithContext,
+  decode: metadataDecode,
+  decodeWithContext: metadataDecodeWithContext,
+  validateField: metadataValidateField,
+  validateFields: metadataValidateFields,
+  hasShape: metadataHasShape,
+  is: metadataIs,
+  createForm: metadataCreateForm,
+  fromFormData: metadataFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+export interface Metadata {
+	createdAt: string;
+	lastLogin: string | null;
+	isActive: boolean;
+	roles: Array<string>;
+}
+export declare function metadataDefaultValue(): Metadata;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function metadataEncode(value: Metadata, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function metadataEncodeWithContext(value: Metadata, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function metadataDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Metadata;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function metadataDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Metadata | __mf_PendingRef;
+export declare function metadataValidateField<K extends keyof Metadata>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function metadataValidateFields(partial: { readonly [K in keyof Metadata]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function metadataHasShape(obj: unknown): boolean;
+export declare function metadataIs(obj: unknown): obj is Metadata;
+/** Nested error structure matching the data shape  */
+export type MetadataErrors = {
+	_errors: Option.Option<Array<string>>;
+	createdAt: Option.Option<Array<string>>;
+	lastLogin: Option.Option<Array<string>>;
+	isActive: Option.Option<Array<string>>;
+	roles: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type MetadataTainted = {
+	createdAt: Option.Option<boolean>;
+	lastLogin: Option.Option<boolean>;
+	isActive: Option.Option<boolean>;
+	roles: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface MetadataFieldControllers {
+	readonly createdAt: FieldController<string>;
+	readonly lastLogin: FieldController<string | null>;
+	readonly isActive: FieldController<boolean>;
+	readonly roles: ArrayFieldController<string>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface MetadataGigaform {
+	readonly data: Metadata;
+	readonly errors: MetadataErrors;
+	readonly tainted: MetadataTainted;
+	readonly fields: MetadataFieldControllers;
+	validate(): Exit.Exit<Metadata, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<Metadata>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function metadataCreateForm(overrides?: Partial<Metadata>): MetadataGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function metadataFromFormData(formData: FormData): Exit.Exit<Metadata, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const Metadata: {
+	readonly defaultValue: typeof metadataDefaultValue;
+	readonly encode: typeof metadataEncode;
+	readonly encodeWithContext: typeof metadataEncodeWithContext;
+	readonly decode: typeof metadataDecode;
+	readonly decodeWithContext: typeof metadataDecodeWithContext;
+	readonly validateField: typeof metadataValidateField;
+	readonly validateFields: typeof metadataValidateFields;
+	readonly hasShape: typeof metadataHasShape;
+	readonly is: typeof metadataIs;
+	readonly createForm: typeof metadataCreateForm;
+	readonly fromFormData: typeof metadataFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 443..501
+original 107..239 -> expanded 501..633
+original 239..240 -> expanded 15630..15631
+generated 0..443 <- imports
+generated 633..799 <- Default
+generated 799..2023 <- Encode
+generated 2023..7146 <- Decode
+generated 7146..14644 <- Gigaform
+generated 14644..15630 <- __convenience_const
+
+## Metadata
+
+interface Metadata: {"body_span":{"end":240,"start":135},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":159,"start":141},"ts_type":"string"},{"decorators":[],"name":"lastLogin","optional":false,"readonly":false,"span":{"end":189,"start":164},"ts_type":"string | null"},{"decorators":[],"name":"isActive","optional":false,"readonly":false,"span":{"end":212,"start":194},"ts_type":"boolean"},{"decorators":[],"name":"roles","optional":false,"readonly":false,"span":{"end":238,"start":217},"ts_type":"Array<string>"}],"heritage":[],"methods":[],"name":"Metadata","span":{"end":240,"start":116},"type_params":[]}
+
+## Registry reads
+
+Name("Array")
+Name("boolean")
+Name("string")
+
+## Buildtime dependencies
+
+(none)

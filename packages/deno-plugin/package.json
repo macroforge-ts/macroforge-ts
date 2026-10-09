@@ -19,5 +19,5 @@
         "test": "deno test -A --no-lock tests/"
     },
     "type": "module",
-    "version": "0.4.0"
+    "version": "0.5.0"
 }

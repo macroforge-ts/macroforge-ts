@@ -24,35 +24,25 @@ import { Derive } from '@macro/derive';
 class Data {
     val: number;
 
-static toString(value: Data): string {
-                    return dataToString(value);
-                }}
+    static toString(value: Data): string {
+        return dataToString(value);
+    }
+}
 
 export function dataToString(value: Data): string {
-                        const parts: string[] = [];
-                        parts.push("val: " + value.val);
-
-                        return "Data { " + parts.join(", ") + " }";
-                    }
+    const parts: string[] = [];
+    parts.push("val: " + String(value.val));
+    return "Data { " + parts.join(", ") + " }";
+}
 
 ## DTS
 
-import { Derive } from '@macro/derive';
-
-
-class Data {
-    val: number;
-
-static toString(value: Data): string {
-                    return dataToString(value);
-                }}
-
-export function dataToString(value: Data): string {
-                        const parts: string[] = [];
-                        parts.push("val: " + value.val);
-
-                        return "Data { " + parts.join(", ") + " }";
-                    }
+declare class Data {
+	val: number;
+	static toString(value: Data): string;
+}
+export declare function dataToString(value: Data): string;
+export {};
 
 ## Diagnostics
 
@@ -62,14 +52,14 @@ export function dataToString(value: Data): string {
 
 original 0..41 -> expanded 0..41
 original 62..93 -> expanded 41..72
-original 93..94 -> expanded 177..178
-original 94..95 -> expanded 431..432
-generated 72..177 <- Debug
-generated 178..431 <- Debug
+original 93..94 -> expanded 158..159
+original 94..95 -> expanded 339..340
+generated 72..158 <- Debug
+generated 159..339 <- Debug
 
 ## Metadata
 
-class Data: {"body_span":{"end":95,"start":75},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"name":"val","optional":false,"readonly":false,"span":{"end":93,"start":81},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Data","span":{"end":95,"start":64},"type_params":[]}
+class Data: {"body_span":{"end":95,"start":75},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"val","optional":false,"readonly":false,"span":{"end":93,"start":81},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Data","span":{"end":95,"start":64},"type_params":[]}
 
 ## Registry reads
 

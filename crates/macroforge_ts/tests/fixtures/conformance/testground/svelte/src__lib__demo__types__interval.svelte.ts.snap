@@ -1,0 +1,560 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/interval.svelte.ts
+sha256 514395ee4372c2eb85be13eccb5e030d0443db8e1a0964d9b02e401c6c654020
+
+## Changed
+
+true
+
+## Output
+
+import { dailyRecurrenceRuleDecodeWithContext, dailyRecurrenceRuleHasShape, dailyRecurrenceRuleDefaultValue } from "./daily-recurrence-rule.svelte";
+import { monthlyRecurrenceRuleDecodeWithContext, monthlyRecurrenceRuleHasShape, monthlyRecurrenceRuleDefaultValue } from "./monthly-recurrence-rule.svelte";
+import { weeklyRecurrenceRuleDecodeWithContext, weeklyRecurrenceRuleHasShape, weeklyRecurrenceRuleDefaultValue } from "./weekly-recurrence-rule.svelte";
+import { yearlyRecurrenceRuleDecodeWithContext, yearlyRecurrenceRuleHasShape, yearlyRecurrenceRuleDefaultValue } from "./yearly-recurrence-rule.svelte";
+import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+import type { DailyRecurrenceRule } from './daily-recurrence-rule.svelte';
+import type { MonthlyRecurrenceRule } from './monthly-recurrence-rule.svelte';
+import type { WeeklyRecurrenceRule } from './weekly-recurrence-rule.svelte';
+import type { YearlyRecurrenceRule } from './yearly-recurrence-rule.svelte';
+
+
+export type Interval =
+    | /** @default */ DailyRecurrenceRule
+    | WeeklyRecurrenceRule
+    | MonthlyRecurrenceRule
+    | YearlyRecurrenceRule;
+
+export function intervalDefaultValue(): Interval {
+    return dailyRecurrenceRuleDefaultValue();
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function intervalEncode(value: Interval, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = intervalEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function intervalEncodeWithContext(value: Interval, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    }
+    return __variant;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function intervalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Interval } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = intervalDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Interval.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function intervalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Interval | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Interval.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Interval | __mf_PendingRef;
+    }
+
+    
+
+    if (typeof value === "object" && value !== null) {
+        const __typeName = (value as any)["__type"];
+        if (typeof __typeName === "string") {
+            if (__typeName === "DailyRecurrenceRule") {
+                return dailyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
+            }
+            if (__typeName === "WeeklyRecurrenceRule") {
+                return weeklyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
+            }
+            if (__typeName === "MonthlyRecurrenceRule") {
+                return monthlyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
+            }
+            if (__typeName === "YearlyRecurrenceRule") {
+                return yearlyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
+            }
+
+            throw new __mf_DecodeError([{
+                field: "_root",
+                message: "Interval.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: DailyRecurrenceRule, WeeklyRecurrenceRule, MonthlyRecurrenceRule, YearlyRecurrenceRule"
+            }]);
+        }
+    }
+
+    const __shapeMatches: Array<string> = [];
+    if (dailyRecurrenceRuleHasShape(value)) __shapeMatches.push("DailyRecurrenceRule");
+    if (weeklyRecurrenceRuleHasShape(value)) __shapeMatches.push("WeeklyRecurrenceRule");
+    if (monthlyRecurrenceRuleHasShape(value)) __shapeMatches.push("MonthlyRecurrenceRule");
+    if (yearlyRecurrenceRuleHasShape(value)) __shapeMatches.push("YearlyRecurrenceRule");
+
+    if (__shapeMatches.length === 1) {
+        if (__shapeMatches[0] === "DailyRecurrenceRule") {
+            return dailyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
+        }
+        if (__shapeMatches[0] === "WeeklyRecurrenceRule") {
+            return weeklyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
+        }
+        if (__shapeMatches[0] === "MonthlyRecurrenceRule") {
+            return monthlyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
+        }
+        if (__shapeMatches[0] === "YearlyRecurrenceRule") {
+            return yearlyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
+        }
+    }
+
+    if (__shapeMatches.length > 1) {
+        if (__shapeMatches.includes("DailyRecurrenceRule")) {
+            try {
+                return dailyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
+            } catch {                        }
+        }
+        if (__shapeMatches.includes("WeeklyRecurrenceRule")) {
+            try {
+                return weeklyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
+            } catch {                        }
+        }
+        if (__shapeMatches.includes("MonthlyRecurrenceRule")) {
+            try {
+                return monthlyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
+            } catch {                        }
+        }
+        if (__shapeMatches.includes("YearlyRecurrenceRule")) {
+            try {
+                return yearlyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
+            } catch {                        }
+        }
+
+        throw new __mf_DecodeError([{
+            field: "_root",
+            message: "Interval.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+        }]);
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "Interval.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: DailyRecurrenceRule, WeeklyRecurrenceRule, MonthlyRecurrenceRule, YearlyRecurrenceRule"
+    }]);
+}
+export function intervalHasShape(value: unknown): boolean {
+
+                if (typeof value === "object" && value !== null) {
+                    const __typeName = (value as any)["__type"];
+                    if (typeof __typeName === "string") {
+                        return __typeName === "DailyRecurrenceRule" || __typeName === "WeeklyRecurrenceRule" || __typeName === "MonthlyRecurrenceRule" || __typeName === "YearlyRecurrenceRule";
+                    }
+                }
+
+                let __matchCount = 0;
+                if (dailyRecurrenceRuleHasShape(value)) __matchCount++;
+                if (weeklyRecurrenceRuleHasShape(value)) __matchCount++;
+                if (monthlyRecurrenceRuleHasShape(value)) __matchCount++;
+                if (yearlyRecurrenceRuleHasShape(value)) __matchCount++;
+                return __matchCount >= 1;
+}
+export function intervalIs(value: unknown): value is Interval {
+    return intervalHasShape(value);
+}
+
+/** Per-variant error types  */
+
+export type IntervalDailyRecurrenceRuleErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+export type IntervalWeeklyRecurrenceRuleErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+export type IntervalMonthlyRecurrenceRuleErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+export type IntervalYearlyRecurrenceRuleErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+
+/** Per-variant tainted types  */
+
+export type IntervalDailyRecurrenceRuleTainted = {
+};
+export type IntervalWeeklyRecurrenceRuleTainted = {
+};
+export type IntervalMonthlyRecurrenceRuleTainted = {
+};
+export type IntervalYearlyRecurrenceRuleTainted = {
+};
+
+/** Union error type  */
+export type IntervalErrors = ({ _type: "DailyRecurrenceRule" } & IntervalDailyRecurrenceRuleErrors) | ({ _type: "WeeklyRecurrenceRule" } & IntervalWeeklyRecurrenceRuleErrors) | ({ _type: "MonthlyRecurrenceRule" } & IntervalMonthlyRecurrenceRuleErrors) | ({ _type: "YearlyRecurrenceRule" } & IntervalYearlyRecurrenceRuleErrors);
+
+/** Union tainted type  */
+export type IntervalTainted = ({ _type: "DailyRecurrenceRule" } & IntervalDailyRecurrenceRuleTainted) | ({ _type: "WeeklyRecurrenceRule" } & IntervalWeeklyRecurrenceRuleTainted) | ({ _type: "MonthlyRecurrenceRule" } & IntervalMonthlyRecurrenceRuleTainted) | ({ _type: "YearlyRecurrenceRule" } & IntervalYearlyRecurrenceRuleTainted);
+
+/** Per-variant field controller types  */
+
+export interface IntervalDailyRecurrenceRuleFieldControllers {
+}
+export interface IntervalWeeklyRecurrenceRuleFieldControllers {
+}
+export interface IntervalMonthlyRecurrenceRuleFieldControllers {
+}
+export interface IntervalYearlyRecurrenceRuleFieldControllers {
+}
+
+/** Union Gigaform interface with variant switching  */
+export interface IntervalGigaform {
+    readonly currentVariant: "DailyRecurrenceRule" | "WeeklyRecurrenceRule" | "MonthlyRecurrenceRule" | "YearlyRecurrenceRule";
+    readonly data: Interval;
+    readonly errors: IntervalErrors;
+    readonly tainted: IntervalTainted;
+    readonly variants: IntervalVariantFields;
+    switchVariant(variant: "DailyRecurrenceRule" | "WeeklyRecurrenceRule" | "MonthlyRecurrenceRule" | "YearlyRecurrenceRule"): void;
+    validate(): Exit.Exit<Interval, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Interval>): void;
+}
+
+/** Variant fields container  */
+export interface IntervalVariantFields {
+    readonly DailyRecurrenceRule: { readonly fields: IntervalDailyRecurrenceRuleFieldControllers };
+    readonly WeeklyRecurrenceRule: { readonly fields: IntervalWeeklyRecurrenceRuleFieldControllers };
+    readonly MonthlyRecurrenceRule: { readonly fields: IntervalMonthlyRecurrenceRuleFieldControllers };
+    readonly YearlyRecurrenceRule: { readonly fields: IntervalYearlyRecurrenceRuleFieldControllers };
+}
+/** Gets default value for a specific variant  */
+function intervalGetDefaultForVariant(variant: string): Interval {
+    if (variant === "DailyRecurrenceRule") { return dailyRecurrenceRuleDefaultValue() as Interval; }
+    if (variant === "WeeklyRecurrenceRule") { return weeklyRecurrenceRuleDefaultValue() as Interval; }
+    if (variant === "MonthlyRecurrenceRule") { return monthlyRecurrenceRuleDefaultValue() as Interval; }
+    if (variant === "YearlyRecurrenceRule") { return yearlyRecurrenceRuleDefaultValue() as Interval; }
+    return dailyRecurrenceRuleDefaultValue() as Interval;
+}
+
+/** Creates a new discriminated union Gigaform with variant switching  */
+export function intervalCreateForm(initial?: Interval): IntervalGigaform {
+
+    const initialVariant: "DailyRecurrenceRule" | "WeeklyRecurrenceRule" | "MonthlyRecurrenceRule" | "YearlyRecurrenceRule" = "DailyRecurrenceRule";
+
+    let currentVariant = $state<"DailyRecurrenceRule" | "WeeklyRecurrenceRule" | "MonthlyRecurrenceRule" | "YearlyRecurrenceRule">(initialVariant);
+    let data = $state<Interval>(initial ?? intervalGetDefaultForVariant(initialVariant));
+    let errors = $state<IntervalErrors>({} as IntervalErrors);
+    let tainted = $state<IntervalTainted>({} as IntervalTainted);
+
+    const variants = {
+        "DailyRecurrenceRule": { fields: {  } as unknown as IntervalDailyRecurrenceRuleFieldControllers },
+        "WeeklyRecurrenceRule": { fields: {  } as unknown as IntervalWeeklyRecurrenceRuleFieldControllers },
+        "MonthlyRecurrenceRule": { fields: {  } as unknown as IntervalMonthlyRecurrenceRuleFieldControllers },
+        "YearlyRecurrenceRule": { fields: {  } as unknown as IntervalYearlyRecurrenceRuleFieldControllers },
+    } as unknown as IntervalVariantFields;
+
+    function switchVariant(variant: "DailyRecurrenceRule" | "WeeklyRecurrenceRule" | "MonthlyRecurrenceRule" | "YearlyRecurrenceRule"): void {
+        currentVariant = variant;
+        data = intervalGetDefaultForVariant(variant);
+        errors = {} as IntervalErrors;
+        tainted = {} as IntervalTainted;
+    }
+
+    function validate(): Exit.Exit<Interval, Array<{ field: string; message: string }>> {
+        return toExit(intervalDecode(data));
+    }
+
+    function reset(overrides?: Partial<Interval>): void {
+        data = overrides ? overrides as typeof data : intervalGetDefaultForVariant(currentVariant);
+        errors = {} as IntervalErrors;
+        tainted = {} as IntervalTainted;
+    }
+
+    return {
+        get currentVariant() { return currentVariant; },
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        variants,
+        switchVariant,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData for union type, determining variant from discriminant field  */
+export function intervalFromFormData(formData: FormData): Exit.Exit<Interval, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_type") as "DailyRecurrenceRule" | "WeeklyRecurrenceRule" | "MonthlyRecurrenceRule" | "YearlyRecurrenceRule" | null;
+
+    if (!discriminant) {
+        return toExit({ success: false, errors: [{ field: "_type", message: "Missing discriminant field" }] });
+    }
+
+    const obj: Record<string, unknown> = {};
+    obj._type = discriminant;
+
+    {
+
+        if (discriminant === "DailyRecurrenceRule") {
+
+        }
+    }
+    {
+
+        if (discriminant === "WeeklyRecurrenceRule") {
+
+        }
+    }
+    {
+
+        if (discriminant === "MonthlyRecurrenceRule") {
+
+        }
+    }
+    {
+
+        if (discriminant === "YearlyRecurrenceRule") {
+
+        }
+    }
+
+    return toExit(intervalDecode(obj));
+}
+
+export const Interval: {
+  readonly defaultValue: typeof intervalDefaultValue;
+  readonly encode: typeof intervalEncode;
+  readonly encodeWithContext: typeof intervalEncodeWithContext;
+  readonly decode: typeof intervalDecode;
+  readonly decodeWithContext: typeof intervalDecodeWithContext;
+  readonly hasShape: typeof intervalHasShape;
+  readonly is: typeof intervalIs;
+  readonly createForm: typeof intervalCreateForm;
+  readonly fromFormData: typeof intervalFromFormData;
+} = {
+  defaultValue: intervalDefaultValue,
+  encode: intervalEncode,
+  encodeWithContext: intervalEncodeWithContext,
+  decode: intervalDecode,
+  decodeWithContext: intervalDecodeWithContext,
+  hasShape: intervalHasShape,
+  is: intervalIs,
+  createForm: intervalCreateForm,
+  fromFormData: intervalFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+import type { DailyRecurrenceRule } from "./daily-recurrence-rule.svelte";
+import type { MonthlyRecurrenceRule } from "./monthly-recurrence-rule.svelte";
+import type { WeeklyRecurrenceRule } from "./weekly-recurrence-rule.svelte";
+import type { YearlyRecurrenceRule } from "./yearly-recurrence-rule.svelte";
+export type Interval = DailyRecurrenceRule | WeeklyRecurrenceRule | MonthlyRecurrenceRule | YearlyRecurrenceRule;
+export declare function intervalDefaultValue(): Interval;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function intervalEncode(value: Interval, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function intervalEncodeWithContext(value: Interval, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function intervalDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Interval;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function intervalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Interval | __mf_PendingRef;
+export declare function intervalHasShape(value: unknown): boolean;
+export declare function intervalIs(value: unknown): value is Interval;
+/** Per-variant error types  */
+export type IntervalDailyRecurrenceRuleErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+export type IntervalWeeklyRecurrenceRuleErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+export type IntervalMonthlyRecurrenceRuleErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+export type IntervalYearlyRecurrenceRuleErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+/** Per-variant tainted types  */
+export type IntervalDailyRecurrenceRuleTainted = {};
+export type IntervalWeeklyRecurrenceRuleTainted = {};
+export type IntervalMonthlyRecurrenceRuleTainted = {};
+export type IntervalYearlyRecurrenceRuleTainted = {};
+/** Union error type  */
+export type IntervalErrors = ({
+	_type: "DailyRecurrenceRule";
+} & IntervalDailyRecurrenceRuleErrors) | ({
+	_type: "WeeklyRecurrenceRule";
+} & IntervalWeeklyRecurrenceRuleErrors) | ({
+	_type: "MonthlyRecurrenceRule";
+} & IntervalMonthlyRecurrenceRuleErrors) | ({
+	_type: "YearlyRecurrenceRule";
+} & IntervalYearlyRecurrenceRuleErrors);
+/** Union tainted type  */
+export type IntervalTainted = ({
+	_type: "DailyRecurrenceRule";
+} & IntervalDailyRecurrenceRuleTainted) | ({
+	_type: "WeeklyRecurrenceRule";
+} & IntervalWeeklyRecurrenceRuleTainted) | ({
+	_type: "MonthlyRecurrenceRule";
+} & IntervalMonthlyRecurrenceRuleTainted) | ({
+	_type: "YearlyRecurrenceRule";
+} & IntervalYearlyRecurrenceRuleTainted);
+/** Per-variant field controller types  */
+export interface IntervalDailyRecurrenceRuleFieldControllers {}
+export interface IntervalWeeklyRecurrenceRuleFieldControllers {}
+export interface IntervalMonthlyRecurrenceRuleFieldControllers {}
+export interface IntervalYearlyRecurrenceRuleFieldControllers {}
+/** Union Gigaform interface with variant switching  */
+export interface IntervalGigaform {
+	readonly currentVariant: "DailyRecurrenceRule" | "WeeklyRecurrenceRule" | "MonthlyRecurrenceRule" | "YearlyRecurrenceRule";
+	readonly data: Interval;
+	readonly errors: IntervalErrors;
+	readonly tainted: IntervalTainted;
+	readonly variants: IntervalVariantFields;
+	switchVariant(variant: "DailyRecurrenceRule" | "WeeklyRecurrenceRule" | "MonthlyRecurrenceRule" | "YearlyRecurrenceRule"): void;
+	validate(): Exit.Exit<Interval, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<Interval>): void;
+}
+/** Variant fields container  */
+export interface IntervalVariantFields {
+	readonly DailyRecurrenceRule: {
+		readonly fields: IntervalDailyRecurrenceRuleFieldControllers;
+	};
+	readonly WeeklyRecurrenceRule: {
+		readonly fields: IntervalWeeklyRecurrenceRuleFieldControllers;
+	};
+	readonly MonthlyRecurrenceRule: {
+		readonly fields: IntervalMonthlyRecurrenceRuleFieldControllers;
+	};
+	readonly YearlyRecurrenceRule: {
+		readonly fields: IntervalYearlyRecurrenceRuleFieldControllers;
+	};
+}
+/** Creates a new discriminated union Gigaform with variant switching  */
+export declare function intervalCreateForm(initial?: Interval): IntervalGigaform;
+/** Parses FormData for union type, determining variant from discriminant field  */
+export declare function intervalFromFormData(formData: FormData): Exit.Exit<Interval, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const Interval: {
+	readonly defaultValue: typeof intervalDefaultValue;
+	readonly encode: typeof intervalEncode;
+	readonly encodeWithContext: typeof intervalEncodeWithContext;
+	readonly decode: typeof intervalDecode;
+	readonly decodeWithContext: typeof intervalDecodeWithContext;
+	readonly hasShape: typeof intervalHasShape;
+	readonly is: typeof intervalIs;
+	readonly createForm: typeof intervalCreateForm;
+	readonly fromFormData: typeof intervalFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..367 -> expanded 1072..1439
+original 416..564 -> expanded 1439..1587
+original 564..565 -> expanded 16960..16961
+generated 0..1072 <- imports
+generated 1587..1687 <- Default
+generated 1687..2995 <- Encode
+generated 2995..9550 <- Decode
+generated 9550..16170 <- Gigaform
+generated 16170..16960 <- __convenience_const
+
+## Metadata
+
+type Interval: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":462,"start":447}}],"kind":{"TypeRef":"DailyRecurrenceRule"}},{"decorators":[],"kind":{"TypeRef":"WeeklyRecurrenceRule"}},{"decorators":[],"kind":{"TypeRef":"MonthlyRecurrenceRule"}},{"decorators":[],"kind":{"TypeRef":"YearlyRecurrenceRule"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":417,"start":368}}],"name":"Interval","span":{"end":565,"start":425},"type_params":[]}
+
+## Registry reads
+
+Name("DailyRecurrenceRule")
+Name("Interval")
+Name("MonthlyRecurrenceRule")
+Name("WeeklyRecurrenceRule")
+Name("YearlyRecurrenceRule")
+
+## Buildtime dependencies
+
+(none)

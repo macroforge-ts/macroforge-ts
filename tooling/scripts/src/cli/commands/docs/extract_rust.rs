@@ -60,23 +60,24 @@ const CLI_ENTRY: (&str, &str) = ("macroforge_ts", "src/bin/cli/main.rs");
 
 /// Builtin macro configurations
 const BUILTIN_MACROS: &[(&str, &str, &str)] = &[
-    ("debug", "src/builtin/derive_debug/mod.rs", "Debug"),
-    ("clone", "src/builtin/derive_clone/mod.rs", "Clone"),
-    ("default", "src/builtin/derive_default/mod.rs", "Default"),
-    ("hash", "src/builtin/derive_hash/mod.rs", "Hash"),
-    ("ord", "src/builtin/derive_ord/mod.rs", "Ord"),
+    ("debug", "src/builtin/derive/debug/mod.rs", "Debug"),
+    ("clone", "src/builtin/derive/clone/mod.rs", "Clone"),
+    ("default", "src/builtin/derive/default/mod.rs", "Default"),
+    ("hash", "src/builtin/derive/hash/mod.rs", "Hash"),
+    ("eq", "src/builtin/derive/eq/mod.rs", "Eq"),
+    ("ord", "src/builtin/derive/ord/mod.rs", "Ord"),
     (
         "partial_eq",
-        "src/builtin/derive_partial_eq/mod.rs",
+        "src/builtin/derive/partial_eq/mod.rs",
         "PartialEq",
     ),
     (
         "partial_ord",
-        "src/builtin/derive_partial_ord/mod.rs",
+        "src/builtin/derive/partial_ord/mod.rs",
         "PartialOrd",
     ),
-    ("encode", "src/builtin/endec/derive_encode/mod.rs", "Encode"),
-    ("decode", "src/builtin/endec/derive_decode/mod.rs", "Decode"),
+    ("encode", "src/builtin/derive/endec/encode/mod.rs", "Encode"),
+    ("decode", "src/builtin/derive/endec/decode/mod.rs", "Decode"),
     ("newtype", "src/builtin/newtype/mod.rs", "Newtype"),
 ];
 

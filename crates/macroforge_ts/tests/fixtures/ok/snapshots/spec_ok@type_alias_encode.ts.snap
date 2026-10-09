@@ -25,49 +25,34 @@ type User = {
 };
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function userEncode(value: User, keepMetadata?: boolean): string {
-                            const ctx = __mf_EncodeContext.create();
-                            const __raw = userEncodeWithContext(value, ctx);
-                            if (keepMetadata) return JSON.stringify(__raw);
-                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                        }
+export function userEncode(value: User, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = userEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
 
-                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                        export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
-                            const existingId = ctx.getId(value);
-                            if (existingId !== undefined) {
-                                return { __ref: existingId };
-                            }
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
 
-                            const __id = ctx.register(value);
-                            const result: Record<string, unknown> = {
-                                "__type": "User",
-                                __id,
-                            };result.name = value.name;result.age = value.age;
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
 
+    const __id = ctx.register(value);
 
+    const result: Record<string, unknown> = {
+        "__type": "User",
+        __id,
+    };
 
+    
+    result.name = value.name;
+    result.age = value.age;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                            return result;
-                        }
+    return result;
+}
 
 const User: {
   readonly encode: typeof userEncode;
@@ -80,62 +65,14 @@ const User: {
 ## DTS
 
 type User = {
-    name: string;
-    age: number;
+	name: string;
+	age: number;
 };
-
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function userEncode(value: User, keepMetadata?: boolean): string {
-                            const ctx = __mf_EncodeContext.create();
-                            const __raw = userEncodeWithContext(value, ctx);
-                            if (keepMetadata) return JSON.stringify(__raw);
-                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                        }
-
-                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                        export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
-                            const existingId = ctx.getId(value);
-                            if (existingId !== undefined) {
-                                return { __ref: existingId };
-                            }
-
-                            const __id = ctx.register(value);
-                            const result: Record<string, unknown> = {
-                                "__type": "User",
-                                __id,
-                            };result.name = value.name;result.age = value.age;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                            return result;
-                        }
-
-const User: {
-  readonly encode: typeof userEncode;
-  readonly encodeWithContext: typeof userEncodeWithContext;
-} = {
-  encode: userEncode,
-  encodeWithContext: userEncodeWithContext
-};
+export declare function userEncode(value: User, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown>;
+export {};
 
 ## Diagnostics
 
@@ -144,10 +81,10 @@ const User: {
 ## Mapping
 
 original 22..74 -> expanded 78..130
-original 74..75 -> expanded 1884..1885
+original 74..75 -> expanded 1425..1426
 generated 0..78 <- imports
-generated 130..1697 <- Encode
-generated 1697..1884 <- __convenience_const
+generated 130..1238 <- Encode
+generated 1238..1425 <- __convenience_const
 
 ## Metadata
 

@@ -1,0 +1,511 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/actor.svelte.ts
+sha256 6abd48afdd9cd4102d0ef575473baf626f008d044e918a434261f31e95577973
+
+## Changed
+
+true
+
+## Output
+
+import { accountDecodeWithContext, accountHasShape, accountDefaultValue } from "./account.svelte";
+import { employeeDecodeWithContext, employeeHasShape, employeeDefaultValue } from "./employee.svelte";
+import { userDecodeWithContext, userHasShape, userDefaultValue } from "./user.svelte";
+import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+import type { Account } from './account.svelte';
+import type { Employee } from './employee.svelte';
+import type { User } from './user.svelte';
+
+
+export type Actor = /** @default */ User | Employee | Account;
+
+export function actorDefaultValue(): Actor {
+    return userDefaultValue();
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function actorEncode(value: Actor, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = actorEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function actorEncodeWithContext(value: Actor, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    }
+    return __variant;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function actorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Actor } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = actorDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Actor.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function actorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Actor | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Actor.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Actor | __mf_PendingRef;
+    }
+
+    
+
+    if (typeof value === "object" && value !== null) {
+        const __typeName = (value as any)["__type"];
+        if (typeof __typeName === "string") {
+            if (__typeName === "User") {
+                return userDecodeWithContext(value, ctx) as Actor;
+            }
+            if (__typeName === "Employee") {
+                return employeeDecodeWithContext(value, ctx) as Actor;
+            }
+            if (__typeName === "Account") {
+                return accountDecodeWithContext(value, ctx) as Actor;
+            }
+
+            throw new __mf_DecodeError([{
+                field: "_root",
+                message: "Actor.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: User, Employee, Account"
+            }]);
+        }
+    }
+
+    const __shapeMatches: Array<string> = [];
+    if (userHasShape(value)) __shapeMatches.push("User");
+    if (employeeHasShape(value)) __shapeMatches.push("Employee");
+    if (accountHasShape(value)) __shapeMatches.push("Account");
+
+    if (__shapeMatches.length === 1) {
+        if (__shapeMatches[0] === "User") {
+            return userDecodeWithContext(value, ctx) as Actor;
+        }
+        if (__shapeMatches[0] === "Employee") {
+            return employeeDecodeWithContext(value, ctx) as Actor;
+        }
+        if (__shapeMatches[0] === "Account") {
+            return accountDecodeWithContext(value, ctx) as Actor;
+        }
+    }
+
+    if (__shapeMatches.length > 1) {
+        if (__shapeMatches.includes("User")) {
+            try {
+                return userDecodeWithContext(value, ctx) as Actor;
+            } catch {                        }
+        }
+        if (__shapeMatches.includes("Employee")) {
+            try {
+                return employeeDecodeWithContext(value, ctx) as Actor;
+            } catch {                        }
+        }
+        if (__shapeMatches.includes("Account")) {
+            try {
+                return accountDecodeWithContext(value, ctx) as Actor;
+            } catch {                        }
+        }
+
+        throw new __mf_DecodeError([{
+            field: "_root",
+            message: "Actor.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+        }]);
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "Actor.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: User, Employee, Account"
+    }]);
+}
+export function actorHasShape(value: unknown): boolean {
+
+                if (typeof value === "object" && value !== null) {
+                    const __typeName = (value as any)["__type"];
+                    if (typeof __typeName === "string") {
+                        return __typeName === "User" || __typeName === "Employee" || __typeName === "Account";
+                    }
+                }
+
+                let __matchCount = 0;
+                if (userHasShape(value)) __matchCount++;
+                if (employeeHasShape(value)) __matchCount++;
+                if (accountHasShape(value)) __matchCount++;
+                return __matchCount >= 1;
+}
+export function actorIs(value: unknown): value is Actor {
+    return actorHasShape(value);
+}
+
+/** Per-variant error types  */
+
+export type ActorUserErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+export type ActorEmployeeErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+export type ActorAccountErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+
+/** Per-variant tainted types  */
+
+export type ActorUserTainted = {
+};
+export type ActorEmployeeTainted = {
+};
+export type ActorAccountTainted = {
+};
+
+/** Union error type  */
+export type ActorErrors = ({ _type: "User" } & ActorUserErrors) | ({ _type: "Employee" } & ActorEmployeeErrors) | ({ _type: "Account" } & ActorAccountErrors);
+
+/** Union tainted type  */
+export type ActorTainted = ({ _type: "User" } & ActorUserTainted) | ({ _type: "Employee" } & ActorEmployeeTainted) | ({ _type: "Account" } & ActorAccountTainted);
+
+/** Per-variant field controller types  */
+
+export interface ActorUserFieldControllers {
+}
+export interface ActorEmployeeFieldControllers {
+}
+export interface ActorAccountFieldControllers {
+}
+
+/** Union Gigaform interface with variant switching  */
+export interface ActorGigaform {
+    readonly currentVariant: "User" | "Employee" | "Account";
+    readonly data: Actor;
+    readonly errors: ActorErrors;
+    readonly tainted: ActorTainted;
+    readonly variants: ActorVariantFields;
+    switchVariant(variant: "User" | "Employee" | "Account"): void;
+    validate(): Exit.Exit<Actor, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Actor>): void;
+}
+
+/** Variant fields container  */
+export interface ActorVariantFields {
+    readonly User: { readonly fields: ActorUserFieldControllers };
+    readonly Employee: { readonly fields: ActorEmployeeFieldControllers };
+    readonly Account: { readonly fields: ActorAccountFieldControllers };
+}
+/** Gets default value for a specific variant  */
+function actorGetDefaultForVariant(variant: string): Actor {
+    if (variant === "User") { return userDefaultValue() as Actor; }
+    if (variant === "Employee") { return employeeDefaultValue() as Actor; }
+    if (variant === "Account") { return accountDefaultValue() as Actor; }
+    return userDefaultValue() as Actor;
+}
+
+/** Creates a new discriminated union Gigaform with variant switching  */
+export function actorCreateForm(initial?: Actor): ActorGigaform {
+
+    const initialVariant: "User" | "Employee" | "Account" = "User";
+
+    let currentVariant = $state<"User" | "Employee" | "Account">(initialVariant);
+    let data = $state<Actor>(initial ?? actorGetDefaultForVariant(initialVariant));
+    let errors = $state<ActorErrors>({} as ActorErrors);
+    let tainted = $state<ActorTainted>({} as ActorTainted);
+
+    const variants = {
+        "User": { fields: {  } as unknown as ActorUserFieldControllers },
+        "Employee": { fields: {  } as unknown as ActorEmployeeFieldControllers },
+        "Account": { fields: {  } as unknown as ActorAccountFieldControllers },
+    } as unknown as ActorVariantFields;
+
+    function switchVariant(variant: "User" | "Employee" | "Account"): void {
+        currentVariant = variant;
+        data = actorGetDefaultForVariant(variant);
+        errors = {} as ActorErrors;
+        tainted = {} as ActorTainted;
+    }
+
+    function validate(): Exit.Exit<Actor, Array<{ field: string; message: string }>> {
+        return toExit(actorDecode(data));
+    }
+
+    function reset(overrides?: Partial<Actor>): void {
+        data = overrides ? overrides as typeof data : actorGetDefaultForVariant(currentVariant);
+        errors = {} as ActorErrors;
+        tainted = {} as ActorTainted;
+    }
+
+    return {
+        get currentVariant() { return currentVariant; },
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        variants,
+        switchVariant,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData for union type, determining variant from discriminant field  */
+export function actorFromFormData(formData: FormData): Exit.Exit<Actor, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_type") as "User" | "Employee" | "Account" | null;
+
+    if (!discriminant) {
+        return toExit({ success: false, errors: [{ field: "_type", message: "Missing discriminant field" }] });
+    }
+
+    const obj: Record<string, unknown> = {};
+    obj._type = discriminant;
+
+    {
+
+        if (discriminant === "User") {
+
+        }
+    }
+    {
+
+        if (discriminant === "Employee") {
+
+        }
+    }
+    {
+
+        if (discriminant === "Account") {
+
+        }
+    }
+
+    return toExit(actorDecode(obj));
+}
+
+export const Actor: {
+  readonly defaultValue: typeof actorDefaultValue;
+  readonly encode: typeof actorEncode;
+  readonly encodeWithContext: typeof actorEncodeWithContext;
+  readonly decode: typeof actorDecode;
+  readonly decodeWithContext: typeof actorDecodeWithContext;
+  readonly hasShape: typeof actorHasShape;
+  readonly is: typeof actorIs;
+  readonly createForm: typeof actorCreateForm;
+  readonly fromFormData: typeof actorFromFormData;
+} = {
+  defaultValue: actorDefaultValue,
+  encode: actorEncode,
+  encodeWithContext: actorEncodeWithContext,
+  decode: actorDecode,
+  decodeWithContext: actorDecodeWithContext,
+  hasShape: actorHasShape,
+  is: actorIs,
+  createForm: actorCreateForm,
+  fromFormData: actorFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+import type { Account } from "./account.svelte";
+import type { Employee } from "./employee.svelte";
+import type { User } from "./user.svelte";
+export type Actor = User | Employee | Account;
+export declare function actorDefaultValue(): Actor;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function actorEncode(value: Actor, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function actorEncodeWithContext(value: Actor, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function actorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Actor;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function actorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Actor | __mf_PendingRef;
+export declare function actorHasShape(value: unknown): boolean;
+export declare function actorIs(value: unknown): value is Actor;
+/** Per-variant error types  */
+export type ActorUserErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+export type ActorEmployeeErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+export type ActorAccountErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+/** Per-variant tainted types  */
+export type ActorUserTainted = {};
+export type ActorEmployeeTainted = {};
+export type ActorAccountTainted = {};
+/** Union error type  */
+export type ActorErrors = ({
+	_type: "User";
+} & ActorUserErrors) | ({
+	_type: "Employee";
+} & ActorEmployeeErrors) | ({
+	_type: "Account";
+} & ActorAccountErrors);
+/** Union tainted type  */
+export type ActorTainted = ({
+	_type: "User";
+} & ActorUserTainted) | ({
+	_type: "Employee";
+} & ActorEmployeeTainted) | ({
+	_type: "Account";
+} & ActorAccountTainted);
+/** Per-variant field controller types  */
+export interface ActorUserFieldControllers {}
+export interface ActorEmployeeFieldControllers {}
+export interface ActorAccountFieldControllers {}
+/** Union Gigaform interface with variant switching  */
+export interface ActorGigaform {
+	readonly currentVariant: "User" | "Employee" | "Account";
+	readonly data: Actor;
+	readonly errors: ActorErrors;
+	readonly tainted: ActorTainted;
+	readonly variants: ActorVariantFields;
+	switchVariant(variant: "User" | "Employee" | "Account"): void;
+	validate(): Exit.Exit<Actor, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<Actor>): void;
+}
+/** Variant fields container  */
+export interface ActorVariantFields {
+	readonly User: {
+		readonly fields: ActorUserFieldControllers;
+	};
+	readonly Employee: {
+		readonly fields: ActorEmployeeFieldControllers;
+	};
+	readonly Account: {
+		readonly fields: ActorAccountFieldControllers;
+	};
+}
+/** Creates a new discriminated union Gigaform with variant switching  */
+export declare function actorCreateForm(initial?: Actor): ActorGigaform;
+/** Parses FormData for union type, determining variant from discriminant field  */
+export declare function actorFromFormData(formData: FormData): Exit.Exit<Actor, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const Actor: {
+	readonly defaultValue: typeof actorDefaultValue;
+	readonly encode: typeof actorEncode;
+	readonly encodeWithContext: typeof actorEncodeWithContext;
+	readonly decode: typeof actorDecode;
+	readonly decodeWithContext: typeof actorDecodeWithContext;
+	readonly hasShape: typeof actorHasShape;
+	readonly is: typeof actorIs;
+	readonly createForm: typeof actorCreateForm;
+	readonly fromFormData: typeof actorFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..202 -> expanded 749..951
+original 251..314 -> expanded 951..1014
+original 314..315 -> expanded 13010..13011
+generated 0..749 <- imports
+generated 1014..1093 <- Default
+generated 1093..2386 <- Encode
+generated 2386..7596 <- Decode
+generated 7596..12277 <- Gigaform
+generated 12277..13010 <- __convenience_const
+
+## Metadata
+
+type Actor: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":288,"start":273}}],"kind":{"TypeRef":"User"}},{"decorators":[],"kind":{"TypeRef":"Employee"}},{"decorators":[],"kind":{"TypeRef":"Account"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":252,"start":203}}],"name":"Actor","span":{"end":315,"start":260},"type_params":[]}
+
+## Registry reads
+
+Name("Account")
+Name("Actor")
+Name("Employee")
+Name("User")
+
+## Buildtime dependencies
+
+(none)

@@ -5,10 +5,10 @@
 //! `macroforge.config.*`. Outside such a project nothing is written. The file
 //! is created on first write and appended to thereafter.
 //!
-//! On WASM (`wasm32-unknown-unknown`) there is no filesystem, so lines are
-//! held until they can leave: a macro package hands them back with its
-//! result, for the host to log, and the wasm core prints its own to the
-//! JavaScript console.
+//! On WASM (`wasm32-unknown-unknown`) lines are held until they can leave: a
+//! macro package hands them back with its result, for the host to log, and
+//! the wasm core, hosted by Node, appends its own to the same file through
+//! Node's filesystem.
 //!
 //! # Usage
 //!
@@ -28,26 +28,34 @@
 
 use crate::ts_syn::abi::{MacroContextIR, MacroResult, TargetIR};
 
-#[cfg(target_arch = "wasm32")]
-thread_local! {
-    /// Lines logged on wasm, waiting for [`take_pending`].
-    static PENDING: std::cell::RefCell<Vec<String>> = const { std::cell::RefCell::new(Vec::new()) };
+/// Log text held on wasm, with the file it is about, if the caller said.
+#[doc(hidden)]
+pub struct Held {
+    pub file: Option<String>,
+    pub text: String,
 }
 
-/// Holds `text`'s lines until they can leave the wasm instance.
 #[cfg(target_arch = "wasm32")]
-fn hold(text: &str) {
+thread_local! {
+    /// Text logged on wasm, waiting for [`take_held`].
+    static PENDING: std::cell::RefCell<Vec<Held>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+/// Holds `text` until it can leave the wasm instance.
+#[cfg(target_arch = "wasm32")]
+fn hold(file: Option<&str>, text: &str) {
     PENDING.with(|pending| {
-        pending
-            .borrow_mut()
-            .extend(text.lines().map(str::to_string))
+        pending.borrow_mut().push(Held {
+            file: file.map(str::to_string),
+            text: text.to_string(),
+        })
     });
 }
 
-/// The lines logged on wasm since the last call. Always empty natively,
+/// What was logged on wasm since the last call. Always empty natively,
 /// where lines are written as they are logged.
 #[doc(hidden)]
-pub fn take_pending() -> Vec<String> {
+pub fn take_held() -> Vec<Held> {
     #[cfg(target_arch = "wasm32")]
     {
         PENDING.with(|pending| std::mem::take(&mut *pending.borrow_mut()))
@@ -56,6 +64,16 @@ pub fn take_pending() -> Vec<String> {
     {
         Vec::new()
     }
+}
+
+/// The lines logged on wasm since the last call, whatever file they are
+/// about: a macro package carries them back for the host to file.
+#[doc(hidden)]
+pub fn take_pending() -> Vec<String> {
+    take_held()
+        .into_iter()
+        .flat_map(|held| held.text.lines().map(str::to_string).collect::<Vec<_>>())
+        .collect()
 }
 
 /// Moves the lines logged while a macro ran onto its result, so they leave
@@ -174,7 +192,7 @@ pub fn log(tag: &str, msg: &str) {
     }
     #[cfg(target_arch = "wasm32")]
     {
-        hold(&line);
+        hold(None, &line);
     }
 }
 
@@ -185,15 +203,38 @@ pub(crate) fn log_for_file(file: &str, tag: &str, msgs: &[String]) {
         return;
     }
     let text: String = msgs.iter().map(|msg| format_line(tag, msg)).collect();
+    append_for_file(file, &text);
+}
+
+/// Append the lines a macro logged inside its wasm instance, carried back on
+/// its result, to the debug log of the project containing `file`. Each is a
+/// whole log line already; it takes this side's timestamp in place of the
+/// `wasm` stand-in.
+pub(crate) fn log_carried_for_file(file: &str, carried: &str) {
+    let text: String = carried
+        .lines()
+        .filter(|line| !line.is_empty())
+        .map(|line| {
+            let entry = line.strip_prefix("[wasm] ").unwrap_or(line);
+            format!("[{}] {entry}\n", timestamp())
+        })
+        .collect();
+    if text.is_empty() {
+        return;
+    }
+    append_for_file(file, &text);
+}
+
+fn append_for_file(file: &str, text: &str) {
     #[cfg(not(target_arch = "wasm32"))]
     {
         if let Some(log_path) = fs_log::log_path_for_file(file) {
-            fs_log::append(&log_path, &text);
+            fs_log::append(&log_path, text);
         }
     }
     #[cfg(target_arch = "wasm32")]
     {
-        hold(&format!("{file}:\n{text}"));
+        hold(Some(file), text);
     }
 }
 

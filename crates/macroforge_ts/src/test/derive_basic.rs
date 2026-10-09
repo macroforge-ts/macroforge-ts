@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn test_derive_debug_runtime_output() {
-    // Note: JSON macro is in playground-macros, not macroforge
+    // Note: JSON macro is in testground_macros, not macroforge
     // Testing Debug macro which generates toString() implementation
     let source = r#"
 import { Derive } from "@macro/derive";
@@ -45,7 +45,7 @@ class User {
             "should have static toString method"
         );
         assert!(
-            type_output.contains("export function userToString"),
+            type_output.contains("export declare function userToString"),
             "should have standalone function"
         );
     }
@@ -74,7 +74,7 @@ class User {
             "should have static clone method"
         );
         assert!(
-            type_output.contains("export function userClone"),
+            type_output.contains("export declare function userClone"),
             "should have standalone function"
         );
     }
@@ -107,11 +107,11 @@ class User {
             "should have static hashCode method"
         );
         assert!(
-            type_output.contains("export function userEquals"),
+            type_output.contains("export declare function userEquals"),
             "should have standalone equals function"
         );
         assert!(
-            type_output.contains("export function userHashCode"),
+            type_output.contains("export declare function userHashCode"),
             "should have standalone hashCode function"
         );
     }
@@ -164,7 +164,7 @@ class MacroUser {
             "should have static toString method"
         );
         assert!(
-            type_output.contains("export function macroUserToString"),
+            type_output.contains("export declare function macroUserToString"),
             "should have standalone function"
         );
     }
@@ -211,9 +211,9 @@ class Product {
         assert!(type_output.contains("static equals(a: Product, b: Product): boolean"));
         assert!(type_output.contains("static hashCode(value: Product): number"));
         // Check for standalone functions
-        assert!(type_output.contains("export function productToString"));
-        assert!(type_output.contains("export function productClone"));
-        assert!(type_output.contains("export function productEquals"));
-        assert!(type_output.contains("export function productHashCode"));
+        assert!(type_output.contains("export declare function productToString"));
+        assert!(type_output.contains("export declare function productClone"));
+        assert!(type_output.contains("export declare function productEquals"));
+        assert!(type_output.contains("export declare function productHashCode"));
     }
 }

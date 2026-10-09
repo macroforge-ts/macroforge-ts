@@ -18,11 +18,9 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
-import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
-import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { __foreign__dateTimeUtcDefault, __foreign__dateTimeUtcEncode, __foreign__dateTimeUtcDecode } from "#macroforge/config";
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { DateTime } from 'effect';
 
 
@@ -31,919 +29,150 @@ export interface Tick {
 }
 
 export function tickDefaultValue(): Tick {
-                        return {
-at: (() => DateTime.make(new Date()))(),
-};
-                    }
+    return {
+        at: __foreign__dateTimeUtcDefault(),
+    };
+}
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function tickEncode(value: Tick, keepMetadata?: boolean): string {
-                    const ctx = __mf_EncodeContext.create();
-                    const __raw = tickEncodeWithContext(value, ctx);
-                    if (keepMetadata) return JSON.stringify(__raw);
-                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                }
+export function tickEncode(value: Tick, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = tickEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
 
-                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                export function tickEncodeWithContext(value: Tick, ctx: __mf_EncodeContext): Record<string, unknown> {
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function tickEncodeWithContext(value: Tick, ctx: __mf_EncodeContext): Record<string, unknown> {
 
-                    const existingId = ctx.getId(value);
-                    if (existingId !== undefined) {
-                        return { __ref: existingId };
-                    }
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
 
+    const __id = ctx.register(value);
 
-                    const __id = ctx.register(value);
+    const result: Record<string, unknown> = {
+        "__type": "Tick",
+        __id,
+    };
 
-                    const result: Record<string, unknown> = {
-                        "__type": "Tick",
-                        __id,
-                    };result.at = ((v: DateTime.Utc) => DateTime.formatIso(v))(value.at);
+    
+    result.at = __foreign__dateTimeUtcEncode(value.at);
 
+    return result;
+}
 
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function tickDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Tick } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
 
+        const data = typeof input === "string" ? JSON.parse(input) : input;
 
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = tickDecodeWithContext(data, ctx);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    return result;
-                }
-
-/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-            export function tickDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Tick } | { success: false; errors: Array<{ field: string; message: string }> } {
-                try {
-
-                    const data = typeof input === "string" ? JSON.parse(input) : input;
-
-                    const ctx = __mf_DecodeContext.create();
-                    const resultOrRef = tickDecodeWithContext(data, ctx);
-
-                    if (__mf_PendingRef.is(resultOrRef)) {
-                        return ({
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
 	success: false,
 	errors: [{
 		field: "_root",
 		message: "Tick.decode: root cannot be a forward reference"
 	}]
 });
-                    }
+        }
 
-                    ctx.applyPatches();
-                    if (opts?.freeze) {
-                        ctx.freezeAll();
-                    }
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
 
-                    const __errors = ctx.getErrors();
-                    if (__errors.length > 0) {
-                        return ({
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
 	success: false,
 	errors: __errors
 });
-                    }
+        }
 
-                    return ({
+        return ({
 	success: true,
 	value: resultOrRef
 });
-                } catch (e) {
-                    if (e instanceof __mf_DecodeError) {
-                        return ({
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
 	success: false,
 	errors: e.errors
 });
-                    }
-                    const message = e instanceof Error ? e.message : String(e);
-                    return ({
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
 	success: false,
 	errors: [{
 		field: "_root",
 		message
 	}]
 });
-                }
-            }
-
-            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-            export function tickDecodeWithContext(value: any, ctx: __mf_DecodeContext): Tick | __mf_PendingRef {
-                if (value?.__ref !== undefined) {
-                    return ctx.getOrDefer(value.__ref);
-                }
-
-                if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DecodeError([{ field: "_root", message: "Tick.decodeWithContext: expected an object" }]);
-                }
-
-                const obj = value as Record<string, unknown>;
-                const errors: Array<{ field: string; message: string }> = [];if (!("at" in obj)) {
-                            errors.push({ field: "at", message: "missing required field" });
-                        }
-
-
-
-
-
-
-
-                const instance: any = {};
-
-                if (obj.__id !== undefined) {
-                    ctx.register(obj.__id as number, instance);
-                }
-
-                ctx.trackForFreeze(instance);try {
-                                        instance.at = ((raw: unknown) => DateTime.make(raw as string))(obj["at"]);
-                                    } catch (__error) {
-                                        errors.push({ field: "at", message: __error instanceof Error ? __error.message : String(__error) });
-                                    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                ctx.pushErrors(errors);
-
-                return instance as Tick;
-            }
-
-            export function tickValidateField<K extends keyof Tick>(
-                _field: K,
-                _value: Tick[K]
-            ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-            }
-
-            export function tickValidateFields(
-                _partial: Partial<Tick>
-            ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-            }
-
-            export function tickHasShape(obj: unknown): boolean {
-                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-                    return false;
-                }
-                const o = obj as Record<string, unknown>;
-                return "at" in o;
-            }
-
-            export function tickIs(obj: unknown): obj is Tick {
-                if (!tickHasShape(obj)) {
-                    return false;
-                }
-                const result = tickDecode(obj);
-                return result.success;
-            }
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function tickDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Tick | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Tick.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Tick | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Tick.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("at" in obj)) {
+        errors.push({ field: "at", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    try {
+        instance.at = __foreign__dateTimeUtcDecode(obj["at"]);
+    } catch (__error) {
+        errors.push({ field: "at", message: __error instanceof Error ? __error.message : String(__error) });
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Tick;
+}
+export function tickValidateField<K extends keyof Tick>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function tickValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function tickValidateFields(partial: { readonly [K in keyof Tick]?: unknown }): Array<{ field: string; message: string }>;
+export function tickValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function tickHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "at" in o;
+}
+
+export function tickIs(obj: unknown): obj is Tick {
+    return tickHasShape(obj) && tickDecode(obj).success;
+}
 
 export const Tick: {
   readonly defaultValue: typeof tickDefaultValue;
@@ -951,6 +180,7 @@ export const Tick: {
   readonly encodeWithContext: typeof tickEncodeWithContext;
   readonly decode: typeof tickDecode;
   readonly decodeWithContext: typeof tickDecodeWithContext;
+  readonly validateField: typeof tickValidateField;
   readonly validateFields: typeof tickValidateFields;
   readonly hasShape: typeof tickHasShape;
   readonly is: typeof tickIs;
@@ -960,6 +190,7 @@ export const Tick: {
   encodeWithContext: tickEncodeWithContext,
   decode: tickDecode,
   decodeWithContext: tickDecodeWithContext,
+  validateField: tickValidateField,
   validateFields: tickValidateFields,
   hasShape: tickHasShape,
   is: tickIs
@@ -967,946 +198,48 @@ export const Tick: {
 
 ## DTS
 
-import { DateTime } from 'effect';
-
-
+import { DateTime } from "effect";
 export interface Tick {
-    at: DateTime.Utc;
+	at: DateTime.Utc;
 }
-
-export function tickDefaultValue(): Tick {
-                        return {
-at: (() => DateTime.make(new Date()))(),
-};
-                    }
-
+export declare function tickDefaultValue(): Tick;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function tickEncode(value: Tick, keepMetadata?: boolean): string {
-                    const ctx = __mf_EncodeContext.create();
-                    const __raw = tickEncodeWithContext(value, ctx);
-                    if (keepMetadata) return JSON.stringify(__raw);
-                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                }
-
-                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                export function tickEncodeWithContext(value: Tick, ctx: __mf_EncodeContext): Record<string, unknown> {
-
-                    const existingId = ctx.getId(value);
-                    if (existingId !== undefined) {
-                        return { __ref: existingId };
-                    }
-
-
-                    const __id = ctx.register(value);
-
-                    const result: Record<string, unknown> = {
-                        "__type": "Tick",
-                        __id,
-                    };result.at = ((v: DateTime.Utc) => DateTime.formatIso(v))(value.at);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    return result;
-                }
-
-/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-            export function tickDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Tick } | { success: false; errors: Array<{ field: string; message: string }> } {
-                try {
-
-                    const data = typeof input === "string" ? JSON.parse(input) : input;
-
-                    const ctx = __mf_DecodeContext.create();
-                    const resultOrRef = tickDecodeWithContext(data, ctx);
-
-                    if (__mf_PendingRef.is(resultOrRef)) {
-                        return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message: "Tick.decode: root cannot be a forward reference"
-	}]
-});
-                    }
-
-                    ctx.applyPatches();
-                    if (opts?.freeze) {
-                        ctx.freezeAll();
-                    }
-
-                    const __errors = ctx.getErrors();
-                    if (__errors.length > 0) {
-                        return ({
-	success: false,
-	errors: __errors
-});
-                    }
-
-                    return ({
-	success: true,
-	value: resultOrRef
-});
-                } catch (e) {
-                    if (e instanceof __mf_DecodeError) {
-                        return ({
-	success: false,
-	errors: e.errors
-});
-                    }
-                    const message = e instanceof Error ? e.message : String(e);
-                    return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message
-	}]
-});
-                }
-            }
-
-            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-            export function tickDecodeWithContext(value: any, ctx: __mf_DecodeContext): Tick | __mf_PendingRef {
-                if (value?.__ref !== undefined) {
-                    return ctx.getOrDefer(value.__ref);
-                }
-
-                if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DecodeError([{ field: "_root", message: "Tick.decodeWithContext: expected an object" }]);
-                }
-
-                const obj = value as Record<string, unknown>;
-                const errors: Array<{ field: string; message: string }> = [];if (!("at" in obj)) {
-                            errors.push({ field: "at", message: "missing required field" });
-                        }
-
-
-
-
-
-
-
-                const instance: any = {};
-
-                if (obj.__id !== undefined) {
-                    ctx.register(obj.__id as number, instance);
-                }
-
-                ctx.trackForFreeze(instance);try {
-                                        instance.at = ((raw: unknown) => DateTime.make(raw as string))(obj["at"]);
-                                    } catch (__error) {
-                                        errors.push({ field: "at", message: __error instanceof Error ? __error.message : String(__error) });
-                                    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                ctx.pushErrors(errors);
-
-                return instance as Tick;
-            }
-
-            export function tickValidateField<K extends keyof Tick>(
-                _field: K,
-                _value: Tick[K]
-            ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-            }
-
-            export function tickValidateFields(
-                _partial: Partial<Tick>
-            ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-            }
-
-            export function tickHasShape(obj: unknown): boolean {
-                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-                    return false;
-                }
-                const o = obj as Record<string, unknown>;
-                return "at" in o;
-            }
-
-            export function tickIs(obj: unknown): obj is Tick {
-                if (!tickHasShape(obj)) {
-                    return false;
-                }
-                const result = tickDecode(obj);
-                return result.success;
-            }
-
-export const Tick: {
-  readonly defaultValue: typeof tickDefaultValue;
-  readonly encode: typeof tickEncode;
-  readonly encodeWithContext: typeof tickEncodeWithContext;
-  readonly decode: typeof tickDecode;
-  readonly decodeWithContext: typeof tickDecodeWithContext;
-  readonly validateFields: typeof tickValidateFields;
-  readonly hasShape: typeof tickHasShape;
-  readonly is: typeof tickIs;
-} = {
-  defaultValue: tickDefaultValue,
-  encode: tickEncode,
-  encodeWithContext: tickEncodeWithContext,
-  decode: tickDecode,
-  decodeWithContext: tickDecodeWithContext,
-  validateFields: tickValidateFields,
-  hasShape: tickHasShape,
-  is: tickIs
+export declare function tickEncode(value: Tick, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function tickEncodeWithContext(value: Tick, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function tickDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Tick;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function tickDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Tick | __mf_PendingRef;
+export declare function tickValidateField<K extends keyof Tick>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function tickValidateFields(partial: { readonly [K in keyof Tick]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function tickHasShape(obj: unknown): boolean;
+export declare function tickIs(obj: unknown): obj is Tick;
+export declare const Tick: {
+	readonly defaultValue: typeof tickDefaultValue;
+	readonly encode: typeof tickEncode;
+	readonly encodeWithContext: typeof tickEncodeWithContext;
+	readonly decode: typeof tickDecode;
+	readonly decodeWithContext: typeof tickDecodeWithContext;
+	readonly validateField: typeof tickValidateField;
+	readonly validateFields: typeof tickValidateFields;
+	readonly hasShape: typeof tickHasShape;
+	readonly is: typeof tickIs;
 };
 
 ## Diagnostics
@@ -1915,14 +248,14 @@ export const Tick: {
 
 ## Mapping
 
-original 0..36 -> expanded 385..421
-original 75..123 -> expanded 421..469
-original 123..124 -> expanded 7710..7711
-generated 0..385 <- imports
-generated 469..612 <- Default
-generated 612..2122 <- Encode
-generated 2122..7064 <- Decode
-generated 7064..7710 <- __convenience_const
+original 0..36 -> expanded 390..426
+original 75..123 -> expanded 426..474
+original 123..124 -> expanded 6073..6074
+generated 0..390 <- imports
+generated 474..585 <- Default
+generated 585..1691 <- Encode
+generated 1691..5339 <- Decode
+generated 5339..6073 <- __convenience_const
 
 ## Metadata
 

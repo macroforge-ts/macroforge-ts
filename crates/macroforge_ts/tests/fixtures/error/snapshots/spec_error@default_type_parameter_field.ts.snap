@@ -1,0 +1,47 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/default_type_parameter_field.ts
+---
+## Input
+
+/** @derive(Default) */
+export class Holder<T> {
+    value: T;
+}
+
+## Changed
+
+true
+
+## Output
+
+export class Holder<T> {
+    value: T;
+}
+
+## DTS
+
+export declare class Holder<T> {
+	value: T;
+}
+
+## Diagnostics
+
+Error [54..63]: @derive(Default) on 'Holder': field 'value' has type parameter 'T', which has no default; add @default(value)
+
+## Mapping
+
+original 23..65 -> expanded 0..42
+
+## Metadata
+
+class Holder: {"body_span":{"end":65,"start":48},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":24,"start":1}}],"fields":[{"decorators":[],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":63,"start":54},"ts_type":"T","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Holder","span":{"end":65,"start":32},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

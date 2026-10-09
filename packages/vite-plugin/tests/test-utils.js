@@ -14,6 +14,18 @@ const __dirname = path.dirname(__filename);
 export const TESTS_DIR = __dirname;
 export const FIXTURES_DIR = path.join(TESTS_DIR, 'fixtures');
 
+/** `MACROFORGE_CLI` when set, otherwise this checkout's debug build. */
+export function cliBinary() {
+    const binary = process.env.MACROFORGE_CLI ||
+        path.join(TESTS_DIR, '..', '..', '..', 'target', 'debug', 'macroforge');
+    if (!fs.existsSync(binary)) {
+        throw new Error(
+            `macroforge CLI not found at ${binary}; build it with \`pixi run build:cli\``
+        );
+    }
+    return binary;
+}
+
 /**
  * Create a mock resolved Vite config.
  * @param {string} root - Project root path

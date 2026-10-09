@@ -121,8 +121,20 @@ export function statusDefaultValue(): Status {
 ```
 
 Like Rust's derive, the class default runs no constructor (so it works beside
-`Decode`'s, which takes arguments) and assigns every required field. An optional
-field keeps no initializer value; give it `@default(value)` to set one.
+`Decode`'s, which takes arguments). Each field gets its `@default(value)`, else
+its initializer as written, else its type's default above. An optional field with
+neither `@default` nor an initializer is left out, and a static property is never
+a field.
+
+```typescript
+/** @derive(Default) */
+class Retry {
+    attempts: number = 3;    // 3, its initializer
+    /** @default(500) */
+    delayMs: number = 100;   // 500, @default wins
+    label?: string;          // left out
+}
+```
 
 ## Primitive Aliases
 
@@ -157,8 +169,11 @@ The macro reports an expansion error only if:
 - A type alias that is not an object, union or primitive has no `@default(value)`
 - A primitive alias with `@endec` validators has no `@default(value)`
 - A field's `@default` expression fails to parse
+- A function-typed field has neither `@default(value)` nor an initializer, as a
+  Rust `fn` pointer has no `Default`
+- A field's initializer reads `this`, which a default has no instance for
 
-Missing defaults on non-primitive fields are **not** expansion errors: every type is
+Missing defaults on custom-typed fields are **not** expansion errors: every type is
 assumed to implement Default (Rust-like philosophy), so the macro emits a
 `typeNameDefaultValue()` call for any custom type. If a field's type is in the
 type registry but does not derive `Default`, a warning is printed to stderr at

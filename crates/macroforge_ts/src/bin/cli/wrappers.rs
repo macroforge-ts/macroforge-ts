@@ -88,7 +88,7 @@ pub(crate) struct RegistryPaths {
 }
 
 /// Scans the project under `root` for its type and declarative registries.
-fn scan_project(root: &Path) -> Result<macroforge_ts::host::scanner::ScanOutput> {
+pub(crate) fn scan_project(root: &Path) -> Result<macroforge_ts::host::scanner::ScanOutput> {
     use macroforge_ts::host::scanner::{
         ProjectScanner, ScanCache, ScanConfig, cache::persisted_path,
     };
@@ -123,7 +123,7 @@ fn scan_project(root: &Path) -> Result<macroforge_ts::host::scanner::ScanOutput>
 }
 
 /// Writes both registries into `<root>/.macroforge/`, atomically.
-fn write_registries(
+pub(crate) fn write_registries(
     root: &Path,
     output: &macroforge_ts::host::scanner::ScanOutput,
 ) -> Result<RegistryPaths> {
@@ -144,6 +144,9 @@ fn write_registries(
         .map_err(|err| anyhow::anyhow!("failed to encode the declarative registry: {err}"))?;
     write_atomic(&declarative, declarative_json.as_bytes())
         .with_context(|| format!("failed to write {}", declarative.display()))?;
+
+    macroforge_ts::host::config::hoist::sync_expanded_config(root)
+        .with_context(|| format!("failed to expand the config of {}", root.display()))?;
 
     Ok(RegistryPaths { types, declarative })
 }
@@ -498,7 +501,7 @@ pub fn run_svelte_package_wrapper(
     // A missing input directory is the packager's error to report, in the words
     // it has always used. There is nothing to expand or record, so hand over.
     if !resolved.input.is_dir() {
-        return run_packager(&main_path, &flags, &dest, None);
+        return run_packager(root, &main_path, &flags, &dest, None);
     }
 
     let mut hashes = HashCache::load(root);
@@ -623,6 +626,7 @@ pub fn run_svelte_package_wrapper(
     )?;
 
     run_packager(
+        root,
         &main_path,
         &flags,
         &dest,
@@ -681,6 +685,7 @@ struct Redirect<'a> {
 
 /// Runs the packager into a scratch directory and swaps the result into `dest`.
 fn run_packager(
+    root: &Path,
     main_path: &Path,
     flags: &PackageFlags,
     dest: &Path,
@@ -724,6 +729,10 @@ fn run_packager(
         std::process::exit(status.code().unwrap_or(1));
     }
 
+    // Before the swap, so a package that cannot ship its handlers leaves the
+    // previous output in place.
+    crate::package_config::ship_expanded_config(root, &staging)
+        .inspect_err(|_| discard_dir(&staging))?;
     swap_dir(&staging, dest).inspect_err(|_| discard_dir(&staging))?;
 
     eprintln!("[macroforge] packaged into {}", dest.display());

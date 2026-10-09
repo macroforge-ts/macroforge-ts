@@ -29,15 +29,15 @@ enum Direction {
 }
 
 /** Encodes this enum value to a JSON string.  */
-                export function directionEncode(value: Direction): string {
-                    return JSON.stringify(value);
-                }
+export function directionEncode(value: Direction): string {
+    return JSON.stringify(value);
+}
 
-                /** Encodes with an existing context for nested/cyclic object graphs.  */
-                export function directionEncodeWithContext(value: Direction, ctx: __mf_EncodeContext): string | number;
-                export function directionEncodeWithContext(value: Direction): string | number {
-                    return value;
-                }
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function directionEncodeWithContext(value: Direction, ctx: __mf_EncodeContext): string | number;
+export function directionEncodeWithContext(value: Direction): string | number {
+    return value;
+}
 
 namespace Direction {
   export const encode: typeof directionEncode = directionEncode;
@@ -46,28 +46,21 @@ namespace Direction {
 
 ## DTS
 
-enum Direction {
-    North,
-    South,
-    East,
-    West
+declare enum Direction {
+	North = 0,
+	South = 1,
+	East = 2,
+	West = 3
 }
-
 /** Encodes this enum value to a JSON string.  */
-                export function directionEncode(value: Direction): string {
-                    return JSON.stringify(value);
-                }
-
-                /** Encodes with an existing context for nested/cyclic object graphs.  */
-                export function directionEncodeWithContext(value: Direction, ctx: __mf_EncodeContext): string | number;
-                export function directionEncodeWithContext(value: Direction): string | number {
-                    return value;
-                }
-
-namespace Direction {
-  export const encode: typeof directionEncode = directionEncode;
-  export const encodeWithContext: typeof directionEncodeWithContext = directionEncodeWithContext;
+export declare function directionEncode(value: Direction): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function directionEncodeWithContext(value: Direction, ctx: __mf_EncodeContext): string | number;
+declare namespace Direction {
+	const encode: typeof directionEncode;
+	const encodeWithContext: typeof directionEncodeWithContext;
 }
+export {};
 
 ## Diagnostics
 
@@ -76,10 +69,10 @@ namespace Direction {
 ## Mapping
 
 original 22..82 -> expanded 83..143
-original 82..83 -> expanded 885..886
+original 82..83 -> expanded 757..758
 generated 0..83 <- imports
-generated 143..697 <- Encode
-generated 697..885 <- __convenience_const
+generated 143..569 <- Encode
+generated 569..757 <- __convenience_const
 
 ## Metadata
 

@@ -1,0 +1,85 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/declarative-macros.ts
+sha256 58179b99ab19e25c65264c7b7075151b1ed4b98c623e3784ad81c30b73ad5e2a
+
+## Changed
+
+true
+
+## Output
+
+// End-to-end testground fixture for declarative (pattern-matching) macros.
+//
+// This file defines a few `const $name = macroRules`...`` declarations and
+// invokes them. The macroforge build pipeline is expected to erase the
+// definitions and inline the expansions at each call site, so by the
+// time Vite serves this file the runtime values below should be plain
+// arrays / numbers / expressions with no trace of the macro template.
+
+
+
+// Variadic array constructor with two arms: empty and one-or-more.
+
+
+// Identity macro with a single-arm pattern.
+
+
+// Block-bodied macro with a macro-local temporary, testing hygiene.
+
+
+export const emptyVec = [];
+export const threeVec = [1,2,3];
+export const exprVec = [10 + 1,20 - 5,7 * 2];
+export const identityCall = 42;
+export const withTempResult = (() => {
+    const __acc$5 = 10;
+    return __acc$5 + 1
+  })();
+
+// The test harness uses this to confirm the macro definition was erased.
+// If the macroforge pipeline skipped declarative macros this would throw
+// at import time because `macroRules` is a sentinel that throws when
+// called.
+export const declarativeMacrosErased = true;
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..440 -> expanded 0..440
+original 492..562 -> expanded 440..510
+original 630..677 -> expanded 510..557
+original 721..792 -> expanded 557..628
+original 881..907 -> expanded 628..654
+original 913..939 -> expanded 656..682
+original 952..977 -> expanded 689..714
+original 1004..1034 -> expanded 735..765
+original 1041..1073 -> expanded 767..799
+original 1086..1363 -> expanded 861..1138
+generated 654..656 <- $vec
+generated 682..689 <- $vec
+generated 714..735 <- $vec
+generated 765..767 <- $id
+generated 799..861 <- $withTemp
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

@@ -1,6 +1,6 @@
 # expandSync()
 
-macroforge v0.4.0
+macroforge v0.5.0
 
 Expands the macros in \`code\`, the source of \`filepath\`, and returns the expanded code, its type
 declarations, diagnostics and source mapping.

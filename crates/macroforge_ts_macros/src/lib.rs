@@ -278,7 +278,7 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
     let get_macro_names_js_name = format!("__macroforgeGetMacroNames_{}", options.name);
     let is_macro_package_js_name = format!("__macroforgeIsMacroPackage_{}", options.name);
 
-    // No-op callable export: lets consumers `import { state } from "@playground/macro"`
+    // No-op callable export: lets consumers `import { state } from "@testground/macro"`
     let noop_js_name_lit = LitStr::new(&options.name.to_string(), Span::call_site());
     let noop_fn_ident = format_ident!(
         "__ts_macro_noop_{}",

@@ -130,6 +130,17 @@ export interface PartialEq<T> {
 }
 
 /**
+ * Trait for types whose equality is total.
+ *
+ * Analogous to Rust's `Eq` trait: every value equals itself, so `equals`
+ * never treats a value as incomparable. Like Rust's, it adds no methods to
+ * `PartialEq`, and `@derive(Eq)` requires `@derive(PartialEq)`.
+ *
+ * @template T - The type being compared
+ */
+export type Eq<T> = PartialEq<T>;
+
+/**
  * Trait for types that can produce a hash code.
  *
  * Analogous to Rust's `Hash` trait. The generated `hashCode` method
@@ -158,14 +169,15 @@ export interface Hash<T> {
 /**
  * Trait for types with partial ordering.
  *
- * Analogous to Rust's `PartialOrd` trait. The generated `compareTo` method
+ * Analogous to Rust's `PartialOrd` trait. The generated `partialCompare` method
  * returns a number for comparable values, or `null` for incomparable values.
+ * As in Rust, it requires `PartialEq`.
  *
  * @template T - The type being compared
  *
  * @example
  * ```typescript
- * const cmp = User.compareTo(user1, user2);
+ * const cmp = User.partialCompare(user1, user2);
  * if (cmp !== null) {
  *   if (cmp < 0) console.log("user1 < user2");
  *   else if (cmp > 0) console.log("user1 > user2");
@@ -175,38 +187,39 @@ export interface Hash<T> {
  * }
  * ```
  */
-export interface PartialOrd<T> {
+export interface PartialOrd<T> extends PartialEq<T> {
   /**
    * Compares two values for ordering.
    * @param self - The first value
    * @param other - The second value
    * @returns `-1` if self < other, `0` if equal, `1` if self > other, or `null` if incomparable
    */
-  readonly compareTo: (self: T, other: unknown) => number | null;
+  readonly partialCompare: (self: T, other: unknown) => number | null;
 }
 
 /**
  * Trait for types with total ordering.
  *
- * Analogous to Rust's `Ord` trait. The generated `compareTo` method
- * always returns a number (never null) - all values are comparable.
+ * Analogous to Rust's `Ord` trait. The generated `compare` method always
+ * returns a number, never null: all values are comparable. As in Rust, it
+ * requires `Eq` and `PartialOrd`.
  *
  * @template T - The type being compared
  *
  * @example
  * ```typescript
  * // Sort an array using Ord
- * users.sort((a, b) => User.compareTo(a, b));
+ * users.sort(User.compare);
  * ```
  */
-export interface Ord<T> {
+export interface Ord<T> extends Eq<T>, PartialOrd<T> {
   /**
    * Compares two values for ordering (total order).
    * @param self - The first value
    * @param other - The second value
    * @returns `-1` if self < other, `0` if equal, `1` if self > other
    */
-  readonly compareTo: (self: T, other: T) => number;
+  readonly compare: (self: T, other: T) => number;
 }
 
 /**

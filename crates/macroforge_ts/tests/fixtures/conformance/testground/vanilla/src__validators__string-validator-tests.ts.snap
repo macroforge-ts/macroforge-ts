@@ -1,0 +1,3719 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/validators/string-validator-tests.ts
+sha256 11404294e19dee8bbdb6f2ed9725129b35726a6e7217480b6af7742f23db2ba6
+
+## Changed
+
+true
+
+## Output
+
+import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * String validator test classes for comprehensive decoder validation testing.
+ * Each class tests a single validator for isolation.
+ */
+
+// Email validator
+/** @derive(Decode) */
+export class EmailValidator {
+    /** @endec({ validate: ["email"] }) */
+    email: string;
+
+    constructor(props: { email: string }) {
+        this.email = props.email;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EmailValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = EmailValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "EmailValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): EmailValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "EmailValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as EmailValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "EmailValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("email" in obj)) {
+            errors.push({ field: "email", message: "missing required field" });
+        }
+
+        const instance = Object.create(EmailValidator.prototype) as EmailValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_email = obj["email"] as string;
+
+            if (!(typeof __raw_email === "string")) {
+                errors.push({ field: "email", message: __raw_email == null ? "EmailValidator.email is required" : "expected string" });
+            } else {
+                if (__raw_email == null) { errors.push({ field: "email", message: "EmailValidator.email is required" }); } else {
+                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "email", message: "EmailValidator.email must be a valid email" }); }
+                }
+                instance.email = __raw_email;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof EmailValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "email") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "email", message: "EmailValidator.email is required" }); } else {
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "email", message: "EmailValidator.email must be a valid email" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof EmailValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("email" in partial && partial.email !== undefined) {
+            const __val = partial.email as string;
+            if (__val == null) { errors.push({ field: "email", message: "EmailValidator.email is required" }); } else {
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "email", message: "EmailValidator.email must be a valid email" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "email" in o;
+    }
+
+    static is(obj: unknown): obj is EmailValidator {
+        if (obj instanceof EmailValidator) {
+            return true;
+        }
+        if (!EmailValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = EmailValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function emailValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EmailValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return EmailValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function emailValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): EmailValidator | __mf_PendingRef {
+    return EmailValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function emailValidatorIs(value: unknown): value is EmailValidator {
+    return EmailValidator.is(value);
+}
+
+// URL validator
+/** @derive(Decode) */
+export class UrlValidator {
+    /** @endec({ validate: ["url"] }) */
+    url: string;
+
+    constructor(props: { url: string }) {
+        this.url = props.url;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UrlValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = UrlValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "UrlValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): UrlValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "UrlValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as UrlValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "UrlValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("url" in obj)) {
+            errors.push({ field: "url", message: "missing required field" });
+        }
+
+        const instance = Object.create(UrlValidator.prototype) as UrlValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_url = obj["url"] as string;
+
+            if (!(typeof __raw_url === "string")) {
+                errors.push({ field: "url", message: __raw_url == null ? "UrlValidator.url is required" : "expected string" });
+            } else {
+                if (__raw_url == null) { errors.push({ field: "url", message: "UrlValidator.url is required" }); } else {
+                    if (!URL.canParse(__raw_url)) { errors.push({ field: "url", message: "UrlValidator.url must be a valid URL" }); }
+                }
+                instance.url = __raw_url;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof UrlValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "url") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "url", message: "UrlValidator.url is required" }); } else {
+                if (!URL.canParse(__val)) { errors.push({ field: "url", message: "UrlValidator.url must be a valid URL" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof UrlValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("url" in partial && partial.url !== undefined) {
+            const __val = partial.url as string;
+            if (__val == null) { errors.push({ field: "url", message: "UrlValidator.url is required" }); } else {
+                if (!URL.canParse(__val)) { errors.push({ field: "url", message: "UrlValidator.url must be a valid URL" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "url" in o;
+    }
+
+    static is(obj: unknown): obj is UrlValidator {
+        if (obj instanceof UrlValidator) {
+            return true;
+        }
+        if (!UrlValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = UrlValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function urlValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UrlValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return UrlValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function urlValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UrlValidator | __mf_PendingRef {
+    return UrlValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function urlValidatorIs(value: unknown): value is UrlValidator {
+    return UrlValidator.is(value);
+}
+
+// UUID validator
+/** @derive(Decode) */
+export class UuidValidator {
+    /** @endec({ validate: ["uuid"] }) */
+    id: string;
+
+    constructor(props: { id: string }) {
+        this.id = props.id;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UuidValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = UuidValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "UuidValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): UuidValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "UuidValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as UuidValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "UuidValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("id" in obj)) {
+            errors.push({ field: "id", message: "missing required field" });
+        }
+
+        const instance = Object.create(UuidValidator.prototype) as UuidValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_id = obj["id"] as string;
+
+            if (!(typeof __raw_id === "string")) {
+                errors.push({ field: "id", message: __raw_id == null ? "UuidValidator.id is required" : "expected string" });
+            } else {
+                if (__raw_id == null) { errors.push({ field: "id", message: "UuidValidator.id is required" }); } else {
+                    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__raw_id)) { errors.push({ field: "id", message: "UuidValidator.id must be a valid UUID" }); }
+                }
+                instance.id = __raw_id;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof UuidValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "id") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "id", message: "UuidValidator.id is required" }); } else {
+                if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__val)) { errors.push({ field: "id", message: "UuidValidator.id must be a valid UUID" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof UuidValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("id" in partial && partial.id !== undefined) {
+            const __val = partial.id as string;
+            if (__val == null) { errors.push({ field: "id", message: "UuidValidator.id is required" }); } else {
+                if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__val)) { errors.push({ field: "id", message: "UuidValidator.id must be a valid UUID" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "id" in o;
+    }
+
+    static is(obj: unknown): obj is UuidValidator {
+        if (obj instanceof UuidValidator) {
+            return true;
+        }
+        if (!UuidValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = UuidValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function uuidValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UuidValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return UuidValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function uuidValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UuidValidator | __mf_PendingRef {
+    return UuidValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function uuidValidatorIs(value: unknown): value is UuidValidator {
+    return UuidValidator.is(value);
+}
+
+// MaxLength validator
+/** @derive(Decode) */
+export class MaxLengthValidator {
+    /** @endec({ validate: ["maxLength(10)"] }) */
+    shortText: string;
+
+    constructor(props: { shortText: string }) {
+        this.shortText = props.shortText;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MaxLengthValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = MaxLengthValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "MaxLengthValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): MaxLengthValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "MaxLengthValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as MaxLengthValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "MaxLengthValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("shortText" in obj)) {
+            errors.push({ field: "shortText", message: "missing required field" });
+        }
+
+        const instance = Object.create(MaxLengthValidator.prototype) as MaxLengthValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_shortText = obj["shortText"] as string;
+
+            if (!(typeof __raw_shortText === "string")) {
+                errors.push({ field: "shortText", message: __raw_shortText == null ? "MaxLengthValidator.shortText is required" : "expected string" });
+            } else {
+                if (__raw_shortText == null) { errors.push({ field: "shortText", message: "MaxLengthValidator.shortText is required" }); } else {
+                    if (__raw_shortText.length > 10) { errors.push({ field: "shortText", message: "MaxLengthValidator.shortText must have at most 10 characters" }); }
+                }
+                instance.shortText = __raw_shortText;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof MaxLengthValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "shortText") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "shortText", message: "MaxLengthValidator.shortText is required" }); } else {
+                if (__val.length > 10) { errors.push({ field: "shortText", message: "MaxLengthValidator.shortText must have at most 10 characters" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof MaxLengthValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("shortText" in partial && partial.shortText !== undefined) {
+            const __val = partial.shortText as string;
+            if (__val == null) { errors.push({ field: "shortText", message: "MaxLengthValidator.shortText is required" }); } else {
+                if (__val.length > 10) { errors.push({ field: "shortText", message: "MaxLengthValidator.shortText must have at most 10 characters" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "shortText" in o;
+    }
+
+    static is(obj: unknown): obj is MaxLengthValidator {
+        if (obj instanceof MaxLengthValidator) {
+            return true;
+        }
+        if (!MaxLengthValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = MaxLengthValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function maxLengthValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MaxLengthValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return MaxLengthValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function maxLengthValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): MaxLengthValidator | __mf_PendingRef {
+    return MaxLengthValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function maxLengthValidatorIs(value: unknown): value is MaxLengthValidator {
+    return MaxLengthValidator.is(value);
+}
+
+// MinLength validator
+/** @derive(Decode) */
+export class MinLengthValidator {
+    /** @endec({ validate: ["minLength(5)"] }) */
+    longText: string;
+
+    constructor(props: { longText: string }) {
+        this.longText = props.longText;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MinLengthValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = MinLengthValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "MinLengthValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): MinLengthValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "MinLengthValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as MinLengthValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "MinLengthValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("longText" in obj)) {
+            errors.push({ field: "longText", message: "missing required field" });
+        }
+
+        const instance = Object.create(MinLengthValidator.prototype) as MinLengthValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_longText = obj["longText"] as string;
+
+            if (!(typeof __raw_longText === "string")) {
+                errors.push({ field: "longText", message: __raw_longText == null ? "MinLengthValidator.longText is required" : "expected string" });
+            } else {
+                if (__raw_longText == null) { errors.push({ field: "longText", message: "MinLengthValidator.longText is required" }); } else {
+                    if (__raw_longText.length < 5) { errors.push({ field: "longText", message: "MinLengthValidator.longText must have at least 5 characters" }); }
+                }
+                instance.longText = __raw_longText;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof MinLengthValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "longText") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "longText", message: "MinLengthValidator.longText is required" }); } else {
+                if (__val.length < 5) { errors.push({ field: "longText", message: "MinLengthValidator.longText must have at least 5 characters" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof MinLengthValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("longText" in partial && partial.longText !== undefined) {
+            const __val = partial.longText as string;
+            if (__val == null) { errors.push({ field: "longText", message: "MinLengthValidator.longText is required" }); } else {
+                if (__val.length < 5) { errors.push({ field: "longText", message: "MinLengthValidator.longText must have at least 5 characters" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "longText" in o;
+    }
+
+    static is(obj: unknown): obj is MinLengthValidator {
+        if (obj instanceof MinLengthValidator) {
+            return true;
+        }
+        if (!MinLengthValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = MinLengthValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function minLengthValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MinLengthValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return MinLengthValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function minLengthValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): MinLengthValidator | __mf_PendingRef {
+    return MinLengthValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function minLengthValidatorIs(value: unknown): value is MinLengthValidator {
+    return MinLengthValidator.is(value);
+}
+
+// Length validator (exact)
+/** @derive(Decode) */
+export class LengthValidator {
+    /** @endec({ validate: ["length(8)"] }) */
+    fixedText: string;
+
+    constructor(props: { fixedText: string }) {
+        this.fixedText = props.fixedText;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LengthValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = LengthValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "LengthValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): LengthValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "LengthValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as LengthValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "LengthValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("fixedText" in obj)) {
+            errors.push({ field: "fixedText", message: "missing required field" });
+        }
+
+        const instance = Object.create(LengthValidator.prototype) as LengthValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_fixedText = obj["fixedText"] as string;
+
+            if (!(typeof __raw_fixedText === "string")) {
+                errors.push({ field: "fixedText", message: __raw_fixedText == null ? "LengthValidator.fixedText is required" : "expected string" });
+            } else {
+                if (__raw_fixedText == null) { errors.push({ field: "fixedText", message: "LengthValidator.fixedText is required" }); } else {
+                    if (__raw_fixedText.length !== 8) { errors.push({ field: "fixedText", message: "LengthValidator.fixedText must have exactly 8 characters" }); }
+                }
+                instance.fixedText = __raw_fixedText;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof LengthValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "fixedText") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "fixedText", message: "LengthValidator.fixedText is required" }); } else {
+                if (__val.length !== 8) { errors.push({ field: "fixedText", message: "LengthValidator.fixedText must have exactly 8 characters" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof LengthValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("fixedText" in partial && partial.fixedText !== undefined) {
+            const __val = partial.fixedText as string;
+            if (__val == null) { errors.push({ field: "fixedText", message: "LengthValidator.fixedText is required" }); } else {
+                if (__val.length !== 8) { errors.push({ field: "fixedText", message: "LengthValidator.fixedText must have exactly 8 characters" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "fixedText" in o;
+    }
+
+    static is(obj: unknown): obj is LengthValidator {
+        if (obj instanceof LengthValidator) {
+            return true;
+        }
+        if (!LengthValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = LengthValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function lengthValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LengthValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return LengthValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function lengthValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): LengthValidator | __mf_PendingRef {
+    return LengthValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function lengthValidatorIs(value: unknown): value is LengthValidator {
+    return LengthValidator.is(value);
+}
+
+// LengthRange validator (use length with 2 args)
+/** @derive(Decode) */
+export class LengthRangeValidator {
+    /** @endec({ validate: ["length(5, 10)"] }) */
+    rangedText: string;
+
+    constructor(props: { rangedText: string }) {
+        this.rangedText = props.rangedText;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LengthRangeValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = LengthRangeValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "LengthRangeValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): LengthRangeValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "LengthRangeValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as LengthRangeValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "LengthRangeValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("rangedText" in obj)) {
+            errors.push({ field: "rangedText", message: "missing required field" });
+        }
+
+        const instance = Object.create(LengthRangeValidator.prototype) as LengthRangeValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_rangedText = obj["rangedText"] as string;
+
+            if (!(typeof __raw_rangedText === "string")) {
+                errors.push({ field: "rangedText", message: __raw_rangedText == null ? "LengthRangeValidator.rangedText is required" : "expected string" });
+            } else {
+                if (__raw_rangedText == null) { errors.push({ field: "rangedText", message: "LengthRangeValidator.rangedText is required" }); } else {
+                    if (__raw_rangedText.length < 5 || __raw_rangedText.length > 10) { errors.push({ field: "rangedText", message: "LengthRangeValidator.rangedText must have between 5 and 10 characters" }); }
+                }
+                instance.rangedText = __raw_rangedText;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof LengthRangeValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "rangedText") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "rangedText", message: "LengthRangeValidator.rangedText is required" }); } else {
+                if (__val.length < 5 || __val.length > 10) { errors.push({ field: "rangedText", message: "LengthRangeValidator.rangedText must have between 5 and 10 characters" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof LengthRangeValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("rangedText" in partial && partial.rangedText !== undefined) {
+            const __val = partial.rangedText as string;
+            if (__val == null) { errors.push({ field: "rangedText", message: "LengthRangeValidator.rangedText is required" }); } else {
+                if (__val.length < 5 || __val.length > 10) { errors.push({ field: "rangedText", message: "LengthRangeValidator.rangedText must have between 5 and 10 characters" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "rangedText" in o;
+    }
+
+    static is(obj: unknown): obj is LengthRangeValidator {
+        if (obj instanceof LengthRangeValidator) {
+            return true;
+        }
+        if (!LengthRangeValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = LengthRangeValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function lengthRangeValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LengthRangeValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return LengthRangeValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function lengthRangeValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): LengthRangeValidator | __mf_PendingRef {
+    return LengthRangeValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function lengthRangeValidatorIs(value: unknown): value is LengthRangeValidator {
+    return LengthRangeValidator.is(value);
+}
+
+// Pattern validator
+/** @derive(Decode) */
+export class PatternValidator {
+    /** @endec({ validate: ['pattern("^[A-Z]{3}$")'] }) */
+    code: string;
+
+    constructor(props: { code: string }) {
+        this.code = props.code;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PatternValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = PatternValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "PatternValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): PatternValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "PatternValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as PatternValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "PatternValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("code" in obj)) {
+            errors.push({ field: "code", message: "missing required field" });
+        }
+
+        const instance = Object.create(PatternValidator.prototype) as PatternValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_code = obj["code"] as string;
+
+            if (!(typeof __raw_code === "string")) {
+                errors.push({ field: "code", message: __raw_code == null ? "PatternValidator.code is required" : "expected string" });
+            } else {
+                if (__raw_code == null) { errors.push({ field: "code", message: "PatternValidator.code is required" }); } else {
+                    if (!/^[A-Z]{3}$/.test(__raw_code)) { errors.push({ field: "code", message: "PatternValidator.code must match pattern ^[A-Z]{3}$" }); }
+                }
+                instance.code = __raw_code;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof PatternValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "code") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "code", message: "PatternValidator.code is required" }); } else {
+                if (!/^[A-Z]{3}$/.test(__val)) { errors.push({ field: "code", message: "PatternValidator.code must match pattern ^[A-Z]{3}$" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof PatternValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("code" in partial && partial.code !== undefined) {
+            const __val = partial.code as string;
+            if (__val == null) { errors.push({ field: "code", message: "PatternValidator.code is required" }); } else {
+                if (!/^[A-Z]{3}$/.test(__val)) { errors.push({ field: "code", message: "PatternValidator.code must match pattern ^[A-Z]{3}$" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "code" in o;
+    }
+
+    static is(obj: unknown): obj is PatternValidator {
+        if (obj instanceof PatternValidator) {
+            return true;
+        }
+        if (!PatternValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = PatternValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function patternValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PatternValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return PatternValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function patternValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): PatternValidator | __mf_PendingRef {
+    return PatternValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function patternValidatorIs(value: unknown): value is PatternValidator {
+    return PatternValidator.is(value);
+}
+
+// NonEmpty validator
+/** @derive(Decode) */
+export class NonEmptyValidator {
+    /** @endec({ validate: ["nonEmpty"] }) */
+    required: string;
+
+    constructor(props: { required: string }) {
+        this.required = props.required;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NonEmptyValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = NonEmptyValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "NonEmptyValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): NonEmptyValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "NonEmptyValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as NonEmptyValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "NonEmptyValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("required" in obj)) {
+            errors.push({ field: "required", message: "missing required field" });
+        }
+
+        const instance = Object.create(NonEmptyValidator.prototype) as NonEmptyValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_required = obj["required"] as string;
+
+            if (!(typeof __raw_required === "string")) {
+                errors.push({ field: "required", message: __raw_required == null ? "NonEmptyValidator.required is required" : "expected string" });
+            } else {
+                if (__raw_required == null) { errors.push({ field: "required", message: "NonEmptyValidator.required is required" }); } else {
+                    if (__raw_required.length === 0) { errors.push({ field: "required", message: "NonEmptyValidator.required must not be empty" }); }
+                }
+                instance.required = __raw_required;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof NonEmptyValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "required") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "required", message: "NonEmptyValidator.required is required" }); } else {
+                if (__val.length === 0) { errors.push({ field: "required", message: "NonEmptyValidator.required must not be empty" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof NonEmptyValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("required" in partial && partial.required !== undefined) {
+            const __val = partial.required as string;
+            if (__val == null) { errors.push({ field: "required", message: "NonEmptyValidator.required is required" }); } else {
+                if (__val.length === 0) { errors.push({ field: "required", message: "NonEmptyValidator.required must not be empty" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "required" in o;
+    }
+
+    static is(obj: unknown): obj is NonEmptyValidator {
+        if (obj instanceof NonEmptyValidator) {
+            return true;
+        }
+        if (!NonEmptyValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = NonEmptyValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function nonEmptyValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NonEmptyValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return NonEmptyValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function nonEmptyValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NonEmptyValidator | __mf_PendingRef {
+    return NonEmptyValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function nonEmptyValidatorIs(value: unknown): value is NonEmptyValidator {
+    return NonEmptyValidator.is(value);
+}
+
+// Trimmed validator
+/** @derive(Decode) */
+export class TrimmedValidator {
+    /** @endec({ validate: ["trimmed"] }) */
+    trimmed: string;
+
+    constructor(props: { trimmed: string }) {
+        this.trimmed = props.trimmed;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TrimmedValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = TrimmedValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "TrimmedValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): TrimmedValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "TrimmedValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as TrimmedValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "TrimmedValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("trimmed" in obj)) {
+            errors.push({ field: "trimmed", message: "missing required field" });
+        }
+
+        const instance = Object.create(TrimmedValidator.prototype) as TrimmedValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_trimmed = obj["trimmed"] as string;
+
+            if (!(typeof __raw_trimmed === "string")) {
+                errors.push({ field: "trimmed", message: __raw_trimmed == null ? "TrimmedValidator.trimmed is required" : "expected string" });
+            } else {
+                if (__raw_trimmed == null) { errors.push({ field: "trimmed", message: "TrimmedValidator.trimmed is required" }); } else {
+                    if (__raw_trimmed !== __raw_trimmed.trim()) { errors.push({ field: "trimmed", message: "TrimmedValidator.trimmed must be trimmed" }); }
+                }
+                instance.trimmed = __raw_trimmed;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof TrimmedValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "trimmed") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "trimmed", message: "TrimmedValidator.trimmed is required" }); } else {
+                if (__val !== __val.trim()) { errors.push({ field: "trimmed", message: "TrimmedValidator.trimmed must be trimmed" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof TrimmedValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("trimmed" in partial && partial.trimmed !== undefined) {
+            const __val = partial.trimmed as string;
+            if (__val == null) { errors.push({ field: "trimmed", message: "TrimmedValidator.trimmed is required" }); } else {
+                if (__val !== __val.trim()) { errors.push({ field: "trimmed", message: "TrimmedValidator.trimmed must be trimmed" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "trimmed" in o;
+    }
+
+    static is(obj: unknown): obj is TrimmedValidator {
+        if (obj instanceof TrimmedValidator) {
+            return true;
+        }
+        if (!TrimmedValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = TrimmedValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function trimmedValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TrimmedValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return TrimmedValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function trimmedValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TrimmedValidator | __mf_PendingRef {
+    return TrimmedValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function trimmedValidatorIs(value: unknown): value is TrimmedValidator {
+    return TrimmedValidator.is(value);
+}
+
+// Lowercase validator
+/** @derive(Decode) */
+export class LowercaseValidator {
+    /** @endec({ validate: ["lowercase"] }) */
+    lower: string;
+
+    constructor(props: { lower: string }) {
+        this.lower = props.lower;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LowercaseValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = LowercaseValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "LowercaseValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): LowercaseValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "LowercaseValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as LowercaseValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "LowercaseValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("lower" in obj)) {
+            errors.push({ field: "lower", message: "missing required field" });
+        }
+
+        const instance = Object.create(LowercaseValidator.prototype) as LowercaseValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_lower = obj["lower"] as string;
+
+            if (!(typeof __raw_lower === "string")) {
+                errors.push({ field: "lower", message: __raw_lower == null ? "LowercaseValidator.lower is required" : "expected string" });
+            } else {
+                if (__raw_lower == null) { errors.push({ field: "lower", message: "LowercaseValidator.lower is required" }); } else {
+                    if (__raw_lower !== __raw_lower.toLowerCase()) { errors.push({ field: "lower", message: "LowercaseValidator.lower must be lowercase" }); }
+                }
+                instance.lower = __raw_lower;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof LowercaseValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "lower") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "lower", message: "LowercaseValidator.lower is required" }); } else {
+                if (__val !== __val.toLowerCase()) { errors.push({ field: "lower", message: "LowercaseValidator.lower must be lowercase" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof LowercaseValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("lower" in partial && partial.lower !== undefined) {
+            const __val = partial.lower as string;
+            if (__val == null) { errors.push({ field: "lower", message: "LowercaseValidator.lower is required" }); } else {
+                if (__val !== __val.toLowerCase()) { errors.push({ field: "lower", message: "LowercaseValidator.lower must be lowercase" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "lower" in o;
+    }
+
+    static is(obj: unknown): obj is LowercaseValidator {
+        if (obj instanceof LowercaseValidator) {
+            return true;
+        }
+        if (!LowercaseValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = LowercaseValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function lowercaseValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LowercaseValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return LowercaseValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function lowercaseValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): LowercaseValidator | __mf_PendingRef {
+    return LowercaseValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function lowercaseValidatorIs(value: unknown): value is LowercaseValidator {
+    return LowercaseValidator.is(value);
+}
+
+// Uppercase validator
+/** @derive(Decode) */
+export class UppercaseValidator {
+    /** @endec({ validate: ["uppercase"] }) */
+    upper: string;
+
+    constructor(props: { upper: string }) {
+        this.upper = props.upper;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UppercaseValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = UppercaseValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "UppercaseValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): UppercaseValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "UppercaseValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as UppercaseValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "UppercaseValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("upper" in obj)) {
+            errors.push({ field: "upper", message: "missing required field" });
+        }
+
+        const instance = Object.create(UppercaseValidator.prototype) as UppercaseValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_upper = obj["upper"] as string;
+
+            if (!(typeof __raw_upper === "string")) {
+                errors.push({ field: "upper", message: __raw_upper == null ? "UppercaseValidator.upper is required" : "expected string" });
+            } else {
+                if (__raw_upper == null) { errors.push({ field: "upper", message: "UppercaseValidator.upper is required" }); } else {
+                    if (__raw_upper !== __raw_upper.toUpperCase()) { errors.push({ field: "upper", message: "UppercaseValidator.upper must be uppercase" }); }
+                }
+                instance.upper = __raw_upper;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof UppercaseValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "upper") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "upper", message: "UppercaseValidator.upper is required" }); } else {
+                if (__val !== __val.toUpperCase()) { errors.push({ field: "upper", message: "UppercaseValidator.upper must be uppercase" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof UppercaseValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("upper" in partial && partial.upper !== undefined) {
+            const __val = partial.upper as string;
+            if (__val == null) { errors.push({ field: "upper", message: "UppercaseValidator.upper is required" }); } else {
+                if (__val !== __val.toUpperCase()) { errors.push({ field: "upper", message: "UppercaseValidator.upper must be uppercase" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "upper" in o;
+    }
+
+    static is(obj: unknown): obj is UppercaseValidator {
+        if (obj instanceof UppercaseValidator) {
+            return true;
+        }
+        if (!UppercaseValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = UppercaseValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function uppercaseValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UppercaseValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return UppercaseValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function uppercaseValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UppercaseValidator | __mf_PendingRef {
+    return UppercaseValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function uppercaseValidatorIs(value: unknown): value is UppercaseValidator {
+    return UppercaseValidator.is(value);
+}
+
+// Capitalized validator
+/** @derive(Decode) */
+export class CapitalizedValidator {
+    /** @endec({ validate: ["capitalized"] }) */
+    cap: string;
+
+    constructor(props: { cap: string }) {
+        this.cap = props.cap;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CapitalizedValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = CapitalizedValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "CapitalizedValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): CapitalizedValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "CapitalizedValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as CapitalizedValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "CapitalizedValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("cap" in obj)) {
+            errors.push({ field: "cap", message: "missing required field" });
+        }
+
+        const instance = Object.create(CapitalizedValidator.prototype) as CapitalizedValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_cap = obj["cap"] as string;
+
+            if (!(typeof __raw_cap === "string")) {
+                errors.push({ field: "cap", message: __raw_cap == null ? "CapitalizedValidator.cap is required" : "expected string" });
+            } else {
+                if (__raw_cap == null) { errors.push({ field: "cap", message: "CapitalizedValidator.cap is required" }); } else {
+                    if (__raw_cap.length > 0 && __raw_cap[0] !== __raw_cap[0].toUpperCase()) { errors.push({ field: "cap", message: "CapitalizedValidator.cap must be capitalized" }); }
+                }
+                instance.cap = __raw_cap;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof CapitalizedValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "cap") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "cap", message: "CapitalizedValidator.cap is required" }); } else {
+                if (__val.length > 0 && __val[0] !== __val[0].toUpperCase()) { errors.push({ field: "cap", message: "CapitalizedValidator.cap must be capitalized" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof CapitalizedValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("cap" in partial && partial.cap !== undefined) {
+            const __val = partial.cap as string;
+            if (__val == null) { errors.push({ field: "cap", message: "CapitalizedValidator.cap is required" }); } else {
+                if (__val.length > 0 && __val[0] !== __val[0].toUpperCase()) { errors.push({ field: "cap", message: "CapitalizedValidator.cap must be capitalized" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "cap" in o;
+    }
+
+    static is(obj: unknown): obj is CapitalizedValidator {
+        if (obj instanceof CapitalizedValidator) {
+            return true;
+        }
+        if (!CapitalizedValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = CapitalizedValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function capitalizedValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CapitalizedValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return CapitalizedValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function capitalizedValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CapitalizedValidator | __mf_PendingRef {
+    return CapitalizedValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function capitalizedValidatorIs(value: unknown): value is CapitalizedValidator {
+    return CapitalizedValidator.is(value);
+}
+
+// Uncapitalized validator
+/** @derive(Decode) */
+export class UncapitalizedValidator {
+    /** @endec({ validate: ["uncapitalized"] }) */
+    uncap: string;
+
+    constructor(props: { uncap: string }) {
+        this.uncap = props.uncap;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UncapitalizedValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = UncapitalizedValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "UncapitalizedValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): UncapitalizedValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "UncapitalizedValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as UncapitalizedValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "UncapitalizedValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("uncap" in obj)) {
+            errors.push({ field: "uncap", message: "missing required field" });
+        }
+
+        const instance = Object.create(UncapitalizedValidator.prototype) as UncapitalizedValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_uncap = obj["uncap"] as string;
+
+            if (!(typeof __raw_uncap === "string")) {
+                errors.push({ field: "uncap", message: __raw_uncap == null ? "UncapitalizedValidator.uncap is required" : "expected string" });
+            } else {
+                if (__raw_uncap == null) { errors.push({ field: "uncap", message: "UncapitalizedValidator.uncap is required" }); } else {
+                    if (__raw_uncap.length > 0 && __raw_uncap[0] !== __raw_uncap[0].toLowerCase()) { errors.push({ field: "uncap", message: "UncapitalizedValidator.uncap must be uncapitalized" }); }
+                }
+                instance.uncap = __raw_uncap;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof UncapitalizedValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "uncap") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "uncap", message: "UncapitalizedValidator.uncap is required" }); } else {
+                if (__val.length > 0 && __val[0] !== __val[0].toLowerCase()) { errors.push({ field: "uncap", message: "UncapitalizedValidator.uncap must be uncapitalized" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof UncapitalizedValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("uncap" in partial && partial.uncap !== undefined) {
+            const __val = partial.uncap as string;
+            if (__val == null) { errors.push({ field: "uncap", message: "UncapitalizedValidator.uncap is required" }); } else {
+                if (__val.length > 0 && __val[0] !== __val[0].toLowerCase()) { errors.push({ field: "uncap", message: "UncapitalizedValidator.uncap must be uncapitalized" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "uncap" in o;
+    }
+
+    static is(obj: unknown): obj is UncapitalizedValidator {
+        if (obj instanceof UncapitalizedValidator) {
+            return true;
+        }
+        if (!UncapitalizedValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = UncapitalizedValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function uncapitalizedValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UncapitalizedValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return UncapitalizedValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function uncapitalizedValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UncapitalizedValidator | __mf_PendingRef {
+    return UncapitalizedValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function uncapitalizedValidatorIs(value: unknown): value is UncapitalizedValidator {
+    return UncapitalizedValidator.is(value);
+}
+
+// StartsWith validator
+/** @derive(Decode) */
+export class StartsWithValidator {
+    /** @endec({ validate: ['startsWith("https://")'] }) */
+    secureUrl: string;
+
+    constructor(props: { secureUrl: string }) {
+        this.secureUrl = props.secureUrl;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: StartsWithValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = StartsWithValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "StartsWithValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): StartsWithValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "StartsWithValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as StartsWithValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "StartsWithValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("secureUrl" in obj)) {
+            errors.push({ field: "secureUrl", message: "missing required field" });
+        }
+
+        const instance = Object.create(StartsWithValidator.prototype) as StartsWithValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_secureUrl = obj["secureUrl"] as string;
+
+            if (!(typeof __raw_secureUrl === "string")) {
+                errors.push({ field: "secureUrl", message: __raw_secureUrl == null ? "StartsWithValidator.secureUrl is required" : "expected string" });
+            } else {
+                if (__raw_secureUrl == null) { errors.push({ field: "secureUrl", message: "StartsWithValidator.secureUrl is required" }); } else {
+                    if (!__raw_secureUrl.startsWith("https://")) { errors.push({ field: "secureUrl", message: "StartsWithValidator.secureUrl must start with 'https://'" }); }
+                }
+                instance.secureUrl = __raw_secureUrl;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof StartsWithValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "secureUrl") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "secureUrl", message: "StartsWithValidator.secureUrl is required" }); } else {
+                if (!__val.startsWith("https://")) { errors.push({ field: "secureUrl", message: "StartsWithValidator.secureUrl must start with 'https://'" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof StartsWithValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("secureUrl" in partial && partial.secureUrl !== undefined) {
+            const __val = partial.secureUrl as string;
+            if (__val == null) { errors.push({ field: "secureUrl", message: "StartsWithValidator.secureUrl is required" }); } else {
+                if (!__val.startsWith("https://")) { errors.push({ field: "secureUrl", message: "StartsWithValidator.secureUrl must start with 'https://'" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "secureUrl" in o;
+    }
+
+    static is(obj: unknown): obj is StartsWithValidator {
+        if (obj instanceof StartsWithValidator) {
+            return true;
+        }
+        if (!StartsWithValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = StartsWithValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function startsWithValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: StartsWithValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return StartsWithValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function startsWithValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): StartsWithValidator | __mf_PendingRef {
+    return StartsWithValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function startsWithValidatorIs(value: unknown): value is StartsWithValidator {
+    return StartsWithValidator.is(value);
+}
+
+// EndsWith validator
+/** @derive(Decode) */
+export class EndsWithValidator {
+    /** @endec({ validate: ['endsWith(".json")'] }) */
+    filename: string;
+
+    constructor(props: { filename: string }) {
+        this.filename = props.filename;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EndsWithValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = EndsWithValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "EndsWithValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): EndsWithValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "EndsWithValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as EndsWithValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "EndsWithValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("filename" in obj)) {
+            errors.push({ field: "filename", message: "missing required field" });
+        }
+
+        const instance = Object.create(EndsWithValidator.prototype) as EndsWithValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_filename = obj["filename"] as string;
+
+            if (!(typeof __raw_filename === "string")) {
+                errors.push({ field: "filename", message: __raw_filename == null ? "EndsWithValidator.filename is required" : "expected string" });
+            } else {
+                if (__raw_filename == null) { errors.push({ field: "filename", message: "EndsWithValidator.filename is required" }); } else {
+                    if (!__raw_filename.endsWith(".json")) { errors.push({ field: "filename", message: "EndsWithValidator.filename must end with '.json'" }); }
+                }
+                instance.filename = __raw_filename;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof EndsWithValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "filename") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "filename", message: "EndsWithValidator.filename is required" }); } else {
+                if (!__val.endsWith(".json")) { errors.push({ field: "filename", message: "EndsWithValidator.filename must end with '.json'" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof EndsWithValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("filename" in partial && partial.filename !== undefined) {
+            const __val = partial.filename as string;
+            if (__val == null) { errors.push({ field: "filename", message: "EndsWithValidator.filename is required" }); } else {
+                if (!__val.endsWith(".json")) { errors.push({ field: "filename", message: "EndsWithValidator.filename must end with '.json'" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "filename" in o;
+    }
+
+    static is(obj: unknown): obj is EndsWithValidator {
+        if (obj instanceof EndsWithValidator) {
+            return true;
+        }
+        if (!EndsWithValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = EndsWithValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function endsWithValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EndsWithValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return EndsWithValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function endsWithValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): EndsWithValidator | __mf_PendingRef {
+    return EndsWithValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function endsWithValidatorIs(value: unknown): value is EndsWithValidator {
+    return EndsWithValidator.is(value);
+}
+
+// Includes validator
+/** @derive(Decode) */
+export class IncludesValidator {
+    /** @endec({ validate: ['includes("@")'] }) */
+    emailLike: string;
+
+    constructor(props: { emailLike: string }) {
+        this.emailLike = props.emailLike;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: IncludesValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = IncludesValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "IncludesValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): IncludesValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "IncludesValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as IncludesValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "IncludesValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("emailLike" in obj)) {
+            errors.push({ field: "emailLike", message: "missing required field" });
+        }
+
+        const instance = Object.create(IncludesValidator.prototype) as IncludesValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_emailLike = obj["emailLike"] as string;
+
+            if (!(typeof __raw_emailLike === "string")) {
+                errors.push({ field: "emailLike", message: __raw_emailLike == null ? "IncludesValidator.emailLike is required" : "expected string" });
+            } else {
+                if (__raw_emailLike == null) { errors.push({ field: "emailLike", message: "IncludesValidator.emailLike is required" }); } else {
+                    if (!__raw_emailLike.includes("@")) { errors.push({ field: "emailLike", message: "IncludesValidator.emailLike must include '@'" }); }
+                }
+                instance.emailLike = __raw_emailLike;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof IncludesValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "emailLike") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "emailLike", message: "IncludesValidator.emailLike is required" }); } else {
+                if (!__val.includes("@")) { errors.push({ field: "emailLike", message: "IncludesValidator.emailLike must include '@'" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof IncludesValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("emailLike" in partial && partial.emailLike !== undefined) {
+            const __val = partial.emailLike as string;
+            if (__val == null) { errors.push({ field: "emailLike", message: "IncludesValidator.emailLike is required" }); } else {
+                if (!__val.includes("@")) { errors.push({ field: "emailLike", message: "IncludesValidator.emailLike must include '@'" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "emailLike" in o;
+    }
+
+    static is(obj: unknown): obj is IncludesValidator {
+        if (obj instanceof IncludesValidator) {
+            return true;
+        }
+        if (!IncludesValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = IncludesValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function includesValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: IncludesValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return IncludesValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function includesValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): IncludesValidator | __mf_PendingRef {
+    return IncludesValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function includesValidatorIs(value: unknown): value is IncludesValidator {
+    return IncludesValidator.is(value);
+}
+
+## DTS
+
+/**
+* String validator test classes for comprehensive decoder validation testing.
+* Each class tests a single validator for isolation.
+*/
+/** @derive(Decode) */
+export declare class EmailValidator {
+	/** @endec({ validate: ["email"] }) */
+	email: string;
+	constructor(props: {
+		email: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: EmailValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): EmailValidator | __mf_PendingRef;
+	static validateField<K extends keyof EmailValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof EmailValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is EmailValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function emailValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: EmailValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function emailValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): EmailValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function emailValidatorIs(value: unknown): value is EmailValidator;
+/** @derive(Decode) */
+export declare class UrlValidator {
+	/** @endec({ validate: ["url"] }) */
+	url: string;
+	constructor(props: {
+		url: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: UrlValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): UrlValidator | __mf_PendingRef;
+	static validateField<K extends keyof UrlValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof UrlValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is UrlValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function urlValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: UrlValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function urlValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UrlValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function urlValidatorIs(value: unknown): value is UrlValidator;
+/** @derive(Decode) */
+export declare class UuidValidator {
+	/** @endec({ validate: ["uuid"] }) */
+	id: string;
+	constructor(props: {
+		id: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: UuidValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): UuidValidator | __mf_PendingRef;
+	static validateField<K extends keyof UuidValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof UuidValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is UuidValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function uuidValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: UuidValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function uuidValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UuidValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function uuidValidatorIs(value: unknown): value is UuidValidator;
+/** @derive(Decode) */
+export declare class MaxLengthValidator {
+	/** @endec({ validate: ["maxLength(10)"] }) */
+	shortText: string;
+	constructor(props: {
+		shortText: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: MaxLengthValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): MaxLengthValidator | __mf_PendingRef;
+	static validateField<K extends keyof MaxLengthValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof MaxLengthValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is MaxLengthValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function maxLengthValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: MaxLengthValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function maxLengthValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): MaxLengthValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function maxLengthValidatorIs(value: unknown): value is MaxLengthValidator;
+/** @derive(Decode) */
+export declare class MinLengthValidator {
+	/** @endec({ validate: ["minLength(5)"] }) */
+	longText: string;
+	constructor(props: {
+		longText: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: MinLengthValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): MinLengthValidator | __mf_PendingRef;
+	static validateField<K extends keyof MinLengthValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof MinLengthValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is MinLengthValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function minLengthValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: MinLengthValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function minLengthValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): MinLengthValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function minLengthValidatorIs(value: unknown): value is MinLengthValidator;
+/** @derive(Decode) */
+export declare class LengthValidator {
+	/** @endec({ validate: ["length(8)"] }) */
+	fixedText: string;
+	constructor(props: {
+		fixedText: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: LengthValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): LengthValidator | __mf_PendingRef;
+	static validateField<K extends keyof LengthValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof LengthValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is LengthValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function lengthValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: LengthValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function lengthValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): LengthValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function lengthValidatorIs(value: unknown): value is LengthValidator;
+/** @derive(Decode) */
+export declare class LengthRangeValidator {
+	/** @endec({ validate: ["length(5, 10)"] }) */
+	rangedText: string;
+	constructor(props: {
+		rangedText: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: LengthRangeValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): LengthRangeValidator | __mf_PendingRef;
+	static validateField<K extends keyof LengthRangeValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof LengthRangeValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is LengthRangeValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function lengthRangeValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: LengthRangeValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function lengthRangeValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): LengthRangeValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function lengthRangeValidatorIs(value: unknown): value is LengthRangeValidator;
+/** @derive(Decode) */
+export declare class PatternValidator {
+	/** @endec({ validate: ['pattern("^[A-Z]{3}$")'] }) */
+	code: string;
+	constructor(props: {
+		code: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: PatternValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): PatternValidator | __mf_PendingRef;
+	static validateField<K extends keyof PatternValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof PatternValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is PatternValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function patternValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: PatternValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function patternValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): PatternValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function patternValidatorIs(value: unknown): value is PatternValidator;
+/** @derive(Decode) */
+export declare class NonEmptyValidator {
+	/** @endec({ validate: ["nonEmpty"] }) */
+	required: string;
+	constructor(props: {
+		required: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: NonEmptyValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): NonEmptyValidator | __mf_PendingRef;
+	static validateField<K extends keyof NonEmptyValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof NonEmptyValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is NonEmptyValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function nonEmptyValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NonEmptyValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function nonEmptyValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NonEmptyValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function nonEmptyValidatorIs(value: unknown): value is NonEmptyValidator;
+/** @derive(Decode) */
+export declare class TrimmedValidator {
+	/** @endec({ validate: ["trimmed"] }) */
+	trimmed: string;
+	constructor(props: {
+		trimmed: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: TrimmedValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): TrimmedValidator | __mf_PendingRef;
+	static validateField<K extends keyof TrimmedValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof TrimmedValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is TrimmedValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function trimmedValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: TrimmedValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function trimmedValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): TrimmedValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function trimmedValidatorIs(value: unknown): value is TrimmedValidator;
+/** @derive(Decode) */
+export declare class LowercaseValidator {
+	/** @endec({ validate: ["lowercase"] }) */
+	lower: string;
+	constructor(props: {
+		lower: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: LowercaseValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): LowercaseValidator | __mf_PendingRef;
+	static validateField<K extends keyof LowercaseValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof LowercaseValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is LowercaseValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function lowercaseValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: LowercaseValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function lowercaseValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): LowercaseValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function lowercaseValidatorIs(value: unknown): value is LowercaseValidator;
+/** @derive(Decode) */
+export declare class UppercaseValidator {
+	/** @endec({ validate: ["uppercase"] }) */
+	upper: string;
+	constructor(props: {
+		upper: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: UppercaseValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): UppercaseValidator | __mf_PendingRef;
+	static validateField<K extends keyof UppercaseValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof UppercaseValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is UppercaseValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function uppercaseValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: UppercaseValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function uppercaseValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UppercaseValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function uppercaseValidatorIs(value: unknown): value is UppercaseValidator;
+/** @derive(Decode) */
+export declare class CapitalizedValidator {
+	/** @endec({ validate: ["capitalized"] }) */
+	cap: string;
+	constructor(props: {
+		cap: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: CapitalizedValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): CapitalizedValidator | __mf_PendingRef;
+	static validateField<K extends keyof CapitalizedValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof CapitalizedValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is CapitalizedValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function capitalizedValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: CapitalizedValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function capitalizedValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CapitalizedValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function capitalizedValidatorIs(value: unknown): value is CapitalizedValidator;
+/** @derive(Decode) */
+export declare class UncapitalizedValidator {
+	/** @endec({ validate: ["uncapitalized"] }) */
+	uncap: string;
+	constructor(props: {
+		uncap: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: UncapitalizedValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): UncapitalizedValidator | __mf_PendingRef;
+	static validateField<K extends keyof UncapitalizedValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof UncapitalizedValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is UncapitalizedValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function uncapitalizedValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: UncapitalizedValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function uncapitalizedValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UncapitalizedValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function uncapitalizedValidatorIs(value: unknown): value is UncapitalizedValidator;
+/** @derive(Decode) */
+export declare class StartsWithValidator {
+	/** @endec({ validate: ['startsWith("https://")'] }) */
+	secureUrl: string;
+	constructor(props: {
+		secureUrl: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: StartsWithValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): StartsWithValidator | __mf_PendingRef;
+	static validateField<K extends keyof StartsWithValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof StartsWithValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is StartsWithValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function startsWithValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: StartsWithValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function startsWithValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): StartsWithValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function startsWithValidatorIs(value: unknown): value is StartsWithValidator;
+/** @derive(Decode) */
+export declare class EndsWithValidator {
+	/** @endec({ validate: ['endsWith(".json")'] }) */
+	filename: string;
+	constructor(props: {
+		filename: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: EndsWithValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): EndsWithValidator | __mf_PendingRef;
+	static validateField<K extends keyof EndsWithValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof EndsWithValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is EndsWithValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function endsWithValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: EndsWithValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function endsWithValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): EndsWithValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function endsWithValidatorIs(value: unknown): value is EndsWithValidator;
+/** @derive(Decode) */
+export declare class IncludesValidator {
+	/** @endec({ validate: ['includes("@")'] }) */
+	emailLike: string;
+	constructor(props: {
+		emailLike: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: IncludesValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): IncludesValidator | __mf_PendingRef;
+	static validateField<K extends keyof IncludesValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof IncludesValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is IncludesValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function includesValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: IncludesValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function includesValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): IncludesValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function includesValidatorIs(value: unknown): value is IncludesValidator;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..276 -> expanded 225..501
+original 276..277 -> expanded 6085..6086
+original 277..405 -> expanded 7194..7322
+original 405..406 -> expanded 12729..12730
+original 406..536 -> expanded 13820..13950
+original 536..537 -> expanded 19524..19525
+original 537..693 -> expanded 20624..20780
+original 693..694 -> expanded 26538..26539
+original 694..848 -> expanded 27683..27837
+original 848..849 -> expanded 33560..33561
+original 849..1003 -> expanded 34705..34859
+original 1003..1004 -> expanded 40551..40552
+original 1004..1190 -> expanded 41669..41855
+original 1190..1191 -> expanded 47778..47779
+original 1191..1346 -> expanded 48941..49096
+original 1346..1347 -> expanded 54668..54669
+original 1347..1495 -> expanded 55795..55943
+original 1495..1496 -> expanded 61608..61609
+original 1496..1640 -> expanded 62744..62888
+original 1640..1641 -> expanded 68513..68514
+original 1641..1789 -> expanded 69640..69788
+original 1789..1790 -> expanded 75418..75419
+original 1790..1938 -> expanded 76563..76711
+original 1938..1939 -> expanded 82341..82342
+original 1939..2091 -> expanded 83486..83638
+original 2091..2092 -> expanded 89334..89335
+original 2092..2252 -> expanded 90497..90657
+original 2252..2253 -> expanded 96471..96472
+original 2253..2420 -> expanded 97652..97819
+original 2420..2421 -> expanded 103620..103621
+original 2421..2578 -> expanded 104774..104931
+original 2578..2579 -> expanded 110626..110627
+original 2579..2733 -> expanded 111762..111916
+original 2733..2734 -> expanded 117616..117617
+original 2734..2735 -> expanded 118752..118753
+generated 0..225 <- imports
+generated 501..6085 <- Decode
+generated 6086..7194 <- Decode
+generated 7322..12729 <- Decode
+generated 12730..13820 <- Decode
+generated 13950..19524 <- Decode
+generated 19525..20624 <- Decode
+generated 20780..26538 <- Decode
+generated 26539..27683 <- Decode
+generated 27837..33560 <- Decode
+generated 33561..34705 <- Decode
+generated 34859..40551 <- Decode
+generated 40552..41669 <- Decode
+generated 41855..47778 <- Decode
+generated 47779..48941 <- Decode
+generated 49096..54668 <- Decode
+generated 54669..55795 <- Decode
+generated 55943..61608 <- Decode
+generated 61609..62744 <- Decode
+generated 62888..68513 <- Decode
+generated 68514..69640 <- Decode
+generated 69788..75418 <- Decode
+generated 75419..76563 <- Decode
+generated 76711..82341 <- Decode
+generated 82342..83486 <- Decode
+generated 83638..89334 <- Decode
+generated 89335..90497 <- Decode
+generated 90657..96471 <- Decode
+generated 96472..97652 <- Decode
+generated 97819..103620 <- Decode
+generated 103621..104774 <- Decode
+generated 104931..110626 <- Decode
+generated 110627..111762 <- Decode
+generated 111916..117616 <- Decode
+generated 117617..118752 <- Decode
+
+## Metadata
+
+class EmailValidator: {"body_span":{"end":278,"start":213},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":184,"start":162}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"email\"] }","name":"endec","span":{"end":257,"start":219}}],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":276,"start":262},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EmailValidator","span":{"end":278,"start":192},"type_params":[]}
+class UrlValidator: {"body_span":{"end":407,"start":346},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":319,"start":297}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"url\"] }","name":"endec","span":{"end":388,"start":352}}],"initializer":null,"name":"url","optional":false,"readonly":false,"span":{"end":405,"start":393},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UrlValidator","span":{"end":407,"start":327},"type_params":[]}
+class UuidValidator: {"body_span":{"end":538,"start":477},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":449,"start":427}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uuid\"] }","name":"endec","span":{"end":520,"start":483}}],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":536,"start":525},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UuidValidator","span":{"end":538,"start":457},"type_params":[]}
+class MaxLengthValidator: {"body_span":{"end":695,"start":618},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":585,"start":563}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"maxLength(10)\"] }","name":"endec","span":{"end":670,"start":624}}],"initializer":null,"name":"shortText","optional":false,"readonly":false,"span":{"end":693,"start":675},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MaxLengthValidator","span":{"end":695,"start":593},"type_params":[]}
+class MinLengthValidator: {"body_span":{"end":850,"start":775},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":742,"start":720}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minLength(5)\"] }","name":"endec","span":{"end":826,"start":781}}],"initializer":null,"name":"longText","optional":false,"readonly":false,"span":{"end":848,"start":831},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MinLengthValidator","span":{"end":850,"start":750},"type_params":[]}
+class LengthValidator: {"body_span":{"end":1005,"start":932},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":902,"start":880}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"length(8)\"] }","name":"endec","span":{"end":980,"start":938}}],"initializer":null,"name":"fixedText","optional":false,"readonly":false,"span":{"end":1003,"start":985},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LengthValidator","span":{"end":1005,"start":910},"type_params":[]}
+class LengthRangeValidator: {"body_span":{"end":1192,"start":1114},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1079,"start":1057}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"length(5, 10)\"] }","name":"endec","span":{"end":1166,"start":1120}}],"initializer":null,"name":"rangedText","optional":false,"readonly":false,"span":{"end":1190,"start":1171},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LengthRangeValidator","span":{"end":1192,"start":1087},"type_params":[]}
+class PatternValidator: {"body_span":{"end":1348,"start":1268},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1237,"start":1215}}],"fields":[{"decorators":[{"args_src":"{ validate: ['pattern(\"^[A-Z]{3}$\")'] }","name":"endec","span":{"end":1328,"start":1274}}],"initializer":null,"name":"code","optional":false,"readonly":false,"span":{"end":1346,"start":1333},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"PatternValidator","span":{"end":1348,"start":1245},"type_params":[]}
+class NonEmptyValidator: {"body_span":{"end":1497,"start":1426},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1394,"start":1372}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1473,"start":1432}}],"initializer":null,"name":"required","optional":false,"readonly":false,"span":{"end":1495,"start":1478},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonEmptyValidator","span":{"end":1497,"start":1402},"type_params":[]}
+class TrimmedValidator: {"body_span":{"end":1642,"start":1573},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1542,"start":1520}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"trimmed\"] }","name":"endec","span":{"end":1619,"start":1579}}],"initializer":null,"name":"trimmed","optional":false,"readonly":false,"span":{"end":1640,"start":1624},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"TrimmedValidator","span":{"end":1642,"start":1550},"type_params":[]}
+class LowercaseValidator: {"body_span":{"end":1791,"start":1722},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1689,"start":1667}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lowercase\"] }","name":"endec","span":{"end":1770,"start":1728}}],"initializer":null,"name":"lower","optional":false,"readonly":false,"span":{"end":1789,"start":1775},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LowercaseValidator","span":{"end":1791,"start":1697},"type_params":[]}
+class UppercaseValidator: {"body_span":{"end":1940,"start":1871},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1838,"start":1816}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uppercase\"] }","name":"endec","span":{"end":1919,"start":1877}}],"initializer":null,"name":"upper","optional":false,"readonly":false,"span":{"end":1938,"start":1924},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UppercaseValidator","span":{"end":1940,"start":1846},"type_params":[]}
+class CapitalizedValidator: {"body_span":{"end":2093,"start":2024},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1989,"start":1967}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"capitalized\"] }","name":"endec","span":{"end":2074,"start":2030}}],"initializer":null,"name":"cap","optional":false,"readonly":false,"span":{"end":2091,"start":2079},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CapitalizedValidator","span":{"end":2093,"start":1997},"type_params":[]}
+class UncapitalizedValidator: {"body_span":{"end":2254,"start":2181},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2144,"start":2122}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uncapitalized\"] }","name":"endec","span":{"end":2233,"start":2187}}],"initializer":null,"name":"uncap","optional":false,"readonly":false,"span":{"end":2252,"start":2238},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UncapitalizedValidator","span":{"end":2254,"start":2152},"type_params":[]}
+class StartsWithValidator: {"body_span":{"end":2422,"start":2336},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2302,"start":2280}}],"fields":[{"decorators":[{"args_src":"{ validate: ['startsWith(\"https://\")'] }","name":"endec","span":{"end":2397,"start":2342}}],"initializer":null,"name":"secureUrl","optional":false,"readonly":false,"span":{"end":2420,"start":2402},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"StartsWithValidator","span":{"end":2422,"start":2310},"type_params":[]}
+class EndsWithValidator: {"body_span":{"end":2580,"start":2500},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2468,"start":2446}}],"fields":[{"decorators":[{"args_src":"{ validate: ['endsWith(\".json\")'] }","name":"endec","span":{"end":2556,"start":2506}}],"initializer":null,"name":"filename","optional":false,"readonly":false,"span":{"end":2578,"start":2561},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EndsWithValidator","span":{"end":2580,"start":2476},"type_params":[]}
+class IncludesValidator: {"body_span":{"end":2735,"start":2658},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2626,"start":2604}}],"fields":[{"decorators":[{"args_src":"{ validate: ['includes(\"@\")'] }","name":"endec","span":{"end":2710,"start":2664}}],"initializer":null,"name":"emailLike","optional":false,"readonly":false,"span":{"end":2733,"start":2715},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"IncludesValidator","span":{"end":2735,"start":2634},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

@@ -165,7 +165,9 @@ password: string;
 
 ## Validating without decoding
 
-Generated types also expose the validators directly, which is useful for form validation:
+Generated types also expose the validators directly, which is useful for form validation. They take
+input that has not been decoded yet, such as a form's draft, so a value need not satisfy the field's
+type to be checked:
 
 ```typescript
 User.validateField('email', 'not-an-email');

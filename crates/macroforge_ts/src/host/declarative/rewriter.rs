@@ -1025,7 +1025,7 @@ fn try_dispatch_proc_call(
     visitor.output.imports.extend(result.imports);
 
     if let Some(debug) = result.debug {
-        crate::debug::log(&format!("${name_without_dollar}"), &debug);
+        crate::debug::log_carried_for_file(&ctx.file_name, &debug);
     }
 
     true

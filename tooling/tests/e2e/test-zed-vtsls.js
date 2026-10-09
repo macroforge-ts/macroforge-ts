@@ -54,7 +54,7 @@ const lspMessage = (id, method, params) => {
 // Send initialize with our plugin config - using vtsls.tsserver namespace
 const initParams = {
     processId: process.pid,
-    rootUri: `file://${path.join(REPO_ROOT, 'playground', 'svelte')}`,
+    rootUri: `file://${path.join(REPO_ROOT, 'testground', 'svelte')}`,
     capabilities: {},
     initializationOptions: {
         vtsls: {

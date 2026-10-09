@@ -7,6 +7,7 @@ Each macro has its own options and behaviors:
 - [**Default**](../docs/builtin-macros/default) - Default value generation with field attributes
 - [**Hash**](../docs/builtin-macros/hash) - Hash code generation for use in maps and sets
 - [**PartialEq**](../docs/builtin-macros/partial-eq) - Value-based equality comparison
+- [**Eq**](../docs/builtin-macros/eq) - Marks equality as total, as Rust's `Eq`
 - [**Ord**](../docs/builtin-macros/ord) - Total ordering for sorting
 - [**PartialOrd**](../docs/builtin-macros/partial-ord) - Partial ordering comparison
 - [**Encode**](../docs/builtin-macros/encode) - JSON encoding with endec-style options

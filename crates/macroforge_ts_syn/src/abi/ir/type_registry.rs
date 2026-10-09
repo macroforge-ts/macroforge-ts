@@ -499,7 +499,7 @@ pub enum Resolution {
 }
 
 /// The version of the compact wire form [`RegistryWire`] writes.
-const WIRE_VERSION: u32 = 2;
+const WIRE_VERSION: u32 = 3;
 
 /// The registry's serialized form. Each entry is written once, under its
 /// qualified key, and each file's imports once, so a project registry is a
@@ -664,6 +664,12 @@ impl<'de> serde::de::Visitor<'de> for RegistryVisitor {
         let mut unmatched_types: Option<HashMap<String, WireEntryData>> = None;
         let mut file_imports: Option<HashMap<String, Vec<FileImportEntry>>> = None;
         while let Some(key) = map.next_key::<String>()? {
+            // A registry in another wire version is refused below; its other
+            // fields need not, and may not, parse as this version's.
+            if version.is_some_and(|written| written != WIRE_VERSION) {
+                map.next_value::<serde::de::IgnoredAny>()?;
+                continue;
+            }
             match key.as_str() {
                 "types" => types = Some(map.next_value()?),
                 "qualified_types" => qualified_types = Some(map.next_value()?),
@@ -919,17 +925,7 @@ impl TypeRegistry {
         let TypeDefinitionIR::TypeAlias(alias) = &entry.definition else {
             return None;
         };
-        let references: Vec<&str> = match &alias.body {
-            TypeBody::Alias(target) => vec![target.as_str()],
-            TypeBody::Union(members) | TypeBody::Intersection(members) => members
-                .iter()
-                .filter_map(|member| match &member.kind {
-                    TypeMemberKind::TypeRef(referenced) => Some(referenced.as_str()),
-                    _ => None,
-                })
-                .collect(),
-            TypeBody::Object { .. } | TypeBody::Tuple(_) | TypeBody::Other(_) => Vec::new(),
-        };
+        let references = body_references(&alias.body);
         path.push(name.to_string());
         let found = references
             .into_iter()
@@ -1154,6 +1150,42 @@ fn file_path_module_matches(file_path: &str, needle: &str) -> bool {
         .is_some_and(|rest| rest.starts_with('.'))
 }
 
+/// The types an alias body names directly, for following alias chains.
+fn body_references(body: &TypeBody) -> Vec<&str> {
+    match body {
+        TypeBody::Alias(target) => alias_reference(target).into_iter().collect(),
+        TypeBody::Union(members) | TypeBody::Intersection(members) => members
+            .iter()
+            .filter_map(|member| match &member.kind {
+                TypeMemberKind::TypeRef(referenced) => Some(referenced.as_str()),
+                TypeMemberKind::Literal(_)
+                | TypeMemberKind::Object { .. }
+                | TypeMemberKind::Intersection(_)
+                | TypeMemberKind::Brand(_) => None,
+            })
+            .collect(),
+        TypeBody::Newtype(inner) => body_references(inner),
+        TypeBody::Object { .. } | TypeBody::Tuple(_) | TypeBody::Other(_) => Vec::new(),
+    }
+}
+
+/// The type an alias body names directly: `Wrap` for `Wrap<A>`, `A` for `A`.
+/// An array (`A[]`) or any other form names nothing, since TypeScript accepts
+/// an alias that recurses through one.
+fn alias_reference(target: &str) -> Option<&str> {
+    let trimmed = target.trim();
+    let name = match trimmed.find('<') {
+        Some(open) if trimmed.ends_with('>') => trimmed.get(..open)?.trim_end(),
+        Some(_) => return None,
+        None => trimmed,
+    };
+    (!name.is_empty()
+        && name
+            .chars()
+            .all(|c| c.is_alphanumeric() || c == '_' || c == '$' || c == '.'))
+    .then_some(name)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1232,6 +1264,33 @@ mod tests {
             Some(vec!["A".to_string(), "B".to_string(), "A".to_string()])
         );
         assert_eq!(registry.alias_cycle("C"), None);
+    }
+
+    #[test]
+    fn alias_cycle_follows_a_generic_reference_but_not_an_array() {
+        let mut registry = TypeRegistry::new();
+        registry.insert(
+            make_alias_entry("Wrap", TypeBody::Alias("Loop<string>".to_string())),
+            "/project",
+        );
+        registry.insert(
+            make_alias_entry("Loop", TypeBody::Alias("Wrap".to_string())),
+            "/project",
+        );
+        registry.insert(
+            make_alias_entry("Tree", TypeBody::Alias("Tree[]".to_string())),
+            "/project",
+        );
+
+        assert_eq!(
+            registry.alias_cycle("Wrap"),
+            Some(vec![
+                "Wrap".to_string(),
+                "Loop".to_string(),
+                "Wrap".to_string()
+            ])
+        );
+        assert_eq!(registry.alias_cycle("Tree"), None);
     }
 
     #[test]
@@ -1689,6 +1748,18 @@ mod tests {
         assert_eq!(
             resolution(SpanIR::new(0, 10)),
             resolution(SpanIR::new(100, 110))
+        );
+    }
+
+    #[test]
+    fn a_registry_in_an_older_wire_version_is_refused_by_version() {
+        // Version 2 wrote type parameters as bare names.
+        let json = r#"{"version":2,"entries":{"a.ts::Box":{"type_params":["T"]}},"primary":{}}"#;
+        let error = serde_json::from_str::<TypeRegistry>(json)
+            .expect_err("an older wire version is refused");
+        assert!(
+            error.to_string().contains("wire version 2"),
+            "unexpected error: {error}"
         );
     }
 

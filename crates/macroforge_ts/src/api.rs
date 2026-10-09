@@ -354,6 +354,16 @@ impl CoreEngine {
             {
                 eprintln!("[macroforge] warning: could not persist the scan cache: {error:#}");
             }
+            if output.macro_files > 0 {
+                crate::host::config::hoist::sync_expanded_config(&cached.root_dir).map_err(
+                    |error| {
+                        format!(
+                            "could not expand the config of {}: {error}",
+                            cached.root_dir.display()
+                        )
+                    },
+                )?;
+            }
             let json = match cached.last_json.take().filter(|_| !output.changed) {
                 Some(json) => json,
                 None => registries_json(&output)?,

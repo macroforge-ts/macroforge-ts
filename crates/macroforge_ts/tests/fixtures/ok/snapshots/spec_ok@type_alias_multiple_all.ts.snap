@@ -17,11 +17,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
-import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
-import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 type Coordinate = {
     lat: number;
@@ -29,1175 +26,187 @@ type Coordinate = {
 };
 
 export function coordinateToString(value: Coordinate): string {
-                            const parts: string[] = [];
-                            parts.push("lat: " + value.lat);
-parts.push("lng: " + value.lng);
-
-                            return "Coordinate { " + parts.join(", ") + " }";
-                        }
+    const parts: string[] = [];
+    parts.push("lat: " + String(value.lat));
+    parts.push("lng: " + String(value.lng));
+    return "Coordinate { " + parts.join(", ") + " }";
+}
 
 export function coordinateClone(value: Coordinate): Coordinate {
-                        const result = {} as any;
-                        result.lat = value.lat;
-result.lng = value.lng;
-
-                        return result as Coordinate;
-                    }
+    return ({
+	lat: value.lat,
+	lng: value.lng
+});
+}
 
 export function coordinateEquals(a: Coordinate, b: Coordinate): boolean {
-                        if (a === b) return true;
-                        return a.lat === b.lat && a.lng === b.lng;
-                    }
+    if (a === b) return true;
+    return a.lat === b.lat && a.lng === b.lng;
+}
 
 export function coordinateHashCode(value: Coordinate): number {
-                        let hash = 17;hash = (hash * 31 + (Number.isInteger(value.lat) ? value.lat | 0 : value.lat.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + (Number.isInteger(value.lng) ? value.lng | 0 : value.lng.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-
-
-
-
-                        return hash;
-                    }
+    let hash = 17;
+    hash = (hash * 31 + (Number.isInteger(value.lat) ? value.lat | 0 : value.lat.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.lng) ? value.lng | 0 : value.lng.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    return hash;
+}
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function coordinateEncode(value: Coordinate, keepMetadata?: boolean): string {
-                            const ctx = __mf_EncodeContext.create();
-                            const __raw = coordinateEncodeWithContext(value, ctx);
-                            if (keepMetadata) return JSON.stringify(__raw);
-                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                        }
+export function coordinateEncode(value: Coordinate, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = coordinateEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
 
-                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                        export function coordinateEncodeWithContext(value: Coordinate, ctx: __mf_EncodeContext): Record<string, unknown> {
-                            const existingId = ctx.getId(value);
-                            if (existingId !== undefined) {
-                                return { __ref: existingId };
-                            }
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function coordinateEncodeWithContext(value: Coordinate, ctx: __mf_EncodeContext): Record<string, unknown> {
 
-                            const __id = ctx.register(value);
-                            const result: Record<string, unknown> = {
-                                "__type": "Coordinate",
-                                __id,
-                            };result.lat = value.lat;result.lng = value.lng;
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
 
+    const __id = ctx.register(value);
 
+    const result: Record<string, unknown> = {
+        "__type": "Coordinate",
+        __id,
+    };
 
+    
+    result.lat = value.lat;
+    result.lng = value.lng;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                            return result;
-                        }
+    return result;
+}
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-            export function coordinateDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Coordinate } | { success: false; errors: Array<{ field: string; message: string }> } {
-                try {
+export function coordinateDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Coordinate } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
 
-                    const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DecodeContext.create();
-                    const resultOrRef = coordinateDecodeWithContext(data, ctx);
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = coordinateDecodeWithContext(data, ctx);
 
-                    if (__mf_PendingRef.is(resultOrRef)) {
-                        return ({
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
 	success: false,
 	errors: [{
 		field: "_root",
 		message: "Coordinate.decode: root cannot be a forward reference"
 	}]
 });
-                    }
+        }
 
-                    ctx.applyPatches();
-                    if (opts?.freeze) {
-                        ctx.freezeAll();
-                    }
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
 
-                    const __errors = ctx.getErrors();
-                    if (__errors.length > 0) {
-                        return ({
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
 	success: false,
 	errors: __errors
 });
-                    }
+        }
 
-                    return ({
+        return ({
 	success: true,
 	value: resultOrRef
 });
-                } catch (e) {
-                    if (e instanceof __mf_DecodeError) {
-                        return ({
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
 	success: false,
 	errors: e.errors
 });
-                    }
-                    const message = e instanceof Error ? e.message : String(e);
-                    return ({
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
 	success: false,
 	errors: [{
 		field: "_root",
 		message
 	}]
 });
-                }
-            }
-
-            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-            export function coordinateDecodeWithContext(value: any, ctx: __mf_DecodeContext): Coordinate | __mf_PendingRef {
-                if (value?.__ref !== undefined) {
-                    return ctx.getOrDefer(value.__ref) as Coordinate | __mf_PendingRef;
-                }
-
-                if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DecodeError([{ field: "_root", message: "Coordinate.decodeWithContext: expected an object" }]);
-                }
-
-                const obj = value as Record<string, unknown>;
-                const errors: Array<{ field: string; message: string }> = [];if (!("lat" in obj)) {
-                            errors.push({ field: "lat", message: "missing required field" });
-                        }if (!("lng" in obj)) {
-                            errors.push({ field: "lng", message: "missing required field" });
-                        }
-
-
-
-
-
-
-
-                const instance: any = {};
-
-                if (obj.__id !== undefined) {
-                    ctx.register(obj.__id as number, instance);
-                }
-
-                ctx.trackForFreeze(instance);{
-                                const __raw_lat = obj["lat"] as number;if (!(typeof __raw_lat === "number")) {
-                                                    errors.push({ field: "lat", message: __raw_lat == null ? "Coordinate.lat is required" : "expected number" });
-                                                } else {
-
-
-
-                                                    instance.lat = __raw_lat;
-                                                }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                            }{
-                                const __raw_lng = obj["lng"] as number;if (!(typeof __raw_lng === "number")) {
-                                                    errors.push({ field: "lng", message: __raw_lng == null ? "Coordinate.lng is required" : "expected number" });
-                                                } else {
-
-
-
-                                                    instance.lng = __raw_lng;
-                                                }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                            }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                ctx.pushErrors(errors);
-
-                return instance as Coordinate;
-            }
-
-            export function coordinateValidateField<K extends keyof Coordinate>(
-                _field: K,
-                _value: Coordinate[K]
-            ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-            }
-
-            export function coordinateValidateFields(
-                _partial: Partial<Coordinate>
-            ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-            }
-
-            export function coordinateHasShape(obj: unknown): boolean {
-                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-                    return false;
-                }const o = obj as Record<string, unknown>;
-                    return "lat" in o && "lng" in o;
-
-
-
-
-
-            }
-
-            export function coordinateIs(obj: unknown): obj is Coordinate {
-                return coordinateHasShape(obj);
-            }
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function coordinateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Coordinate | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Coordinate.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Coordinate | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Coordinate.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("lat" in obj)) {
+        errors.push({ field: "lat", message: "missing required field" });
+    }
+    if (!("lng" in obj)) {
+        errors.push({ field: "lng", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_lat = obj["lat"] as number;
+
+        if (!(typeof __raw_lat === "number")) {
+            errors.push({ field: "lat", message: __raw_lat == null ? "Coordinate.lat is required" : "expected number" });
+        } else {
+            instance.lat = __raw_lat;
+        }
+    }
+    {
+        const __raw_lng = obj["lng"] as number;
+
+        if (!(typeof __raw_lng === "number")) {
+            errors.push({ field: "lng", message: __raw_lng == null ? "Coordinate.lng is required" : "expected number" });
+        } else {
+            instance.lng = __raw_lng;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Coordinate;
+}
+export function coordinateValidateField<K extends keyof Coordinate>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function coordinateValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function coordinateValidateFields(partial: { readonly [K in keyof Coordinate]?: unknown }): Array<{ field: string; message: string }>;
+export function coordinateValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function coordinateHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "lat" in o && "lng" in o;
+}
+
+export function coordinateIs(obj: unknown): obj is Coordinate {
+    return coordinateHasShape(obj) && coordinateDecode(obj).success;
+}
 
 const Coordinate: {
   readonly toString: typeof coordinateToString;
@@ -1208,6 +217,7 @@ const Coordinate: {
   readonly encodeWithContext: typeof coordinateEncodeWithContext;
   readonly decode: typeof coordinateDecode;
   readonly decodeWithContext: typeof coordinateDecodeWithContext;
+  readonly validateField: typeof coordinateValidateField;
   readonly validateFields: typeof coordinateValidateFields;
   readonly hasShape: typeof coordinateHasShape;
   readonly is: typeof coordinateIs;
@@ -1220,6 +230,7 @@ const Coordinate: {
   encodeWithContext: coordinateEncodeWithContext,
   decode: coordinateDecode,
   decodeWithContext: coordinateDecodeWithContext,
+  validateField: coordinateValidateField,
   validateFields: coordinateValidateFields,
   hasShape: coordinateHasShape,
   is: coordinateIs
@@ -1228,1206 +239,41 @@ const Coordinate: {
 ## DTS
 
 type Coordinate = {
-    lat: number;
-    lng: number;
+	lat: number;
+	lng: number;
 };
-
-export function coordinateToString(value: Coordinate): string {
-                            const parts: string[] = [];
-                            parts.push("lat: " + value.lat);
-parts.push("lng: " + value.lng);
-
-                            return "Coordinate { " + parts.join(", ") + " }";
-                        }
-
-export function coordinateClone(value: Coordinate): Coordinate {
-                        const result = {} as any;
-                        result.lat = value.lat;
-result.lng = value.lng;
-
-                        return result as Coordinate;
-                    }
-
-export function coordinateEquals(a: Coordinate, b: Coordinate): boolean {
-                        if (a === b) return true;
-                        return a.lat === b.lat && a.lng === b.lng;
-                    }
-
-export function coordinateHashCode(value: Coordinate): number {
-                        let hash = 17;hash = (hash * 31 + (Number.isInteger(value.lat) ? value.lat | 0 : value.lat.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + (Number.isInteger(value.lng) ? value.lng | 0 : value.lng.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-
-
-
-
-                        return hash;
-                    }
-
+export declare function coordinateToString(value: Coordinate): string;
+export declare function coordinateClone(value: Coordinate): Coordinate;
+export declare function coordinateEquals(a: Coordinate, b: Coordinate): boolean;
+export declare function coordinateHashCode(value: Coordinate): number;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function coordinateEncode(value: Coordinate, keepMetadata?: boolean): string {
-                            const ctx = __mf_EncodeContext.create();
-                            const __raw = coordinateEncodeWithContext(value, ctx);
-                            if (keepMetadata) return JSON.stringify(__raw);
-                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                        }
-
-                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                        export function coordinateEncodeWithContext(value: Coordinate, ctx: __mf_EncodeContext): Record<string, unknown> {
-                            const existingId = ctx.getId(value);
-                            if (existingId !== undefined) {
-                                return { __ref: existingId };
-                            }
-
-                            const __id = ctx.register(value);
-                            const result: Record<string, unknown> = {
-                                "__type": "Coordinate",
-                                __id,
-                            };result.lat = value.lat;result.lng = value.lng;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                            return result;
-                        }
-
+export declare function coordinateEncode(value: Coordinate, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function coordinateEncodeWithContext(value: Coordinate, ctx: __mf_EncodeContext): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-            export function coordinateDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Coordinate } | { success: false; errors: Array<{ field: string; message: string }> } {
-                try {
-
-                    const data = typeof input === "string" ? JSON.parse(input) : input;
-
-                    const ctx = __mf_DecodeContext.create();
-                    const resultOrRef = coordinateDecodeWithContext(data, ctx);
-
-                    if (__mf_PendingRef.is(resultOrRef)) {
-                        return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message: "Coordinate.decode: root cannot be a forward reference"
-	}]
-});
-                    }
-
-                    ctx.applyPatches();
-                    if (opts?.freeze) {
-                        ctx.freezeAll();
-                    }
-
-                    const __errors = ctx.getErrors();
-                    if (__errors.length > 0) {
-                        return ({
-	success: false,
-	errors: __errors
-});
-                    }
-
-                    return ({
-	success: true,
-	value: resultOrRef
-});
-                } catch (e) {
-                    if (e instanceof __mf_DecodeError) {
-                        return ({
-	success: false,
-	errors: e.errors
-});
-                    }
-                    const message = e instanceof Error ? e.message : String(e);
-                    return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message
-	}]
-});
-                }
-            }
-
-            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-            export function coordinateDecodeWithContext(value: any, ctx: __mf_DecodeContext): Coordinate | __mf_PendingRef {
-                if (value?.__ref !== undefined) {
-                    return ctx.getOrDefer(value.__ref) as Coordinate | __mf_PendingRef;
-                }
-
-                if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DecodeError([{ field: "_root", message: "Coordinate.decodeWithContext: expected an object" }]);
-                }
-
-                const obj = value as Record<string, unknown>;
-                const errors: Array<{ field: string; message: string }> = [];if (!("lat" in obj)) {
-                            errors.push({ field: "lat", message: "missing required field" });
-                        }if (!("lng" in obj)) {
-                            errors.push({ field: "lng", message: "missing required field" });
-                        }
-
-
-
-
-
-
-
-                const instance: any = {};
-
-                if (obj.__id !== undefined) {
-                    ctx.register(obj.__id as number, instance);
-                }
-
-                ctx.trackForFreeze(instance);{
-                                const __raw_lat = obj["lat"] as number;if (!(typeof __raw_lat === "number")) {
-                                                    errors.push({ field: "lat", message: __raw_lat == null ? "Coordinate.lat is required" : "expected number" });
-                                                } else {
-
-
-
-                                                    instance.lat = __raw_lat;
-                                                }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                            }{
-                                const __raw_lng = obj["lng"] as number;if (!(typeof __raw_lng === "number")) {
-                                                    errors.push({ field: "lng", message: __raw_lng == null ? "Coordinate.lng is required" : "expected number" });
-                                                } else {
-
-
-
-                                                    instance.lng = __raw_lng;
-                                                }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                            }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                ctx.pushErrors(errors);
-
-                return instance as Coordinate;
-            }
-
-            export function coordinateValidateField<K extends keyof Coordinate>(
-                _field: K,
-                _value: Coordinate[K]
-            ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-            }
-
-            export function coordinateValidateFields(
-                _partial: Partial<Coordinate>
-            ): Array<{ field: string; message: string }> {return [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-            }
-
-            export function coordinateHasShape(obj: unknown): boolean {
-                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-                    return false;
-                }const o = obj as Record<string, unknown>;
-                    return "lat" in o && "lng" in o;
-
-
-
-
-
-            }
-
-            export function coordinateIs(obj: unknown): obj is Coordinate {
-                return coordinateHasShape(obj);
-            }
-
-const Coordinate: {
-  readonly toString: typeof coordinateToString;
-  readonly clone: typeof coordinateClone;
-  readonly equals: typeof coordinateEquals;
-  readonly hashCode: typeof coordinateHashCode;
-  readonly encode: typeof coordinateEncode;
-  readonly encodeWithContext: typeof coordinateEncodeWithContext;
-  readonly decode: typeof coordinateDecode;
-  readonly decodeWithContext: typeof coordinateDecodeWithContext;
-  readonly validateFields: typeof coordinateValidateFields;
-  readonly hasShape: typeof coordinateHasShape;
-  readonly is: typeof coordinateIs;
-} = {
-  toString: coordinateToString,
-  clone: coordinateClone,
-  equals: coordinateEquals,
-  hashCode: coordinateHashCode,
-  encode: coordinateEncode,
-  encodeWithContext: coordinateEncodeWithContext,
-  decode: coordinateDecode,
-  decodeWithContext: coordinateDecodeWithContext,
-  validateFields: coordinateValidateFields,
-  hasShape: coordinateHasShape,
-  is: coordinateIs
+export declare function coordinateDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Coordinate;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
 };
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function coordinateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Coordinate | __mf_PendingRef;
+export declare function coordinateValidateField<K extends keyof Coordinate>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function coordinateValidateFields(partial: { readonly [K in keyof Coordinate]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function coordinateHasShape(obj: unknown): boolean;
+export declare function coordinateIs(obj: unknown): obj is Coordinate;
+export {};
 
 ## Diagnostics
 
@@ -2435,16 +281,16 @@ const Coordinate: {
 
 ## Mapping
 
-original 61..118 -> expanded 385..442
-original 118..119 -> expanded 10263..10264
-generated 0..385 <- imports
-generated 442..762 <- Debug
-generated 762..1026 <- Clone
-generated 1026..1240 <- PartialEq
-generated 1240..1715 <- Hash
-generated 1715..3316 <- Encode
-generated 3316..9318 <- Decode
-generated 9318..10263 <- __convenience_const
+original 61..118 -> expanded 262..319
+original 118..119 -> expanded 7721..7722
+generated 0..262 <- imports
+generated 319..562 <- Debug
+generated 562..681 <- Clone
+generated 681..835 <- PartialEq
+generated 835..1256 <- Hash
+generated 1256..2398 <- Encode
+generated 2398..6676 <- Decode
+generated 6676..7721 <- __convenience_const
 
 ## Metadata
 

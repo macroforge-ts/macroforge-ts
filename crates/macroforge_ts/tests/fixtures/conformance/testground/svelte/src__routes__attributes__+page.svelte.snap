@@ -1,0 +1,39 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/routes/attributes/+page.svelte
+sha256 b9e43ac2717630a54b11b07c103e10bad74b420642487a90b8d442a8b51dcce8
+
+## Changed
+
+false
+
+## Output
+
+(unchanged)
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+(none)
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

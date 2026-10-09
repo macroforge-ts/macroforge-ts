@@ -1,0 +1,39 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+macroforge.config.ts
+sha256 93895634e096bb1b083a3ad3c25c6e83f423d8c3465bf6e280f8aef25a033151
+
+## Changed
+
+false
+
+## Output
+
+(unchanged)
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+(none)
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

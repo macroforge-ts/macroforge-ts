@@ -951,7 +951,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d045de693cb712d0b22c6a64be5b953f67b3ce00ab5ad3dd5d8b441886ab8e1a"
 dependencies = [
  "quote",
- "syn 3.0.6",
+ "syn 2.0.119",
 ]
 
 [[package]]
@@ -2040,7 +2040,7 @@ checksum = "dae608c151f68243f2b000364e1f7b186d9c29845f7d2d85bd31b9ad77ad552b"
 
 [[package]]
 name = "macroforge_ts"
-version = "0.4.0"
+version = "0.5.0"
 dependencies = [
  "anyhow",
  "boa_engine",
@@ -2060,12 +2060,14 @@ dependencies = [
  "macroforge_ts_syn",
  "notify-debouncer-full",
  "oxc",
+ "pathdiff",
  "postcard",
  "rayon",
  "serde",
  "serde-wasm-bindgen",
  "serde_json",
  "sha2 0.11.0",
+ "strsim",
  "tempfile",
  "thiserror 2.0.21",
  "trybuild",
@@ -2077,7 +2079,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_macros"
-version = "0.4.0"
+version = "0.5.0"
 dependencies = [
  "convert_case",
  "proc-macro2",
@@ -2087,7 +2089,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_quote"
-version = "0.4.0"
+version = "0.5.0"
 dependencies = [
  "anyhow",
  "oxc",
@@ -2099,11 +2101,12 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_syn"
-version = "0.4.0"
+version = "0.5.0"
 dependencies = [
  "indexmap",
  "oxc",
  "pathdiff",
+ "proc-macro2",
  "serde",
  "serde_json",
  "thiserror 2.0.21",
@@ -2385,6 +2388,7 @@ dependencies = [
  "oxc_ast_visit",
  "oxc_codegen",
  "oxc_diagnostics",
+ "oxc_isolated_declarations",
  "oxc_parser",
  "oxc_regular_expression",
  "oxc_semantic",
@@ -2556,6 +2560,24 @@ checksum = "191884bee6c3744909a51acc7d78d4ae370d817b25875b10642f632327b6296e"
 dependencies = [
  "nonmax",
  "serde",
+]
+
+[[package]]
+name = "oxc_isolated_declarations"
+version = "0.152.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ca2179ba21fb1f3d77123efc76bb0c63e484be3ae6a74b6930aec9bb4262cd5a"
+dependencies = [
+ "bitflags",
+ "oxc_allocator",
+ "oxc_ast",
+ "oxc_ast_visit",
+ "oxc_diagnostics",
+ "oxc_ecmascript",
+ "oxc_span",
+ "oxc_str",
+ "oxc_syntax",
+ "rustc-hash",
 ]
 
 [[package]]
@@ -4801,9 +4823,9 @@ dependencies = [
 
 [[package]]
 name = "yoke-derive"
-version = "0.8.3"
+version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33811428bee40dbceb6d545e95754741d17a6aef9a4849f0fd62e2ba4f412a78"
+checksum = "ec8ebde2db3681e8c9980cc27822030e68752690ddfa9473e739aeb4dbde6d71"
 dependencies = [
  "proc-macro2",
  "quote",

@@ -21,7 +21,8 @@
 
 use std::collections::HashMap;
 
-use super::type_alias::{TypeBody, TypeMember, TypeMemberKind};
+use super::type_alias::{TypeAliasIR, TypeBody, TypeMember, TypeMemberKind};
+use super::type_alias_scope::adopt_alias_scope;
 use super::type_registry::{FileImportEntry, TypeDefinitionIR, TypeRegistry};
 
 const MAX_DEPTH: u8 = 16;
@@ -79,10 +80,16 @@ fn resolve_recursive(
 
     // `T[]`: recurse into element type.
     if let Some(inner) = trimmed.strip_suffix("[]") {
-        return format!(
-            "{}[]",
-            resolve_recursive(inner, registry, caller_file_path, file_imports, depth + 1)
-        );
+        let element = resolve_recursive(inner, registry, caller_file_path, file_imports, depth + 1);
+        // `[]` binds tighter than `|` and `&`, so a compound element keeps
+        // its parentheses.
+        let compound = split_top_level_union(&element).is_some()
+            || split_top_level_intersection(&element).is_some();
+        return if compound {
+            format!("({element})[]")
+        } else {
+            format!("{element}[]")
+        };
     }
 
     // Generic: `Base<args>`.
@@ -126,6 +133,58 @@ fn try_expand_alias(
     caller_file_path: &str,
     file_imports: &[FileImportEntry],
 ) -> Option<String> {
+    instantiate_alias(
+        base,
+        resolved_args,
+        registry,
+        caller_file_path,
+        file_imports,
+        |alias, subs| render_body(&alias.body, subs),
+    )
+}
+
+/// The member of the generic alias instantiated by `ts_type` that the alias
+/// marks `/** @default */`, with its parameters substituted: `RecordId` for
+/// `RecordLink<Employee>` given `type RecordLink<T> = /** @default */ RecordId | T`.
+/// `None` when `ts_type` instantiates no such alias.
+pub fn alias_default_member(
+    ts_type: &str,
+    registry: &TypeRegistry,
+    caller_file_path: &str,
+    file_imports: &[FileImportEntry],
+) -> Option<String> {
+    let (base, args) = parse_generic(ts_type.trim())?;
+    let resolved_args: Vec<String> = split_top_level_commas(args)
+        .iter()
+        .map(|arg| resolve_recursive(arg, registry, caller_file_path, file_imports, 1))
+        .collect();
+    instantiate_alias(
+        base,
+        &resolved_args,
+        registry,
+        caller_file_path,
+        file_imports,
+        |alias, subs| match &alias.body {
+            TypeBody::Union(members) => members
+                .iter()
+                .find(|member| member.has_decorator("default"))
+                .and_then(|member| render_member(member, subs)),
+            _ => None,
+        },
+    )
+}
+
+/// Renders the alias `base` names, through `render`, with its parameters
+/// bound to `resolved_args` and its module's names bound as the caller now
+/// has them.
+fn instantiate_alias(
+    base: &str,
+    resolved_args: &[String],
+    registry: &TypeRegistry,
+    caller_file_path: &str,
+    file_imports: &[FileImportEntry],
+    render: impl FnOnce(&TypeAliasIR, &HashMap<&str, &str>) -> Option<String>,
+) -> Option<String> {
     // Use `resolve_in_file` so ambiguous names: e.g. types redeclared in an
     // aggregator file: still hit the canonical entry once we know either
     // the caller's own file (same-file declaration) or the file it imported
@@ -134,24 +193,33 @@ fn try_expand_alias(
     let TypeDefinitionIR::TypeAlias(alias) = &entry.definition else {
         return None;
     };
-    if alias.type_params.is_empty() || alias.type_params.len() != resolved_args.len() {
+    if alias.type_params.is_empty() || resolved_args.len() > alias.type_params.len() {
         return None;
     }
 
-    let subs: HashMap<&str, &str> = alias
-        .type_params
+    // Names from the alias's own module, as the caller now has them bound.
+    let scope = adopt_alias_scope(alias, entry, registry, caller_file_path)?;
+    let mut subs: HashMap<&str, &str> = scope
         .iter()
-        .map(String::as_str)
-        .zip(resolved_args.iter().map(String::as_str))
+        .map(|(name, local)| (name.as_str(), local.as_str()))
         .collect();
+    // A parameter the reference leaves out takes its declared default.
+    for (index, param) in alias.type_params.iter().enumerate() {
+        let argument = match resolved_args.get(index) {
+            Some(argument) => argument.as_str(),
+            None => param.default.as_deref()?,
+        };
+        subs.insert(param.name.as_str(), argument);
+    }
 
-    render_body(&alias.body, &subs)
+    render(alias, &subs)
 }
 
 /// Render an alias body with its type parameters substituted. Bodies that
-/// cannot round-trip through a string (inline objects, symbol brands) are
-/// `None`, so the caller keeps the generic-instantiation form.
-fn render_body(body: &TypeBody, subs: &HashMap<&str, &str>) -> Option<String> {
+/// cannot round-trip through a string (inline objects, newtypes and other
+/// symbol brands) are `None`, so the caller keeps the generic-instantiation
+/// form.
+pub(super) fn render_body(body: &TypeBody, subs: &HashMap<&str, &str>) -> Option<String> {
     match body {
         TypeBody::Union(members) => render_members(members, subs, " | "),
         TypeBody::Intersection(members) => render_members(members, subs, " & "),
@@ -160,7 +228,7 @@ fn render_body(body: &TypeBody, subs: &HashMap<&str, &str>) -> Option<String> {
             let inner: Vec<String> = elems.iter().map(|e| substitute_tokens(e, subs)).collect();
             Some(format!("[{}]", inner.join(", ")))
         }
-        TypeBody::Object { .. } => None,
+        TypeBody::Object { .. } | TypeBody::Newtype(_) => None,
         TypeBody::Other(raw) => Some(substitute_tokens(raw, subs)),
     }
 }
@@ -187,39 +255,81 @@ fn render_member(member: &TypeMember, subs: &HashMap<&str, &str>) -> Option<Stri
 }
 
 /// Replace identifier tokens in `s` that match a key in `subs` with the
-/// substituted value. Non-identifier characters (punctuation, angle
-/// brackets, string literals, numbers) pass through untouched.
+/// substituted value. Everything else, string literals included, passes
+/// through untouched.
 fn substitute_tokens(s: &str, subs: &HashMap<&str, &str>) -> String {
     let mut out = String::with_capacity(s.len());
-    let bytes = s.as_bytes();
-    let mut i = 0;
-    while i < bytes.len() {
-        let c = bytes[i];
-        if is_ident_start(c) {
-            let start = i;
-            while i < bytes.len() && is_ident_continue(bytes[i]) {
-                i += 1;
-            }
-            let ident = &s[start..i];
-            if let Some(sub) = subs.get(ident) {
-                out.push_str(sub);
-            } else {
-                out.push_str(ident);
-            }
-        } else {
-            out.push(c as char);
-            i += 1;
+    for token in tokens(s) {
+        match token {
+            Token::Ident(ident) => out.push_str(subs.get(ident).copied().unwrap_or(ident)),
+            Token::Other(text) => out.push_str(text),
         }
     }
     out
 }
 
-fn is_ident_start(c: u8) -> bool {
-    c.is_ascii_alphabetic() || c == b'_' || c == b'$'
+/// Each identifier token in `s`, in order of appearance, outside string
+/// literals.
+pub(super) fn identifiers(s: &str) -> Vec<&str> {
+    tokens(s)
+        .filter_map(|token| match token {
+            Token::Ident(ident) => Some(ident),
+            Token::Other(_) => None,
+        })
+        .collect()
 }
 
-fn is_ident_continue(c: u8) -> bool {
-    c.is_ascii_alphanumeric() || c == b'_' || c == b'$'
+enum Token<'a> {
+    Ident(&'a str),
+    /// Anything that is not an identifier: punctuation, numbers, whitespace
+    /// and whole string literals.
+    Other(&'a str),
+}
+
+/// `s` split into identifiers and the text between them.
+fn tokens(s: &str) -> impl Iterator<Item = Token<'_>> {
+    let mut rest = s;
+    std::iter::from_fn(move || {
+        let first = rest.chars().next()?;
+        let len = if is_ident_start(first) {
+            rest.find(|c: char| !is_ident_continue(c))
+                .unwrap_or(rest.len())
+        } else if matches!(first, '"' | '\'' | '`') {
+            string_literal_len(rest, first)
+        } else {
+            first.len_utf8()
+        };
+        let (token, tail) = rest.split_at(len);
+        rest = tail;
+        Some(if is_ident_start(first) {
+            Token::Ident(token)
+        } else {
+            Token::Other(token)
+        })
+    })
+}
+
+/// The length of the string literal `s` opens with `quote`, through its
+/// closing quote, or all of `s` when it is unterminated.
+fn string_literal_len(s: &str, quote: char) -> usize {
+    let mut escaped = false;
+    for (index, c) in s.char_indices().skip(1) {
+        match c {
+            _ if escaped => escaped = false,
+            '\\' => escaped = true,
+            _ if c == quote => return index + c.len_utf8(),
+            _ => {}
+        }
+    }
+    s.len()
+}
+
+fn is_ident_start(c: char) -> bool {
+    c.is_ascii_alphabetic() || c == '_' || c == '$'
+}
+
+fn is_ident_continue(c: char) -> bool {
+    c.is_ascii_alphanumeric() || c == '_' || c == '$'
 }
 
 /// Parse a generic instantiation `Base<args>` into `("Base", "args")`.
@@ -302,238 +412,5 @@ fn split_on_top_level(s: &str, sep: u8) -> Vec<&str> {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::{
-        HashMap, TypeBody, TypeDefinitionIR, TypeMember, TypeMemberKind, TypeRegistry,
-        resolve_generic_aliases, split_top_level_commas, split_top_level_intersection,
-        split_top_level_union, substitute_tokens,
-    };
-    use crate::abi::SpanIR;
-    use crate::abi::ir::type_alias::TypeAliasIR;
-    use crate::abi::ir::type_registry::TypeRegistryEntry;
-
-    fn alias_entry(
-        name: &str,
-        type_params: Vec<&str>,
-        body: TypeBody,
-        file_path: &str,
-    ) -> TypeRegistryEntry {
-        TypeRegistryEntry {
-            name: name.to_string(),
-            file_path: file_path.to_string(),
-            is_exported: true,
-            definition: TypeDefinitionIR::TypeAlias(TypeAliasIR {
-                name: name.to_string(),
-                span: SpanIR::new(0, 0),
-                decorators: vec![],
-                type_params: type_params.into_iter().map(String::from).collect(),
-                body,
-            }),
-            file_imports: vec![],
-        }
-    }
-
-    fn record_link_registry() -> TypeRegistry {
-        let mut registry = TypeRegistry::new();
-        // type RecordLink<T> = string | T
-        let body = TypeBody::Union(vec![
-            TypeMember::new(TypeMemberKind::TypeRef("string".to_string())),
-            TypeMember::new(TypeMemberKind::TypeRef("T".to_string())),
-        ]);
-        registry.insert(
-            alias_entry("RecordLink", vec!["T"], body, "/p/record-link.ts"),
-            "/p",
-        );
-        registry
-    }
-
-    #[test]
-    fn expands_record_link_to_union() {
-        let reg = record_link_registry();
-        assert_eq!(
-            resolve_generic_aliases("RecordLink<ErrandMessage>", &reg, "", &[]),
-            "string | ErrandMessage"
-        );
-    }
-
-    #[test]
-    fn expands_record_link_inside_array() {
-        let reg = record_link_registry();
-        assert_eq!(
-            resolve_generic_aliases("Array<RecordLink<ErrandMessage>>", &reg, "", &[]),
-            "Array<string | ErrandMessage>"
-        );
-    }
-
-    #[test]
-    fn expands_record_link_inside_array_suffix() {
-        let reg = record_link_registry();
-        assert_eq!(
-            resolve_generic_aliases("RecordLink<Foo>[]", &reg, "", &[]),
-            "string | Foo[]"
-        );
-        // Note: `string | Foo[]` parses as `string | (Foo[])` in TS; that's
-        // the correct expansion because `RecordLink<Foo>[]` means array of
-        // string-or-Foo, but typed as `(string | Foo)[]` at the TS level
-        // should be written with parens. Callers that use `[]` suffix on a
-        // generic alias are already on thin ice; recommend `Array<...>`.
-    }
-
-    #[test]
-    fn expands_record_link_inside_map() {
-        let reg = record_link_registry();
-        assert_eq!(
-            resolve_generic_aliases("Map<string, RecordLink<Foo>>", &reg, "", &[]),
-            "Map<string, string | Foo>"
-        );
-    }
-
-    #[test]
-    fn passes_through_missing_alias() {
-        let reg = TypeRegistry::new();
-        assert_eq!(
-            resolve_generic_aliases("RecordLink<Foo>", &reg, "", &[]),
-            "RecordLink<Foo>"
-        );
-    }
-
-    #[test]
-    fn passes_through_non_generic() {
-        let reg = record_link_registry();
-        assert_eq!(resolve_generic_aliases("User", &reg, "", &[]), "User");
-        assert_eq!(resolve_generic_aliases("string", &reg, "", &[]), "string");
-    }
-
-    #[test]
-    fn passes_through_lowercase_base() {
-        let reg = record_link_registry();
-        assert_eq!(
-            resolve_generic_aliases("partial<User>", &reg, "", &[]),
-            "partial<User>"
-        );
-    }
-
-    #[test]
-    fn passes_through_alias_with_unrenderable_member() {
-        let mut reg = TypeRegistry::new();
-        // type Outcome<T> = { ok: T } | string
-        let body = TypeBody::Union(vec![
-            TypeMember::new(TypeMemberKind::Object { fields: vec![] }),
-            TypeMember::new(TypeMemberKind::TypeRef("string".to_string())),
-        ]);
-        reg.insert(
-            alias_entry("Outcome", vec!["T"], body, "/p/outcome.ts"),
-            "/p",
-        );
-        // type Branded<T> = T & { readonly [B]: true }
-        let body = TypeBody::Intersection(vec![
-            TypeMember::new(TypeMemberKind::TypeRef("T".to_string())),
-            TypeMember::new(TypeMemberKind::Brand(vec!["B".to_string()])),
-        ]);
-        reg.insert(
-            alias_entry("Branded", vec!["T"], body, "/p/branded.ts"),
-            "/p",
-        );
-
-        assert_eq!(
-            resolve_generic_aliases("Outcome<Foo>", &reg, "", &[]),
-            "Outcome<Foo>"
-        );
-        assert_eq!(
-            resolve_generic_aliases("Branded<number>", &reg, "", &[]),
-            "Branded<number>"
-        );
-    }
-
-    #[test]
-    fn passes_through_arity_mismatch() {
-        let reg = record_link_registry();
-        assert_eq!(
-            resolve_generic_aliases("RecordLink<A, B>", &reg, "", &[]),
-            "RecordLink<A, B>"
-        );
-    }
-
-    #[test]
-    fn nested_substitution_collapses() {
-        let mut reg = TypeRegistry::new();
-        reg.insert(
-            alias_entry(
-                "Inner",
-                vec!["T"],
-                TypeBody::Union(vec![
-                    TypeMember::new(TypeMemberKind::TypeRef("T".to_string())),
-                    TypeMember::new(TypeMemberKind::Literal("null".to_string())),
-                ]),
-                "/p/inner.ts",
-            ),
-            "/p",
-        );
-        reg.insert(
-            alias_entry(
-                "Outer",
-                vec!["U"],
-                TypeBody::Alias("Inner<U>".to_string()),
-                "/p/outer.ts",
-            ),
-            "/p",
-        );
-        assert_eq!(
-            resolve_generic_aliases("Outer<User>", &reg, "", &[]),
-            "User | null"
-        );
-    }
-
-    #[test]
-    fn skips_object_body() {
-        let mut reg = TypeRegistry::new();
-        reg.insert(
-            alias_entry(
-                "Boxed",
-                vec!["T"],
-                TypeBody::Object { fields: vec![] },
-                "/p/boxed.ts",
-            ),
-            "/p",
-        );
-        assert_eq!(
-            resolve_generic_aliases("Boxed<User>", &reg, "", &[]),
-            "Boxed<User>"
-        );
-    }
-
-    #[test]
-    fn substitute_tokens_respects_word_boundaries() {
-        let mut subs = HashMap::new();
-        subs.insert("T", "ErrandMessage");
-        assert_eq!(substitute_tokens("T", &subs), "ErrandMessage");
-        assert_eq!(substitute_tokens("Array<T>", &subs), "Array<ErrandMessage>");
-        assert_eq!(substitute_tokens("MyT", &subs), "MyT");
-        assert_eq!(substitute_tokens("TFoo", &subs), "TFoo");
-    }
-
-    #[test]
-    fn split_top_level_union_skips_arrow_types() {
-        assert_eq!(
-            split_top_level_union("(() => void) | null"),
-            Some(vec!["(() => void)", "null"])
-        );
-        assert_eq!(
-            split_top_level_union("Map<string, (x: number) => string> | undefined"),
-            Some(vec!["Map<string, (x: number) => string>", "undefined"])
-        );
-        assert_eq!(
-            split_top_level_intersection("number & { readonly [B]: true }"),
-            Some(vec!["number", "{ readonly [B]: true }"])
-        );
-    }
-
-    #[test]
-    fn split_top_level_commas_respects_nesting() {
-        assert_eq!(
-            split_top_level_commas("string, Map<string, number>"),
-            vec!["string", "Map<string, number>"]
-        );
-        assert_eq!(split_top_level_commas("A"), vec!["A"]);
-    }
-}
+#[path = "type_alias_resolve_tests.rs"]
+mod tests;

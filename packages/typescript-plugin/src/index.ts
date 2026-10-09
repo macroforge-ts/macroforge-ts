@@ -439,7 +439,7 @@ function findEnclosingDeriveContext(
  *
  * // Hovering over external macro "Gigaform" in "@derive(Gigaform)"
  * const info = getMacroHoverInfo(text, fileName, 14, ts);
- * // Returns QuickInfo with description loaded from @playground/macro package
+ * // Returns QuickInfo with description loaded from @testground/macro package
  *
  * // Hovering over "@endec" field decorator
  * const info = getMacroHoverInfo(text, fileName, 5, ts);
@@ -484,7 +484,7 @@ function getMacroHoverInfo(
                     text:
                         'Derive directive - applies build-time macros to generate methods and implementations.\n\n' +
                         '**Usage:** `/** @derive(MacroName, AnotherMacro) */`\n\n' +
-                        '**Built-in macros:** Debug, Clone, Default, Hash, PartialEq, PartialOrd, Ord, Encode, Decode\n\n' +
+                        '**Built-in macros:** Debug, Clone, Default, Hash, PartialEq, Eq, PartialOrd, Ord, Encode, Decode\n\n' +
                         'External macros can be imported using:\n' +
                         '`/** import macro {Name} from "package"; */`',
                     kind: 'text'

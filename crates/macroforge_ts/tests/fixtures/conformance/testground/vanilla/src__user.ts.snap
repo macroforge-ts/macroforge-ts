@@ -1,0 +1,107 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/user.ts
+sha256 835168f4b0491c7503a17080c90226070fba2f740684a29706c856818b14374c
+
+## Changed
+
+true
+
+## Output
+
+/** import macro { JSON } from "@testground/macro"; */
+
+// Example of using Derive decorator and dynamic macro
+/** @derive(Debug, JSON) */
+export class User {
+    /** @debug({ rename: "identifier" }) */
+    id: number;
+
+    name: string;
+    email: string;
+
+    /** @debug({ skip: true }) */
+    authToken: string;
+
+    constructor(id: number, name: string, email: string, authToken: string) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.authToken = authToken;
+    }
+
+    static toString(value: User): string {
+        return userToString(value);
+    }
+
+    toJSON(): Record<string, unknown> {
+
+        const result: Record<string, unknown> = {};
+        result.id = this.id;
+        result.name = this.name;
+        result.email = this.email;
+        result.authToken = this.authToken;
+
+        return result;
+    }
+}
+
+export function userToString(value: User): string {
+    const parts: string[] = [];
+    parts.push("identifier: " + String(value.id));
+    parts.push("name: " + String(value.name));
+    parts.push("email: " + String(value.email));
+    return "User { " + parts.join(", ") + " }";
+}
+
+const user = new User(1, 'John Doe', 'john@example.com', 'tok_live_secret');
+
+export const derivedSummary = User.toString(user);
+export const derivedJson = user.toJSON();
+
+## DTS
+
+/** import macro { JSON } from "@testground/macro"; */
+/** @derive(Debug, JSON) */
+export declare class User {
+	/** @debug({ rename: "identifier" }) */
+	id: number;
+	name: string;
+	email: string;
+	/** @debug({ skip: true }) */
+	authToken: string;
+	constructor(id: number, name: string, email: string, authToken: string);
+	static toString(value: User): string;
+	toJSON(): Record<string, unknown>;
+}
+export declare function userToString(value: User): string;
+export declare const derivedSummary: unknown;
+export declare const derivedJson: unknown;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..512 -> expanded 0..512
+original 512..513 -> expanded 862..863
+original 513..686 -> expanded 1145..1318
+generated 512..598 <- Debug
+generated 598..862 <- JSON
+generated 863..1145 <- Debug
+
+## Metadata
+
+class User: {"body_span":{"end":514,"start":158},"decorators":[{"args_src":"Debug, JSON","name":"Derive","span":{"end":139,"start":112}}],"fields":[{"decorators":[{"args_src":"{ rename: \"identifier\" }","name":"debug","span":{"end":203,"start":164}}],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":219,"start":208},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":238,"start":225},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":257,"start":243},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":292,"start":263}}],"initializer":null,"name":"authToken","optional":false,"readonly":false,"span":{"end":315,"start":297},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":512,"start":393},"body_src":"\n        this.id = id;\n        this.name = name;\n        this.email = email;\n        this.authToken = authToken;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: number, name: string, email: string, authToken: string","return_type_src":"","span":{"end":512,"start":321},"type_params":[],"visibility":"Public"}],"name":"User","span":{"end":514,"start":147},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

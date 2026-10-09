@@ -1,0 +1,1170 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/enum-type-examples.ts
+sha256 0aa76185c87e43b9843c9a0ea2084508f82017597ad7255894ac1850e10ab44d
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
+/**
+ * Examples demonstrating derive macros on enums and type aliases.
+ * These showcase the new enum and type alias support for all built-in macros.
+ *
+ * Generated functions use prefix naming style:
+ * - statusToString, statusClone, statusEquals, etc.
+ * - pointToString, pointClone, pointEquals, etc.
+ */
+
+// ==================== ENUM EXAMPLES ====================
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export enum Status {
+    Active = 'active',
+    Inactive = 'inactive',
+    Pending = 'pending'
+}
+
+export function statusToString(value: Status): string {
+    const key = Status[value as unknown as keyof typeof Status];
+    if (key !== undefined) {
+        return "Status." + key;
+    }
+    return "Status(" + String(value) + ")";
+}
+
+export function statusClone(value: Status): Status {
+    return value;
+}
+
+export function statusEquals(a: Status, b: Status): boolean {
+    return a === b;
+}
+
+export function statusHashCode(value: Status): number {
+    let hash = 0;
+    for (let i = 0; i < value.length; i++) {
+        hash = (hash * 31 + value.charCodeAt(i)) | 0;
+    }
+    return hash;
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function statusEncode(value: Status): string {
+    return JSON.stringify(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext): string | number;
+export function statusEncodeWithContext(value: Status): string | number {
+    return value;
+}
+
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function statusDecode(input: unknown): Status {
+    return statusDecodeWithContext(input);
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function statusDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Status;
+export function statusDecodeWithContext(data: unknown): Status {
+    if (Status["Active"] === data) {
+        return Status["Active"];
+    }
+    if (Status["Inactive"] === data) {
+        return Status["Inactive"];
+    }
+    if (Status["Pending"] === data) {
+        return Status["Pending"];
+    }
+    throw new Error("Invalid Status value: " + JSON.stringify(data));
+}
+
+export function statusIs(value: unknown): value is Status {
+    if (Status["Active"] === value) {
+        return true;
+    }
+    if (Status["Inactive"] === value) {
+        return true;
+    }
+    if (Status["Pending"] === value) {
+        return true;
+    }
+    return false;
+}
+
+export namespace Status {
+  export const toString: typeof statusToString = statusToString;
+  export const clone: typeof statusClone = statusClone;
+  export const equals: typeof statusEquals = statusEquals;
+  export const hashCode: typeof statusHashCode = statusHashCode;
+  export const encode: typeof statusEncode = statusEncode;
+  export const encodeWithContext: typeof statusEncodeWithContext = statusEncodeWithContext;
+  export const decode: typeof statusDecode = statusDecode;
+  export const decodeWithContext: typeof statusDecodeWithContext = statusDecodeWithContext;
+  export const is: typeof statusIs = statusIs;
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export enum Priority {
+    Low = 1,
+    Medium = 2,
+    High = 3,
+    Critical = 4
+}
+
+export function priorityToString(value: Priority): string {
+    const key = Priority[value as unknown as keyof typeof Priority];
+    if (key !== undefined) {
+        return "Priority." + key;
+    }
+    return "Priority(" + String(value) + ")";
+}
+
+export function priorityClone(value: Priority): Priority {
+    return value;
+}
+
+export function priorityEquals(a: Priority, b: Priority): boolean {
+    return a === b;
+}
+
+export function priorityHashCode(value: Priority): number {
+    return value as number;
+}
+
+/** Encodes this enum value to a JSON string.  */
+export function priorityEncode(value: Priority): string {
+    return JSON.stringify(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function priorityEncodeWithContext(value: Priority, ctx: __mf_EncodeContext): string | number;
+export function priorityEncodeWithContext(value: Priority): string | number {
+    return value;
+}
+
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export function priorityDecode(input: unknown): Priority {
+    return priorityDecodeWithContext(input);
+}
+
+/** Decodes with an existing context (for consistency with other types).  */
+export function priorityDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Priority;
+export function priorityDecodeWithContext(data: unknown): Priority {
+    if (Priority["Low"] === data) {
+        return Priority["Low"];
+    }
+    if (Priority["Medium"] === data) {
+        return Priority["Medium"];
+    }
+    if (Priority["High"] === data) {
+        return Priority["High"];
+    }
+    if (Priority["Critical"] === data) {
+        return Priority["Critical"];
+    }
+    throw new Error("Invalid Priority value: " + JSON.stringify(data));
+}
+
+export function priorityIs(value: unknown): value is Priority {
+    if (Priority["Low"] === value) {
+        return true;
+    }
+    if (Priority["Medium"] === value) {
+        return true;
+    }
+    if (Priority["High"] === value) {
+        return true;
+    }
+    if (Priority["Critical"] === value) {
+        return true;
+    }
+    return false;
+}
+
+export namespace Priority {
+  export const toString: typeof priorityToString = priorityToString;
+  export const clone: typeof priorityClone = priorityClone;
+  export const equals: typeof priorityEquals = priorityEquals;
+  export const hashCode: typeof priorityHashCode = priorityHashCode;
+  export const encode: typeof priorityEncode = priorityEncode;
+  export const encodeWithContext: typeof priorityEncodeWithContext = priorityEncodeWithContext;
+  export const decode: typeof priorityDecode = priorityDecode;
+  export const decodeWithContext: typeof priorityDecodeWithContext = priorityDecodeWithContext;
+  export const is: typeof priorityIs = priorityIs;
+}
+
+/** @derive(Debug, PartialEq, Hash) */
+export enum Color {
+    Red,
+    Green,
+    Blue
+}
+
+export function colorToString(value: Color): string {
+    const key = Color[value as unknown as keyof typeof Color];
+    if (key !== undefined) {
+        return "Color." + key;
+    }
+    return "Color(" + String(value) + ")";
+}
+
+export function colorEquals(a: Color, b: Color): boolean {
+    return a === b;
+}
+
+export function colorHashCode(value: Color): number {
+    return value as number;
+}
+
+export namespace Color {
+  export const toString: typeof colorToString = colorToString;
+  export const equals: typeof colorEquals = colorEquals;
+  export const hashCode: typeof colorHashCode = colorHashCode;
+}
+
+// ==================== TYPE ALIAS EXAMPLES ====================
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type Point = {
+    x: number;
+    y: number;
+};
+
+export function pointToString(value: Point): string {
+    const parts: string[] = [];
+    parts.push("x: " + String(value.x));
+    parts.push("y: " + String(value.y));
+    return "Point { " + parts.join(", ") + " }";
+}
+
+export function pointClone(value: Point): Point {
+    return ({
+	x: value.x,
+	y: value.y
+});
+}
+
+export function pointEquals(a: Point, b: Point): boolean {
+    if (a === b) return true;
+    return a.x === b.x && a.y === b.y;
+}
+
+export function pointHashCode(value: Point): number {
+    let hash = 17;
+    hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    return hash;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function pointEncode(value: Point, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = pointEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Point",
+        __id,
+    };
+
+    
+    result.x = value.x;
+    result.y = value.y;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = pointDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Point.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Point | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Point.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Point | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Point.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("x" in obj)) {
+        errors.push({ field: "x", message: "missing required field" });
+    }
+    if (!("y" in obj)) {
+        errors.push({ field: "y", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_x = obj["x"] as number;
+
+        if (!(typeof __raw_x === "number")) {
+            errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
+        } else {
+            instance.x = __raw_x;
+        }
+    }
+    {
+        const __raw_y = obj["y"] as number;
+
+        if (!(typeof __raw_y === "number")) {
+            errors.push({ field: "y", message: __raw_y == null ? "Point.y is required" : "expected number" });
+        } else {
+            instance.y = __raw_y;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Point;
+}
+export function pointValidateField<K extends keyof Point>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function pointValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function pointValidateFields(partial: { readonly [K in keyof Point]?: unknown }): Array<{ field: string; message: string }>;
+export function pointValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function pointHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "x" in o && "y" in o;
+}
+
+export function pointIs(obj: unknown): obj is Point {
+    return pointHasShape(obj) && pointDecode(obj).success;
+}
+
+export const Point: {
+  readonly toString: typeof pointToString;
+  readonly clone: typeof pointClone;
+  readonly equals: typeof pointEquals;
+  readonly hashCode: typeof pointHashCode;
+  readonly encode: typeof pointEncode;
+  readonly encodeWithContext: typeof pointEncodeWithContext;
+  readonly decode: typeof pointDecode;
+  readonly decodeWithContext: typeof pointDecodeWithContext;
+  readonly validateField: typeof pointValidateField;
+  readonly validateFields: typeof pointValidateFields;
+  readonly hasShape: typeof pointHasShape;
+  readonly is: typeof pointIs;
+} = {
+  toString: pointToString,
+  clone: pointClone,
+  equals: pointEquals,
+  hashCode: pointHashCode,
+  encode: pointEncode,
+  encodeWithContext: pointEncodeWithContext,
+  decode: pointDecode,
+  decodeWithContext: pointDecodeWithContext,
+  validateField: pointValidateField,
+  validateFields: pointValidateFields,
+  hasShape: pointHasShape,
+  is: pointIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type UserProfile = {
+    id: string;
+    username: string;
+    email: string;
+    age: number;
+    isVerified: boolean;
+};
+
+export function userProfileToString(value: UserProfile): string {
+    const parts: string[] = [];
+    parts.push("id: " + String(value.id));
+    parts.push("username: " + String(value.username));
+    parts.push("email: " + String(value.email));
+    parts.push("age: " + String(value.age));
+    parts.push("isVerified: " + String(value.isVerified));
+    return "UserProfile { " + parts.join(", ") + " }";
+}
+
+export function userProfileClone(value: UserProfile): UserProfile {
+    return ({
+	id: value.id,
+	username: value.username,
+	email: value.email,
+	age: value.age,
+	isVerified: value.isVerified
+});
+}
+
+export function userProfileEquals(a: UserProfile, b: UserProfile): boolean {
+    if (a === b) return true;
+    return a.id === b.id && a.username === b.username && a.email === b.email && a.age === b.age && a.isVerified === b.isVerified;
+}
+
+export function userProfileHashCode(value: UserProfile): number {
+    let hash = 17;
+    hash = (hash * 31 + ((value.id ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.username ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.email ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.age) ? value.age | 0 : value.age.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.isVerified ? 1231 : 1237)) | 0;
+    return hash;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function userProfileEncode(value: UserProfile, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = userProfileEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function userProfileEncodeWithContext(value: UserProfile, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "UserProfile",
+        __id,
+    };
+
+    
+    result.id = value.id;
+    result.username = value.username;
+    result.email = value.email;
+    result.age = value.age;
+    result.isVerified = value.isVerified;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function userProfileDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserProfile } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = userProfileDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "UserProfile.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UserProfile | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "UserProfile.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as UserProfile | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "UserProfile.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+    if (!("username" in obj)) {
+        errors.push({ field: "username", message: "missing required field" });
+    }
+    if (!("email" in obj)) {
+        errors.push({ field: "email", message: "missing required field" });
+    }
+    if (!("age" in obj)) {
+        errors.push({ field: "age", message: "missing required field" });
+    }
+    if (!("isVerified" in obj)) {
+        errors.push({ field: "isVerified", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_id = obj["id"] as string;
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "UserProfile.id is required" : "expected string" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    {
+        const __raw_username = obj["username"] as string;
+
+        if (!(typeof __raw_username === "string")) {
+            errors.push({ field: "username", message: __raw_username == null ? "UserProfile.username is required" : "expected string" });
+        } else {
+            instance.username = __raw_username;
+        }
+    }
+    {
+        const __raw_email = obj["email"] as string;
+
+        if (!(typeof __raw_email === "string")) {
+            errors.push({ field: "email", message: __raw_email == null ? "UserProfile.email is required" : "expected string" });
+        } else {
+            instance.email = __raw_email;
+        }
+    }
+    {
+        const __raw_age = obj["age"] as number;
+
+        if (!(typeof __raw_age === "number")) {
+            errors.push({ field: "age", message: __raw_age == null ? "UserProfile.age is required" : "expected number" });
+        } else {
+            instance.age = __raw_age;
+        }
+    }
+    {
+        const __raw_isVerified = obj["isVerified"] as boolean;
+
+        if (!(typeof __raw_isVerified === "boolean")) {
+            errors.push({ field: "isVerified", message: __raw_isVerified == null ? "UserProfile.isVerified is required" : "expected boolean" });
+        } else {
+            instance.isVerified = __raw_isVerified;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as UserProfile;
+}
+export function userProfileValidateField<K extends keyof UserProfile>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function userProfileValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function userProfileValidateFields(partial: { readonly [K in keyof UserProfile]?: unknown }): Array<{ field: string; message: string }>;
+export function userProfileValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function userProfileHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "id" in o && "username" in o && "email" in o && "age" in o && "isVerified" in o;
+}
+
+export function userProfileIs(obj: unknown): obj is UserProfile {
+    return userProfileHasShape(obj) && userProfileDecode(obj).success;
+}
+
+export const UserProfile: {
+  readonly toString: typeof userProfileToString;
+  readonly clone: typeof userProfileClone;
+  readonly equals: typeof userProfileEquals;
+  readonly hashCode: typeof userProfileHashCode;
+  readonly encode: typeof userProfileEncode;
+  readonly encodeWithContext: typeof userProfileEncodeWithContext;
+  readonly decode: typeof userProfileDecode;
+  readonly decodeWithContext: typeof userProfileDecodeWithContext;
+  readonly validateField: typeof userProfileValidateField;
+  readonly validateFields: typeof userProfileValidateFields;
+  readonly hasShape: typeof userProfileHasShape;
+  readonly is: typeof userProfileIs;
+} = {
+  toString: userProfileToString,
+  clone: userProfileClone,
+  equals: userProfileEquals,
+  hashCode: userProfileHashCode,
+  encode: userProfileEncode,
+  encodeWithContext: userProfileEncodeWithContext,
+  decode: userProfileDecode,
+  decodeWithContext: userProfileDecodeWithContext,
+  validateField: userProfileValidateField,
+  validateFields: userProfileValidateFields,
+  hasShape: userProfileHasShape,
+  is: userProfileIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash) */
+export type Coordinate3D = {
+    x: number;
+    y: number;
+    z: number;
+};
+
+export function coordinate3DToString(value: Coordinate3D): string {
+    const parts: string[] = [];
+    parts.push("x: " + String(value.x));
+    parts.push("y: " + String(value.y));
+    parts.push("z: " + String(value.z));
+    return "Coordinate3D { " + parts.join(", ") + " }";
+}
+
+export function coordinate3DClone(value: Coordinate3D): Coordinate3D {
+    return ({
+	x: value.x,
+	y: value.y,
+	z: value.z
+});
+}
+
+export function coordinate3DEquals(a: Coordinate3D, b: Coordinate3D): boolean {
+    if (a === b) return true;
+    return a.x === b.x && a.y === b.y && a.z === b.z;
+}
+
+export function coordinate3DHashCode(value: Coordinate3D): number {
+    let hash = 17;
+    hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.z) ? value.z | 0 : value.z.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    return hash;
+}
+
+export const Coordinate3D: {
+  readonly toString: typeof coordinate3DToString;
+  readonly clone: typeof coordinate3DClone;
+  readonly equals: typeof coordinate3DEquals;
+  readonly hashCode: typeof coordinate3DHashCode;
+} = {
+  toString: coordinate3DToString,
+  clone: coordinate3DClone,
+  equals: coordinate3DEquals,
+  hashCode: coordinate3DHashCode
+};
+
+/** @derive(Debug, PartialEq, Hash) */
+export type ApiStatus = 'loading' | 'success' | 'error';
+
+export function apiStatusToString(value: ApiStatus): string {
+    return "ApiStatus(" + String(value) + ")";
+}
+
+export function apiStatusEquals(a: ApiStatus, b: ApiStatus): boolean {
+    if (a === b) return true;
+    return a === b;
+}
+
+export function apiStatusHashCode(value: ApiStatus): number {
+    return __mf_structuralHash(value);
+}
+
+export const ApiStatus: {
+  readonly toString: typeof apiStatusToString;
+  readonly equals: typeof apiStatusEquals;
+  readonly hashCode: typeof apiStatusHashCode;
+} = {
+  toString: apiStatusToString,
+  equals: apiStatusEquals,
+  hashCode: apiStatusHashCode
+};
+
+// ==================== USAGE EXAMPLES ====================
+
+// Enum usage
+export const currentStatus = Status.Active;
+export const highPriority = Priority.High;
+
+// Using generated standalone functions on enums (prefix naming style)
+export function demoEnumFunctions() {
+    // Debug - statusToString
+    console.log('Status string:', statusToString(Status.Active));
+    console.log('Priority string:', priorityToString(Priority.High));
+
+    // Clone - returns the same value for enums (primitives)
+    const clonedStatus = statusClone(Status.Pending);
+    console.log('Cloned status:', clonedStatus);
+
+    // PartialEq - statusEquals
+    const areEqual = statusEquals(Status.Active, Status.Active);
+    console.log('Are equal:', areEqual);
+
+    // Hash - statusHashCode
+    const hash = statusHashCode(Status.Active);
+    console.log('Hash code:', hash);
+
+    // Encode - statusEncode
+    const json = statusEncode(Status.Inactive);
+    console.log('Encoded:', json);
+
+    // Decode - statusDecode
+    const parsed = statusDecode('pending');
+    console.log('Parsed:', parsed);
+}
+
+// Type alias usage
+export const origin: Point = { x: 0, y: 0 };
+export const user: UserProfile = {
+    id: 'user-123',
+    username: 'johndoe',
+    email: 'john@example.com',
+    age: 30,
+    isVerified: true
+};
+
+// Using generated standalone functions on type aliases (prefix naming style)
+export function demoTypeFunctions() {
+    const point1: Point = { x: 10, y: 20 };
+    const point2: Point = { x: 10, y: 20 };
+
+    // Debug - pointToString
+    console.log('Point string:', pointToString(point1));
+    console.log('User string:', userProfileToString(user));
+
+    // Clone - creates a shallow copy
+    const clonedPoint = pointClone(point1);
+    console.log('Cloned point:', clonedPoint);
+
+    // PartialEq - pointEquals
+    const pointsEqual = pointEquals(point1, point2);
+    console.log('Points equal:', pointsEqual);
+
+    // Hash - pointHashCode
+    const pointHash = pointHashCode(point1);
+    console.log('Point hash:', pointHash);
+
+    // Encode - pointEncode
+    const pointJson = pointEncode(point1);
+    console.log('Point JSON:', pointJson);
+
+    // Decode - pointDecode
+    const parsedPoint = pointDecode({ x: 5, y: 10 });
+    console.log('Parsed point:', parsedPoint);
+}
+
+// Run demos
+demoEnumFunctions();
+demoTypeFunctions();
+
+## DTS
+
+/**
+* Examples demonstrating derive macros on enums and type aliases.
+* These showcase the new enum and type alias support for all built-in macros.
+*
+* Generated functions use prefix naming style:
+* - statusToString, statusClone, statusEquals, etc.
+* - pointToString, pointClone, pointEquals, etc.
+*/
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export declare enum Status {
+	Active = "active",
+	Inactive = "inactive",
+	Pending = "pending"
+}
+export declare function statusToString(value: Status): string;
+export declare function statusClone(value: Status): Status;
+export declare function statusEquals(a: Status, b: Status): boolean;
+export declare function statusHashCode(value: Status): number;
+/** Encodes this enum value to a JSON string.  */
+export declare function statusEncode(value: Status): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext): string | number;
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function statusDecode(input: unknown): Status;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function statusDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Status;
+export declare function statusIs(value: unknown): value is Status;
+export declare namespace Status {
+	const toString: typeof statusToString;
+	const clone: typeof statusClone;
+	const equals: typeof statusEquals;
+	const hashCode: typeof statusHashCode;
+	const encode: typeof statusEncode;
+	const encodeWithContext: typeof statusEncodeWithContext;
+	const decode: typeof statusDecode;
+	const decodeWithContext: typeof statusDecodeWithContext;
+	const is: typeof statusIs;
+}
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export declare enum Priority {
+	Low = 1,
+	Medium = 2,
+	High = 3,
+	Critical = 4
+}
+export declare function priorityToString(value: Priority): string;
+export declare function priorityClone(value: Priority): Priority;
+export declare function priorityEquals(a: Priority, b: Priority): boolean;
+export declare function priorityHashCode(value: Priority): number;
+/** Encodes this enum value to a JSON string.  */
+export declare function priorityEncode(value: Priority): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function priorityEncodeWithContext(value: Priority, ctx: __mf_EncodeContext): string | number;
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+export declare function priorityDecode(input: unknown): Priority;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function priorityDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Priority;
+export declare function priorityIs(value: unknown): value is Priority;
+export declare namespace Priority {
+	const toString: typeof priorityToString;
+	const clone: typeof priorityClone;
+	const equals: typeof priorityEquals;
+	const hashCode: typeof priorityHashCode;
+	const encode: typeof priorityEncode;
+	const encodeWithContext: typeof priorityEncodeWithContext;
+	const decode: typeof priorityDecode;
+	const decodeWithContext: typeof priorityDecodeWithContext;
+	const is: typeof priorityIs;
+}
+/** @derive(Debug, PartialEq, Hash) */
+export declare enum Color {
+	Red = 0,
+	Green = 1,
+	Blue = 2
+}
+export declare function colorToString(value: Color): string;
+export declare function colorEquals(a: Color, b: Color): boolean;
+export declare function colorHashCode(value: Color): number;
+export declare namespace Color {
+	const toString: typeof colorToString;
+	const equals: typeof colorEquals;
+	const hashCode: typeof colorHashCode;
+}
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type Point = {
+	x: number;
+	y: number;
+};
+export declare function pointToString(value: Point): string;
+export declare function pointClone(value: Point): Point;
+export declare function pointEquals(a: Point, b: Point): boolean;
+export declare function pointHashCode(value: Point): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function pointEncode(value: Point, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function pointDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Point;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Point | __mf_PendingRef;
+export declare function pointValidateField<K extends keyof Point>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function pointValidateFields(partial: { readonly [K in keyof Point]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function pointHasShape(obj: unknown): boolean;
+export declare function pointIs(obj: unknown): obj is Point;
+export declare const Point: {
+	readonly toString: typeof pointToString;
+	readonly clone: typeof pointClone;
+	readonly equals: typeof pointEquals;
+	readonly hashCode: typeof pointHashCode;
+	readonly encode: typeof pointEncode;
+	readonly encodeWithContext: typeof pointEncodeWithContext;
+	readonly decode: typeof pointDecode;
+	readonly decodeWithContext: typeof pointDecodeWithContext;
+	readonly validateField: typeof pointValidateField;
+	readonly validateFields: typeof pointValidateFields;
+	readonly hasShape: typeof pointHasShape;
+	readonly is: typeof pointIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type UserProfile = {
+	id: string;
+	username: string;
+	email: string;
+	age: number;
+	isVerified: boolean;
+};
+export declare function userProfileToString(value: UserProfile): string;
+export declare function userProfileClone(value: UserProfile): UserProfile;
+export declare function userProfileEquals(a: UserProfile, b: UserProfile): boolean;
+export declare function userProfileHashCode(value: UserProfile): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function userProfileEncode(value: UserProfile, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function userProfileEncodeWithContext(value: UserProfile, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function userProfileDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: UserProfile;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): UserProfile | __mf_PendingRef;
+export declare function userProfileValidateField<K extends keyof UserProfile>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function userProfileValidateFields(partial: { readonly [K in keyof UserProfile]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function userProfileHasShape(obj: unknown): boolean;
+export declare function userProfileIs(obj: unknown): obj is UserProfile;
+export declare const UserProfile: {
+	readonly toString: typeof userProfileToString;
+	readonly clone: typeof userProfileClone;
+	readonly equals: typeof userProfileEquals;
+	readonly hashCode: typeof userProfileHashCode;
+	readonly encode: typeof userProfileEncode;
+	readonly encodeWithContext: typeof userProfileEncodeWithContext;
+	readonly decode: typeof userProfileDecode;
+	readonly decodeWithContext: typeof userProfileDecodeWithContext;
+	readonly validateField: typeof userProfileValidateField;
+	readonly validateFields: typeof userProfileValidateFields;
+	readonly hasShape: typeof userProfileHasShape;
+	readonly is: typeof userProfileIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash) */
+export type Coordinate3D = {
+	x: number;
+	y: number;
+	z: number;
+};
+export declare function coordinate3DToString(value: Coordinate3D): string;
+export declare function coordinate3DClone(value: Coordinate3D): Coordinate3D;
+export declare function coordinate3DEquals(a: Coordinate3D, b: Coordinate3D): boolean;
+export declare function coordinate3DHashCode(value: Coordinate3D): number;
+export declare const Coordinate3D: {
+	readonly toString: typeof coordinate3DToString;
+	readonly clone: typeof coordinate3DClone;
+	readonly equals: typeof coordinate3DEquals;
+	readonly hashCode: typeof coordinate3DHashCode;
+};
+/** @derive(Debug, PartialEq, Hash) */
+export type ApiStatus = "loading" | "success" | "error";
+export declare function apiStatusToString(value: ApiStatus): string;
+export declare function apiStatusEquals(a: ApiStatus, b: ApiStatus): boolean;
+export declare function apiStatusHashCode(value: ApiStatus): number;
+export declare const ApiStatus: {
+	readonly toString: typeof apiStatusToString;
+	readonly equals: typeof apiStatusEquals;
+	readonly hashCode: typeof apiStatusHashCode;
+};
+export declare const currentStatus: unknown;
+export declare const highPriority: unknown;
+export declare function demoEnumFunctions();
+export declare const origin: Point;
+export declare const user: UserProfile;
+export declare function demoTypeFunctions();
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..527 -> expanded 347..874
+original 527..675 -> expanded 3566..3714
+original 675..766 -> expanded 6539..6630
+original 766..950 -> expanded 7237..7421
+original 950..1143 -> expanded 14417..14610
+original 1143..1267 -> expanded 24155..24279
+original 1267..1364 -> expanded 25778..25875
+original 1364..3696 -> expanded 26476..28808
+generated 0..347 <- imports
+generated 874..1109 <- Debug
+generated 1109..1183 <- Clone
+generated 1183..1268 <- PartialEq
+generated 1268..1467 <- Hash
+generated 1467..1875 <- Encode
+generated 1875..2943 <- Decode
+generated 2943..3566 <- __convenience_const
+generated 3714..3961 <- Debug
+generated 3961..4041 <- Clone
+generated 4041..4132 <- PartialEq
+generated 4132..4223 <- Hash
+generated 4223..4643 <- Encode
+generated 4643..5878 <- Decode
+generated 5878..6539 <- __convenience_const
+generated 6630..6859 <- Debug
+generated 6859..6941 <- PartialEq
+generated 6941..7026 <- Hash
+generated 7026..7237 <- __convenience_const
+generated 7421..7641 <- Debug
+generated 7641..7737 <- Clone
+generated 7737..7868 <- PartialEq
+generated 7868..8267 <- Hash
+generated 8267..9371 <- Encode
+generated 9371..13490 <- Decode
+generated 13490..14417 <- __convenience_const
+generated 14610..15017 <- Debug
+generated 15017..15216 <- Clone
+generated 15216..15456 <- PartialEq
+generated 15456..16119 <- Hash
+generated 16119..17377 <- Encode
+generated 17377..23078 <- Decode
+generated 23078..24155 <- __convenience_const
+generated 24279..24561 <- Debug
+generated 24561..24691 <- Clone
+generated 24691..24858 <- PartialEq
+generated 24858..25424 <- Hash
+generated 25424..25778 <- __convenience_const
+generated 25875..25987 <- Debug
+generated 25987..26111 <- PartialEq
+generated 26111..26215 <- Hash
+generated 26215..26476 <- __convenience_const
+
+## Metadata
+
+enum Status: {"body_span":{"end":528,"start":451},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":431,"start":370}}],"is_const":false,"name":"Status","span":{"end":528,"start":439},"variants":[{"decorators":[],"name":"Active","span":{"end":474,"start":457},"value":{"String":"active"}},{"decorators":[],"name":"Inactive","span":{"end":501,"start":480},"value":{"String":"inactive"}},{"decorators":[],"name":"Pending","span":{"end":526,"start":507},"value":{"String":"pending"}}]}
+enum Priority: {"body_span":{"end":676,"start":613},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":591,"start":530}}],"is_const":false,"name":"Priority","span":{"end":676,"start":599},"variants":[{"decorators":[],"name":"Low","span":{"end":626,"start":619},"value":{"Number":1.0}},{"decorators":[],"name":"Medium","span":{"end":642,"start":632},"value":{"Number":2.0}},{"decorators":[],"name":"High","span":{"end":656,"start":648},"value":{"Number":3.0}},{"decorators":[],"name":"Critical","span":{"end":674,"start":662},"value":{"Number":4.0}}]}
+enum Color: {"body_span":{"end":767,"start":735},"decorators":[{"args_src":"Debug, PartialEq, Hash","name":"Derive","span":{"end":716,"start":678}}],"is_const":false,"name":"Color","span":{"end":767,"start":724},"variants":[{"decorators":[],"name":"Red","span":{"end":744,"start":741},"value":{"Number":0.0}},{"decorators":[],"name":"Green","span":{"end":755,"start":750},"value":{"Number":1.0}},{"decorators":[],"name":"Blue","span":{"end":765,"start":761},"value":{"Number":2.0}}]}
+type Point: {"body":{"Object":{"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":933,"start":923},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":948,"start":938},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":896,"start":835}}],"name":"Point","span":{"end":951,"start":904},"type_params":[]}
+type UserProfile: {"body":{"Object":{"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":1058,"start":1047},"ts_type":"string"},{"decorators":[],"name":"username","optional":false,"readonly":false,"span":{"end":1080,"start":1063},"ts_type":"string"},{"decorators":[],"name":"email","optional":false,"readonly":false,"span":{"end":1099,"start":1085},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":1116,"start":1104},"ts_type":"number"},{"decorators":[],"name":"isVerified","optional":false,"readonly":false,"span":{"end":1141,"start":1121},"ts_type":"boolean"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1014,"start":953}}],"name":"UserProfile","span":{"end":1144,"start":1022},"type_params":[]}
+type Coordinate3D: {"body":{"Object":{"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":1235,"start":1225},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":1250,"start":1240},"ts_type":"number"},{"decorators":[],"name":"z","optional":false,"readonly":false,"span":{"end":1265,"start":1255},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":1191,"start":1146}}],"name":"Coordinate3D","span":{"end":1268,"start":1199},"type_params":[]}
+type ApiStatus: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"'loading'"}},{"decorators":[],"kind":{"Literal":"'success'"}},{"decorators":[],"kind":{"Literal":"'error'"}}]},"decorators":[{"args_src":"Debug, PartialEq, Hash","name":"Derive","span":{"end":1308,"start":1270}}],"name":"ApiStatus","span":{"end":1365,"start":1316},"type_params":[]}
+
+## Registry reads
+
+Name("ApiStatus")
+Name("Coordinate3D")
+Name("Point")
+Name("UserProfile")
+
+## Buildtime dependencies
+
+(none)

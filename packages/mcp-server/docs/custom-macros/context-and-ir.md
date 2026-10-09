@@ -63,6 +63,24 @@ pub enum TargetIR {
 
 An attribute macro on a class method receives the method as a `FunctionIR`.
 
+## Type parameters
+
+Every generic declaration lists its type parameters as declared. `declaration()` renders one as a
+generic function would declare it, and `declare_all` and `apply_all` render a whole list as
+`<T extends Shape>` and `<T>`. Variance annotations (`in`, `out`) are not kept: TypeScript rejects
+them on a function.
+
+Rust
+
+```
+pub struct TypeParamIR {
+    pub name: String,
+    pub constraint: Option<String>,  // the type after \`extends\`
+    pub default: Option<String>,     // the type after \`=\`
+    pub is_const: bool,
+}
+```
+
 ## Classes
 
 Rust
@@ -73,7 +91,7 @@ pub struct ClassIR {
     pub span: SpanIR,
     pub body_span: SpanIR,           // the braces and everything between them
     pub is_abstract: bool,
-    pub type_params: Vec<String>,    // e.g. ["T", "K extends string"]
+    pub type_params: Vec<TypeParamIR>, // e.g. T, K extends string
     pub heritage: Vec<String>,       // extends and implements clauses
     pub decorators: Vec<DecoratorIR>,
     pub fields: Vec<FieldIR>,
@@ -93,7 +111,7 @@ pub struct FieldIR {
 pub struct MethodSigIR {
     pub name: String,
     pub span: SpanIR,
-    pub type_params_src: String,
+    pub type_params: Vec<TypeParamIR>,
     pub params_src: String,          // the parameter list as written
     pub return_type_src: String,
     pub is_static: bool,
@@ -114,7 +132,7 @@ pub struct InterfaceIR {
     pub name: String,
     pub span: SpanIR,
     pub body_span: SpanIR,
-    pub type_params: Vec<String>,
+    pub type_params: Vec<TypeParamIR>,
     pub heritage: Vec<String>,       // extends clauses
     pub decorators: Vec<DecoratorIR>,
     pub fields: Vec<InterfaceFieldIR>,
@@ -133,7 +151,7 @@ pub struct InterfaceFieldIR {
 pub struct InterfaceMethodIR {
     pub name: String,
     pub span: SpanIR,
-    pub type_params_src: String,
+    pub type_params: Vec<TypeParamIR>,
     pub params_src: String,
     pub return_type_src: String,
     pub optional: bool,
@@ -182,7 +200,7 @@ pub struct TypeAliasIR {
     pub name: String,
     pub span: SpanIR,
     pub decorators: Vec<DecoratorIR>,
-    pub type_params: Vec<String>,
+    pub type_params: Vec<TypeParamIR>,
     pub body: TypeBody,
 }
 
@@ -229,7 +247,7 @@ pub struct FunctionIR {
     pub is_generator: bool,
     pub is_exported: bool,
     pub is_default_export: bool,
-    pub type_params: Vec<String>,
+    pub type_params: Vec<TypeParamIR>,
     pub params: Vec<FunctionParamIR>,
     pub return_type_src: String,
     pub body_src: String,
@@ -259,13 +277,13 @@ pub struct DecoratorIR {
 }
 ```
 
-A macro reads its options from `args_src`. The helpers in `macroforge_ts::builtin::derive_common`
+A macro reads its options from `args_src`. The helpers in `macroforge_ts::builtin::derive::common`
 parse the common shapes:
 
 Rust
 
 ```
-use macroforge_ts::builtin::derive_common::{extract_named_string, has_flag};
+use macroforge_ts::builtin::derive::common::{extract_named_string, has_flag};
 
 for decorator in &field.decorators {
     if decorator.name.eq_ignore_ascii_case("validate") {

@@ -31,7 +31,7 @@ mod tag;
 use proc_macro2::{Delimiter, TokenStream as TokenStream2, TokenTree};
 use quote::quote;
 
-use parser::parse_fragment;
+use parser::parse_template;
 
 /// Compile a template from a TokenStream (the macro input).
 /// Handles position parsing (Top, Above, Within, Below, Bottom).
@@ -40,7 +40,7 @@ pub fn compile_template(input: TokenStream2) -> syn::Result<TokenStream2> {
     let position = parsed.position;
 
     // Parse the template body
-    let (body, _) = parse_fragment(&mut parsed.body.into_iter().peekable(), None)?;
+    let body = parse_template(&mut parsed.body.into_iter().peekable())?;
 
     // Generate the output code
     let insert_pos = position_to_tokens(position);

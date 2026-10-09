@@ -17,12 +17,59 @@ extern "C" {
     fn console_error(line: &str);
 }
 
-/// Runs `entry`, then prints to the JavaScript console what the engine and
-/// the macros it ran logged meanwhile: wasm has no debug log file to write.
+#[wasm_bindgen(inline_js = r#"
+import { appendFileSync, existsSync, mkdirSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+// Appends `text` to `.macroforge/debug.log` of the nearest ancestor of
+// `start`, or of the working directory, that holds one of `configFiles`;
+// false outside any.
+export function appendDebugLog(text, start, configFiles) {
+    let dir = start === undefined ? process.cwd() : dirname(resolve(start));
+    for (;;) {
+        if (configFiles.some((name) => existsSync(join(dir, name)))) {
+            const log = join(dir, '.macroforge', 'debug.log');
+            mkdirSync(dirname(log), { recursive: true });
+            appendFileSync(log, text);
+            return true;
+        }
+        const parent = dirname(dir);
+        if (parent === dir) return false;
+        dir = parent;
+    }
+}
+"#)]
+extern "C" {
+    #[wasm_bindgen(catch, js_name = appendDebugLog)]
+    fn append_debug_log(
+        text: &str,
+        start: Option<String>,
+        config_files: Vec<String>,
+    ) -> Result<bool, JsValue>;
+}
+
+/// A JavaScript `Error` carrying `message`. A thrown string has no message,
+/// stack or properties, so a caller such as a bundler cannot attach its own
+/// diagnostics to it and fails on that instead of reporting this.
+fn js_error(message: &str) -> JsValue {
+    js_sys::Error::new(message).into()
+}
+
+/// Runs `entry`, then writes what the engine and the macros it ran logged
+/// meanwhile to the debug log of the macroforge project each line is about,
+/// or of the working directory's, as the native host does. Outside a project
+/// the lines are dropped.
 fn with_debug_flush<T>(entry: impl FnOnce() -> T) -> T {
     let value = entry();
-    for line in crate::debug::take_pending() {
-        console_error(&line);
+    for held in crate::debug::take_held() {
+        let config_files = crate::host::config::CONFIG_FILES
+            .iter()
+            .map(|name| name.to_string())
+            .collect();
+        if let Err(error) = append_debug_log(&held.text, held.file, config_files) {
+            console_error(&format!(
+                "[macroforge] cannot write the debug log: {error:?}"
+            ));
+        }
     }
     value
 }
@@ -61,8 +108,7 @@ pub fn check_syntax(code: String, filepath: String) -> Result<JsValue, JsValue> 
 /// The import declarations of `code`: each imported name with the module it comes from.
 #[wasm_bindgen(js_name = "parseImportSources")]
 pub fn parse_import_sources(code: String, filepath: String) -> Result<JsValue, JsValue> {
-    let result =
-        CoreEngine::parse_import_sources(&code, &filepath).map_err(|e| JsValue::from_str(&e))?;
+    let result = CoreEngine::parse_import_sources(&code, &filepath).map_err(|e| js_error(&e))?;
     serde_wasm_bindgen::to_value(&result).map_err(|e| e.into())
 }
 
@@ -73,7 +119,7 @@ pub fn derive_decorator() {}
 /// Parses a `macroforge.config.*` file's `content` and caches it under `filepath`.
 #[wasm_bindgen(js_name = "loadConfig")]
 pub fn load_config(content: String, filepath: String) -> Result<JsValue, JsValue> {
-    let result = CoreEngine::load_config(&content, &filepath).map_err(|e| JsValue::from_str(&e))?;
+    let result = CoreEngine::load_config(&content, &filepath).map_err(|e| js_error(&e))?;
     serde_wasm_bindgen::to_value(&result).map_err(|e| e.into())
 }
 
@@ -87,20 +133,20 @@ pub fn clear_config_cache() {
 /// as `typeRegistryId` to expand against it without sending its JSON again.
 #[wasm_bindgen(js_name = "setTypeRegistry")]
 pub fn set_type_registry(json: &str) -> Result<u32, JsValue> {
-    CoreEngine::set_type_registry(json).map_err(|e| JsValue::from_str(&e))
+    CoreEngine::set_type_registry(json).map_err(|e| js_error(&e))
 }
 
 /// Parses a declarative registry and keeps it for the process. Pass the
 /// returned id as `declarativeRegistryId`.
 #[wasm_bindgen(js_name = "setDeclarativeRegistry")]
 pub fn set_declarative_registry(json: &str) -> Result<u32, JsValue> {
-    CoreEngine::set_declarative_registry(json).map_err(|e| JsValue::from_str(&e))
+    CoreEngine::set_declarative_registry(json).map_err(|e| js_error(&e))
 }
 
 /// Forgets a registry `setTypeRegistry` or `setDeclarativeRegistry` kept.
 #[wasm_bindgen(js_name = "releaseRegistry")]
 pub fn release_registry(id: u32) -> Result<(), JsValue> {
-    CoreEngine::release_registry(id).map_err(|e| JsValue::from_str(&e))
+    CoreEngine::release_registry(id).map_err(|e| js_error(&e))
 }
 
 /// Expands the macros in `code`, the source of `filepath`, and returns the
@@ -114,8 +160,7 @@ pub fn expand_sync(code: String, filepath: String, options: JsValue) -> Result<J
             Some(serde_wasm_bindgen::from_value(options)?)
         };
 
-        let result =
-            CoreEngine::expand_sync(code, filepath, opts).map_err(|e| JsValue::from_str(&e))?;
+        let result = CoreEngine::expand_sync(code, filepath, opts).map_err(|e| js_error(&e))?;
         serde_wasm_bindgen::to_value(&result).map_err(|e| e.into())
     })
 }
@@ -200,7 +245,7 @@ impl NativePlugin {
     fn cache(&self) -> Result<std::sync::MutexGuard<'_, ExpansionCache>, JsValue> {
         self.cache
             .lock()
-            .map_err(|err| JsValue::from_str(&format!("expansion cache lock poisoned: {err}")))
+            .map_err(|err| js_error(&format!("expansion cache lock poisoned: {err}")))
     }
 
     /// Expands the macros in `code`, uncached; see the module-level `expandSync`.
@@ -252,7 +297,7 @@ impl NativePlugin {
             });
 
             let result = CoreEngine::expand_sync(code, filepath.clone(), expand_opts)
-                .map_err(|e| JsValue::from_str(&e))?;
+                .map_err(|e| js_error(&e))?;
 
             let value = serde_wasm_bindgen::to_value(&result)?;
             if let Some(version) = version {
@@ -417,8 +462,7 @@ pub fn scan_project_sync(root_dir: String, options: JsValue) -> Result<JsValue, 
             Some(serde_wasm_bindgen::from_value(options)?)
         };
 
-        let result =
-            CoreEngine::scan_project_sync(root_dir, opts).map_err(|e| JsValue::from_str(&e))?;
+        let result = CoreEngine::scan_project_sync(root_dir, opts).map_err(|e| js_error(&e))?;
         serde_wasm_bindgen::to_value(&result).map_err(|e| e.into())
     })
 }
@@ -447,7 +491,7 @@ pub fn get_macro_manifest_wasm() -> Result<JsValue, JsValue> {
 #[wasm_bindgen(js_name = "__macroforgeSetRegistry")]
 pub fn set_resident_registry_wasm(payload_json: &str) -> Result<(), JsValue> {
     crate::ts_syn::abi::ir::type_registry::install_resident_registry(payload_json)
-        .map_err(|message| JsValue::from_str(&message))
+        .map_err(|message| js_error(&message))
 }
 
 /// Marks this module as a macroforge macro package.

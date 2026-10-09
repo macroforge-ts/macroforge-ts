@@ -36,9 +36,11 @@ macroforge_ts_macros = { workspace = true }
 postcard = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+pathdiff = { workspace = true }
 
 # Case conversion
 convert_case = { workspace = true }
+strsim = { workspace = true }
 
 inventory = { workspace = true }
 
@@ -126,7 +128,7 @@ criterion = { workspace = true }
 name = "declarative_composition"
 harness = false
 
-# The conformance corpus: fixtures and the playground projects expanded as the
+# The conformance corpus: fixtures and the testground projects expanded as the
 # integrations expand them, against committed goldens. `test-macros` is
 # required so the `@traced`, `$stringify`, and `$concat_names` macros the
 # fixtures use are registered in the inventory when the test binary runs.

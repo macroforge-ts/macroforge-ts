@@ -25,82 +25,67 @@ enum Status {
     Inactive = 'inactive'
 }
 
-export function statusToString(value: Status): string {const key = Status[value as unknown as keyof typeof Status];
-                        if (key !== undefined) {
-                            return "Status." + key;
-                        }
-                        return "Status(" + String(value) + ")";
-
-
-
-
-
-
-
-
-                }
+export function statusToString(value: Status): string {
+    const key = Status[value as unknown as keyof typeof Status];
+    if (key !== undefined) {
+        return "Status." + key;
+    }
+    return "Status(" + String(value) + ")";
+}
 
 export function statusClone(value: Status): Status {
-                    return value;
-                }
+    return value;
+}
 
 export function statusEquals(a: Status, b: Status): boolean {
-                    return a === b;
-                }
+    return a === b;
+}
 
 export function statusHashCode(value: Status): number {
-                        let hash = 0;
-                        for (let i = 0; i < value.length; i++) {
-                            hash = (hash * 31 + value.charCodeAt(i)) | 0;
-                        }
-                        return hash;
-                    }
+    let hash = 0;
+    for (let i = 0; i < value.length; i++) {
+        hash = (hash * 31 + value.charCodeAt(i)) | 0;
+    }
+    return hash;
+}
 
 /** Encodes this enum value to a JSON string.  */
-                export function statusEncode(value: Status): string {
-                    return JSON.stringify(value);
-                }
+export function statusEncode(value: Status): string {
+    return JSON.stringify(value);
+}
 
-                /** Encodes with an existing context for nested/cyclic object graphs.  */
-                export function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext): string | number;
-                export function statusEncodeWithContext(value: Status): string | number {
-                    return value;
-                }
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext): string | number;
+export function statusEncodeWithContext(value: Status): string | number {
+    return value;
+}
 
 /** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
-        export function statusDecode(input: unknown): Status {
-            return statusDecodeWithContext(input);
-        }
+export function statusDecode(input: unknown): Status {
+    return statusDecodeWithContext(input);
+}
 
-        /** Decodes with an existing context (for consistency with other types).  */
-        export function statusDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Status;
-        export function statusDecodeWithContext(data: unknown): Status {
-            if (Status["Active"] === data) {
-                    return Status["Active"];
-                }
-            if (Status["Inactive"] === data) {
-                    return Status["Inactive"];
-                }
+/** Decodes with an existing context (for consistency with other types).  */
+export function statusDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Status;
+export function statusDecodeWithContext(data: unknown): Status {
+    if (Status["Active"] === data) {
+        return Status["Active"];
+    }
+    if (Status["Inactive"] === data) {
+        return Status["Inactive"];
+    }
+    throw new Error("Invalid Status value: " + JSON.stringify(data));
+}
 
-
-
-
-            throw new Error("Invalid Status value: " + JSON.stringify(data));
-        }
-
-        export function statusIs(value: unknown): value is Status {
-            if (Status["Active"] === value) {
-                    return true;
-                }
-            if (Status["Inactive"] === value) {
-                    return true;
-                }
-
-
-
-
-            return false;
-        }
+export function statusIs(value: unknown): value is Status {
+    if (Status["Active"] === value) {
+        return true;
+    }
+    if (Status["Inactive"] === value) {
+        return true;
+    }
+    return false;
+}
 
 namespace Status {
   export const toString: typeof statusToString = statusToString;
@@ -116,99 +101,35 @@ namespace Status {
 
 ## DTS
 
-enum Status {
-    Active = 'active',
-    Inactive = 'inactive'
+declare enum Status {
+	Active = "active",
+	Inactive = "inactive"
 }
-
-export function statusToString(value: Status): string {const key = Status[value as unknown as keyof typeof Status];
-                        if (key !== undefined) {
-                            return "Status." + key;
-                        }
-                        return "Status(" + String(value) + ")";
-
-
-
-
-
-
-
-
-                }
-
-export function statusClone(value: Status): Status {
-                    return value;
-                }
-
-export function statusEquals(a: Status, b: Status): boolean {
-                    return a === b;
-                }
-
-export function statusHashCode(value: Status): number {
-                        let hash = 0;
-                        for (let i = 0; i < value.length; i++) {
-                            hash = (hash * 31 + value.charCodeAt(i)) | 0;
-                        }
-                        return hash;
-                    }
-
+export declare function statusToString(value: Status): string;
+export declare function statusClone(value: Status): Status;
+export declare function statusEquals(a: Status, b: Status): boolean;
+export declare function statusHashCode(value: Status): number;
 /** Encodes this enum value to a JSON string.  */
-                export function statusEncode(value: Status): string {
-                    return JSON.stringify(value);
-                }
-
-                /** Encodes with an existing context for nested/cyclic object graphs.  */
-                export function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext): string | number;
-                export function statusEncodeWithContext(value: Status): string | number {
-                    return value;
-                }
-
+export declare function statusEncode(value: Status): string;
+/** Encodes with an existing context for nested/cyclic object graphs.  */
+export declare function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext): string | number;
 /** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
-        export function statusDecode(input: unknown): Status {
-            return statusDecodeWithContext(input);
-        }
-
-        /** Decodes with an existing context (for consistency with other types).  */
-        export function statusDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Status;
-        export function statusDecodeWithContext(data: unknown): Status {
-            if (Status["Active"] === data) {
-                    return Status["Active"];
-                }
-            if (Status["Inactive"] === data) {
-                    return Status["Inactive"];
-                }
-
-
-
-
-            throw new Error("Invalid Status value: " + JSON.stringify(data));
-        }
-
-        export function statusIs(value: unknown): value is Status {
-            if (Status["Active"] === value) {
-                    return true;
-                }
-            if (Status["Inactive"] === value) {
-                    return true;
-                }
-
-
-
-
-            return false;
-        }
-
-namespace Status {
-  export const toString: typeof statusToString = statusToString;
-  export const clone: typeof statusClone = statusClone;
-  export const equals: typeof statusEquals = statusEquals;
-  export const hashCode: typeof statusHashCode = statusHashCode;
-  export const encode: typeof statusEncode = statusEncode;
-  export const encodeWithContext: typeof statusEncodeWithContext = statusEncodeWithContext;
-  export const decode: typeof statusDecode = statusDecode;
-  export const decodeWithContext: typeof statusDecodeWithContext = statusDecodeWithContext;
-  export const is: typeof statusIs = statusIs;
+export declare function statusDecode(input: unknown): Status;
+/** Decodes with an existing context (for consistency with other types).  */
+export declare function statusDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Status;
+export declare function statusIs(value: unknown): value is Status;
+declare namespace Status {
+	const toString: typeof statusToString;
+	const clone: typeof statusClone;
+	const equals: typeof statusEquals;
+	const hashCode: typeof statusHashCode;
+	const encode: typeof statusEncode;
+	const encodeWithContext: typeof statusEncodeWithContext;
+	const decode: typeof statusDecode;
+	const decodeWithContext: typeof statusDecodeWithContext;
+	const is: typeof statusIs;
 }
+export {};
 
 ## Diagnostics
 
@@ -217,15 +138,15 @@ namespace Status {
 ## Mapping
 
 original 61..126 -> expanded 161..226
-original 126..127 -> expanded 3402..3403
+original 126..127 -> expanded 2767..2768
 generated 0..161 <- imports
-generated 226..560 <- Debug
-generated 560..666 <- Clone
-generated 666..783 <- PartialEq
-generated 783..1102 <- Hash
-generated 1102..1638 <- Encode
-generated 1638..2786 <- Decode
-generated 2786..3402 <- __convenience_const
+generated 226..461 <- Debug
+generated 461..535 <- Clone
+generated 535..620 <- PartialEq
+generated 620..819 <- Hash
+generated 819..1227 <- Encode
+generated 1227..2151 <- Decode
+generated 2151..2767 <- __convenience_const
 
 ## Metadata
 

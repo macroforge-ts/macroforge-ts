@@ -1,0 +1,617 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/address.svelte.ts
+sha256 6ba9cdab604cf348124dab9358e9549d308bb5987a5834c157d6261c007489ea
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+
+export interface Address {
+    
+    street: string;
+    
+    city: string;
+    
+    state: string;
+    
+    zipcode: string;
+}
+
+export function addressDefaultValue(): Address {
+    return {
+        street: "",
+        city: "",
+        state: "",
+        zipcode: "",
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function addressEncode(value: Address, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = addressEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function addressEncodeWithContext(value: Address, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Address",
+        __id,
+    };
+
+    
+    result.street = value.street;
+    result.city = value.city;
+    result.state = value.state;
+    result.zipcode = value.zipcode;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function addressDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Address } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = addressDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Address.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Address | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Address.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Address | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Address.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("street" in obj)) {
+        errors.push({ field: "street", message: "missing required field" });
+    }
+    if (!("city" in obj)) {
+        errors.push({ field: "city", message: "missing required field" });
+    }
+    if (!("state" in obj)) {
+        errors.push({ field: "state", message: "missing required field" });
+    }
+    if (!("zipcode" in obj)) {
+        errors.push({ field: "zipcode", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_street = obj["street"] as string;
+
+        if (!(typeof __raw_street === "string")) {
+            errors.push({ field: "street", message: __raw_street == null ? "Address.street is required" : "expected string" });
+        } else {
+            if (__raw_street == null) { errors.push({ field: "street", message: "Address.street is required" }); } else {
+                if (__raw_street.length === 0) { errors.push({ field: "street", message: "Address.street must not be empty" }); }
+            }
+            instance.street = __raw_street;
+        }
+    }
+    {
+        const __raw_city = obj["city"] as string;
+
+        if (!(typeof __raw_city === "string")) {
+            errors.push({ field: "city", message: __raw_city == null ? "Address.city is required" : "expected string" });
+        } else {
+            if (__raw_city == null) { errors.push({ field: "city", message: "Address.city is required" }); } else {
+                if (__raw_city.length === 0) { errors.push({ field: "city", message: "Address.city must not be empty" }); }
+            }
+            instance.city = __raw_city;
+        }
+    }
+    {
+        const __raw_state = obj["state"] as string;
+
+        if (!(typeof __raw_state === "string")) {
+            errors.push({ field: "state", message: __raw_state == null ? "Address.state is required" : "expected string" });
+        } else {
+            if (__raw_state == null) { errors.push({ field: "state", message: "Address.state is required" }); } else {
+                if (__raw_state.length === 0) { errors.push({ field: "state", message: "Address.state must not be empty" }); }
+            }
+            instance.state = __raw_state;
+        }
+    }
+    {
+        const __raw_zipcode = obj["zipcode"] as string;
+
+        if (!(typeof __raw_zipcode === "string")) {
+            errors.push({ field: "zipcode", message: __raw_zipcode == null ? "Address.zipcode is required" : "expected string" });
+        } else {
+            if (__raw_zipcode == null) { errors.push({ field: "zipcode", message: "Address.zipcode is required" }); } else {
+                if (__raw_zipcode.length === 0) { errors.push({ field: "zipcode", message: "Address.zipcode must not be empty" }); }
+            }
+            instance.zipcode = __raw_zipcode;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Address;
+}
+export function addressValidateField<K extends keyof Address>(field: K, value: unknown): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if (field === "street") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "street", message: "Address.street is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "street", message: "Address.street must not be empty" }); }
+        }
+    }
+    if (field === "city") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "city", message: "Address.city is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "city", message: "Address.city must not be empty" }); }
+        }
+    }
+    if (field === "state") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "state", message: "Address.state is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "state", message: "Address.state must not be empty" }); }
+        }
+    }
+    if (field === "zipcode") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "zipcode", message: "Address.zipcode is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "zipcode", message: "Address.zipcode must not be empty" }); }
+        }
+    }
+    return errors;
+}
+
+export function addressValidateFields(partial: { readonly [K in keyof Address]?: unknown }): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("street" in partial && partial.street !== undefined) {
+        const __val = partial.street as string;
+        if (__val == null) { errors.push({ field: "street", message: "Address.street is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "street", message: "Address.street must not be empty" }); }
+        }
+    }
+    if ("city" in partial && partial.city !== undefined) {
+        const __val = partial.city as string;
+        if (__val == null) { errors.push({ field: "city", message: "Address.city is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "city", message: "Address.city must not be empty" }); }
+        }
+    }
+    if ("state" in partial && partial.state !== undefined) {
+        const __val = partial.state as string;
+        if (__val == null) { errors.push({ field: "state", message: "Address.state is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "state", message: "Address.state must not be empty" }); }
+        }
+    }
+    if ("zipcode" in partial && partial.zipcode !== undefined) {
+        const __val = partial.zipcode as string;
+        if (__val == null) { errors.push({ field: "zipcode", message: "Address.zipcode is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "zipcode", message: "Address.zipcode must not be empty" }); }
+        }
+    }
+    return errors;
+}
+export function addressHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "street" in o && "city" in o && "state" in o && "zipcode" in o;
+}
+
+export function addressIs(obj: unknown): obj is Address {
+    return addressHasShape(obj) && addressDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type AddressErrors = {
+    _errors: Option.Option<Array<string>>;
+    street: Option.Option<Array<string>>;
+    city: Option.Option<Array<string>>;
+    state: Option.Option<Array<string>>;
+    zipcode: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type AddressTainted = {
+    street: Option.Option<boolean>;
+    city: Option.Option<boolean>;
+    state: Option.Option<boolean>;
+    zipcode: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface AddressFieldControllers {
+    readonly street: FieldController<string>;
+    readonly city: FieldController<string>;
+    readonly state: FieldController<string>;
+    readonly zipcode: FieldController<string>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface AddressGigaform {
+    readonly data: Address;
+    readonly errors: AddressErrors;
+    readonly tainted: AddressTainted;
+    readonly fields: AddressFieldControllers;
+    validate(): Exit.Exit<Address, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Address>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function addressCreateForm(overrides?: Partial<Address>): AddressGigaform {
+    let data = $state({ ...addressDefaultValue(), ...overrides });
+    let errors = $state<AddressErrors>({
+        _errors: Option.none(),
+        street: Option.none(),
+        city: Option.none(),
+        state: Option.none(),
+        zipcode: Option.none(),
+    });
+    let tainted = $state<AddressTainted>({
+        street: Option.none(),
+        city: Option.none(),
+        state: Option.none(),
+        zipcode: Option.none(),
+    });
+    const fields = {
+        street: {
+            name: "street",
+            label: "street",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["street"],
+            get: () => data.street,
+            set: (value: string) => { data.street = value; },
+            getError: () => errors.street,
+            setError: (value: Option.Option<Array<string>>) => { errors.street = value; },
+            getTainted: () => tainted.street,
+            setTainted: (value: Option.Option<boolean>) => { tainted.street = value; },
+            validate: () => addressValidateField("street", data.street).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        city: {
+            name: "city",
+            label: "city",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["city"],
+            get: () => data.city,
+            set: (value: string) => { data.city = value; },
+            getError: () => errors.city,
+            setError: (value: Option.Option<Array<string>>) => { errors.city = value; },
+            getTainted: () => tainted.city,
+            setTainted: (value: Option.Option<boolean>) => { tainted.city = value; },
+            validate: () => addressValidateField("city", data.city).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        state: {
+            name: "state",
+            label: "state",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["state"],
+            get: () => data.state,
+            set: (value: string) => { data.state = value; },
+            getError: () => errors.state,
+            setError: (value: Option.Option<Array<string>>) => { errors.state = value; },
+            getTainted: () => tainted.state,
+            setTainted: (value: Option.Option<boolean>) => { tainted.state = value; },
+            validate: () => addressValidateField("state", data.state).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        zipcode: {
+            name: "zipcode",
+            label: "zipcode",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["zipcode"],
+            get: () => data.zipcode,
+            set: (value: string) => { data.zipcode = value; },
+            getError: () => errors.zipcode,
+            setError: (value: Option.Option<Array<string>>) => { errors.zipcode = value; },
+            getTainted: () => tainted.zipcode,
+            setTainted: (value: Option.Option<boolean>) => { tainted.zipcode = value; },
+            validate: () => addressValidateField("zipcode", data.zipcode).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as AddressFieldControllers;
+
+    function validate(): Exit.Exit<Address, Array<{ field: string; message: string }>> {
+        return toExit(addressDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<Address>): void {
+        data = { ...addressDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            street: Option.none(),
+            city: Option.none(),
+            state: Option.none(),
+            zipcode: Option.none(),
+        };
+        tainted = {
+            street: Option.none(),
+            city: Option.none(),
+            state: Option.none(),
+            zipcode: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function addressFromFormData(formData: FormData): Exit.Exit<Address, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    obj.street = formData.get("street") ?? "";
+    obj.city = formData.get("city") ?? "";
+    obj.state = formData.get("state") ?? "";
+    obj.zipcode = formData.get("zipcode") ?? "";
+
+    return toExit(addressDecode(obj));
+}
+
+export const Address: {
+  readonly defaultValue: typeof addressDefaultValue;
+  readonly encode: typeof addressEncode;
+  readonly encodeWithContext: typeof addressEncodeWithContext;
+  readonly decode: typeof addressDecode;
+  readonly decodeWithContext: typeof addressDecodeWithContext;
+  readonly validateField: typeof addressValidateField;
+  readonly validateFields: typeof addressValidateFields;
+  readonly hasShape: typeof addressHasShape;
+  readonly is: typeof addressIs;
+  readonly createForm: typeof addressCreateForm;
+  readonly fromFormData: typeof addressFromFormData;
+} = {
+  defaultValue: addressDefaultValue,
+  encode: addressEncode,
+  encodeWithContext: addressEncodeWithContext,
+  decode: addressDecode,
+  decodeWithContext: addressDecodeWithContext,
+  validateField: addressValidateField,
+  validateFields: addressValidateFields,
+  hasShape: addressHasShape,
+  is: addressIs,
+  createForm: addressCreateForm,
+  fromFormData: addressFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+export interface Address {
+	street: string;
+	city: string;
+	state: string;
+	zipcode: string;
+}
+export declare function addressDefaultValue(): Address;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function addressEncode(value: Address, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function addressEncodeWithContext(value: Address, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function addressDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Address;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Address | __mf_PendingRef;
+export declare function addressValidateField<K extends keyof Address>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function addressValidateFields(partial: { readonly [K in keyof Address]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function addressHasShape(obj: unknown): boolean;
+export declare function addressIs(obj: unknown): obj is Address;
+/** Nested error structure matching the data shape  */
+export type AddressErrors = {
+	_errors: Option.Option<Array<string>>;
+	street: Option.Option<Array<string>>;
+	city: Option.Option<Array<string>>;
+	state: Option.Option<Array<string>>;
+	zipcode: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type AddressTainted = {
+	street: Option.Option<boolean>;
+	city: Option.Option<boolean>;
+	state: Option.Option<boolean>;
+	zipcode: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface AddressFieldControllers {
+	readonly street: FieldController<string>;
+	readonly city: FieldController<string>;
+	readonly state: FieldController<string>;
+	readonly zipcode: FieldController<string>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface AddressGigaform {
+	readonly data: Address;
+	readonly errors: AddressErrors;
+	readonly tainted: AddressTainted;
+	readonly fields: AddressFieldControllers;
+	validate(): Exit.Exit<Address, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<Address>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function addressCreateForm(overrides?: Partial<Address>): AddressGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function addressFromFormData(formData: FormData): Exit.Exit<Address, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const Address: {
+	readonly defaultValue: typeof addressDefaultValue;
+	readonly encode: typeof addressEncode;
+	readonly encodeWithContext: typeof addressEncodeWithContext;
+	readonly decode: typeof addressDecode;
+	readonly decodeWithContext: typeof addressDecodeWithContext;
+	readonly validateField: typeof addressValidateField;
+	readonly validateFields: typeof addressValidateFields;
+	readonly hasShape: typeof addressHasShape;
+	readonly is: typeof addressIs;
+	readonly createForm: typeof addressCreateForm;
+	readonly fromFormData: typeof addressFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 421..479
+original 107..139 -> expanded 479..511
+original 180..205 -> expanded 511..536
+original 246..269 -> expanded 536..559
+original 310..334 -> expanded 559..583
+original 375..398 -> expanded 583..606
+original 398..399 -> expanded 18244..18245
+generated 0..421 <- imports
+generated 606..756 <- Default
+generated 756..1956 <- Encode
+generated 1956..10792 <- Decode
+generated 10792..17281 <- Gigaform
+generated 17281..18244 <- __convenience_const
+
+## Metadata
+
+interface Address: {"body_span":{"end":399,"start":134},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":181,"start":140}}],"name":"street","optional":false,"readonly":false,"span":{"end":201,"start":186},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":247,"start":206}}],"name":"city","optional":false,"readonly":false,"span":{"end":265,"start":252},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":311,"start":270}}],"name":"state","optional":false,"readonly":false,"span":{"end":330,"start":316},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":376,"start":335}}],"name":"zipcode","optional":false,"readonly":false,"span":{"end":397,"start":381},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Address","span":{"end":399,"start":116},"type_params":[]}
+
+## Registry reads
+
+Name("string")
+
+## Buildtime dependencies
+
+(none)

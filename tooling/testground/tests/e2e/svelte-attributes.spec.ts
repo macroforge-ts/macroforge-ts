@@ -1,0 +1,60 @@
+import { expect, test } from '@playwright/test';
+import { readSvelteSlice } from './svelte-testground';
+
+// End-to-end checks for the four Rust-inspired attribute macros in the
+// SvelteKit testground. Mirrors `vanilla-attributes.spec.ts` against the
+// `/attributes` route. The fixture lives in
+// `testground/svelte/src/lib/demo/attributes-demo.ts` and the consumer that
+// probes its runtime exports lives in `attributes-demo-consumer.ts` (the
+// indirection is needed because `@cfg`-stripped declarations would TDZ if
+// referenced by name from their own module).
+
+test.describe('Svelte Testground attribute macro tests', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/attributes');
+        // The results reach globalThis during hydration, after the SSR markup shows.
+        await page.waitForSelector('body.hydrated', { timeout: 10000 });
+        await page.waitForSelector('[data-testid="attributes-results"]');
+    });
+
+    test('@cfg keeps declarations whose feature is in the config', async ({ page }) => {
+        const kept = page.locator('[data-testid="attr-kept-feature"]');
+        await expect(kept).toHaveText('kept-by-feature');
+    });
+
+    test('@cfg strips declarations whose feature is missing', async ({ page }) => {
+        const stripped = page.locator('[data-testid="attr-stripped-feature"]');
+        await expect(stripped).toHaveText('(stripped)');
+    });
+
+    test('@cfg keeps declarations whose target matches', async ({ page }) => {
+        const kept = page.locator('[data-testid="attr-kept-target"]');
+        await expect(kept).toHaveText('kept-by-target');
+    });
+
+    test('@cfg strips declarations whose target does not match', async ({ page }) => {
+        const stripped = page.locator('[data-testid="attr-stripped-target"]');
+        await expect(stripped).toHaveText('(stripped)');
+    });
+
+    test('@deprecated function still callable after JSDoc rewrite', async ({ page }) => {
+        const dep = page.locator('[data-testid="attr-deprecated-call"]');
+        await expect(dep).toHaveText('render-v1');
+    });
+
+    test('@nonExhaustive value passes through at runtime', async ({ page }) => {
+        const status = page.locator('[data-testid="attr-non-exhaustive"]');
+        await expect(status).toHaveText('green');
+    });
+
+    test('attribute results are published for inspection', async ({ page }) => {
+        const results = await readSvelteSlice(page, 'attributes');
+
+        expect(results.keptByFeature).toBe('kept-by-feature');
+        expect(results.strippedByFeature).toBeNull();
+        expect(results.keptByTarget).toBe('kept-by-target');
+        expect(results.strippedByTarget).toBeNull();
+        expect(results.deprecatedCall).toBe('render-v1');
+        expect(results.nonExhaustiveValue).toBe('green');
+    });
+});

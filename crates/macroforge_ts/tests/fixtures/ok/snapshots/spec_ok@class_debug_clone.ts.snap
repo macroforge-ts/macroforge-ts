@@ -36,62 +36,41 @@ class User {
         this.name = name;
     }
 
-static toString(value: User): string {
-                    return userToString(value);
-                }
-static clone(value: User): User {
-                    return userClone(value);
-                }}
+    static toString(value: User): string {
+        return userToString(value);
+    }
+
+    static clone(value: User): User {
+        return userClone(value);
+    }
+}
 
 export function userToString(value: User): string {
-                        const parts: string[] = [];
-                        parts.push("id: " + value.id);
-parts.push("name: " + value.name);
-
-                        return "User { " + parts.join(", ") + " }";
-                    }
+    const parts: string[] = [];
+    parts.push("id: " + String(value.id));
+    parts.push("name: " + String(value.name));
+    return "User { " + parts.join(", ") + " }";
+}
 
 export function userClone(value: User): User {
-                    const cloned = Object.create(Object.getPrototypeOf(value));
-                    cloned.id = value.id;
-cloned.name = value.name;
-
-                    return cloned;
-                }
+    const cloned = Object.create(Object.getPrototypeOf(value));
+    cloned.id = value.id;
+    cloned.name = value.name;
+    return cloned;
+}
 
 ## DTS
 
-import { Derive } from '@macro/derive';
-
-
-class User {
-    id: number;
-    name: string;
-
-    constructor(id: number, name: string);
-
-static toString(value: User): string {
-                    return userToString(value);
-                }
-static clone(value: User): User {
-                    return userClone(value);
-                }}
-
-export function userToString(value: User): string {
-                        const parts: string[] = [];
-                        parts.push("id: " + value.id);
-parts.push("name: " + value.name);
-
-                        return "User { " + parts.join(", ") + " }";
-                    }
-
-export function userClone(value: User): User {
-                    const cloned = Object.create(Object.getPrototypeOf(value));
-                    cloned.id = value.id;
-cloned.name = value.name;
-
-                    return cloned;
-                }
+declare class User {
+	id: number;
+	name: string;
+	constructor(id: number, name: string);
+	static toString(value: User): string;
+	static clone(value: User): User;
+}
+export declare function userToString(value: User): string;
+export declare function userClone(value: User): User;
+export {};
 
 ## Diagnostics
 
@@ -101,16 +80,16 @@ cloned.name = value.name;
 
 original 0..41 -> expanded 0..41
 original 69..216 -> expanded 41..188
-original 216..217 -> expanded 390..391
-original 217..218 -> expanded 927..928
-generated 188..293 <- Debug
-generated 293..390 <- Clone
-generated 391..677 <- Debug
-generated 677..927 <- Clone
+original 216..217 -> expanded 352..353
+original 217..218 -> expanded 767..768
+generated 188..274 <- Debug
+generated 274..352 <- Clone
+generated 353..578 <- Debug
+generated 578..767 <- Clone
 
 ## Metadata
 
-class User: {"body_span":{"end":218,"start":82},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":70,"start":42}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":99,"start":88},"ts_type":"number","visibility":"Public"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":117,"start":104},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":216,"start":161},"body_src":"\n        this.id = id;\n        this.name = name;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: number, name: string","return_type_src":"","span":{"end":216,"start":123},"type_params_src":"","visibility":"Public"}],"name":"User","span":{"end":218,"start":71},"type_params":[]}
+class User: {"body_span":{"end":218,"start":82},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":70,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":99,"start":88},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":117,"start":104},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":216,"start":161},"body_src":"\n        this.id = id;\n        this.name = name;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: number, name: string","return_type_src":"","span":{"end":216,"start":123},"type_params":[],"visibility":"Public"}],"name":"User","span":{"end":218,"start":71},"type_params":[]}
 
 ## Registry reads
 

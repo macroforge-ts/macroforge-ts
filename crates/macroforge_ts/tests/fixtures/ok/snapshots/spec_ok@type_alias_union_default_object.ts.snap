@@ -22,11 +22,8 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
-import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
-import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 export type PropValue =
     | /** @default */ { type: 'String'; value: string }
@@ -38,1006 +35,197 @@ export type PropValue =
     | { type: 'Expression'; value: string };
 
 export function propValueDefaultValue(): PropValue {
-                            return ({
+    return ({
 	type: "String",
 	value: ""
 });
-                        }
+}
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function propValueEncode(value: PropValue, keepMetadata?: boolean): string {
-                            const ctx = __mf_EncodeContext.create();
-                            const __raw = propValueEncodeWithContext(value, ctx);
-                            if (keepMetadata) return JSON.stringify(__raw);
-                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                        }
+export function propValueEncode(value: PropValue, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = propValueEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
 
-                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                        export function propValueEncodeWithContext(value: PropValue, ctx: __mf_EncodeContext): unknown {
-                            let __variant: unknown;
-                            let __matched = false;
-                            if (typeof (value as any)?.encodeWithContext === "function") {
-                                __variant = (value as any).encodeWithContext(ctx);
-                                __matched = true;
-                            }
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function propValueEncodeWithContext(value: PropValue, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    
+    if (!__matched) {
+        __variant = value;
+    }
 
+    if (typeof __variant !== "object" || __variant === null) return __variant;
+    const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
+    if (typeof __typeName !== "string") return __variant;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                            if (!__matched) {
-                                __variant = value;
-                            }if (typeof __variant !== "object" || __variant === null) return __variant;
-                                const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
-                                if (typeof __typeName !== "string") return __variant;const __outer: Record<string, unknown> = { "type": __typeName, "value": fields };
-                                    if (__idVal !== undefined) __outer.__id = __idVal;
-                                    return __outer;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                        }
+    const __outer: Record<string, unknown> = { "type": __typeName, "value": fields };
+    if (__idVal !== undefined) __outer.__id = __idVal;
+    return __outer;
+}
 
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-        export function propValueDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PropValue } | { success: false; errors: Array<{ field: string; message: string }> } {
-            try {
-                const data = typeof input === "string" ? JSON.parse(input) : input;
+export function propValueDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PropValue } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DecodeContext.create();
-                const resultOrRef = propValueDecodeWithContext(data, ctx);
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = propValueDecodeWithContext(data, ctx);
 
-                if (__mf_PendingRef.is(resultOrRef)) {
-                    return ({
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
 	success: false,
 	errors: [{
 		field: "_root",
 		message: "PropValue.decode: root cannot be a forward reference"
 	}]
 });
-                }
+        }
 
-                ctx.applyPatches();
-                if (opts?.freeze) {
-                    ctx.freezeAll();
-                }
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
 
-                const __errors = ctx.getErrors();
-                if (__errors.length > 0) {
-                    return ({
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
 	success: false,
 	errors: __errors
 });
-                }
+        }
 
-                return ({
+        return ({
 	success: true,
 	value: resultOrRef
 });
-            } catch (e) {
-                if (e instanceof __mf_DecodeError) {
-                    return ({
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
 	success: false,
 	errors: e.errors
 });
-                }
-                const message = e instanceof Error ? e.message : String(e);
-                return ({
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
 	success: false,
 	errors: [{
 		field: "_root",
 		message
 	}]
 });
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function propValueDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): PropValue | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "PropValue.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as PropValue | __mf_PendingRef;
+    }
+
+    
+
+    if (typeof value === "object" && value !== null) {
+        const __typeName = (value as any)["type"];
+        if (typeof __typeName === "string") {
+            if (__typeName === "String") {
+                const __result: Record<string, unknown> = { "type": "String" };
+                __result["value"] = (value as any)["value"] ?? null;
+                return __result as PropValue;
+            }
+            if (__typeName === "Number") {
+                const __result: Record<string, unknown> = { "type": "Number" };
+                __result["value"] = (value as any)["value"] ?? null;
+                return __result as PropValue;
+            }
+            if (__typeName === "Boolean") {
+                const __result: Record<string, unknown> = { "type": "Boolean" };
+                __result["value"] = (value as any)["value"] ?? null;
+                return __result as PropValue;
+            }
+            if (__typeName === "Json") {
+                const __result: Record<string, unknown> = { "type": "Json" };
+                __result["value"] = (value as any)["value"] ?? null;
+                return __result as PropValue;
+            }
+            if (__typeName === "Asset") {
+                const __result: Record<string, unknown> = { "type": "Asset" };
+                __result["value"] = (value as any)["value"] ?? null;
+                return __result as PropValue;
+            }
+            if (__typeName === "Page") {
+                const __result: Record<string, unknown> = { "type": "Page" };
+                __result["value"] = (value as any)["value"] ?? null;
+                return __result as PropValue;
+            }
+            if (__typeName === "Expression") {
+                const __result: Record<string, unknown> = { "type": "Expression" };
+                __result["value"] = (value as any)["value"] ?? null;
+                return __result as PropValue;
             }
         }
-
-        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-        export function propValueDecodeWithContext(value: any, ctx: __mf_DecodeContext): PropValue | __mf_PendingRef {
-                        if (value?.__ref !== undefined) {
-                            return ctx.getOrDefer(value.__ref) as PropValue | __mf_PendingRef;
-                        }if (typeof value === "object" && value !== null) {
-                                    const __typeName = (value as any)["type"];
-                                    if (typeof __typeName === "string") {
-                                        if (__typeName === "String") {
-                                                const __result: Record<string, unknown> = { "type": "String" };
-                                                
-                                                __result["value"] = (value as any)["value"] ?? null;
-
-
-
-
-                                                return __result as PropValue;
-                                            }
-                                        if (__typeName === "Number") {
-                                                const __result: Record<string, unknown> = { "type": "Number" };
-                                                
-                                                __result["value"] = (value as any)["value"] ?? null;
-
-
-
-
-                                                return __result as PropValue;
-                                            }
-                                        if (__typeName === "Boolean") {
-                                                const __result: Record<string, unknown> = { "type": "Boolean" };
-                                                
-                                                __result["value"] = (value as any)["value"] ?? null;
-
-
-
-
-                                                return __result as PropValue;
-                                            }
-                                        if (__typeName === "Json") {
-                                                const __result: Record<string, unknown> = { "type": "Json" };
-                                                
-                                                __result["value"] = (value as any)["value"] ?? null;
-
-
-
-
-                                                return __result as PropValue;
-                                            }
-                                        if (__typeName === "Asset") {
-                                                const __result: Record<string, unknown> = { "type": "Asset" };
-                                                
-                                                __result["value"] = (value as any)["value"] ?? null;
-
-
-
-
-                                                return __result as PropValue;
-                                            }
-                                        if (__typeName === "Page") {
-                                                const __result: Record<string, unknown> = { "type": "Page" };
-                                                
-                                                __result["value"] = (value as any)["value"] ?? null;
-
-
-
-
-                                                return __result as PropValue;
-                                            }
-                                        if (__typeName === "Expression") {
-                                                const __result: Record<string, unknown> = { "type": "Expression" };
-                                                
-                                                __result["value"] = (value as any)["value"] ?? null;
-
-
-
-
-                                                return __result as PropValue;
-                                            }
-
-
-
-
-
-
-
-
-
-
-                                    }
-                                }
-
-
-
-
-
-
-
-
-
-
-
-
-                            throw new __mf_DecodeError([{
-                                field: "_root",
-                                message: "PropValue.decodeWithContext: value does not match any union member"
-                            }]);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        }
-
-        export function propValueHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
-                                    const __typeName = (value as any)["type"];
-                                    if (["String", "Number", "Boolean", "Json", "Asset", "Page", "Expression"].includes(__typeName)) return true;
-                                }return false;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        }
-
-        export function propValueIs(value: unknown): value is PropValue {return propValueHasShape(value);
-
-
-
-
-        }
-export function propValueStringIs(__v: unknown): __v is Extract<PropValue, { type: 'String' }> {
-                    return __v !== null
-                        && typeof __v === "object"
-                        && (__v as Record<string, unknown>)["type"] === "String";
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "PropValue.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function propValueHasShape(value: unknown): boolean {
+                if (typeof value === "object" && value !== null) {
+                    const __typeName = (value as any)["type"];
+                    if (["String", "Number", "Boolean", "Json", "Asset", "Page", "Expression"].includes(__typeName)) return true;
                 }
-export function propValueNumberIs(__v: unknown): __v is Extract<PropValue, { type: 'Number' }> {
-                    return __v !== null
-                        && typeof __v === "object"
-                        && (__v as Record<string, unknown>)["type"] === "Number";
-                }
-export function propValueBooleanIs(__v: unknown): __v is Extract<PropValue, { type: 'Boolean' }> {
-                    return __v !== null
-                        && typeof __v === "object"
-                        && (__v as Record<string, unknown>)["type"] === "Boolean";
-                }
-export function propValueJsonIs(__v: unknown): __v is Extract<PropValue, { type: 'Json' }> {
-                    return __v !== null
-                        && typeof __v === "object"
-                        && (__v as Record<string, unknown>)["type"] === "Json";
-                }
-export function propValueAssetIs(__v: unknown): __v is Extract<PropValue, { type: 'Asset' }> {
-                    return __v !== null
-                        && typeof __v === "object"
-                        && (__v as Record<string, unknown>)["type"] === "Asset";
-                }
-export function propValuePageIs(__v: unknown): __v is Extract<PropValue, { type: 'Page' }> {
-                    return __v !== null
-                        && typeof __v === "object"
-                        && (__v as Record<string, unknown>)["type"] === "Page";
-                }
-export function propValueExpressionIs(__v: unknown): __v is Extract<PropValue, { type: 'Expression' }> {
-                    return __v !== null
-                        && typeof __v === "object"
-                        && (__v as Record<string, unknown>)["type"] === "Expression";
-                }
+                return false;
+}
+export function propValueIs(value: unknown): value is PropValue {
+    return propValueHasShape(value);
+}
+export function propValueStringIs(__v: unknown): __v is Extract<PropValue, { type: "String" }> {
+    return __v !== null
+        && typeof __v === "object"
+        && (__v as Record<string, unknown>)["type"] === "String";
+}
+export function propValueNumberIs(__v: unknown): __v is Extract<PropValue, { type: "Number" }> {
+    return __v !== null
+        && typeof __v === "object"
+        && (__v as Record<string, unknown>)["type"] === "Number";
+}
+export function propValueBooleanIs(__v: unknown): __v is Extract<PropValue, { type: "Boolean" }> {
+    return __v !== null
+        && typeof __v === "object"
+        && (__v as Record<string, unknown>)["type"] === "Boolean";
+}
+export function propValueJsonIs(__v: unknown): __v is Extract<PropValue, { type: "Json" }> {
+    return __v !== null
+        && typeof __v === "object"
+        && (__v as Record<string, unknown>)["type"] === "Json";
+}
+export function propValueAssetIs(__v: unknown): __v is Extract<PropValue, { type: "Asset" }> {
+    return __v !== null
+        && typeof __v === "object"
+        && (__v as Record<string, unknown>)["type"] === "Asset";
+}
+export function propValuePageIs(__v: unknown): __v is Extract<PropValue, { type: "Page" }> {
+    return __v !== null
+        && typeof __v === "object"
+        && (__v as Record<string, unknown>)["type"] === "Page";
+}
+export function propValueExpressionIs(__v: unknown): __v is Extract<PropValue, { type: "Expression" }> {
+    return __v !== null
+        && typeof __v === "object"
+        && (__v as Record<string, unknown>)["type"] === "Expression";
+}
 
 export const PropValue: {
   readonly defaultValue: typeof propValueDefaultValue;
@@ -1073,1047 +261,84 @@ export const PropValue: {
 
 ## DTS
 
-export type PropValue =
-    | /** @default */ { type: 'String'; value: string }
-    | { type: 'Number'; value: number }
-    | { type: 'Boolean'; value: boolean }
-    | { type: 'Json'; value: string }
-    | { type: 'Asset'; value: string }
-    | { type: 'Page'; value: string }
-    | { type: 'Expression'; value: string };
-
-export function propValueDefaultValue(): PropValue {
-                            return ({
-	type: "String",
-	value: ""
-});
-                        }
-
+export type PropValue = {
+	type: "String";
+	value: string;
+} | {
+	type: "Number";
+	value: number;
+} | {
+	type: "Boolean";
+	value: boolean;
+} | {
+	type: "Json";
+	value: string;
+} | {
+	type: "Asset";
+	value: string;
+} | {
+	type: "Page";
+	value: string;
+} | {
+	type: "Expression";
+	value: string;
+};
+export declare function propValueDefaultValue(): PropValue;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function propValueEncode(value: PropValue, keepMetadata?: boolean): string {
-                            const ctx = __mf_EncodeContext.create();
-                            const __raw = propValueEncodeWithContext(value, ctx);
-                            if (keepMetadata) return JSON.stringify(__raw);
-                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
-                        }
-
-                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-                        export function propValueEncodeWithContext(value: PropValue, ctx: __mf_EncodeContext): unknown {
-                            let __variant: unknown;
-                            let __matched = false;
-                            if (typeof (value as any)?.encodeWithContext === "function") {
-                                __variant = (value as any).encodeWithContext(ctx);
-                                __matched = true;
-                            }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                            if (!__matched) {
-                                __variant = value;
-                            }if (typeof __variant !== "object" || __variant === null) return __variant;
-                                const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
-                                if (typeof __typeName !== "string") return __variant;const __outer: Record<string, unknown> = { "type": __typeName, "value": fields };
-                                    if (__idVal !== undefined) __outer.__id = __idVal;
-                                    return __outer;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                        }
-
+export declare function propValueEncode(value: PropValue, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function propValueEncodeWithContext(value: PropValue, ctx: __mf_EncodeContext): unknown;
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-        export function propValueDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PropValue } | { success: false; errors: Array<{ field: string; message: string }> } {
-            try {
-                const data = typeof input === "string" ? JSON.parse(input) : input;
-
-                const ctx = __mf_DecodeContext.create();
-                const resultOrRef = propValueDecodeWithContext(data, ctx);
-
-                if (__mf_PendingRef.is(resultOrRef)) {
-                    return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message: "PropValue.decode: root cannot be a forward reference"
-	}]
-});
-                }
-
-                ctx.applyPatches();
-                if (opts?.freeze) {
-                    ctx.freezeAll();
-                }
-
-                const __errors = ctx.getErrors();
-                if (__errors.length > 0) {
-                    return ({
-	success: false,
-	errors: __errors
-});
-                }
-
-                return ({
-	success: true,
-	value: resultOrRef
-});
-            } catch (e) {
-                if (e instanceof __mf_DecodeError) {
-                    return ({
-	success: false,
-	errors: e.errors
-});
-                }
-                const message = e instanceof Error ? e.message : String(e);
-                return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message
-	}]
-});
-            }
-        }
-
-        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-        export function propValueDecodeWithContext(value: any, ctx: __mf_DecodeContext): PropValue | __mf_PendingRef {
-                        if (value?.__ref !== undefined) {
-                            return ctx.getOrDefer(value.__ref) as PropValue | __mf_PendingRef;
-                        }if (typeof value === "object" && value !== null) {
-                                    const __typeName = (value as any)["type"];
-                                    if (typeof __typeName === "string") {
-                                        if (__typeName === "String") {
-                                                const __result: Record<string, unknown> = { "type": "String" };
-                                                
-                                                __result["value"] = (value as any)["value"] ?? null;
-
-
-
-
-                                                return __result as PropValue;
-                                            }
-                                        if (__typeName === "Number") {
-                                                const __result: Record<string, unknown> = { "type": "Number" };
-                                                
-                                                __result["value"] = (value as any)["value"] ?? null;
-
-
-
-
-                                                return __result as PropValue;
-                                            }
-                                        if (__typeName === "Boolean") {
-                                                const __result: Record<string, unknown> = { "type": "Boolean" };
-                                                
-                                                __result["value"] = (value as any)["value"] ?? null;
-
-
-
-
-                                                return __result as PropValue;
-                                            }
-                                        if (__typeName === "Json") {
-                                                const __result: Record<string, unknown> = { "type": "Json" };
-                                                
-                                                __result["value"] = (value as any)["value"] ?? null;
-
-
-
-
-                                                return __result as PropValue;
-                                            }
-                                        if (__typeName === "Asset") {
-                                                const __result: Record<string, unknown> = { "type": "Asset" };
-                                                
-                                                __result["value"] = (value as any)["value"] ?? null;
-
-
-
-
-                                                return __result as PropValue;
-                                            }
-                                        if (__typeName === "Page") {
-                                                const __result: Record<string, unknown> = { "type": "Page" };
-                                                
-                                                __result["value"] = (value as any)["value"] ?? null;
-
-
-
-
-                                                return __result as PropValue;
-                                            }
-                                        if (__typeName === "Expression") {
-                                                const __result: Record<string, unknown> = { "type": "Expression" };
-                                                
-                                                __result["value"] = (value as any)["value"] ?? null;
-
-
-
-
-                                                return __result as PropValue;
-                                            }
-
-
-
-
-
-
-
-
-
-
-                                    }
-                                }
-
-
-
-
-
-
-
-
-
-
-
-
-                            throw new __mf_DecodeError([{
-                                field: "_root",
-                                message: "PropValue.decodeWithContext: value does not match any union member"
-                            }]);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        }
-
-        export function propValueHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
-                                    const __typeName = (value as any)["type"];
-                                    if (["String", "Number", "Boolean", "Json", "Asset", "Page", "Expression"].includes(__typeName)) return true;
-                                }return false;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        }
-
-        export function propValueIs(value: unknown): value is PropValue {return propValueHasShape(value);
-
-
-
-
-        }
-export function propValueStringIs(__v: unknown): __v is Extract<PropValue, { type: 'String' }> {
-                    return __v !== null
-                        && typeof __v === "object"
-                        && (__v as Record<string, unknown>)["type"] === "String";
-                }
-export function propValueNumberIs(__v: unknown): __v is Extract<PropValue, { type: 'Number' }> {
-                    return __v !== null
-                        && typeof __v === "object"
-                        && (__v as Record<string, unknown>)["type"] === "Number";
-                }
-export function propValueBooleanIs(__v: unknown): __v is Extract<PropValue, { type: 'Boolean' }> {
-                    return __v !== null
-                        && typeof __v === "object"
-                        && (__v as Record<string, unknown>)["type"] === "Boolean";
-                }
-export function propValueJsonIs(__v: unknown): __v is Extract<PropValue, { type: 'Json' }> {
-                    return __v !== null
-                        && typeof __v === "object"
-                        && (__v as Record<string, unknown>)["type"] === "Json";
-                }
-export function propValueAssetIs(__v: unknown): __v is Extract<PropValue, { type: 'Asset' }> {
-                    return __v !== null
-                        && typeof __v === "object"
-                        && (__v as Record<string, unknown>)["type"] === "Asset";
-                }
-export function propValuePageIs(__v: unknown): __v is Extract<PropValue, { type: 'Page' }> {
-                    return __v !== null
-                        && typeof __v === "object"
-                        && (__v as Record<string, unknown>)["type"] === "Page";
-                }
-export function propValueExpressionIs(__v: unknown): __v is Extract<PropValue, { type: 'Expression' }> {
-                    return __v !== null
-                        && typeof __v === "object"
-                        && (__v as Record<string, unknown>)["type"] === "Expression";
-                }
-
-export const PropValue: {
-  readonly defaultValue: typeof propValueDefaultValue;
-  readonly encode: typeof propValueEncode;
-  readonly encodeWithContext: typeof propValueEncodeWithContext;
-  readonly decode: typeof propValueDecode;
-  readonly decodeWithContext: typeof propValueDecodeWithContext;
-  readonly hasShape: typeof propValueHasShape;
-  readonly is: typeof propValueIs;
-  readonly stringIs: typeof propValueStringIs;
-  readonly numberIs: typeof propValueNumberIs;
-  readonly booleanIs: typeof propValueBooleanIs;
-  readonly jsonIs: typeof propValueJsonIs;
-  readonly assetIs: typeof propValueAssetIs;
-  readonly pageIs: typeof propValuePageIs;
-  readonly expressionIs: typeof propValueExpressionIs;
-} = {
-  defaultValue: propValueDefaultValue,
-  encode: propValueEncode,
-  encodeWithContext: propValueEncodeWithContext,
-  decode: propValueDecode,
-  decodeWithContext: propValueDecodeWithContext,
-  hasShape: propValueHasShape,
-  is: propValueIs,
-  stringIs: propValueStringIs,
-  numberIs: propValueNumberIs,
-  booleanIs: propValueBooleanIs,
-  jsonIs: propValueJsonIs,
-  assetIs: propValueAssetIs,
-  pageIs: propValuePageIs,
-  expressionIs: propValueExpressionIs
+export declare function propValueDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: PropValue;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function propValueDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): PropValue | __mf_PendingRef;
+export declare function propValueHasShape(value: unknown): boolean;
+export declare function propValueIs(value: unknown): value is PropValue;
+export declare function propValueStringIs(__v: unknown): __v is Extract<PropValue, {
+	type: "String";
+}>;
+export declare function propValueNumberIs(__v: unknown): __v is Extract<PropValue, {
+	type: "Number";
+}>;
+export declare function propValueBooleanIs(__v: unknown): __v is Extract<PropValue, {
+	type: "Boolean";
+}>;
+export declare function propValueJsonIs(__v: unknown): __v is Extract<PropValue, {
+	type: "Json";
+}>;
+export declare function propValueAssetIs(__v: unknown): __v is Extract<PropValue, {
+	type: "Asset";
+}>;
+export declare function propValuePageIs(__v: unknown): __v is Extract<PropValue, {
+	type: "Page";
+}>;
+export declare function propValueExpressionIs(__v: unknown): __v is Extract<PropValue, {
+	type: "Expression";
+}>;
+export declare const PropValue: {
+	readonly defaultValue: typeof propValueDefaultValue;
+	readonly encode: typeof propValueEncode;
+	readonly encodeWithContext: typeof propValueEncodeWithContext;
+	readonly decode: typeof propValueDecode;
+	readonly decodeWithContext: typeof propValueDecodeWithContext;
+	readonly hasShape: typeof propValueHasShape;
+	readonly is: typeof propValueIs;
+	readonly stringIs: typeof propValueStringIs;
+	readonly numberIs: typeof propValueNumberIs;
+	readonly booleanIs: typeof propValueBooleanIs;
+	readonly jsonIs: typeof propValueJsonIs;
+	readonly assetIs: typeof propValueAssetIs;
+	readonly pageIs: typeof propValuePageIs;
+	readonly expressionIs: typeof propValueExpressionIs;
 };
 
 ## Diagnostics
@@ -2122,13 +347,13 @@ export const PropValue: {
 
 ## Mapping
 
-original 88..410 -> expanded 385..707
-original 410..411 -> expanded 13096..13097
-generated 0..385 <- imports
-generated 707..857 <- Default
-generated 857..2877 <- Encode
-generated 2877..11921 <- Decode
-generated 11921..13096 <- __convenience_const
+original 88..410 -> expanded 301..623
+original 410..411 -> expanded 9419..9420
+generated 0..301 <- imports
+generated 623..725 <- Default
+generated 725..2143 <- Encode
+generated 2143..8244 <- Decode
+generated 8244..9419 <- __convenience_const
 
 ## Metadata
 

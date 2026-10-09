@@ -18,126 +18,86 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
-import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
-import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Port = number;
 
-/** Encodes a value to a JSON string. @param value - The value to encode @param _keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
-                    export function portEncode(value: Port, _keepMetadata?: boolean): string {return JSON.stringify(value);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export function portEncode(value: Port, keepMetadata?: boolean): string;
+export function portEncode(value: Port): string {
+    return JSON.stringify(value);
+}
 
-
-
-
-                    }
-
-                    /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param _ctx - The encoding context, unused for primitives  */
-                    export function portEncodeWithContext(value: Port, _ctx: __mf_EncodeContext): unknown {return value;
-
-
-
-
-                    }
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export function portEncodeWithContext(value: Port, ctx: __mf_EncodeContext): unknown;
+export function portEncodeWithContext(value: Port): unknown {
+    return value;
+}
 
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-        export function portDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Port } | { success: false; errors: Array<{ field: string; message: string }> } {
-            try {
-                const data = typeof input === "string" ? JSON.parse(input) : input;
+export function portDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Port } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DecodeContext.create();
-                const result = portDecodeWithContext(data, ctx);
-                if (opts?.freeze) {
-                    ctx.freezeAll();
-                }
+        const ctx = __mf_DecodeContext.create();
+        const result = portDecodeWithContext(data, ctx);
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
 
-                const __errors = ctx.getErrors();
-                if (__errors.length > 0) {
-                    return ({
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
 	success: false,
 	errors: __errors
 });
-                }
+        }
 
-                return ({
+        return ({
 	success: true,
 	value: result
 });
-            } catch (e) {
-                if (e instanceof __mf_DecodeError) {
-                    return ({
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
 	success: false,
 	errors: e.errors
 });
-                }
-                const message = e instanceof Error ? e.message : String(e);
-                return ({
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
 	success: false,
 	errors: [{
 		field: "_root",
 		message
 	}]
 });
-            }
-        }
+    }
+}
 
-        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-        export function portDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Port {const __decoded: unknown = value;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function portDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Port {
+    const __decoded: unknown = value;
+    if (typeof __decoded !== "number") {
+        throw new __mf_DecodeError([{ field: "_root", message: "Port.decodeWithContext: expected number" }]);
+    }
+    return __decoded as Port;
+}
 
+export function portHasShape(value: unknown): boolean {
+    return typeof value === "number";
+}
 
-
-
-
-
-
-
-
-
-
-            if (typeof __decoded !== "number") {
-                throw new __mf_DecodeError([{ field: "_root", message: "Port.decodeWithContext: expected number" }]);
-            }
-
-
-
-
-            return __decoded as Port;
-        }
-
-        export function portValidateField<K extends keyof Port>(
-            _field: K,
-            _value: Port[K]
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
-
-        export function portValidateFields(
-            _partial: Partial<Port>
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
-
-        export function portHasShape(value: unknown): boolean {return typeof value === "number";
-
-
-
-
-        }
-
-        export function portIs(value: unknown): value is Port {return typeof value === "number";
-
-
-
-
-        }
+export function portIs(value: unknown): value is Port {
+    return typeof value === "number";
+}
 
 const Port: {
   readonly encode: typeof portEncode;
   readonly encodeWithContext: typeof portEncodeWithContext;
   readonly decode: typeof portDecode;
   readonly decodeWithContext: typeof portDecodeWithContext;
-  readonly validateFields: typeof portValidateFields;
   readonly hasShape: typeof portHasShape;
   readonly is: typeof portIs;
 } = {
@@ -145,7 +105,6 @@ const Port: {
   encodeWithContext: portEncodeWithContext,
   decode: portDecode,
   decodeWithContext: portDecodeWithContext,
-  validateFields: portValidateFields,
   hasShape: portHasShape,
   is: portIs
 };
@@ -154,109 +113,74 @@ const Port: {
 type RequestId = string;
 
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-        export function requestIdDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: RequestId } | { success: false; errors: Array<{ field: string; message: string }> } {
-            try {
-                const data = input;
+export function requestIdDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: RequestId } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = input;
 
-                const ctx = __mf_DecodeContext.create();
-                const result = requestIdDecodeWithContext(data, ctx);
-                if (opts?.freeze) {
-                    ctx.freezeAll();
-                }
+        const ctx = __mf_DecodeContext.create();
+        const result = requestIdDecodeWithContext(data, ctx);
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
 
-                const __errors = ctx.getErrors();
-                if (__errors.length > 0) {
-                    return ({
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
 	success: false,
 	errors: __errors
 });
-                }
+        }
 
-                return ({
+        return ({
 	success: true,
 	value: result
 });
-            } catch (e) {
-                if (e instanceof __mf_DecodeError) {
-                    return ({
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
 	success: false,
 	errors: e.errors
 });
-                }
-                const message = e instanceof Error ? e.message : String(e);
-                return ({
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
 	success: false,
 	errors: [{
 		field: "_root",
 		message
 	}]
 });
-            }
-        }
+    }
+}
 
-        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-        export function requestIdDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): RequestId {const __decoded: unknown = value;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function requestIdDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): RequestId {
+    const __decoded: unknown = value;
+    if (typeof __decoded !== "string") {
+        throw new __mf_DecodeError([{ field: "_root", message: "RequestId.decodeWithContext: expected string" }]);
+    }
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__decoded)) { errors.push({ field: "_root", message: "RequestId must be a valid UUID" }); }
+    ctx.pushErrors(errors);
+    return __decoded as RequestId;
+}
 
+export function requestIdHasShape(value: unknown): boolean {
+    return typeof value === "string";
+}
 
-
-
-
-
-
-
-
-
-
-            if (typeof __decoded !== "string") {
-                throw new __mf_DecodeError([{ field: "_root", message: "RequestId.decodeWithContext: expected string" }]);
-            }const errors: Array<{ field: string; message: string }> = [];
-                if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__decoded)) { errors.push({ field: "_root", message: "RequestId must be a valid UUID" }); }
-
-                ctx.pushErrors(errors);
-
-
-
-
-            return __decoded as RequestId;
-        }
-
-        export function requestIdValidateField<K extends keyof RequestId>(
-            _field: K,
-            _value: RequestId[K]
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
-
-        export function requestIdValidateFields(
-            _partial: Partial<RequestId>
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
-
-        export function requestIdHasShape(value: unknown): boolean {return typeof value === "string";
-
-
-
-
-        }
-
-        export function requestIdIs(value: unknown): value is RequestId {return typeof value === "string" && requestIdDecode(value).success;
-
-
-
-
-        }
+export function requestIdIs(value: unknown): value is RequestId {
+    return typeof value === "string" && requestIdDecode(value).success;
+}
 
 const RequestId: {
   readonly decode: typeof requestIdDecode;
   readonly decodeWithContext: typeof requestIdDecodeWithContext;
-  readonly validateFields: typeof requestIdValidateFields;
   readonly hasShape: typeof requestIdHasShape;
   readonly is: typeof requestIdIs;
 } = {
   decode: requestIdDecode,
   decodeWithContext: requestIdDecodeWithContext,
-  validateFields: requestIdValidateFields,
   hasShape: requestIdHasShape,
   is: requestIdIs
 };
@@ -264,242 +188,42 @@ const RequestId: {
 ## DTS
 
 type Port = number;
-
-/** Encodes a value to a JSON string. @param value - The value to encode @param _keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
-                    export function portEncode(value: Port, _keepMetadata?: boolean): string {return JSON.stringify(value);
-
-
-
-
-                    }
-
-                    /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param _ctx - The encoding context, unused for primitives  */
-                    export function portEncodeWithContext(value: Port, _ctx: __mf_EncodeContext): unknown {return value;
-
-
-
-
-                    }
-
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export declare function portEncode(value: Port, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export declare function portEncodeWithContext(value: Port, ctx: __mf_EncodeContext): unknown;
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-        export function portDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Port } | { success: false; errors: Array<{ field: string; message: string }> } {
-            try {
-                const data = typeof input === "string" ? JSON.parse(input) : input;
-
-                const ctx = __mf_DecodeContext.create();
-                const result = portDecodeWithContext(data, ctx);
-                if (opts?.freeze) {
-                    ctx.freezeAll();
-                }
-
-                const __errors = ctx.getErrors();
-                if (__errors.length > 0) {
-                    return ({
-	success: false,
-	errors: __errors
-});
-                }
-
-                return ({
-	success: true,
-	value: result
-});
-            } catch (e) {
-                if (e instanceof __mf_DecodeError) {
-                    return ({
-	success: false,
-	errors: e.errors
-});
-                }
-                const message = e instanceof Error ? e.message : String(e);
-                return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message
-	}]
-});
-            }
-        }
-
-        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-        export function portDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Port {const __decoded: unknown = value;
-
-
-
-
-
-
-
-
-
-
-
-            if (typeof __decoded !== "number") {
-                throw new __mf_DecodeError([{ field: "_root", message: "Port.decodeWithContext: expected number" }]);
-            }
-
-
-
-
-            return __decoded as Port;
-        }
-
-        export function portValidateField<K extends keyof Port>(
-            _field: K,
-            _value: Port[K]
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
-
-        export function portValidateFields(
-            _partial: Partial<Port>
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
-
-        export function portHasShape(value: unknown): boolean {return typeof value === "number";
-
-
-
-
-        }
-
-        export function portIs(value: unknown): value is Port {return typeof value === "number";
-
-
-
-
-        }
-
-const Port: {
-  readonly encode: typeof portEncode;
-  readonly encodeWithContext: typeof portEncodeWithContext;
-  readonly decode: typeof portDecode;
-  readonly decodeWithContext: typeof portDecodeWithContext;
-  readonly validateFields: typeof portValidateFields;
-  readonly hasShape: typeof portHasShape;
-  readonly is: typeof portIs;
-} = {
-  encode: portEncode,
-  encodeWithContext: portEncodeWithContext,
-  decode: portDecode,
-  decodeWithContext: portDecodeWithContext,
-  validateFields: portValidateFields,
-  hasShape: portHasShape,
-  is: portIs
+export declare function portDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Port;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
 };
-
-
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function portDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Port;
+export declare function portHasShape(value: unknown): boolean;
+export declare function portIs(value: unknown): value is Port;
 type RequestId = string;
-
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-        export function requestIdDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: RequestId } | { success: false; errors: Array<{ field: string; message: string }> } {
-            try {
-                const data = input;
-
-                const ctx = __mf_DecodeContext.create();
-                const result = requestIdDecodeWithContext(data, ctx);
-                if (opts?.freeze) {
-                    ctx.freezeAll();
-                }
-
-                const __errors = ctx.getErrors();
-                if (__errors.length > 0) {
-                    return ({
-	success: false,
-	errors: __errors
-});
-                }
-
-                return ({
-	success: true,
-	value: result
-});
-            } catch (e) {
-                if (e instanceof __mf_DecodeError) {
-                    return ({
-	success: false,
-	errors: e.errors
-});
-                }
-                const message = e instanceof Error ? e.message : String(e);
-                return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message
-	}]
-});
-            }
-        }
-
-        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-        export function requestIdDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): RequestId {const __decoded: unknown = value;
-
-
-
-
-
-
-
-
-
-
-
-            if (typeof __decoded !== "string") {
-                throw new __mf_DecodeError([{ field: "_root", message: "RequestId.decodeWithContext: expected string" }]);
-            }const errors: Array<{ field: string; message: string }> = [];
-                if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__decoded)) { errors.push({ field: "_root", message: "RequestId must be a valid UUID" }); }
-
-                ctx.pushErrors(errors);
-
-
-
-
-            return __decoded as RequestId;
-        }
-
-        export function requestIdValidateField<K extends keyof RequestId>(
-            _field: K,
-            _value: RequestId[K]
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
-
-        export function requestIdValidateFields(
-            _partial: Partial<RequestId>
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
-
-        export function requestIdHasShape(value: unknown): boolean {return typeof value === "string";
-
-
-
-
-        }
-
-        export function requestIdIs(value: unknown): value is RequestId {return typeof value === "string" && requestIdDecode(value).success;
-
-
-
-
-        }
-
-const RequestId: {
-  readonly decode: typeof requestIdDecode;
-  readonly decodeWithContext: typeof requestIdDecodeWithContext;
-  readonly validateFields: typeof requestIdValidateFields;
-  readonly hasShape: typeof requestIdHasShape;
-  readonly is: typeof requestIdIs;
-} = {
-  decode: requestIdDecode,
-  decodeWithContext: requestIdDecodeWithContext,
-  validateFields: requestIdValidateFields,
-  hasShape: requestIdHasShape,
-  is: requestIdIs
+export declare function requestIdDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: RequestId;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
 };
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function requestIdDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): RequestId;
+export declare function requestIdHasShape(value: unknown): boolean;
+export declare function requestIdIs(value: unknown): value is RequestId;
+export {};
 
 ## Diagnostics
 
@@ -507,21 +231,21 @@ const RequestId: {
 
 ## Mapping
 
-original 30..50 -> expanded 313..333
-original 50..52 -> expanded 3971..3973
-original 94..119 -> expanded 3973..3998
-original 119..120 -> expanded 7191..7192
-generated 0..313 <- imports
-generated 333..1015 <- Encode
-generated 1015..3416 <- Decode
-generated 3416..3971 <- __convenience_const
-generated 3998..6745 <- Decode
-generated 6745..7191 <- __convenience_const
+original 30..50 -> expanded 231..251
+original 50..52 -> expanded 3167..3169
+original 94..119 -> expanded 3169..3194
+original 119..120 -> expanded 5602..5603
+generated 0..231 <- imports
+generated 251..941 <- Encode
+generated 941..2704 <- Decode
+generated 2704..3167 <- __convenience_const
+generated 3194..5258 <- Decode
+generated 5258..5602 <- __convenience_const
 
 ## Metadata
 
-type Port: {"body":{"Other":"number"},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"name":"Port","span":{"end":51,"start":32},"type_params":[]}
-type RequestId: {"body":{"Other":"string"},"decorators":[{"args_src":"uuid","name":"endec","span":{"end":95,"start":76}},{"args_src":"Decode","name":"Derive","span":{"end":75,"start":53}}],"name":"RequestId","span":{"end":120,"start":96},"type_params":[]}
+type Port: {"body":{"Alias":"number"},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"name":"Port","span":{"end":51,"start":32},"type_params":[]}
+type RequestId: {"body":{"Alias":"string"},"decorators":[{"args_src":"uuid","name":"endec","span":{"end":95,"start":76}},{"args_src":"Decode","name":"Derive","span":{"end":75,"start":53}}],"name":"RequestId","span":{"end":120,"start":96},"type_params":[]}
 
 ## Registry reads
 

@@ -1,0 +1,922 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/validators/custom-validator-tests.ts
+sha256 9c19f0d26d65fd64a71f265fd0000d224f5abda7978ac02ecd717c676dc16b39
+
+## Changed
+
+true
+
+## Output
+
+import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { isMultipleOfThree as __mf_isMultipleOfThree__shared_validators } from "./shared-validators";
+/**
+ * Custom validator test classes for comprehensive decoder validation testing.
+ */
+
+// Custom validator function for even numbers
+export function isEven(value: number): boolean {
+    return value % 2 === 0;
+}
+
+// Custom validator function for valid usernames
+export function isValidUsername(value: string): boolean {
+    return /^[a-z][a-z0-9_]{2,15}$/.test(value);
+}
+
+// Custom number validator
+/** @derive(Decode) */
+export class CustomNumberValidator {
+    /** @endec({ validate: ["custom(isEven)"] }) */
+    evenNumber: number;
+
+    constructor(props: { evenNumber: number }) {
+        this.evenNumber = props.evenNumber;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomNumberValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = CustomNumberValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "CustomNumberValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): CustomNumberValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "CustomNumberValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as CustomNumberValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "CustomNumberValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("evenNumber" in obj)) {
+            errors.push({ field: "evenNumber", message: "missing required field" });
+        }
+
+        const instance = Object.create(CustomNumberValidator.prototype) as CustomNumberValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_evenNumber = obj["evenNumber"] as number;
+
+            if (!(typeof __raw_evenNumber === "number")) {
+                errors.push({ field: "evenNumber", message: __raw_evenNumber == null ? "CustomNumberValidator.evenNumber is required" : "expected number" });
+            } else {
+                if (__raw_evenNumber == null) { errors.push({ field: "evenNumber", message: "CustomNumberValidator.evenNumber is required" }); } else {
+                    if (!isEven(__raw_evenNumber)) { errors.push({ field: "evenNumber", message: "CustomNumberValidator.evenNumber failed custom validation (isEven)" }); }
+                }
+                instance.evenNumber = __raw_evenNumber;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof CustomNumberValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "evenNumber") {
+            const __val = value as number;
+            if (__val == null) { errors.push({ field: "evenNumber", message: "CustomNumberValidator.evenNumber is required" }); } else {
+                if (!isEven(__val)) { errors.push({ field: "evenNumber", message: "CustomNumberValidator.evenNumber failed custom validation (isEven)" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof CustomNumberValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("evenNumber" in partial && partial.evenNumber !== undefined) {
+            const __val = partial.evenNumber as number;
+            if (__val == null) { errors.push({ field: "evenNumber", message: "CustomNumberValidator.evenNumber is required" }); } else {
+                if (!isEven(__val)) { errors.push({ field: "evenNumber", message: "CustomNumberValidator.evenNumber failed custom validation (isEven)" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "evenNumber" in o;
+    }
+
+    static is(obj: unknown): obj is CustomNumberValidator {
+        if (obj instanceof CustomNumberValidator) {
+            return true;
+        }
+        if (!CustomNumberValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = CustomNumberValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function customNumberValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomNumberValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return CustomNumberValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function customNumberValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CustomNumberValidator | __mf_PendingRef {
+    return CustomNumberValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function customNumberValidatorIs(value: unknown): value is CustomNumberValidator {
+    return CustomNumberValidator.is(value);
+}
+
+// Custom string validator
+/** @derive(Decode) */
+export class CustomStringValidator {
+    /** @endec({ validate: ["custom(isValidUsername)"] }) */
+    username: string;
+
+    constructor(props: { username: string }) {
+        this.username = props.username;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomStringValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = CustomStringValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "CustomStringValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): CustomStringValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "CustomStringValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as CustomStringValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "CustomStringValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("username" in obj)) {
+            errors.push({ field: "username", message: "missing required field" });
+        }
+
+        const instance = Object.create(CustomStringValidator.prototype) as CustomStringValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_username = obj["username"] as string;
+
+            if (!(typeof __raw_username === "string")) {
+                errors.push({ field: "username", message: __raw_username == null ? "CustomStringValidator.username is required" : "expected string" });
+            } else {
+                if (__raw_username == null) { errors.push({ field: "username", message: "CustomStringValidator.username is required" }); } else {
+                    if (!isValidUsername(__raw_username)) { errors.push({ field: "username", message: "CustomStringValidator.username failed custom validation (isValidUsername)" }); }
+                }
+                instance.username = __raw_username;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof CustomStringValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "username") {
+            const __val = value as string;
+            if (__val == null) { errors.push({ field: "username", message: "CustomStringValidator.username is required" }); } else {
+                if (!isValidUsername(__val)) { errors.push({ field: "username", message: "CustomStringValidator.username failed custom validation (isValidUsername)" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof CustomStringValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("username" in partial && partial.username !== undefined) {
+            const __val = partial.username as string;
+            if (__val == null) { errors.push({ field: "username", message: "CustomStringValidator.username is required" }); } else {
+                if (!isValidUsername(__val)) { errors.push({ field: "username", message: "CustomStringValidator.username failed custom validation (isValidUsername)" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "username" in o;
+    }
+
+    static is(obj: unknown): obj is CustomStringValidator {
+        if (obj instanceof CustomStringValidator) {
+            return true;
+        }
+        if (!CustomStringValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = CustomStringValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function customStringValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomStringValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return CustomStringValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function customStringValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CustomStringValidator | __mf_PendingRef {
+    return CustomStringValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function customStringValidatorIs(value: unknown): value is CustomStringValidator {
+    return CustomStringValidator.is(value);
+}
+
+// Custom validator with custom message
+// Custom validator imported from another module by the expansion itself
+/** @derive(Decode) */
+export class ImportedCustomValidator {
+    /** @endec({ validate: ['custom({ function: "isMultipleOfThree", source: "./shared-validators" })'] }) */
+    count: number;
+
+    constructor(props: { count: number }) {
+        this.count = props.count;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ImportedCustomValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = ImportedCustomValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "ImportedCustomValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ImportedCustomValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "ImportedCustomValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as ImportedCustomValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "ImportedCustomValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("count" in obj)) {
+            errors.push({ field: "count", message: "missing required field" });
+        }
+
+        const instance = Object.create(ImportedCustomValidator.prototype) as ImportedCustomValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_count = obj["count"] as number;
+
+            if (!(typeof __raw_count === "number")) {
+                errors.push({ field: "count", message: __raw_count == null ? "ImportedCustomValidator.count is required" : "expected number" });
+            } else {
+                if (__raw_count == null) { errors.push({ field: "count", message: "ImportedCustomValidator.count is required" }); } else {
+                    if (!__mf_isMultipleOfThree__shared_validators(__raw_count)) { errors.push({ field: "count", message: "ImportedCustomValidator.count failed custom validation (isMultipleOfThree)" }); }
+                }
+                instance.count = __raw_count;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof ImportedCustomValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "count") {
+            const __val = value as number;
+            if (__val == null) { errors.push({ field: "count", message: "ImportedCustomValidator.count is required" }); } else {
+                if (!__mf_isMultipleOfThree__shared_validators(__val)) { errors.push({ field: "count", message: "ImportedCustomValidator.count failed custom validation (isMultipleOfThree)" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof ImportedCustomValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("count" in partial && partial.count !== undefined) {
+            const __val = partial.count as number;
+            if (__val == null) { errors.push({ field: "count", message: "ImportedCustomValidator.count is required" }); } else {
+                if (!__mf_isMultipleOfThree__shared_validators(__val)) { errors.push({ field: "count", message: "ImportedCustomValidator.count failed custom validation (isMultipleOfThree)" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "count" in o;
+    }
+
+    static is(obj: unknown): obj is ImportedCustomValidator {
+        if (obj instanceof ImportedCustomValidator) {
+            return true;
+        }
+        if (!ImportedCustomValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = ImportedCustomValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function importedCustomValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ImportedCustomValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ImportedCustomValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function importedCustomValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ImportedCustomValidator | __mf_PendingRef {
+    return ImportedCustomValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function importedCustomValidatorIs(value: unknown): value is ImportedCustomValidator {
+    return ImportedCustomValidator.is(value);
+}
+
+/** @derive(Decode) */
+export class CustomWithMessageValidator {
+    /** @endec({ validate: [{ validate: "custom(isEven)", message: "Number must be even" }] }) */
+    evenNumber: number;
+
+    constructor(props: { evenNumber: number }) {
+        this.evenNumber = props.evenNumber;
+    }
+
+    /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+    static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomWithMessageValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        try {
+
+            const data = typeof input === "string" ? JSON.parse(input) : input;
+
+            const ctx = __mf_DecodeContext.create();
+            const resultOrRef = CustomWithMessageValidator.decodeWithContext(data, ctx);
+
+            if (__mf_PendingRef.is(resultOrRef)) {
+                return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message: "CustomWithMessageValidator.decode: root cannot be a forward reference"
+    	}]
+    });
+            }
+
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+
+            const __errors = ctx.getErrors();
+            if (__errors.length > 0) {
+                return ({
+    	success: false,
+    	errors: __errors
+    });
+            }
+
+            return ({
+    	success: true,
+    	value: resultOrRef
+    });
+        } catch (e) {
+            if (e instanceof __mf_DecodeError) {
+                return ({
+    	success: false,
+    	errors: e.errors
+    });
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return ({
+    	success: false,
+    	errors: [{
+    		field: "_root",
+    		message
+    	}]
+    });
+        }
+    }
+
+    /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+    static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): CustomWithMessageValidator | __mf_PendingRef {
+        if (typeof value === "object" && value !== null && "__ref" in value) {
+            if (typeof value.__ref !== "number") {
+                throw new __mf_DecodeError([{ field: "__ref", message: "CustomWithMessageValidator.decodeWithContext: __ref must be a number" }]);
+            }
+            return ctx.getOrDefer(value.__ref) as CustomWithMessageValidator | __mf_PendingRef;
+        }
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            throw new __mf_DecodeError([{ field: "_root", message: "CustomWithMessageValidator.decodeWithContext: expected an object" }]);
+        }
+
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!("evenNumber" in obj)) {
+            errors.push({ field: "evenNumber", message: "missing required field" });
+        }
+
+        const instance = Object.create(CustomWithMessageValidator.prototype) as CustomWithMessageValidator;
+
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+
+        ctx.trackForFreeze(instance);
+
+        {
+            const __raw_evenNumber = obj["evenNumber"] as number;
+
+            if (!(typeof __raw_evenNumber === "number")) {
+                errors.push({ field: "evenNumber", message: __raw_evenNumber == null ? "CustomWithMessageValidator.evenNumber is required" : "expected number" });
+            } else {
+                if (__raw_evenNumber == null) { errors.push({ field: "evenNumber", message: "CustomWithMessageValidator.evenNumber is required" }); } else {
+                    if (!isEven(__raw_evenNumber)) { errors.push({ field: "evenNumber", message: "Number must be even" }); }
+                }
+                instance.evenNumber = __raw_evenNumber;
+            }
+        }
+
+        ctx.pushErrors(errors);
+
+        return instance;
+    }
+    static validateField<K extends keyof CustomWithMessageValidator>(field: K, value: unknown): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if (field === "evenNumber") {
+            const __val = value as number;
+            if (__val == null) { errors.push({ field: "evenNumber", message: "CustomWithMessageValidator.evenNumber is required" }); } else {
+                if (!isEven(__val)) { errors.push({ field: "evenNumber", message: "Number must be even" }); }
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: { readonly [K in keyof CustomWithMessageValidator]?: unknown }): Array<{ field: string; message: string }> {
+        const errors: Array<{ field: string; message: string }> = [];
+        if ("evenNumber" in partial && partial.evenNumber !== undefined) {
+            const __val = partial.evenNumber as number;
+            if (__val == null) { errors.push({ field: "evenNumber", message: "CustomWithMessageValidator.evenNumber is required" }); } else {
+                if (!isEven(__val)) { errors.push({ field: "evenNumber", message: "Number must be even" }); }
+            }
+        }
+        return errors;
+    }
+
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return "evenNumber" in o;
+    }
+
+    static is(obj: unknown): obj is CustomWithMessageValidator {
+        if (obj instanceof CustomWithMessageValidator) {
+            return true;
+        }
+        if (!CustomWithMessageValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = CustomWithMessageValidator.decode(obj);
+        return result.success;
+    }
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function customWithMessageValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomWithMessageValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return CustomWithMessageValidator.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function customWithMessageValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CustomWithMessageValidator | __mf_PendingRef {
+    return CustomWithMessageValidator.decodeWithContext(value, ctx);
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function customWithMessageValidatorIs(value: unknown): value is CustomWithMessageValidator {
+    return CustomWithMessageValidator.is(value);
+}
+
+## DTS
+
+/**
+* Custom validator test classes for comprehensive decoder validation testing.
+*/
+export declare function isEven(value: number): boolean;
+export declare function isValidUsername(value: string): boolean;
+/** @derive(Decode) */
+export declare class CustomNumberValidator {
+	/** @endec({ validate: ["custom(isEven)"] }) */
+	evenNumber: number;
+	constructor(props: {
+		evenNumber: number;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: CustomNumberValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): CustomNumberValidator | __mf_PendingRef;
+	static validateField<K extends keyof CustomNumberValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof CustomNumberValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is CustomNumberValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function customNumberValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: CustomNumberValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function customNumberValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CustomNumberValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function customNumberValidatorIs(value: unknown): value is CustomNumberValidator;
+/** @derive(Decode) */
+export declare class CustomStringValidator {
+	/** @endec({ validate: ["custom(isValidUsername)"] }) */
+	username: string;
+	constructor(props: {
+		username: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: CustomStringValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): CustomStringValidator | __mf_PendingRef;
+	static validateField<K extends keyof CustomStringValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof CustomStringValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is CustomStringValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function customStringValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: CustomStringValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function customStringValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CustomStringValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function customStringValidatorIs(value: unknown): value is CustomStringValidator;
+/** @derive(Decode) */
+export declare class ImportedCustomValidator {
+	/** @endec({ validate: ['custom({ function: "isMultipleOfThree", source: "./shared-validators" })'] }) */
+	count: number;
+	constructor(props: {
+		count: number;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ImportedCustomValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ImportedCustomValidator | __mf_PendingRef;
+	static validateField<K extends keyof ImportedCustomValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof ImportedCustomValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is ImportedCustomValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function importedCustomValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ImportedCustomValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function importedCustomValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ImportedCustomValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function importedCustomValidatorIs(value: unknown): value is ImportedCustomValidator;
+/** @derive(Decode) */
+export declare class CustomWithMessageValidator {
+	/** @endec({ validate: [{ validate: "custom(isEven)", message: "Number must be even" }] }) */
+	evenNumber: number;
+	constructor(props: {
+		evenNumber: number;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: CustomWithMessageValidator;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): CustomWithMessageValidator | __mf_PendingRef;
+	static validateField<K extends keyof CustomWithMessageValidator>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof CustomWithMessageValidator]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is CustomWithMessageValidator;
+}
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function customWithMessageValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: CustomWithMessageValidator;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function customWithMessageValidatorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): CustomWithMessageValidator | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function customWithMessageValidatorIs(value: unknown): value is CustomWithMessageValidator;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..536 -> expanded 327..863
+original 536..537 -> expanded 6716..6717
+original 537..709 -> expanded 7888..8060
+original 709..710 -> expanded 13903..13904
+original 710..1016 -> expanded 15075..15381
+original 1016..1017 -> expanded 21256..21257
+original 1017..1206 -> expanded 22446..22635
+original 1206..1207 -> expanded 28442..28443
+original 1207..1208 -> expanded 29659..29660
+generated 0..327 <- imports
+generated 863..6716 <- Decode
+generated 6717..7888 <- Decode
+generated 8060..13903 <- Decode
+generated 13904..15075 <- Decode
+generated 15381..21256 <- Decode
+generated 21257..22446 <- Decode
+generated 22635..28442 <- Decode
+generated 28443..29659 <- Decode
+
+## Metadata
+
+class CustomNumberValidator: {"body_span":{"end":538,"start":459},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":423,"start":401}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"custom(isEven)\"] }","name":"endec","span":{"end":512,"start":465}}],"initializer":null,"name":"evenNumber","optional":false,"readonly":false,"span":{"end":536,"start":517},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomNumberValidator","span":{"end":538,"start":431},"type_params":[]}
+class CustomStringValidator: {"body_span":{"end":711,"start":625},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":589,"start":567}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"custom(isValidUsername)\"] }","name":"endec","span":{"end":687,"start":631}}],"initializer":null,"name":"username","optional":false,"readonly":false,"span":{"end":709,"start":692},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomStringValidator","span":{"end":711,"start":597},"type_params":[]}
+class ImportedCustomValidator: {"body_span":{"end":1018,"start":886},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":848,"start":826}}],"fields":[{"decorators":[{"args_src":"{ validate: ['custom({ function: \"isMultipleOfThree\", source: \"./shared-validators\" })'] }","name":"endec","span":{"end":997,"start":892}}],"initializer":null,"name":"count","optional":false,"readonly":false,"span":{"end":1016,"start":1002},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ImportedCustomValidator","span":{"end":1018,"start":856},"type_params":[]}
+class CustomWithMessageValidator: {"body_span":{"end":1208,"start":1083},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1042,"start":1020}}],"fields":[{"decorators":[{"args_src":"{ validate: [{ validate: \"custom(isEven)\", message: \"Number must be even\" }] }","name":"endec","span":{"end":1182,"start":1089}}],"initializer":null,"name":"evenNumber","optional":false,"readonly":false,"span":{"end":1206,"start":1187},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomWithMessageValidator","span":{"end":1208,"start":1050},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

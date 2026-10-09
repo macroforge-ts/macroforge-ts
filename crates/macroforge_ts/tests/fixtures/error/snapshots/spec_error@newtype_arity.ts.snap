@@ -14,185 +14,113 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
-import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Pair = $Newtype<number, string>;
 
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-        export function pairDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Pair } | { success: false; errors: Array<{ field: string; message: string }> } {
-            try {
-                const data = typeof input === "string" ? JSON.parse(input) : input;
+export function pairDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Pair } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DecodeContext.create();
-                const result = pairDecodeWithContext(data, ctx);
-                ctx.applyPatches();
-                if (opts?.freeze) {
-                    ctx.freezeAll();
-                }
+        const ctx = __mf_DecodeContext.create();
+        const result = pairDecodeWithContext(data, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
 
-                const __errors = ctx.getErrors();
-                if (__errors.length > 0) {
-                    return ({
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
 	success: false,
 	errors: __errors
 });
-                }
+        }
 
-                return ({
+        return ({
 	success: true,
 	value: result
 });
-            } catch (e) {
-                if (e instanceof __mf_DecodeError) {
-                    return ({
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
 	success: false,
 	errors: e.errors
 });
-                }
-                const message = e instanceof Error ? e.message : String(e);
-                return ({
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
 	success: false,
 	errors: [{
 		field: "_root",
 		message
 	}]
 });
-            }
-        }
+    }
+}
 
-        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-        export function pairDecodeWithContext(value: any, ctx: __mf_DecodeContext): Pair {
-            if (value?.__ref !== undefined) {
-                return ctx.getOrDefer(value.__ref) as Pair;
-            }
-            return value as Pair;
+export function pairIs(value: unknown): value is Pair {
+    return pairHasShape(value);
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function pairDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Pair {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Pair.decodeWithContext: __ref must be a number" }]);
         }
+        return ctx.getOrDefer(value.__ref) as Pair;
+    }
+    const obj: Record<string, unknown> = { _root: value };
+    const errors: Array<{ field: string; message: string }> = [];
+    const instance: any = {};
 
-        export function pairValidateField<K extends keyof Pair>(
-            _field: K,
-            _value: Pair[K]
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
+    {
+        const __raw__root = obj["_root"] as $Newtype<number, string>;
 
-        export function pairValidateFields(
-            _partial: Partial<Pair>
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
+        instance._root = __raw__root;
+    }
 
-        export function pairHasShape(value: unknown): boolean {
-            return value != null;
-        }
+    ctx.pushErrors(errors);
+    return instance._root as Pair;
+}
 
-        export function pairIs(value: unknown): value is Pair {
-            return pairHasShape(value);
-        }
+export function pairHasShape(value: unknown): boolean {
+    return value != null;
+}
 
 const Pair: {
   readonly decode: typeof pairDecode;
-  readonly decodeWithContext: typeof pairDecodeWithContext;
-  readonly validateFields: typeof pairValidateFields;
-  readonly hasShape: typeof pairHasShape;
   readonly is: typeof pairIs;
+  readonly decodeWithContext: typeof pairDecodeWithContext;
+  readonly hasShape: typeof pairHasShape;
 } = {
   decode: pairDecode,
+  is: pairIs,
   decodeWithContext: pairDecodeWithContext,
-  validateFields: pairValidateFields,
-  hasShape: pairHasShape,
-  is: pairIs
+  hasShape: pairHasShape
 };
 
 ## DTS
 
 type Pair = $Newtype<number, string>;
-
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-        export function pairDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Pair } | { success: false; errors: Array<{ field: string; message: string }> } {
-            try {
-                const data = typeof input === "string" ? JSON.parse(input) : input;
-
-                const ctx = __mf_DecodeContext.create();
-                const result = pairDecodeWithContext(data, ctx);
-                ctx.applyPatches();
-                if (opts?.freeze) {
-                    ctx.freezeAll();
-                }
-
-                const __errors = ctx.getErrors();
-                if (__errors.length > 0) {
-                    return ({
-	success: false,
-	errors: __errors
-});
-                }
-
-                return ({
-	success: true,
-	value: result
-});
-            } catch (e) {
-                if (e instanceof __mf_DecodeError) {
-                    return ({
-	success: false,
-	errors: e.errors
-});
-                }
-                const message = e instanceof Error ? e.message : String(e);
-                return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message
-	}]
-});
-            }
-        }
-
-        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-        export function pairDecodeWithContext(value: any, ctx: __mf_DecodeContext): Pair {
-            if (value?.__ref !== undefined) {
-                return ctx.getOrDefer(value.__ref) as Pair;
-            }
-            return value as Pair;
-        }
-
-        export function pairValidateField<K extends keyof Pair>(
-            _field: K,
-            _value: Pair[K]
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
-
-        export function pairValidateFields(
-            _partial: Partial<Pair>
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
-
-        export function pairHasShape(value: unknown): boolean {
-            return value != null;
-        }
-
-        export function pairIs(value: unknown): value is Pair {
-            return pairHasShape(value);
-        }
-
-const Pair: {
-  readonly decode: typeof pairDecode;
-  readonly decodeWithContext: typeof pairDecodeWithContext;
-  readonly validateFields: typeof pairValidateFields;
-  readonly hasShape: typeof pairHasShape;
-  readonly is: typeof pairIs;
-} = {
-  decode: pairDecode,
-  decodeWithContext: pairDecodeWithContext,
-  validateFields: pairValidateFields,
-  hasShape: pairHasShape,
-  is: pairIs
+export declare function pairDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Pair;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
 };
+export declare function pairIs(value: unknown): value is Pair;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function pairDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Pair;
+export declare function pairHasShape(value: unknown): boolean;
+export {};
 
 ## Diagnostics
 
@@ -200,15 +128,15 @@ Error [36..60]: $Newtype takes exactly one type argument, got 2
 
 ## Mapping
 
-original 22..60 -> expanded 235..273
-original 60..61 -> expanded 2983..2984
-generated 0..235 <- imports
-generated 273..2592 <- Decode
-generated 2592..2983 <- __convenience_const
+original 22..60 -> expanded 194..232
+original 60..61 -> expanded 2729..2730
+generated 0..194 <- imports
+generated 232..2430 <- Decode
+generated 2430..2729 <- __convenience_const
 
 ## Metadata
 
-type Pair: {"body":{"Other":"$Newtype<number, string>"},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"name":"Pair","span":{"end":61,"start":24},"type_params":[]}
+type Pair: {"body":{"Alias":"$Newtype<number, string>"},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"name":"Pair","span":{"end":61,"start":24},"type_params":[]}
 
 ## Registry reads
 

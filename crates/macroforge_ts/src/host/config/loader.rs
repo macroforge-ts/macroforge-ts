@@ -1,11 +1,13 @@
 use super::super::error::{MacroError, Result};
 use super::{CONFIG_CACHE, CONFIG_FILES, CachedConfig, MacroforgeConfig, has_project_manifest};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::path::Path;
 
 use crate::host::file_stamp::FileStamp;
 
-use macroforge_ts_syn::config::{ForeignTypeAlias, ForeignTypeConfig, ImportInfo};
+use macroforge_ts_syn::config::{
+    ForeignHandler, ForeignTypeAlias, ForeignTypeConfig, HandlerSite, ImportInfo,
+};
 use oxc::span::GetSpan;
 
 /// Loader/parser for MacroforgeConfig files.
@@ -73,16 +75,20 @@ impl MacroforgeConfigLoader {
         Self::find_config_in_ancestors(&current_dir)
     }
 
+    /// The config governing `start_path`, with the directory holding it. The
+    /// root is absolute even for a relative `start_path`, since callers walk
+    /// its ancestors for `node_modules`.
     pub fn find_with_root_from_path(
         start_path: &Path,
     ) -> Result<Option<(MacroforgeConfig, std::path::PathBuf)>> {
+        let start_path = std::path::absolute(start_path)?;
         let start_dir = if start_path.is_file() {
             start_path
                 .parent()
                 .map(|p| p.to_path_buf())
-                .unwrap_or_else(|| start_path.to_path_buf())
+                .unwrap_or_else(|| start_path.clone())
         } else {
-            start_path.to_path_buf()
+            start_path
         };
         Self::find_config_in_ancestors(&start_dir)
     }
@@ -303,8 +309,8 @@ pub(super) fn parse_single_foreign_type(
     location: &str,
     name: &str,
     obj: &oxc::ast::ast::ObjectExpression<'_>,
-    imports: &HashMap<String, ImportInfo>,
     source: &str,
+    module: &Path,
 ) -> Result<ForeignTypeConfig> {
     let mut ft = ForeignTypeConfig {
         name: name.to_string(),
@@ -325,29 +331,34 @@ pub(super) fn parse_single_foreign_type(
             )));
         }
 
+        if let Some(handler) = ForeignHandler::from_key(&key) {
+            let span = prop.value.span();
+            ft.handler_sites.push(HandlerSite {
+                handler,
+                module: module.to_path_buf(),
+                start: span.start,
+                end: span.end,
+                identifier: match &prop.value {
+                    oxc::ast::ast::Expression::Identifier(ident) => Some(ident.name.to_string()),
+                    _ => None,
+                },
+            });
+        }
         match key.as_str() {
             "from" => {
                 ft.from = extract_string_or_array(&prop.value);
             }
             "encode" => {
-                let (expr, import) = extract_function_expr(&prop.value, imports, source);
-                ft.encode_expr = expr;
-                ft.encode_import = import;
+                ft.encode_expr = Some(source_slice(source, prop.value.span()));
             }
             "decode" => {
-                let (expr, import) = extract_function_expr(&prop.value, imports, source);
-                ft.decode_expr = expr;
-                ft.decode_import = import;
+                ft.decode_expr = Some(source_slice(source, prop.value.span()));
             }
             "default" => {
-                let (expr, import) = extract_function_expr(&prop.value, imports, source);
-                ft.default_expr = expr;
-                ft.default_import = import;
+                ft.default_expr = Some(source_slice(source, prop.value.span()));
             }
             "hasShape" => {
-                let (expr, import) = extract_function_expr(&prop.value, imports, source);
-                ft.has_shape_expr = expr;
-                ft.has_shape_import = import;
+                ft.has_shape_expr = Some(source_slice(source, prop.value.span()));
             }
             "aliases" => {
                 ft.aliases = parse_aliases_array(&prop.value, source);
@@ -360,20 +371,6 @@ pub(super) fn parse_single_foreign_type(
             }
         }
     }
-
-    let mut namespaces = HashSet::new();
-    for expr in [
-        ft.encode_expr.as_deref(),
-        ft.decode_expr.as_deref(),
-        ft.default_expr.as_deref(),
-        ft.has_shape_expr.as_deref(),
-    ]
-    .into_iter()
-    .flatten()
-    {
-        namespaces.extend(extract_expression_namespaces(expr));
-    }
-    ft.expression_namespaces = namespaces.into_iter().collect();
 
     Ok(ft)
 }
@@ -410,20 +407,6 @@ fn parse_aliases_array(
         }
     }
     aliases
-}
-
-fn extract_function_expr(
-    expr: &oxc::ast::ast::Expression<'_>,
-    imports: &HashMap<String, ImportInfo>,
-    source: &str,
-) -> (Option<String>, Option<ImportInfo>) {
-    match expr {
-        oxc::ast::ast::Expression::Identifier(ident) => {
-            let name = ident.name.to_string();
-            (Some(name.clone()), imports.get(&name).cloned())
-        }
-        _ => (Some(source_slice(source, expr.span())), None),
-    }
 }
 
 fn extract_string_or_array(expr: &oxc::ast::ast::Expression<'_>) -> Vec<String> {
@@ -463,153 +446,6 @@ pub(super) fn get_prop_key(key: &oxc::ast::ast::PropertyKey<'_>, source: &str) -
         oxc::ast::ast::PropertyKey::StringLiteral(string) => string.value.to_string(),
         _ => source_slice(source, key.span()),
     }
-}
-
-fn extract_expression_namespaces(expr_str: &str) -> Vec<String> {
-    use crate::ts_syn::parse_expr;
-    use oxc::ast::ast::{Argument, Expression, ObjectPropertyKind, Statement};
-
-    fn member_root(expr: &Expression<'_>) -> Option<String> {
-        match expr {
-            Expression::Identifier(ident) => Some(ident.name.to_string()),
-            Expression::StaticMemberExpression(member) => member_root(&member.object),
-            Expression::ComputedMemberExpression(member) => member_root(&member.object),
-            _ => None,
-        }
-    }
-
-    fn collect_statement(stmt: &Statement<'_>, namespaces: &mut HashSet<String>) {
-        match stmt {
-            Statement::ExpressionStatement(expr) => collect_expr(&expr.expression, namespaces),
-            Statement::ReturnStatement(ret) => {
-                if let Some(argument) = &ret.argument {
-                    collect_expr(argument, namespaces);
-                }
-            }
-            Statement::IfStatement(stmt) => {
-                collect_expr(&stmt.test, namespaces);
-                collect_statement(&stmt.consequent, namespaces);
-                if let Some(alternate) = &stmt.alternate {
-                    collect_statement(alternate, namespaces);
-                }
-            }
-            Statement::BlockStatement(block) => {
-                for stmt in &block.body {
-                    collect_statement(stmt, namespaces);
-                }
-            }
-            _ => {}
-        }
-    }
-
-    fn collect_argument(arg: &Argument<'_>, namespaces: &mut HashSet<String>) {
-        match arg {
-            Argument::SpreadElement(spread) => collect_expr(&spread.argument, namespaces),
-            other => {
-                if let Some(expr) = other.as_expression() {
-                    collect_expr(expr, namespaces);
-                }
-            }
-        }
-    }
-
-    fn collect_expr(expr: &Expression<'_>, namespaces: &mut HashSet<String>) {
-        match expr {
-            Expression::StaticMemberExpression(member) => {
-                if let Some(root) = member_root(&member.object) {
-                    namespaces.insert(root);
-                }
-                collect_expr(&member.object, namespaces);
-            }
-            Expression::ComputedMemberExpression(member) => {
-                if let Some(root) = member_root(&member.object) {
-                    namespaces.insert(root);
-                }
-                collect_expr(&member.object, namespaces);
-                collect_expr(&member.expression, namespaces);
-            }
-            Expression::CallExpression(call) => {
-                collect_expr(&call.callee, namespaces);
-                for arg in &call.arguments {
-                    collect_argument(arg, namespaces);
-                }
-            }
-            Expression::ArrowFunctionExpression(arrow) => match arrow.get_function_body() {
-                Some(body) => {
-                    for stmt in &body.statements {
-                        collect_statement(stmt, namespaces);
-                    }
-                }
-                None => {
-                    if let Some(expr) = arrow.get_expression() {
-                        collect_expr(expr, namespaces);
-                    }
-                }
-            },
-            Expression::FunctionExpression(function) => {
-                if let Some(body) = &function.body {
-                    for stmt in &body.statements {
-                        collect_statement(stmt, namespaces);
-                    }
-                }
-            }
-            Expression::ParenthesizedExpression(paren) => {
-                collect_expr(&paren.expression, namespaces)
-            }
-            Expression::BinaryExpression(binary) => {
-                collect_expr(&binary.left, namespaces);
-                collect_expr(&binary.right, namespaces);
-            }
-            Expression::ConditionalExpression(cond) => {
-                collect_expr(&cond.test, namespaces);
-                collect_expr(&cond.consequent, namespaces);
-                collect_expr(&cond.alternate, namespaces);
-            }
-            Expression::NewExpression(new_expr) => {
-                collect_expr(&new_expr.callee, namespaces);
-                for arg in &new_expr.arguments {
-                    collect_argument(arg, namespaces);
-                }
-            }
-            Expression::ArrayExpression(array) => {
-                for element in &array.elements {
-                    match element {
-                        oxc::ast::ast::ArrayExpressionElement::SpreadElement(spread) => {
-                            collect_expr(&spread.argument, namespaces);
-                        }
-                        oxc::ast::ast::ArrayExpressionElement::Elision(_) => {}
-                        _ => {}
-                    }
-                }
-            }
-            Expression::ObjectExpression(object) => {
-                for prop in &object.properties {
-                    if let ObjectPropertyKind::ObjectProperty(prop) = prop {
-                        collect_expr(&prop.value, namespaces);
-                    }
-                }
-            }
-            Expression::TemplateLiteral(template) => {
-                for expr in &template.expressions {
-                    collect_expr(expr, namespaces);
-                }
-            }
-            Expression::LogicalExpression(logical) => {
-                collect_expr(&logical.left, namespaces);
-                collect_expr(&logical.right, namespaces);
-            }
-            _ => {}
-        }
-    }
-
-    let allocator = oxc::allocator::Allocator::default();
-    let Ok(expr) = parse_expr(&allocator, expr_str) else {
-        return Vec::new();
-    };
-
-    let mut namespaces = HashSet::new();
-    collect_expr(&expr, &mut namespaces);
-    namespaces.into_iter().collect()
 }
 
 pub(super) fn source_slice(source: &str, span: oxc::span::Span) -> String {

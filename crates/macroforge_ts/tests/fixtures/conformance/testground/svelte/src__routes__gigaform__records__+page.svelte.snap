@@ -1,0 +1,39 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/routes/gigaform/records/+page.svelte
+sha256 0bec067c39a41a82910cd1de4843bfaed641917bb8923965db4f19b30e62eb81
+
+## Changed
+
+false
+
+## Output
+
+(unchanged)
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..2745 -> expanded 0..2745
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

@@ -11,8 +11,9 @@ use std::{
 /// Steps:
 /// 1. `cargo build --release --target wasm32-unknown-unknown`
 /// 2. `wasm-bindgen --target nodejs --out-dir <pkg>`
-/// 3. Parse the generated `.d.ts` to discover Call macros
-/// 4. Append `$`-prefixed re-exports for Call macros to the JS and .d.ts
+/// 3. Mark wasm-bindgen's `inline_js` snippets as ES modules
+/// 4. Parse the generated `.d.ts` to discover Call macros
+/// 5. Append `$`-prefixed re-exports for Call macros to the JS and .d.ts
 pub fn run_build(crate_dir: Option<PathBuf>, out_dir: Option<PathBuf>) -> Result<()> {
     let crate_dir = crate_dir
         .unwrap_or_else(|| PathBuf::from("."))
@@ -65,7 +66,10 @@ pub fn run_build(crate_dir: Option<PathBuf>, out_dir: Option<PathBuf>) -> Result
         bail!("wasm-bindgen failed");
     }
 
-    // Step 3: Discover Call macros from the manifest
+    // Step 3: Mark the snippets as ES modules
+    mark_snippets_as_modules(&out_dir)?;
+
+    // Step 4: Discover Call macros from the manifest
     let js_path = out_dir.join(format!("{js_stem}.js"));
     let dts_path = out_dir.join(format!("{js_stem}.d.ts"));
 
@@ -76,7 +80,7 @@ pub fn run_build(crate_dir: Option<PathBuf>, out_dir: Option<PathBuf>) -> Result
     let call_macros = discover_call_macros(&js_path)?;
 
     if call_macros.is_empty() {
-        eprintln!("[macroforge build] no Call macros found — skipping $ alias generation");
+        eprintln!("[macroforge build] no Call macros found, so no $ aliases to add");
     } else {
         eprintln!(
             "[macroforge build] adding $ aliases for Call macros: {}",
@@ -91,6 +95,19 @@ pub fn run_build(crate_dir: Option<PathBuf>, out_dir: Option<PathBuf>) -> Result
 
     eprintln!("[macroforge build] done ✓");
     Ok(())
+}
+
+/// The CommonJS glue `require`s wasm-bindgen's snippets, which are written as
+/// ES modules. Node loads them as such only when their nearest `package.json`
+/// says so, and a macro package may declare `"type": "commonjs"` for its glue.
+pub(crate) fn mark_snippets_as_modules(out_dir: &Path) -> Result<()> {
+    let snippets = out_dir.join("snippets");
+    if !snippets.is_dir() {
+        return Ok(());
+    }
+    let manifest = snippets.join("package.json");
+    fs::write(&manifest, "{ \"type\": \"module\" }\n")
+        .with_context(|| format!("failed to write {}", manifest.display()))
 }
 
 /// Discover Call macro names by parsing the generated `.d.ts` file.
@@ -154,7 +171,6 @@ fn append_dollar_aliases_dts(dts_path: &Path, names: &[String]) -> Result<()> {
     Ok(())
 }
 
-/// Resolve the wasm-bindgen binary from PATH or wasm-pack cache.
 /// The fields of `cargo metadata` that locate a crate's wasm artifact.
 #[derive(Deserialize)]
 struct CargoMetadata {

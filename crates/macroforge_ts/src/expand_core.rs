@@ -254,13 +254,6 @@ fn apply_options(macro_host: &mut MacroExpander, options: &Option<ExpandOptions>
                 anyhow!("config {path} was passed to expand before loadConfig parsed it")
             })?;
         crate::host::import_registry::set_foreign_types_from(&config);
-        crate::host::import_registry::with_registry_mut(|registry| {
-            registry.config_imports = config
-                .config_imports
-                .iter()
-                .map(|(name, info)| (name.clone(), info.source.clone()))
-                .collect();
-        });
         macro_host.set_project_config(config);
     }
     Ok(())

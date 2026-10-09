@@ -20,9 +20,7 @@ true
 
 ## Output
 
-import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
-import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
-import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 declare const MetersBrand: unique symbol;
 
@@ -31,126 +29,88 @@ type Meters = number & {
   readonly [MetersBrand]: true;
 };
 
-/** Encodes a value to a JSON string. @param value - The value to encode @param _keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
-                    export function metersEncode(value: Meters, _keepMetadata?: boolean): string {return JSON.stringify(value);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export function metersEncode(value: Meters, keepMetadata?: boolean): string;
+export function metersEncode(value: Meters): string {
+    return JSON.stringify(value);
+}
 
-
-
-
-                    }
-
-                    /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param _ctx - The encoding context, unused for primitives  */
-                    export function metersEncodeWithContext(value: Meters, _ctx: __mf_EncodeContext): unknown {return value;
-
-
-
-
-                    }
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export function metersEncodeWithContext(value: Meters, ctx: __mf_EncodeContext): unknown;
+export function metersEncodeWithContext(value: Meters): unknown {
+    return value;
+}
 
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-        export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
-            try {
-                const data = typeof input === "string" ? JSON.parse(input) : input;
+export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DecodeContext.create();
-                const result = metersDecodeWithContext(data, ctx);
-                if (opts?.freeze) {
-                    ctx.freezeAll();
-                }
+        const ctx = __mf_DecodeContext.create();
+        const result = metersDecodeWithContext(data, ctx);
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
 
-                const __errors = ctx.getErrors();
-                if (__errors.length > 0) {
-                    return ({
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
 	success: false,
 	errors: __errors
 });
-                }
+        }
 
-                return ({
+        return ({
 	success: true,
 	value: result
 });
-            } catch (e) {
-                if (e instanceof __mf_DecodeError) {
-                    return ({
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
 	success: false,
 	errors: e.errors
 });
-                }
-                const message = e instanceof Error ? e.message : String(e);
-                return ({
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
 	success: false,
 	errors: [{
 		field: "_root",
 		message
 	}]
 });
-            }
-        }
+    }
+}
 
-        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-        export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters {const __decoded: unknown = value;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters {
+    const __decoded: unknown = value;
+    if (typeof __decoded !== "number") {
+        throw new __mf_DecodeError([{ field: "_root", message: "Meters.decodeWithContext: expected number" }]);
+    }
+    const errors: Array<{ field: string; message: string }> = [];
+    if (__decoded < 0) { errors.push({ field: "_root", message: "Meters must be non-negative" }); }
+    ctx.pushErrors(errors);
+    return __decoded as Meters;
+}
 
+export function metersHasShape(value: unknown): boolean {
+    return typeof value === "number";
+}
 
-
-
-
-
-
-
-
-
-
-            if (typeof __decoded !== "number") {
-                throw new __mf_DecodeError([{ field: "_root", message: "Meters.decodeWithContext: expected number" }]);
-            }const errors: Array<{ field: string; message: string }> = [];
-                if (__decoded < 0) { errors.push({ field: "_root", message: "Meters must be non-negative" }); }
-
-                ctx.pushErrors(errors);
-
-
-
-
-            return __decoded as Meters;
-        }
-
-        export function metersValidateField<K extends keyof Meters>(
-            _field: K,
-            _value: Meters[K]
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
-
-        export function metersValidateFields(
-            _partial: Partial<Meters>
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
-
-        export function metersHasShape(value: unknown): boolean {return typeof value === "number";
-
-
-
-
-        }
-
-        export function metersIs(value: unknown): value is Meters {return typeof value === "number" && metersDecode(value).success;
-
-
-
-
-        }
+export function metersIs(value: unknown): value is Meters {
+    return typeof value === "number" && metersDecode(value).success;
+}
 
 export function metersDefaultValue(): Meters {
-                            return 0 as Meters;
-                        }
+    return 0 as Meters;
+}
 
 const Meters: {
   readonly encode: typeof metersEncode;
   readonly encodeWithContext: typeof metersEncodeWithContext;
   readonly decode: typeof metersDecode;
   readonly decodeWithContext: typeof metersDecodeWithContext;
-  readonly validateFields: typeof metersValidateFields;
   readonly hasShape: typeof metersHasShape;
   readonly is: typeof metersIs;
   readonly defaultValue: typeof metersDefaultValue;
@@ -159,7 +119,6 @@ const Meters: {
   encodeWithContext: metersEncodeWithContext,
   decode: metersDecode,
   decodeWithContext: metersDecodeWithContext,
-  validateFields: metersValidateFields,
   hasShape: metersHasShape,
   is: metersIs,
   defaultValue: metersDefaultValue
@@ -168,145 +127,30 @@ const Meters: {
 ## DTS
 
 declare const MetersBrand: unique symbol;
-
-
 type Meters = number & {
-  readonly [MetersBrand]: true;
+	readonly [MetersBrand]: true;
 };
-
-/** Encodes a value to a JSON string. @param value - The value to encode @param _keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
-                    export function metersEncode(value: Meters, _keepMetadata?: boolean): string {return JSON.stringify(value);
-
-
-
-
-                    }
-
-                    /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param _ctx - The encoding context, unused for primitives  */
-                    export function metersEncodeWithContext(value: Meters, _ctx: __mf_EncodeContext): unknown {return value;
-
-
-
-
-                    }
-
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export declare function metersEncode(value: Meters, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export declare function metersEncodeWithContext(value: Meters, ctx: __mf_EncodeContext): unknown;
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-        export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
-            try {
-                const data = typeof input === "string" ? JSON.parse(input) : input;
-
-                const ctx = __mf_DecodeContext.create();
-                const result = metersDecodeWithContext(data, ctx);
-                if (opts?.freeze) {
-                    ctx.freezeAll();
-                }
-
-                const __errors = ctx.getErrors();
-                if (__errors.length > 0) {
-                    return ({
-	success: false,
-	errors: __errors
-});
-                }
-
-                return ({
-	success: true,
-	value: result
-});
-            } catch (e) {
-                if (e instanceof __mf_DecodeError) {
-                    return ({
-	success: false,
-	errors: e.errors
-});
-                }
-                const message = e instanceof Error ? e.message : String(e);
-                return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message
-	}]
-});
-            }
-        }
-
-        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-        export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters {const __decoded: unknown = value;
-
-
-
-
-
-
-
-
-
-
-
-            if (typeof __decoded !== "number") {
-                throw new __mf_DecodeError([{ field: "_root", message: "Meters.decodeWithContext: expected number" }]);
-            }const errors: Array<{ field: string; message: string }> = [];
-                if (__decoded < 0) { errors.push({ field: "_root", message: "Meters must be non-negative" }); }
-
-                ctx.pushErrors(errors);
-
-
-
-
-            return __decoded as Meters;
-        }
-
-        export function metersValidateField<K extends keyof Meters>(
-            _field: K,
-            _value: Meters[K]
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
-
-        export function metersValidateFields(
-            _partial: Partial<Meters>
-        ): Array<{ field: string; message: string }> {
-            return [];
-        }
-
-        export function metersHasShape(value: unknown): boolean {return typeof value === "number";
-
-
-
-
-        }
-
-        export function metersIs(value: unknown): value is Meters {return typeof value === "number" && metersDecode(value).success;
-
-
-
-
-        }
-
-export function metersDefaultValue(): Meters {
-                            return 0 as Meters;
-                        }
-
-const Meters: {
-  readonly encode: typeof metersEncode;
-  readonly encodeWithContext: typeof metersEncodeWithContext;
-  readonly decode: typeof metersDecode;
-  readonly decodeWithContext: typeof metersDecodeWithContext;
-  readonly validateFields: typeof metersValidateFields;
-  readonly hasShape: typeof metersHasShape;
-  readonly is: typeof metersIs;
-  readonly defaultValue: typeof metersDefaultValue;
-} = {
-  encode: metersEncode,
-  encodeWithContext: metersEncodeWithContext,
-  decode: metersDecode,
-  decodeWithContext: metersDecodeWithContext,
-  validateFields: metersValidateFields,
-  hasShape: metersHasShape,
-  is: metersIs,
-  defaultValue: metersDefaultValue
+export declare function metersDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Meters;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
 };
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters;
+export declare function metersHasShape(value: unknown): boolean;
+export declare function metersIs(value: unknown): value is Meters;
+export declare function metersDefaultValue(): Meters;
+export {};
 
 ## Diagnostics
 
@@ -314,14 +158,14 @@ const Meters: {
 
 ## Mapping
 
-original 0..43 -> expanded 313..356
-original 128..188 -> expanded 356..416
-original 188..189 -> expanded 4576..4577
-generated 0..313 <- imports
-generated 416..1106 <- Encode
-generated 1106..3781 <- Decode
-generated 3781..3903 <- Default
-generated 3903..4576 <- __convenience_const
+original 0..43 -> expanded 231..274
+original 128..188 -> expanded 274..334
+original 188..189 -> expanded 3698..3699
+generated 0..231 <- imports
+generated 334..1040 <- Encode
+generated 1040..3047 <- Decode
+generated 3047..3121 <- Default
+generated 3121..3698 <- __convenience_const
 
 ## Metadata
 

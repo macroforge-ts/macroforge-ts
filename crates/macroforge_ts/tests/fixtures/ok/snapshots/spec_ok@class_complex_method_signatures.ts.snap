@@ -62,44 +62,31 @@ class API {
         return () => {};
     }
 
-static toString(value: API): string {
-                    return apiToString(value);
-                }}
+    static toString(value: API): string {
+        return apiToString(value);
+    }
+}
 
 export function apiToString(value: API): string {
-                        const parts: string[] = [];
-                        parts.push("endpoint: " + value.endpoint);
-
-                        return "API { " + parts.join(", ") + " }";
-                    }
+    const parts: string[] = [];
+    parts.push("endpoint: " + String(value.endpoint));
+    return "API { " + parts.join(", ") + " }";
+}
 
 ## DTS
 
-import { Derive } from '@macro/derive';
-
-
-class API {
-    endpoint: string;
-
-    constructor(endpoint: string);
-
-    async fetch<T>(path: string,
-        options?: { method?: string; body?: any }): Promise<T>;
-
-    subscribe(event: 'data' | 'error',
-        callback: (data: any) => void,
-        thisArg?: any): () => void;
-
-static toString(value: API): string {
-                    return apiToString(value);
-                }}
-
-export function apiToString(value: API): string {
-                        const parts: string[] = [];
-                        parts.push("endpoint: " + value.endpoint);
-
-                        return "API { " + parts.join(", ") + " }";
-                    }
+declare class API {
+	endpoint: string;
+	constructor(endpoint: string);
+	fetch<T>(path: string, options?: {
+		method?: string;
+		body?: any;
+	}): Promise<T>;
+	subscribe(event: "data" | "error", callback: (data: any) => void, thisArg?: any): () => void;
+	static toString(value: API): string;
+}
+export declare function apiToString(value: API): string;
+export {};
 
 ## Diagnostics
 
@@ -109,14 +96,14 @@ export function apiToString(value: API): string {
 
 original 0..41 -> expanded 0..41
 original 62..478 -> expanded 41..457
-original 478..479 -> expanded 560..561
-original 479..480 -> expanded 821..822
-generated 457..560 <- Debug
-generated 561..821 <- Debug
+original 478..479 -> expanded 541..542
+original 479..480 -> expanded 729..730
+generated 457..541 <- Debug
+generated 542..729 <- Debug
 
 ## Metadata
 
-class API: {"body_span":{"end":480,"start":74},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"name":"endpoint","optional":false,"readonly":false,"span":{"end":97,"start":80},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":174,"start":133},"body_src":"\n        this.endpoint = endpoint;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"endpoint: string","return_type_src":"","span":{"end":174,"start":103},"type_params_src":"","visibility":"Public"},{"body_span":{"end":317,"start":286},"body_src":"\n        return {} as T;\n    ","decorators":[],"is_async":true,"is_static":false,"name":"fetch","params_src":"path: string,\n        options?: { method?: string; body?: any }","return_type_src":"Promise<T>","span":{"end":317,"start":180},"type_params_src":"<T>","visibility":"Public"},{"body_span":{"end":478,"start":446},"body_src":"\n        return () => {};\n    ","decorators":[],"is_async":false,"is_static":false,"name":"subscribe","params_src":"event: 'data' | 'error',\n        callback: (data: any) => void,\n        thisArg?: any","return_type_src":"() => void","span":{"end":478,"start":323},"type_params_src":"","visibility":"Public"}],"name":"API","span":{"end":480,"start":64},"type_params":[]}
+class API: {"body_span":{"end":480,"start":74},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"endpoint","optional":false,"readonly":false,"span":{"end":97,"start":80},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":174,"start":133},"body_src":"\n        this.endpoint = endpoint;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"endpoint: string","return_type_src":"","span":{"end":174,"start":103},"type_params":[],"visibility":"Public"},{"body_span":{"end":317,"start":286},"body_src":"\n        return {} as T;\n    ","decorators":[],"is_async":true,"is_static":false,"name":"fetch","params_src":"path: string,\n        options?: { method?: string; body?: any }","return_type_src":"Promise<T>","span":{"end":317,"start":180},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}],"visibility":"Public"},{"body_span":{"end":478,"start":446},"body_src":"\n        return () => {};\n    ","decorators":[],"is_async":false,"is_static":false,"name":"subscribe","params_src":"event: 'data' | 'error',\n        callback: (data: any) => void,\n        thisArg?: any","return_type_src":"() => void","span":{"end":478,"start":323},"type_params":[],"visibility":"Public"}],"name":"API","span":{"end":480,"start":64},"type_params":[]}
 
 ## Registry reads
 

@@ -1,4 +1,4 @@
-use super::{single_type_argument, unexpanded_base};
+use super::single_type_argument;
 
 #[test]
 fn simple_argument_is_left_bare() {
@@ -32,12 +32,4 @@ fn argument_count_is_checked() {
         single_type_argument("number, string").unwrap_err(),
         "takes exactly one type argument, got 2"
     );
-}
-
-#[test]
-fn unexpanded_base_reads_primitive_newtypes() {
-    assert_eq!(unexpanded_base("$Newtype<number>"), Some("number"));
-    assert_eq!(unexpanded_base("$Newtype< string >"), Some("string"));
-    assert_eq!(unexpanded_base("$Newtype<User>"), None);
-    assert_eq!(unexpanded_base("number"), None);
 }

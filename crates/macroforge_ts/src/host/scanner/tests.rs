@@ -130,11 +130,11 @@ export interface PhoneNumber {
     );
 
     assert!(
-        crate::builtin::derive_common::type_has_derive(&registry, "PhoneNumber", "Gigaform"),
+        crate::builtin::derive::common::type_has_derive(&registry, "PhoneNumber", "Gigaform"),
         "type_has_derive should return true for Gigaform"
     );
     assert!(
-        crate::builtin::derive_common::type_has_derive(&registry, "PhoneNumber", "Default"),
+        crate::builtin::derive::common::type_has_derive(&registry, "PhoneNumber", "Default"),
         "type_has_derive should return true for Default"
     );
 }

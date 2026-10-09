@@ -1,0 +1,39 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/routes/validator-form/+page.svelte
+sha256 ad3d7cd17bf08fed06e1141540b0a0b46cbb2ae89839caeeb1f8f360db23d0f6
+
+## Changed
+
+false
+
+## Output
+
+(unchanged)
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..2169 -> expanded 0..2169
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

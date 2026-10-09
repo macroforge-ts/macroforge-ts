@@ -1,0 +1,160 @@
+/**
+ * CLI integration tests for `macroforge svelte-check`.
+ *
+ * Tests the CLI's ability to run svelte-check with macro expansion
+ * baked into TypeScript file reads via ts.sys.readFile patching.
+ *
+ * These tests run against the testground/svelte SvelteKit project
+ * which has svelte-check, macroforge, and .svelte.ts files with @derive.
+ */
+
+import { assert, assertEquals, assertStringIncludes } from '@std/assert';
+import { rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { runCli, svelteRoot } from './test-utils.mjs';
+
+// ============================================================================
+// Help & Basic Invocation
+// ============================================================================
+
+Deno.test('svelte-check: --help shows usage', () => {
+    const result = runCli(['svelte-check', '--help']);
+
+    assertEquals(
+        result.success,
+        true,
+        `Should succeed. stderr: ${result.stderr}`
+    );
+    assertStringIncludes(
+        result.stdout,
+        '--workspace',
+        'Should show --workspace flag'
+    );
+    assertStringIncludes(
+        result.stdout,
+        '--tsconfig',
+        'Should show --tsconfig flag'
+    );
+    assertStringIncludes(result.stdout, '--output', 'Should show --output flag');
+    assertStringIncludes(
+        result.stdout,
+        '--fail-on-warnings',
+        'Should show --fail-on-warnings flag'
+    );
+});
+
+// ============================================================================
+// Integration Tests (run against testground/svelte)
+// ============================================================================
+
+Deno.test('svelte-check: type-checks the svelte testground project', () => {
+    // Ensure .svelte-kit types are generated (prerequisite for svelte-check)
+    const syncResult = new Deno.Command('./node_modules/.bin/svelte-kit', {
+        args: ['sync'],
+        cwd: svelteRoot,
+        stdout: 'piped',
+        stderr: 'piped'
+    }).outputSync();
+
+    assert(
+        syncResult.success,
+        `svelte-kit sync should succeed. stderr: ${new TextDecoder().decode(syncResult.stderr)}`
+    );
+
+    const result = runCli(['svelte-check', '--tsconfig', './tsconfig.json'], {
+        cwd: svelteRoot
+    });
+
+    assertEquals(
+        result.success,
+        true,
+        `macroforge svelte-check should pass on the testground project.\nstdout: ${result.stdout}\nstderr: ${result.stderr}`
+    );
+});
+
+Deno.test('svelte-check: --output machine produces machine-readable output', () => {
+    const result = runCli([
+        'svelte-check',
+        '--tsconfig',
+        './tsconfig.json',
+        '--output',
+        'machine'
+    ], { cwd: svelteRoot });
+
+    assertEquals(
+        result.success,
+        true,
+        `Should pass with --output machine.\nstdout: ${result.stdout}\nstderr: ${result.stderr}`
+    );
+});
+
+Deno.test('svelte-check: --workspace flag is forwarded', () => {
+    const result = runCli([
+        'svelte-check',
+        '--workspace',
+        svelteRoot,
+        '--tsconfig',
+        './tsconfig.json'
+    ], { cwd: svelteRoot });
+
+    assertEquals(
+        result.success,
+        true,
+        `Should pass with explicit --workspace.\nstdout: ${result.stdout}\nstderr: ${result.stderr}`
+    );
+});
+
+Deno.test('svelte-check: --fail-on-warnings exits non-zero on warnings', () => {
+    // This test just verifies the flag is forwarded without crashing.
+    // If there are no warnings it should still succeed (exit 0).
+    const result = runCli([
+        'svelte-check',
+        '--tsconfig',
+        './tsconfig.json',
+        '--fail-on-warnings'
+    ], { cwd: svelteRoot });
+
+    // We don't assert success here because the project might have warnings.
+    // We just verify it doesn't crash (status should be 0 or 1, not a node crash).
+    assert(
+        result.status === 0 || result.status === 1,
+        `Should exit cleanly (0 or 1), got ${result.status}.\nstdout: ${result.stdout}\nstderr: ${result.stderr}`
+    );
+});
+
+// ============================================================================
+// Positions in expanded files
+// ============================================================================
+
+Deno.test('svelte-check: reports errors at their source position in every format', () => {
+    const probe = join(svelteRoot, 'src', 'lib', 'position-probe.ts');
+    writeFileSync(
+        probe,
+        [
+            '/** @derive(Debug, Encode) */',
+            'export interface Probe { a: number }',
+            "export const label = 'café 🚀';",
+            'export const wrong: string = 42;',
+            ''
+        ].join('\n')
+    );
+    try {
+        // Output without colour codes, which the human format puts in the path.
+        const colour = new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, 'g');
+        const run = (output) => {
+            const result = runCli(
+                ['svelte-check', '--tsconfig', './tsconfig.json', '--output', output],
+                { cwd: svelteRoot }
+            );
+            return (result.stdout + result.stderr).replace(colour, '');
+        };
+        assertStringIncludes(run('human'), 'position-probe.ts:4:14');
+        assertStringIncludes(run('machine'), '"src/lib/position-probe.ts" 4:14');
+        assertStringIncludes(
+            run('machine-verbose'),
+            '"filename":"src/lib/position-probe.ts","start":{"line":3,"character":13}'
+        );
+    } finally {
+        rmSync(probe, { force: true });
+    }
+});

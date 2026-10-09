@@ -146,13 +146,13 @@ export function traced(): void;
 
 ## Example Walkthrough
 
-The `@traced` macro in `tooling/playground/macro/src/attrs.rs` wraps a function so every call
+The `@traced` macro in `tooling/testground/macro/src/attrs.rs` wraps a function so every call
 increments a counter on `globalThis.__traced[fnName]`:
 
 TypeScript
 
 ```
-/** import macro { traced } from "@playground/macro" */
+/** import macro { traced } from "@testground/macro" */
 
 /** @traced */
 export function add(a: number, b: number): number {

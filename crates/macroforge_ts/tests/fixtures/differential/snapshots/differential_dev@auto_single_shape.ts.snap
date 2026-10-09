@@ -78,7 +78,7 @@ generated 369..388 <- $wrap
 
 ## Metadata
 
-class User: {"body_span":{"end":325,"start":284},"decorators":[],"fields":[],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":323,"start":321},"body_src":"","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"public id: number","return_type_src":"","span":{"end":323,"start":290},"type_params_src":"","visibility":"Public"}],"name":"User","span":{"end":325,"start":273},"type_params":[]}
+class User: {"body_span":{"end":325,"start":284},"decorators":[],"fields":[],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":323,"start":321},"body_src":"","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"public id: number","return_type_src":"","span":{"end":323,"start":290},"type_params":[],"visibility":"Public"}],"name":"User","span":{"end":325,"start":273},"type_params":[]}
 
 ## Registry reads
 

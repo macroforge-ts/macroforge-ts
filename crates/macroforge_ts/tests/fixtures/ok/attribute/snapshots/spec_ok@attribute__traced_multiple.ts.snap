@@ -50,20 +50,8 @@ function untouched(x: number): number {
 ## DTS
 
 /** import macro { traced } from "@macroforge/test-macros" */
-
-
-export function first(x: number): number {
-    return x * 2;
-}
-
-
-export function second(x: number): number {
-    return x + 10;
-}
-
-function untouched(x: number): number {
-    return x;
-}
+export declare function first(x: number): number;
+export declare function second(x: number): number;
 
 ## Diagnostics
 

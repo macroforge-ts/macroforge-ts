@@ -1,0 +1,466 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/account-name.svelte.ts
+sha256 e854eb4ebc9a3f403dca880fb93796785738757ee6d835e17a30ee376893d153
+
+## Changed
+
+true
+
+## Output
+
+import { companyNameDecodeWithContext, companyNameHasShape, companyNameDefaultValue } from "./company-name.svelte";
+import { personNameDecodeWithContext, personNameHasShape, personNameDefaultValue } from "./person-name.svelte";
+import { EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+import type { CompanyName } from './company-name.svelte';
+import type { PersonName } from './person-name.svelte';
+
+
+export type AccountName = /** @default */ CompanyName | PersonName;
+
+export function accountNameDefaultValue(): AccountName {
+    return companyNameDefaultValue();
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function accountNameEncode(value: AccountName, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = accountNameEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function accountNameEncodeWithContext(value: AccountName, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    }
+    return __variant;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function accountNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AccountName } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = accountNameDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "AccountName.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function accountNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AccountName | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "AccountName.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as AccountName | __mf_PendingRef;
+    }
+
+    
+
+    if (typeof value === "object" && value !== null) {
+        const __typeName = (value as any)["__type"];
+        if (typeof __typeName === "string") {
+            if (__typeName === "CompanyName") {
+                return companyNameDecodeWithContext(value, ctx) as AccountName;
+            }
+            if (__typeName === "PersonName") {
+                return personNameDecodeWithContext(value, ctx) as AccountName;
+            }
+
+            throw new __mf_DecodeError([{
+                field: "_root",
+                message: "AccountName.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: CompanyName, PersonName"
+            }]);
+        }
+    }
+
+    const __shapeMatches: Array<string> = [];
+    if (companyNameHasShape(value)) __shapeMatches.push("CompanyName");
+    if (personNameHasShape(value)) __shapeMatches.push("PersonName");
+
+    if (__shapeMatches.length === 1) {
+        if (__shapeMatches[0] === "CompanyName") {
+            return companyNameDecodeWithContext(value, ctx) as AccountName;
+        }
+        if (__shapeMatches[0] === "PersonName") {
+            return personNameDecodeWithContext(value, ctx) as AccountName;
+        }
+    }
+
+    if (__shapeMatches.length > 1) {
+        if (__shapeMatches.includes("CompanyName")) {
+            try {
+                return companyNameDecodeWithContext(value, ctx) as AccountName;
+            } catch {                        }
+        }
+        if (__shapeMatches.includes("PersonName")) {
+            try {
+                return personNameDecodeWithContext(value, ctx) as AccountName;
+            } catch {                        }
+        }
+
+        throw new __mf_DecodeError([{
+            field: "_root",
+            message: "AccountName.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+        }]);
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "AccountName.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: CompanyName, PersonName"
+    }]);
+}
+export function accountNameHasShape(value: unknown): boolean {
+
+                if (typeof value === "object" && value !== null) {
+                    const __typeName = (value as any)["__type"];
+                    if (typeof __typeName === "string") {
+                        return __typeName === "CompanyName" || __typeName === "PersonName";
+                    }
+                }
+
+                let __matchCount = 0;
+                if (companyNameHasShape(value)) __matchCount++;
+                if (personNameHasShape(value)) __matchCount++;
+                return __matchCount >= 1;
+}
+export function accountNameIs(value: unknown): value is AccountName {
+    return accountNameHasShape(value);
+}
+
+/** Per-variant error types  */
+
+export type AccountNameCompanyNameErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+export type AccountNamePersonNameErrors = {
+    _errors: Option.Option<Array<string>>;
+};
+
+/** Per-variant tainted types  */
+
+export type AccountNameCompanyNameTainted = {
+};
+export type AccountNamePersonNameTainted = {
+};
+
+/** Union error type  */
+export type AccountNameErrors = ({ _type: "CompanyName" } & AccountNameCompanyNameErrors) | ({ _type: "PersonName" } & AccountNamePersonNameErrors);
+
+/** Union tainted type  */
+export type AccountNameTainted = ({ _type: "CompanyName" } & AccountNameCompanyNameTainted) | ({ _type: "PersonName" } & AccountNamePersonNameTainted);
+
+/** Per-variant field controller types  */
+
+export interface AccountNameCompanyNameFieldControllers {
+}
+export interface AccountNamePersonNameFieldControllers {
+}
+
+/** Union Gigaform interface with variant switching  */
+export interface AccountNameGigaform {
+    readonly currentVariant: "CompanyName" | "PersonName";
+    readonly data: AccountName;
+    readonly errors: AccountNameErrors;
+    readonly tainted: AccountNameTainted;
+    readonly variants: AccountNameVariantFields;
+    switchVariant(variant: "CompanyName" | "PersonName"): void;
+    validate(): Exit.Exit<AccountName, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<AccountName>): void;
+}
+
+/** Variant fields container  */
+export interface AccountNameVariantFields {
+    readonly CompanyName: { readonly fields: AccountNameCompanyNameFieldControllers };
+    readonly PersonName: { readonly fields: AccountNamePersonNameFieldControllers };
+}
+/** Gets default value for a specific variant  */
+function accountNameGetDefaultForVariant(variant: string): AccountName {
+    if (variant === "CompanyName") { return companyNameDefaultValue() as AccountName; }
+    if (variant === "PersonName") { return personNameDefaultValue() as AccountName; }
+    return companyNameDefaultValue() as AccountName;
+}
+
+/** Creates a new discriminated union Gigaform with variant switching  */
+export function accountNameCreateForm(initial?: AccountName): AccountNameGigaform {
+
+    const initialVariant: "CompanyName" | "PersonName" = "CompanyName";
+
+    let currentVariant = $state<"CompanyName" | "PersonName">(initialVariant);
+    let data = $state<AccountName>(initial ?? accountNameGetDefaultForVariant(initialVariant));
+    let errors = $state<AccountNameErrors>({} as AccountNameErrors);
+    let tainted = $state<AccountNameTainted>({} as AccountNameTainted);
+
+    const variants = {
+        "CompanyName": { fields: {  } as unknown as AccountNameCompanyNameFieldControllers },
+        "PersonName": { fields: {  } as unknown as AccountNamePersonNameFieldControllers },
+    } as unknown as AccountNameVariantFields;
+
+    function switchVariant(variant: "CompanyName" | "PersonName"): void {
+        currentVariant = variant;
+        data = accountNameGetDefaultForVariant(variant);
+        errors = {} as AccountNameErrors;
+        tainted = {} as AccountNameTainted;
+    }
+
+    function validate(): Exit.Exit<AccountName, Array<{ field: string; message: string }>> {
+        return toExit(accountNameDecode(data));
+    }
+
+    function reset(overrides?: Partial<AccountName>): void {
+        data = overrides ? overrides as typeof data : accountNameGetDefaultForVariant(currentVariant);
+        errors = {} as AccountNameErrors;
+        tainted = {} as AccountNameTainted;
+    }
+
+    return {
+        get currentVariant() { return currentVariant; },
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        variants,
+        switchVariant,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData for union type, determining variant from discriminant field  */
+export function accountNameFromFormData(formData: FormData): Exit.Exit<AccountName, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_type") as "CompanyName" | "PersonName" | null;
+
+    if (!discriminant) {
+        return toExit({ success: false, errors: [{ field: "_type", message: "Missing discriminant field" }] });
+    }
+
+    const obj: Record<string, unknown> = {};
+    obj._type = discriminant;
+
+    {
+
+        if (discriminant === "CompanyName") {
+
+        }
+    }
+    {
+
+        if (discriminant === "PersonName") {
+
+        }
+    }
+
+    return toExit(accountNameDecode(obj));
+}
+
+export const AccountName: {
+  readonly defaultValue: typeof accountNameDefaultValue;
+  readonly encode: typeof accountNameEncode;
+  readonly encodeWithContext: typeof accountNameEncodeWithContext;
+  readonly decode: typeof accountNameDecode;
+  readonly decodeWithContext: typeof accountNameDecodeWithContext;
+  readonly hasShape: typeof accountNameHasShape;
+  readonly is: typeof accountNameIs;
+  readonly createForm: typeof accountNameCreateForm;
+  readonly fromFormData: typeof accountNameFromFormData;
+} = {
+  defaultValue: accountNameDefaultValue,
+  encode: accountNameEncode,
+  encodeWithContext: accountNameEncodeWithContext,
+  decode: accountNameDecode,
+  decodeWithContext: accountNameDecodeWithContext,
+  hasShape: accountNameHasShape,
+  is: accountNameIs,
+  createForm: accountNameCreateForm,
+  fromFormData: accountNameFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+import type { CompanyName } from "./company-name.svelte";
+import type { PersonName } from "./person-name.svelte";
+export type AccountName = CompanyName | PersonName;
+export declare function accountNameDefaultValue(): AccountName;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function accountNameEncode(value: AccountName, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function accountNameEncodeWithContext(value: AccountName, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function accountNameDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AccountName;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function accountNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AccountName | __mf_PendingRef;
+export declare function accountNameHasShape(value: unknown): boolean;
+export declare function accountNameIs(value: unknown): value is AccountName;
+/** Per-variant error types  */
+export type AccountNameCompanyNameErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+export type AccountNamePersonNameErrors = {
+	_errors: Option.Option<Array<string>>;
+};
+/** Per-variant tainted types  */
+export type AccountNameCompanyNameTainted = {};
+export type AccountNamePersonNameTainted = {};
+/** Union error type  */
+export type AccountNameErrors = ({
+	_type: "CompanyName";
+} & AccountNameCompanyNameErrors) | ({
+	_type: "PersonName";
+} & AccountNamePersonNameErrors);
+/** Union tainted type  */
+export type AccountNameTainted = ({
+	_type: "CompanyName";
+} & AccountNameCompanyNameTainted) | ({
+	_type: "PersonName";
+} & AccountNamePersonNameTainted);
+/** Per-variant field controller types  */
+export interface AccountNameCompanyNameFieldControllers {}
+export interface AccountNamePersonNameFieldControllers {}
+/** Union Gigaform interface with variant switching  */
+export interface AccountNameGigaform {
+	readonly currentVariant: "CompanyName" | "PersonName";
+	readonly data: AccountName;
+	readonly errors: AccountNameErrors;
+	readonly tainted: AccountNameTainted;
+	readonly variants: AccountNameVariantFields;
+	switchVariant(variant: "CompanyName" | "PersonName"): void;
+	validate(): Exit.Exit<AccountName, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<AccountName>): void;
+}
+/** Variant fields container  */
+export interface AccountNameVariantFields {
+	readonly CompanyName: {
+		readonly fields: AccountNameCompanyNameFieldControllers;
+	};
+	readonly PersonName: {
+		readonly fields: AccountNamePersonNameFieldControllers;
+	};
+}
+/** Creates a new discriminated union Gigaform with variant switching  */
+export declare function accountNameCreateForm(initial?: AccountName): AccountNameGigaform;
+/** Parses FormData for union type, determining variant from discriminant field  */
+export declare function accountNameFromFormData(formData: FormData): Exit.Exit<AccountName, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const AccountName: {
+	readonly defaultValue: typeof accountNameDefaultValue;
+	readonly encode: typeof accountNameEncode;
+	readonly encodeWithContext: typeof accountNameEncodeWithContext;
+	readonly decode: typeof accountNameDecode;
+	readonly decodeWithContext: typeof accountNameDecodeWithContext;
+	readonly hasShape: typeof accountNameHasShape;
+	readonly is: typeof accountNameIs;
+	readonly createForm: typeof accountNameCreateForm;
+	readonly fromFormData: typeof accountNameFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..173 -> expanded 688..861
+original 355..423 -> expanded 861..929
+original 423..424 -> expanded 12578..12579
+generated 0..688 <- imports
+generated 929..1027 <- Default
+generated 1027..2350 <- Encode
+generated 2350..7178 <- Decode
+generated 7178..11731 <- Gigaform
+generated 11731..12578 <- __convenience_const
+
+## Metadata
+
+type AccountName: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":398,"start":383}}],"kind":{"TypeRef":"CompanyName"}},{"decorators":[],"kind":{"TypeRef":"PersonName"}}]},"decorators":[{"args_src":"{ legend: \"Name\", variants: { CompanyName: { label: \"Company\" }, PersonName: { label: \"Person\" } } }","name":"enumFieldsetController","span":{"end":356,"start":224}},{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":223,"start":174}}],"name":"AccountName","span":{"end":424,"start":364},"type_params":[]}
+
+## Registry reads
+
+Name("AccountName")
+Name("CompanyName")
+Name("PersonName")
+
+## Buildtime dependencies
+
+(none)

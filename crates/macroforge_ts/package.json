@@ -12,6 +12,7 @@
         "./buildtime": "./js/buildtime/index.ts",
         "./rules": "./js/rules/index.ts",
         "./endec": "./js/endec/index.ts",
+        "./structural": "./js/structural/index.ts",
         "./traits": "./js/traits/index.ts"
     },
     "homepage": "https://macroforge.dev",
@@ -40,5 +41,5 @@
         "cleanbuild": "deno task clean && deno task build"
     },
     "type": "module",
-    "version": "0.4.0"
+    "version": "0.5.0"
 }

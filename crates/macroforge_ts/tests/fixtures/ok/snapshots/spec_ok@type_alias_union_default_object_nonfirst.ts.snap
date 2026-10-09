@@ -23,11 +23,11 @@ export type PropValue = { type: 'String'; value: string } | /** @default */ {
 };
 
 export function propValueDefaultValue(): PropValue {
-                            return ({
+    return ({
 	type: "Number",
 	value: 0
 });
-                        }
+}
 
 export const PropValue: {
   readonly defaultValue: typeof propValueDefaultValue;
@@ -37,22 +37,16 @@ export const PropValue: {
 
 ## DTS
 
-export type PropValue = { type: 'String'; value: string } | /** @default */ {
-    type: 'Number';
-    value: number;
+export type PropValue = {
+	type: "String";
+	value: string;
+} | {
+	type: "Number";
+	value: number;
 };
-
-export function propValueDefaultValue(): PropValue {
-                            return ({
-	type: "Number",
-	value: 0
-});
-                        }
-
-export const PropValue: {
-  readonly defaultValue: typeof propValueDefaultValue;
-} = {
-  defaultValue: propValueDefaultValue
+export declare function propValueDefaultValue(): PropValue;
+export declare const PropValue: {
+	readonly defaultValue: typeof propValueDefaultValue;
 };
 
 ## Diagnostics
@@ -62,9 +56,9 @@ export const PropValue: {
 ## Mapping
 
 original 23..143 -> expanded 0..120
-original 143..144 -> expanded 398..399
-generated 120..269 <- Default
-generated 269..398 <- __convenience_const
+original 143..144 -> expanded 350..351
+generated 120..221 <- Default
+generated 221..350 <- __convenience_const
 
 ## Metadata
 

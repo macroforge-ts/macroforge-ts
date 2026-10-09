@@ -6,13 +6,15 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::abi::ir::TypeParamIR;
+
 use crate::abi::ir::decorators::DecoratorIR;
 use crate::abi::span::SpanIR;
 
 /// IR representation of a TypeScript function declaration.
 ///
 /// Covers `function`, `async function`, `function*`, and exported variants.
-/// Arrow functions and function expressions are NOT represented here — they
+/// Arrow functions and function expressions are NOT represented here: they
 /// are expressions, not items, and have no natural place for a JSDoc decorator.
 ///
 /// # Spans
@@ -54,8 +56,8 @@ pub struct FunctionIR {
     /// Whether the function is `export default`.
     pub is_default_export: bool,
 
-    /// Generic type parameters (e.g., `["T", "U"]`).
-    pub type_params: Vec<String>,
+    /// Generic type parameters as declared.
+    pub type_params: Vec<TypeParamIR>,
 
     /// Formal parameters.
     pub params: Vec<FunctionParamIR>,

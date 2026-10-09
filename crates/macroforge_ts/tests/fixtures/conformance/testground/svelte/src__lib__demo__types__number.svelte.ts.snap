@@ -1,0 +1,552 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/number.svelte.ts
+sha256 de6ee799d4c73867a0de41acbf0cc0b5efcca2365a346554a93964eebad82b39
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Option, Exit } from "effect";
+import type { FieldController } from "@testground/macro/gigaform";
+import { toExit } from "@testground/macro/gigaform";
+/** import macro {Gigaform} from "@testground/macro"; */
+
+
+export interface Number {
+    
+    countryCode: string;
+    
+    areaCode: string;
+    
+    localNumber: string;
+}
+
+export function numberDefaultValue(): Number {
+    return {
+        countryCode: "",
+        areaCode: "",
+        localNumber: "",
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function numberEncode(value: Number, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = numberEncodeWithContext(value, ctx);
+    if (keepMetadata) return JSON.stringify(__raw);
+    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function numberEncodeWithContext(value: Number, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+
+    const __id = ctx.register(value);
+
+    const result: Record<string, unknown> = {
+        "__type": "Number",
+        __id,
+    };
+
+    
+    result.countryCode = value.countryCode;
+    result.areaCode = value.areaCode;
+    result.localNumber = value.localNumber;
+
+    return result;
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function numberDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Number } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = numberDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Number.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Number | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Number.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Number | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Number.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if (!("countryCode" in obj)) {
+        errors.push({ field: "countryCode", message: "missing required field" });
+    }
+    if (!("areaCode" in obj)) {
+        errors.push({ field: "areaCode", message: "missing required field" });
+    }
+    if (!("localNumber" in obj)) {
+        errors.push({ field: "localNumber", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+
+    ctx.trackForFreeze(instance);
+
+    {
+        const __raw_countryCode = obj["countryCode"] as string;
+
+        if (!(typeof __raw_countryCode === "string")) {
+            errors.push({ field: "countryCode", message: __raw_countryCode == null ? "Number.countryCode is required" : "expected string" });
+        } else {
+            if (__raw_countryCode == null) { errors.push({ field: "countryCode", message: "Number.countryCode is required" }); } else {
+                if (__raw_countryCode.length === 0) { errors.push({ field: "countryCode", message: "Number.countryCode must not be empty" }); }
+            }
+            instance.countryCode = __raw_countryCode;
+        }
+    }
+    {
+        const __raw_areaCode = obj["areaCode"] as string;
+
+        if (!(typeof __raw_areaCode === "string")) {
+            errors.push({ field: "areaCode", message: __raw_areaCode == null ? "Number.areaCode is required" : "expected string" });
+        } else {
+            if (__raw_areaCode == null) { errors.push({ field: "areaCode", message: "Number.areaCode is required" }); } else {
+                if (__raw_areaCode.length === 0) { errors.push({ field: "areaCode", message: "Number.areaCode must not be empty" }); }
+            }
+            instance.areaCode = __raw_areaCode;
+        }
+    }
+    {
+        const __raw_localNumber = obj["localNumber"] as string;
+
+        if (!(typeof __raw_localNumber === "string")) {
+            errors.push({ field: "localNumber", message: __raw_localNumber == null ? "Number.localNumber is required" : "expected string" });
+        } else {
+            if (__raw_localNumber == null) { errors.push({ field: "localNumber", message: "Number.localNumber is required" }); } else {
+                if (__raw_localNumber.length === 0) { errors.push({ field: "localNumber", message: "Number.localNumber must not be empty" }); }
+            }
+            instance.localNumber = __raw_localNumber;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Number;
+}
+export function numberValidateField<K extends keyof Number>(field: K, value: unknown): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if (field === "countryCode") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "countryCode", message: "Number.countryCode is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "countryCode", message: "Number.countryCode must not be empty" }); }
+        }
+    }
+    if (field === "areaCode") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "areaCode", message: "Number.areaCode is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "areaCode", message: "Number.areaCode must not be empty" }); }
+        }
+    }
+    if (field === "localNumber") {
+        const __val = value as string;
+        if (__val == null) { errors.push({ field: "localNumber", message: "Number.localNumber is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "localNumber", message: "Number.localNumber must not be empty" }); }
+        }
+    }
+    return errors;
+}
+
+export function numberValidateFields(partial: { readonly [K in keyof Number]?: unknown }): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("countryCode" in partial && partial.countryCode !== undefined) {
+        const __val = partial.countryCode as string;
+        if (__val == null) { errors.push({ field: "countryCode", message: "Number.countryCode is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "countryCode", message: "Number.countryCode must not be empty" }); }
+        }
+    }
+    if ("areaCode" in partial && partial.areaCode !== undefined) {
+        const __val = partial.areaCode as string;
+        if (__val == null) { errors.push({ field: "areaCode", message: "Number.areaCode is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "areaCode", message: "Number.areaCode must not be empty" }); }
+        }
+    }
+    if ("localNumber" in partial && partial.localNumber !== undefined) {
+        const __val = partial.localNumber as string;
+        if (__val == null) { errors.push({ field: "localNumber", message: "Number.localNumber is required" }); } else {
+            if (__val.length === 0) { errors.push({ field: "localNumber", message: "Number.localNumber must not be empty" }); }
+        }
+    }
+    return errors;
+}
+export function numberHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "countryCode" in o && "areaCode" in o && "localNumber" in o;
+}
+
+export function numberIs(obj: unknown): obj is Number {
+    return numberHasShape(obj) && numberDecode(obj).success;
+}
+
+/** Nested error structure matching the data shape  */
+export type NumberErrors = {
+    _errors: Option.Option<Array<string>>;
+    countryCode: Option.Option<Array<string>>;
+    areaCode: Option.Option<Array<string>>;
+    localNumber: Option.Option<Array<string>>;
+};
+
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type NumberTainted = {
+    countryCode: Option.Option<boolean>;
+    areaCode: Option.Option<boolean>;
+    localNumber: Option.Option<boolean>;
+};
+
+/** Type-safe field controllers for this form  */
+export interface NumberFieldControllers {
+    readonly countryCode: FieldController<string>;
+    readonly areaCode: FieldController<string>;
+    readonly localNumber: FieldController<string>;
+}
+
+/** Gigaform instance containing reactive state and field controllers  */
+export interface NumberGigaform {
+    readonly data: Number;
+    readonly errors: NumberErrors;
+    readonly tainted: NumberTainted;
+    readonly fields: NumberFieldControllers;
+    validate(): Exit.Exit<Number, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Number>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export function numberCreateForm(overrides?: Partial<Number>): NumberGigaform {
+    let data = $state({ ...numberDefaultValue(), ...overrides });
+    let errors = $state<NumberErrors>({
+        _errors: Option.none(),
+        countryCode: Option.none(),
+        areaCode: Option.none(),
+        localNumber: Option.none(),
+    });
+    let tainted = $state<NumberTainted>({
+        countryCode: Option.none(),
+        areaCode: Option.none(),
+        localNumber: Option.none(),
+    });
+    const fields = {
+        countryCode: {
+            name: "countryCode",
+            label: "countryCode",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["countryCode"],
+            get: () => data.countryCode,
+            set: (value: string) => { data.countryCode = value; },
+            getError: () => errors.countryCode,
+            setError: (value: Option.Option<Array<string>>) => { errors.countryCode = value; },
+            getTainted: () => tainted.countryCode,
+            setTainted: (value: Option.Option<boolean>) => { tainted.countryCode = value; },
+            validate: () => numberValidateField("countryCode", data.countryCode).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        areaCode: {
+            name: "areaCode",
+            label: "areaCode",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["areaCode"],
+            get: () => data.areaCode,
+            set: (value: string) => { data.areaCode = value; },
+            getError: () => errors.areaCode,
+            setError: (value: Option.Option<Array<string>>) => { errors.areaCode = value; },
+            getTainted: () => tainted.areaCode,
+            setTainted: (value: Option.Option<boolean>) => { tainted.areaCode = value; },
+            validate: () => numberValidateField("areaCode", data.areaCode).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+        localNumber: {
+            name: "localNumber",
+            label: "localNumber",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["localNumber"],
+            get: () => data.localNumber,
+            set: (value: string) => { data.localNumber = value; },
+            getError: () => errors.localNumber,
+            setError: (value: Option.Option<Array<string>>) => { errors.localNumber = value; },
+            getTainted: () => tainted.localNumber,
+            setTainted: (value: Option.Option<boolean>) => { tainted.localNumber = value; },
+            validate: () => numberValidateField("localNumber", data.localNumber).map((e: { field: string; message: string }) => e.message),
+
+            constraints: {},
+
+
+            disabled: false,
+            readonly: false,
+        },
+    } as unknown as NumberFieldControllers;
+
+    function validate(): Exit.Exit<Number, Array<{ field: string; message: string }>> {
+        return toExit(numberDecode(data));
+    }
+
+    function reset(newOverrides?: Partial<Number>): void {
+        data = { ...numberDefaultValue(), ...newOverrides };
+        errors = {
+            _errors: Option.none(),
+            countryCode: Option.none(),
+            areaCode: Option.none(),
+            localNumber: Option.none(),
+        };
+        tainted = {
+            countryCode: Option.none(),
+            areaCode: Option.none(),
+            localNumber: Option.none(),
+        };
+    }
+
+    return {
+        get data() { return data; },
+        set data(v) { data = v; },
+        get errors() { return errors; },
+        set errors(v) { errors = v; },
+        get tainted() { return tainted; },
+        set tainted(v) { tainted = v; },
+        fields,
+        validate,
+        reset,
+    };
+}
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export function numberFromFormData(formData: FormData): Exit.Exit<Number, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+
+    
+    obj.countryCode = formData.get("countryCode") ?? "";
+    obj.areaCode = formData.get("areaCode") ?? "";
+    obj.localNumber = formData.get("localNumber") ?? "";
+
+    return toExit(numberDecode(obj));
+}
+
+export const Number: {
+  readonly defaultValue: typeof numberDefaultValue;
+  readonly encode: typeof numberEncode;
+  readonly encodeWithContext: typeof numberEncodeWithContext;
+  readonly decode: typeof numberDecode;
+  readonly decodeWithContext: typeof numberDecodeWithContext;
+  readonly validateField: typeof numberValidateField;
+  readonly validateFields: typeof numberValidateFields;
+  readonly hasShape: typeof numberHasShape;
+  readonly is: typeof numberIs;
+  readonly createForm: typeof numberCreateForm;
+  readonly fromFormData: typeof numberFromFormData;
+} = {
+  defaultValue: numberDefaultValue,
+  encode: numberEncode,
+  encodeWithContext: numberEncodeWithContext,
+  decode: numberDecode,
+  decodeWithContext: numberDecodeWithContext,
+  validateField: numberValidateField,
+  validateFields: numberValidateFields,
+  hasShape: numberHasShape,
+  is: numberIs,
+  createForm: numberCreateForm,
+  fromFormData: numberFromFormData
+};
+
+## DTS
+
+/** import macro {Gigaform} from "@testground/macro"; */
+export interface Number {
+	countryCode: string;
+	areaCode: string;
+	localNumber: string;
+}
+export declare function numberDefaultValue(): Number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function numberEncode(value: Number, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function numberEncodeWithContext(value: Number, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function numberDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Number;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Number | __mf_PendingRef;
+export declare function numberValidateField<K extends keyof Number>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function numberValidateFields(partial: { readonly [K in keyof Number]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function numberHasShape(obj: unknown): boolean;
+export declare function numberIs(obj: unknown): obj is Number;
+/** Nested error structure matching the data shape  */
+export type NumberErrors = {
+	_errors: Option.Option<Array<string>>;
+	countryCode: Option.Option<Array<string>>;
+	areaCode: Option.Option<Array<string>>;
+	localNumber: Option.Option<Array<string>>;
+};
+/** Nested boolean structure for tracking touched/dirty fields  */
+export type NumberTainted = {
+	countryCode: Option.Option<boolean>;
+	areaCode: Option.Option<boolean>;
+	localNumber: Option.Option<boolean>;
+};
+/** Type-safe field controllers for this form  */
+export interface NumberFieldControllers {
+	readonly countryCode: FieldController<string>;
+	readonly areaCode: FieldController<string>;
+	readonly localNumber: FieldController<string>;
+}
+/** Gigaform instance containing reactive state and field controllers  */
+export interface NumberGigaform {
+	readonly data: Number;
+	readonly errors: NumberErrors;
+	readonly tainted: NumberTainted;
+	readonly fields: NumberFieldControllers;
+	validate(): Exit.Exit<Number, Array<{
+		field: string;
+		message: string;
+	}>>;
+	reset(overrides?: Partial<Number>): void;
+}
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+export declare function numberCreateForm(overrides?: Partial<Number>): NumberGigaform;
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
+export declare function numberFromFormData(formData: FormData): Exit.Exit<Number, Array<{
+	field: string;
+	message: string;
+}>>;
+export declare const Number: {
+	readonly defaultValue: typeof numberDefaultValue;
+	readonly encode: typeof numberEncode;
+	readonly encodeWithContext: typeof numberEncodeWithContext;
+	readonly decode: typeof numberDecode;
+	readonly decodeWithContext: typeof numberDecodeWithContext;
+	readonly validateField: typeof numberValidateField;
+	readonly validateFields: typeof numberValidateFields;
+	readonly hasShape: typeof numberHasShape;
+	readonly is: typeof numberIs;
+	readonly createForm: typeof numberCreateForm;
+	readonly fromFormData: typeof numberFromFormData;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 421..479
+original 107..138 -> expanded 479..510
+original 179..209 -> expanded 510..540
+original 250..277 -> expanded 540..567
+original 318..345 -> expanded 567..594
+original 345..346 -> expanded 16350..16351
+generated 0..421 <- imports
+generated 594..736 <- Default
+generated 736..1924 <- Encode
+generated 1924..9741 <- Decode
+generated 9741..15410 <- Gigaform
+generated 15410..16350 <- __convenience_const
+
+## Metadata
+
+interface Number: {"body_span":{"end":346,"start":133},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":180,"start":139}}],"name":"countryCode","optional":false,"readonly":false,"span":{"end":205,"start":185},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":251,"start":210}}],"name":"areaCode","optional":false,"readonly":false,"span":{"end":273,"start":256},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":319,"start":278}}],"name":"localNumber","optional":false,"readonly":false,"span":{"end":344,"start":324},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Number","span":{"end":346,"start":116},"type_params":[]}
+
+## Registry reads
+
+Name("string")
+
+## Buildtime dependencies
+
+(none)
