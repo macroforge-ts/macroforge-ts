@@ -846,6 +846,18 @@ export function colorsConfigDefaultValue(): ColorsConfig {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function colorsConfigHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
@@ -1037,8 +1049,11 @@ export function colorsConfigDefaultValue(): ColorsConfig {
 
         }
 
-        export function colorsConfigIs(value: unknown): value is ColorsConfig {
-            return colorsConfigHasShape(value);
+        export function colorsConfigIs(value: unknown): value is ColorsConfig {return colorsConfigHasShape(value);
+
+
+
+
         }
 
 /** Per-variant error types  */
@@ -1268,7 +1283,17 @@ if (variant === "Gradient") { return gradientDefaultValue() as ColorsConfig; }
             return toExit(colorsConfigDecode(obj));
         }
 
-export const ColorsConfig = {
+export const ColorsConfig: {
+  readonly defaultValue: typeof colorsConfigDefaultValue;
+  readonly encode: typeof colorsConfigEncode;
+  readonly encodeWithContext: typeof colorsConfigEncodeWithContext;
+  readonly decode: typeof colorsConfigDecode;
+  readonly decodeWithContext: typeof colorsConfigDecodeWithContext;
+  readonly hasShape: typeof colorsConfigHasShape;
+  readonly is: typeof colorsConfigIs;
+  readonly createForm: typeof colorsConfigCreateForm;
+  readonly fromFormData: typeof colorsConfigFromFormData;
+} = {
   defaultValue: colorsConfigDefaultValue,
   encode: colorsConfigEncode,
   encodeWithContext: colorsConfigEncodeWithContext,
@@ -1278,7 +1303,7 @@ export const ColorsConfig = {
   is: colorsConfigIs,
   createForm: colorsConfigCreateForm,
   fromFormData: colorsConfigFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2095,6 +2120,18 @@ export function colorsConfigDefaultValue(): ColorsConfig {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function colorsConfigHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
@@ -2286,8 +2323,11 @@ export function colorsConfigDefaultValue(): ColorsConfig {
 
         }
 
-        export function colorsConfigIs(value: unknown): value is ColorsConfig {
-            return colorsConfigHasShape(value);
+        export function colorsConfigIs(value: unknown): value is ColorsConfig {return colorsConfigHasShape(value);
+
+
+
+
         }
 
 /** Per-variant error types  */
@@ -2517,7 +2557,17 @@ if (variant === "Gradient") { return gradientDefaultValue() as ColorsConfig; }
             return toExit(colorsConfigDecode(obj));
         }
 
-export const ColorsConfig = {
+export const ColorsConfig: {
+  readonly defaultValue: typeof colorsConfigDefaultValue;
+  readonly encode: typeof colorsConfigEncode;
+  readonly encodeWithContext: typeof colorsConfigEncodeWithContext;
+  readonly decode: typeof colorsConfigDecode;
+  readonly decodeWithContext: typeof colorsConfigDecodeWithContext;
+  readonly hasShape: typeof colorsConfigHasShape;
+  readonly is: typeof colorsConfigIs;
+  readonly createForm: typeof colorsConfigCreateForm;
+  readonly fromFormData: typeof colorsConfigFromFormData;
+} = {
   defaultValue: colorsConfigDefaultValue,
   encode: colorsConfigEncode,
   encodeWithContext: colorsConfigEncodeWithContext,
@@ -2527,7 +2577,7 @@ export const ColorsConfig = {
   is: colorsConfigIs,
   createForm: colorsConfigCreateForm,
   fromFormData: colorsConfigFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -2535,14 +2585,15 @@ export const ColorsConfig = {
 
 ## Mapping
 
-original 0..257 -> expanded 0..257
-original 306..407 -> expanded 257..358
-original 407..408 -> expanded 19943..19944
-generated 358..503 <- Default
-generated 503..2431 <- Encode
-generated 2431..12328 <- Decode
-generated 12328..19559 <- Gigaform
-generated 19559..19943 <- __convenience_const
+original 0..257 -> expanded 1251..1508
+original 306..407 -> expanded 1508..1609
+original 407..408 -> expanded 21679..21680
+generated 0..1251 <- imports
+generated 1609..1754 <- Default
+generated 1754..3682 <- Encode
+generated 3682..13582 <- Decode
+generated 13582..20813 <- Gigaform
+generated 20813..21679 <- __convenience_const
 
 ## Metadata
 

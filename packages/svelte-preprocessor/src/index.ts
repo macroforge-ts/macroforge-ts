@@ -56,7 +56,7 @@ interface SourceMapping {
     }>;
 }
 
-/** Build line offsets table: lineOffsets[i] = byte offset of the start of line i */
+/** Build line offsets table: lineOffsets[i] = UTF-16 offset of the start of line i */
 function buildLineOffsets(text: string): number[] {
     const offsets = [0];
     for (let i = 0; i < text.length; i++) {
@@ -65,7 +65,7 @@ function buildLineOffsets(text: string): number[] {
     return offsets;
 }
 
-/** Convert byte offset to { line, column } (0-based) */
+/** Convert a UTF-16 offset to { line, column } (0-based) */
 function offsetToLineCol(
     offset: number,
     lineOffsets: number[]
@@ -82,7 +82,7 @@ function offsetToLineCol(
 
 /**
  * Build a v3 source map from macroforge's segment-based mapping.
- * Each segment maps a byte range in the expanded code to a byte range in the original.
+ * Each segment maps a UTF-16 range in the expanded code to a UTF-16 range in the original.
  */
 function buildSourceMap(
     original: string,
@@ -184,9 +184,9 @@ interface ExpandResult {
         level: string;
         /** Human-readable description of the issue */
         message: string;
-        /** Byte offset where the issue starts in the source (optional) */
+        /** 0-based UTF-16 offset where the issue starts in the source (optional) */
         start?: number;
-        /** Byte offset where the issue ends in the source (optional) */
+        /** 0-based UTF-16 offset where the issue ends in the source (optional) */
         end?: number;
     }>;
 

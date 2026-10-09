@@ -129,8 +129,8 @@ export function jobTitleDefaultValue(): JobTitle {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function jobTitleDecodeWithContext(value: any, ctx: __mf_DecodeContext): JobTitle | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function jobTitleDecodeWithContext(value: any, _ctx: __mf_DecodeContext): JobTitle | __mf_PendingRef {
                 switch (value) {
                     case 'Technician':
                     case 'SalesRepresentative':
@@ -392,7 +392,17 @@ if (variant === "InformationTechnology") { return "InformationTechnology" as Job
             return toExit(jobTitleDecode(obj));
         }
 
-export const JobTitle = {
+export const JobTitle: {
+  readonly defaultValue: typeof jobTitleDefaultValue;
+  readonly encode: typeof jobTitleEncode;
+  readonly encodeWithContext: typeof jobTitleEncodeWithContext;
+  readonly decode: typeof jobTitleDecode;
+  readonly decodeWithContext: typeof jobTitleDecodeWithContext;
+  readonly hasShape: typeof jobTitleHasShape;
+  readonly is: typeof jobTitleIs;
+  readonly createForm: typeof jobTitleCreateForm;
+  readonly fromFormData: typeof jobTitleFromFormData;
+} = {
   defaultValue: jobTitleDefaultValue,
   encode: jobTitleEncode,
   encodeWithContext: jobTitleEncodeWithContext,
@@ -402,7 +412,7 @@ export const JobTitle = {
   is: jobTitleIs,
   createForm: jobTitleCreateForm,
   fromFormData: jobTitleFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -514,8 +524,8 @@ export function jobTitleDefaultValue(): JobTitle {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function jobTitleDecodeWithContext(value: any, ctx: __mf_DecodeContext): JobTitle | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function jobTitleDecodeWithContext(value: any, _ctx: __mf_DecodeContext): JobTitle | __mf_PendingRef {
                 switch (value) {
                     case 'Technician':
                     case 'SalesRepresentative':
@@ -777,7 +787,17 @@ if (variant === "InformationTechnology") { return "InformationTechnology" as Job
             return toExit(jobTitleDecode(obj));
         }
 
-export const JobTitle = {
+export const JobTitle: {
+  readonly defaultValue: typeof jobTitleDefaultValue;
+  readonly encode: typeof jobTitleEncode;
+  readonly encodeWithContext: typeof jobTitleEncodeWithContext;
+  readonly decode: typeof jobTitleDecode;
+  readonly decodeWithContext: typeof jobTitleDecodeWithContext;
+  readonly hasShape: typeof jobTitleHasShape;
+  readonly is: typeof jobTitleIs;
+  readonly createForm: typeof jobTitleCreateForm;
+  readonly fromFormData: typeof jobTitleFromFormData;
+} = {
   defaultValue: jobTitleDefaultValue,
   encode: jobTitleEncode,
   encodeWithContext: jobTitleEncodeWithContext,
@@ -787,7 +807,7 @@ export const JobTitle = {
   is: jobTitleIs,
   createForm: jobTitleCreateForm,
   fromFormData: jobTitleFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -795,14 +815,15 @@ export const JobTitle = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..247 -> expanded 58..198
-original 247..248 -> expanded 12746..12747
-generated 198..325 <- Default
-generated 325..2233 <- Encode
-generated 2233..4686 <- Decode
-generated 4686..12402 <- Gigaform
-generated 12402..12746 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..247 -> expanded 627..767
+original 247..248 -> expanded 13821..13822
+generated 0..569 <- imports
+generated 767..894 <- Default
+generated 894..2802 <- Encode
+generated 2802..5315 <- Decode
+generated 5315..13031 <- Gigaform
+generated 13031..13821 <- __convenience_const
 
 ## Metadata
 

@@ -142,6 +142,9 @@ function testMacros() {
         app.innerHTML = `
       <h1>TS Macros Playground</h1>
       <p>This playground demonstrates Rust-powered macros for TypeScript.</p>
+      <nav>
+        <a href="/validator-form.html" data-testid="nav-validator-form">Validator forms</a>
+      </nav>
 
       <h2>Macro Test Panel</h2>
       <div id="test-controls">

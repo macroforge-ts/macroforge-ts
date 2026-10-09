@@ -288,12 +288,13 @@ class User {
 
 ## Mapping
 
-original 0..41 -> expanded 0..41
-original 63..112 -> expanded 41..90
-original 112..113 -> expanded 792..793
-original 113..114 -> expanded 2286..2287
-generated 90..792 <- Encode
-generated 793..2286 <- Encode
+original 0..41 -> expanded 78..119
+original 63..112 -> expanded 119..168
+original 112..113 -> expanded 870..871
+original 113..114 -> expanded 2364..2365
+generated 0..78 <- imports
+generated 168..870 <- Encode
+generated 871..2364 <- Encode
 
 ## Metadata
 

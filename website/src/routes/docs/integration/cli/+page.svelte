@@ -43,6 +43,15 @@ cargo build --release --bin macroforge
 
 <h2 id="commands">Commands</h2>
 
+<p>
+    Each command works on a project: the nearest directory at or above its target that holds a
+    <code>macroforge.config.*</code>, <code>package.json</code>, <code>deno.json</code> or
+    <code>deno.jsonc</code>. The target is the file or directory given to <code>expand</code>,
+    otherwise the current directory. The project's state lives in its <code>.macroforge/</code>
+    directory. <code>expand</code> on a file outside any project expands it on its own and writes no
+    state; the other commands report that no project was found.
+</p>
+
 <h3 id="expand">macroforge expand</h3>
 
 <p>Expands macros in a TypeScript file and outputs the transformed code.</p>
@@ -133,7 +142,7 @@ cargo build --release --bin macroforge
 
 <Alert type="note">
     <span
-        >Expansion runs natively in Rust — no Node.js process is spawned. External
+        >Expansion runs natively in Rust; no Node.js process is spawned. External
         macro packages are loaded from <code>node_modules</code> via FFI, so run the
         CLI from your project root when your code uses them.</span
     >
@@ -265,11 +274,11 @@ cargo build --release --bin macroforge
     Packaging is incremental. Each run records what it consumed and produced under
     <code>.macroforge/svelte-package/</code>, and a run whose inputs all match the previous one
     exits without repackaging. When a rebuild is needed, only the files that changed are
-    re-expanded — the rest keep the expanded output from last time.
+    re-expanded. The rest keep the expanded output from last time.
 </p>
 
 <p>
-    A file that differs only in formatting — trailing whitespace, runs of blank lines — does not
+    A file that differs only in formatting (trailing whitespace, runs of blank lines) does not
     count as a change. Note that <code>.ts</code> is transpiled on the way into the package so its
     layout is discarded anyway, but <code>.svelte</code> and <code>.js</code> are copied through
     verbatim: a formatting-only edit to those will not reach the package until the next real

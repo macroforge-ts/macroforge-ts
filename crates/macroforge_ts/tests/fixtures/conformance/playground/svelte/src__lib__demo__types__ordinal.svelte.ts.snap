@@ -265,7 +265,46 @@ northwest: 0,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_north = obj["north"] as number;instance.north = __raw_north;
+                                const __raw_north = obj["north"] as number;if (!(typeof __raw_north === "number")) {
+                                                    errors.push({ field: "north", message: __raw_north == null ? "Ordinal.north is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.north = __raw_north;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -525,7 +564,46 @@ northwest: 0,
 
 
                             }{
-                                const __raw_northeast = obj["northeast"] as number;instance.northeast = __raw_northeast;
+                                const __raw_northeast = obj["northeast"] as number;if (!(typeof __raw_northeast === "number")) {
+                                                    errors.push({ field: "northeast", message: __raw_northeast == null ? "Ordinal.northeast is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.northeast = __raw_northeast;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -785,7 +863,46 @@ northwest: 0,
 
 
                             }{
-                                const __raw_east = obj["east"] as number;instance.east = __raw_east;
+                                const __raw_east = obj["east"] as number;if (!(typeof __raw_east === "number")) {
+                                                    errors.push({ field: "east", message: __raw_east == null ? "Ordinal.east is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.east = __raw_east;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1045,7 +1162,46 @@ northwest: 0,
 
 
                             }{
-                                const __raw_southeast = obj["southeast"] as number;instance.southeast = __raw_southeast;
+                                const __raw_southeast = obj["southeast"] as number;if (!(typeof __raw_southeast === "number")) {
+                                                    errors.push({ field: "southeast", message: __raw_southeast == null ? "Ordinal.southeast is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.southeast = __raw_southeast;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1305,7 +1461,46 @@ northwest: 0,
 
 
                             }{
-                                const __raw_south = obj["south"] as number;instance.south = __raw_south;
+                                const __raw_south = obj["south"] as number;if (!(typeof __raw_south === "number")) {
+                                                    errors.push({ field: "south", message: __raw_south == null ? "Ordinal.south is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.south = __raw_south;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1565,7 +1760,46 @@ northwest: 0,
 
 
                             }{
-                                const __raw_southwest = obj["southwest"] as number;instance.southwest = __raw_southwest;
+                                const __raw_southwest = obj["southwest"] as number;if (!(typeof __raw_southwest === "number")) {
+                                                    errors.push({ field: "southwest", message: __raw_southwest == null ? "Ordinal.southwest is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.southwest = __raw_southwest;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1825,7 +2059,46 @@ northwest: 0,
 
 
                             }{
-                                const __raw_west = obj["west"] as number;instance.west = __raw_west;
+                                const __raw_west = obj["west"] as number;if (!(typeof __raw_west === "number")) {
+                                                    errors.push({ field: "west", message: __raw_west == null ? "Ordinal.west is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.west = __raw_west;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2085,7 +2358,46 @@ northwest: 0,
 
 
                             }{
-                                const __raw_northwest = obj["northwest"] as number;instance.northwest = __raw_northwest;
+                                const __raw_northwest = obj["northwest"] as number;if (!(typeof __raw_northwest === "number")) {
+                                                    errors.push({ field: "northwest", message: __raw_northwest == null ? "Ordinal.northwest is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.northwest = __raw_northwest;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2345,6 +2657,82 @@ northwest: 0,
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3335,7 +3723,18 @@ northwest: 0,
             return toExit(ordinalDecode(obj));
         }
 
-export const Ordinal = {
+export const Ordinal: {
+  readonly defaultValue: typeof ordinalDefaultValue;
+  readonly encode: typeof ordinalEncode;
+  readonly encodeWithContext: typeof ordinalEncodeWithContext;
+  readonly decode: typeof ordinalDecode;
+  readonly decodeWithContext: typeof ordinalDecodeWithContext;
+  readonly validateFields: typeof ordinalValidateFields;
+  readonly hasShape: typeof ordinalHasShape;
+  readonly is: typeof ordinalIs;
+  readonly createForm: typeof ordinalCreateForm;
+  readonly fromFormData: typeof ordinalFromFormData;
+} = {
   defaultValue: ordinalDefaultValue,
   encode: ordinalEncode,
   encodeWithContext: ordinalEncodeWithContext,
@@ -3346,7 +3745,7 @@ export const Ordinal = {
   is: ordinalIs,
   createForm: ordinalCreateForm,
   fromFormData: ordinalFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -3594,7 +3993,46 @@ northwest: 0,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_north = obj["north"] as number;instance.north = __raw_north;
+                                const __raw_north = obj["north"] as number;if (!(typeof __raw_north === "number")) {
+                                                    errors.push({ field: "north", message: __raw_north == null ? "Ordinal.north is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.north = __raw_north;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3854,7 +4292,46 @@ northwest: 0,
 
 
                             }{
-                                const __raw_northeast = obj["northeast"] as number;instance.northeast = __raw_northeast;
+                                const __raw_northeast = obj["northeast"] as number;if (!(typeof __raw_northeast === "number")) {
+                                                    errors.push({ field: "northeast", message: __raw_northeast == null ? "Ordinal.northeast is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.northeast = __raw_northeast;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4114,7 +4591,46 @@ northwest: 0,
 
 
                             }{
-                                const __raw_east = obj["east"] as number;instance.east = __raw_east;
+                                const __raw_east = obj["east"] as number;if (!(typeof __raw_east === "number")) {
+                                                    errors.push({ field: "east", message: __raw_east == null ? "Ordinal.east is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.east = __raw_east;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4374,7 +4890,46 @@ northwest: 0,
 
 
                             }{
-                                const __raw_southeast = obj["southeast"] as number;instance.southeast = __raw_southeast;
+                                const __raw_southeast = obj["southeast"] as number;if (!(typeof __raw_southeast === "number")) {
+                                                    errors.push({ field: "southeast", message: __raw_southeast == null ? "Ordinal.southeast is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.southeast = __raw_southeast;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4634,7 +5189,46 @@ northwest: 0,
 
 
                             }{
-                                const __raw_south = obj["south"] as number;instance.south = __raw_south;
+                                const __raw_south = obj["south"] as number;if (!(typeof __raw_south === "number")) {
+                                                    errors.push({ field: "south", message: __raw_south == null ? "Ordinal.south is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.south = __raw_south;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4894,7 +5488,46 @@ northwest: 0,
 
 
                             }{
-                                const __raw_southwest = obj["southwest"] as number;instance.southwest = __raw_southwest;
+                                const __raw_southwest = obj["southwest"] as number;if (!(typeof __raw_southwest === "number")) {
+                                                    errors.push({ field: "southwest", message: __raw_southwest == null ? "Ordinal.southwest is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.southwest = __raw_southwest;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5154,7 +5787,46 @@ northwest: 0,
 
 
                             }{
-                                const __raw_west = obj["west"] as number;instance.west = __raw_west;
+                                const __raw_west = obj["west"] as number;if (!(typeof __raw_west === "number")) {
+                                                    errors.push({ field: "west", message: __raw_west == null ? "Ordinal.west is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.west = __raw_west;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5414,7 +6086,46 @@ northwest: 0,
 
 
                             }{
-                                const __raw_northwest = obj["northwest"] as number;instance.northwest = __raw_northwest;
+                                const __raw_northwest = obj["northwest"] as number;if (!(typeof __raw_northwest === "number")) {
+                                                    errors.push({ field: "northwest", message: __raw_northwest == null ? "Ordinal.northwest is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.northwest = __raw_northwest;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5674,6 +6385,82 @@ northwest: 0,
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6664,7 +7451,18 @@ northwest: 0,
             return toExit(ordinalDecode(obj));
         }
 
-export const Ordinal = {
+export const Ordinal: {
+  readonly defaultValue: typeof ordinalDefaultValue;
+  readonly encode: typeof ordinalEncode;
+  readonly encodeWithContext: typeof ordinalEncodeWithContext;
+  readonly decode: typeof ordinalDecode;
+  readonly decodeWithContext: typeof ordinalDecodeWithContext;
+  readonly validateFields: typeof ordinalValidateFields;
+  readonly hasShape: typeof ordinalHasShape;
+  readonly is: typeof ordinalIs;
+  readonly createForm: typeof ordinalCreateForm;
+  readonly fromFormData: typeof ordinalFromFormData;
+} = {
   defaultValue: ordinalDefaultValue,
   encode: ordinalEncode,
   encodeWithContext: ordinalEncodeWithContext,
@@ -6675,7 +7473,7 @@ export const Ordinal = {
   is: ordinalIs,
   createForm: ordinalCreateForm,
   fromFormData: ordinalFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -6683,14 +7481,15 @@ export const Ordinal = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..302 -> expanded 58..253
-original 302..303 -> expanded 25571..25572
-generated 253..455 <- Default
-generated 455..2160 <- Encode
-generated 2160..11118 <- Decode
-generated 11118..25196 <- Gigaform
-generated 25196..25571 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..302 -> expanded 627..822
+original 302..303 -> expanded 29974..29975
+generated 0..569 <- imports
+generated 822..1024 <- Default
+generated 1024..2729 <- Encode
+generated 2729..15027 <- Decode
+generated 15027..29105 <- Gigaform
+generated 29105..29974 <- __convenience_const
 
 ## Metadata
 

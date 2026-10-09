@@ -69,6 +69,28 @@ impl Default for TaggingMode {
     }
 }
 
+/// Validators in the `@endec` decorators of something other than a field: a
+/// type alias itself (`/** @endec(nonNegative) */ type Meters = ...`) or one arm
+/// of its union. `subject` prefixes diagnostics, e.g. `type 'Meters'`.
+pub fn decorator_validators(
+    decorators: &[DecoratorIR],
+    subject: &str,
+    diagnostics: &mut DiagnosticCollector,
+) -> Vec<ValidatorSpec> {
+    decorators
+        .iter()
+        .filter(|decorator| decorator.name.eq_ignore_ascii_case("endec"))
+        .flat_map(|decorator| {
+            extract_validators(
+                decorator.args_src.trim(),
+                decorator.span,
+                subject,
+                diagnostics,
+            )
+        })
+        .collect()
+}
+
 /// Container-level endec options (on the class/interface itself)
 #[derive(Debug, Clone, Default)]
 pub struct EndecContainerOptions {
@@ -229,7 +251,12 @@ impl EndecFieldOptions {
             }
 
             // Extract validators with diagnostic collection
-            let validators = extract_validators(args, decorator_span, field_name, &mut diagnostics);
+            let validators = extract_validators(
+                args,
+                decorator_span,
+                &format!("field '{field_name}'"),
+                &mut diagnostics,
+            );
             opts.validators.extend(validators);
         }
 

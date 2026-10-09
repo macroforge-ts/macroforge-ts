@@ -610,6 +610,38 @@ data: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_pages = obj["pages"] as Array<Page>;if (Array.isArray(__raw_pages)) {
                                                         const __arr = __raw_pages.map((item: Page | { __ref: number }, idx) => {
@@ -701,6 +733,38 @@ data: [],
 
 
                                         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1308,7 +1372,115 @@ data: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2222,7 +2394,18 @@ data: [],
             return toExit(appPermissionsDecode(obj));
         }
 
-export const AppPermissions = {
+export const AppPermissions: {
+  readonly defaultValue: typeof appPermissionsDefaultValue;
+  readonly encode: typeof appPermissionsEncode;
+  readonly encodeWithContext: typeof appPermissionsEncodeWithContext;
+  readonly decode: typeof appPermissionsDecode;
+  readonly decodeWithContext: typeof appPermissionsDecodeWithContext;
+  readonly validateFields: typeof appPermissionsValidateFields;
+  readonly hasShape: typeof appPermissionsHasShape;
+  readonly is: typeof appPermissionsIs;
+  readonly createForm: typeof appPermissionsCreateForm;
+  readonly fromFormData: typeof appPermissionsFromFormData;
+} = {
   defaultValue: appPermissionsDefaultValue,
   encode: appPermissionsEncode,
   encodeWithContext: appPermissionsEncodeWithContext,
@@ -2233,7 +2416,7 @@ export const AppPermissions = {
   is: appPermissionsIs,
   createForm: appPermissionsCreateForm,
   fromFormData: appPermissionsFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2819,6 +3002,38 @@ data: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_pages = obj["pages"] as Array<Page>;if (Array.isArray(__raw_pages)) {
                                                         const __arr = __raw_pages.map((item: Page | { __ref: number }, idx) => {
@@ -2910,6 +3125,38 @@ data: [],
 
 
                                         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3517,7 +3764,115 @@ data: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4431,7 +4786,18 @@ data: [],
             return toExit(appPermissionsDecode(obj));
         }
 
-export const AppPermissions = {
+export const AppPermissions: {
+  readonly defaultValue: typeof appPermissionsDefaultValue;
+  readonly encode: typeof appPermissionsEncode;
+  readonly encodeWithContext: typeof appPermissionsEncodeWithContext;
+  readonly decode: typeof appPermissionsDecode;
+  readonly decodeWithContext: typeof appPermissionsDecodeWithContext;
+  readonly validateFields: typeof appPermissionsValidateFields;
+  readonly hasShape: typeof appPermissionsHasShape;
+  readonly is: typeof appPermissionsIs;
+  readonly createForm: typeof appPermissionsCreateForm;
+  readonly fromFormData: typeof appPermissionsFromFormData;
+} = {
   defaultValue: appPermissionsDefaultValue,
   encode: appPermissionsEncode,
   encodeWithContext: appPermissionsEncodeWithContext,
@@ -4442,7 +4808,7 @@ export const AppPermissions = {
   is: appPermissionsIs,
   createForm: appPermissionsCreateForm,
   fromFormData: appPermissionsFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -4450,14 +4816,15 @@ export const AppPermissions = {
 
 ## Mapping
 
-original 0..206 -> expanded 0..206
-original 255..378 -> expanded 206..329
-original 378..379 -> expanded 28866..28867
-generated 329..490 <- Default
-generated 490..2593 <- Encode
-generated 2593..16698 <- Decode
-generated 16698..28414 <- Gigaform
-generated 28414..28866 <- __convenience_const
+original 0..206 -> expanded 974..1180
+original 255..378 -> expanded 1180..1303
+original 378..379 -> expanded 30576..30577
+generated 0..974 <- imports
+generated 1303..1464 <- Default
+generated 1464..3567 <- Encode
+generated 3567..17844 <- Decode
+generated 17844..29560 <- Gigaform
+generated 29560..30576 <- __convenience_const
 
 ## Metadata
 

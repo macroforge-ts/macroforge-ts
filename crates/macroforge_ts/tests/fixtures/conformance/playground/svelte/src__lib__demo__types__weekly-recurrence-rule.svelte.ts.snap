@@ -248,7 +248,46 @@ weekdays: [],
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_quantityOfWeeks = obj["quantityOfWeeks"] as number;instance.quantityOfWeeks = __raw_quantityOfWeeks;
+                                const __raw_quantityOfWeeks = obj["quantityOfWeeks"] as number;if (!(typeof __raw_quantityOfWeeks === "number")) {
+                                                    errors.push({ field: "quantityOfWeeks", message: __raw_quantityOfWeeks == null ? "WeeklyRecurrenceRule.quantityOfWeeks is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.quantityOfWeeks = __raw_quantityOfWeeks;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -856,7 +895,115 @@ weekdays: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1674,7 +1821,18 @@ weekdays: [],
             return toExit(weeklyRecurrenceRuleDecode(obj));
         }
 
-export const WeeklyRecurrenceRule = {
+export const WeeklyRecurrenceRule: {
+  readonly defaultValue: typeof weeklyRecurrenceRuleDefaultValue;
+  readonly encode: typeof weeklyRecurrenceRuleEncode;
+  readonly encodeWithContext: typeof weeklyRecurrenceRuleEncodeWithContext;
+  readonly decode: typeof weeklyRecurrenceRuleDecode;
+  readonly decodeWithContext: typeof weeklyRecurrenceRuleDecodeWithContext;
+  readonly validateFields: typeof weeklyRecurrenceRuleValidateFields;
+  readonly hasShape: typeof weeklyRecurrenceRuleHasShape;
+  readonly is: typeof weeklyRecurrenceRuleIs;
+  readonly createForm: typeof weeklyRecurrenceRuleCreateForm;
+  readonly fromFormData: typeof weeklyRecurrenceRuleFromFormData;
+} = {
   defaultValue: weeklyRecurrenceRuleDefaultValue,
   encode: weeklyRecurrenceRuleEncode,
   encodeWithContext: weeklyRecurrenceRuleEncodeWithContext,
@@ -1685,7 +1843,7 @@ export const WeeklyRecurrenceRule = {
   is: weeklyRecurrenceRuleIs,
   createForm: weeklyRecurrenceRuleCreateForm,
   fromFormData: weeklyRecurrenceRuleFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1913,7 +2071,46 @@ weekdays: [],
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_quantityOfWeeks = obj["quantityOfWeeks"] as number;instance.quantityOfWeeks = __raw_quantityOfWeeks;
+                                const __raw_quantityOfWeeks = obj["quantityOfWeeks"] as number;if (!(typeof __raw_quantityOfWeeks === "number")) {
+                                                    errors.push({ field: "quantityOfWeeks", message: __raw_quantityOfWeeks == null ? "WeeklyRecurrenceRule.quantityOfWeeks is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.quantityOfWeeks = __raw_quantityOfWeeks;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2521,7 +2718,115 @@ weekdays: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3339,7 +3644,18 @@ weekdays: [],
             return toExit(weeklyRecurrenceRuleDecode(obj));
         }
 
-export const WeeklyRecurrenceRule = {
+export const WeeklyRecurrenceRule: {
+  readonly defaultValue: typeof weeklyRecurrenceRuleDefaultValue;
+  readonly encode: typeof weeklyRecurrenceRuleEncode;
+  readonly encodeWithContext: typeof weeklyRecurrenceRuleEncodeWithContext;
+  readonly decode: typeof weeklyRecurrenceRuleDecode;
+  readonly decodeWithContext: typeof weeklyRecurrenceRuleDecodeWithContext;
+  readonly validateFields: typeof weeklyRecurrenceRuleValidateFields;
+  readonly hasShape: typeof weeklyRecurrenceRuleHasShape;
+  readonly is: typeof weeklyRecurrenceRuleIs;
+  readonly createForm: typeof weeklyRecurrenceRuleCreateForm;
+  readonly fromFormData: typeof weeklyRecurrenceRuleFromFormData;
+} = {
   defaultValue: weeklyRecurrenceRuleDefaultValue,
   encode: weeklyRecurrenceRuleEncode,
   encodeWithContext: weeklyRecurrenceRuleEncodeWithContext,
@@ -3350,7 +3666,7 @@ export const WeeklyRecurrenceRule = {
   is: weeklyRecurrenceRuleIs,
   createForm: weeklyRecurrenceRuleCreateForm,
   fromFormData: weeklyRecurrenceRuleFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3358,14 +3674,15 @@ export const WeeklyRecurrenceRule = {
 
 ## Mapping
 
-original 0..108 -> expanded 0..108
-original 157..258 -> expanded 108..209
-original 258..259 -> expanded 18774..18775
-generated 209..377 <- Default
-generated 377..2165 <- Encode
-generated 2165..10637 <- Decode
-generated 10637..18256 <- Gigaform
-generated 18256..18774 <- __convenience_const
+original 0..108 -> expanded 752..860
+original 157..258 -> expanded 860..961
+original 258..259 -> expanded 20712..20713
+generated 0..752 <- imports
+generated 961..1129 <- Default
+generated 1129..2917 <- Encode
+generated 2917..11951 <- Decode
+generated 11951..19570 <- Gigaform
+generated 19570..20712 <- __convenience_const
 
 ## Metadata
 

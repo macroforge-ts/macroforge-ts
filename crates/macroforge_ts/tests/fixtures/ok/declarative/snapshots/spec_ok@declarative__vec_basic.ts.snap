@@ -36,7 +36,14 @@ const ys = [a,b];
 
 ## Mapping
 
-(none)
+original 52..54 -> expanded 0..2
+original 122..138 -> expanded 2..18
+original 144..157 -> expanded 20..33
+original 170..183 -> expanded 40..53
+original 193..195 -> expanded 58..60
+generated 18..20 <- $vec
+generated 33..40 <- $vec
+generated 53..58 <- $vec
 
 ## Metadata
 

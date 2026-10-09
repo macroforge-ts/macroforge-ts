@@ -248,11 +248,50 @@ topLevelDomain: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_local = obj["local"] as string;
-                                            if (__raw_local == null) { errors.push({ field: "local", message: "EmailParts.local is required" }); } else {
+                                const __raw_local = obj["local"] as string;if (!(typeof __raw_local === "string")) {
+                                                    errors.push({ field: "local", message: __raw_local == null ? "EmailParts.local is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_local == null) { errors.push({ field: "local", message: "EmailParts.local is required" }); } else {
 if (__raw_local.length === 0) { errors.push({ field: "local", message: "EmailParts.local must not be empty" }); }
 }
-instance.local = __raw_local;
+
+
+
+
+                                                    instance.local = __raw_local;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -512,11 +551,50 @@ instance.local = __raw_local;
 
 
                             }{
-                                const __raw_domainName = obj["domainName"] as string;
-                                            if (__raw_domainName == null) { errors.push({ field: "domainName", message: "EmailParts.domainName is required" }); } else {
+                                const __raw_domainName = obj["domainName"] as string;if (!(typeof __raw_domainName === "string")) {
+                                                    errors.push({ field: "domainName", message: __raw_domainName == null ? "EmailParts.domainName is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_domainName == null) { errors.push({ field: "domainName", message: "EmailParts.domainName is required" }); } else {
 if (__raw_domainName.length === 0) { errors.push({ field: "domainName", message: "EmailParts.domainName must not be empty" }); }
 }
-instance.domainName = __raw_domainName;
+
+
+
+
+                                                    instance.domainName = __raw_domainName;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -776,11 +854,50 @@ instance.domainName = __raw_domainName;
 
 
                             }{
-                                const __raw_topLevelDomain = obj["topLevelDomain"] as string;
-                                            if (__raw_topLevelDomain == null) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain is required" }); } else {
+                                const __raw_topLevelDomain = obj["topLevelDomain"] as string;if (!(typeof __raw_topLevelDomain === "string")) {
+                                                    errors.push({ field: "topLevelDomain", message: __raw_topLevelDomain == null ? "EmailParts.topLevelDomain is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_topLevelDomain == null) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain is required" }); } else {
 if (__raw_topLevelDomain.length === 0) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain must not be empty" }); }
 }
-instance.topLevelDomain = __raw_topLevelDomain;
+
+
+
+
+                                                    instance.topLevelDomain = __raw_topLevelDomain;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1040,6 +1157,82 @@ instance.topLevelDomain = __raw_topLevelDomain;
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1912,7 +2105,18 @@ if (__val.length === 0) { errors.push({ field: "topLevelDomain", message: "Email
             return toExit(emailPartsDecode(obj));
         }
 
-export const EmailParts = {
+export const EmailParts: {
+  readonly defaultValue: typeof emailPartsDefaultValue;
+  readonly encode: typeof emailPartsEncode;
+  readonly encodeWithContext: typeof emailPartsEncodeWithContext;
+  readonly decode: typeof emailPartsDecode;
+  readonly decodeWithContext: typeof emailPartsDecodeWithContext;
+  readonly validateFields: typeof emailPartsValidateFields;
+  readonly hasShape: typeof emailPartsHasShape;
+  readonly is: typeof emailPartsIs;
+  readonly createForm: typeof emailPartsCreateForm;
+  readonly fromFormData: typeof emailPartsFromFormData;
+} = {
   defaultValue: emailPartsDefaultValue,
   encode: emailPartsEncode,
   encodeWithContext: emailPartsEncodeWithContext,
@@ -1923,7 +2127,7 @@ export const EmailParts = {
   is: emailPartsIs,
   createForm: emailPartsCreateForm,
   fromFormData: emailPartsFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2154,11 +2358,50 @@ topLevelDomain: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_local = obj["local"] as string;
-                                            if (__raw_local == null) { errors.push({ field: "local", message: "EmailParts.local is required" }); } else {
+                                const __raw_local = obj["local"] as string;if (!(typeof __raw_local === "string")) {
+                                                    errors.push({ field: "local", message: __raw_local == null ? "EmailParts.local is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_local == null) { errors.push({ field: "local", message: "EmailParts.local is required" }); } else {
 if (__raw_local.length === 0) { errors.push({ field: "local", message: "EmailParts.local must not be empty" }); }
 }
-instance.local = __raw_local;
+
+
+
+
+                                                    instance.local = __raw_local;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2418,11 +2661,50 @@ instance.local = __raw_local;
 
 
                             }{
-                                const __raw_domainName = obj["domainName"] as string;
-                                            if (__raw_domainName == null) { errors.push({ field: "domainName", message: "EmailParts.domainName is required" }); } else {
+                                const __raw_domainName = obj["domainName"] as string;if (!(typeof __raw_domainName === "string")) {
+                                                    errors.push({ field: "domainName", message: __raw_domainName == null ? "EmailParts.domainName is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_domainName == null) { errors.push({ field: "domainName", message: "EmailParts.domainName is required" }); } else {
 if (__raw_domainName.length === 0) { errors.push({ field: "domainName", message: "EmailParts.domainName must not be empty" }); }
 }
-instance.domainName = __raw_domainName;
+
+
+
+
+                                                    instance.domainName = __raw_domainName;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2682,11 +2964,50 @@ instance.domainName = __raw_domainName;
 
 
                             }{
-                                const __raw_topLevelDomain = obj["topLevelDomain"] as string;
-                                            if (__raw_topLevelDomain == null) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain is required" }); } else {
+                                const __raw_topLevelDomain = obj["topLevelDomain"] as string;if (!(typeof __raw_topLevelDomain === "string")) {
+                                                    errors.push({ field: "topLevelDomain", message: __raw_topLevelDomain == null ? "EmailParts.topLevelDomain is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_topLevelDomain == null) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain is required" }); } else {
 if (__raw_topLevelDomain.length === 0) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain must not be empty" }); }
 }
-instance.topLevelDomain = __raw_topLevelDomain;
+
+
+
+
+                                                    instance.topLevelDomain = __raw_topLevelDomain;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2946,6 +3267,82 @@ instance.topLevelDomain = __raw_topLevelDomain;
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3818,7 +4215,18 @@ if (__val.length === 0) { errors.push({ field: "topLevelDomain", message: "Email
             return toExit(emailPartsDecode(obj));
         }
 
-export const EmailParts = {
+export const EmailParts: {
+  readonly defaultValue: typeof emailPartsDefaultValue;
+  readonly encode: typeof emailPartsEncode;
+  readonly encodeWithContext: typeof emailPartsEncodeWithContext;
+  readonly decode: typeof emailPartsDecode;
+  readonly decodeWithContext: typeof emailPartsDecodeWithContext;
+  readonly validateFields: typeof emailPartsValidateFields;
+  readonly hasShape: typeof emailPartsHasShape;
+  readonly is: typeof emailPartsIs;
+  readonly createForm: typeof emailPartsCreateForm;
+  readonly fromFormData: typeof emailPartsFromFormData;
+} = {
   defaultValue: emailPartsDefaultValue,
   encode: emailPartsEncode,
   encodeWithContext: emailPartsEncodeWithContext,
@@ -3829,7 +4237,7 @@ export const EmailParts = {
   is: emailPartsIs,
   createForm: emailPartsCreateForm,
   fromFormData: emailPartsFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3837,17 +4245,18 @@ export const EmailParts = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..142 -> expanded 58..93
-original 183..207 -> expanded 93..117
-original 248..277 -> expanded 117..146
-original 318..348 -> expanded 146..176
-original 348..349 -> expanded 18527..18528
-generated 176..337 <- Default
-generated 337..1925 <- Encode
-generated 1925..11611 <- Decode
-generated 11611..18119 <- Gigaform
-generated 18119..18527 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..142 -> expanded 627..662
+original 183..207 -> expanded 662..686
+original 248..277 -> expanded 686..715
+original 318..348 -> expanded 715..745
+original 348..349 -> expanded 21000..21001
+generated 0..569 <- imports
+generated 745..906 <- Default
+generated 906..2494 <- Encode
+generated 2494..13560 <- Decode
+generated 13560..20068 <- Gigaform
+generated 20068..21000 <- __convenience_const
 
 ## Metadata
 

@@ -27,9 +27,11 @@ export function statusToString(value: Status): string {
                         return "Status { " + parts.join(", ") + " }";
                     }
 
-const Status = {
+const Status: {
+  readonly toString: typeof statusToString;
+} = {
   toString: statusToString
-} as const;
+};
 
 ## DTS
 
@@ -44,9 +46,11 @@ export function statusToString(value: Status): string {
                         return "Status { " + parts.join(", ") + " }";
                     }
 
-const Status = {
+const Status: {
+  readonly toString: typeof statusToString;
+} = {
   toString: statusToString
-} as const;
+};
 
 ## Diagnostics
 
@@ -55,9 +59,9 @@ const Status = {
 ## Mapping
 
 original 21..63 -> expanded 0..42
-original 63..64 -> expanded 364..365
+original 63..64 -> expanded 404..405
 generated 42..307 <- Debug
-generated 307..364 <- __convenience_const
+generated 307..404 <- __convenience_const
 
 ## Metadata
 

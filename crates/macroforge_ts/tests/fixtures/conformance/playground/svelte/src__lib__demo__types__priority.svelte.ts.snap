@@ -124,8 +124,8 @@ export function priorityDefaultValue(): Priority {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function priorityDecodeWithContext(value: any, ctx: __mf_DecodeContext): Priority | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function priorityDecodeWithContext(value: any, _ctx: __mf_DecodeContext): Priority | __mf_PendingRef {
                 switch (value) {
                     case 'Medium':
                     case 'High':
@@ -356,7 +356,17 @@ if (variant === "Low") { return "Low" as Priority; }
             return toExit(priorityDecode(obj));
         }
 
-export const Priority = {
+export const Priority: {
+  readonly defaultValue: typeof priorityDefaultValue;
+  readonly encode: typeof priorityEncode;
+  readonly encodeWithContext: typeof priorityEncodeWithContext;
+  readonly decode: typeof priorityDecode;
+  readonly decodeWithContext: typeof priorityDecodeWithContext;
+  readonly hasShape: typeof priorityHasShape;
+  readonly is: typeof priorityIs;
+  readonly createForm: typeof priorityCreateForm;
+  readonly fromFormData: typeof priorityFromFormData;
+} = {
   defaultValue: priorityDefaultValue,
   encode: priorityEncode,
   encodeWithContext: priorityEncodeWithContext,
@@ -366,7 +376,7 @@ export const Priority = {
   is: priorityIs,
   createForm: priorityCreateForm,
   fromFormData: priorityFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -473,8 +483,8 @@ export function priorityDefaultValue(): Priority {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function priorityDecodeWithContext(value: any, ctx: __mf_DecodeContext): Priority | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function priorityDecodeWithContext(value: any, _ctx: __mf_DecodeContext): Priority | __mf_PendingRef {
                 switch (value) {
                     case 'Medium':
                     case 'High':
@@ -705,7 +715,17 @@ if (variant === "Low") { return "Low" as Priority; }
             return toExit(priorityDecode(obj));
         }
 
-export const Priority = {
+export const Priority: {
+  readonly defaultValue: typeof priorityDefaultValue;
+  readonly encode: typeof priorityEncode;
+  readonly encodeWithContext: typeof priorityEncodeWithContext;
+  readonly decode: typeof priorityDecode;
+  readonly decodeWithContext: typeof priorityDecodeWithContext;
+  readonly hasShape: typeof priorityHasShape;
+  readonly is: typeof priorityIs;
+  readonly createForm: typeof priorityCreateForm;
+  readonly fromFormData: typeof priorityFromFormData;
+} = {
   defaultValue: priorityDefaultValue,
   encode: priorityEncode,
   encodeWithContext: priorityEncodeWithContext,
@@ -715,7 +735,7 @@ export const Priority = {
   is: priorityIs,
   createForm: priorityCreateForm,
   fromFormData: priorityFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -723,14 +743,15 @@ export const Priority = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..173 -> expanded 58..124
-original 173..174 -> expanded 10539..10540
-generated 124..247 <- Default
-generated 247..2155 <- Encode
-generated 2155..4258 <- Decode
-generated 4258..10195 <- Gigaform
-generated 10195..10539 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..173 -> expanded 627..693
+original 173..174 -> expanded 11614..11615
+generated 0..569 <- imports
+generated 693..816 <- Default
+generated 816..2724 <- Encode
+generated 2724..4887 <- Decode
+generated 4887..10824 <- Gigaform
+generated 10824..11614 <- __convenience_const
 
 ## Metadata
 

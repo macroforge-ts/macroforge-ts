@@ -249,10 +249,14 @@ createdAt: (() => Option.match(DateTime.make(new Date()), {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Foo.id is required" : "expected string" });
+                                                } else {
 
 
 
+                                                    instance.id = __raw_id;
+                                                }
 
 
 
@@ -508,10 +512,125 @@ createdAt: (() => Option.match(DateTime.make(new Date()), {
 
 
 
-                            }instance.createdAt = ((raw: unknown) => Option.match(DateTime.make(raw as string), {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.createdAt = ((raw: unknown) => Option.match(DateTime.make(raw as string), {
 	onSome: (dt) => dt,
 	onNone: () => Option.getOrElse(DateTime.make(0), () => null as never)
 }))(obj["createdAt"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "createdAt", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1138,7 +1257,16 @@ createdAt: (() => Option.match(DateTime.make(new Date()), {
                 return result.success;
             }
 
-export const Foo = {
+export const Foo: {
+  readonly defaultValue: typeof fooDefaultValue;
+  readonly encode: typeof fooEncode;
+  readonly encodeWithContext: typeof fooEncodeWithContext;
+  readonly decode: typeof fooDecode;
+  readonly decodeWithContext: typeof fooDecodeWithContext;
+  readonly validateFields: typeof fooValidateFields;
+  readonly hasShape: typeof fooHasShape;
+  readonly is: typeof fooIs;
+} = {
   defaultValue: fooDefaultValue,
   encode: fooEncode,
   encodeWithContext: fooEncodeWithContext,
@@ -1147,7 +1275,7 @@ export const Foo = {
   validateFields: fooValidateFields,
   hasShape: fooHasShape,
   is: fooIs
-} as const;
+};
 
 ## DTS
 
@@ -1375,10 +1503,14 @@ createdAt: (() => Option.match(DateTime.make(new Date()), {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Foo.id is required" : "expected string" });
+                                                } else {
 
 
 
+                                                    instance.id = __raw_id;
+                                                }
 
 
 
@@ -1634,10 +1766,125 @@ createdAt: (() => Option.match(DateTime.make(new Date()), {
 
 
 
-                            }instance.createdAt = ((raw: unknown) => Option.match(DateTime.make(raw as string), {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.createdAt = ((raw: unknown) => Option.match(DateTime.make(raw as string), {
 	onSome: (dt) => dt,
 	onNone: () => Option.getOrElse(DateTime.make(0), () => null as never)
 }))(obj["createdAt"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "createdAt", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2264,7 +2511,16 @@ createdAt: (() => Option.match(DateTime.make(new Date()), {
                 return result.success;
             }
 
-export const Foo = {
+export const Foo: {
+  readonly defaultValue: typeof fooDefaultValue;
+  readonly encode: typeof fooEncode;
+  readonly encodeWithContext: typeof fooEncodeWithContext;
+  readonly decode: typeof fooDecode;
+  readonly decodeWithContext: typeof fooDecodeWithContext;
+  readonly validateFields: typeof fooValidateFields;
+  readonly hasShape: typeof fooHasShape;
+  readonly is: typeof fooIs;
+} = {
   defaultValue: fooDefaultValue,
   encode: fooEncode,
   encodeWithContext: fooEncodeWithContext,
@@ -2273,7 +2529,7 @@ export const Foo = {
   validateFields: fooValidateFields,
   hasShape: fooHasShape,
   is: fooIs
-} as const;
+};
 
 ## Diagnostics
 
@@ -2281,14 +2537,15 @@ export const Foo = {
 
 ## Mapping
 
-original 0..36 -> expanded 0..36
-original 75..103 -> expanded 36..64
-original 134..181 -> expanded 64..111
-original 181..182 -> expanded 7446..7447
-generated 111..390 <- Default
-generated 390..1929 <- Encode
-generated 1929..7177 <- Decode
-generated 7177..7446 <- __convenience_const
+original 0..36 -> expanded 385..421
+original 75..103 -> expanded 421..449
+original 134..181 -> expanded 449..496
+original 181..182 -> expanded 8940..8941
+generated 0..385 <- imports
+generated 496..775 <- Default
+generated 775..2314 <- Encode
+generated 2314..8311 <- Decode
+generated 8311..8940 <- __convenience_const
 
 ## Metadata
 

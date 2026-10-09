@@ -50,7 +50,13 @@ const xs = [1,2,3];
 
 ## Mapping
 
-(none)
+original 0..319 -> expanded 0..319
+original 371..373 -> expanded 319..321
+original 448..464 -> expanded 321..337
+original 470..483 -> expanded 339..352
+original 496..498 -> expanded 359..361
+generated 337..339 <- $vec
+generated 352..359 <- $vec
 
 ## Metadata
 

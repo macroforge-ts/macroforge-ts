@@ -171,7 +171,29 @@ export const nestedBlock = (() => {
 
 ## Mapping
 
-(none)
+original 0..1146 -> expanded 0..1146
+original 1198..1200 -> expanded 1146..1148
+original 1287..1289 -> expanded 1148..1150
+original 1381..1383 -> expanded 1150..1152
+original 1490..1492 -> expanded 1152..1154
+original 1599..1601 -> expanded 1154..1156
+original 1696..1698 -> expanded 1156..1158
+original 1784..1786 -> expanded 1158..1160
+original 1884..1912 -> expanded 1160..1188
+original 1927..1960 -> expanded 1246..1279
+original 1978..2010 -> expanded 1339..1371
+original 2031..2066 -> expanded 1441..1476
+original 2087..2121 -> expanded 1546..1580
+original 2135..2167 -> expanded 1638..1670
+original 2179..2208 -> expanded 1721..1750
+original 2230..2232 -> expanded 1805..1807
+generated 1188..1246 <- $basicBlock
+generated 1279..1339 <- $trailingArrow
+generated 1371..1441 <- $trailingObjectLit
+generated 1476..1546 <- $trailingSatisfies
+generated 1580..1638 <- $withReturn
+generated 1670..1721 <- $withSemi
+generated 1750..1805 <- $nestedBlockInBody
 
 ## Metadata
 

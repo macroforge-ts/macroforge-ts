@@ -225,6 +225,7 @@ mod options;
 mod source_field;
 mod type_category;
 mod validators;
+mod value_kind;
 
 #[cfg(test)]
 mod tests;
@@ -236,9 +237,11 @@ pub use crate::host::import_registry::{
 
 // Re-export submodule items so existing consumers (`super::*`, `crate::builtin::endec::*`) keep working.
 pub use foreign_types::{ForeignTypeMatch, get_foreign_types, rewrite_expression_namespaces};
-pub(crate) use helpers::{find_top_level_comma, split_top_level_union};
+pub(crate) use helpers::find_top_level_comma;
+pub use helpers::primitive_base;
 pub use options::{
     EndecContainerOptions, EndecFieldOptions, EndecFieldParseResult, RenameAll, TaggingMode,
+    decorator_validators,
 };
 pub use type_category::TypeCategory;
 pub use validators::{Validator, ValidatorSpec, extract_validators};

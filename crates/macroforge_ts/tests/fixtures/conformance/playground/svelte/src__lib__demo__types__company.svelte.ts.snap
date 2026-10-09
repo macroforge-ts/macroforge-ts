@@ -383,7 +383,46 @@ colorsConfig: colorsConfigDefaultValue(),
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Company.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -643,11 +682,50 @@ colorsConfig: colorsConfigDefaultValue(),
 
 
                             }{
-                                const __raw_legalName = obj["legalName"] as string;
-                                            if (__raw_legalName == null) { errors.push({ field: "legalName", message: "Company.legalName is required" }); } else {
+                                const __raw_legalName = obj["legalName"] as string;if (!(typeof __raw_legalName === "string")) {
+                                                    errors.push({ field: "legalName", message: __raw_legalName == null ? "Company.legalName is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_legalName == null) { errors.push({ field: "legalName", message: "Company.legalName is required" }); } else {
 if (__raw_legalName.length === 0) { errors.push({ field: "legalName", message: "Company.legalName must not be empty" }); }
 }
-instance.legalName = __raw_legalName;
+
+
+
+
+                                                    instance.legalName = __raw_legalName;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -932,6 +1010,38 @@ instance.legalName = __raw_legalName;
                                                     ctx.popScope();
                                                 }
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1539,12 +1649,83 @@ instance.legalName = __raw_legalName;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_fax = obj["fax"] as string;
-                                            if (__raw_fax == null) { errors.push({ field: "fax", message: "Company.fax is required" }); } else {
+                                const __raw_fax = obj["fax"] as string;if (!(typeof __raw_fax === "string")) {
+                                                    errors.push({ field: "fax", message: __raw_fax == null ? "Company.fax is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_fax == null) { errors.push({ field: "fax", message: "Company.fax is required" }); } else {
 if (__raw_fax.length === 0) { errors.push({ field: "fax", message: "Company.fax must not be empty" }); }
 }
-instance.fax = __raw_fax;
+
+
+
+
+                                                    instance.fax = __raw_fax;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1804,11 +1985,50 @@ instance.fax = __raw_fax;
 
 
                             }{
-                                const __raw_email = obj["email"] as string;
-                                            if (__raw_email == null) { errors.push({ field: "email", message: "Company.email is required" }); } else {
+                                const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                    errors.push({ field: "email", message: __raw_email == null ? "Company.email is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_email == null) { errors.push({ field: "email", message: "Company.email is required" }); } else {
 if (__raw_email.length === 0) { errors.push({ field: "email", message: "Company.email must not be empty" }); }
 }
-instance.email = __raw_email;
+
+
+
+
+                                                    instance.email = __raw_email;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2068,11 +2288,50 @@ instance.email = __raw_email;
 
 
                             }{
-                                const __raw_website = obj["website"] as string;
-                                            if (__raw_website == null) { errors.push({ field: "website", message: "Company.website is required" }); } else {
+                                const __raw_website = obj["website"] as string;if (!(typeof __raw_website === "string")) {
+                                                    errors.push({ field: "website", message: __raw_website == null ? "Company.website is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_website == null) { errors.push({ field: "website", message: "Company.website is required" }); } else {
 if (__raw_website.length === 0) { errors.push({ field: "website", message: "Company.website must not be empty" }); }
 }
-instance.website = __raw_website;
+
+
+
+
+                                                    instance.website = __raw_website;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2332,11 +2591,50 @@ instance.website = __raw_website;
 
 
                             }{
-                                const __raw_taxId = obj["taxId"] as string;
-                                            if (__raw_taxId == null) { errors.push({ field: "taxId", message: "Company.taxId is required" }); } else {
+                                const __raw_taxId = obj["taxId"] as string;if (!(typeof __raw_taxId === "string")) {
+                                                    errors.push({ field: "taxId", message: __raw_taxId == null ? "Company.taxId is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_taxId == null) { errors.push({ field: "taxId", message: "Company.taxId is required" }); } else {
 if (__raw_taxId.length === 0) { errors.push({ field: "taxId", message: "Company.taxId must not be empty" }); }
 }
-instance.taxId = __raw_taxId;
+
+
+
+
+                                                    instance.taxId = __raw_taxId;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2596,7 +2894,46 @@ instance.taxId = __raw_taxId;
 
 
                             }{
-                                const __raw_referenceNumber = obj["referenceNumber"] as number;instance.referenceNumber = __raw_referenceNumber;
+                                const __raw_referenceNumber = obj["referenceNumber"] as number;if (!(typeof __raw_referenceNumber === "number")) {
+                                                    errors.push({ field: "referenceNumber", message: __raw_referenceNumber == null ? "Company.referenceNumber is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.referenceNumber = __raw_referenceNumber;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2856,11 +3193,50 @@ instance.taxId = __raw_taxId;
 
 
                             }{
-                                const __raw_postalCodeLookup = obj["postalCodeLookup"] as string;
-                                            if (__raw_postalCodeLookup == null) { errors.push({ field: "postalCodeLookup", message: "Company.postalCodeLookup is required" }); } else {
+                                const __raw_postalCodeLookup = obj["postalCodeLookup"] as string;if (!(typeof __raw_postalCodeLookup === "string")) {
+                                                    errors.push({ field: "postalCodeLookup", message: __raw_postalCodeLookup == null ? "Company.postalCodeLookup is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_postalCodeLookup == null) { errors.push({ field: "postalCodeLookup", message: "Company.postalCodeLookup is required" }); } else {
 if (__raw_postalCodeLookup.length === 0) { errors.push({ field: "postalCodeLookup", message: "Company.postalCodeLookup must not be empty" }); }
 }
-instance.postalCodeLookup = __raw_postalCodeLookup;
+
+
+
+
+                                                    instance.postalCodeLookup = __raw_postalCodeLookup;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3120,7 +3496,46 @@ instance.postalCodeLookup = __raw_postalCodeLookup;
 
 
                             }{
-                                const __raw_timeZone = obj["timeZone"] as string;instance.timeZone = __raw_timeZone;
+                                const __raw_timeZone = obj["timeZone"] as string;if (!(typeof __raw_timeZone === "string")) {
+                                                    errors.push({ field: "timeZone", message: __raw_timeZone == null ? "Company.timeZone is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.timeZone = __raw_timeZone;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3663,12 +4078,83 @@ instance.postalCodeLookup = __raw_postalCodeLookup;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_defaultTaxLocation = obj["defaultTaxLocation"] as string;
-                                            if (__raw_defaultTaxLocation == null) { errors.push({ field: "defaultTaxLocation", message: "Company.defaultTaxLocation is required" }); } else {
+                                const __raw_defaultTaxLocation = obj["defaultTaxLocation"] as string;if (!(typeof __raw_defaultTaxLocation === "string")) {
+                                                    errors.push({ field: "defaultTaxLocation", message: __raw_defaultTaxLocation == null ? "Company.defaultTaxLocation is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_defaultTaxLocation == null) { errors.push({ field: "defaultTaxLocation", message: "Company.defaultTaxLocation is required" }); } else {
 if (__raw_defaultTaxLocation.length === 0) { errors.push({ field: "defaultTaxLocation", message: "Company.defaultTaxLocation must not be empty" }); }
 }
-instance.defaultTaxLocation = __raw_defaultTaxLocation;
+
+
+
+
+                                                    instance.defaultTaxLocation = __raw_defaultTaxLocation;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3928,7 +4414,46 @@ instance.defaultTaxLocation = __raw_defaultTaxLocation;
 
 
                             }{
-                                const __raw_defaultAreaCode = obj["defaultAreaCode"] as number;instance.defaultAreaCode = __raw_defaultAreaCode;
+                                const __raw_defaultAreaCode = obj["defaultAreaCode"] as number;if (!(typeof __raw_defaultAreaCode === "number")) {
+                                                    errors.push({ field: "defaultAreaCode", message: __raw_defaultAreaCode == null ? "Company.defaultAreaCode is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.defaultAreaCode = __raw_defaultAreaCode;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4188,11 +4713,50 @@ instance.defaultTaxLocation = __raw_defaultTaxLocation;
 
 
                             }{
-                                const __raw_defaultAccountType = obj["defaultAccountType"] as string;
-                                            if (__raw_defaultAccountType == null) { errors.push({ field: "defaultAccountType", message: "Company.defaultAccountType is required" }); } else {
+                                const __raw_defaultAccountType = obj["defaultAccountType"] as string;if (!(typeof __raw_defaultAccountType === "string")) {
+                                                    errors.push({ field: "defaultAccountType", message: __raw_defaultAccountType == null ? "Company.defaultAccountType is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_defaultAccountType == null) { errors.push({ field: "defaultAccountType", message: "Company.defaultAccountType is required" }); } else {
 if (__raw_defaultAccountType.length === 0) { errors.push({ field: "defaultAccountType", message: "Company.defaultAccountType must not be empty" }); }
 }
-instance.defaultAccountType = __raw_defaultAccountType;
+
+
+
+
+                                                    instance.defaultAccountType = __raw_defaultAccountType;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4452,11 +5016,50 @@ instance.defaultAccountType = __raw_defaultAccountType;
 
 
                             }{
-                                const __raw_lookupFormatting = obj["lookupFormatting"] as string;
-                                            if (__raw_lookupFormatting == null) { errors.push({ field: "lookupFormatting", message: "Company.lookupFormatting is required" }); } else {
+                                const __raw_lookupFormatting = obj["lookupFormatting"] as string;if (!(typeof __raw_lookupFormatting === "string")) {
+                                                    errors.push({ field: "lookupFormatting", message: __raw_lookupFormatting == null ? "Company.lookupFormatting is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_lookupFormatting == null) { errors.push({ field: "lookupFormatting", message: "Company.lookupFormatting is required" }); } else {
 if (__raw_lookupFormatting.length === 0) { errors.push({ field: "lookupFormatting", message: "Company.lookupFormatting must not be empty" }); }
 }
-instance.lookupFormatting = __raw_lookupFormatting;
+
+
+
+
+                                                    instance.lookupFormatting = __raw_lookupFormatting;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4716,11 +5319,50 @@ instance.lookupFormatting = __raw_lookupFormatting;
 
 
                             }{
-                                const __raw_accountNameFormat = obj["accountNameFormat"] as string;
-                                            if (__raw_accountNameFormat == null) { errors.push({ field: "accountNameFormat", message: "Company.accountNameFormat is required" }); } else {
+                                const __raw_accountNameFormat = obj["accountNameFormat"] as string;if (!(typeof __raw_accountNameFormat === "string")) {
+                                                    errors.push({ field: "accountNameFormat", message: __raw_accountNameFormat == null ? "Company.accountNameFormat is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_accountNameFormat == null) { errors.push({ field: "accountNameFormat", message: "Company.accountNameFormat is required" }); } else {
 if (__raw_accountNameFormat.length === 0) { errors.push({ field: "accountNameFormat", message: "Company.accountNameFormat must not be empty" }); }
 }
-instance.accountNameFormat = __raw_accountNameFormat;
+
+
+
+
+                                                    instance.accountNameFormat = __raw_accountNameFormat;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4980,8 +5622,43 @@ instance.accountNameFormat = __raw_accountNameFormat;
 
 
                             }{
-                                const __raw_merchantServiceProvider = obj["merchantServiceProvider"] as string | null;
-                                                instance.merchantServiceProvider = __raw_merchantServiceProvider;
+                                const __raw_merchantServiceProvider = obj["merchantServiceProvider"] as string | null;if (!(typeof __raw_merchantServiceProvider === "string" || __raw_merchantServiceProvider === null)) {
+                                                        errors.push({ field: "merchantServiceProvider", message: "expected string | null" });
+                                                    } else {
+                                                        instance.merchantServiceProvider = __raw_merchantServiceProvider;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5241,11 +5918,50 @@ instance.accountNameFormat = __raw_accountNameFormat;
 
 
                             }{
-                                const __raw_dateDisplayStyle = obj["dateDisplayStyle"] as string;
-                                            if (__raw_dateDisplayStyle == null) { errors.push({ field: "dateDisplayStyle", message: "Company.dateDisplayStyle is required" }); } else {
+                                const __raw_dateDisplayStyle = obj["dateDisplayStyle"] as string;if (!(typeof __raw_dateDisplayStyle === "string")) {
+                                                    errors.push({ field: "dateDisplayStyle", message: __raw_dateDisplayStyle == null ? "Company.dateDisplayStyle is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_dateDisplayStyle == null) { errors.push({ field: "dateDisplayStyle", message: "Company.dateDisplayStyle is required" }); } else {
 if (__raw_dateDisplayStyle.length === 0) { errors.push({ field: "dateDisplayStyle", message: "Company.dateDisplayStyle must not be empty" }); }
 }
-instance.dateDisplayStyle = __raw_dateDisplayStyle;
+
+
+
+
+                                                    instance.dateDisplayStyle = __raw_dateDisplayStyle;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5505,7 +6221,46 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
                             }{
-                                const __raw_hasAutoCommission = obj["hasAutoCommission"] as boolean;instance.hasAutoCommission = __raw_hasAutoCommission;
+                                const __raw_hasAutoCommission = obj["hasAutoCommission"] as boolean;if (!(typeof __raw_hasAutoCommission === "boolean")) {
+                                                    errors.push({ field: "hasAutoCommission", message: __raw_hasAutoCommission == null ? "Company.hasAutoCommission is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.hasAutoCommission = __raw_hasAutoCommission;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5765,7 +6520,46 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
                             }{
-                                const __raw_hasAutoDaylightSavings = obj["hasAutoDaylightSavings"] as boolean;instance.hasAutoDaylightSavings = __raw_hasAutoDaylightSavings;
+                                const __raw_hasAutoDaylightSavings = obj["hasAutoDaylightSavings"] as boolean;if (!(typeof __raw_hasAutoDaylightSavings === "boolean")) {
+                                                    errors.push({ field: "hasAutoDaylightSavings", message: __raw_hasAutoDaylightSavings == null ? "Company.hasAutoDaylightSavings is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.hasAutoDaylightSavings = __raw_hasAutoDaylightSavings;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6025,7 +6819,46 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
                             }{
-                                const __raw_hasAutoFmsTracking = obj["hasAutoFmsTracking"] as boolean;instance.hasAutoFmsTracking = __raw_hasAutoFmsTracking;
+                                const __raw_hasAutoFmsTracking = obj["hasAutoFmsTracking"] as boolean;if (!(typeof __raw_hasAutoFmsTracking === "boolean")) {
+                                                    errors.push({ field: "hasAutoFmsTracking", message: __raw_hasAutoFmsTracking == null ? "Company.hasAutoFmsTracking is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.hasAutoFmsTracking = __raw_hasAutoFmsTracking;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6285,7 +7118,46 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
                             }{
-                                const __raw_hasNotifications = obj["hasNotifications"] as boolean;instance.hasNotifications = __raw_hasNotifications;
+                                const __raw_hasNotifications = obj["hasNotifications"] as boolean;if (!(typeof __raw_hasNotifications === "boolean")) {
+                                                    errors.push({ field: "hasNotifications", message: __raw_hasNotifications == null ? "Company.hasNotifications is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.hasNotifications = __raw_hasNotifications;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6545,7 +7417,46 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
                             }{
-                                const __raw_hasRequiredLeadSource = obj["hasRequiredLeadSource"] as boolean;instance.hasRequiredLeadSource = __raw_hasRequiredLeadSource;
+                                const __raw_hasRequiredLeadSource = obj["hasRequiredLeadSource"] as boolean;if (!(typeof __raw_hasRequiredLeadSource === "boolean")) {
+                                                    errors.push({ field: "hasRequiredLeadSource", message: __raw_hasRequiredLeadSource == null ? "Company.hasRequiredLeadSource is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.hasRequiredLeadSource = __raw_hasRequiredLeadSource;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6805,7 +7716,46 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
                             }{
-                                const __raw_hasRequiredEmail = obj["hasRequiredEmail"] as boolean;instance.hasRequiredEmail = __raw_hasRequiredEmail;
+                                const __raw_hasRequiredEmail = obj["hasRequiredEmail"] as boolean;if (!(typeof __raw_hasRequiredEmail === "boolean")) {
+                                                    errors.push({ field: "hasRequiredEmail", message: __raw_hasRequiredEmail == null ? "Company.hasRequiredEmail is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.hasRequiredEmail = __raw_hasRequiredEmail;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7065,7 +8015,46 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
                             }{
-                                const __raw_hasSortServiceItemsAlphabetically = obj["hasSortServiceItemsAlphabetically"] as boolean;instance.hasSortServiceItemsAlphabetically = __raw_hasSortServiceItemsAlphabetically;
+                                const __raw_hasSortServiceItemsAlphabetically = obj["hasSortServiceItemsAlphabetically"] as boolean;if (!(typeof __raw_hasSortServiceItemsAlphabetically === "boolean")) {
+                                                    errors.push({ field: "hasSortServiceItemsAlphabetically", message: __raw_hasSortServiceItemsAlphabetically == null ? "Company.hasSortServiceItemsAlphabetically is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.hasSortServiceItemsAlphabetically = __raw_hasSortServiceItemsAlphabetically;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7325,7 +8314,46 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
                             }{
-                                const __raw_hasAttachOrderToAppointmentEmails = obj["hasAttachOrderToAppointmentEmails"] as boolean;instance.hasAttachOrderToAppointmentEmails = __raw_hasAttachOrderToAppointmentEmails;
+                                const __raw_hasAttachOrderToAppointmentEmails = obj["hasAttachOrderToAppointmentEmails"] as boolean;if (!(typeof __raw_hasAttachOrderToAppointmentEmails === "boolean")) {
+                                                    errors.push({ field: "hasAttachOrderToAppointmentEmails", message: __raw_hasAttachOrderToAppointmentEmails == null ? "Company.hasAttachOrderToAppointmentEmails is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.hasAttachOrderToAppointmentEmails = __raw_hasAttachOrderToAppointmentEmails;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7585,7 +8613,46 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
                             }{
-                                const __raw_scheduleInterval = obj["scheduleInterval"] as number;instance.scheduleInterval = __raw_scheduleInterval;
+                                const __raw_scheduleInterval = obj["scheduleInterval"] as number;if (!(typeof __raw_scheduleInterval === "number")) {
+                                                    errors.push({ field: "scheduleInterval", message: __raw_scheduleInterval == null ? "Company.scheduleInterval is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.scheduleInterval = __raw_scheduleInterval;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8121,7 +9188,115 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9993,7 +11168,18 @@ if (__val.length === 0) { errors.push({ field: "dateDisplayStyle", message: "Com
             return toExit(companyDecode(obj));
         }
 
-export const Company = {
+export const Company: {
+  readonly defaultValue: typeof companyDefaultValue;
+  readonly encode: typeof companyEncode;
+  readonly encodeWithContext: typeof companyEncodeWithContext;
+  readonly decode: typeof companyDecode;
+  readonly decodeWithContext: typeof companyDecodeWithContext;
+  readonly validateFields: typeof companyValidateFields;
+  readonly hasShape: typeof companyHasShape;
+  readonly is: typeof companyIs;
+  readonly createForm: typeof companyCreateForm;
+  readonly fromFormData: typeof companyFromFormData;
+} = {
   defaultValue: companyDefaultValue,
   encode: companyEncode,
   encodeWithContext: companyEncodeWithContext,
@@ -10004,7 +11190,7 @@ export const Company = {
   is: companyIs,
   createForm: companyCreateForm,
   fromFormData: companyFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -10360,7 +11546,46 @@ colorsConfig: colorsConfigDefaultValue(),
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Company.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -10620,11 +11845,50 @@ colorsConfig: colorsConfigDefaultValue(),
 
 
                             }{
-                                const __raw_legalName = obj["legalName"] as string;
-                                            if (__raw_legalName == null) { errors.push({ field: "legalName", message: "Company.legalName is required" }); } else {
+                                const __raw_legalName = obj["legalName"] as string;if (!(typeof __raw_legalName === "string")) {
+                                                    errors.push({ field: "legalName", message: __raw_legalName == null ? "Company.legalName is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_legalName == null) { errors.push({ field: "legalName", message: "Company.legalName is required" }); } else {
 if (__raw_legalName.length === 0) { errors.push({ field: "legalName", message: "Company.legalName must not be empty" }); }
 }
-instance.legalName = __raw_legalName;
+
+
+
+
+                                                    instance.legalName = __raw_legalName;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -10909,6 +12173,38 @@ instance.legalName = __raw_legalName;
                                                     ctx.popScope();
                                                 }
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -11516,12 +12812,83 @@ instance.legalName = __raw_legalName;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_fax = obj["fax"] as string;
-                                            if (__raw_fax == null) { errors.push({ field: "fax", message: "Company.fax is required" }); } else {
+                                const __raw_fax = obj["fax"] as string;if (!(typeof __raw_fax === "string")) {
+                                                    errors.push({ field: "fax", message: __raw_fax == null ? "Company.fax is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_fax == null) { errors.push({ field: "fax", message: "Company.fax is required" }); } else {
 if (__raw_fax.length === 0) { errors.push({ field: "fax", message: "Company.fax must not be empty" }); }
 }
-instance.fax = __raw_fax;
+
+
+
+
+                                                    instance.fax = __raw_fax;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -11781,11 +13148,50 @@ instance.fax = __raw_fax;
 
 
                             }{
-                                const __raw_email = obj["email"] as string;
-                                            if (__raw_email == null) { errors.push({ field: "email", message: "Company.email is required" }); } else {
+                                const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                    errors.push({ field: "email", message: __raw_email == null ? "Company.email is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_email == null) { errors.push({ field: "email", message: "Company.email is required" }); } else {
 if (__raw_email.length === 0) { errors.push({ field: "email", message: "Company.email must not be empty" }); }
 }
-instance.email = __raw_email;
+
+
+
+
+                                                    instance.email = __raw_email;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12045,11 +13451,50 @@ instance.email = __raw_email;
 
 
                             }{
-                                const __raw_website = obj["website"] as string;
-                                            if (__raw_website == null) { errors.push({ field: "website", message: "Company.website is required" }); } else {
+                                const __raw_website = obj["website"] as string;if (!(typeof __raw_website === "string")) {
+                                                    errors.push({ field: "website", message: __raw_website == null ? "Company.website is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_website == null) { errors.push({ field: "website", message: "Company.website is required" }); } else {
 if (__raw_website.length === 0) { errors.push({ field: "website", message: "Company.website must not be empty" }); }
 }
-instance.website = __raw_website;
+
+
+
+
+                                                    instance.website = __raw_website;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12309,11 +13754,50 @@ instance.website = __raw_website;
 
 
                             }{
-                                const __raw_taxId = obj["taxId"] as string;
-                                            if (__raw_taxId == null) { errors.push({ field: "taxId", message: "Company.taxId is required" }); } else {
+                                const __raw_taxId = obj["taxId"] as string;if (!(typeof __raw_taxId === "string")) {
+                                                    errors.push({ field: "taxId", message: __raw_taxId == null ? "Company.taxId is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_taxId == null) { errors.push({ field: "taxId", message: "Company.taxId is required" }); } else {
 if (__raw_taxId.length === 0) { errors.push({ field: "taxId", message: "Company.taxId must not be empty" }); }
 }
-instance.taxId = __raw_taxId;
+
+
+
+
+                                                    instance.taxId = __raw_taxId;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12573,7 +14057,46 @@ instance.taxId = __raw_taxId;
 
 
                             }{
-                                const __raw_referenceNumber = obj["referenceNumber"] as number;instance.referenceNumber = __raw_referenceNumber;
+                                const __raw_referenceNumber = obj["referenceNumber"] as number;if (!(typeof __raw_referenceNumber === "number")) {
+                                                    errors.push({ field: "referenceNumber", message: __raw_referenceNumber == null ? "Company.referenceNumber is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.referenceNumber = __raw_referenceNumber;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12833,11 +14356,50 @@ instance.taxId = __raw_taxId;
 
 
                             }{
-                                const __raw_postalCodeLookup = obj["postalCodeLookup"] as string;
-                                            if (__raw_postalCodeLookup == null) { errors.push({ field: "postalCodeLookup", message: "Company.postalCodeLookup is required" }); } else {
+                                const __raw_postalCodeLookup = obj["postalCodeLookup"] as string;if (!(typeof __raw_postalCodeLookup === "string")) {
+                                                    errors.push({ field: "postalCodeLookup", message: __raw_postalCodeLookup == null ? "Company.postalCodeLookup is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_postalCodeLookup == null) { errors.push({ field: "postalCodeLookup", message: "Company.postalCodeLookup is required" }); } else {
 if (__raw_postalCodeLookup.length === 0) { errors.push({ field: "postalCodeLookup", message: "Company.postalCodeLookup must not be empty" }); }
 }
-instance.postalCodeLookup = __raw_postalCodeLookup;
+
+
+
+
+                                                    instance.postalCodeLookup = __raw_postalCodeLookup;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -13097,7 +14659,46 @@ instance.postalCodeLookup = __raw_postalCodeLookup;
 
 
                             }{
-                                const __raw_timeZone = obj["timeZone"] as string;instance.timeZone = __raw_timeZone;
+                                const __raw_timeZone = obj["timeZone"] as string;if (!(typeof __raw_timeZone === "string")) {
+                                                    errors.push({ field: "timeZone", message: __raw_timeZone == null ? "Company.timeZone is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.timeZone = __raw_timeZone;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -13640,12 +15241,83 @@ instance.postalCodeLookup = __raw_postalCodeLookup;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_defaultTaxLocation = obj["defaultTaxLocation"] as string;
-                                            if (__raw_defaultTaxLocation == null) { errors.push({ field: "defaultTaxLocation", message: "Company.defaultTaxLocation is required" }); } else {
+                                const __raw_defaultTaxLocation = obj["defaultTaxLocation"] as string;if (!(typeof __raw_defaultTaxLocation === "string")) {
+                                                    errors.push({ field: "defaultTaxLocation", message: __raw_defaultTaxLocation == null ? "Company.defaultTaxLocation is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_defaultTaxLocation == null) { errors.push({ field: "defaultTaxLocation", message: "Company.defaultTaxLocation is required" }); } else {
 if (__raw_defaultTaxLocation.length === 0) { errors.push({ field: "defaultTaxLocation", message: "Company.defaultTaxLocation must not be empty" }); }
 }
-instance.defaultTaxLocation = __raw_defaultTaxLocation;
+
+
+
+
+                                                    instance.defaultTaxLocation = __raw_defaultTaxLocation;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -13905,7 +15577,46 @@ instance.defaultTaxLocation = __raw_defaultTaxLocation;
 
 
                             }{
-                                const __raw_defaultAreaCode = obj["defaultAreaCode"] as number;instance.defaultAreaCode = __raw_defaultAreaCode;
+                                const __raw_defaultAreaCode = obj["defaultAreaCode"] as number;if (!(typeof __raw_defaultAreaCode === "number")) {
+                                                    errors.push({ field: "defaultAreaCode", message: __raw_defaultAreaCode == null ? "Company.defaultAreaCode is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.defaultAreaCode = __raw_defaultAreaCode;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -14165,11 +15876,50 @@ instance.defaultTaxLocation = __raw_defaultTaxLocation;
 
 
                             }{
-                                const __raw_defaultAccountType = obj["defaultAccountType"] as string;
-                                            if (__raw_defaultAccountType == null) { errors.push({ field: "defaultAccountType", message: "Company.defaultAccountType is required" }); } else {
+                                const __raw_defaultAccountType = obj["defaultAccountType"] as string;if (!(typeof __raw_defaultAccountType === "string")) {
+                                                    errors.push({ field: "defaultAccountType", message: __raw_defaultAccountType == null ? "Company.defaultAccountType is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_defaultAccountType == null) { errors.push({ field: "defaultAccountType", message: "Company.defaultAccountType is required" }); } else {
 if (__raw_defaultAccountType.length === 0) { errors.push({ field: "defaultAccountType", message: "Company.defaultAccountType must not be empty" }); }
 }
-instance.defaultAccountType = __raw_defaultAccountType;
+
+
+
+
+                                                    instance.defaultAccountType = __raw_defaultAccountType;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -14429,11 +16179,50 @@ instance.defaultAccountType = __raw_defaultAccountType;
 
 
                             }{
-                                const __raw_lookupFormatting = obj["lookupFormatting"] as string;
-                                            if (__raw_lookupFormatting == null) { errors.push({ field: "lookupFormatting", message: "Company.lookupFormatting is required" }); } else {
+                                const __raw_lookupFormatting = obj["lookupFormatting"] as string;if (!(typeof __raw_lookupFormatting === "string")) {
+                                                    errors.push({ field: "lookupFormatting", message: __raw_lookupFormatting == null ? "Company.lookupFormatting is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_lookupFormatting == null) { errors.push({ field: "lookupFormatting", message: "Company.lookupFormatting is required" }); } else {
 if (__raw_lookupFormatting.length === 0) { errors.push({ field: "lookupFormatting", message: "Company.lookupFormatting must not be empty" }); }
 }
-instance.lookupFormatting = __raw_lookupFormatting;
+
+
+
+
+                                                    instance.lookupFormatting = __raw_lookupFormatting;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -14693,11 +16482,50 @@ instance.lookupFormatting = __raw_lookupFormatting;
 
 
                             }{
-                                const __raw_accountNameFormat = obj["accountNameFormat"] as string;
-                                            if (__raw_accountNameFormat == null) { errors.push({ field: "accountNameFormat", message: "Company.accountNameFormat is required" }); } else {
+                                const __raw_accountNameFormat = obj["accountNameFormat"] as string;if (!(typeof __raw_accountNameFormat === "string")) {
+                                                    errors.push({ field: "accountNameFormat", message: __raw_accountNameFormat == null ? "Company.accountNameFormat is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_accountNameFormat == null) { errors.push({ field: "accountNameFormat", message: "Company.accountNameFormat is required" }); } else {
 if (__raw_accountNameFormat.length === 0) { errors.push({ field: "accountNameFormat", message: "Company.accountNameFormat must not be empty" }); }
 }
-instance.accountNameFormat = __raw_accountNameFormat;
+
+
+
+
+                                                    instance.accountNameFormat = __raw_accountNameFormat;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -14957,8 +16785,43 @@ instance.accountNameFormat = __raw_accountNameFormat;
 
 
                             }{
-                                const __raw_merchantServiceProvider = obj["merchantServiceProvider"] as string | null;
-                                                instance.merchantServiceProvider = __raw_merchantServiceProvider;
+                                const __raw_merchantServiceProvider = obj["merchantServiceProvider"] as string | null;if (!(typeof __raw_merchantServiceProvider === "string" || __raw_merchantServiceProvider === null)) {
+                                                        errors.push({ field: "merchantServiceProvider", message: "expected string | null" });
+                                                    } else {
+                                                        instance.merchantServiceProvider = __raw_merchantServiceProvider;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -15218,11 +17081,50 @@ instance.accountNameFormat = __raw_accountNameFormat;
 
 
                             }{
-                                const __raw_dateDisplayStyle = obj["dateDisplayStyle"] as string;
-                                            if (__raw_dateDisplayStyle == null) { errors.push({ field: "dateDisplayStyle", message: "Company.dateDisplayStyle is required" }); } else {
+                                const __raw_dateDisplayStyle = obj["dateDisplayStyle"] as string;if (!(typeof __raw_dateDisplayStyle === "string")) {
+                                                    errors.push({ field: "dateDisplayStyle", message: __raw_dateDisplayStyle == null ? "Company.dateDisplayStyle is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_dateDisplayStyle == null) { errors.push({ field: "dateDisplayStyle", message: "Company.dateDisplayStyle is required" }); } else {
 if (__raw_dateDisplayStyle.length === 0) { errors.push({ field: "dateDisplayStyle", message: "Company.dateDisplayStyle must not be empty" }); }
 }
-instance.dateDisplayStyle = __raw_dateDisplayStyle;
+
+
+
+
+                                                    instance.dateDisplayStyle = __raw_dateDisplayStyle;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -15482,7 +17384,46 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
                             }{
-                                const __raw_hasAutoCommission = obj["hasAutoCommission"] as boolean;instance.hasAutoCommission = __raw_hasAutoCommission;
+                                const __raw_hasAutoCommission = obj["hasAutoCommission"] as boolean;if (!(typeof __raw_hasAutoCommission === "boolean")) {
+                                                    errors.push({ field: "hasAutoCommission", message: __raw_hasAutoCommission == null ? "Company.hasAutoCommission is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.hasAutoCommission = __raw_hasAutoCommission;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -15742,7 +17683,46 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
                             }{
-                                const __raw_hasAutoDaylightSavings = obj["hasAutoDaylightSavings"] as boolean;instance.hasAutoDaylightSavings = __raw_hasAutoDaylightSavings;
+                                const __raw_hasAutoDaylightSavings = obj["hasAutoDaylightSavings"] as boolean;if (!(typeof __raw_hasAutoDaylightSavings === "boolean")) {
+                                                    errors.push({ field: "hasAutoDaylightSavings", message: __raw_hasAutoDaylightSavings == null ? "Company.hasAutoDaylightSavings is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.hasAutoDaylightSavings = __raw_hasAutoDaylightSavings;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -16002,7 +17982,46 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
                             }{
-                                const __raw_hasAutoFmsTracking = obj["hasAutoFmsTracking"] as boolean;instance.hasAutoFmsTracking = __raw_hasAutoFmsTracking;
+                                const __raw_hasAutoFmsTracking = obj["hasAutoFmsTracking"] as boolean;if (!(typeof __raw_hasAutoFmsTracking === "boolean")) {
+                                                    errors.push({ field: "hasAutoFmsTracking", message: __raw_hasAutoFmsTracking == null ? "Company.hasAutoFmsTracking is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.hasAutoFmsTracking = __raw_hasAutoFmsTracking;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -16262,7 +18281,46 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
                             }{
-                                const __raw_hasNotifications = obj["hasNotifications"] as boolean;instance.hasNotifications = __raw_hasNotifications;
+                                const __raw_hasNotifications = obj["hasNotifications"] as boolean;if (!(typeof __raw_hasNotifications === "boolean")) {
+                                                    errors.push({ field: "hasNotifications", message: __raw_hasNotifications == null ? "Company.hasNotifications is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.hasNotifications = __raw_hasNotifications;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -16522,7 +18580,46 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
                             }{
-                                const __raw_hasRequiredLeadSource = obj["hasRequiredLeadSource"] as boolean;instance.hasRequiredLeadSource = __raw_hasRequiredLeadSource;
+                                const __raw_hasRequiredLeadSource = obj["hasRequiredLeadSource"] as boolean;if (!(typeof __raw_hasRequiredLeadSource === "boolean")) {
+                                                    errors.push({ field: "hasRequiredLeadSource", message: __raw_hasRequiredLeadSource == null ? "Company.hasRequiredLeadSource is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.hasRequiredLeadSource = __raw_hasRequiredLeadSource;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -16782,7 +18879,46 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
                             }{
-                                const __raw_hasRequiredEmail = obj["hasRequiredEmail"] as boolean;instance.hasRequiredEmail = __raw_hasRequiredEmail;
+                                const __raw_hasRequiredEmail = obj["hasRequiredEmail"] as boolean;if (!(typeof __raw_hasRequiredEmail === "boolean")) {
+                                                    errors.push({ field: "hasRequiredEmail", message: __raw_hasRequiredEmail == null ? "Company.hasRequiredEmail is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.hasRequiredEmail = __raw_hasRequiredEmail;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -17042,7 +19178,46 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
                             }{
-                                const __raw_hasSortServiceItemsAlphabetically = obj["hasSortServiceItemsAlphabetically"] as boolean;instance.hasSortServiceItemsAlphabetically = __raw_hasSortServiceItemsAlphabetically;
+                                const __raw_hasSortServiceItemsAlphabetically = obj["hasSortServiceItemsAlphabetically"] as boolean;if (!(typeof __raw_hasSortServiceItemsAlphabetically === "boolean")) {
+                                                    errors.push({ field: "hasSortServiceItemsAlphabetically", message: __raw_hasSortServiceItemsAlphabetically == null ? "Company.hasSortServiceItemsAlphabetically is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.hasSortServiceItemsAlphabetically = __raw_hasSortServiceItemsAlphabetically;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -17302,7 +19477,46 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
                             }{
-                                const __raw_hasAttachOrderToAppointmentEmails = obj["hasAttachOrderToAppointmentEmails"] as boolean;instance.hasAttachOrderToAppointmentEmails = __raw_hasAttachOrderToAppointmentEmails;
+                                const __raw_hasAttachOrderToAppointmentEmails = obj["hasAttachOrderToAppointmentEmails"] as boolean;if (!(typeof __raw_hasAttachOrderToAppointmentEmails === "boolean")) {
+                                                    errors.push({ field: "hasAttachOrderToAppointmentEmails", message: __raw_hasAttachOrderToAppointmentEmails == null ? "Company.hasAttachOrderToAppointmentEmails is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.hasAttachOrderToAppointmentEmails = __raw_hasAttachOrderToAppointmentEmails;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -17562,7 +19776,46 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
                             }{
-                                const __raw_scheduleInterval = obj["scheduleInterval"] as number;instance.scheduleInterval = __raw_scheduleInterval;
+                                const __raw_scheduleInterval = obj["scheduleInterval"] as number;if (!(typeof __raw_scheduleInterval === "number")) {
+                                                    errors.push({ field: "scheduleInterval", message: __raw_scheduleInterval == null ? "Company.scheduleInterval is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.scheduleInterval = __raw_scheduleInterval;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -18098,7 +20351,115 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -19970,7 +22331,18 @@ if (__val.length === 0) { errors.push({ field: "dateDisplayStyle", message: "Com
             return toExit(companyDecode(obj));
         }
 
-export const Company = {
+export const Company: {
+  readonly defaultValue: typeof companyDefaultValue;
+  readonly encode: typeof companyEncode;
+  readonly encodeWithContext: typeof companyEncodeWithContext;
+  readonly decode: typeof companyDecode;
+  readonly decodeWithContext: typeof companyDecodeWithContext;
+  readonly validateFields: typeof companyValidateFields;
+  readonly hasShape: typeof companyHasShape;
+  readonly is: typeof companyIs;
+  readonly createForm: typeof companyCreateForm;
+  readonly fromFormData: typeof companyFromFormData;
+} = {
   defaultValue: companyDefaultValue,
   encode: companyEncode,
   encodeWithContext: companyEncodeWithContext,
@@ -19981,7 +22353,7 @@ export const Company = {
   is: companyIs,
   createForm: companyCreateForm,
   fromFormData: companyFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -19989,27 +22361,28 @@ export const Company = {
 
 ## Mapping
 
-original 0..270 -> expanded 0..270
-original 319..367 -> expanded 270..318
-original 408..436 -> expanded 318..346
-original 455..525 -> expanded 346..416
-original 566..588 -> expanded 416..438
-original 629..653 -> expanded 438..462
-original 694..720 -> expanded 462..488
-original 761..814 -> expanded 488..541
-original 855..912 -> expanded 541..598
-original 931..970 -> expanded 598..637
-original 1011..1077 -> expanded 637..703
-original 1118..1155 -> expanded 703..740
-original 1196..1231 -> expanded 740..775
-original 1272..1352 -> expanded 775..855
-original 1393..1783 -> expanded 855..1245
-original 1783..1784 -> expanded 95360..95361
-generated 1245..1999 <- Default
-generated 1999..5383 <- Encode
-generated 5383..47412 <- Decode
-generated 47412..94985 <- Gigaform
-generated 94985..95360 <- __convenience_const
+original 0..270 -> expanded 1215..1485
+original 319..367 -> expanded 1485..1533
+original 408..436 -> expanded 1533..1561
+original 455..525 -> expanded 1561..1631
+original 566..588 -> expanded 1631..1653
+original 629..653 -> expanded 1653..1677
+original 694..720 -> expanded 1677..1703
+original 761..814 -> expanded 1703..1756
+original 855..912 -> expanded 1756..1813
+original 931..970 -> expanded 1813..1852
+original 1011..1077 -> expanded 1852..1918
+original 1118..1155 -> expanded 1918..1955
+original 1196..1231 -> expanded 1955..1990
+original 1272..1352 -> expanded 1990..2070
+original 1393..1783 -> expanded 2070..2460
+original 1783..1784 -> expanded 108411..108412
+generated 0..1215 <- imports
+generated 2460..3214 <- Default
+generated 3214..6598 <- Encode
+generated 6598..59969 <- Decode
+generated 59969..107542 <- Gigaform
+generated 107542..108411 <- __convenience_const
 
 ## Metadata
 

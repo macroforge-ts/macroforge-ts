@@ -3,14 +3,20 @@ use crate::ts_syn::TsSynError;
 
 use convert_case::{Case, Casing};
 
+use super::super::value_kind::is_ts_literal;
 use super::super::{
-    EndecFieldOptions, TypeCategory, ValidatorSpec, get_foreign_types,
+    EndecFieldOptions, TypeCategory, ValidatorSpec, get_foreign_types, primitive_base,
     rewrite_expression_namespaces,
 };
-use super::types::EndecValueKind;
+use super::types::DecodeField;
+use super::validation::Missing;
+use crate::builtin::derive_common::js_string;
 use crate::host::ForeignTypeConfig;
 use crate::ts_syn::abi::ir::type_alias::{TypeBody, TypeMemberKind};
 use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, TypeDefinitionIR, TypeRegistry};
+use crate::ts_syn::abi::ir::{
+    is_primitive_keyword, split_top_level_intersection, split_top_level_union, typeof_primitive,
+};
 
 /// Determines whether a TypeScript type can accept a raw `string` value,
 /// using the type registry and foreign type configs to resolve types.
@@ -83,6 +89,7 @@ fn accepts_string_visiting(
 
     let accepts = match &entry.definition {
         TypeDefinitionIR::TypeAlias(alias) => match &alias.body {
+            body if primitive_base(body).is_some() => primitive_base(body) == Some("string"),
             // Union: check if any member is string, a string literal, or a foreign string type
             TypeBody::Union(members) => members.iter().any(|member| match &member.kind {
                 TypeMemberKind::TypeRef(referenced) => accepts_string_visiting(
@@ -94,7 +101,9 @@ fn accepts_string_visiting(
                     visiting,
                 ),
                 TypeMemberKind::Literal(lit) => lit.starts_with('"') || lit.starts_with('\''),
-                TypeMemberKind::Object { .. } | TypeMemberKind::Intersection(_) => false,
+                TypeMemberKind::Object { .. }
+                | TypeMemberKind::Intersection(_)
+                | TypeMemberKind::Brand(_) => false,
             }),
             // Simple alias: recurse
             TypeBody::Alias(target) => accepts_string_visiting(
@@ -159,6 +168,66 @@ pub(super) fn alias_primitive_arm_validators(
     Vec::new()
 }
 
+/// How a raw value is checked against a primitive-like field type: the
+/// condition under which it does not match, and the error to report.
+pub(super) struct PrimitiveCheck {
+    pub(super) mismatch: Expr,
+    pub(super) message: Expr,
+}
+
+/// The check for a field whose type is primitive-like: a primitive keyword,
+/// a literal, `null`, `undefined`, or a union of those. `None` for any other
+/// type, which has no single runtime test. A missing value where the type
+/// requires one is reported as required rather than as the wrong type.
+pub(super) fn primitive_check(
+    field: &DecodeField,
+    raw: &str,
+    context_name: &str,
+) -> Option<PrimitiveCheck> {
+    let ts_type = field.ts_type.trim();
+    let parts = split_top_level_union(ts_type).unwrap_or_else(|| vec![ts_type]);
+    let accepts = parts
+        .iter()
+        .map(|part| {
+            let part = branded_base(part.trim());
+            if typeof_primitive(part).is_some() || part == "symbol" {
+                Some(format!("typeof {raw} === \"{part}\""))
+            } else if is_primitive_keyword(part) || is_ts_literal(part) {
+                Some(format!("{raw} === {part}"))
+            } else {
+                None
+            }
+        })
+        .collect::<Option<Vec<_>>>()?;
+    let wrong_type = js_string(&format!("expected {ts_type}"));
+    let message = match field.missing() {
+        Missing::Required => format!(
+            "{raw} == null ? {} : {wrong_type}",
+            js_string(&format!("{context_name}.{} is required", field.json_key))
+        ),
+        Missing::Allowed | Missing::Excluded => wrong_type,
+    };
+    Some(PrimitiveCheck {
+        mismatch: Expr::parse(&format!("!({})", accepts.join(" || ")))
+            .expect("primitive check should parse"),
+        message: Expr::parse(&message).expect("primitive check message should parse"),
+    })
+}
+
+/// The primitive under a brand (`number & { readonly [B]: true }` or
+/// `string & { __brand: "Id" }`), which is all a primitive value carries at
+/// runtime; any other type is returned unchanged.
+fn branded_base(ts_type: &str) -> &str {
+    let Some(parts) = split_top_level_intersection(ts_type) else {
+        return ts_type;
+    };
+    let mut bases = parts.iter().filter(|part| !part.starts_with('{'));
+    match (bases.next(), bases.next()) {
+        (Some(base), None) if typeof_primitive(base).is_some() => base,
+        _ => ts_type,
+    }
+}
+
 pub(super) fn parse_default_expr(expr_src: &str) -> Result<Expr, TsSynError> {
     let expr = Expr::parse(expr_src)?;
     if matches!(expr, Expr::Ident(_)) {
@@ -166,78 +235,6 @@ pub(super) fn parse_default_expr(expr_src: &str) -> Result<Expr, TsSynError> {
         return Expr::parse(&literal_src);
     }
     Ok(expr)
-}
-
-pub(super) fn is_ts_primitive_keyword(s: &str) -> bool {
-    matches!(
-        s.trim(),
-        "string" | "number" | "boolean" | "bigint" | "null" | "undefined"
-    )
-}
-
-pub(super) fn is_ts_literal(s: &str) -> bool {
-    let s = s.trim();
-    if s.is_empty() {
-        return false;
-    }
-
-    if matches!(s, "true" | "false") {
-        return true;
-    }
-
-    if (s.starts_with('"') && s.ends_with('"')) || (s.starts_with('\'') && s.ends_with('\'')) {
-        return true;
-    }
-
-    // Very small heuristic: numeric / bigint literals
-    if let Some(digits) = s.strip_suffix('n') {
-        return !digits.is_empty()
-            && digits
-                .chars()
-                .all(|c| c.is_ascii_digit() || c == '_' || c == '-' || c == '+');
-    }
-
-    s.chars()
-        .all(|c| c.is_ascii_digit() || c == '_' || c == '-' || c == '+' || c == '.')
-}
-
-pub(super) fn is_union_of_primitive_like(s: &str) -> bool {
-    if !s.contains('|') {
-        return false;
-    }
-    s.split('|').all(|part| {
-        let part = part.trim();
-        is_ts_primitive_keyword(part) || is_ts_literal(part)
-    })
-}
-
-pub(super) fn classify_endec_value_kind(ts_type: &str) -> EndecValueKind {
-    match TypeCategory::from_ts_type(ts_type) {
-        TypeCategory::Primitive => EndecValueKind::PrimitiveLike,
-        TypeCategory::Date => EndecValueKind::Date,
-        TypeCategory::Nullable(inner) => match classify_endec_value_kind(&inner) {
-            EndecValueKind::Date => EndecValueKind::NullableDate,
-            EndecValueKind::PrimitiveLike => EndecValueKind::PrimitiveLike,
-            _ => EndecValueKind::Other,
-        },
-        TypeCategory::Optional(inner) => classify_endec_value_kind(&inner),
-        _ => {
-            if is_union_of_primitive_like(ts_type) {
-                EndecValueKind::PrimitiveLike
-            } else {
-                EndecValueKind::Other
-            }
-        }
-    }
-}
-
-/// If the given type string is a Encodable type, return its name.
-/// Returns None for primitives, Date, and other non-encodable types.
-pub(super) fn get_encodable_type_name(ts_type: &str) -> Option<String> {
-    match TypeCategory::from_ts_type(ts_type) {
-        TypeCategory::Encodable(name) => Some(name),
-        _ => None,
-    }
 }
 
 /// Tries to generate a composite decode expression for types where a foreign

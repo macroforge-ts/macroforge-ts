@@ -187,7 +187,46 @@ export function coordinateHashCode(value: Coordinate): number {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_lat = obj["lat"] as number;instance.lat = __raw_lat;
+                                const __raw_lat = obj["lat"] as number;if (!(typeof __raw_lat === "number")) {
+                                                    errors.push({ field: "lat", message: __raw_lat == null ? "Coordinate.lat is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.lat = __raw_lat;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -375,7 +414,46 @@ export function coordinateHashCode(value: Coordinate): number {
 
 
                             }{
-                                const __raw_lng = obj["lng"] as number;instance.lng = __raw_lng;
+                                const __raw_lng = obj["lng"] as number;if (!(typeof __raw_lng === "number")) {
+                                                    errors.push({ field: "lng", message: __raw_lng == null ? "Coordinate.lng is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.lng = __raw_lng;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -987,6 +1065,82 @@ export function coordinateHashCode(value: Coordinate): number {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Coordinate;
@@ -1045,7 +1199,19 @@ export function coordinateHashCode(value: Coordinate): number {
                 return coordinateHasShape(obj);
             }
 
-const Coordinate = {
+const Coordinate: {
+  readonly toString: typeof coordinateToString;
+  readonly clone: typeof coordinateClone;
+  readonly equals: typeof coordinateEquals;
+  readonly hashCode: typeof coordinateHashCode;
+  readonly encode: typeof coordinateEncode;
+  readonly encodeWithContext: typeof coordinateEncodeWithContext;
+  readonly decode: typeof coordinateDecode;
+  readonly decodeWithContext: typeof coordinateDecodeWithContext;
+  readonly validateFields: typeof coordinateValidateFields;
+  readonly hasShape: typeof coordinateHasShape;
+  readonly is: typeof coordinateIs;
+} = {
   toString: coordinateToString,
   clone: coordinateClone,
   equals: coordinateEquals,
@@ -1057,7 +1223,7 @@ const Coordinate = {
   validateFields: coordinateValidateFields,
   hasShape: coordinateHasShape,
   is: coordinateIs
-} as const;
+};
 
 ## DTS
 
@@ -1225,7 +1391,46 @@ export function coordinateHashCode(value: Coordinate): number {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_lat = obj["lat"] as number;instance.lat = __raw_lat;
+                                const __raw_lat = obj["lat"] as number;if (!(typeof __raw_lat === "number")) {
+                                                    errors.push({ field: "lat", message: __raw_lat == null ? "Coordinate.lat is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.lat = __raw_lat;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1413,7 +1618,46 @@ export function coordinateHashCode(value: Coordinate): number {
 
 
                             }{
-                                const __raw_lng = obj["lng"] as number;instance.lng = __raw_lng;
+                                const __raw_lng = obj["lng"] as number;if (!(typeof __raw_lng === "number")) {
+                                                    errors.push({ field: "lng", message: __raw_lng == null ? "Coordinate.lng is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.lng = __raw_lng;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2025,6 +2269,82 @@ export function coordinateHashCode(value: Coordinate): number {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Coordinate;
@@ -2083,7 +2403,19 @@ export function coordinateHashCode(value: Coordinate): number {
                 return coordinateHasShape(obj);
             }
 
-const Coordinate = {
+const Coordinate: {
+  readonly toString: typeof coordinateToString;
+  readonly clone: typeof coordinateClone;
+  readonly equals: typeof coordinateEquals;
+  readonly hashCode: typeof coordinateHashCode;
+  readonly encode: typeof coordinateEncode;
+  readonly encodeWithContext: typeof coordinateEncodeWithContext;
+  readonly decode: typeof coordinateDecode;
+  readonly decodeWithContext: typeof coordinateDecodeWithContext;
+  readonly validateFields: typeof coordinateValidateFields;
+  readonly hasShape: typeof coordinateHasShape;
+  readonly is: typeof coordinateIs;
+} = {
   toString: coordinateToString,
   clone: coordinateClone,
   equals: coordinateEquals,
@@ -2095,7 +2427,7 @@ const Coordinate = {
   validateFields: coordinateValidateFields,
   hasShape: coordinateHasShape,
   is: coordinateIs
-} as const;
+};
 
 ## Diagnostics
 
@@ -2103,15 +2435,16 @@ const Coordinate = {
 
 ## Mapping
 
-original 61..118 -> expanded 0..57
-original 118..119 -> expanded 8468..8469
-generated 57..377 <- Debug
-generated 377..641 <- Clone
-generated 641..855 <- PartialEq
-generated 855..1330 <- Hash
-generated 1330..2931 <- Encode
-generated 2931..8065 <- Decode
-generated 8065..8468 <- __convenience_const
+original 61..118 -> expanded 385..442
+original 118..119 -> expanded 10263..10264
+generated 0..385 <- imports
+generated 442..762 <- Debug
+generated 762..1026 <- Clone
+generated 1026..1240 <- PartialEq
+generated 1240..1715 <- Hash
+generated 1715..3316 <- Encode
+generated 3316..9318 <- Decode
+generated 9318..10263 <- __convenience_const
 
 ## Metadata
 

@@ -5,12 +5,13 @@ use crate::ts_syn::abi::ir::{FileImportEntry, TypeRegistry, resolve_generic_alia
 use crate::ts_syn::ts_ident;
 
 use super::super::source_field::SourceField;
+use super::super::value_kind::{classify_endec_value_kind, get_encodable_type_name};
 use super::super::{
     EndecContainerOptions, EndecFieldOptions, TypeCategory, get_foreign_types,
     rewrite_expression_namespaces,
 };
 use super::foreign_types::try_composite_foreign_encode;
-use super::types::{EncodeField, classify_endec_value_kind, get_encodable_type_name};
+use super::types::EncodeField;
 
 /// Converts a field into a `EncodeField`, or `None` when the field is
 /// skipped.

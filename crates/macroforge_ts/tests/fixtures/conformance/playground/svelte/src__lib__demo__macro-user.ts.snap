@@ -149,7 +149,46 @@ constructor(props: { id: string; name: string; role: string; favoriteMacro: 'Der
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                            const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                errors.push({ field: "id", message: __raw_id == null ? "MacroUser.id is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.id = __raw_id;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -411,7 +450,46 @@ constructor(props: { id: string; name: string; role: string; favoriteMacro: 'Der
 
 
                         }{
-                            const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                            const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                errors.push({ field: "name", message: __raw_name == null ? "MacroUser.name is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.name = __raw_name;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -673,7 +751,46 @@ constructor(props: { id: string; name: string; role: string; favoriteMacro: 'Der
 
 
                         }{
-                            const __raw_role = obj["role"] as string;instance.role = __raw_role;
+                            const __raw_role = obj["role"] as string;if (!(typeof __raw_role === "string")) {
+                                                errors.push({ field: "role", message: __raw_role == null ? "MacroUser.role is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.role = __raw_role;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -935,7 +1052,46 @@ constructor(props: { id: string; name: string; role: string; favoriteMacro: 'Der
 
 
                         }{
-                            const __raw_favoriteMacro = obj["favoriteMacro"] as 'Derive' | 'JsonNative';instance.favoriteMacro = __raw_favoriteMacro;
+                            const __raw_favoriteMacro = obj["favoriteMacro"] as 'Derive' | 'JsonNative';if (!(__raw_favoriteMacro === "Derive" || __raw_favoriteMacro === "JsonNative")) {
+                                                errors.push({ field: "favoriteMacro", message: __raw_favoriteMacro == null ? "MacroUser.favoriteMacro is required" : "expected 'Derive' | 'JsonNative'" });
+                                            } else {
+
+
+
+                                                instance.favoriteMacro = __raw_favoriteMacro;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1197,7 +1353,46 @@ constructor(props: { id: string; name: string; role: string; favoriteMacro: 'Der
 
 
                         }{
-                            const __raw_since = obj["since"] as string;instance.since = __raw_since;
+                            const __raw_since = obj["since"] as string;if (!(typeof __raw_since === "string")) {
+                                                errors.push({ field: "since", message: __raw_since == null ? "MacroUser.since is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.since = __raw_since;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1459,7 +1654,46 @@ constructor(props: { id: string; name: string; role: string; favoriteMacro: 'Der
 
 
                         }{
-                            const __raw_apiToken = obj["apiToken"] as string;instance.apiToken = __raw_apiToken;
+                            const __raw_apiToken = obj["apiToken"] as string;if (!(typeof __raw_apiToken === "string")) {
+                                                errors.push({ field: "apiToken", message: __raw_apiToken == null ? "MacroUser.apiToken is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.apiToken = __raw_apiToken;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2089,7 +2323,46 @@ constructor(props: { id: string; name: string; role: string; favoriteMacro: 'Der
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                            const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                errors.push({ field: "id", message: __raw_id == null ? "MacroUser.id is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.id = __raw_id;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2351,7 +2624,46 @@ constructor(props: { id: string; name: string; role: string; favoriteMacro: 'Der
 
 
                         }{
-                            const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                            const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                errors.push({ field: "name", message: __raw_name == null ? "MacroUser.name is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.name = __raw_name;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2613,7 +2925,46 @@ constructor(props: { id: string; name: string; role: string; favoriteMacro: 'Der
 
 
                         }{
-                            const __raw_role = obj["role"] as string;instance.role = __raw_role;
+                            const __raw_role = obj["role"] as string;if (!(typeof __raw_role === "string")) {
+                                                errors.push({ field: "role", message: __raw_role == null ? "MacroUser.role is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.role = __raw_role;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2875,7 +3226,46 @@ constructor(props: { id: string; name: string; role: string; favoriteMacro: 'Der
 
 
                         }{
-                            const __raw_favoriteMacro = obj["favoriteMacro"] as 'Derive' | 'JsonNative';instance.favoriteMacro = __raw_favoriteMacro;
+                            const __raw_favoriteMacro = obj["favoriteMacro"] as 'Derive' | 'JsonNative';if (!(__raw_favoriteMacro === "Derive" || __raw_favoriteMacro === "JsonNative")) {
+                                                errors.push({ field: "favoriteMacro", message: __raw_favoriteMacro == null ? "MacroUser.favoriteMacro is required" : "expected 'Derive' | 'JsonNative'" });
+                                            } else {
+
+
+
+                                                instance.favoriteMacro = __raw_favoriteMacro;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3137,7 +3527,46 @@ constructor(props: { id: string; name: string; role: string; favoriteMacro: 'Der
 
 
                         }{
-                            const __raw_since = obj["since"] as string;instance.since = __raw_since;
+                            const __raw_since = obj["since"] as string;if (!(typeof __raw_since === "string")) {
+                                                errors.push({ field: "since", message: __raw_since == null ? "MacroUser.since is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.since = __raw_since;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3399,7 +3828,46 @@ constructor(props: { id: string; name: string; role: string; favoriteMacro: 'Der
 
 
                         }{
-                            const __raw_apiToken = obj["apiToken"] as string;instance.apiToken = __raw_apiToken;
+                            const __raw_apiToken = obj["apiToken"] as string;if (!(typeof __raw_apiToken === "string")) {
+                                                errors.push({ field: "apiToken", message: __raw_apiToken == null ? "MacroUser.apiToken is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.apiToken = __raw_apiToken;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3901,18 +4369,19 @@ export const showcaseUserJson = JSON.parse(MacroUser.encode(showcaseUser));
 
 ## Mapping
 
-original 0..56 -> expanded 0..56
-original 93..123 -> expanded 56..86
-original 158..278 -> expanded 86..206
-original 307..330 -> expanded 206..229
-original 330..331 -> expanded 8438..8439
-original 331..683 -> expanded 11665..12017
-generated 229..344 <- Debug
-generated 344..1066 <- Encode
-generated 1066..8438 <- Decode
-generated 8439..8869 <- Debug
-generated 8869..10518 <- Encode
-generated 10518..11665 <- Decode
+original 0..56 -> expanded 385..441
+original 93..123 -> expanded 441..471
+original 158..278 -> expanded 471..591
+original 307..330 -> expanded 591..614
+original 330..331 -> expanded 11219..11220
+original 331..683 -> expanded 14446..14798
+generated 0..385 <- imports
+generated 614..729 <- Debug
+generated 729..1451 <- Encode
+generated 1451..11219 <- Decode
+generated 11220..11650 <- Debug
+generated 11650..13299 <- Encode
+generated 13299..14446 <- Decode
 
 ## Metadata
 

@@ -37,7 +37,13 @@ const b = ((3 * 2) * 2);
 
 ## Mapping
 
-(none)
+original 52..54 -> expanded 0..2
+original 108..110 -> expanded 2..4
+original 174..186 -> expanded 4..16
+original 196..208 -> expanded 23..35
+original 216..218 -> expanded 48..50
+generated 16..23 <- $double
+generated 35..48 <- $quad
 
 ## Metadata
 

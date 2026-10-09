@@ -245,11 +245,50 @@ lastName: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_firstName = obj["firstName"] as string;
-                                            if (__raw_firstName == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
+                                const __raw_firstName = obj["firstName"] as string;if (!(typeof __raw_firstName === "string")) {
+                                                    errors.push({ field: "firstName", message: __raw_firstName == null ? "PersonName.firstName is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_firstName == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
 if (__raw_firstName.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
 }
-instance.firstName = __raw_firstName;
+
+
+
+
+                                                    instance.firstName = __raw_firstName;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -509,11 +548,50 @@ instance.firstName = __raw_firstName;
 
 
                             }{
-                                const __raw_lastName = obj["lastName"] as string;
-                                            if (__raw_lastName == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
+                                const __raw_lastName = obj["lastName"] as string;if (!(typeof __raw_lastName === "string")) {
+                                                    errors.push({ field: "lastName", message: __raw_lastName == null ? "PersonName.lastName is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_lastName == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
 if (__raw_lastName.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
 }
-instance.lastName = __raw_lastName;
+
+
+
+
+                                                    instance.lastName = __raw_lastName;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1341,6 +1419,82 @@ instance.lastName = __raw_lastName;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as PersonName;
@@ -1599,7 +1753,18 @@ if (__val.length === 0) { errors.push({ field: "lastName", message: "PersonName.
             return toExit(personNameDecode(obj));
         }
 
-export const PersonName = {
+export const PersonName: {
+  readonly defaultValue: typeof personNameDefaultValue;
+  readonly encode: typeof personNameEncode;
+  readonly encodeWithContext: typeof personNameEncodeWithContext;
+  readonly decode: typeof personNameDecode;
+  readonly decodeWithContext: typeof personNameDecodeWithContext;
+  readonly validateFields: typeof personNameValidateFields;
+  readonly hasShape: typeof personNameHasShape;
+  readonly is: typeof personNameIs;
+  readonly createForm: typeof personNameCreateForm;
+  readonly fromFormData: typeof personNameFromFormData;
+} = {
   defaultValue: personNameDefaultValue,
   encode: personNameEncode,
   encodeWithContext: personNameEncodeWithContext,
@@ -1610,7 +1775,7 @@ export const PersonName = {
   is: personNameIs,
   createForm: personNameCreateForm,
   fromFormData: personNameFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1838,11 +2003,50 @@ lastName: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_firstName = obj["firstName"] as string;
-                                            if (__raw_firstName == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
+                                const __raw_firstName = obj["firstName"] as string;if (!(typeof __raw_firstName === "string")) {
+                                                    errors.push({ field: "firstName", message: __raw_firstName == null ? "PersonName.firstName is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_firstName == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
 if (__raw_firstName.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
 }
-instance.firstName = __raw_firstName;
+
+
+
+
+                                                    instance.firstName = __raw_firstName;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2102,11 +2306,50 @@ instance.firstName = __raw_firstName;
 
 
                             }{
-                                const __raw_lastName = obj["lastName"] as string;
-                                            if (__raw_lastName == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
+                                const __raw_lastName = obj["lastName"] as string;if (!(typeof __raw_lastName === "string")) {
+                                                    errors.push({ field: "lastName", message: __raw_lastName == null ? "PersonName.lastName is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_lastName == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
 if (__raw_lastName.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
 }
-instance.lastName = __raw_lastName;
+
+
+
+
+                                                    instance.lastName = __raw_lastName;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2934,6 +3177,82 @@ instance.lastName = __raw_lastName;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as PersonName;
@@ -3192,7 +3511,18 @@ if (__val.length === 0) { errors.push({ field: "lastName", message: "PersonName.
             return toExit(personNameDecode(obj));
         }
 
-export const PersonName = {
+export const PersonName: {
+  readonly defaultValue: typeof personNameDefaultValue;
+  readonly encode: typeof personNameEncode;
+  readonly encodeWithContext: typeof personNameEncodeWithContext;
+  readonly decode: typeof personNameDecode;
+  readonly decodeWithContext: typeof personNameDecodeWithContext;
+  readonly validateFields: typeof personNameValidateFields;
+  readonly hasShape: typeof personNameHasShape;
+  readonly is: typeof personNameIs;
+  readonly createForm: typeof personNameCreateForm;
+  readonly fromFormData: typeof personNameFromFormData;
+} = {
   defaultValue: personNameDefaultValue,
   encode: personNameEncode,
   encodeWithContext: personNameEncodeWithContext,
@@ -3203,7 +3533,7 @@ export const PersonName = {
   is: personNameIs,
   createForm: personNameCreateForm,
   fromFormData: personNameFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3211,18 +3541,19 @@ export const PersonName = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..142 -> expanded 58..93
-original 189..194 -> expanded 93..98
-original 235..263 -> expanded 98..126
-original 309..314 -> expanded 126..131
-original 355..379 -> expanded 131..155
-original 379..380 -> expanded 15389..15390
-generated 155..298 <- Default
-generated 298..1845 <- Encode
-generated 1845..9792 <- Decode
-generated 9792..14981 <- Gigaform
-generated 14981..15389 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..142 -> expanded 627..662
+original 189..194 -> expanded 662..667
+original 235..263 -> expanded 667..695
+original 309..314 -> expanded 695..700
+original 355..379 -> expanded 700..724
+original 379..380 -> expanded 17418..17419
+generated 0..569 <- imports
+generated 724..867 <- Default
+generated 867..2414 <- Encode
+generated 2414..11297 <- Decode
+generated 11297..16486 <- Gigaform
+generated 16486..17418 <- __convenience_const
 
 ## Metadata
 

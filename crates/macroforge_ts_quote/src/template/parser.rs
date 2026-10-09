@@ -268,7 +268,7 @@ pub fn parse_fragment_with_ctx(
                         return Err(syn::Error::new(span, "Unexpected {/match}"));
                     }
                     TagType::Let(body) => {
-                        iter.next(); // Consume {$let ...} or {%let ...}
+                        iter.next(); // Consume {$let ...}
                         output.extend(quote! {
                             let #body;
                         });

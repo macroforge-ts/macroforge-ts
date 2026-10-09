@@ -1,7 +1,9 @@
 use anyhow::{Context, Result, anyhow};
 use ignore::WalkBuilder;
 use macroforge_ts::host::MacroExpansion;
-use macroforge_ts::host::project::expand_project_file;
+use macroforge_ts::host::project::{ProjectRegistries, expand_project_file};
+use macroforge_ts::line_index::LineIndex;
+use macroforge_ts::ts_syn::abi::Diagnostic;
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -18,7 +20,7 @@ use crate::atomic_fs::write_atomic;
 ///   is copied verbatim. This produces a packager-ready staging tree.
 /// - `types_out_dir`: mirrored `.d.ts` type surfaces for each macro file that
 ///   produces one (`foo.ts` → `foo.d.ts`, `foo.svelte.ts` → `foo.svelte.d.ts`).
-/// - `emit_expanded`: legacy behavior, write a `<name>.expanded.<ext>` debug
+/// - `emit_expanded`: legacy behavior: write a `<name>.expanded.<ext>` debug
 ///   sibling next to each expanded source file. Default off.
 ///
 /// With none of these set, the scan is a diagnostics/check pass that writes
@@ -46,15 +48,20 @@ pub struct ScanOptions {
 /// expanded, but are copied verbatim into `out_dir` when a mirrored tree is
 /// requested.
 ///
-/// `project_root` is the resolved project root that owns `.macroforge/`. It is
-/// distinct from `root`: a scan is frequently rooted at a subdirectory
-/// (`--scan src/`) while the registries it reads belong to the project above it.
+/// `project_root` is the resolved project root that owns `.macroforge/`, or
+/// `None` outside any project. It is distinct from `root`: a scan is
+/// frequently rooted at a subdirectory (`--scan src/`) while the registries it
+/// reads belong to the project above it.
 ///
 /// # Returns
 ///
 /// Returns `Ok(())` on success. Returns an error if any file fails to expand:
 /// a partially-populated staging tree must never silently feed a packager.
-pub fn scan_and_expand(project_root: &Path, root: PathBuf, opts: ScanOptions) -> Result<()> {
+pub fn scan_and_expand(
+    project_root: Option<&Path>,
+    root: PathBuf,
+    opts: ScanOptions,
+) -> Result<()> {
     use rayon::prelude::*;
 
     let root = root.canonicalize().unwrap_or(root);
@@ -235,7 +242,8 @@ fn canonicalized_target(path: &Path) -> PathBuf {
 ///
 /// # Arguments
 ///
-/// * `project_root` - The resolved project root that owns `.macroforge/`
+/// * `project_root` - The resolved project root that owns `.macroforge/`, or
+///   `None` outside any project
 /// * `input` - Path to the input TypeScript file
 /// * `out` - Optional path for the expanded output (default: `input.expanded.ts`)
 /// * `types_out` - Optional path for the `.d.ts` type output
@@ -247,7 +255,7 @@ fn canonicalized_target(path: &Path) -> PathBuf {
 /// Calls `std::process::exit(2)` whenever no macros are found; `quiet`
 /// only suppresses the stderr message, not the exit code.
 pub fn expand_file(
-    project_root: &Path,
+    project_root: Option<&Path>,
     input: PathBuf,
     out: Option<PathBuf>,
     types_out: Option<PathBuf>,
@@ -290,7 +298,7 @@ pub(crate) struct FileExpansion {
 /// - `Ok(None)` - No macros were found (the source is unchanged)
 /// - `Err(...)` - An error occurred while reading or expanding the file
 pub(crate) fn expand_file_in_memory(
-    project_root: &Path,
+    project_root: Option<&Path>,
     input: &Path,
 ) -> Result<Option<FileExpansion>> {
     let source =
@@ -301,13 +309,20 @@ pub(crate) fn expand_file_in_memory(
     if !macroforge_ts::has_macro_annotations(&source, &input.to_string_lossy()) {
         return Ok(None);
     }
-    super::wrappers::ensure_type_registry_cache(project_root)?;
-    let expansion = expand_project_file(
-        project_root,
-        input,
-        &source,
-        &super::cache::project_registries()?,
-    )?;
+    // Outside a project there are no registries to build or share, so the
+    // file expands on its own and nothing is written.
+    let expansion = match project_root {
+        Some(root) => {
+            super::wrappers::ensure_type_registry_cache(root)?;
+            expand_project_file(root, input, &source, &super::cache::project_registries()?)?
+        }
+        None => expand_project_file(
+            input.parent().unwrap_or_else(|| Path::new(".")),
+            input,
+            &source,
+            &ProjectRegistries::default(),
+        )?,
+    };
 
     if !expansion.changed {
         return Ok(None);
@@ -324,7 +339,7 @@ pub(crate) fn expand_file_in_memory(
 /// - `Ok(false)` - No macros were found in the file
 /// - `Err(...)` - An error occurred during expansion
 pub(crate) fn try_expand_file(
-    project_root: &Path,
+    project_root: Option<&Path>,
     input: PathBuf,
     out: Option<PathBuf>,
     types_out: Option<PathBuf>,
@@ -434,27 +449,38 @@ pub(crate) fn emit_diagnostics(expansion: &MacroExpansion, source: &str, input: 
         return;
     }
 
-    let lines = macroforge_ts::line_index::LineIndex::new(source);
-    for diag in &expansion.diagnostics {
-        let (line, col) = diag
-            .span
-            .map(|s| lines.line_col(source, s.start))
-            .unwrap_or((1, 1));
-        eprintln!(
-            "[macroforge] {} at {}:{}:{}: {}",
-            format!("{:?}", diag.level).to_lowercase(),
-            input.display(),
-            line,
-            col,
-            diag.message
-        );
-        for note in &diag.notes {
+    let lines = LineIndex::new(source);
+    for diagnostic in &expansion.diagnostics {
+        eprintln!("{}", format_diagnostic(diagnostic, source, &lines, input));
+        for note in &diagnostic.notes {
             eprintln!("[macroforge]   note: {note}");
         }
-        if let Some(help) = &diag.help {
+        if let Some(help) = &diagnostic.help {
             eprintln!("[macroforge]   help: {help}");
         }
     }
+}
+
+/// One diagnostic as the CLI prints it, positioned in `source` as written.
+pub(crate) fn format_diagnostic(
+    diagnostic: &Diagnostic,
+    source: &str,
+    lines: &LineIndex,
+    input: &Path,
+) -> String {
+    // Spans are 1-based.
+    let (line, col) = diagnostic
+        .span
+        .map(|span| lines.line_col(source, span.start.saturating_sub(1)))
+        .unwrap_or((1, 1));
+    format!(
+        "[macroforge] {} at {}:{}:{}: {}",
+        format!("{:?}", diagnostic.level).to_lowercase(),
+        input.display(),
+        line,
+        col,
+        diagnostic.message
+    )
 }
 
 /// Generate an expanded output path, inserting `.expanded` as the first extension.

@@ -80,7 +80,7 @@ class UserSettings {
     notifications: boolean; // Uses type default: false
 
     static defaultValue(): UserSettings {
-        const instance = new UserSettings();
+        const instance: UserSettings = Object.create(UserSettings.prototype);
         instance.theme = 'light';
         instance.pageSize = 10;
         instance.notifications = false;
@@ -120,16 +120,47 @@ export function statusDefaultValue(): Status {
 }
 ```
 
+Like Rust's derive, the class default runs no constructor (so it works beside
+`Decode`'s, which takes arguments) and assigns every required field. An optional
+field keeps no initializer value; give it `@default(value)` to set one.
+
+## Primitive Aliases
+
+A type alias of a primitive, plain or branded with `$Newtype`, defaults to the
+primitive's default above, or to its `@default(value)`, cast to the alias:
+
+```typescript
+/** @derive(Default) */
+type Meters = $Newtype<number>;
+
+export function metersDefaultValue(): Meters {
+    return 0 as Meters;
+}
+```
+
+An alias with `@endec` validators must give `@default(value)`: the primitive's
+default may fail them, just as a Rust newtype with no valid zero derives no
+`Default`.
+
+```typescript
+/** @derive(Decode, Default) */
+/** @endec(positive) */
+/** @default(1) */
+type Meters = $Newtype<number>;
+```
+
 ## Error Handling
 
 The macro reports an expansion error only if:
 
 - An enum has no variant marked with `@default`
+- A type alias that is not an object, union or primitive has no `@default(value)`
+- A primitive alias with `@endec` validators has no `@default(value)`
 - A field's `@default` expression fails to parse
 
 Missing defaults on non-primitive fields are **not** expansion errors: every type is
 assumed to implement Default (Rust-like philosophy), so the macro emits a
 `typeNameDefaultValue()` call for any custom type. If a field's type is in the
 type registry but does not derive `Default`, a warning is printed to stderr at
-expansion time and the call is generated anyway, so it may then fail at runtime
-if the function does not exist.
+expansion time and the call is generated anyway. It may then fail at runtime if
+the function does not exist.

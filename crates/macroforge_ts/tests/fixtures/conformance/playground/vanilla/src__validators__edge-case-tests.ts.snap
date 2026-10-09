@@ -118,13 +118,52 @@ constructor(props: { text: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_text = obj["text"] as string;
-                                        if (__raw_text == null) { errors.push({ field: "text", message: "MultipleValidatorsTest.text is required" }); } else {
+                            const __raw_text = obj["text"] as string;if (!(typeof __raw_text === "string")) {
+                                                errors.push({ field: "text", message: __raw_text == null ? "MultipleValidatorsTest.text is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_text == null) { errors.push({ field: "text", message: "MultipleValidatorsTest.text is required" }); } else {
 if (__raw_text.length === 0) { errors.push({ field: "text", message: "MultipleValidatorsTest.text must not be empty" }); }
 if (__raw_text.length > 100) { errors.push({ field: "text", message: "MultipleValidatorsTest.text must have at most 100 characters" }); }
 if (__raw_text !== __raw_text.trim()) { errors.push({ field: "text", message: "MultipleValidatorsTest.text must be trimmed" }); }
 }
-instance.text = __raw_text;
+
+
+
+
+                                                instance.text = __raw_text;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -618,11 +657,50 @@ constructor(props: { email: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_email = obj["email"] as string;
-                                        if (__raw_email == null) { errors.push({ field: "email", message: "CustomMessageTest.email is required" }); } else {
+                            const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                errors.push({ field: "email", message: __raw_email == null ? "CustomMessageTest.email is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_email == null) { errors.push({ field: "email", message: "CustomMessageTest.email is required" }); } else {
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "email", message: "Please enter a valid email address" }); }
 }
-instance.email = __raw_email;
+
+
+
+
+                                                instance.email = __raw_email;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1112,12 +1190,51 @@ constructor(props: { email: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_email = obj["email"] as string;
-                                        if (__raw_email == null) { errors.push({ field: "email", message: "MixedValidatorsTest.email is required" }); } else {
+                            const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                errors.push({ field: "email", message: __raw_email == null ? "MixedValidatorsTest.email is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_email == null) { errors.push({ field: "email", message: "MixedValidatorsTest.email is required" }); } else {
 if (__raw_email.length === 0) { errors.push({ field: "email", message: "MixedValidatorsTest.email must not be empty" }); }
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "email", message: "Invalid email format" }); }
 }
-instance.email = __raw_email;
+
+
+
+
+                                                instance.email = __raw_email;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1609,13 +1726,52 @@ constructor(props: { username: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_username = obj["username"] as string;
-                                        if (__raw_username == null) { errors.push({ field: "username", message: "CombinedStringValidatorsTest.username is required" }); } else {
+                            const __raw_username = obj["username"] as string;if (!(typeof __raw_username === "string")) {
+                                                errors.push({ field: "username", message: __raw_username == null ? "CombinedStringValidatorsTest.username is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_username == null) { errors.push({ field: "username", message: "CombinedStringValidatorsTest.username is required" }); } else {
 if (__raw_username.length < 3) { errors.push({ field: "username", message: "CombinedStringValidatorsTest.username must have at least 3 characters" }); }
 if (__raw_username.length > 20) { errors.push({ field: "username", message: "CombinedStringValidatorsTest.username must have at most 20 characters" }); }
 if (__raw_username !== __raw_username.toLowerCase()) { errors.push({ field: "username", message: "CombinedStringValidatorsTest.username must be lowercase" }); }
 }
-instance.username = __raw_username;
+
+
+
+
+                                                instance.username = __raw_username;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2109,13 +2265,52 @@ constructor(props: { score: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_score = obj["score"] as number;
-                                        if (__raw_score == null) { errors.push({ field: "score", message: "CombinedNumberValidatorsTest.score is required" }); } else {
+                            const __raw_score = obj["score"] as number;if (!(typeof __raw_score === "number")) {
+                                                errors.push({ field: "score", message: __raw_score == null ? "CombinedNumberValidatorsTest.score is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_score == null) { errors.push({ field: "score", message: "CombinedNumberValidatorsTest.score is required" }); } else {
 if (!Number.isInteger(__raw_score)) { errors.push({ field: "score", message: "CombinedNumberValidatorsTest.score must be an integer" }); }
 if (__raw_score <= 0) { errors.push({ field: "score", message: "CombinedNumberValidatorsTest.score must be positive" }); }
 if (__raw_score >= 1000) { errors.push({ field: "score", message: "CombinedNumberValidatorsTest.score must be less than 1000" }); }
 }
-instance.score = __raw_score;
+
+
+
+
+                                                instance.score = __raw_score;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2615,13 +2810,52 @@ constructor(props: { text: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_text = obj["text"] as string;
-                                        if (__raw_text == null) { errors.push({ field: "text", message: "MultipleValidatorsTest.text is required" }); } else {
+                            const __raw_text = obj["text"] as string;if (!(typeof __raw_text === "string")) {
+                                                errors.push({ field: "text", message: __raw_text == null ? "MultipleValidatorsTest.text is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_text == null) { errors.push({ field: "text", message: "MultipleValidatorsTest.text is required" }); } else {
 if (__raw_text.length === 0) { errors.push({ field: "text", message: "MultipleValidatorsTest.text must not be empty" }); }
 if (__raw_text.length > 100) { errors.push({ field: "text", message: "MultipleValidatorsTest.text must have at most 100 characters" }); }
 if (__raw_text !== __raw_text.trim()) { errors.push({ field: "text", message: "MultipleValidatorsTest.text must be trimmed" }); }
 }
-instance.text = __raw_text;
+
+
+
+
+                                                instance.text = __raw_text;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3115,11 +3349,50 @@ constructor(props: { email: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_email = obj["email"] as string;
-                                        if (__raw_email == null) { errors.push({ field: "email", message: "CustomMessageTest.email is required" }); } else {
+                            const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                errors.push({ field: "email", message: __raw_email == null ? "CustomMessageTest.email is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_email == null) { errors.push({ field: "email", message: "CustomMessageTest.email is required" }); } else {
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "email", message: "Please enter a valid email address" }); }
 }
-instance.email = __raw_email;
+
+
+
+
+                                                instance.email = __raw_email;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3609,12 +3882,51 @@ constructor(props: { email: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_email = obj["email"] as string;
-                                        if (__raw_email == null) { errors.push({ field: "email", message: "MixedValidatorsTest.email is required" }); } else {
+                            const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                errors.push({ field: "email", message: __raw_email == null ? "MixedValidatorsTest.email is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_email == null) { errors.push({ field: "email", message: "MixedValidatorsTest.email is required" }); } else {
 if (__raw_email.length === 0) { errors.push({ field: "email", message: "MixedValidatorsTest.email must not be empty" }); }
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "email", message: "Invalid email format" }); }
 }
-instance.email = __raw_email;
+
+
+
+
+                                                instance.email = __raw_email;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4106,13 +4418,52 @@ constructor(props: { username: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_username = obj["username"] as string;
-                                        if (__raw_username == null) { errors.push({ field: "username", message: "CombinedStringValidatorsTest.username is required" }); } else {
+                            const __raw_username = obj["username"] as string;if (!(typeof __raw_username === "string")) {
+                                                errors.push({ field: "username", message: __raw_username == null ? "CombinedStringValidatorsTest.username is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_username == null) { errors.push({ field: "username", message: "CombinedStringValidatorsTest.username is required" }); } else {
 if (__raw_username.length < 3) { errors.push({ field: "username", message: "CombinedStringValidatorsTest.username must have at least 3 characters" }); }
 if (__raw_username.length > 20) { errors.push({ field: "username", message: "CombinedStringValidatorsTest.username must have at most 20 characters" }); }
 if (__raw_username !== __raw_username.toLowerCase()) { errors.push({ field: "username", message: "CombinedStringValidatorsTest.username must be lowercase" }); }
 }
-instance.username = __raw_username;
+
+
+
+
+                                                instance.username = __raw_username;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4606,13 +4957,52 @@ constructor(props: { score: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_score = obj["score"] as number;
-                                        if (__raw_score == null) { errors.push({ field: "score", message: "CombinedNumberValidatorsTest.score is required" }); } else {
+                            const __raw_score = obj["score"] as number;if (!(typeof __raw_score === "number")) {
+                                                errors.push({ field: "score", message: __raw_score == null ? "CombinedNumberValidatorsTest.score is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_score == null) { errors.push({ field: "score", message: "CombinedNumberValidatorsTest.score is required" }); } else {
 if (!Number.isInteger(__raw_score)) { errors.push({ field: "score", message: "CombinedNumberValidatorsTest.score must be an integer" }); }
 if (__raw_score <= 0) { errors.push({ field: "score", message: "CombinedNumberValidatorsTest.score must be positive" }); }
 if (__raw_score >= 1000) { errors.push({ field: "score", message: "CombinedNumberValidatorsTest.score must be less than 1000" }); }
 }
-instance.score = __raw_score;
+
+
+
+
+                                                instance.score = __raw_score;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5014,27 +5404,28 @@ if (__val >= 1000) { errors.push({ field: "score", message: "CombinedNumberValid
 
 ## Mapping
 
-original 0..274 -> expanded 0..274
-original 274..275 -> expanded 6719..6720
-original 275..480 -> expanded 7984..8189
-original 480..481 -> expanded 13836..13837
-original 481..702 -> expanded 15056..15277
-original 702..703 -> expanded 21273..21274
-original 703..904 -> expanded 22511..22712
-original 904..905 -> expanded 29542..29543
-original 905..1094 -> expanded 30861..31050
-original 1094..1095 -> expanded 37631..37632
-original 1095..1096 -> expanded 38950..38951
-generated 274..6719 <- Decode
-generated 6720..7984 <- Decode
-generated 8189..13836 <- Decode
-generated 13837..15056 <- Decode
-generated 15277..21273 <- Decode
-generated 21274..22511 <- Decode
-generated 22712..29542 <- Decode
-generated 29543..30861 <- Decode
-generated 31050..37631 <- Decode
-generated 37632..38950 <- Decode
+original 0..274 -> expanded 307..581
+original 274..275 -> expanded 7434..7435
+original 275..480 -> expanded 8699..8904
+original 480..481 -> expanded 14958..14959
+original 481..702 -> expanded 16178..16399
+original 702..703 -> expanded 22804..22805
+original 703..904 -> expanded 24042..24243
+original 904..905 -> expanded 31503..31504
+original 905..1094 -> expanded 32822..33011
+original 1094..1095 -> expanded 40010..40011
+original 1095..1096 -> expanded 41329..41330
+generated 0..307 <- imports
+generated 581..7434 <- Decode
+generated 7435..8699 <- Decode
+generated 8904..14958 <- Decode
+generated 14959..16178 <- Decode
+generated 16399..22804 <- Decode
+generated 22805..24042 <- Decode
+generated 24243..31503 <- Decode
+generated 31504..32822 <- Decode
+generated 33011..40010 <- Decode
+generated 40011..41329 <- Decode
 
 ## Metadata
 

@@ -291,7 +291,46 @@ coordinates: coordinatesDefaultValue(),
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Site.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -551,11 +590,50 @@ coordinates: coordinatesDefaultValue(),
 
 
                             }{
-                                const __raw_addressLine1 = obj["addressLine1"] as string;
-                                            if (__raw_addressLine1 == null) { errors.push({ field: "addressLine1", message: "Site.addressLine1 is required" }); } else {
+                                const __raw_addressLine1 = obj["addressLine1"] as string;if (!(typeof __raw_addressLine1 === "string")) {
+                                                    errors.push({ field: "addressLine1", message: __raw_addressLine1 == null ? "Site.addressLine1 is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_addressLine1 == null) { errors.push({ field: "addressLine1", message: "Site.addressLine1 is required" }); } else {
 if (__raw_addressLine1.length === 0) { errors.push({ field: "addressLine1", message: "Site.addressLine1 must not be empty" }); }
 }
-instance.addressLine1 = __raw_addressLine1;
+
+
+
+
+                                                    instance.addressLine1 = __raw_addressLine1;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -815,8 +893,43 @@ instance.addressLine1 = __raw_addressLine1;
 
 
                             }{
-                                const __raw_addressLine2 = obj["addressLine2"] as string | null;
-                                                instance.addressLine2 = __raw_addressLine2;
+                                const __raw_addressLine2 = obj["addressLine2"] as string | null;if (!(typeof __raw_addressLine2 === "string" || __raw_addressLine2 === null)) {
+                                                        errors.push({ field: "addressLine2", message: "expected string | null" });
+                                                    } else {
+                                                        instance.addressLine2 = __raw_addressLine2;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1076,8 +1189,43 @@ instance.addressLine1 = __raw_addressLine1;
 
 
                             }{
-                                const __raw_sublocalityLevel1 = obj["sublocalityLevel1"] as string | null;
-                                                instance.sublocalityLevel1 = __raw_sublocalityLevel1;
+                                const __raw_sublocalityLevel1 = obj["sublocalityLevel1"] as string | null;if (!(typeof __raw_sublocalityLevel1 === "string" || __raw_sublocalityLevel1 === null)) {
+                                                        errors.push({ field: "sublocalityLevel1", message: "expected string | null" });
+                                                    } else {
+                                                        instance.sublocalityLevel1 = __raw_sublocalityLevel1;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1337,11 +1485,50 @@ instance.addressLine1 = __raw_addressLine1;
 
 
                             }{
-                                const __raw_locality = obj["locality"] as string;
-                                            if (__raw_locality == null) { errors.push({ field: "locality", message: "Site.locality is required" }); } else {
+                                const __raw_locality = obj["locality"] as string;if (!(typeof __raw_locality === "string")) {
+                                                    errors.push({ field: "locality", message: __raw_locality == null ? "Site.locality is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_locality == null) { errors.push({ field: "locality", message: "Site.locality is required" }); } else {
 if (__raw_locality.length === 0) { errors.push({ field: "locality", message: "Site.locality must not be empty" }); }
 }
-instance.locality = __raw_locality;
+
+
+
+
+                                                    instance.locality = __raw_locality;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1601,8 +1788,43 @@ instance.locality = __raw_locality;
 
 
                             }{
-                                const __raw_administrativeAreaLevel3 = obj["administrativeAreaLevel3"] as string | null;
-                                                instance.administrativeAreaLevel3 = __raw_administrativeAreaLevel3;
+                                const __raw_administrativeAreaLevel3 = obj["administrativeAreaLevel3"] as string | null;if (!(typeof __raw_administrativeAreaLevel3 === "string" || __raw_administrativeAreaLevel3 === null)) {
+                                                        errors.push({ field: "administrativeAreaLevel3", message: "expected string | null" });
+                                                    } else {
+                                                        instance.administrativeAreaLevel3 = __raw_administrativeAreaLevel3;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1862,8 +2084,43 @@ instance.locality = __raw_locality;
 
 
                             }{
-                                const __raw_administrativeAreaLevel2 = obj["administrativeAreaLevel2"] as string | null;
-                                                instance.administrativeAreaLevel2 = __raw_administrativeAreaLevel2;
+                                const __raw_administrativeAreaLevel2 = obj["administrativeAreaLevel2"] as string | null;if (!(typeof __raw_administrativeAreaLevel2 === "string" || __raw_administrativeAreaLevel2 === null)) {
+                                                        errors.push({ field: "administrativeAreaLevel2", message: "expected string | null" });
+                                                    } else {
+                                                        instance.administrativeAreaLevel2 = __raw_administrativeAreaLevel2;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2123,11 +2380,50 @@ instance.locality = __raw_locality;
 
 
                             }{
-                                const __raw_administrativeAreaLevel1 = obj["administrativeAreaLevel1"] as string;
-                                            if (__raw_administrativeAreaLevel1 == null) { errors.push({ field: "administrativeAreaLevel1", message: "Site.administrativeAreaLevel1 is required" }); } else {
+                                const __raw_administrativeAreaLevel1 = obj["administrativeAreaLevel1"] as string;if (!(typeof __raw_administrativeAreaLevel1 === "string")) {
+                                                    errors.push({ field: "administrativeAreaLevel1", message: __raw_administrativeAreaLevel1 == null ? "Site.administrativeAreaLevel1 is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_administrativeAreaLevel1 == null) { errors.push({ field: "administrativeAreaLevel1", message: "Site.administrativeAreaLevel1 is required" }); } else {
 if (__raw_administrativeAreaLevel1.length === 0) { errors.push({ field: "administrativeAreaLevel1", message: "Site.administrativeAreaLevel1 must not be empty" }); }
 }
-instance.administrativeAreaLevel1 = __raw_administrativeAreaLevel1;
+
+
+
+
+                                                    instance.administrativeAreaLevel1 = __raw_administrativeAreaLevel1;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2387,11 +2683,50 @@ instance.administrativeAreaLevel1 = __raw_administrativeAreaLevel1;
 
 
                             }{
-                                const __raw_country = obj["country"] as string;
-                                            if (__raw_country == null) { errors.push({ field: "country", message: "Site.country is required" }); } else {
+                                const __raw_country = obj["country"] as string;if (!(typeof __raw_country === "string")) {
+                                                    errors.push({ field: "country", message: __raw_country == null ? "Site.country is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_country == null) { errors.push({ field: "country", message: "Site.country is required" }); } else {
 if (__raw_country.length === 0) { errors.push({ field: "country", message: "Site.country must not be empty" }); }
 }
-instance.country = __raw_country;
+
+
+
+
+                                                    instance.country = __raw_country;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2651,11 +2986,50 @@ instance.country = __raw_country;
 
 
                             }{
-                                const __raw_postalCode = obj["postalCode"] as string;
-                                            if (__raw_postalCode == null) { errors.push({ field: "postalCode", message: "Site.postalCode is required" }); } else {
+                                const __raw_postalCode = obj["postalCode"] as string;if (!(typeof __raw_postalCode === "string")) {
+                                                    errors.push({ field: "postalCode", message: __raw_postalCode == null ? "Site.postalCode is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_postalCode == null) { errors.push({ field: "postalCode", message: "Site.postalCode is required" }); } else {
 if (__raw_postalCode.length === 0) { errors.push({ field: "postalCode", message: "Site.postalCode must not be empty" }); }
 }
-instance.postalCode = __raw_postalCode;
+
+
+
+
+                                                    instance.postalCode = __raw_postalCode;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2915,8 +3289,43 @@ instance.postalCode = __raw_postalCode;
 
 
                             }{
-                                const __raw_postalCodeSuffix = obj["postalCodeSuffix"] as string | null;
-                                                instance.postalCodeSuffix = __raw_postalCodeSuffix;
+                                const __raw_postalCodeSuffix = obj["postalCodeSuffix"] as string | null;if (!(typeof __raw_postalCodeSuffix === "string" || __raw_postalCodeSuffix === null)) {
+                                                        errors.push({ field: "postalCodeSuffix", message: "expected string | null" });
+                                                    } else {
+                                                        instance.postalCodeSuffix = __raw_postalCodeSuffix;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3452,7 +3861,115 @@ instance.postalCode = __raw_postalCode;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4647,7 +5164,18 @@ if (__val.length === 0) { errors.push({ field: "postalCode", message: "Site.post
             return toExit(siteDecode(obj));
         }
 
-export const Site = {
+export const Site: {
+  readonly defaultValue: typeof siteDefaultValue;
+  readonly encode: typeof siteEncode;
+  readonly encodeWithContext: typeof siteEncodeWithContext;
+  readonly decode: typeof siteDecode;
+  readonly decodeWithContext: typeof siteDecodeWithContext;
+  readonly validateFields: typeof siteValidateFields;
+  readonly hasShape: typeof siteHasShape;
+  readonly is: typeof siteIs;
+  readonly createForm: typeof siteCreateForm;
+  readonly fromFormData: typeof siteFromFormData;
+} = {
   defaultValue: siteDefaultValue,
   encode: siteEncode,
   encodeWithContext: siteEncodeWithContext,
@@ -4658,7 +5186,7 @@ export const Site = {
   is: siteIs,
   createForm: siteCreateForm,
   fromFormData: siteFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -4929,7 +5457,46 @@ coordinates: coordinatesDefaultValue(),
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Site.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5189,11 +5756,50 @@ coordinates: coordinatesDefaultValue(),
 
 
                             }{
-                                const __raw_addressLine1 = obj["addressLine1"] as string;
-                                            if (__raw_addressLine1 == null) { errors.push({ field: "addressLine1", message: "Site.addressLine1 is required" }); } else {
+                                const __raw_addressLine1 = obj["addressLine1"] as string;if (!(typeof __raw_addressLine1 === "string")) {
+                                                    errors.push({ field: "addressLine1", message: __raw_addressLine1 == null ? "Site.addressLine1 is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_addressLine1 == null) { errors.push({ field: "addressLine1", message: "Site.addressLine1 is required" }); } else {
 if (__raw_addressLine1.length === 0) { errors.push({ field: "addressLine1", message: "Site.addressLine1 must not be empty" }); }
 }
-instance.addressLine1 = __raw_addressLine1;
+
+
+
+
+                                                    instance.addressLine1 = __raw_addressLine1;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5453,8 +6059,43 @@ instance.addressLine1 = __raw_addressLine1;
 
 
                             }{
-                                const __raw_addressLine2 = obj["addressLine2"] as string | null;
-                                                instance.addressLine2 = __raw_addressLine2;
+                                const __raw_addressLine2 = obj["addressLine2"] as string | null;if (!(typeof __raw_addressLine2 === "string" || __raw_addressLine2 === null)) {
+                                                        errors.push({ field: "addressLine2", message: "expected string | null" });
+                                                    } else {
+                                                        instance.addressLine2 = __raw_addressLine2;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5714,8 +6355,43 @@ instance.addressLine1 = __raw_addressLine1;
 
 
                             }{
-                                const __raw_sublocalityLevel1 = obj["sublocalityLevel1"] as string | null;
-                                                instance.sublocalityLevel1 = __raw_sublocalityLevel1;
+                                const __raw_sublocalityLevel1 = obj["sublocalityLevel1"] as string | null;if (!(typeof __raw_sublocalityLevel1 === "string" || __raw_sublocalityLevel1 === null)) {
+                                                        errors.push({ field: "sublocalityLevel1", message: "expected string | null" });
+                                                    } else {
+                                                        instance.sublocalityLevel1 = __raw_sublocalityLevel1;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5975,11 +6651,50 @@ instance.addressLine1 = __raw_addressLine1;
 
 
                             }{
-                                const __raw_locality = obj["locality"] as string;
-                                            if (__raw_locality == null) { errors.push({ field: "locality", message: "Site.locality is required" }); } else {
+                                const __raw_locality = obj["locality"] as string;if (!(typeof __raw_locality === "string")) {
+                                                    errors.push({ field: "locality", message: __raw_locality == null ? "Site.locality is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_locality == null) { errors.push({ field: "locality", message: "Site.locality is required" }); } else {
 if (__raw_locality.length === 0) { errors.push({ field: "locality", message: "Site.locality must not be empty" }); }
 }
-instance.locality = __raw_locality;
+
+
+
+
+                                                    instance.locality = __raw_locality;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6239,8 +6954,43 @@ instance.locality = __raw_locality;
 
 
                             }{
-                                const __raw_administrativeAreaLevel3 = obj["administrativeAreaLevel3"] as string | null;
-                                                instance.administrativeAreaLevel3 = __raw_administrativeAreaLevel3;
+                                const __raw_administrativeAreaLevel3 = obj["administrativeAreaLevel3"] as string | null;if (!(typeof __raw_administrativeAreaLevel3 === "string" || __raw_administrativeAreaLevel3 === null)) {
+                                                        errors.push({ field: "administrativeAreaLevel3", message: "expected string | null" });
+                                                    } else {
+                                                        instance.administrativeAreaLevel3 = __raw_administrativeAreaLevel3;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6500,8 +7250,43 @@ instance.locality = __raw_locality;
 
 
                             }{
-                                const __raw_administrativeAreaLevel2 = obj["administrativeAreaLevel2"] as string | null;
-                                                instance.administrativeAreaLevel2 = __raw_administrativeAreaLevel2;
+                                const __raw_administrativeAreaLevel2 = obj["administrativeAreaLevel2"] as string | null;if (!(typeof __raw_administrativeAreaLevel2 === "string" || __raw_administrativeAreaLevel2 === null)) {
+                                                        errors.push({ field: "administrativeAreaLevel2", message: "expected string | null" });
+                                                    } else {
+                                                        instance.administrativeAreaLevel2 = __raw_administrativeAreaLevel2;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6761,11 +7546,50 @@ instance.locality = __raw_locality;
 
 
                             }{
-                                const __raw_administrativeAreaLevel1 = obj["administrativeAreaLevel1"] as string;
-                                            if (__raw_administrativeAreaLevel1 == null) { errors.push({ field: "administrativeAreaLevel1", message: "Site.administrativeAreaLevel1 is required" }); } else {
+                                const __raw_administrativeAreaLevel1 = obj["administrativeAreaLevel1"] as string;if (!(typeof __raw_administrativeAreaLevel1 === "string")) {
+                                                    errors.push({ field: "administrativeAreaLevel1", message: __raw_administrativeAreaLevel1 == null ? "Site.administrativeAreaLevel1 is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_administrativeAreaLevel1 == null) { errors.push({ field: "administrativeAreaLevel1", message: "Site.administrativeAreaLevel1 is required" }); } else {
 if (__raw_administrativeAreaLevel1.length === 0) { errors.push({ field: "administrativeAreaLevel1", message: "Site.administrativeAreaLevel1 must not be empty" }); }
 }
-instance.administrativeAreaLevel1 = __raw_administrativeAreaLevel1;
+
+
+
+
+                                                    instance.administrativeAreaLevel1 = __raw_administrativeAreaLevel1;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7025,11 +7849,50 @@ instance.administrativeAreaLevel1 = __raw_administrativeAreaLevel1;
 
 
                             }{
-                                const __raw_country = obj["country"] as string;
-                                            if (__raw_country == null) { errors.push({ field: "country", message: "Site.country is required" }); } else {
+                                const __raw_country = obj["country"] as string;if (!(typeof __raw_country === "string")) {
+                                                    errors.push({ field: "country", message: __raw_country == null ? "Site.country is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_country == null) { errors.push({ field: "country", message: "Site.country is required" }); } else {
 if (__raw_country.length === 0) { errors.push({ field: "country", message: "Site.country must not be empty" }); }
 }
-instance.country = __raw_country;
+
+
+
+
+                                                    instance.country = __raw_country;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7289,11 +8152,50 @@ instance.country = __raw_country;
 
 
                             }{
-                                const __raw_postalCode = obj["postalCode"] as string;
-                                            if (__raw_postalCode == null) { errors.push({ field: "postalCode", message: "Site.postalCode is required" }); } else {
+                                const __raw_postalCode = obj["postalCode"] as string;if (!(typeof __raw_postalCode === "string")) {
+                                                    errors.push({ field: "postalCode", message: __raw_postalCode == null ? "Site.postalCode is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_postalCode == null) { errors.push({ field: "postalCode", message: "Site.postalCode is required" }); } else {
 if (__raw_postalCode.length === 0) { errors.push({ field: "postalCode", message: "Site.postalCode must not be empty" }); }
 }
-instance.postalCode = __raw_postalCode;
+
+
+
+
+                                                    instance.postalCode = __raw_postalCode;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7553,8 +8455,43 @@ instance.postalCode = __raw_postalCode;
 
 
                             }{
-                                const __raw_postalCodeSuffix = obj["postalCodeSuffix"] as string | null;
-                                                instance.postalCodeSuffix = __raw_postalCodeSuffix;
+                                const __raw_postalCodeSuffix = obj["postalCodeSuffix"] as string | null;if (!(typeof __raw_postalCodeSuffix === "string" || __raw_postalCodeSuffix === null)) {
+                                                        errors.push({ field: "postalCodeSuffix", message: "expected string | null" });
+                                                    } else {
+                                                        instance.postalCodeSuffix = __raw_postalCodeSuffix;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8090,7 +9027,115 @@ instance.postalCode = __raw_postalCode;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9285,7 +10330,18 @@ if (__val.length === 0) { errors.push({ field: "postalCode", message: "Site.post
             return toExit(siteDecode(obj));
         }
 
-export const Site = {
+export const Site: {
+  readonly defaultValue: typeof siteDefaultValue;
+  readonly encode: typeof siteEncode;
+  readonly encodeWithContext: typeof siteEncodeWithContext;
+  readonly decode: typeof siteDecode;
+  readonly decodeWithContext: typeof siteDecodeWithContext;
+  readonly validateFields: typeof siteValidateFields;
+  readonly hasShape: typeof siteHasShape;
+  readonly is: typeof siteIs;
+  readonly createForm: typeof siteCreateForm;
+  readonly fromFormData: typeof siteFromFormData;
+} = {
   defaultValue: siteDefaultValue,
   encode: siteEncode,
   encodeWithContext: siteEncodeWithContext,
@@ -9296,7 +10352,7 @@ export const Site = {
   is: siteIs,
   createForm: siteCreateForm,
   fromFormData: siteFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -9304,19 +10360,20 @@ export const Site = {
 
 ## Mapping
 
-original 0..116 -> expanded 0..116
-original 165..210 -> expanded 116..161
-original 251..353 -> expanded 161..263
-original 394..511 -> expanded 263..380
-original 552..595 -> expanded 380..423
-original 636..662 -> expanded 423..449
-original 703..796 -> expanded 449..542
-original 796..797 -> expanded 41959..41960
-generated 542..916 <- Default
-generated 916..2932 <- Encode
-generated 2932..21916 <- Decode
-generated 21916..41617 <- Gigaform
-generated 41617..41959 <- __convenience_const
+original 0..116 -> expanded 771..887
+original 165..210 -> expanded 887..932
+original 251..353 -> expanded 932..1034
+original 394..511 -> expanded 1034..1151
+original 552..595 -> expanded 1151..1194
+original 636..662 -> expanded 1194..1220
+original 703..796 -> expanded 1220..1313
+original 796..797 -> expanded 47806..47807
+generated 0..771 <- imports
+generated 1313..1687 <- Default
+generated 1687..3703 <- Encode
+generated 3703..27299 <- Decode
+generated 27299..47000 <- Gigaform
+generated 47000..47806 <- __convenience_const
 
 ## Metadata
 

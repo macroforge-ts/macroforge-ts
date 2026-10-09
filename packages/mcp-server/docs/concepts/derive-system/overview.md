@@ -74,8 +74,8 @@ class User {
 
 Built-in macros
 
-Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Encode, Decode) do not
-require an import statement.
+Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Encode, Decode, and the
+type-position `$Newtype`) do not require an import statement.
 
 ### Field Attributes
 

@@ -282,17 +282,20 @@ fn describe_holder(path: &Path) -> String {
 ///
 /// This is the lock key, and it is also where the type registry, the
 /// declarative registry and the expansion cache are written, so every
-/// subcommand must agree on it. Commands that take an explicit root
-/// (`cache`, `refresh`, `watch`) use it; the rest operate on the current
-/// directory.
+/// subcommand must agree on it. An explicit root (`cache`, `refresh`, `watch`,
+/// a checker's project) is used as given. Otherwise the project is the nearest
+/// directory at or above `anchor` holding a macroforge config or a package
+/// manifest, and `None` when there is none: a directory that merely happens to
+/// be current never becomes a project.
 ///
 /// The path is canonicalized so two invocations naming the same project
 /// through different paths: a symlink, a relative path, `.`: resolve to one
-/// lock. A root that does not exist yet is returned as given: locking it will
-/// create it.
-pub(crate) fn resolve_project_root(explicit: Option<&Path>) -> PathBuf {
-    let root = explicit
-        .map(Path::to_path_buf)
-        .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")));
-    root.canonicalize().unwrap_or(root)
+/// lock. An explicit root that does not exist yet is returned as given:
+/// locking it will create it.
+pub(crate) fn resolve_project_root(explicit: Option<&Path>, anchor: &Path) -> Option<PathBuf> {
+    let canonical = |path: &Path| path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
+    match explicit {
+        Some(root) => Some(canonical(root)),
+        None => macroforge_ts::host::find_project_root(&canonical(anchor)),
+    }
 }

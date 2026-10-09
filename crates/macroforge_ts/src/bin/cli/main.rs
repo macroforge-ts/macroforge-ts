@@ -197,7 +197,7 @@ mod wrappers;
 #[cfg(test)]
 mod tests;
 
-use anyhow::{Result, anyhow};
+use anyhow::{Context, Result, anyhow};
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
@@ -304,7 +304,7 @@ enum Command {
     /// When a file changes, only that file is re-expanded. When the config changes,
     /// all files are re-expanded. Use with `vite dev` for instant macro expansion.
     Watch {
-        /// Root directory to watch (defaults to cwd)
+        /// Root directory to watch (defaults to the project containing the cwd)
         root: Option<PathBuf>,
         /// Debounce interval in milliseconds
         #[arg(long, default_value = "100")]
@@ -315,7 +315,7 @@ enum Command {
     /// Same as `watch` but without the file-watching loop: expands all TypeScript
     /// files, writes the cache, then exits. Useful in CI or as a pre-build step.
     Cache {
-        /// Root directory to cache (defaults to cwd)
+        /// Root directory to cache (defaults to the project containing the cwd)
         root: Option<PathBuf>,
     },
     /// Delete the .macroforge/cache directory and rebuild from scratch.
@@ -323,7 +323,7 @@ enum Command {
     /// Equivalent to manually deleting the cache and running `cache`.
     /// Useful when the cache is corrupted or you want a guaranteed clean state.
     Refresh {
-        /// Root directory (defaults to cwd)
+        /// Root directory (defaults to the project containing the cwd)
         root: Option<PathBuf>,
     },
     /// Build a macro crate to WASM with wasm-bindgen and add $ aliases for Call macros.
@@ -360,15 +360,18 @@ impl Command {
     ///
     /// The cache-oriented subcommands take a project root. `build` takes a
     /// crate directory and writes its WASM package there, so keying on that
-    /// rather than the current directory makes two builds of the same crate
-    /// encode no matter where they were invoked from. Everything else works
-    /// from the current directory.
+    /// rather than the current directory serializes two builds of the same
+    /// crate no matter where they were invoked from. Everything else finds its
+    /// project by walking up from [`Self::anchor`].
     fn explicit_root(&self) -> Option<PathBuf> {
         match self {
             Command::Watch { root, .. } | Command::Cache { root } | Command::Refresh { root } => {
                 root.clone()
             }
-            Command::Build { crate_dir, .. } => crate_dir.clone(),
+            // A crate is its own project, whether or not it has a manifest.
+            Command::Build { crate_dir, .. } => {
+                Some(crate_dir.clone().unwrap_or_else(|| PathBuf::from(".")))
+            }
             // A checker's project is the one its tsconfig or workspace names,
             // wherever it was run from.
             Command::Tsc { project } => project.as_deref().map(config_dir),
@@ -379,6 +382,15 @@ impl Command {
             } => workspace
                 .clone()
                 .or_else(|| tsconfig.as_deref().map(config_dir)),
+            _ => None,
+        }
+    }
+
+    /// Where the search for the command's project starts, when that is not the
+    /// current directory: the file or directory `expand` is given.
+    fn anchor(&self) -> Option<PathBuf> {
+        match self {
+            Command::Expand { input, .. } => input.clone(),
             _ => None,
         }
     }
@@ -423,20 +435,32 @@ fn main() -> Result<()> {
     // running two macroforge processes against one project is routine
     // (`watch` beside `vite dev`, `svelte-package` from another terminal, an
     // editor invoking `svelte-check`).
-    let root = resolve_project_root(cli.command.explicit_root().as_deref());
+    let anchor = match cli.command.anchor() {
+        Some(anchor) => anchor,
+        None => std::env::current_dir().context("failed to read the current directory")?,
+    };
+    let root = resolve_project_root(cli.command.explicit_root().as_deref(), &anchor);
+    let required_root = || {
+        root.as_deref().ok_or_else(|| {
+            anyhow!(
+                "no project found at or above {}: expected a macroforge.config.*, package.json, deno.json or deno.jsonc",
+                anchor.display()
+            )
+        })
+    };
 
     // `watch` is a daemon, so holding the lock for its lifetime would block
     // every other command until the watcher is killed; it locks around each
     // cache-mutation burst instead. The checkers lock only around writing the
     // registries, which a project without macros never needs.
-    let lock = if cli.command.locks_its_own_writes() {
-        None
-    } else {
-        Some(ProjectLock::acquire(
-            &root,
+    // An `expand` outside any project has no shared state to protect.
+    let lock = match &root {
+        Some(root) if !cli.command.locks_its_own_writes() => Some(ProjectLock::acquire(
+            root,
             cli.command.label(),
             cli.command.is_quiet(),
-        )?)
+        )?),
+        _ => None,
     };
 
     let outcome = match cli.command {
@@ -459,7 +483,7 @@ fn main() -> Result<()> {
 
             if scan {
                 let scan_root = input.unwrap_or_else(|| PathBuf::from("."));
-                scan_and_expand(&root, scan_root, scan_options())
+                scan_and_expand(root.as_deref(), scan_root, scan_options())
             } else {
                 let input = input.ok_or_else(|| {
                     anyhow!("input file required (use --scan to scan a directory)")
@@ -467,34 +491,47 @@ fn main() -> Result<()> {
 
                 // If input is a directory, treat it as --scan
                 if input.is_dir() {
-                    scan_and_expand(&root, input, scan_options())
+                    scan_and_expand(root.as_deref(), input, scan_options())
                 } else {
                     if emit_expanded {
                         return Err(anyhow!(
                             "--emit-expanded is only valid with --scan; single-file mode already writes a sibling .expanded file (use --out to redirect)"
                         ));
                     }
-                    expand_file(&root, input, out, types_out, print, quiet)
+                    expand_file(root.as_deref(), input, out, types_out, print, quiet)
                 }
             }
         }
-        Command::Tsc { project } => run_tsc_wrapper(&root, project),
+        Command::Tsc { project } => run_tsc_wrapper(required_root()?, project),
         Command::SvelteCheck {
             workspace,
             tsconfig,
             output,
             fail_on_warnings,
-        } => run_svelte_check_wrapper(&root, workspace, tsconfig, output, fail_on_warnings),
+        } => run_svelte_check_wrapper(
+            required_root()?,
+            workspace,
+            tsconfig,
+            output,
+            fail_on_warnings,
+        ),
         Command::SveltePackage {
             input,
             output,
             tsconfig,
             no_types,
             full_rebuild,
-        } => run_svelte_package_wrapper(&root, input, output, tsconfig, no_types, full_rebuild),
-        Command::Watch { debounce_ms, .. } => run_watch(&root, debounce_ms),
-        Command::Cache { .. } => run_cache(&root),
-        Command::Refresh { .. } => run_refresh(&root),
+        } => run_svelte_package_wrapper(
+            required_root()?,
+            input,
+            output,
+            tsconfig,
+            no_types,
+            full_rebuild,
+        ),
+        Command::Watch { debounce_ms, .. } => run_watch(required_root()?, debounce_ms),
+        Command::Cache { .. } => run_cache(required_root()?),
+        Command::Refresh { .. } => run_refresh(required_root()?),
         Command::Build { crate_dir, out } => run_build(crate_dir, out),
     };
     drop(lock);

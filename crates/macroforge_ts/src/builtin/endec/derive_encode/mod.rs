@@ -146,7 +146,9 @@ mod foreign_types;
 mod types;
 
 use field_processing::to_encode_field;
-pub(crate) use types::{EncodeField, EndecValueKind, nested_encode_fn_name};
+pub(crate) use types::{EncodeField, nested_encode_fn_name};
+
+use super::value_kind::EndecValueKind;
 
 use crate::ast::{Expr, Ident};
 use crate::macros::{ts_macro_derive, ts_template};
@@ -158,7 +160,7 @@ use crate::ts_syn::{
 use convert_case::{Case, Casing};
 
 use super::{
-    EndecContainerOptions, TaggingMode, TypeCategory, get_foreign_types,
+    EndecContainerOptions, TaggingMode, TypeCategory, get_foreign_types, primitive_base,
     rewrite_expression_namespaces,
 };
 use crate::builtin::return_types::ENCODE_CONTEXT;
@@ -1287,6 +1289,52 @@ pub fn derive_encode_macro(mut input: TsStream) -> Result<TsStream, MacroforgeEr
             // Create Expr version of ENCODE_CONTEXT for expression positions
             let encode_context_ident = ts_ident!(ENCODE_CONTEXT);
             let encode_context_expr: Expr = encode_context_ident.clone().into();
+
+            if let Some(primitive) = primitive_base(type_alias.body()) {
+                // A primitive, branded or not, travels as itself, or in the wire
+                // form the foreign-type table gives its base (`bigint` as a string).
+                let wire_encode: Option<Expr> =
+                    TypeCategory::match_foreign_type(primitive, &get_foreign_types())
+                        .config
+                        .and_then(|foreign| foreign.encode_expr.as_deref())
+                        .map(|expr| {
+                            Expr::parse(&rewrite_expression_namespaces(expr))
+                                .expect("foreign encode expression should parse")
+                        });
+                let generic_decl = if has_generics {
+                    format!("<{}>", type_params.join(", "))
+                } else {
+                    String::new()
+                };
+                let fn_encode_decl =
+                    ts_ident!("{}Encode{}", type_name.to_case(Case::Camel), generic_decl);
+                let fn_encode_internal_decl = ts_ident!(
+                    "{}EncodeWithContext{}",
+                    type_name.to_case(Case::Camel),
+                    generic_decl
+                );
+                let mut result = ts_template! {
+                    /** Encodes a value to a JSON string. @param value - The value to encode @param _keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation */
+                    export function @{fn_encode_decl}(value: @{full_type_ident}, _keepMetadata?: boolean): string {
+                        {#if let Some(wire_encode) = &wire_encode}
+                            return JSON.stringify((@{wire_encode})(value));
+                        {:else}
+                            return JSON.stringify(value);
+                        {/if}
+                    }
+
+                    /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param _ctx - The encoding context, unused for primitives */
+                    export function @{fn_encode_internal_decl}(value: @{full_type_ident}, _ctx: @{encode_context_ident}): unknown {
+                        {#if let Some(wire_encode) = &wire_encode}
+                            return (@{wire_encode})(value);
+                        {:else}
+                            return value;
+                        {/if}
+                    }
+                };
+                result.add_aliased_import("EncodeContext", crate::package::ENDEC);
+                return Ok(result);
+            }
 
             let type_registry = &input.context.type_registry;
             let effective_fields =

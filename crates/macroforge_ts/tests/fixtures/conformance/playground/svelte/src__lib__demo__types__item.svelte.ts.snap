@@ -798,6 +798,18 @@ export function itemDefaultValue(): Item {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function itemHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
@@ -985,8 +997,11 @@ export function itemDefaultValue(): Item {
 
         }
 
-        export function itemIs(value: unknown): value is Item {
-            return itemHasShape(value);
+        export function itemIs(value: unknown): value is Item {return itemHasShape(value);
+
+
+
+
         }
 
 /** Per-variant error types  */
@@ -1158,7 +1173,17 @@ if (variant === "RecordLink<Service>") { return recordLinkDefaultValue<Service>(
             return toExit(itemDecode(obj));
         }
 
-export const Item = {
+export const Item: {
+  readonly defaultValue: typeof itemDefaultValue;
+  readonly encode: typeof itemEncode;
+  readonly encodeWithContext: typeof itemEncodeWithContext;
+  readonly decode: typeof itemDecode;
+  readonly decodeWithContext: typeof itemDecodeWithContext;
+  readonly hasShape: typeof itemHasShape;
+  readonly is: typeof itemIs;
+  readonly createForm: typeof itemCreateForm;
+  readonly fromFormData: typeof itemFromFormData;
+} = {
   defaultValue: itemDefaultValue,
   encode: itemEncode,
   encodeWithContext: itemEncodeWithContext,
@@ -1168,7 +1193,7 @@ export const Item = {
   is: itemIs,
   createForm: itemCreateForm,
   fromFormData: itemFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1946,6 +1971,18 @@ export function itemDefaultValue(): Item {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function itemHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
@@ -2133,8 +2170,11 @@ export function itemDefaultValue(): Item {
 
         }
 
-        export function itemIs(value: unknown): value is Item {
-            return itemHasShape(value);
+        export function itemIs(value: unknown): value is Item {return itemHasShape(value);
+
+
+
+
         }
 
 /** Per-variant error types  */
@@ -2306,7 +2346,17 @@ if (variant === "RecordLink<Service>") { return recordLinkDefaultValue<Service>(
             return toExit(itemDecode(obj));
         }
 
-export const Item = {
+export const Item: {
+  readonly defaultValue: typeof itemDefaultValue;
+  readonly encode: typeof itemEncode;
+  readonly encodeWithContext: typeof itemEncodeWithContext;
+  readonly decode: typeof itemDecode;
+  readonly decodeWithContext: typeof itemDecodeWithContext;
+  readonly hasShape: typeof itemHasShape;
+  readonly is: typeof itemIs;
+  readonly createForm: typeof itemCreateForm;
+  readonly fromFormData: typeof itemFromFormData;
+} = {
   defaultValue: itemDefaultValue,
   encode: itemEncode,
   encodeWithContext: itemEncodeWithContext,
@@ -2316,7 +2366,7 @@ export const Item = {
   is: itemIs,
   createForm: itemCreateForm,
   fromFormData: itemFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -2324,14 +2374,15 @@ export const Item = {
 
 ## Mapping
 
-original 0..213 -> expanded 0..213
-original 262..340 -> expanded 213..291
-original 340..341 -> expanded 15596..15597
-generated 291..400 <- Default
-generated 400..2288 <- Encode
-generated 2288..9765 <- Decode
-generated 9765..15292 <- Gigaform
-generated 15292..15596 <- __convenience_const
+original 0..213 -> expanded 759..972
+original 262..340 -> expanded 972..1050
+original 340..341 -> expanded 16768..16769
+generated 0..759 <- imports
+generated 1050..1159 <- Default
+generated 1159..3047 <- Encode
+generated 3047..10527 <- Decode
+generated 10527..16054 <- Gigaform
+generated 16054..16768 <- __convenience_const
 
 ## Metadata
 

@@ -241,7 +241,46 @@ date: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Payment.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -501,7 +540,46 @@ date: "",
 
 
                             }{
-                                const __raw_date = obj["date"] as string;instance.date = __raw_date;
+                                const __raw_date = obj["date"] as string;if (!(typeof __raw_date === "string")) {
+                                                    errors.push({ field: "date", message: __raw_date == null ? "Payment.date is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.date = __raw_date;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1329,6 +1407,82 @@ date: "",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Payment;
@@ -1539,7 +1693,18 @@ date: "",
             return toExit(paymentDecode(obj));
         }
 
-export const Payment = {
+export const Payment: {
+  readonly defaultValue: typeof paymentDefaultValue;
+  readonly encode: typeof paymentEncode;
+  readonly encodeWithContext: typeof paymentEncodeWithContext;
+  readonly decode: typeof paymentDecode;
+  readonly decodeWithContext: typeof paymentDecodeWithContext;
+  readonly validateFields: typeof paymentValidateFields;
+  readonly hasShape: typeof paymentHasShape;
+  readonly is: typeof paymentIs;
+  readonly createForm: typeof paymentCreateForm;
+  readonly fromFormData: typeof paymentFromFormData;
+} = {
   defaultValue: paymentDefaultValue,
   encode: paymentEncode,
   encodeWithContext: paymentEncodeWithContext,
@@ -1550,7 +1715,7 @@ export const Payment = {
   is: paymentIs,
   createForm: paymentCreateForm,
   fromFormData: paymentFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1774,7 +1939,46 @@ date: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Payment.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2034,7 +2238,46 @@ date: "",
 
 
                             }{
-                                const __raw_date = obj["date"] as string;instance.date = __raw_date;
+                                const __raw_date = obj["date"] as string;if (!(typeof __raw_date === "string")) {
+                                                    errors.push({ field: "date", message: __raw_date == null ? "Payment.date is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.date = __raw_date;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2862,6 +3105,82 @@ date: "",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Payment;
@@ -3072,7 +3391,18 @@ date: "",
             return toExit(paymentDecode(obj));
         }
 
-export const Payment = {
+export const Payment: {
+  readonly defaultValue: typeof paymentDefaultValue;
+  readonly encode: typeof paymentEncode;
+  readonly encodeWithContext: typeof paymentEncodeWithContext;
+  readonly decode: typeof paymentDecode;
+  readonly decodeWithContext: typeof paymentDecodeWithContext;
+  readonly validateFields: typeof paymentValidateFields;
+  readonly hasShape: typeof paymentHasShape;
+  readonly is: typeof paymentIs;
+  readonly createForm: typeof paymentCreateForm;
+  readonly fromFormData: typeof paymentFromFormData;
+} = {
   defaultValue: paymentDefaultValue,
   encode: paymentEncode,
   encodeWithContext: paymentEncodeWithContext,
@@ -3083,7 +3413,7 @@ export const Payment = {
   is: paymentIs,
   createForm: paymentCreateForm,
   fromFormData: paymentFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3091,14 +3421,15 @@ export const Payment = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..170 -> expanded 58..121
-original 170..171 -> expanded 12503..12504
-generated 121..247 <- Default
-generated 247..1754 <- Encode
-generated 1754..7250 <- Decode
-generated 7250..12128 <- Gigaform
-generated 12128..12503 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..170 -> expanded 627..690
+original 170..171 -> expanded 14428..14429
+generated 0..569 <- imports
+generated 690..816 <- Default
+generated 816..2323 <- Encode
+generated 2323..8681 <- Decode
+generated 8681..13559 <- Gigaform
+generated 13559..14428 <- __convenience_const
 
 ## Metadata
 

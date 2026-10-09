@@ -68,7 +68,13 @@ console.log(JSON.stringify({ a: typeof a.wrapped, b: typeof b.wrapped }));
 
 ## Mapping
 
-original 0..466 -> expanded 0..466
+original 0..270 -> expanded 0..270
+original 322..378 -> expanded 270..326
+original 606..618 -> expanded 326..338
+original 629..641 -> expanded 357..369
+original 652..730 -> expanded 388..466
+generated 338..357 <- $wrap
+generated 369..388 <- $wrap
 
 ## Metadata
 

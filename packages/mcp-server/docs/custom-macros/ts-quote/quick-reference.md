@@ -17,7 +17,7 @@
 | `{#for item in list}...{/for}`             | Iterate over a collection                                     |
 | `{#while cond}...{/while}`                 | While loop                                                    |
 | `{#while let pattern = expr}...{/while}`   | While-let pattern matching loop                               |
-| `{$let name = expr}`                       | Define a local constant (`{%let}` is the same)                |
+| `{$let name = expr}`                       | Define a local constant                                       |
 | `{$let mut name = expr}`                   | Define a mutable local variable                               |
 | `{$do expr}`                               | Execute a side-effectful expression                           |
 | `{$typescript stream}`                     | Inject a `TsStream`, with its patches, imports and warnings   |

@@ -10,7 +10,7 @@ use oxc::parser::Parser;
 use oxc::semantic::{Scoping, SemanticBuilder};
 use oxc::span::GetSpan;
 
-use crate::host::patch_applicator::PatchApplicator;
+use crate::host::patch_applicator::{ApplyResult, PatchApplicator};
 use crate::ts_syn::abi::{Patch, SpanIR};
 
 /// Removes every `$name` import binding that nothing in `source` references,
@@ -19,7 +19,7 @@ use crate::ts_syn::abi::{Patch, SpanIR};
 pub(crate) fn strip_consumed_macro_imports(
     source: &str,
     file_name: &str,
-) -> Result<Option<String>, String> {
+) -> Result<Option<ApplyResult>, String> {
     let allocator = Allocator::default();
     let parsed = Parser::new(&allocator, source, crate::source_type::for_path(file_name)).parse();
     if !parsed.diagnostics.is_empty() {
@@ -41,7 +41,7 @@ pub(crate) fn strip_consumed_macro_imports(
 pub(crate) fn strip_consumed_macro_imports_in(
     source: &str,
     program: &oxc::ast::ast::Program<'_>,
-) -> Result<Option<String>, String> {
+) -> Result<Option<ApplyResult>, String> {
     let semantic = SemanticBuilder::new().build(program);
     let scoping = semantic.semantic.scoping();
 
@@ -58,7 +58,7 @@ pub(crate) fn strip_consumed_macro_imports_in(
         return Ok(None);
     }
     PatchApplicator::new(source, patches)
-        .apply()
+        .apply_with_mapping(Some("macro imports"))
         .map(Some)
         .map_err(|err| format!("failed to remove consumed macro imports: {err}"))
 }
@@ -143,7 +143,7 @@ mod tests {
         let source = "import { $state } from 'macros';\nconst count = createSignal(0);\n";
         let stripped = strip_consumed_macro_imports(source, "a.ts").unwrap();
         assert_eq!(
-            stripped.as_deref(),
+            stripped.map(|stripped| stripped.code).as_deref(),
             Some("const count = createSignal(0);\n")
         );
     }
@@ -153,7 +153,7 @@ mod tests {
         let source = "import { $state, $derived, batch } from 'macros';\nbatch($derived);\n";
         let stripped = strip_consumed_macro_imports(source, "a.ts").unwrap();
         assert_eq!(
-            stripped.as_deref(),
+            stripped.map(|stripped| stripped.code).as_deref(),
             Some("import { $derived, batch } from 'macros';\nbatch($derived);\n")
         );
     }
@@ -161,6 +161,10 @@ mod tests {
     #[test]
     fn leaves_ordinary_imports_alone() {
         let source = "import { unused } from 'lib';\nimport type { $T } from 'types';\n";
-        assert_eq!(strip_consumed_macro_imports(source, "a.ts").unwrap(), None);
+        assert!(
+            strip_consumed_macro_imports(source, "a.ts")
+                .unwrap()
+                .is_none()
+        );
     }
 }

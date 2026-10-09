@@ -120,7 +120,46 @@ constructor(props: { val: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_val = obj["val"] as number;instance.val = __raw_val;
+                            const __raw_val = obj["val"] as number;if (!(typeof __raw_val === "number")) {
+                                                errors.push({ field: "val", message: __raw_val == null ? "Data.val is required" : "expected number" });
+                                            } else {
+
+
+
+                                                instance.val = __raw_val;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -580,7 +619,46 @@ constructor(props: { val: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_val = obj["val"] as number;instance.val = __raw_val;
+                            const __raw_val = obj["val"] as number;if (!(typeof __raw_val === "number")) {
+                                                errors.push({ field: "val", message: __raw_val == null ? "Data.val is required" : "expected number" });
+                                            } else {
+
+
+
+                                                instance.val = __raw_val;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -946,12 +1024,13 @@ constructor(props: { val: number }) {
 
 ## Mapping
 
-original 0..41 -> expanded 0..41
-original 63..94 -> expanded 41..72
-original 94..95 -> expanded 4285..4286
-original 95..96 -> expanded 5388..5389
-generated 72..4285 <- Decode
-generated 4286..5388 <- Decode
+original 0..41 -> expanded 307..348
+original 63..94 -> expanded 348..379
+original 94..95 -> expanded 4966..4967
+original 95..96 -> expanded 6069..6070
+generated 0..307 <- imports
+generated 379..4966 <- Decode
+generated 4967..6069 <- Decode
 
 ## Metadata
 

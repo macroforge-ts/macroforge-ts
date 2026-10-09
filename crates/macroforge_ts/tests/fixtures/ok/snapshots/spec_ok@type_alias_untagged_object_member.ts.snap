@@ -168,6 +168,11 @@ export type Link = string | { id: string; label?: string };
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as Link | __mf_PendingRef;
                         }if (typeof value === "string") {
+
+
+
+
+
                                         return value as Link;
                                     }
 
@@ -223,6 +228,18 @@ export type Link = string | { id: string; label?: string };
                                 field: "_root",
                                 message: "Link.decodeWithContext: value does not match any union member"
                             }]);
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -933,18 +950,28 @@ export type Link = string | { id: string; label?: string };
 
         }
 
-        export function linkIs(value: unknown): value is Link {
-            return linkHasShape(value);
+        export function linkIs(value: unknown): value is Link {return linkHasShape(value);
+
+
+
+
         }
 
-export const Link = {
+export const Link: {
+  readonly encode: typeof linkEncode;
+  readonly encodeWithContext: typeof linkEncodeWithContext;
+  readonly decode: typeof linkDecode;
+  readonly decodeWithContext: typeof linkDecodeWithContext;
+  readonly hasShape: typeof linkHasShape;
+  readonly is: typeof linkIs;
+} = {
   encode: linkEncode,
   encodeWithContext: linkEncodeWithContext,
   decode: linkDecode,
   decodeWithContext: linkDecodeWithContext,
   hasShape: linkHasShape,
   is: linkIs
-} as const;
+};
 
 ## DTS
 
@@ -1093,6 +1120,11 @@ export type Link = string | { id: string; label?: string };
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as Link | __mf_PendingRef;
                         }if (typeof value === "string") {
+
+
+
+
+
                                         return value as Link;
                                     }
 
@@ -1148,6 +1180,18 @@ export type Link = string | { id: string; label?: string };
                                 field: "_root",
                                 message: "Link.decodeWithContext: value does not match any union member"
                             }]);
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1858,18 +1902,28 @@ export type Link = string | { id: string; label?: string };
 
         }
 
-        export function linkIs(value: unknown): value is Link {
-            return linkHasShape(value);
+        export function linkIs(value: unknown): value is Link {return linkHasShape(value);
+
+
+
+
         }
 
-export const Link = {
+export const Link: {
+  readonly encode: typeof linkEncode;
+  readonly encodeWithContext: typeof linkEncodeWithContext;
+  readonly decode: typeof linkDecode;
+  readonly decodeWithContext: typeof linkDecodeWithContext;
+  readonly hasShape: typeof linkHasShape;
+  readonly is: typeof linkIs;
+} = {
   encode: linkEncode,
   encodeWithContext: linkEncodeWithContext,
   decode: linkDecode,
   decodeWithContext: linkDecodeWithContext,
   hasShape: linkHasShape,
   is: linkIs
-} as const;
+};
 
 ## Diagnostics
 
@@ -1877,12 +1931,13 @@ export const Link = {
 
 ## Mapping
 
-original 0..185 -> expanded 0..185
-original 215..275 -> expanded 185..245
-original 275..276 -> expanded 6258..6259
-generated 245..2133 <- Encode
-generated 2133..6052 <- Decode
-generated 6052..6258 <- __convenience_const
+original 0..185 -> expanded 385..570
+original 215..275 -> expanded 570..630
+original 275..276 -> expanded 6915..6916
+generated 0..385 <- imports
+generated 630..2518 <- Encode
+generated 2518..6445 <- Decode
+generated 6445..6915 <- __convenience_const
 
 ## Metadata
 

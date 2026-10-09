@@ -65,7 +65,16 @@ console.log(JSON.stringify({ a, b, c }));
 
 ## Mapping
 
-original 0..449 -> expanded 0..449
+original 0..275 -> expanded 37..312
+original 327..329 -> expanded 312..314
+original 566..578 -> expanded 314..326
+original 591..603 -> expanded 340..352
+original 621..633 -> expanded 371..383
+original 653..698 -> expanded 404..449
+generated 0..37 <- $identity
+generated 326..340 <- $identity
+generated 352..371 <- $identity
+generated 383..404 <- $identity
 
 ## Metadata
 

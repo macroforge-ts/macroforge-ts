@@ -249,7 +249,46 @@ west: 0,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_north = obj["north"] as number;instance.north = __raw_north;
+                                const __raw_north = obj["north"] as number;if (!(typeof __raw_north === "number")) {
+                                                    errors.push({ field: "north", message: __raw_north == null ? "Cardinal.north is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.north = __raw_north;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -509,7 +548,46 @@ west: 0,
 
 
                             }{
-                                const __raw_east = obj["east"] as number;instance.east = __raw_east;
+                                const __raw_east = obj["east"] as number;if (!(typeof __raw_east === "number")) {
+                                                    errors.push({ field: "east", message: __raw_east == null ? "Cardinal.east is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.east = __raw_east;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -769,7 +847,46 @@ west: 0,
 
 
                             }{
-                                const __raw_south = obj["south"] as number;instance.south = __raw_south;
+                                const __raw_south = obj["south"] as number;if (!(typeof __raw_south === "number")) {
+                                                    errors.push({ field: "south", message: __raw_south == null ? "Cardinal.south is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.south = __raw_south;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1029,7 +1146,46 @@ west: 0,
 
 
                             }{
-                                const __raw_west = obj["west"] as number;instance.west = __raw_west;
+                                const __raw_west = obj["west"] as number;if (!(typeof __raw_west === "number")) {
+                                                    errors.push({ field: "west", message: __raw_west == null ? "Cardinal.west is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.west = __raw_west;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1289,6 +1445,82 @@ west: 0,
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2143,7 +2375,18 @@ west: 0,
             return toExit(cardinalDecode(obj));
         }
 
-export const Cardinal = {
+export const Cardinal: {
+  readonly defaultValue: typeof cardinalDefaultValue;
+  readonly encode: typeof cardinalEncode;
+  readonly encodeWithContext: typeof cardinalEncodeWithContext;
+  readonly decode: typeof cardinalDecode;
+  readonly decodeWithContext: typeof cardinalDecodeWithContext;
+  readonly validateFields: typeof cardinalValidateFields;
+  readonly hasShape: typeof cardinalHasShape;
+  readonly is: typeof cardinalIs;
+  readonly createForm: typeof cardinalCreateForm;
+  readonly fromFormData: typeof cardinalFromFormData;
+} = {
   defaultValue: cardinalDefaultValue,
   encode: cardinalEncode,
   encodeWithContext: cardinalEncodeWithContext,
@@ -2154,7 +2397,7 @@ export const Cardinal = {
   is: cardinalIs,
   createForm: cardinalCreateForm,
   fromFormData: cardinalFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2386,7 +2629,46 @@ west: 0,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_north = obj["north"] as number;instance.north = __raw_north;
+                                const __raw_north = obj["north"] as number;if (!(typeof __raw_north === "number")) {
+                                                    errors.push({ field: "north", message: __raw_north == null ? "Cardinal.north is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.north = __raw_north;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2646,7 +2928,46 @@ west: 0,
 
 
                             }{
-                                const __raw_east = obj["east"] as number;instance.east = __raw_east;
+                                const __raw_east = obj["east"] as number;if (!(typeof __raw_east === "number")) {
+                                                    errors.push({ field: "east", message: __raw_east == null ? "Cardinal.east is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.east = __raw_east;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2906,7 +3227,46 @@ west: 0,
 
 
                             }{
-                                const __raw_south = obj["south"] as number;instance.south = __raw_south;
+                                const __raw_south = obj["south"] as number;if (!(typeof __raw_south === "number")) {
+                                                    errors.push({ field: "south", message: __raw_south == null ? "Cardinal.south is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.south = __raw_south;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3166,7 +3526,46 @@ west: 0,
 
 
                             }{
-                                const __raw_west = obj["west"] as number;instance.west = __raw_west;
+                                const __raw_west = obj["west"] as number;if (!(typeof __raw_west === "number")) {
+                                                    errors.push({ field: "west", message: __raw_west == null ? "Cardinal.west is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.west = __raw_west;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3426,6 +3825,82 @@ west: 0,
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4280,7 +4755,18 @@ west: 0,
             return toExit(cardinalDecode(obj));
         }
 
-export const Cardinal = {
+export const Cardinal: {
+  readonly defaultValue: typeof cardinalDefaultValue;
+  readonly encode: typeof cardinalEncode;
+  readonly encodeWithContext: typeof cardinalEncodeWithContext;
+  readonly decode: typeof cardinalDecode;
+  readonly decodeWithContext: typeof cardinalDecodeWithContext;
+  readonly validateFields: typeof cardinalValidateFields;
+  readonly hasShape: typeof cardinalHasShape;
+  readonly is: typeof cardinalIs;
+  readonly createForm: typeof cardinalCreateForm;
+  readonly fromFormData: typeof cardinalFromFormData;
+} = {
   defaultValue: cardinalDefaultValue,
   encode: cardinalEncode,
   encodeWithContext: cardinalEncodeWithContext,
@@ -4291,7 +4777,7 @@ export const Cardinal = {
   is: cardinalIs,
   createForm: cardinalCreateForm,
   fromFormData: cardinalFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -4299,14 +4785,15 @@ export const Cardinal = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..211 -> expanded 58..162
-original 211..212 -> expanded 17041..17042
-generated 162..310 <- Default
-generated 310..1881 <- Encode
-generated 1881..8521 <- Decode
-generated 8521..16655 <- Gigaform
-generated 16655..17041 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..211 -> expanded 627..731
+original 211..212 -> expanded 19790..19791
+generated 0..569 <- imports
+generated 731..879 <- Default
+generated 879..2450 <- Encode
+generated 2450..10766 <- Decode
+generated 10766..18900 <- Gigaform
+generated 18900..19790 <- __convenience_const
 
 ## Metadata
 

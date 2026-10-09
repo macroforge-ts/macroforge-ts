@@ -67,9 +67,11 @@ export function namedToString(value: Named): string {
                         return "Named { " + parts.join(", ") + " }";
                     }
 
-export const Named = {
+export const Named: {
+  readonly toString: typeof namedToString;
+} = {
   toString: namedToString
-} as const;
+};
 
 /** @deprecated */
 export declare function formatPoint(point: Point): string;
@@ -115,9 +117,11 @@ export function namedToString(value: Named): string {
                         return "Named { " + parts.join(", ") + " }";
                     }
 
-export const Named = {
+export const Named: {
+  readonly toString: typeof namedToString;
+} = {
   toString: namedToString
-} as const;
+};
 
 /** @deprecated */
 export declare function formatPoint(point: Point): string;
@@ -132,13 +136,15 @@ original 28..88 -> expanded 0..60
 original 88..89 -> expanded 267..268
 original 89..91 -> expanded 794..796
 original 112..157 -> expanded 796..841
-original 157..237 -> expanded 1161..1241
+original 157..159 -> expanded 1200..1202
+original 231..291 -> expanded 1220..1280
 generated 60..167 <- Debug
 generated 167..267 <- Clone
 generated 268..549 <- Debug
 generated 549..794 <- Clone
 generated 841..1099 <- Debug
-generated 1099..1161 <- __convenience_const
+generated 1099..1200 <- __convenience_const
+generated 1202..1220 <- deprecated
 
 ## Metadata
 

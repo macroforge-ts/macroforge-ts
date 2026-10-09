@@ -68,9 +68,9 @@ enum Role {
         }
 
 namespace Role {
-  export const decode = roleDecode;
-  export const decodeWithContext = roleDecodeWithContext;
-  export const is = roleIs;
+  export const decode: typeof roleDecode = roleDecode;
+  export const decodeWithContext: typeof roleDecodeWithContext = roleDecodeWithContext;
+  export const is: typeof roleIs = roleIs;
 }
 
 ## DTS
@@ -123,9 +123,9 @@ enum Role {
         }
 
 namespace Role {
-  export const decode = roleDecode;
-  export const decodeWithContext = roleDecodeWithContext;
-  export const is = roleIs;
+  export const decode: typeof roleDecode = roleDecode;
+  export const decodeWithContext: typeof roleDecodeWithContext = roleDecodeWithContext;
+  export const is: typeof roleIs = roleIs;
 }
 
 ## Diagnostics
@@ -134,10 +134,11 @@ namespace Role {
 
 ## Mapping
 
-original 22..96 -> expanded 0..74
-original 96..97 -> expanded 1513..1514
-generated 74..1371 <- Decode
-generated 1371..1513 <- __convenience_const
+original 22..96 -> expanded 78..152
+original 96..97 -> expanded 1655..1656
+generated 0..78 <- imports
+generated 152..1449 <- Decode
+generated 1449..1655 <- __convenience_const
 
 ## Metadata
 

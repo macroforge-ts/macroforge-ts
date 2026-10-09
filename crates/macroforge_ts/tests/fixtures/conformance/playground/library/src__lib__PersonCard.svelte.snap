@@ -146,11 +146,15 @@ heading: "",
                     return result;
                 }
 
-export const CardLabels = {
+export const CardLabels: {
+  readonly defaultValue: typeof cardLabelsDefaultValue;
+  readonly encode: typeof cardLabelsEncode;
+  readonly encodeWithContext: typeof cardLabelsEncodeWithContext;
+} = {
   defaultValue: cardLabelsDefaultValue,
   encode: cardLabelsEncode,
   encodeWithContext: cardLabelsEncodeWithContext
-} as const;
+};
 
 ## DTS
 
@@ -285,11 +289,15 @@ heading: "",
                     return result;
                 }
 
-export const CardLabels = {
+export const CardLabels: {
+  readonly defaultValue: typeof cardLabelsDefaultValue;
+  readonly encode: typeof cardLabelsEncode;
+  readonly encodeWithContext: typeof cardLabelsEncodeWithContext;
+} = {
   defaultValue: cardLabelsDefaultValue,
   encode: cardLabelsEncode,
   encodeWithContext: cardLabelsEncodeWithContext
-} as const;
+};
 
 ## Diagnostics
 
@@ -297,12 +305,13 @@ export const CardLabels = {
 
 ## Mapping
 
-original 0..5 -> expanded 0..5
-original 36..101 -> expanded 5..70
-original 101..102 -> expanded 1865..1866
-generated 70..197 <- Default
-generated 197..1707 <- Encode
-generated 1707..1865 <- __convenience_const
+original 0..5 -> expanded 78..83
+original 36..101 -> expanded 83..148
+original 101..102 -> expanded 2105..2106
+generated 0..78 <- imports
+generated 148..275 <- Default
+generated 275..1785 <- Encode
+generated 1785..2105 <- __convenience_const
 
 ## Metadata
 

@@ -269,7 +269,46 @@ export interface Address {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_street = obj["street"] as string;instance.street = __raw_street;
+                                const __raw_street = obj["street"] as string;if (!(typeof __raw_street === "string")) {
+                                                    errors.push({ field: "street", message: __raw_street == null ? "Address.street is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.street = __raw_street;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -529,7 +568,46 @@ export interface Address {
 
 
                             }{
-                                const __raw_city = obj["city"] as string;instance.city = __raw_city;
+                                const __raw_city = obj["city"] as string;if (!(typeof __raw_city === "string")) {
+                                                    errors.push({ field: "city", message: __raw_city == null ? "Address.city is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.city = __raw_city;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -789,7 +867,46 @@ export interface Address {
 
 
                             }{
-                                const __raw_state = obj["state"] as string;instance.state = __raw_state;
+                                const __raw_state = obj["state"] as string;if (!(typeof __raw_state === "string")) {
+                                                    errors.push({ field: "state", message: __raw_state == null ? "Address.state is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.state = __raw_state;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1049,7 +1166,46 @@ export interface Address {
 
 
                             }{
-                                const __raw_zip = obj["zip"] as string;instance.zip = __raw_zip;
+                                const __raw_zip = obj["zip"] as string;if (!(typeof __raw_zip === "string")) {
+                                                    errors.push({ field: "zip", message: __raw_zip == null ? "Address.zip is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.zip = __raw_zip;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1309,7 +1465,46 @@ export interface Address {
 
 
                             }{
-                                const __raw_country = obj["country"] as string;instance.country = __raw_country;
+                                const __raw_country = obj["country"] as string;if (!(typeof __raw_country === "string")) {
+                                                    errors.push({ field: "country", message: __raw_country == null ? "Address.country is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.country = __raw_country;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1569,6 +1764,82 @@ export interface Address {
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2195,7 +2466,15 @@ export interface Address {
                 return result.success;
             }
 
-export const Address = {
+export const Address: {
+  readonly encode: typeof addressEncode;
+  readonly encodeWithContext: typeof addressEncodeWithContext;
+  readonly decode: typeof addressDecode;
+  readonly decodeWithContext: typeof addressDecodeWithContext;
+  readonly validateFields: typeof addressValidateFields;
+  readonly hasShape: typeof addressHasShape;
+  readonly is: typeof addressIs;
+} = {
   encode: addressEncode,
   encodeWithContext: addressEncodeWithContext,
   decode: addressDecode,
@@ -2203,7 +2482,7 @@ export const Address = {
   validateFields: addressValidateFields,
   hasShape: addressHasShape,
   is: addressIs
-} as const;
+};
 
 
 export interface Skill {
@@ -2419,7 +2698,46 @@ export interface Skill {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Skill.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2679,7 +2997,46 @@ export interface Skill {
 
 
                             }{
-                                const __raw_level = obj["level"] as number;instance.level = __raw_level;
+                                const __raw_level = obj["level"] as number;if (!(typeof __raw_level === "number")) {
+                                                    errors.push({ field: "level", message: __raw_level == null ? "Skill.level is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.level = __raw_level;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3201,7 +3558,115 @@ export interface Skill {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3828,7 +4293,15 @@ export interface Skill {
                 return result.success;
             }
 
-export const Skill = {
+export const Skill: {
+  readonly encode: typeof skillEncode;
+  readonly encodeWithContext: typeof skillEncodeWithContext;
+  readonly decode: typeof skillDecode;
+  readonly decodeWithContext: typeof skillDecodeWithContext;
+  readonly validateFields: typeof skillValidateFields;
+  readonly hasShape: typeof skillHasShape;
+  readonly is: typeof skillIs;
+} = {
   encode: skillEncode,
   encodeWithContext: skillEncodeWithContext,
   decode: skillDecode,
@@ -3836,7 +4309,7 @@ export const Skill = {
   validateFields: skillValidateFields,
   hasShape: skillHasShape,
   is: skillIs
-} as const;
+};
 
 
 export interface Milestone {
@@ -4054,7 +4527,46 @@ export interface Milestone {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_title = obj["title"] as string;instance.title = __raw_title;
+                                const __raw_title = obj["title"] as string;if (!(typeof __raw_title === "string")) {
+                                                    errors.push({ field: "title", message: __raw_title == null ? "Milestone.title is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.title = __raw_title;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4318,6 +4830,38 @@ export interface Milestone {
                                             const __dateVal = typeof __raw_dueDate === "string" ? new Date(__raw_dueDate) : __raw_dueDate as Date;
                                             instance.dueDate = __dateVal;
                                         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4841,7 +5385,115 @@ export interface Milestone {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5468,7 +6120,15 @@ export interface Milestone {
                 return result.success;
             }
 
-export const Milestone = {
+export const Milestone: {
+  readonly encode: typeof milestoneEncode;
+  readonly encodeWithContext: typeof milestoneEncodeWithContext;
+  readonly decode: typeof milestoneDecode;
+  readonly decodeWithContext: typeof milestoneDecodeWithContext;
+  readonly validateFields: typeof milestoneValidateFields;
+  readonly hasShape: typeof milestoneHasShape;
+  readonly is: typeof milestoneIs;
+} = {
   encode: milestoneEncode,
   encodeWithContext: milestoneEncodeWithContext,
   decode: milestoneDecode,
@@ -5476,7 +6136,7 @@ export const Milestone = {
   validateFields: milestoneValidateFields,
   hasShape: milestoneHasShape,
   is: milestoneIs
-} as const;
+};
 
 
 export interface MetadataValue {
@@ -5689,7 +6349,46 @@ export interface MetadataValue {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_value = obj["value"] as string;instance.value = __raw_value;
+                                const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                    errors.push({ field: "value", message: __raw_value == null ? "MetadataValue.value is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.value = __raw_value;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6211,7 +6910,115 @@ export interface MetadataValue {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6838,7 +7645,15 @@ export interface MetadataValue {
                 return result.success;
             }
 
-export const MetadataValue = {
+export const MetadataValue: {
+  readonly encode: typeof metadataValueEncode;
+  readonly encodeWithContext: typeof metadataValueEncodeWithContext;
+  readonly decode: typeof metadataValueDecode;
+  readonly decodeWithContext: typeof metadataValueDecodeWithContext;
+  readonly validateFields: typeof metadataValueValidateFields;
+  readonly hasShape: typeof metadataValueHasShape;
+  readonly is: typeof metadataValueIs;
+} = {
   encode: metadataValueEncode,
   encodeWithContext: metadataValueEncodeWithContext,
   decode: metadataValueDecode,
@@ -6846,7 +7661,7 @@ export const MetadataValue = {
   validateFields: metadataValueValidateFields,
   hasShape: metadataValueHasShape,
   is: metadataValueIs
-} as const;
+};
 
 
 export interface Tag {
@@ -7062,7 +7877,46 @@ export interface Tag {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_label = obj["label"] as string;instance.label = __raw_label;
+                                const __raw_label = obj["label"] as string;if (!(typeof __raw_label === "string")) {
+                                                    errors.push({ field: "label", message: __raw_label == null ? "Tag.label is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.label = __raw_label;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7322,7 +8176,46 @@ export interface Tag {
 
 
                             }{
-                                const __raw_color = obj["color"] as string;instance.color = __raw_color;
+                                const __raw_color = obj["color"] as string;if (!(typeof __raw_color === "string")) {
+                                                    errors.push({ field: "color", message: __raw_color == null ? "Tag.color is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.color = __raw_color;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7844,7 +8737,115 @@ export interface Tag {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8471,7 +9472,15 @@ export interface Tag {
                 return result.success;
             }
 
-export const Tag = {
+export const Tag: {
+  readonly encode: typeof tagEncode;
+  readonly encodeWithContext: typeof tagEncodeWithContext;
+  readonly decode: typeof tagDecode;
+  readonly decodeWithContext: typeof tagDecodeWithContext;
+  readonly validateFields: typeof tagValidateFields;
+  readonly hasShape: typeof tagHasShape;
+  readonly is: typeof tagIs;
+} = {
   encode: tagEncode,
   encodeWithContext: tagEncodeWithContext,
   decode: tagDecode,
@@ -8479,7 +9488,7 @@ export const Tag = {
   validateFields: tagValidateFields,
   hasShape: tagHasShape,
   is: tagIs
-} as const;
+};
 
 
 export interface Feature {
@@ -8692,7 +9701,46 @@ export interface Feature {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Feature.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9214,7 +10262,115 @@ export interface Feature {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9841,7 +10997,15 @@ export interface Feature {
                 return result.success;
             }
 
-export const Feature = {
+export const Feature: {
+  readonly encode: typeof featureEncode;
+  readonly encodeWithContext: typeof featureEncodeWithContext;
+  readonly decode: typeof featureDecode;
+  readonly decodeWithContext: typeof featureDecodeWithContext;
+  readonly validateFields: typeof featureValidateFields;
+  readonly hasShape: typeof featureHasShape;
+  readonly is: typeof featureIs;
+} = {
   encode: featureEncode,
   encodeWithContext: featureEncodeWithContext,
   decode: featureDecode,
@@ -9849,7 +11013,7 @@ export const Feature = {
   validateFields: featureValidateFields,
   hasShape: featureHasShape,
   is: featureIs
-} as const;
+};
 
 
 export interface Limit {
@@ -10062,7 +11226,46 @@ export interface Limit {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_max = obj["max"] as number;instance.max = __raw_max;
+                                const __raw_max = obj["max"] as number;if (!(typeof __raw_max === "number")) {
+                                                    errors.push({ field: "max", message: __raw_max == null ? "Limit.max is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.max = __raw_max;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -10584,7 +11787,115 @@ export interface Limit {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -11211,7 +12522,15 @@ export interface Limit {
                 return result.success;
             }
 
-export const Limit = {
+export const Limit: {
+  readonly encode: typeof limitEncode;
+  readonly encodeWithContext: typeof limitEncodeWithContext;
+  readonly decode: typeof limitDecode;
+  readonly decodeWithContext: typeof limitDecodeWithContext;
+  readonly validateFields: typeof limitValidateFields;
+  readonly hasShape: typeof limitHasShape;
+  readonly is: typeof limitIs;
+} = {
   encode: limitEncode,
   encodeWithContext: limitEncodeWithContext,
   decode: limitDecode,
@@ -11219,7 +12538,7 @@ export const Limit = {
   validateFields: limitValidateFields,
   hasShape: limitHasShape,
   is: limitIs
-} as const;
+};
 
 
 export interface Budget {
@@ -11435,7 +12754,46 @@ export interface Budget {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_amount = obj["amount"] as number;instance.amount = __raw_amount;
+                                const __raw_amount = obj["amount"] as number;if (!(typeof __raw_amount === "number")) {
+                                                    errors.push({ field: "amount", message: __raw_amount == null ? "Budget.amount is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.amount = __raw_amount;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -11695,7 +13053,46 @@ export interface Budget {
 
 
                             }{
-                                const __raw_currency = obj["currency"] as string;instance.currency = __raw_currency;
+                                const __raw_currency = obj["currency"] as string;if (!(typeof __raw_currency === "string")) {
+                                                    errors.push({ field: "currency", message: __raw_currency == null ? "Budget.currency is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.currency = __raw_currency;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12217,7 +13614,115 @@ export interface Budget {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12844,7 +14349,15 @@ export interface Budget {
                 return result.success;
             }
 
-export const Budget = {
+export const Budget: {
+  readonly encode: typeof budgetEncode;
+  readonly encodeWithContext: typeof budgetEncodeWithContext;
+  readonly decode: typeof budgetDecode;
+  readonly decodeWithContext: typeof budgetDecodeWithContext;
+  readonly validateFields: typeof budgetValidateFields;
+  readonly hasShape: typeof budgetHasShape;
+  readonly is: typeof budgetIs;
+} = {
   encode: budgetEncode,
   encodeWithContext: budgetEncodeWithContext,
   decode: budgetDecode,
@@ -12852,7 +14365,7 @@ export const Budget = {
   validateFields: budgetValidateFields,
   hasShape: budgetHasShape,
   is: budgetIs
-} as const;
+};
 
 // --- Mid-level types ---
 
@@ -13083,7 +14596,46 @@ export interface Project {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Project.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -13343,7 +14895,46 @@ export interface Project {
 
 
                             }{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Project.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -13951,6 +15542,38 @@ export interface Project {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_metadata = obj["metadata"] as Record<string, MetadataValue>;if (typeof __raw_metadata === "object" && __raw_metadata !== null) {
                                                         instance.metadata = new Map(
@@ -14003,6 +15626,38 @@ export interface Project {
 
 
                                         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -14524,7 +16179,115 @@ export interface Project {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -15151,7 +16914,15 @@ export interface Project {
                 return result.success;
             }
 
-export const Project = {
+export const Project: {
+  readonly encode: typeof projectEncode;
+  readonly encodeWithContext: typeof projectEncodeWithContext;
+  readonly decode: typeof projectDecode;
+  readonly decodeWithContext: typeof projectDecodeWithContext;
+  readonly validateFields: typeof projectValidateFields;
+  readonly hasShape: typeof projectHasShape;
+  readonly is: typeof projectIs;
+} = {
   encode: projectEncode,
   encodeWithContext: projectEncodeWithContext,
   decode: projectDecode,
@@ -15159,7 +16930,7 @@ export const Project = {
   validateFields: projectValidateFields,
   hasShape: projectHasShape,
   is: projectIs
-} as const;
+};
 
 
 export interface Employee {
@@ -15397,7 +17168,46 @@ export interface Employee {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Employee.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -15657,7 +17467,46 @@ export interface Employee {
 
 
                             }{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Employee.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -15917,7 +17766,46 @@ export interface Employee {
 
 
                             }{
-                                const __raw_email = obj["email"] as string;instance.email = __raw_email;
+                                const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                    errors.push({ field: "email", message: __raw_email == null ? "Employee.email is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.email = __raw_email;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -16453,6 +18341,38 @@ export interface Employee {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_skills = obj["skills"] as Array<Skill>;if (Array.isArray(__raw_skills)) {
                                                         instance.skills = new Set(
@@ -16501,6 +18421,38 @@ export interface Employee {
 
 
                                         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -17108,11 +19060,75 @@ export interface Employee {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_hireDate = obj["hireDate"] as string | Date;{
                                             const __dateVal = typeof __raw_hireDate === "string" ? new Date(__raw_hireDate) : __raw_hireDate as Date;
                                             instance.hireDate = __dateVal;
                                         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -17636,7 +19652,115 @@ export interface Employee {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -18263,7 +20387,15 @@ export interface Employee {
                 return result.success;
             }
 
-export const Employee = {
+export const Employee: {
+  readonly encode: typeof employeeEncode;
+  readonly encodeWithContext: typeof employeeEncodeWithContext;
+  readonly decode: typeof employeeDecode;
+  readonly decodeWithContext: typeof employeeDecodeWithContext;
+  readonly validateFields: typeof employeeValidateFields;
+  readonly hasShape: typeof employeeHasShape;
+  readonly is: typeof employeeIs;
+} = {
   encode: employeeEncode,
   encodeWithContext: employeeEncodeWithContext,
   decode: employeeDecode,
@@ -18271,7 +20403,7 @@ export const Employee = {
   validateFields: employeeValidateFields,
   hasShape: employeeHasShape,
   is: employeeIs
-} as const;
+};
 
 
 export interface OrgConfig {
@@ -18539,6 +20671,38 @@ export interface OrgConfig {
 
 
                                         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -19107,7 +21271,115 @@ export interface OrgConfig {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -19734,7 +22006,15 @@ export interface OrgConfig {
                 return result.success;
             }
 
-export const OrgConfig = {
+export const OrgConfig: {
+  readonly encode: typeof orgConfigEncode;
+  readonly encodeWithContext: typeof orgConfigEncodeWithContext;
+  readonly decode: typeof orgConfigDecode;
+  readonly decodeWithContext: typeof orgConfigDecodeWithContext;
+  readonly validateFields: typeof orgConfigValidateFields;
+  readonly hasShape: typeof orgConfigHasShape;
+  readonly is: typeof orgConfigIs;
+} = {
   encode: orgConfigEncode,
   encodeWithContext: orgConfigEncodeWithContext,
   decode: orgConfigDecode,
@@ -19742,7 +22022,7 @@ export const OrgConfig = {
   validateFields: orgConfigValidateFields,
   hasShape: orgConfigHasShape,
   is: orgConfigIs
-} as const;
+};
 
 // --- Top-level type ---
 
@@ -19971,7 +22251,46 @@ export interface Department {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Department.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -20231,7 +22550,46 @@ export interface Department {
 
 
                             }{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Department.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -20509,6 +22867,38 @@ export interface Department {
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -21116,6 +23506,38 @@ export interface Department {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_budget = obj["budget"] as Budget;ctx.pushScope("budget");
                                             try {
@@ -21135,6 +23557,38 @@ export interface Department {
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -21656,7 +24110,115 @@ export interface Department {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -22283,7 +24845,15 @@ export interface Department {
                 return result.success;
             }
 
-export const Department = {
+export const Department: {
+  readonly encode: typeof departmentEncode;
+  readonly encodeWithContext: typeof departmentEncodeWithContext;
+  readonly decode: typeof departmentDecode;
+  readonly decodeWithContext: typeof departmentDecodeWithContext;
+  readonly validateFields: typeof departmentValidateFields;
+  readonly hasShape: typeof departmentHasShape;
+  readonly is: typeof departmentIs;
+} = {
   encode: departmentEncode,
   encodeWithContext: departmentEncodeWithContext,
   decode: departmentDecode,
@@ -22291,7 +24861,7 @@ export const Department = {
   validateFields: departmentValidateFields,
   hasShape: departmentHasShape,
   is: departmentIs
-} as const;
+};
 
 
 export interface Organization {
@@ -22520,7 +25090,46 @@ export interface Organization {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Organization.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -22780,7 +25389,46 @@ export interface Organization {
 
 
                             }{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Organization.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -23388,6 +26036,38 @@ export interface Organization {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_tags = obj["tags"] as Tag[];if (Array.isArray(__raw_tags)) {
                                                         const __arr = __raw_tags.map((item: Tag | { __ref: number }, idx) => {
@@ -23479,6 +26159,38 @@ export interface Organization {
 
 
                                         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -24014,6 +26726,38 @@ export interface Organization {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_foundedAt = obj["foundedAt"] as string | Date;{
                                             const __dateVal = typeof __raw_foundedAt === "string" ? new Date(__raw_foundedAt) : __raw_foundedAt as Date;
@@ -24277,7 +27021,115 @@ export interface Organization {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -24904,7 +27756,15 @@ export interface Organization {
                 return result.success;
             }
 
-export const Organization = {
+export const Organization: {
+  readonly encode: typeof organizationEncode;
+  readonly encodeWithContext: typeof organizationEncodeWithContext;
+  readonly decode: typeof organizationDecode;
+  readonly decodeWithContext: typeof organizationDecodeWithContext;
+  readonly validateFields: typeof organizationValidateFields;
+  readonly hasShape: typeof organizationHasShape;
+  readonly is: typeof organizationIs;
+} = {
   encode: organizationEncode,
   encodeWithContext: organizationEncodeWithContext,
   decode: organizationDecode,
@@ -24912,7 +27772,7 @@ export const Organization = {
   validateFields: organizationValidateFields,
   hasShape: organizationHasShape,
   is: organizationIs
-} as const;
+};
 
 // --- Intersection types ---
 
@@ -25133,7 +27993,46 @@ export interface AccountBase {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "AccountBase.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -25393,7 +28292,46 @@ export interface AccountBase {
 
 
                             }{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "AccountBase.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -25653,7 +28591,46 @@ export interface AccountBase {
 
 
                             }{
-                                const __raw_balance = obj["balance"] as number;instance.balance = __raw_balance;
+                                const __raw_balance = obj["balance"] as number;if (!(typeof __raw_balance === "number")) {
+                                                    errors.push({ field: "balance", message: __raw_balance == null ? "AccountBase.balance is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.balance = __raw_balance;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -26175,7 +29152,115 @@ export interface AccountBase {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -26802,7 +29887,15 @@ export interface AccountBase {
                 return result.success;
             }
 
-export const AccountBase = {
+export const AccountBase: {
+  readonly encode: typeof accountBaseEncode;
+  readonly encodeWithContext: typeof accountBaseEncodeWithContext;
+  readonly decode: typeof accountBaseDecode;
+  readonly decodeWithContext: typeof accountBaseDecodeWithContext;
+  readonly validateFields: typeof accountBaseValidateFields;
+  readonly hasShape: typeof accountBaseHasShape;
+  readonly is: typeof accountBaseIs;
+} = {
   encode: accountBaseEncode,
   encodeWithContext: accountBaseEncodeWithContext,
   decode: accountBaseDecode,
@@ -26810,7 +29903,7 @@ export const AccountBase = {
   validateFields: accountBaseValidateFields,
   hasShape: accountBaseHasShape,
   is: accountBaseIs
-} as const;
+};
 
 
 export type SavingsAccount =
@@ -26954,7 +30047,46 @@ export type SavingsAccount =
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_variant = obj["variant"] as 'savings';instance.variant = __raw_variant;
+                                const __raw_variant = obj["variant"] as 'savings';if (!(__raw_variant === "savings")) {
+                                                    errors.push({ field: "variant", message: __raw_variant == null ? "SavingsAccount.variant is required" : "expected 'savings'" });
+                                                } else {
+
+
+
+                                                    instance.variant = __raw_variant;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -27142,7 +30274,46 @@ export type SavingsAccount =
 
 
                             }{
-                                const __raw_interestRate = obj["interestRate"] as number;instance.interestRate = __raw_interestRate;
+                                const __raw_interestRate = obj["interestRate"] as number;if (!(typeof __raw_interestRate === "number")) {
+                                                    errors.push({ field: "interestRate", message: __raw_interestRate == null ? "SavingsAccount.interestRate is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.interestRate = __raw_interestRate;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -27330,7 +30501,46 @@ export type SavingsAccount =
 
 
                             }{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "SavingsAccount.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -27518,7 +30728,46 @@ export type SavingsAccount =
 
 
                             }{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "SavingsAccount.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -27706,7 +30955,46 @@ export type SavingsAccount =
 
 
                             }{
-                                const __raw_balance = obj["balance"] as number;instance.balance = __raw_balance;
+                                const __raw_balance = obj["balance"] as number;if (!(typeof __raw_balance === "number")) {
+                                                    errors.push({ field: "balance", message: __raw_balance == null ? "SavingsAccount.balance is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.balance = __raw_balance;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -28084,7 +31372,115 @@ export type SavingsAccount =
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -28567,7 +31963,15 @@ export type SavingsAccount =
                 return savingsAccountHasShape(obj);
             }
 
-export const SavingsAccount = {
+export const SavingsAccount: {
+  readonly encode: typeof savingsAccountEncode;
+  readonly encodeWithContext: typeof savingsAccountEncodeWithContext;
+  readonly decode: typeof savingsAccountDecode;
+  readonly decodeWithContext: typeof savingsAccountDecodeWithContext;
+  readonly validateFields: typeof savingsAccountValidateFields;
+  readonly hasShape: typeof savingsAccountHasShape;
+  readonly is: typeof savingsAccountIs;
+} = {
   encode: savingsAccountEncode,
   encodeWithContext: savingsAccountEncodeWithContext,
   decode: savingsAccountDecode,
@@ -28575,7 +31979,7 @@ export const SavingsAccount = {
   validateFields: savingsAccountValidateFields,
   hasShape: savingsAccountHasShape,
   is: savingsAccountIs
-} as const;
+};
 
 
 export type CheckingAccount =
@@ -28719,7 +32123,46 @@ export type CheckingAccount =
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_variant = obj["variant"] as 'checking';instance.variant = __raw_variant;
+                                const __raw_variant = obj["variant"] as 'checking';if (!(__raw_variant === "checking")) {
+                                                    errors.push({ field: "variant", message: __raw_variant == null ? "CheckingAccount.variant is required" : "expected 'checking'" });
+                                                } else {
+
+
+
+                                                    instance.variant = __raw_variant;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -28907,7 +32350,46 @@ export type CheckingAccount =
 
 
                             }{
-                                const __raw_overdraftLimit = obj["overdraftLimit"] as number;instance.overdraftLimit = __raw_overdraftLimit;
+                                const __raw_overdraftLimit = obj["overdraftLimit"] as number;if (!(typeof __raw_overdraftLimit === "number")) {
+                                                    errors.push({ field: "overdraftLimit", message: __raw_overdraftLimit == null ? "CheckingAccount.overdraftLimit is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.overdraftLimit = __raw_overdraftLimit;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -29095,7 +32577,46 @@ export type CheckingAccount =
 
 
                             }{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "CheckingAccount.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -29283,7 +32804,46 @@ export type CheckingAccount =
 
 
                             }{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "CheckingAccount.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -29471,7 +33031,46 @@ export type CheckingAccount =
 
 
                             }{
-                                const __raw_balance = obj["balance"] as number;instance.balance = __raw_balance;
+                                const __raw_balance = obj["balance"] as number;if (!(typeof __raw_balance === "number")) {
+                                                    errors.push({ field: "balance", message: __raw_balance == null ? "CheckingAccount.balance is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.balance = __raw_balance;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -29849,7 +33448,115 @@ export type CheckingAccount =
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -30332,7 +34039,15 @@ export type CheckingAccount =
                 return checkingAccountHasShape(obj);
             }
 
-export const CheckingAccount = {
+export const CheckingAccount: {
+  readonly encode: typeof checkingAccountEncode;
+  readonly encodeWithContext: typeof checkingAccountEncodeWithContext;
+  readonly decode: typeof checkingAccountDecode;
+  readonly decodeWithContext: typeof checkingAccountDecodeWithContext;
+  readonly validateFields: typeof checkingAccountValidateFields;
+  readonly hasShape: typeof checkingAccountHasShape;
+  readonly is: typeof checkingAccountIs;
+} = {
   encode: checkingAccountEncode,
   encodeWithContext: checkingAccountEncodeWithContext,
   decode: checkingAccountDecode,
@@ -30340,7 +34055,7 @@ export const CheckingAccount = {
   validateFields: checkingAccountValidateFields,
   hasShape: checkingAccountHasShape,
   is: checkingAccountIs
-} as const;
+};
 
 ## DTS
 
@@ -30596,7 +34311,46 @@ export interface Address {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_street = obj["street"] as string;instance.street = __raw_street;
+                                const __raw_street = obj["street"] as string;if (!(typeof __raw_street === "string")) {
+                                                    errors.push({ field: "street", message: __raw_street == null ? "Address.street is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.street = __raw_street;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -30856,7 +34610,46 @@ export interface Address {
 
 
                             }{
-                                const __raw_city = obj["city"] as string;instance.city = __raw_city;
+                                const __raw_city = obj["city"] as string;if (!(typeof __raw_city === "string")) {
+                                                    errors.push({ field: "city", message: __raw_city == null ? "Address.city is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.city = __raw_city;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -31116,7 +34909,46 @@ export interface Address {
 
 
                             }{
-                                const __raw_state = obj["state"] as string;instance.state = __raw_state;
+                                const __raw_state = obj["state"] as string;if (!(typeof __raw_state === "string")) {
+                                                    errors.push({ field: "state", message: __raw_state == null ? "Address.state is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.state = __raw_state;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -31376,7 +35208,46 @@ export interface Address {
 
 
                             }{
-                                const __raw_zip = obj["zip"] as string;instance.zip = __raw_zip;
+                                const __raw_zip = obj["zip"] as string;if (!(typeof __raw_zip === "string")) {
+                                                    errors.push({ field: "zip", message: __raw_zip == null ? "Address.zip is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.zip = __raw_zip;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -31636,7 +35507,46 @@ export interface Address {
 
 
                             }{
-                                const __raw_country = obj["country"] as string;instance.country = __raw_country;
+                                const __raw_country = obj["country"] as string;if (!(typeof __raw_country === "string")) {
+                                                    errors.push({ field: "country", message: __raw_country == null ? "Address.country is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.country = __raw_country;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -31896,6 +35806,82 @@ export interface Address {
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -32522,7 +36508,15 @@ export interface Address {
                 return result.success;
             }
 
-export const Address = {
+export const Address: {
+  readonly encode: typeof addressEncode;
+  readonly encodeWithContext: typeof addressEncodeWithContext;
+  readonly decode: typeof addressDecode;
+  readonly decodeWithContext: typeof addressDecodeWithContext;
+  readonly validateFields: typeof addressValidateFields;
+  readonly hasShape: typeof addressHasShape;
+  readonly is: typeof addressIs;
+} = {
   encode: addressEncode,
   encodeWithContext: addressEncodeWithContext,
   decode: addressDecode,
@@ -32530,7 +36524,7 @@ export const Address = {
   validateFields: addressValidateFields,
   hasShape: addressHasShape,
   is: addressIs
-} as const;
+};
 
 
 export interface Skill {
@@ -32746,7 +36740,46 @@ export interface Skill {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Skill.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -33006,7 +37039,46 @@ export interface Skill {
 
 
                             }{
-                                const __raw_level = obj["level"] as number;instance.level = __raw_level;
+                                const __raw_level = obj["level"] as number;if (!(typeof __raw_level === "number")) {
+                                                    errors.push({ field: "level", message: __raw_level == null ? "Skill.level is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.level = __raw_level;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -33528,7 +37600,115 @@ export interface Skill {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -34155,7 +38335,15 @@ export interface Skill {
                 return result.success;
             }
 
-export const Skill = {
+export const Skill: {
+  readonly encode: typeof skillEncode;
+  readonly encodeWithContext: typeof skillEncodeWithContext;
+  readonly decode: typeof skillDecode;
+  readonly decodeWithContext: typeof skillDecodeWithContext;
+  readonly validateFields: typeof skillValidateFields;
+  readonly hasShape: typeof skillHasShape;
+  readonly is: typeof skillIs;
+} = {
   encode: skillEncode,
   encodeWithContext: skillEncodeWithContext,
   decode: skillDecode,
@@ -34163,7 +38351,7 @@ export const Skill = {
   validateFields: skillValidateFields,
   hasShape: skillHasShape,
   is: skillIs
-} as const;
+};
 
 
 export interface Milestone {
@@ -34381,7 +38569,46 @@ export interface Milestone {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_title = obj["title"] as string;instance.title = __raw_title;
+                                const __raw_title = obj["title"] as string;if (!(typeof __raw_title === "string")) {
+                                                    errors.push({ field: "title", message: __raw_title == null ? "Milestone.title is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.title = __raw_title;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -34645,6 +38872,38 @@ export interface Milestone {
                                             const __dateVal = typeof __raw_dueDate === "string" ? new Date(__raw_dueDate) : __raw_dueDate as Date;
                                             instance.dueDate = __dateVal;
                                         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -35168,7 +39427,115 @@ export interface Milestone {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -35795,7 +40162,15 @@ export interface Milestone {
                 return result.success;
             }
 
-export const Milestone = {
+export const Milestone: {
+  readonly encode: typeof milestoneEncode;
+  readonly encodeWithContext: typeof milestoneEncodeWithContext;
+  readonly decode: typeof milestoneDecode;
+  readonly decodeWithContext: typeof milestoneDecodeWithContext;
+  readonly validateFields: typeof milestoneValidateFields;
+  readonly hasShape: typeof milestoneHasShape;
+  readonly is: typeof milestoneIs;
+} = {
   encode: milestoneEncode,
   encodeWithContext: milestoneEncodeWithContext,
   decode: milestoneDecode,
@@ -35803,7 +40178,7 @@ export const Milestone = {
   validateFields: milestoneValidateFields,
   hasShape: milestoneHasShape,
   is: milestoneIs
-} as const;
+};
 
 
 export interface MetadataValue {
@@ -36016,7 +40391,46 @@ export interface MetadataValue {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_value = obj["value"] as string;instance.value = __raw_value;
+                                const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                    errors.push({ field: "value", message: __raw_value == null ? "MetadataValue.value is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.value = __raw_value;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -36538,7 +40952,115 @@ export interface MetadataValue {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -37165,7 +41687,15 @@ export interface MetadataValue {
                 return result.success;
             }
 
-export const MetadataValue = {
+export const MetadataValue: {
+  readonly encode: typeof metadataValueEncode;
+  readonly encodeWithContext: typeof metadataValueEncodeWithContext;
+  readonly decode: typeof metadataValueDecode;
+  readonly decodeWithContext: typeof metadataValueDecodeWithContext;
+  readonly validateFields: typeof metadataValueValidateFields;
+  readonly hasShape: typeof metadataValueHasShape;
+  readonly is: typeof metadataValueIs;
+} = {
   encode: metadataValueEncode,
   encodeWithContext: metadataValueEncodeWithContext,
   decode: metadataValueDecode,
@@ -37173,7 +41703,7 @@ export const MetadataValue = {
   validateFields: metadataValueValidateFields,
   hasShape: metadataValueHasShape,
   is: metadataValueIs
-} as const;
+};
 
 
 export interface Tag {
@@ -37389,7 +41919,46 @@ export interface Tag {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_label = obj["label"] as string;instance.label = __raw_label;
+                                const __raw_label = obj["label"] as string;if (!(typeof __raw_label === "string")) {
+                                                    errors.push({ field: "label", message: __raw_label == null ? "Tag.label is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.label = __raw_label;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -37649,7 +42218,46 @@ export interface Tag {
 
 
                             }{
-                                const __raw_color = obj["color"] as string;instance.color = __raw_color;
+                                const __raw_color = obj["color"] as string;if (!(typeof __raw_color === "string")) {
+                                                    errors.push({ field: "color", message: __raw_color == null ? "Tag.color is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.color = __raw_color;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -38171,7 +42779,115 @@ export interface Tag {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -38798,7 +43514,15 @@ export interface Tag {
                 return result.success;
             }
 
-export const Tag = {
+export const Tag: {
+  readonly encode: typeof tagEncode;
+  readonly encodeWithContext: typeof tagEncodeWithContext;
+  readonly decode: typeof tagDecode;
+  readonly decodeWithContext: typeof tagDecodeWithContext;
+  readonly validateFields: typeof tagValidateFields;
+  readonly hasShape: typeof tagHasShape;
+  readonly is: typeof tagIs;
+} = {
   encode: tagEncode,
   encodeWithContext: tagEncodeWithContext,
   decode: tagDecode,
@@ -38806,7 +43530,7 @@ export const Tag = {
   validateFields: tagValidateFields,
   hasShape: tagHasShape,
   is: tagIs
-} as const;
+};
 
 
 export interface Feature {
@@ -39019,7 +43743,46 @@ export interface Feature {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Feature.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -39541,7 +44304,115 @@ export interface Feature {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -40168,7 +45039,15 @@ export interface Feature {
                 return result.success;
             }
 
-export const Feature = {
+export const Feature: {
+  readonly encode: typeof featureEncode;
+  readonly encodeWithContext: typeof featureEncodeWithContext;
+  readonly decode: typeof featureDecode;
+  readonly decodeWithContext: typeof featureDecodeWithContext;
+  readonly validateFields: typeof featureValidateFields;
+  readonly hasShape: typeof featureHasShape;
+  readonly is: typeof featureIs;
+} = {
   encode: featureEncode,
   encodeWithContext: featureEncodeWithContext,
   decode: featureDecode,
@@ -40176,7 +45055,7 @@ export const Feature = {
   validateFields: featureValidateFields,
   hasShape: featureHasShape,
   is: featureIs
-} as const;
+};
 
 
 export interface Limit {
@@ -40389,7 +45268,46 @@ export interface Limit {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_max = obj["max"] as number;instance.max = __raw_max;
+                                const __raw_max = obj["max"] as number;if (!(typeof __raw_max === "number")) {
+                                                    errors.push({ field: "max", message: __raw_max == null ? "Limit.max is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.max = __raw_max;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -40911,7 +45829,115 @@ export interface Limit {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -41538,7 +46564,15 @@ export interface Limit {
                 return result.success;
             }
 
-export const Limit = {
+export const Limit: {
+  readonly encode: typeof limitEncode;
+  readonly encodeWithContext: typeof limitEncodeWithContext;
+  readonly decode: typeof limitDecode;
+  readonly decodeWithContext: typeof limitDecodeWithContext;
+  readonly validateFields: typeof limitValidateFields;
+  readonly hasShape: typeof limitHasShape;
+  readonly is: typeof limitIs;
+} = {
   encode: limitEncode,
   encodeWithContext: limitEncodeWithContext,
   decode: limitDecode,
@@ -41546,7 +46580,7 @@ export const Limit = {
   validateFields: limitValidateFields,
   hasShape: limitHasShape,
   is: limitIs
-} as const;
+};
 
 
 export interface Budget {
@@ -41762,7 +46796,46 @@ export interface Budget {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_amount = obj["amount"] as number;instance.amount = __raw_amount;
+                                const __raw_amount = obj["amount"] as number;if (!(typeof __raw_amount === "number")) {
+                                                    errors.push({ field: "amount", message: __raw_amount == null ? "Budget.amount is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.amount = __raw_amount;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -42022,7 +47095,46 @@ export interface Budget {
 
 
                             }{
-                                const __raw_currency = obj["currency"] as string;instance.currency = __raw_currency;
+                                const __raw_currency = obj["currency"] as string;if (!(typeof __raw_currency === "string")) {
+                                                    errors.push({ field: "currency", message: __raw_currency == null ? "Budget.currency is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.currency = __raw_currency;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -42544,7 +47656,115 @@ export interface Budget {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -43171,7 +48391,15 @@ export interface Budget {
                 return result.success;
             }
 
-export const Budget = {
+export const Budget: {
+  readonly encode: typeof budgetEncode;
+  readonly encodeWithContext: typeof budgetEncodeWithContext;
+  readonly decode: typeof budgetDecode;
+  readonly decodeWithContext: typeof budgetDecodeWithContext;
+  readonly validateFields: typeof budgetValidateFields;
+  readonly hasShape: typeof budgetHasShape;
+  readonly is: typeof budgetIs;
+} = {
   encode: budgetEncode,
   encodeWithContext: budgetEncodeWithContext,
   decode: budgetDecode,
@@ -43179,7 +48407,7 @@ export const Budget = {
   validateFields: budgetValidateFields,
   hasShape: budgetHasShape,
   is: budgetIs
-} as const;
+};
 
 // --- Mid-level types ---
 
@@ -43410,7 +48638,46 @@ export interface Project {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Project.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -43670,7 +48937,46 @@ export interface Project {
 
 
                             }{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Project.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -44278,6 +49584,38 @@ export interface Project {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_metadata = obj["metadata"] as Record<string, MetadataValue>;if (typeof __raw_metadata === "object" && __raw_metadata !== null) {
                                                         instance.metadata = new Map(
@@ -44330,6 +49668,38 @@ export interface Project {
 
 
                                         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -44851,7 +50221,115 @@ export interface Project {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -45478,7 +50956,15 @@ export interface Project {
                 return result.success;
             }
 
-export const Project = {
+export const Project: {
+  readonly encode: typeof projectEncode;
+  readonly encodeWithContext: typeof projectEncodeWithContext;
+  readonly decode: typeof projectDecode;
+  readonly decodeWithContext: typeof projectDecodeWithContext;
+  readonly validateFields: typeof projectValidateFields;
+  readonly hasShape: typeof projectHasShape;
+  readonly is: typeof projectIs;
+} = {
   encode: projectEncode,
   encodeWithContext: projectEncodeWithContext,
   decode: projectDecode,
@@ -45486,7 +50972,7 @@ export const Project = {
   validateFields: projectValidateFields,
   hasShape: projectHasShape,
   is: projectIs
-} as const;
+};
 
 
 export interface Employee {
@@ -45724,7 +51210,46 @@ export interface Employee {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Employee.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -45984,7 +51509,46 @@ export interface Employee {
 
 
                             }{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Employee.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -46244,7 +51808,46 @@ export interface Employee {
 
 
                             }{
-                                const __raw_email = obj["email"] as string;instance.email = __raw_email;
+                                const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                    errors.push({ field: "email", message: __raw_email == null ? "Employee.email is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.email = __raw_email;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -46780,6 +52383,38 @@ export interface Employee {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_skills = obj["skills"] as Array<Skill>;if (Array.isArray(__raw_skills)) {
                                                         instance.skills = new Set(
@@ -46828,6 +52463,38 @@ export interface Employee {
 
 
                                         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -47435,11 +53102,75 @@ export interface Employee {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_hireDate = obj["hireDate"] as string | Date;{
                                             const __dateVal = typeof __raw_hireDate === "string" ? new Date(__raw_hireDate) : __raw_hireDate as Date;
                                             instance.hireDate = __dateVal;
                                         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -47963,7 +53694,115 @@ export interface Employee {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -48590,7 +54429,15 @@ export interface Employee {
                 return result.success;
             }
 
-export const Employee = {
+export const Employee: {
+  readonly encode: typeof employeeEncode;
+  readonly encodeWithContext: typeof employeeEncodeWithContext;
+  readonly decode: typeof employeeDecode;
+  readonly decodeWithContext: typeof employeeDecodeWithContext;
+  readonly validateFields: typeof employeeValidateFields;
+  readonly hasShape: typeof employeeHasShape;
+  readonly is: typeof employeeIs;
+} = {
   encode: employeeEncode,
   encodeWithContext: employeeEncodeWithContext,
   decode: employeeDecode,
@@ -48598,7 +54445,7 @@ export const Employee = {
   validateFields: employeeValidateFields,
   hasShape: employeeHasShape,
   is: employeeIs
-} as const;
+};
 
 
 export interface OrgConfig {
@@ -48866,6 +54713,38 @@ export interface OrgConfig {
 
 
                                         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -49434,7 +55313,115 @@ export interface OrgConfig {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -50061,7 +56048,15 @@ export interface OrgConfig {
                 return result.success;
             }
 
-export const OrgConfig = {
+export const OrgConfig: {
+  readonly encode: typeof orgConfigEncode;
+  readonly encodeWithContext: typeof orgConfigEncodeWithContext;
+  readonly decode: typeof orgConfigDecode;
+  readonly decodeWithContext: typeof orgConfigDecodeWithContext;
+  readonly validateFields: typeof orgConfigValidateFields;
+  readonly hasShape: typeof orgConfigHasShape;
+  readonly is: typeof orgConfigIs;
+} = {
   encode: orgConfigEncode,
   encodeWithContext: orgConfigEncodeWithContext,
   decode: orgConfigDecode,
@@ -50069,7 +56064,7 @@ export const OrgConfig = {
   validateFields: orgConfigValidateFields,
   hasShape: orgConfigHasShape,
   is: orgConfigIs
-} as const;
+};
 
 // --- Top-level type ---
 
@@ -50298,7 +56293,46 @@ export interface Department {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Department.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -50558,7 +56592,46 @@ export interface Department {
 
 
                             }{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Department.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -50836,6 +56909,38 @@ export interface Department {
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -51443,6 +57548,38 @@ export interface Department {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_budget = obj["budget"] as Budget;ctx.pushScope("budget");
                                             try {
@@ -51462,6 +57599,38 @@ export interface Department {
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -51983,7 +58152,115 @@ export interface Department {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -52610,7 +58887,15 @@ export interface Department {
                 return result.success;
             }
 
-export const Department = {
+export const Department: {
+  readonly encode: typeof departmentEncode;
+  readonly encodeWithContext: typeof departmentEncodeWithContext;
+  readonly decode: typeof departmentDecode;
+  readonly decodeWithContext: typeof departmentDecodeWithContext;
+  readonly validateFields: typeof departmentValidateFields;
+  readonly hasShape: typeof departmentHasShape;
+  readonly is: typeof departmentIs;
+} = {
   encode: departmentEncode,
   encodeWithContext: departmentEncodeWithContext,
   decode: departmentDecode,
@@ -52618,7 +58903,7 @@ export const Department = {
   validateFields: departmentValidateFields,
   hasShape: departmentHasShape,
   is: departmentIs
-} as const;
+};
 
 
 export interface Organization {
@@ -52847,7 +59132,46 @@ export interface Organization {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Organization.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -53107,7 +59431,46 @@ export interface Organization {
 
 
                             }{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Organization.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -53715,6 +60078,38 @@ export interface Organization {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_tags = obj["tags"] as Tag[];if (Array.isArray(__raw_tags)) {
                                                         const __arr = __raw_tags.map((item: Tag | { __ref: number }, idx) => {
@@ -53806,6 +60201,38 @@ export interface Organization {
 
 
                                         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -54341,6 +60768,38 @@ export interface Organization {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_foundedAt = obj["foundedAt"] as string | Date;{
                                             const __dateVal = typeof __raw_foundedAt === "string" ? new Date(__raw_foundedAt) : __raw_foundedAt as Date;
@@ -54604,7 +61063,115 @@ export interface Organization {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -55231,7 +61798,15 @@ export interface Organization {
                 return result.success;
             }
 
-export const Organization = {
+export const Organization: {
+  readonly encode: typeof organizationEncode;
+  readonly encodeWithContext: typeof organizationEncodeWithContext;
+  readonly decode: typeof organizationDecode;
+  readonly decodeWithContext: typeof organizationDecodeWithContext;
+  readonly validateFields: typeof organizationValidateFields;
+  readonly hasShape: typeof organizationHasShape;
+  readonly is: typeof organizationIs;
+} = {
   encode: organizationEncode,
   encodeWithContext: organizationEncodeWithContext,
   decode: organizationDecode,
@@ -55239,7 +61814,7 @@ export const Organization = {
   validateFields: organizationValidateFields,
   hasShape: organizationHasShape,
   is: organizationIs
-} as const;
+};
 
 // --- Intersection types ---
 
@@ -55460,7 +62035,46 @@ export interface AccountBase {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "AccountBase.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -55720,7 +62334,46 @@ export interface AccountBase {
 
 
                             }{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "AccountBase.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -55980,7 +62633,46 @@ export interface AccountBase {
 
 
                             }{
-                                const __raw_balance = obj["balance"] as number;instance.balance = __raw_balance;
+                                const __raw_balance = obj["balance"] as number;if (!(typeof __raw_balance === "number")) {
+                                                    errors.push({ field: "balance", message: __raw_balance == null ? "AccountBase.balance is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.balance = __raw_balance;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -56502,7 +63194,115 @@ export interface AccountBase {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -57129,7 +63929,15 @@ export interface AccountBase {
                 return result.success;
             }
 
-export const AccountBase = {
+export const AccountBase: {
+  readonly encode: typeof accountBaseEncode;
+  readonly encodeWithContext: typeof accountBaseEncodeWithContext;
+  readonly decode: typeof accountBaseDecode;
+  readonly decodeWithContext: typeof accountBaseDecodeWithContext;
+  readonly validateFields: typeof accountBaseValidateFields;
+  readonly hasShape: typeof accountBaseHasShape;
+  readonly is: typeof accountBaseIs;
+} = {
   encode: accountBaseEncode,
   encodeWithContext: accountBaseEncodeWithContext,
   decode: accountBaseDecode,
@@ -57137,7 +63945,7 @@ export const AccountBase = {
   validateFields: accountBaseValidateFields,
   hasShape: accountBaseHasShape,
   is: accountBaseIs
-} as const;
+};
 
 
 export type SavingsAccount =
@@ -57281,7 +64089,46 @@ export type SavingsAccount =
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_variant = obj["variant"] as 'savings';instance.variant = __raw_variant;
+                                const __raw_variant = obj["variant"] as 'savings';if (!(__raw_variant === "savings")) {
+                                                    errors.push({ field: "variant", message: __raw_variant == null ? "SavingsAccount.variant is required" : "expected 'savings'" });
+                                                } else {
+
+
+
+                                                    instance.variant = __raw_variant;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -57469,7 +64316,46 @@ export type SavingsAccount =
 
 
                             }{
-                                const __raw_interestRate = obj["interestRate"] as number;instance.interestRate = __raw_interestRate;
+                                const __raw_interestRate = obj["interestRate"] as number;if (!(typeof __raw_interestRate === "number")) {
+                                                    errors.push({ field: "interestRate", message: __raw_interestRate == null ? "SavingsAccount.interestRate is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.interestRate = __raw_interestRate;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -57657,7 +64543,46 @@ export type SavingsAccount =
 
 
                             }{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "SavingsAccount.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -57845,7 +64770,46 @@ export type SavingsAccount =
 
 
                             }{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "SavingsAccount.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -58033,7 +64997,46 @@ export type SavingsAccount =
 
 
                             }{
-                                const __raw_balance = obj["balance"] as number;instance.balance = __raw_balance;
+                                const __raw_balance = obj["balance"] as number;if (!(typeof __raw_balance === "number")) {
+                                                    errors.push({ field: "balance", message: __raw_balance == null ? "SavingsAccount.balance is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.balance = __raw_balance;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -58411,7 +65414,115 @@ export type SavingsAccount =
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -58894,7 +66005,15 @@ export type SavingsAccount =
                 return savingsAccountHasShape(obj);
             }
 
-export const SavingsAccount = {
+export const SavingsAccount: {
+  readonly encode: typeof savingsAccountEncode;
+  readonly encodeWithContext: typeof savingsAccountEncodeWithContext;
+  readonly decode: typeof savingsAccountDecode;
+  readonly decodeWithContext: typeof savingsAccountDecodeWithContext;
+  readonly validateFields: typeof savingsAccountValidateFields;
+  readonly hasShape: typeof savingsAccountHasShape;
+  readonly is: typeof savingsAccountIs;
+} = {
   encode: savingsAccountEncode,
   encodeWithContext: savingsAccountEncodeWithContext,
   decode: savingsAccountDecode,
@@ -58902,7 +66021,7 @@ export const SavingsAccount = {
   validateFields: savingsAccountValidateFields,
   hasShape: savingsAccountHasShape,
   is: savingsAccountIs
-} as const;
+};
 
 
 export type CheckingAccount =
@@ -59046,7 +66165,46 @@ export type CheckingAccount =
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_variant = obj["variant"] as 'checking';instance.variant = __raw_variant;
+                                const __raw_variant = obj["variant"] as 'checking';if (!(__raw_variant === "checking")) {
+                                                    errors.push({ field: "variant", message: __raw_variant == null ? "CheckingAccount.variant is required" : "expected 'checking'" });
+                                                } else {
+
+
+
+                                                    instance.variant = __raw_variant;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -59234,7 +66392,46 @@ export type CheckingAccount =
 
 
                             }{
-                                const __raw_overdraftLimit = obj["overdraftLimit"] as number;instance.overdraftLimit = __raw_overdraftLimit;
+                                const __raw_overdraftLimit = obj["overdraftLimit"] as number;if (!(typeof __raw_overdraftLimit === "number")) {
+                                                    errors.push({ field: "overdraftLimit", message: __raw_overdraftLimit == null ? "CheckingAccount.overdraftLimit is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.overdraftLimit = __raw_overdraftLimit;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -59422,7 +66619,46 @@ export type CheckingAccount =
 
 
                             }{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "CheckingAccount.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -59610,7 +66846,46 @@ export type CheckingAccount =
 
 
                             }{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "CheckingAccount.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -59798,7 +67073,46 @@ export type CheckingAccount =
 
 
                             }{
-                                const __raw_balance = obj["balance"] as number;instance.balance = __raw_balance;
+                                const __raw_balance = obj["balance"] as number;if (!(typeof __raw_balance === "number")) {
+                                                    errors.push({ field: "balance", message: __raw_balance == null ? "CheckingAccount.balance is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.balance = __raw_balance;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -60176,7 +67490,115 @@ export type CheckingAccount =
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -60659,7 +68081,15 @@ export type CheckingAccount =
                 return checkingAccountHasShape(obj);
             }
 
-export const CheckingAccount = {
+export const CheckingAccount: {
+  readonly encode: typeof checkingAccountEncode;
+  readonly encodeWithContext: typeof checkingAccountEncodeWithContext;
+  readonly decode: typeof checkingAccountDecode;
+  readonly decodeWithContext: typeof checkingAccountDecodeWithContext;
+  readonly validateFields: typeof checkingAccountValidateFields;
+  readonly hasShape: typeof checkingAccountHasShape;
+  readonly is: typeof checkingAccountIs;
+} = {
   encode: checkingAccountEncode,
   encodeWithContext: checkingAccountEncodeWithContext,
   decode: checkingAccountDecode,
@@ -60667,7 +68097,7 @@ export const CheckingAccount = {
   validateFields: checkingAccountValidateFields,
   hasShape: checkingAccountHasShape,
   is: checkingAccountIs
-} as const;
+};
 
 ## Diagnostics
 
@@ -60675,87 +68105,88 @@ export const CheckingAccount = {
 
 ## Mapping
 
-original 0..1313 -> expanded 0..1313
-original 1343..1467 -> expanded 1313..1437
-original 1467..1469 -> expanded 10493..10495
-original 1499..1586 -> expanded 10495..10582
-original 1586..1588 -> expanded 18713..18715
-original 1618..1717 -> expanded 18715..18814
-original 1717..1719 -> expanded 27687..27689
-original 1749..1824 -> expanded 27689..27764
-original 1824..1826 -> expanded 35555..35557
-original 1856..1940 -> expanded 35557..35641
-original 1940..1942 -> expanded 43695..43697
-original 1972..2040 -> expanded 43697..43765
-original 2040..2042 -> expanded 51355..51357
-original 2072..2135 -> expanded 51357..51420
-original 2135..2137 -> expanded 58915..58917
-original 2167..2259 -> expanded 58917..59009
-original 2259..2289 -> expanded 67206..67236
-original 2319..2474 -> expanded 67236..67391
-original 2474..2476 -> expanded 81578..81580
-original 2506..2711 -> expanded 81580..81785
-original 2711..2713 -> expanded 99396..99398
-original 2743..2834 -> expanded 99398..99489
-original 2834..2863 -> expanded 110643..110672
-original 2893..3047 -> expanded 110672..110826
-original 3047..3049 -> expanded 126136..126138
-original 3079..3239 -> expanded 126138..126298
-original 3239..3272 -> expanded 143226..143259
-original 3302..3411 -> expanded 143259..143368
-original 3411..3413 -> expanded 152243..152245
-original 3443..3542 -> expanded 152245..152344
-original 3542..3544 -> expanded 161923..161925
-original 3574..3677 -> expanded 161925..162028
-original 3677..3678 -> expanded 171658..171659
-generated 1437..3033 <- Encode
-generated 3033..10225 <- Decode
-generated 10225..10493 <- __convenience_const
-generated 10582..12136 <- Encode
-generated 12136..18461 <- Decode
-generated 18461..18713 <- __convenience_const
-generated 18814..20554 <- Encode
-generated 20554..27403 <- Decode
-generated 27403..27687 <- __convenience_const
-generated 27764..29337 <- Encode
-generated 29337..35239 <- Decode
-generated 35239..35555 <- __convenience_const
-generated 35641..37181 <- Encode
-generated 37181..43459 <- Decode
-generated 43459..43695 <- __convenience_const
-generated 43765..45300 <- Encode
-generated 45300..51087 <- Decode
-generated 51087..51355 <- __convenience_const
-generated 51420..52937 <- Encode
-generated 52937..58663 <- Decode
-generated 58663..58915 <- __convenience_const
-generated 59009..60577 <- Encode
-generated 60577..66946 <- Decode
-generated 66946..67206 <- __convenience_const
-generated 67391..69572 <- Encode
-generated 69572..81310 <- Decode
-generated 81310..81578 <- __convenience_const
-generated 81785..84087 <- Encode
-generated 84087..99120 <- Decode
-generated 99120..99396 <- __convenience_const
-generated 99489..101626 <- Encode
-generated 101626..110359 <- Decode
-generated 110359..110643 <- __convenience_const
-generated 110826..112721 <- Encode
-generated 112721..125844 <- Decode
-generated 125844..126136 <- __convenience_const
-generated 126298..128347 <- Encode
-generated 128347..142918 <- Decode
-generated 142918..143226 <- __convenience_const
-generated 143368..144979 <- Encode
-generated 144979..151943 <- Decode
-generated 151943..152243 <- __convenience_const
-generated 152344..154107 <- Encode
-generated 154107..161599 <- Decode
-generated 161599..161923 <- __convenience_const
-generated 162028..163801 <- Encode
-generated 163801..171326 <- Decode
-generated 171326..171658 <- __convenience_const
+original 0..1313 -> expanded 385..1698
+original 1343..1467 -> expanded 1698..1822
+original 1467..1469 -> expanded 13298..13300
+original 1499..1586 -> expanded 13300..13387
+original 1586..1588 -> expanded 22745..22747
+original 1618..1717 -> expanded 22747..22846
+original 1717..1719 -> expanded 32615..32617
+original 1749..1824 -> expanded 32617..32692
+original 1824..1826 -> expanded 41379..41381
+original 1856..1940 -> expanded 41381..41465
+original 1940..1942 -> expanded 50732..50734
+original 1972..2040 -> expanded 50734..50802
+original 2040..2042 -> expanded 59236..59238
+original 2072..2135 -> expanded 59238..59301
+original 2135..2137 -> expanded 67620..67622
+original 2167..2259 -> expanded 67622..67714
+original 2259..2289 -> expanded 77167..77197
+original 2319..2474 -> expanded 77197..77352
+original 2474..2476 -> expanded 92836..92838
+original 2506..2711 -> expanded 92838..93043
+original 2711..2713 -> expanded 112426..112428
+original 2743..2834 -> expanded 112428..112519
+original 2834..2863 -> expanded 124166..124195
+original 2893..3047 -> expanded 124195..124349
+original 3047..3049 -> expanded 141015..141017
+original 3079..3239 -> expanded 141017..141177
+original 3239..3272 -> expanded 159479..159512
+original 3302..3411 -> expanded 159512..159621
+original 3411..3413 -> expanded 170178..170180
+original 3443..3542 -> expanded 170180..170279
+original 3542..3544 -> expanded 182419..182421
+original 3574..3677 -> expanded 182421..182524
+original 3677..3678 -> expanded 194737..194738
+generated 0..385 <- imports
+generated 1822..3418 <- Encode
+generated 3418..12691 <- Decode
+generated 12691..13298 <- __convenience_const
+generated 13387..14941 <- Encode
+generated 14941..22168 <- Decode
+generated 22168..22745 <- __convenience_const
+generated 22846..24586 <- Encode
+generated 24586..31978 <- Decode
+generated 31978..32615 <- __convenience_const
+generated 32692..34265 <- Encode
+generated 34265..40682 <- Decode
+generated 40682..41379 <- __convenience_const
+generated 41465..43005 <- Encode
+generated 43005..50185 <- Decode
+generated 50185..50732 <- __convenience_const
+generated 50802..52337 <- Encode
+generated 52337..58629 <- Decode
+generated 58629..59236 <- __convenience_const
+generated 59301..60818 <- Encode
+generated 60818..67043 <- Decode
+generated 67043..67620 <- __convenience_const
+generated 67714..69282 <- Encode
+generated 69282..76575 <- Decode
+generated 76575..77167 <- __convenience_const
+generated 77352..79533 <- Encode
+generated 79533..92229 <- Decode
+generated 92229..92836 <- __convenience_const
+generated 93043..95345 <- Encode
+generated 95345..111804 <- Decode
+generated 111804..112426 <- __convenience_const
+generated 112519..114656 <- Encode
+generated 114656..123529 <- Decode
+generated 123529..124166 <- __convenience_const
+generated 124349..126244 <- Encode
+generated 126244..140363 <- Decode
+generated 140363..141015 <- __convenience_const
+generated 141177..143226 <- Encode
+generated 143226..158797 <- Decode
+generated 158797..159479 <- __convenience_const
+generated 159621..161232 <- Encode
+generated 161232..169511 <- Decode
+generated 169511..170178 <- __convenience_const
+generated 170279..172042 <- Encode
+generated 172042..181707 <- Decode
+generated 181707..182419 <- __convenience_const
+generated 182524..184297 <- Encode
+generated 184297..194010 <- Decode
+generated 194010..194737 <- __convenience_const
 
 ## Metadata
 

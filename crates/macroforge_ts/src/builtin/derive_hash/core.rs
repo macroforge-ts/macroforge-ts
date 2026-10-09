@@ -5,7 +5,7 @@ use crate::builtin::derive_common::CompareFieldOptions;
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input, ts_ident};
 
-use super::hash_generation::generate_field_hash_for_interface;
+use super::hash_generation::{generate_field_hash_for_interface, primitive_hash_expr};
 use super::types::HashField;
 
 #[ts_macro_derive(
@@ -226,6 +226,15 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                             {/for}
                         {/if}
                         return hash;
+                    }
+                })
+            } else if let Some(base) = crate::builtin::endec::primitive_base(type_alias.body()) {
+                let fn_name_ident = ts_ident!("{}HashCode", type_name.to_case(Case::Camel));
+                let hash_expr = Expr::parse(&primitive_hash_expr(base, "value"))
+                    .expect("primitive hash expression should parse");
+                Ok(ts_template! {
+                    export function @{fn_name_ident}(value: @{ts_ident!(type_name)}): number {
+                        return @{hash_expr};
                     }
                 })
             } else {

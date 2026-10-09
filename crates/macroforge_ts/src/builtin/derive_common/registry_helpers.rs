@@ -127,7 +127,7 @@ fn fields_from_definition_visiting(
 /// knowledge: the named type is missing from the registry), or if the
 /// references form a cycle, which the expander reports at the derive.
 /// Returns `Some(fields)` with deduplicated fields (first-seen-wins) on
-/// success. Literal members are skipped (they contribute no fields).
+/// success. Literal and brand members are skipped (they contribute no fields).
 pub fn flatten_intersection_fields(
     members: &[TypeMember],
     type_registry: &TypeRegistry,
@@ -167,8 +167,8 @@ fn flatten_intersection_fields_visiting(
                     }
                 }
             }
-            TypeMemberKind::Literal(_) => {
-                // Literals contribute no fields to intersections
+            TypeMemberKind::Literal(_) | TypeMemberKind::Brand(_) => {
+                // Literals and symbol brands contribute no fields to intersections
             }
             TypeMemberKind::Intersection(sub_members) => {
                 // Recursively flatten nested intersections

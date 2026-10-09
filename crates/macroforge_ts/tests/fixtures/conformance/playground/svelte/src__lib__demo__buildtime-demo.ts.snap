@@ -78,7 +78,19 @@ export function collectSvelteBuildtime(): SvelteBuildtimeResult {
 
 ## Mapping
 
-original 0..1807 -> expanded 0..1807
+original 0..469 -> expanded 0..469
+original 508..510 -> expanded 487..489
+original 592..594 -> expanded 576..578
+original 678..680 -> expanded 677..679
+original 758..1020 -> expanded 723..985
+original 1198..1200 -> expanded 1037..1039
+original 1249..1988 -> expanded 1068..1807
+generated 469..487 <- buildtime
+generated 489..576 <- buildtime
+generated 578..677 <- buildtime
+generated 679..723 <- buildtime
+generated 985..1037 <- buildtime
+generated 1039..1068 <- buildtime
 
 ## Metadata
 

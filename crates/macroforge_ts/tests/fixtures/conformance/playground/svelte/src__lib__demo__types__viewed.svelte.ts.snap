@@ -241,8 +241,43 @@ source: null,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_durationSeconds = obj["durationSeconds"] as number | null;
-                                                instance.durationSeconds = __raw_durationSeconds;
+                                const __raw_durationSeconds = obj["durationSeconds"] as number | null;if (!(typeof __raw_durationSeconds === "number" || __raw_durationSeconds === null)) {
+                                                        errors.push({ field: "durationSeconds", message: "expected number | null" });
+                                                    } else {
+                                                        instance.durationSeconds = __raw_durationSeconds;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -502,8 +537,43 @@ source: null,
 
 
                             }{
-                                const __raw_source = obj["source"] as string | null;
-                                                instance.source = __raw_source;
+                                const __raw_source = obj["source"] as string | null;if (!(typeof __raw_source === "string" || __raw_source === null)) {
+                                                        errors.push({ field: "source", message: "expected string | null" });
+                                                    } else {
+                                                        instance.source = __raw_source;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1331,6 +1401,82 @@ source: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Viewed;
@@ -1545,7 +1691,18 @@ source: null,
             return toExit(viewedDecode(obj));
         }
 
-export const Viewed = {
+export const Viewed: {
+  readonly defaultValue: typeof viewedDefaultValue;
+  readonly encode: typeof viewedEncode;
+  readonly encodeWithContext: typeof viewedEncodeWithContext;
+  readonly decode: typeof viewedDecode;
+  readonly decodeWithContext: typeof viewedDecodeWithContext;
+  readonly validateFields: typeof viewedValidateFields;
+  readonly hasShape: typeof viewedHasShape;
+  readonly is: typeof viewedIs;
+  readonly createForm: typeof viewedCreateForm;
+  readonly fromFormData: typeof viewedFromFormData;
+} = {
   defaultValue: viewedDefaultValue,
   encode: viewedEncode,
   encodeWithContext: viewedEncodeWithContext,
@@ -1556,7 +1713,7 @@ export const Viewed = {
   is: viewedIs,
   createForm: viewedCreateForm,
   fromFormData: viewedFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1780,8 +1937,43 @@ source: null,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_durationSeconds = obj["durationSeconds"] as number | null;
-                                                instance.durationSeconds = __raw_durationSeconds;
+                                const __raw_durationSeconds = obj["durationSeconds"] as number | null;if (!(typeof __raw_durationSeconds === "number" || __raw_durationSeconds === null)) {
+                                                        errors.push({ field: "durationSeconds", message: "expected number | null" });
+                                                    } else {
+                                                        instance.durationSeconds = __raw_durationSeconds;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2041,8 +2233,43 @@ source: null,
 
 
                             }{
-                                const __raw_source = obj["source"] as string | null;
-                                                instance.source = __raw_source;
+                                const __raw_source = obj["source"] as string | null;if (!(typeof __raw_source === "string" || __raw_source === null)) {
+                                                        errors.push({ field: "source", message: "expected string | null" });
+                                                    } else {
+                                                        instance.source = __raw_source;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2870,6 +3097,82 @@ source: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Viewed;
@@ -3084,7 +3387,18 @@ source: null,
             return toExit(viewedDecode(obj));
         }
 
-export const Viewed = {
+export const Viewed: {
+  readonly defaultValue: typeof viewedDefaultValue;
+  readonly encode: typeof viewedEncode;
+  readonly encodeWithContext: typeof viewedEncodeWithContext;
+  readonly decode: typeof viewedDecode;
+  readonly decodeWithContext: typeof viewedDecodeWithContext;
+  readonly validateFields: typeof viewedValidateFields;
+  readonly hasShape: typeof viewedHasShape;
+  readonly is: typeof viewedIs;
+  readonly createForm: typeof viewedCreateForm;
+  readonly fromFormData: typeof viewedFromFormData;
+} = {
   defaultValue: viewedDefaultValue,
   encode: viewedEncode,
   encodeWithContext: viewedEncodeWithContext,
@@ -3095,7 +3409,7 @@ export const Viewed = {
   is: viewedIs,
   createForm: viewedCreateForm,
   fromFormData: viewedFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3103,14 +3417,15 @@ export const Viewed = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..198 -> expanded 58..149
-original 198..199 -> expanded 13351..13352
-generated 149..292 <- Default
-generated 292..1823 <- Encode
-generated 1823..7518 <- Decode
-generated 7518..12987 <- Gigaform
-generated 12987..13351 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..198 -> expanded 627..718
+original 198..199 -> expanded 15201..15202
+generated 0..569 <- imports
+generated 718..861 <- Default
+generated 861..2392 <- Encode
+generated 2392..8884 <- Decode
+generated 8884..14353 <- Gigaform
+generated 14353..15201 <- __convenience_const
 
 ## Metadata
 

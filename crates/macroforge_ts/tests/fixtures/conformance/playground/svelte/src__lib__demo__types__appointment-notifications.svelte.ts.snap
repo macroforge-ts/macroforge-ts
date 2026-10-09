@@ -243,11 +243,50 @@ allScheduleChangeNotifications: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_personalScheduleChangeNotifications = obj["personalScheduleChangeNotifications"] as string;
-                                            if (__raw_personalScheduleChangeNotifications == null) { errors.push({ field: "personalScheduleChangeNotifications", message: "AppointmentNotifications.personalScheduleChangeNotifications is required" }); } else {
+                                const __raw_personalScheduleChangeNotifications = obj["personalScheduleChangeNotifications"] as string;if (!(typeof __raw_personalScheduleChangeNotifications === "string")) {
+                                                    errors.push({ field: "personalScheduleChangeNotifications", message: __raw_personalScheduleChangeNotifications == null ? "AppointmentNotifications.personalScheduleChangeNotifications is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_personalScheduleChangeNotifications == null) { errors.push({ field: "personalScheduleChangeNotifications", message: "AppointmentNotifications.personalScheduleChangeNotifications is required" }); } else {
 if (__raw_personalScheduleChangeNotifications.length === 0) { errors.push({ field: "personalScheduleChangeNotifications", message: "AppointmentNotifications.personalScheduleChangeNotifications must not be empty" }); }
 }
-instance.personalScheduleChangeNotifications = __raw_personalScheduleChangeNotifications;
+
+
+
+
+                                                    instance.personalScheduleChangeNotifications = __raw_personalScheduleChangeNotifications;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -507,11 +546,50 @@ instance.personalScheduleChangeNotifications = __raw_personalScheduleChangeNotif
 
 
                             }{
-                                const __raw_allScheduleChangeNotifications = obj["allScheduleChangeNotifications"] as string;
-                                            if (__raw_allScheduleChangeNotifications == null) { errors.push({ field: "allScheduleChangeNotifications", message: "AppointmentNotifications.allScheduleChangeNotifications is required" }); } else {
+                                const __raw_allScheduleChangeNotifications = obj["allScheduleChangeNotifications"] as string;if (!(typeof __raw_allScheduleChangeNotifications === "string")) {
+                                                    errors.push({ field: "allScheduleChangeNotifications", message: __raw_allScheduleChangeNotifications == null ? "AppointmentNotifications.allScheduleChangeNotifications is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_allScheduleChangeNotifications == null) { errors.push({ field: "allScheduleChangeNotifications", message: "AppointmentNotifications.allScheduleChangeNotifications is required" }); } else {
 if (__raw_allScheduleChangeNotifications.length === 0) { errors.push({ field: "allScheduleChangeNotifications", message: "AppointmentNotifications.allScheduleChangeNotifications must not be empty" }); }
 }
-instance.allScheduleChangeNotifications = __raw_allScheduleChangeNotifications;
+
+
+
+
+                                                    instance.allScheduleChangeNotifications = __raw_allScheduleChangeNotifications;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1339,6 +1417,82 @@ instance.allScheduleChangeNotifications = __raw_allScheduleChangeNotifications;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as AppointmentNotifications;
@@ -1597,7 +1751,18 @@ if (__val.length === 0) { errors.push({ field: "allScheduleChangeNotifications",
             return toExit(appointmentNotificationsDecode(obj));
         }
 
-export const AppointmentNotifications = {
+export const AppointmentNotifications: {
+  readonly defaultValue: typeof appointmentNotificationsDefaultValue;
+  readonly encode: typeof appointmentNotificationsEncode;
+  readonly encodeWithContext: typeof appointmentNotificationsEncodeWithContext;
+  readonly decode: typeof appointmentNotificationsDecode;
+  readonly decodeWithContext: typeof appointmentNotificationsDecodeWithContext;
+  readonly validateFields: typeof appointmentNotificationsValidateFields;
+  readonly hasShape: typeof appointmentNotificationsHasShape;
+  readonly is: typeof appointmentNotificationsIs;
+  readonly createForm: typeof appointmentNotificationsCreateForm;
+  readonly fromFormData: typeof appointmentNotificationsFromFormData;
+} = {
   defaultValue: appointmentNotificationsDefaultValue,
   encode: appointmentNotificationsEncode,
   encodeWithContext: appointmentNotificationsEncodeWithContext,
@@ -1608,7 +1773,7 @@ export const AppointmentNotifications = {
   is: appointmentNotificationsIs,
   createForm: appointmentNotificationsCreateForm,
   fromFormData: appointmentNotificationsFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1834,11 +1999,50 @@ allScheduleChangeNotifications: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_personalScheduleChangeNotifications = obj["personalScheduleChangeNotifications"] as string;
-                                            if (__raw_personalScheduleChangeNotifications == null) { errors.push({ field: "personalScheduleChangeNotifications", message: "AppointmentNotifications.personalScheduleChangeNotifications is required" }); } else {
+                                const __raw_personalScheduleChangeNotifications = obj["personalScheduleChangeNotifications"] as string;if (!(typeof __raw_personalScheduleChangeNotifications === "string")) {
+                                                    errors.push({ field: "personalScheduleChangeNotifications", message: __raw_personalScheduleChangeNotifications == null ? "AppointmentNotifications.personalScheduleChangeNotifications is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_personalScheduleChangeNotifications == null) { errors.push({ field: "personalScheduleChangeNotifications", message: "AppointmentNotifications.personalScheduleChangeNotifications is required" }); } else {
 if (__raw_personalScheduleChangeNotifications.length === 0) { errors.push({ field: "personalScheduleChangeNotifications", message: "AppointmentNotifications.personalScheduleChangeNotifications must not be empty" }); }
 }
-instance.personalScheduleChangeNotifications = __raw_personalScheduleChangeNotifications;
+
+
+
+
+                                                    instance.personalScheduleChangeNotifications = __raw_personalScheduleChangeNotifications;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2098,11 +2302,50 @@ instance.personalScheduleChangeNotifications = __raw_personalScheduleChangeNotif
 
 
                             }{
-                                const __raw_allScheduleChangeNotifications = obj["allScheduleChangeNotifications"] as string;
-                                            if (__raw_allScheduleChangeNotifications == null) { errors.push({ field: "allScheduleChangeNotifications", message: "AppointmentNotifications.allScheduleChangeNotifications is required" }); } else {
+                                const __raw_allScheduleChangeNotifications = obj["allScheduleChangeNotifications"] as string;if (!(typeof __raw_allScheduleChangeNotifications === "string")) {
+                                                    errors.push({ field: "allScheduleChangeNotifications", message: __raw_allScheduleChangeNotifications == null ? "AppointmentNotifications.allScheduleChangeNotifications is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_allScheduleChangeNotifications == null) { errors.push({ field: "allScheduleChangeNotifications", message: "AppointmentNotifications.allScheduleChangeNotifications is required" }); } else {
 if (__raw_allScheduleChangeNotifications.length === 0) { errors.push({ field: "allScheduleChangeNotifications", message: "AppointmentNotifications.allScheduleChangeNotifications must not be empty" }); }
 }
-instance.allScheduleChangeNotifications = __raw_allScheduleChangeNotifications;
+
+
+
+
+                                                    instance.allScheduleChangeNotifications = __raw_allScheduleChangeNotifications;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2930,6 +3173,82 @@ instance.allScheduleChangeNotifications = __raw_allScheduleChangeNotifications;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as AppointmentNotifications;
@@ -3188,7 +3507,18 @@ if (__val.length === 0) { errors.push({ field: "allScheduleChangeNotifications",
             return toExit(appointmentNotificationsDecode(obj));
         }
 
-export const AppointmentNotifications = {
+export const AppointmentNotifications: {
+  readonly defaultValue: typeof appointmentNotificationsDefaultValue;
+  readonly encode: typeof appointmentNotificationsEncode;
+  readonly encodeWithContext: typeof appointmentNotificationsEncodeWithContext;
+  readonly decode: typeof appointmentNotificationsDecode;
+  readonly decodeWithContext: typeof appointmentNotificationsDecodeWithContext;
+  readonly validateFields: typeof appointmentNotificationsValidateFields;
+  readonly hasShape: typeof appointmentNotificationsHasShape;
+  readonly is: typeof appointmentNotificationsIs;
+  readonly createForm: typeof appointmentNotificationsCreateForm;
+  readonly fromFormData: typeof appointmentNotificationsFromFormData;
+} = {
   defaultValue: appointmentNotificationsDefaultValue,
   encode: appointmentNotificationsEncode,
   encodeWithContext: appointmentNotificationsEncodeWithContext,
@@ -3199,7 +3529,7 @@ export const AppointmentNotifications = {
   is: appointmentNotificationsIs,
   createForm: appointmentNotificationsCreateForm,
   fromFormData: appointmentNotificationsFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3207,16 +3537,17 @@ export const AppointmentNotifications = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..156 -> expanded 58..107
-original 197..251 -> expanded 107..161
-original 292..338 -> expanded 161..207
-original 338..339 -> expanded 18841..18842
-generated 207..426 <- Default
-generated 426..2153 <- Encode
-generated 2153..11720 <- Decode
-generated 11720..18279 <- Gigaform
-generated 18279..18841 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..156 -> expanded 627..676
+original 197..251 -> expanded 676..730
+original 292..338 -> expanded 730..776
+original 338..339 -> expanded 21230..21231
+generated 0..569 <- imports
+generated 776..995 <- Default
+generated 995..2722 <- Encode
+generated 2722..13445 <- Decode
+generated 13445..20004 <- Gigaform
+generated 20004..21230 <- __convenience_const
 
 ## Metadata
 

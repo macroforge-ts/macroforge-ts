@@ -120,11 +120,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocEmail.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocEmail.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocEmail.value is required" }); } else {
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_value)) { errors.push({ field: "value", message: "DocEmail.value must be a valid email" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -613,11 +652,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocUrl.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocUrl.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocUrl.value is required" }); } else {
 if (!URL.canParse(__raw_value)) { errors.push({ field: "value", message: "DocUrl.value must be a valid URL" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1106,11 +1184,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocUuid.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocUuid.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocUuid.value is required" }); } else {
 if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__raw_value)) { errors.push({ field: "value", message: "DocUuid.value must be a valid UUID" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1599,11 +1716,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocPattern.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocPattern.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocPattern.value is required" }); } else {
 if (!/^[A-Z]{3}$/.test(__raw_value)) { errors.push({ field: "value", message: "DocPattern.value must match pattern ^[A-Z]{3}$" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2092,11 +2248,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocPatternWithSlash.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocPatternWithSlash.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocPatternWithSlash.value is required" }); } else {
 if (!/^a\/b$/.test(__raw_value)) { errors.push({ field: "value", message: "DocPatternWithSlash.value must match pattern ^a/b$" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2585,11 +2780,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocMinLength.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocMinLength.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocMinLength.value is required" }); } else {
 if (__raw_value.length < 3) { errors.push({ field: "value", message: "DocMinLength.value must have at least 3 characters" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3078,11 +3312,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocMaxLength.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocMaxLength.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocMaxLength.value is required" }); } else {
 if (__raw_value.length > 3) { errors.push({ field: "value", message: "DocMaxLength.value must have at most 3 characters" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3571,11 +3844,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocLength.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocLength.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocLength.value is required" }); } else {
 if (__raw_value.length !== 3) { errors.push({ field: "value", message: "DocLength.value must have exactly 3 characters" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4064,11 +4376,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocLengthRange.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocLengthRange.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocLengthRange.value is required" }); } else {
 if (__raw_value.length < 2 || __raw_value.length > 4) { errors.push({ field: "value", message: "DocLengthRange.value must have between 2 and 4 characters" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4557,11 +4908,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocNonEmpty.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocNonEmpty.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocNonEmpty.value is required" }); } else {
 if (__raw_value.length === 0) { errors.push({ field: "value", message: "DocNonEmpty.value must not be empty" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5050,11 +5440,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocTrimmed.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocTrimmed.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocTrimmed.value is required" }); } else {
 if (__raw_value !== __raw_value.trim()) { errors.push({ field: "value", message: "DocTrimmed.value must be trimmed" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5543,11 +5972,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocLowercase.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocLowercase.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocLowercase.value is required" }); } else {
 if (__raw_value !== __raw_value.toLowerCase()) { errors.push({ field: "value", message: "DocLowercase.value must be lowercase" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6036,11 +6504,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocUppercase.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocUppercase.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocUppercase.value is required" }); } else {
 if (__raw_value !== __raw_value.toUpperCase()) { errors.push({ field: "value", message: "DocUppercase.value must be uppercase" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6529,11 +7036,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocCapitalized.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocCapitalized.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocCapitalized.value is required" }); } else {
 if (__raw_value.length > 0 && __raw_value[0] !== __raw_value[0].toUpperCase()) { errors.push({ field: "value", message: "DocCapitalized.value must be capitalized" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7022,11 +7568,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocUncapitalized.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocUncapitalized.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocUncapitalized.value is required" }); } else {
 if (__raw_value.length > 0 && __raw_value[0] !== __raw_value[0].toLowerCase()) { errors.push({ field: "value", message: "DocUncapitalized.value must be uncapitalized" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7515,11 +8100,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocStartsWith.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocStartsWith.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocStartsWith.value is required" }); } else {
 if (!__raw_value.startsWith("pre")) { errors.push({ field: "value", message: "DocStartsWith.value must start with 'pre'" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8008,11 +8632,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocStartsWithQuote.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocStartsWithQuote.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocStartsWithQuote.value is required" }); } else {
 if (!__raw_value.startsWith("a\"b")) { errors.push({ field: "value", message: "DocStartsWithQuote.value must start with 'a\"b'" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8501,11 +9164,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocEndsWith.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocEndsWith.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocEndsWith.value is required" }); } else {
 if (!__raw_value.endsWith("fix")) { errors.push({ field: "value", message: "DocEndsWith.value must end with 'fix'" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8994,11 +9696,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocIncludes.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocIncludes.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocIncludes.value is required" }); } else {
 if (!__raw_value.includes("mid")) { errors.push({ field: "value", message: "DocIncludes.value must include 'mid'" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9487,11 +10228,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocGreaterThan.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocGreaterThan.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocGreaterThan.value is required" }); } else {
 if (__raw_value <= 5) { errors.push({ field: "value", message: "DocGreaterThan.value must be greater than 5" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9980,11 +10760,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocGreaterThanOrEqualTo.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocGreaterThanOrEqualTo.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocGreaterThanOrEqualTo.value is required" }); } else {
 if (__raw_value < 5) { errors.push({ field: "value", message: "DocGreaterThanOrEqualTo.value must be greater than or equal to 5" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -10473,11 +11292,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocLessThan.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocLessThan.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocLessThan.value is required" }); } else {
 if (__raw_value >= 5) { errors.push({ field: "value", message: "DocLessThan.value must be less than 5" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -10966,11 +11824,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocLessThanOrEqualTo.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocLessThanOrEqualTo.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocLessThanOrEqualTo.value is required" }); } else {
 if (__raw_value > 5) { errors.push({ field: "value", message: "DocLessThanOrEqualTo.value must be less than or equal to 5" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -11459,11 +12356,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocBetween.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocBetween.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocBetween.value is required" }); } else {
 if (__raw_value < 1 || __raw_value > 10) { errors.push({ field: "value", message: "DocBetween.value must be between 1 and 10" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -11952,11 +12888,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocInt.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocInt.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocInt.value is required" }); } else {
 if (!Number.isInteger(__raw_value)) { errors.push({ field: "value", message: "DocInt.value must be an integer" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12445,11 +13420,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocNonNegativeInt.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocNonNegativeInt.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocNonNegativeInt.value is required" }); } else {
 if (!Number.isInteger(__raw_value) || __raw_value < 0) { errors.push({ field: "value", message: "DocNonNegativeInt.value must be a non-negative integer" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12938,11 +13952,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocUint8.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocUint8.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocUint8.value is required" }); } else {
 if (!Number.isInteger(__raw_value) || __raw_value < 0 || __raw_value > 255) { errors.push({ field: "value", message: "DocUint8.value must be a uint8" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -13431,11 +14484,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocMultipleOfDecimal.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocMultipleOfDecimal.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocMultipleOfDecimal.value is required" }); } else {
 if (!__mf_isMultipleOf(__raw_value, 0.1)) { errors.push({ field: "value", message: "DocMultipleOfDecimal.value must be a multiple of 0.1" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -13924,11 +15016,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocMultipleOfInteger.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocMultipleOfInteger.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocMultipleOfInteger.value is required" }); } else {
 if (!__mf_isMultipleOf(__raw_value, 5)) { errors.push({ field: "value", message: "DocMultipleOfInteger.value must be a multiple of 5" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -14417,11 +15548,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocPositive.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocPositive.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocPositive.value is required" }); } else {
 if (__raw_value <= 0) { errors.push({ field: "value", message: "DocPositive.value must be positive" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -14910,11 +16080,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocNonNegative.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocNonNegative.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocNonNegative.value is required" }); } else {
 if (__raw_value < 0) { errors.push({ field: "value", message: "DocNonNegative.value must be non-negative" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -15403,11 +16612,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocNegative.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocNegative.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocNegative.value is required" }); } else {
 if (__raw_value >= 0) { errors.push({ field: "value", message: "DocNegative.value must be negative" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -15896,11 +17144,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocNonPositive.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocNonPositive.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocNonPositive.value is required" }); } else {
 if (__raw_value > 0) { errors.push({ field: "value", message: "DocNonPositive.value must be non-positive" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -16389,11 +17676,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocFinite.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocFinite.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocFinite.value is required" }); } else {
 if (!Number.isFinite(__raw_value)) { errors.push({ field: "value", message: "DocFinite.value must be finite" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -16882,11 +18208,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocNonNaN.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocNonNaN.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocNonNaN.value is required" }); } else {
 if (Number.isNaN(__raw_value)) { errors.push({ field: "value", message: "DocNonNaN.value must not be NaN" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -17374,13 +18739,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "DocPositiveBigInt.value is required" }); } else {
 if (__convertedVal <= 0n) { errors.push({ field: "value", message: "DocPositiveBigInt.value must be positive" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -17608,13 +18975,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "DocNonNegativeBigInt.value is required" }); } else {
 if (__convertedVal < 0n) { errors.push({ field: "value", message: "DocNonNegativeBigInt.value must be non-negative" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -17842,13 +19211,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "DocNegativeBigInt.value is required" }); } else {
 if (__convertedVal >= 0n) { errors.push({ field: "value", message: "DocNegativeBigInt.value must be negative" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -18076,13 +19447,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "DocNonPositiveBigInt.value is required" }); } else {
 if (__convertedVal > 0n) { errors.push({ field: "value", message: "DocNonPositiveBigInt.value must be non-positive" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -18310,13 +19683,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "DocGreaterThanBigInt.value is required" }); } else {
 if (__convertedVal <= 5n) { errors.push({ field: "value", message: "DocGreaterThanBigInt.value must be greater than 5" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -18544,13 +19919,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "DocGreaterThanOrEqualToBigInt.value is required" }); } else {
 if (__convertedVal < 5n) { errors.push({ field: "value", message: "DocGreaterThanOrEqualToBigInt.value must be greater than or equal to 5" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -18778,13 +20155,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "DocLessThanBigInt.value is required" }); } else {
 if (__convertedVal >= 5n) { errors.push({ field: "value", message: "DocLessThanBigInt.value must be less than 5" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -19012,13 +20391,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "DocLessThanOrEqualToBigInt.value is required" }); } else {
 if (__convertedVal > 5n) { errors.push({ field: "value", message: "DocLessThanOrEqualToBigInt.value must be less than or equal to 5" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -19246,13 +20627,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "DocBetweenBigInt.value is required" }); } else {
 if (__convertedVal < 1n || __convertedVal > 10n) { errors.push({ field: "value", message: "DocBetweenBigInt.value must be between 1 and 10" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -19488,6 +20871,38 @@ if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "value", messag
 
                                         instance.value = __dateVal;
                                     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -20243,6 +21658,38 @@ if (__dateVal.getTime() <= new Date("2020-01-01").getTime()) { errors.push({ fie
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }
 
 
@@ -20478,6 +21925,38 @@ if (__dateVal.getTime() < new Date("2020-01-01").getTime()) { errors.push({ fiel
 
                                         instance.value = __dateVal;
                                     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -21233,6 +22712,38 @@ if (__dateVal.getTime() >= new Date("2020-01-01").getTime()) { errors.push({ fie
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }
 
 
@@ -21728,6 +23239,38 @@ if (__dateVal.getTime() > new Date("2020-01-01").getTime()) { errors.push({ fiel
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }
 
 
@@ -21963,6 +23506,38 @@ if (__dateVal.getTime() < new Date("2020-01-01").getTime() || __dateVal.getTime(
 
                                         instance.value = __dateVal;
                                     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -22776,6 +24351,38 @@ instance.value = __raw_value as number[];
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }
 
 
@@ -23069,6 +24676,38 @@ instance.value = __raw_value as number[];
 
 
                                     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -23882,6 +25521,38 @@ instance.value = __raw_value as number[];
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }
 
 
@@ -24110,11 +25781,46 @@ constructor(props: { value: string | null }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string | null;if (__raw_value != null) {
+                            const __raw_value = obj["value"] as string | null;if (!(typeof __raw_value === "string" || __raw_value === null)) {
+                                                    errors.push({ field: "value", message: "expected string | null" });
+                                                } else {if (__raw_value != null) {
 if (__raw_value.length > 3) { errors.push({ field: "value", message: "DocNullableMaxLength.value must have at most 3 characters" }); }
 }
 
-                                            instance.value = __raw_value;
+                                                    instance.value = __raw_value;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -24872,6 +26578,38 @@ if (__dateVal.getTime() <= new Date("2020-01-01").getTime()) { errors.push({ fie
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }
 
 
@@ -25100,11 +26838,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocMessageEscaping.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocMessageEscaping.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocMessageEscaping.value is required" }); } else {
 if (__raw_value.length === 0) { errors.push({ field: "value", message: "say \"hi\"\nthen stop" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -25601,11 +27378,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocEmail.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocEmail.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocEmail.value is required" }); } else {
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_value)) { errors.push({ field: "value", message: "DocEmail.value must be a valid email" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -26094,11 +27910,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocUrl.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocUrl.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocUrl.value is required" }); } else {
 if (!URL.canParse(__raw_value)) { errors.push({ field: "value", message: "DocUrl.value must be a valid URL" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -26587,11 +28442,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocUuid.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocUuid.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocUuid.value is required" }); } else {
 if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__raw_value)) { errors.push({ field: "value", message: "DocUuid.value must be a valid UUID" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -27080,11 +28974,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocPattern.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocPattern.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocPattern.value is required" }); } else {
 if (!/^[A-Z]{3}$/.test(__raw_value)) { errors.push({ field: "value", message: "DocPattern.value must match pattern ^[A-Z]{3}$" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -27573,11 +29506,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocPatternWithSlash.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocPatternWithSlash.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocPatternWithSlash.value is required" }); } else {
 if (!/^a\/b$/.test(__raw_value)) { errors.push({ field: "value", message: "DocPatternWithSlash.value must match pattern ^a/b$" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -28066,11 +30038,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocMinLength.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocMinLength.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocMinLength.value is required" }); } else {
 if (__raw_value.length < 3) { errors.push({ field: "value", message: "DocMinLength.value must have at least 3 characters" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -28559,11 +30570,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocMaxLength.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocMaxLength.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocMaxLength.value is required" }); } else {
 if (__raw_value.length > 3) { errors.push({ field: "value", message: "DocMaxLength.value must have at most 3 characters" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -29052,11 +31102,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocLength.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocLength.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocLength.value is required" }); } else {
 if (__raw_value.length !== 3) { errors.push({ field: "value", message: "DocLength.value must have exactly 3 characters" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -29545,11 +31634,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocLengthRange.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocLengthRange.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocLengthRange.value is required" }); } else {
 if (__raw_value.length < 2 || __raw_value.length > 4) { errors.push({ field: "value", message: "DocLengthRange.value must have between 2 and 4 characters" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -30038,11 +32166,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocNonEmpty.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocNonEmpty.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocNonEmpty.value is required" }); } else {
 if (__raw_value.length === 0) { errors.push({ field: "value", message: "DocNonEmpty.value must not be empty" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -30531,11 +32698,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocTrimmed.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocTrimmed.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocTrimmed.value is required" }); } else {
 if (__raw_value !== __raw_value.trim()) { errors.push({ field: "value", message: "DocTrimmed.value must be trimmed" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -31024,11 +33230,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocLowercase.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocLowercase.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocLowercase.value is required" }); } else {
 if (__raw_value !== __raw_value.toLowerCase()) { errors.push({ field: "value", message: "DocLowercase.value must be lowercase" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -31517,11 +33762,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocUppercase.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocUppercase.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocUppercase.value is required" }); } else {
 if (__raw_value !== __raw_value.toUpperCase()) { errors.push({ field: "value", message: "DocUppercase.value must be uppercase" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -32010,11 +34294,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocCapitalized.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocCapitalized.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocCapitalized.value is required" }); } else {
 if (__raw_value.length > 0 && __raw_value[0] !== __raw_value[0].toUpperCase()) { errors.push({ field: "value", message: "DocCapitalized.value must be capitalized" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -32503,11 +34826,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocUncapitalized.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocUncapitalized.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocUncapitalized.value is required" }); } else {
 if (__raw_value.length > 0 && __raw_value[0] !== __raw_value[0].toLowerCase()) { errors.push({ field: "value", message: "DocUncapitalized.value must be uncapitalized" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -32996,11 +35358,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocStartsWith.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocStartsWith.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocStartsWith.value is required" }); } else {
 if (!__raw_value.startsWith("pre")) { errors.push({ field: "value", message: "DocStartsWith.value must start with 'pre'" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -33489,11 +35890,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocStartsWithQuote.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocStartsWithQuote.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocStartsWithQuote.value is required" }); } else {
 if (!__raw_value.startsWith("a\"b")) { errors.push({ field: "value", message: "DocStartsWithQuote.value must start with 'a\"b'" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -33982,11 +36422,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocEndsWith.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocEndsWith.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocEndsWith.value is required" }); } else {
 if (!__raw_value.endsWith("fix")) { errors.push({ field: "value", message: "DocEndsWith.value must end with 'fix'" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -34475,11 +36954,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocIncludes.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocIncludes.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocIncludes.value is required" }); } else {
 if (!__raw_value.includes("mid")) { errors.push({ field: "value", message: "DocIncludes.value must include 'mid'" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -34968,11 +37486,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocGreaterThan.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocGreaterThan.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocGreaterThan.value is required" }); } else {
 if (__raw_value <= 5) { errors.push({ field: "value", message: "DocGreaterThan.value must be greater than 5" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -35461,11 +38018,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocGreaterThanOrEqualTo.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocGreaterThanOrEqualTo.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocGreaterThanOrEqualTo.value is required" }); } else {
 if (__raw_value < 5) { errors.push({ field: "value", message: "DocGreaterThanOrEqualTo.value must be greater than or equal to 5" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -35954,11 +38550,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocLessThan.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocLessThan.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocLessThan.value is required" }); } else {
 if (__raw_value >= 5) { errors.push({ field: "value", message: "DocLessThan.value must be less than 5" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -36447,11 +39082,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocLessThanOrEqualTo.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocLessThanOrEqualTo.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocLessThanOrEqualTo.value is required" }); } else {
 if (__raw_value > 5) { errors.push({ field: "value", message: "DocLessThanOrEqualTo.value must be less than or equal to 5" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -36940,11 +39614,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocBetween.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocBetween.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocBetween.value is required" }); } else {
 if (__raw_value < 1 || __raw_value > 10) { errors.push({ field: "value", message: "DocBetween.value must be between 1 and 10" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -37433,11 +40146,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocInt.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocInt.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocInt.value is required" }); } else {
 if (!Number.isInteger(__raw_value)) { errors.push({ field: "value", message: "DocInt.value must be an integer" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -37926,11 +40678,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocNonNegativeInt.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocNonNegativeInt.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocNonNegativeInt.value is required" }); } else {
 if (!Number.isInteger(__raw_value) || __raw_value < 0) { errors.push({ field: "value", message: "DocNonNegativeInt.value must be a non-negative integer" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -38419,11 +41210,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocUint8.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocUint8.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocUint8.value is required" }); } else {
 if (!Number.isInteger(__raw_value) || __raw_value < 0 || __raw_value > 255) { errors.push({ field: "value", message: "DocUint8.value must be a uint8" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -38912,11 +41742,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocMultipleOfDecimal.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocMultipleOfDecimal.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocMultipleOfDecimal.value is required" }); } else {
 if (!__mf_isMultipleOf(__raw_value, 0.1)) { errors.push({ field: "value", message: "DocMultipleOfDecimal.value must be a multiple of 0.1" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -39405,11 +42274,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocMultipleOfInteger.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocMultipleOfInteger.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocMultipleOfInteger.value is required" }); } else {
 if (!__mf_isMultipleOf(__raw_value, 5)) { errors.push({ field: "value", message: "DocMultipleOfInteger.value must be a multiple of 5" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -39898,11 +42806,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocPositive.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocPositive.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocPositive.value is required" }); } else {
 if (__raw_value <= 0) { errors.push({ field: "value", message: "DocPositive.value must be positive" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -40391,11 +43338,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocNonNegative.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocNonNegative.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocNonNegative.value is required" }); } else {
 if (__raw_value < 0) { errors.push({ field: "value", message: "DocNonNegative.value must be non-negative" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -40884,11 +43870,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocNegative.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocNegative.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocNegative.value is required" }); } else {
 if (__raw_value >= 0) { errors.push({ field: "value", message: "DocNegative.value must be negative" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -41377,11 +44402,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocNonPositive.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocNonPositive.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocNonPositive.value is required" }); } else {
 if (__raw_value > 0) { errors.push({ field: "value", message: "DocNonPositive.value must be non-positive" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -41870,11 +44934,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocFinite.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocFinite.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocFinite.value is required" }); } else {
 if (!Number.isFinite(__raw_value)) { errors.push({ field: "value", message: "DocFinite.value must be finite" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -42363,11 +45466,50 @@ constructor(props: { value: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as number;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocNonNaN.value is required" }); } else {
+                            const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocNonNaN.value is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocNonNaN.value is required" }); } else {
 if (Number.isNaN(__raw_value)) { errors.push({ field: "value", message: "DocNonNaN.value must not be NaN" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -42855,13 +45997,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "DocPositiveBigInt.value is required" }); } else {
 if (__convertedVal <= 0n) { errors.push({ field: "value", message: "DocPositiveBigInt.value must be positive" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -43089,13 +46233,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "DocNonNegativeBigInt.value is required" }); } else {
 if (__convertedVal < 0n) { errors.push({ field: "value", message: "DocNonNegativeBigInt.value must be non-negative" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -43323,13 +46469,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "DocNegativeBigInt.value is required" }); } else {
 if (__convertedVal >= 0n) { errors.push({ field: "value", message: "DocNegativeBigInt.value must be negative" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -43557,13 +46705,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "DocNonPositiveBigInt.value is required" }); } else {
 if (__convertedVal > 0n) { errors.push({ field: "value", message: "DocNonPositiveBigInt.value must be non-positive" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -43791,13 +46941,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "DocGreaterThanBigInt.value is required" }); } else {
 if (__convertedVal <= 5n) { errors.push({ field: "value", message: "DocGreaterThanBigInt.value must be greater than 5" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -44025,13 +47177,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "DocGreaterThanOrEqualToBigInt.value is required" }); } else {
 if (__convertedVal < 5n) { errors.push({ field: "value", message: "DocGreaterThanOrEqualToBigInt.value must be greater than or equal to 5" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -44259,13 +47413,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "DocLessThanBigInt.value is required" }); } else {
 if (__convertedVal >= 5n) { errors.push({ field: "value", message: "DocLessThanBigInt.value must be less than 5" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -44493,13 +47649,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "DocLessThanOrEqualToBigInt.value is required" }); } else {
 if (__convertedVal > 5n) { errors.push({ field: "value", message: "DocLessThanOrEqualToBigInt.value must be less than or equal to 5" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -44727,13 +47885,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "DocBetweenBigInt.value is required" }); } else {
 if (__convertedVal < 1n || __convertedVal > 10n) { errors.push({ field: "value", message: "DocBetweenBigInt.value must be between 1 and 10" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -44969,6 +48129,38 @@ if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "value", messag
 
                                         instance.value = __dateVal;
                                     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -45724,6 +48916,38 @@ if (__dateVal.getTime() <= new Date("2020-01-01").getTime()) { errors.push({ fie
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }
 
 
@@ -45959,6 +49183,38 @@ if (__dateVal.getTime() < new Date("2020-01-01").getTime()) { errors.push({ fiel
 
                                         instance.value = __dateVal;
                                     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -46714,6 +49970,38 @@ if (__dateVal.getTime() >= new Date("2020-01-01").getTime()) { errors.push({ fie
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }
 
 
@@ -47209,6 +50497,38 @@ if (__dateVal.getTime() > new Date("2020-01-01").getTime()) { errors.push({ fiel
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }
 
 
@@ -47444,6 +50764,38 @@ if (__dateVal.getTime() < new Date("2020-01-01").getTime() || __dateVal.getTime(
 
                                         instance.value = __dateVal;
                                     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -48257,6 +51609,38 @@ instance.value = __raw_value as number[];
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }
 
 
@@ -48550,6 +51934,38 @@ instance.value = __raw_value as number[];
 
 
                                     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -49363,6 +52779,38 @@ instance.value = __raw_value as number[];
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }
 
 
@@ -49591,11 +53039,46 @@ constructor(props: { value: string | null }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string | null;if (__raw_value != null) {
+                            const __raw_value = obj["value"] as string | null;if (!(typeof __raw_value === "string" || __raw_value === null)) {
+                                                    errors.push({ field: "value", message: "expected string | null" });
+                                                } else {if (__raw_value != null) {
 if (__raw_value.length > 3) { errors.push({ field: "value", message: "DocNullableMaxLength.value must have at most 3 characters" }); }
 }
 
-                                            instance.value = __raw_value;
+                                                    instance.value = __raw_value;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -50353,6 +53836,38 @@ if (__dateVal.getTime() <= new Date("2020-01-01").getTime()) { errors.push({ fie
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }
 
 
@@ -50581,11 +54096,50 @@ constructor(props: { value: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_value = obj["value"] as string;
-                                        if (__raw_value == null) { errors.push({ field: "value", message: "DocMessageEscaping.value is required" }); } else {
+                            const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                errors.push({ field: "value", message: __raw_value == null ? "DocMessageEscaping.value is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_value == null) { errors.push({ field: "value", message: "DocMessageEscaping.value is required" }); } else {
 if (__raw_value.length === 0) { errors.push({ field: "value", message: "say \"hi\"\nthen stop" }); }
 }
-instance.value = __raw_value;
+
+
+
+
+                                                instance.value = __raw_value;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -50983,231 +54537,232 @@ if (__val.length === 0) { errors.push({ field: "value", message: "say \"hi\"\nth
 
 ## Mapping
 
-original 0..320 -> expanded 0..320
-original 320..321 -> expanded 5820..5821
-original 321..428 -> expanded 6959..7066
-original 428..429 -> expanded 12457..12458
-original 429..538 -> expanded 13578..13687
-original 538..539 -> expanded 19275..19276
-original 539..668 -> expanded 20405..20534
-original 668..669 -> expanded 26050..26051
-original 669..802 -> expanded 27207..27340
-original 802..803 -> expanded 33009..33010
-original 803..925 -> expanded 34247..34369
-original 925..926 -> expanded 39904..39905
-original 926..1048 -> expanded 41079..41201
-original 1048..1049 -> expanded 46733..46734
-original 1049..1165 -> expanded 47908..48024
-original 1165..1166 -> expanded 53502..53503
-original 1166..1290 -> expanded 54650..54774
-original 1290..1291 -> expanded 60430..60431
-original 1291..1408 -> expanded 61623..61740
-original 1408..1409 -> expanded 67219..67220
-original 1409..1524 -> expanded 68385..68500
-original 1524..1525 -> expanded 73971..73972
-original 1525..1644 -> expanded 75128..75247
-original 1644..1645 -> expanded 80785..80786
-original 1645..1764 -> expanded 81960..82079
-original 1764..1765 -> expanded 87617..87618
-original 1765..1888 -> expanded 88792..88915
-original 1888..1889 -> expanded 94583..94584
-original 1889..2016 -> expanded 95776..95903
-original 2016..2017 -> expanded 101617..101618
-original 2017..2145 -> expanded 102828..102956
-original 2145..2146 -> expanded 108505..108506
-original 2146..2281 -> expanded 109689..109824
-original 2281..2282 -> expanded 115479..115480
-original 2282..2406 -> expanded 116708..116832
-original 2406..2407 -> expanded 122329..122330
-original 2407..2531 -> expanded 123495..123619
-original 2531..2532 -> expanded 129113..129114
-original 2532..2658 -> expanded 130279..130405
-original 2658..2659 -> expanded 135935..135936
-original 2659..2803 -> expanded 137128..137272
-original 2803..2804 -> expanded 143015..143016
-original 2804..2924 -> expanded 144289..144409
-original 2924..2925 -> expanded 149870..149871
-original 2925..3063 -> expanded 151036..151174
-original 3063..3064 -> expanded 156848..156849
-original 3064..3186 -> expanded 158095..158217
-original 3186..3187 -> expanded 163718..163719
-original 3187..3294 -> expanded 164875..164982
-original 3294..3295 -> expanded 170382..170383
-original 3295..3424 -> expanded 171503..171632
-original 3424..3425 -> expanded 177333..177334
-original 3425..3536 -> expanded 178553..178664
-original 3536..3537 -> expanded 184191..184192
-original 3537..3670 -> expanded 185330..185463
-original 3670..3671 -> expanded 191182..191183
-original 3671..3802 -> expanded 192429..192560
-original 3802..3803 -> expanded 198267..198268
-original 3803..3920 -> expanded 199514..199631
-original 3920..3921 -> expanded 205083..205084
-original 3921..4044 -> expanded 206249..206372
-original 4044..4045 -> expanded 211893..211894
-original 4045..4162 -> expanded 213086..213203
-original 4162..4163 -> expanded 218655..218656
-original 4163..4286 -> expanded 219821..219944
-original 4286..4287 -> expanded 225465..225466
-original 4287..4400 -> expanded 226658..226771
-original 4400..4401 -> expanded 232216..232217
-original 4401..4514 -> expanded 233364..233477
-original 4514..4515 -> expanded 238913..238914
-original 4515..4644 -> expanded 240061..240190
-original 4644..4645 -> expanded 245586..245587
-original 4645..4780 -> expanded 246806..246941
-original 4780..4781 -> expanded 252406..252407
-original 4781..4910 -> expanded 253653..253782
-original 4910..4911 -> expanded 259178..259179
-original 4911..5046 -> expanded 260398..260533
-original 5046..5047 -> expanded 265998..265999
-original 5047..5185 -> expanded 267245..267383
-original 5185..5186 -> expanded 272857..272858
-original 5186..5342 -> expanded 274104..274260
-original 5342..5343 -> expanded 279947..279948
-original 5343..5475 -> expanded 281275..281407
-original 5475..5476 -> expanded 286812..286813
-original 5476..5626 -> expanded 288032..288182
-original 5626..5627 -> expanded 293800..293801
-original 5627..5761 -> expanded 295101..295235
-original 5761..5762 -> expanded 300686..300687
-original 5762..5879 -> expanded 301897..302014
-original 5879..5880 -> expanded 307735..307736
-original 5880..6023 -> expanded 308910..309053
-original 6023..6024 -> expanded 314963..314964
-original 6024..6185 -> expanded 316192..316353
-original 6185..6186 -> expanded 322458..322459
-original 6186..6323 -> expanded 323768..323905
-original 6323..6324 -> expanded 329758..329759
-original 6324..6479 -> expanded 330960..331115
-original 6479..6480 -> expanded 337163..337164
-original 6480..6629 -> expanded 338446..338595
-original 6629..6630 -> expanded 344639..344640
-original 6630..6752 -> expanded 345832..345954
-original 6752..6753 -> expanded 351608..351609
-original 6753..6875 -> expanded 352774..352896
-original 6875..6876 -> expanded 358547..358548
-original 6876..7002 -> expanded 359713..359839
-original 7002..7003 -> expanded 365536..365537
-original 7003..7140 -> expanded 366720..366857
-original 7140..7141 -> expanded 372302..372303
-original 7141..7290 -> expanded 373549..373698
-original 7290..7291 -> expanded 379478..379479
-original 7291..7463 -> expanded 380680..380852
-original 7463..7464 -> expanded 386408..386409
-original 7464..7465 -> expanded 387637..387638
-generated 320..5820 <- Decode
-generated 5821..6959 <- Decode
-generated 7066..12457 <- Decode
-generated 12458..13578 <- Decode
-generated 13687..19275 <- Decode
-generated 19276..20405 <- Decode
-generated 20534..26050 <- Decode
-generated 26051..27207 <- Decode
-generated 27340..33009 <- Decode
-generated 33010..34247 <- Decode
-generated 34369..39904 <- Decode
-generated 39905..41079 <- Decode
-generated 41201..46733 <- Decode
-generated 46734..47908 <- Decode
-generated 48024..53502 <- Decode
-generated 53503..54650 <- Decode
-generated 54774..60430 <- Decode
-generated 60431..61623 <- Decode
-generated 61740..67219 <- Decode
-generated 67220..68385 <- Decode
-generated 68500..73971 <- Decode
-generated 73972..75128 <- Decode
-generated 75247..80785 <- Decode
-generated 80786..81960 <- Decode
-generated 82079..87617 <- Decode
-generated 87618..88792 <- Decode
-generated 88915..94583 <- Decode
-generated 94584..95776 <- Decode
-generated 95903..101617 <- Decode
-generated 101618..102828 <- Decode
-generated 102956..108505 <- Decode
-generated 108506..109689 <- Decode
-generated 109824..115479 <- Decode
-generated 115480..116708 <- Decode
-generated 116832..122329 <- Decode
-generated 122330..123495 <- Decode
-generated 123619..129113 <- Decode
-generated 129114..130279 <- Decode
-generated 130405..135935 <- Decode
-generated 135936..137128 <- Decode
-generated 137272..143015 <- Decode
-generated 143016..144289 <- Decode
-generated 144409..149870 <- Decode
-generated 149871..151036 <- Decode
-generated 151174..156848 <- Decode
-generated 156849..158095 <- Decode
-generated 158217..163718 <- Decode
-generated 163719..164875 <- Decode
-generated 164982..170382 <- Decode
-generated 170383..171503 <- Decode
-generated 171632..177333 <- Decode
-generated 177334..178553 <- Decode
-generated 178664..184191 <- Decode
-generated 184192..185330 <- Decode
-generated 185463..191182 <- Decode
-generated 191183..192429 <- Decode
-generated 192560..198267 <- Decode
-generated 198268..199514 <- Decode
-generated 199631..205083 <- Decode
-generated 205084..206249 <- Decode
-generated 206372..211893 <- Decode
-generated 211894..213086 <- Decode
-generated 213203..218655 <- Decode
-generated 218656..219821 <- Decode
-generated 219944..225465 <- Decode
-generated 225466..226658 <- Decode
-generated 226771..232216 <- Decode
-generated 232217..233364 <- Decode
-generated 233477..238913 <- Decode
-generated 238914..240061 <- Decode
-generated 240190..245586 <- Decode
-generated 245587..246806 <- Decode
-generated 246941..252406 <- Decode
-generated 252407..253653 <- Decode
-generated 253782..259178 <- Decode
-generated 259179..260398 <- Decode
-generated 260533..265998 <- Decode
-generated 265999..267245 <- Decode
-generated 267383..272857 <- Decode
-generated 272858..274104 <- Decode
-generated 274260..279947 <- Decode
-generated 279948..281275 <- Decode
-generated 281407..286812 <- Decode
-generated 286813..288032 <- Decode
-generated 288182..293800 <- Decode
-generated 293801..295101 <- Decode
-generated 295235..300686 <- Decode
-generated 300687..301897 <- Decode
-generated 302014..307735 <- Decode
-generated 307736..308910 <- Decode
-generated 309053..314963 <- Decode
-generated 314964..316192 <- Decode
-generated 316353..322458 <- Decode
-generated 322459..323768 <- Decode
-generated 323905..329758 <- Decode
-generated 329759..330960 <- Decode
-generated 331115..337163 <- Decode
-generated 337164..338446 <- Decode
-generated 338595..344639 <- Decode
-generated 344640..345832 <- Decode
-generated 345954..351608 <- Decode
-generated 351609..352774 <- Decode
-generated 352896..358547 <- Decode
-generated 358548..359713 <- Decode
-generated 359839..365536 <- Decode
-generated 365537..366720 <- Decode
-generated 366857..372302 <- Decode
-generated 372303..373549 <- Decode
-generated 373698..379478 <- Decode
-generated 379479..380680 <- Decode
-generated 380852..386408 <- Decode
-generated 386409..387637 <- Decode
+original 0..320 -> expanded 383..703
+original 320..321 -> expanded 6601..6602
+original 321..428 -> expanded 7740..7847
+original 428..429 -> expanded 13634..13635
+original 429..538 -> expanded 14755..14864
+original 538..539 -> expanded 20849..20850
+original 539..668 -> expanded 21979..22108
+original 668..669 -> expanded 28024..28025
+original 669..802 -> expanded 29181..29314
+original 802..803 -> expanded 35392..35393
+original 803..925 -> expanded 36630..36752
+original 925..926 -> expanded 42689..42690
+original 926..1048 -> expanded 43864..43986
+original 1048..1049 -> expanded 49920..49921
+original 1049..1165 -> expanded 51095..51211
+original 1165..1166 -> expanded 57088..57089
+original 1166..1290 -> expanded 58236..58360
+original 1290..1291 -> expanded 64420..64421
+original 1291..1408 -> expanded 65613..65730
+original 1408..1409 -> expanded 71610..71611
+original 1409..1524 -> expanded 72776..72891
+original 1524..1525 -> expanded 78762..78763
+original 1525..1644 -> expanded 79919..80038
+original 1644..1645 -> expanded 85978..85979
+original 1645..1764 -> expanded 87153..87272
+original 1764..1765 -> expanded 93212..93213
+original 1765..1888 -> expanded 94387..94510
+original 1888..1889 -> expanded 100582..100583
+original 1889..2016 -> expanded 101775..101902
+original 2016..2017 -> expanded 108022..108023
+original 2017..2145 -> expanded 109233..109361
+original 2145..2146 -> expanded 115313..115314
+original 2146..2281 -> expanded 116497..116632
+original 2281..2282 -> expanded 122695..122696
+original 2282..2406 -> expanded 123924..124048
+original 2406..2407 -> expanded 129946..129947
+original 2407..2531 -> expanded 131112..131236
+original 2531..2532 -> expanded 137131..137132
+original 2532..2658 -> expanded 138297..138423
+original 2658..2659 -> expanded 144357..144358
+original 2659..2803 -> expanded 145550..145694
+original 2803..2804 -> expanded 151850..151851
+original 2804..2924 -> expanded 153124..153244
+original 2924..2925 -> expanded 159106..159107
+original 2925..3063 -> expanded 160272..160410
+original 3063..3064 -> expanded 166494..166495
+original 3064..3186 -> expanded 167741..167863
+original 3186..3187 -> expanded 173764..173765
+original 3187..3294 -> expanded 174921..175028
+original 3294..3295 -> expanded 180824..180825
+original 3295..3424 -> expanded 181945..182074
+original 3424..3425 -> expanded 188182..188183
+original 3425..3536 -> expanded 189402..189513
+original 3536..3537 -> expanded 195438..195439
+original 3537..3670 -> expanded 196577..196710
+original 3670..3671 -> expanded 202839..202840
+original 3671..3802 -> expanded 204086..204217
+original 3802..3803 -> expanded 210334..210335
+original 3803..3920 -> expanded 211581..211698
+original 3920..3921 -> expanded 217551..217552
+original 3921..4044 -> expanded 218717..218840
+original 4044..4045 -> expanded 224765..224766
+original 4045..4162 -> expanded 225958..226075
+original 4162..4163 -> expanded 231928..231929
+original 4163..4286 -> expanded 233094..233217
+original 4286..4287 -> expanded 239142..239143
+original 4287..4400 -> expanded 240335..240448
+original 4400..4401 -> expanded 246292..246293
+original 4401..4514 -> expanded 247440..247553
+original 4514..4515 -> expanded 253388..253389
+original 4515..4644 -> expanded 254536..254665
+original 4644..4645 -> expanded 260257..260258
+original 4645..4780 -> expanded 261477..261612
+original 4780..4781 -> expanded 267273..267274
+original 4781..4910 -> expanded 268520..268649
+original 4910..4911 -> expanded 274241..274242
+original 4911..5046 -> expanded 275461..275596
+original 5046..5047 -> expanded 281257..281258
+original 5047..5185 -> expanded 282504..282642
+original 5185..5186 -> expanded 288312..288313
+original 5186..5342 -> expanded 289559..289715
+original 5342..5343 -> expanded 295598..295599
+original 5343..5475 -> expanded 296926..297058
+original 5475..5476 -> expanded 302659..302660
+original 5476..5626 -> expanded 303879..304029
+original 5626..5627 -> expanded 309843..309844
+original 5627..5761 -> expanded 311144..311278
+original 5761..5762 -> expanded 316925..316926
+original 5762..5879 -> expanded 318136..318253
+original 5879..5880 -> expanded 324006..324007
+original 5880..6023 -> expanded 325181..325324
+original 6023..6024 -> expanded 331266..331267
+original 6024..6185 -> expanded 332495..332656
+original 6185..6186 -> expanded 338793..338794
+original 6186..6323 -> expanded 340103..340240
+original 6323..6324 -> expanded 346125..346126
+original 6324..6479 -> expanded 347327..347482
+original 6479..6480 -> expanded 353562..353563
+original 6480..6629 -> expanded 354845..354994
+original 6629..6630 -> expanded 361070..361071
+original 6630..6752 -> expanded 362263..362385
+original 6752..6753 -> expanded 368071..368072
+original 6753..6875 -> expanded 369237..369359
+original 6875..6876 -> expanded 375042..375043
+original 6876..7002 -> expanded 376208..376334
+original 7002..7003 -> expanded 382063..382064
+original 7003..7140 -> expanded 383247..383384
+original 7140..7141 -> expanded 389161..389162
+original 7141..7290 -> expanded 390408..390557
+original 7290..7291 -> expanded 396369..396370
+original 7291..7463 -> expanded 397571..397743
+original 7463..7464 -> expanded 403707..403708
+original 7464..7465 -> expanded 404936..404937
+generated 0..383 <- imports
+generated 703..6601 <- Decode
+generated 6602..7740 <- Decode
+generated 7847..13634 <- Decode
+generated 13635..14755 <- Decode
+generated 14864..20849 <- Decode
+generated 20850..21979 <- Decode
+generated 22108..28024 <- Decode
+generated 28025..29181 <- Decode
+generated 29314..35392 <- Decode
+generated 35393..36630 <- Decode
+generated 36752..42689 <- Decode
+generated 42690..43864 <- Decode
+generated 43986..49920 <- Decode
+generated 49921..51095 <- Decode
+generated 51211..57088 <- Decode
+generated 57089..58236 <- Decode
+generated 58360..64420 <- Decode
+generated 64421..65613 <- Decode
+generated 65730..71610 <- Decode
+generated 71611..72776 <- Decode
+generated 72891..78762 <- Decode
+generated 78763..79919 <- Decode
+generated 80038..85978 <- Decode
+generated 85979..87153 <- Decode
+generated 87272..93212 <- Decode
+generated 93213..94387 <- Decode
+generated 94510..100582 <- Decode
+generated 100583..101775 <- Decode
+generated 101902..108022 <- Decode
+generated 108023..109233 <- Decode
+generated 109361..115313 <- Decode
+generated 115314..116497 <- Decode
+generated 116632..122695 <- Decode
+generated 122696..123924 <- Decode
+generated 124048..129946 <- Decode
+generated 129947..131112 <- Decode
+generated 131236..137131 <- Decode
+generated 137132..138297 <- Decode
+generated 138423..144357 <- Decode
+generated 144358..145550 <- Decode
+generated 145694..151850 <- Decode
+generated 151851..153124 <- Decode
+generated 153244..159106 <- Decode
+generated 159107..160272 <- Decode
+generated 160410..166494 <- Decode
+generated 166495..167741 <- Decode
+generated 167863..173764 <- Decode
+generated 173765..174921 <- Decode
+generated 175028..180824 <- Decode
+generated 180825..181945 <- Decode
+generated 182074..188182 <- Decode
+generated 188183..189402 <- Decode
+generated 189513..195438 <- Decode
+generated 195439..196577 <- Decode
+generated 196710..202839 <- Decode
+generated 202840..204086 <- Decode
+generated 204217..210334 <- Decode
+generated 210335..211581 <- Decode
+generated 211698..217551 <- Decode
+generated 217552..218717 <- Decode
+generated 218840..224765 <- Decode
+generated 224766..225958 <- Decode
+generated 226075..231928 <- Decode
+generated 231929..233094 <- Decode
+generated 233217..239142 <- Decode
+generated 239143..240335 <- Decode
+generated 240448..246292 <- Decode
+generated 246293..247440 <- Decode
+generated 247553..253388 <- Decode
+generated 253389..254536 <- Decode
+generated 254665..260257 <- Decode
+generated 260258..261477 <- Decode
+generated 261612..267273 <- Decode
+generated 267274..268520 <- Decode
+generated 268649..274241 <- Decode
+generated 274242..275461 <- Decode
+generated 275596..281257 <- Decode
+generated 281258..282504 <- Decode
+generated 282642..288312 <- Decode
+generated 288313..289559 <- Decode
+generated 289715..295598 <- Decode
+generated 295599..296926 <- Decode
+generated 297058..302659 <- Decode
+generated 302660..303879 <- Decode
+generated 304029..309843 <- Decode
+generated 309844..311144 <- Decode
+generated 311278..316925 <- Decode
+generated 316926..318136 <- Decode
+generated 318253..324006 <- Decode
+generated 324007..325181 <- Decode
+generated 325324..331266 <- Decode
+generated 331267..332495 <- Decode
+generated 332656..338793 <- Decode
+generated 338794..340103 <- Decode
+generated 340240..346125 <- Decode
+generated 346126..347327 <- Decode
+generated 347482..353562 <- Decode
+generated 353563..354845 <- Decode
+generated 354994..361070 <- Decode
+generated 361071..362263 <- Decode
+generated 362385..368071 <- Decode
+generated 368072..369237 <- Decode
+generated 369359..375042 <- Decode
+generated 375043..376208 <- Decode
+generated 376334..382063 <- Decode
+generated 382064..383247 <- Decode
+generated 383384..389161 <- Decode
+generated 389162..390408 <- Decode
+generated 390557..396369 <- Decode
+generated 396370..397571 <- Decode
+generated 397743..403707 <- Decode
+generated 403708..404936 <- Decode
 
 ## Metadata
 

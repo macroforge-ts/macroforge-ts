@@ -668,3 +668,55 @@ fn svelte_package_accepts_full_rebuild() {
         "svelte-package --help should document --full-rebuild:\n{help}"
     );
 }
+
+#[test]
+fn expand_writes_state_in_the_file_project_not_the_working_directory() {
+    let temp = TempDir::new().unwrap();
+    let project = temp.path().join("app");
+    std::fs::create_dir_all(&project).unwrap();
+    setup_scan_fixture(&project);
+
+    let output = macroforge_bin()
+        .args(["expand", "app/src/withmacro.ts", "--out", "app/out.ts"])
+        .current_dir(temp.path())
+        .output()
+        .unwrap();
+
+    assert!(
+        output.status.success(),
+        "expand failed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(
+        project
+            .join(".macroforge")
+            .join("type-registry.json")
+            .exists()
+    );
+    assert!(!temp.path().join(".macroforge").exists());
+}
+
+#[test]
+fn expand_outside_any_project_writes_no_state() {
+    let temp = TempDir::new().unwrap();
+    let loose = temp.path().join("loose.ts");
+    std::fs::write(
+        &loose,
+        "/** @derive(Default) */\nexport interface Foo {\n  name: string;\n}\n",
+    )
+    .unwrap();
+
+    let output = macroforge_bin()
+        .args(["expand", "loose.ts", "--out", "loose.out.ts"])
+        .current_dir(temp.path())
+        .output()
+        .unwrap();
+
+    assert!(
+        output.status.success(),
+        "expand failed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(temp.path().join("loose.out.ts").exists());
+    assert!(!temp.path().join(".macroforge").exists());
+}

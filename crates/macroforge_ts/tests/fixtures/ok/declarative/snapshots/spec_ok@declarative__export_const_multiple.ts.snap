@@ -54,7 +54,16 @@ const forty = 40;
 
 ## Mapping
 
-(none)
+original 0..196 -> expanded 0..196
+original 248..250 -> expanded 196..198
+original 325..327 -> expanded 198..200
+original 378..394 -> expanded 200..216
+original 400..413 -> expanded 218..231
+original 426..442 -> expanded 238..254
+original 449..451 -> expanded 256..258
+generated 216..218 <- $vec
+generated 231..238 <- $vec
+generated 254..256 <- $id
 
 ## Metadata
 

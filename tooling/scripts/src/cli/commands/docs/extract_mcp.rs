@@ -87,6 +87,10 @@ const USE_CASES: &[(&str, &str)] = &[
         "/docs/builtin-macros/decode",
         "fromJSON, decoding, parsing, validation, json",
     ),
+    (
+        "/docs/builtin-macros/newtype",
+        "newtype, brand, branded type, nominal type, unique symbol, opaque type",
+    ),
     // Custom Macros
     (
         "/docs/custom-macros",

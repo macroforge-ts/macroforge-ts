@@ -846,6 +846,18 @@ export function intervalDefaultValue(): Interval {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function intervalHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
@@ -1037,8 +1049,11 @@ export function intervalDefaultValue(): Interval {
 
         }
 
-        export function intervalIs(value: unknown): value is Interval {
-            return intervalHasShape(value);
+        export function intervalIs(value: unknown): value is Interval {return intervalHasShape(value);
+
+
+
+
         }
 
 /** Per-variant error types  */
@@ -1268,7 +1283,17 @@ if (variant === "YearlyRecurrenceRule") { return yearlyRecurrenceRuleDefaultValu
             return toExit(intervalDecode(obj));
         }
 
-export const Interval = {
+export const Interval: {
+  readonly defaultValue: typeof intervalDefaultValue;
+  readonly encode: typeof intervalEncode;
+  readonly encodeWithContext: typeof intervalEncodeWithContext;
+  readonly decode: typeof intervalDecode;
+  readonly decodeWithContext: typeof intervalDecodeWithContext;
+  readonly hasShape: typeof intervalHasShape;
+  readonly is: typeof intervalIs;
+  readonly createForm: typeof intervalCreateForm;
+  readonly fromFormData: typeof intervalFromFormData;
+} = {
   defaultValue: intervalDefaultValue,
   encode: intervalEncode,
   encodeWithContext: intervalEncodeWithContext,
@@ -1278,7 +1303,7 @@ export const Interval = {
   is: intervalIs,
   createForm: intervalCreateForm,
   fromFormData: intervalFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2095,6 +2120,18 @@ export function intervalDefaultValue(): Interval {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function intervalHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
@@ -2286,8 +2323,11 @@ export function intervalDefaultValue(): Interval {
 
         }
 
-        export function intervalIs(value: unknown): value is Interval {
-            return intervalHasShape(value);
+        export function intervalIs(value: unknown): value is Interval {return intervalHasShape(value);
+
+
+
+
         }
 
 /** Per-variant error types  */
@@ -2517,7 +2557,17 @@ if (variant === "YearlyRecurrenceRule") { return yearlyRecurrenceRuleDefaultValu
             return toExit(intervalDecode(obj));
         }
 
-export const Interval = {
+export const Interval: {
+  readonly defaultValue: typeof intervalDefaultValue;
+  readonly encode: typeof intervalEncode;
+  readonly encodeWithContext: typeof intervalEncodeWithContext;
+  readonly decode: typeof intervalDecode;
+  readonly decodeWithContext: typeof intervalDecodeWithContext;
+  readonly hasShape: typeof intervalHasShape;
+  readonly is: typeof intervalIs;
+  readonly createForm: typeof intervalCreateForm;
+  readonly fromFormData: typeof intervalFromFormData;
+} = {
   defaultValue: intervalDefaultValue,
   encode: intervalEncode,
   encodeWithContext: intervalEncodeWithContext,
@@ -2527,7 +2577,7 @@ export const Interval = {
   is: intervalIs,
   createForm: intervalCreateForm,
   fromFormData: intervalFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -2535,14 +2585,15 @@ export const Interval = {
 
 ## Mapping
 
-original 0..367 -> expanded 0..367
-original 416..564 -> expanded 367..515
-original 564..565 -> expanded 21325..21326
-generated 515..663 <- Default
-generated 663..2571 <- Encode
-generated 2571..12976 <- Decode
-generated 12976..20981 <- Gigaform
-generated 20981..21325 <- __convenience_const
+original 0..367 -> expanded 1581..1948
+original 416..564 -> expanded 1948..2096
+original 564..565 -> expanded 23355..23356
+generated 0..1581 <- imports
+generated 2096..2244 <- Default
+generated 2244..4152 <- Encode
+generated 4152..14560 <- Decode
+generated 14560..22565 <- Gigaform
+generated 22565..23355 <- __convenience_const
 
 ## Metadata
 

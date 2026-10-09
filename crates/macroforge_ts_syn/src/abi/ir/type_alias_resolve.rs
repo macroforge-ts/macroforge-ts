@@ -145,48 +145,44 @@ fn try_expand_alias(
         .zip(resolved_args.iter().map(String::as_str))
         .collect();
 
-    let rendered = render_body(&alias.body, &subs);
-    if rendered.is_empty() {
-        return None;
-    }
-    Some(rendered)
+    render_body(&alias.body, &subs)
 }
 
-fn render_body(body: &TypeBody, subs: &HashMap<&str, &str>) -> String {
+/// Render an alias body with its type parameters substituted. Bodies that
+/// cannot round-trip through a string (inline objects, symbol brands) are
+/// `None`, so the caller keeps the generic-instantiation form.
+fn render_body(body: &TypeBody, subs: &HashMap<&str, &str>) -> Option<String> {
     match body {
-        TypeBody::Union(members) => members
-            .iter()
-            .map(|m| render_member(m, subs))
-            .collect::<Vec<_>>()
-            .join(" | "),
-        TypeBody::Intersection(members) => members
-            .iter()
-            .map(|m| render_member(m, subs))
-            .collect::<Vec<_>>()
-            .join(" & "),
-        TypeBody::Alias(target) => substitute_tokens(target, subs),
+        TypeBody::Union(members) => render_members(members, subs, " | "),
+        TypeBody::Intersection(members) => render_members(members, subs, " & "),
+        TypeBody::Alias(target) => Some(substitute_tokens(target, subs)),
         TypeBody::Tuple(elems) => {
             let inner: Vec<String> = elems.iter().map(|e| substitute_tokens(e, subs)).collect();
-            format!("[{}]", inner.join(", "))
+            Some(format!("[{}]", inner.join(", ")))
         }
-        // Object / Other aliases with non-trivial bodies aren't safe to
-        // round-trip via a string; signal un-resolvable so the caller keeps
-        // the generic-instantiation form and reports a clear error later.
-        TypeBody::Object { .. } => String::new(),
-        TypeBody::Other(raw) => substitute_tokens(raw, subs),
+        TypeBody::Object { .. } => None,
+        TypeBody::Other(raw) => Some(substitute_tokens(raw, subs)),
     }
 }
 
-fn render_member(m: &TypeMember, subs: &HashMap<&str, &str>) -> String {
-    match &m.kind {
-        TypeMemberKind::Literal(s) => s.clone(),
-        TypeMemberKind::TypeRef(s) => substitute_tokens(s, subs),
-        TypeMemberKind::Intersection(members) => members
-            .iter()
-            .map(|m| render_member(m, subs))
-            .collect::<Vec<_>>()
-            .join(" & "),
-        TypeMemberKind::Object { .. } => String::new(),
+fn render_members(
+    members: &[TypeMember],
+    subs: &HashMap<&str, &str>,
+    separator: &str,
+) -> Option<String> {
+    let rendered = members
+        .iter()
+        .map(|member| render_member(member, subs))
+        .collect::<Option<Vec<_>>>()?;
+    Some(rendered.join(separator))
+}
+
+fn render_member(member: &TypeMember, subs: &HashMap<&str, &str>) -> Option<String> {
+    match &member.kind {
+        TypeMemberKind::Literal(literal) => Some(literal.clone()),
+        TypeMemberKind::TypeRef(reference) => Some(substitute_tokens(reference, subs)),
+        TypeMemberKind::Intersection(members) => render_members(members, subs, " & "),
+        TypeMemberKind::Object { .. } | TypeMemberKind::Brand(_) => None,
     }
 }
 
@@ -253,8 +249,9 @@ fn split_top_level_commas(args: &str) -> Vec<&str> {
         .collect()
 }
 
-/// Split on top-level `|`: mirrors the classifier's behavior for unions.
-fn split_top_level_union(s: &str) -> Option<Vec<&str>> {
+/// Split a type on its top-level `|`, ignoring any inside `<>`, `()`, `[]`,
+/// `{}` or a string literal. `None` when there is no top-level `|`.
+pub fn split_top_level_union(s: &str) -> Option<Vec<&str>> {
     let parts = split_on_top_level(s, b'|');
     if parts.len() < 2 {
         return None;
@@ -262,7 +259,8 @@ fn split_top_level_union(s: &str) -> Option<Vec<&str>> {
     Some(parts.into_iter().map(str::trim).collect())
 }
 
-fn split_top_level_intersection(s: &str) -> Option<Vec<&str>> {
+/// Split a type on its top-level `&`, like [`split_top_level_union`].
+pub fn split_top_level_intersection(s: &str) -> Option<Vec<&str>> {
     let parts = split_on_top_level(s, b'&');
     if parts.len() < 2 {
         return None;
@@ -286,6 +284,8 @@ fn split_on_top_level(s: &str, sep: u8) -> Vec<&str> {
         } else {
             match c {
                 b'"' | b'\'' | b'`' => in_str = Some(c),
+                // The `>` of an arrow (`=>`) closes nothing.
+                b'>' if i > 0 && bytes[i - 1] == b'=' => {}
                 b'<' | b'(' | b'[' | b'{' => depth += 1,
                 b'>' | b')' | b']' | b'}' => depth -= 1,
                 _ if c == sep && depth == 0 => {
@@ -303,7 +303,11 @@ fn split_on_top_level(s: &str, sep: u8) -> Vec<&str> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{
+        HashMap, TypeBody, TypeDefinitionIR, TypeMember, TypeMemberKind, TypeRegistry,
+        resolve_generic_aliases, split_top_level_commas, split_top_level_intersection,
+        split_top_level_union, substitute_tokens,
+    };
     use crate::abi::SpanIR;
     use crate::abi::ir::type_alias::TypeAliasIR;
     use crate::abi::ir::type_registry::TypeRegistryEntry;
@@ -410,6 +414,38 @@ mod tests {
     }
 
     #[test]
+    fn passes_through_alias_with_unrenderable_member() {
+        let mut reg = TypeRegistry::new();
+        // type Outcome<T> = { ok: T } | string
+        let body = TypeBody::Union(vec![
+            TypeMember::new(TypeMemberKind::Object { fields: vec![] }),
+            TypeMember::new(TypeMemberKind::TypeRef("string".to_string())),
+        ]);
+        reg.insert(
+            alias_entry("Outcome", vec!["T"], body, "/p/outcome.ts"),
+            "/p",
+        );
+        // type Branded<T> = T & { readonly [B]: true }
+        let body = TypeBody::Intersection(vec![
+            TypeMember::new(TypeMemberKind::TypeRef("T".to_string())),
+            TypeMember::new(TypeMemberKind::Brand(vec!["B".to_string()])),
+        ]);
+        reg.insert(
+            alias_entry("Branded", vec!["T"], body, "/p/branded.ts"),
+            "/p",
+        );
+
+        assert_eq!(
+            resolve_generic_aliases("Outcome<Foo>", &reg, "", &[]),
+            "Outcome<Foo>"
+        );
+        assert_eq!(
+            resolve_generic_aliases("Branded<number>", &reg, "", &[]),
+            "Branded<number>"
+        );
+    }
+
+    #[test]
     fn passes_through_arity_mismatch() {
         let reg = record_link_registry();
         assert_eq!(
@@ -474,6 +510,22 @@ mod tests {
         assert_eq!(substitute_tokens("Array<T>", &subs), "Array<ErrandMessage>");
         assert_eq!(substitute_tokens("MyT", &subs), "MyT");
         assert_eq!(substitute_tokens("TFoo", &subs), "TFoo");
+    }
+
+    #[test]
+    fn split_top_level_union_skips_arrow_types() {
+        assert_eq!(
+            split_top_level_union("(() => void) | null"),
+            Some(vec!["(() => void)", "null"])
+        );
+        assert_eq!(
+            split_top_level_union("Map<string, (x: number) => string> | undefined"),
+            Some(vec!["Map<string, (x: number) => string>", "undefined"])
+        );
+        assert_eq!(
+            split_top_level_intersection("number & { readonly [B]: true }"),
+            Some(vec!["number", "{ readonly [B]: true }"])
+        );
     }
 
     #[test]

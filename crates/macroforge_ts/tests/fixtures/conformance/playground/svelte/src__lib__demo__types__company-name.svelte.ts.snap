@@ -239,11 +239,50 @@ companyName: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_companyName = obj["companyName"] as string;
-                                            if (__raw_companyName == null) { errors.push({ field: "companyName", message: "CompanyName.companyName is required" }); } else {
+                                const __raw_companyName = obj["companyName"] as string;if (!(typeof __raw_companyName === "string")) {
+                                                    errors.push({ field: "companyName", message: __raw_companyName == null ? "CompanyName.companyName is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_companyName == null) { errors.push({ field: "companyName", message: "CompanyName.companyName is required" }); } else {
 if (__raw_companyName.length === 0) { errors.push({ field: "companyName", message: "CompanyName.companyName must not be empty" }); }
 }
-instance.companyName = __raw_companyName;
+
+
+
+
+                                                    instance.companyName = __raw_companyName;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1071,6 +1110,82 @@ instance.companyName = __raw_companyName;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as CompanyName;
@@ -1283,7 +1398,18 @@ if (__val.length === 0) { errors.push({ field: "companyName", message: "CompanyN
             return toExit(companyNameDecode(obj));
         }
 
-export const CompanyName = {
+export const CompanyName: {
+  readonly defaultValue: typeof companyNameDefaultValue;
+  readonly encode: typeof companyNameEncode;
+  readonly encodeWithContext: typeof companyNameEncodeWithContext;
+  readonly decode: typeof companyNameDecode;
+  readonly decodeWithContext: typeof companyNameDecodeWithContext;
+  readonly validateFields: typeof companyNameValidateFields;
+  readonly hasShape: typeof companyNameHasShape;
+  readonly is: typeof companyNameIs;
+  readonly createForm: typeof companyNameCreateForm;
+  readonly fromFormData: typeof companyNameFromFormData;
+} = {
   defaultValue: companyNameDefaultValue,
   encode: companyNameEncode,
   encodeWithContext: companyNameEncodeWithContext,
@@ -1294,7 +1420,7 @@ export const CompanyName = {
   is: companyNameIs,
   createForm: companyNameCreateForm,
   fromFormData: companyNameFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1516,11 +1642,50 @@ companyName: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_companyName = obj["companyName"] as string;
-                                            if (__raw_companyName == null) { errors.push({ field: "companyName", message: "CompanyName.companyName is required" }); } else {
+                                const __raw_companyName = obj["companyName"] as string;if (!(typeof __raw_companyName === "string")) {
+                                                    errors.push({ field: "companyName", message: __raw_companyName == null ? "CompanyName.companyName is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_companyName == null) { errors.push({ field: "companyName", message: "CompanyName.companyName is required" }); } else {
 if (__raw_companyName.length === 0) { errors.push({ field: "companyName", message: "CompanyName.companyName must not be empty" }); }
 }
-instance.companyName = __raw_companyName;
+
+
+
+
+                                                    instance.companyName = __raw_companyName;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2348,6 +2513,82 @@ instance.companyName = __raw_companyName;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as CompanyName;
@@ -2560,7 +2801,18 @@ if (__val.length === 0) { errors.push({ field: "companyName", message: "CompanyN
             return toExit(companyNameDecode(obj));
         }
 
-export const CompanyName = {
+export const CompanyName: {
+  readonly defaultValue: typeof companyNameDefaultValue;
+  readonly encode: typeof companyNameEncode;
+  readonly encodeWithContext: typeof companyNameEncodeWithContext;
+  readonly decode: typeof companyNameDecode;
+  readonly decodeWithContext: typeof companyNameDecodeWithContext;
+  readonly validateFields: typeof companyNameValidateFields;
+  readonly hasShape: typeof companyNameHasShape;
+  readonly is: typeof companyNameIs;
+  readonly createForm: typeof companyNameCreateForm;
+  readonly fromFormData: typeof companyNameFromFormData;
+} = {
   defaultValue: companyNameDefaultValue,
   encode: companyNameEncode,
   encodeWithContext: companyNameEncodeWithContext,
@@ -2571,7 +2823,7 @@ export const CompanyName = {
   is: companyNameIs,
   createForm: companyNameCreateForm,
   fromFormData: companyNameFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -2579,16 +2831,17 @@ export const CompanyName = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..143 -> expanded 58..94
-original 192..197 -> expanded 94..99
-original 238..265 -> expanded 99..126
-original 265..266 -> expanded 12602..12603
-generated 126..259 <- Default
-generated 259..1783 <- Encode
-generated 1783..8165 <- Decode
-generated 8165..12183 <- Gigaform
-generated 12183..12602 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..143 -> expanded 627..663
+original 192..197 -> expanded 663..668
+original 238..265 -> expanded 668..695
+original 265..266 -> expanded 14222..14223
+generated 0..569 <- imports
+generated 695..828 <- Default
+generated 828..2352 <- Encode
+generated 2352..9251 <- Decode
+generated 9251..13269 <- Gigaform
+generated 13269..14222 <- __convenience_const
 
 ## Metadata
 

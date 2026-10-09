@@ -13,7 +13,7 @@
 //! - `{#for item in list}...{/for}` - Iteration
 //! - `{#while cond}...{/while}` - While loops
 //! - `{#while let pattern = expr}...{/while}` - While-let loops
-//! - `{%let name = expr}` or `{$let name = expr}` - Local constants
+//! - `{$let name = expr}` - Local constants
 //! - `{$let mut name = expr}` - Mutable local bindings
 //! - `{$do expr}` - Execute a Rust expression for its side effects
 //! - `{$typescript expr}` - Inject a `TsStream` into the output

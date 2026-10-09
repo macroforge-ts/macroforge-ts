@@ -36,7 +36,8 @@ export declare function useStore(): { $state: number };
 
 ## Mapping
 
-(none)
+original 92..243 -> expanded 18..169
+generated 0..18 <- deprecated
 
 ## Metadata
 

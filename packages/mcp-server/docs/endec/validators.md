@@ -33,6 +33,39 @@ with _"validate must be an array"_.
 Misspelled names are caught with a suggestion: the parser does a Levenshtein match against the known
 list and tells you what you probably meant.
 
+## On a primitive alias
+
+Validators can also go on a type alias of a primitive, plain or branded with
+[`$Newtype`](/docs/builtin-macros/newtype). They then validate the value itself, and every field
+typed with the alias gets them through the alias's `decode`:
+
+```typescript
+/** @derive(Encode, Decode) */
+/** @endec(nonNegative, finite) */
+type Meters = $Newtype<number>;
+
+Meters.decode(-1); // { success: false, errors: [{ field: "_root", message: "Meters must be non-negative" }] }
+Meters.is(12); // true
+```
+
+On a field such as `distance: Meters`, the error's `field` is `distance`. Alias-level validators on
+any other alias shape are rejected at expansion; put them on the fields.
+
+## On a union arm
+
+A primitive arm of a union alias can carry its own validators in a leading comment. They run only
+when the value takes that arm:
+
+```typescript
+/** @derive(Decode) */
+type Contact = /** @endec(email) */ string | number;
+
+Contact.decode('not-an-email'); // { success: false, errors: [{ field: "_root", message: "Contact must be a valid email" }] }
+Contact.decode(42); // { success: true, value: 42 }
+```
+
+Validators on any other arm are rejected at expansion; put them on the variant's fields.
+
 ## String validators
 
 | Validator          | Checks                                       |

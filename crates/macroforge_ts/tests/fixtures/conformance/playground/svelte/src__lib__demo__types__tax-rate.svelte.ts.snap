@@ -290,7 +290,46 @@ taxComponents: ({}),
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "TaxRate.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -550,11 +589,50 @@ taxComponents: ({}),
 
 
                             }{
-                                const __raw_name = obj["name"] as string;
-                                            if (__raw_name == null) { errors.push({ field: "name", message: "TaxRate.name is required" }); } else {
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "TaxRate.name is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_name == null) { errors.push({ field: "name", message: "TaxRate.name is required" }); } else {
 if (__raw_name.length === 0) { errors.push({ field: "name", message: "TaxRate.name must not be empty" }); }
 }
-instance.name = __raw_name;
+
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -814,11 +892,50 @@ instance.name = __raw_name;
 
 
                             }{
-                                const __raw_taxAgency = obj["taxAgency"] as string;
-                                            if (__raw_taxAgency == null) { errors.push({ field: "taxAgency", message: "TaxRate.taxAgency is required" }); } else {
+                                const __raw_taxAgency = obj["taxAgency"] as string;if (!(typeof __raw_taxAgency === "string")) {
+                                                    errors.push({ field: "taxAgency", message: __raw_taxAgency == null ? "TaxRate.taxAgency is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_taxAgency == null) { errors.push({ field: "taxAgency", message: "TaxRate.taxAgency is required" }); } else {
 if (__raw_taxAgency.length === 0) { errors.push({ field: "taxAgency", message: "TaxRate.taxAgency must not be empty" }); }
 }
-instance.taxAgency = __raw_taxAgency;
+
+
+
+
+                                                    instance.taxAgency = __raw_taxAgency;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1078,7 +1195,46 @@ instance.taxAgency = __raw_taxAgency;
 
 
                             }{
-                                const __raw_zip = obj["zip"] as number;instance.zip = __raw_zip;
+                                const __raw_zip = obj["zip"] as number;if (!(typeof __raw_zip === "number")) {
+                                                    errors.push({ field: "zip", message: __raw_zip == null ? "TaxRate.zip is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.zip = __raw_zip;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1338,11 +1494,50 @@ instance.taxAgency = __raw_taxAgency;
 
 
                             }{
-                                const __raw_city = obj["city"] as string;
-                                            if (__raw_city == null) { errors.push({ field: "city", message: "TaxRate.city is required" }); } else {
+                                const __raw_city = obj["city"] as string;if (!(typeof __raw_city === "string")) {
+                                                    errors.push({ field: "city", message: __raw_city == null ? "TaxRate.city is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_city == null) { errors.push({ field: "city", message: "TaxRate.city is required" }); } else {
 if (__raw_city.length === 0) { errors.push({ field: "city", message: "TaxRate.city must not be empty" }); }
 }
-instance.city = __raw_city;
+
+
+
+
+                                                    instance.city = __raw_city;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1602,11 +1797,50 @@ instance.city = __raw_city;
 
 
                             }{
-                                const __raw_county = obj["county"] as string;
-                                            if (__raw_county == null) { errors.push({ field: "county", message: "TaxRate.county is required" }); } else {
+                                const __raw_county = obj["county"] as string;if (!(typeof __raw_county === "string")) {
+                                                    errors.push({ field: "county", message: __raw_county == null ? "TaxRate.county is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_county == null) { errors.push({ field: "county", message: "TaxRate.county is required" }); } else {
 if (__raw_county.length === 0) { errors.push({ field: "county", message: "TaxRate.county must not be empty" }); }
 }
-instance.county = __raw_county;
+
+
+
+
+                                                    instance.county = __raw_county;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1866,11 +2100,50 @@ instance.county = __raw_county;
 
 
                             }{
-                                const __raw_state = obj["state"] as string;
-                                            if (__raw_state == null) { errors.push({ field: "state", message: "TaxRate.state is required" }); } else {
+                                const __raw_state = obj["state"] as string;if (!(typeof __raw_state === "string")) {
+                                                    errors.push({ field: "state", message: __raw_state == null ? "TaxRate.state is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_state == null) { errors.push({ field: "state", message: "TaxRate.state is required" }); } else {
 if (__raw_state.length === 0) { errors.push({ field: "state", message: "TaxRate.state must not be empty" }); }
 }
-instance.state = __raw_state;
+
+
+
+
+                                                    instance.state = __raw_state;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2130,7 +2403,46 @@ instance.state = __raw_state;
 
 
                             }{
-                                const __raw_isActive = obj["isActive"] as boolean;instance.isActive = __raw_isActive;
+                                const __raw_isActive = obj["isActive"] as boolean;if (!(typeof __raw_isActive === "boolean")) {
+                                                    errors.push({ field: "isActive", message: __raw_isActive == null ? "TaxRate.isActive is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.isActive = __raw_isActive;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2390,11 +2702,50 @@ instance.state = __raw_state;
 
 
                             }{
-                                const __raw_description = obj["description"] as string;
-                                            if (__raw_description == null) { errors.push({ field: "description", message: "TaxRate.description is required" }); } else {
+                                const __raw_description = obj["description"] as string;if (!(typeof __raw_description === "string")) {
+                                                    errors.push({ field: "description", message: __raw_description == null ? "TaxRate.description is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_description == null) { errors.push({ field: "description", message: "TaxRate.description is required" }); } else {
 if (__raw_description.length === 0) { errors.push({ field: "description", message: "TaxRate.description must not be empty" }); }
 }
-instance.description = __raw_description;
+
+
+
+
+                                                    instance.description = __raw_description;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2913,7 +3264,115 @@ instance.description = __raw_description;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4051,7 +4510,18 @@ if (__val.length === 0) { errors.push({ field: "description", message: "TaxRate.
             return toExit(taxRateDecode(obj));
         }
 
-export const TaxRate = {
+export const TaxRate: {
+  readonly defaultValue: typeof taxRateDefaultValue;
+  readonly encode: typeof taxRateEncode;
+  readonly encodeWithContext: typeof taxRateEncodeWithContext;
+  readonly decode: typeof taxRateDecode;
+  readonly decodeWithContext: typeof taxRateDecodeWithContext;
+  readonly validateFields: typeof taxRateValidateFields;
+  readonly hasShape: typeof taxRateHasShape;
+  readonly is: typeof taxRateIs;
+  readonly createForm: typeof taxRateCreateForm;
+  readonly fromFormData: typeof taxRateFromFormData;
+} = {
   defaultValue: taxRateDefaultValue,
   encode: taxRateEncode,
   encodeWithContext: taxRateEncodeWithContext,
@@ -4062,7 +4532,7 @@ export const TaxRate = {
   is: taxRateIs,
   createForm: taxRateCreateForm,
   fromFormData: taxRateFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -4335,7 +4805,46 @@ taxComponents: ({}),
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "TaxRate.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4595,11 +5104,50 @@ taxComponents: ({}),
 
 
                             }{
-                                const __raw_name = obj["name"] as string;
-                                            if (__raw_name == null) { errors.push({ field: "name", message: "TaxRate.name is required" }); } else {
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "TaxRate.name is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_name == null) { errors.push({ field: "name", message: "TaxRate.name is required" }); } else {
 if (__raw_name.length === 0) { errors.push({ field: "name", message: "TaxRate.name must not be empty" }); }
 }
-instance.name = __raw_name;
+
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4859,11 +5407,50 @@ instance.name = __raw_name;
 
 
                             }{
-                                const __raw_taxAgency = obj["taxAgency"] as string;
-                                            if (__raw_taxAgency == null) { errors.push({ field: "taxAgency", message: "TaxRate.taxAgency is required" }); } else {
+                                const __raw_taxAgency = obj["taxAgency"] as string;if (!(typeof __raw_taxAgency === "string")) {
+                                                    errors.push({ field: "taxAgency", message: __raw_taxAgency == null ? "TaxRate.taxAgency is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_taxAgency == null) { errors.push({ field: "taxAgency", message: "TaxRate.taxAgency is required" }); } else {
 if (__raw_taxAgency.length === 0) { errors.push({ field: "taxAgency", message: "TaxRate.taxAgency must not be empty" }); }
 }
-instance.taxAgency = __raw_taxAgency;
+
+
+
+
+                                                    instance.taxAgency = __raw_taxAgency;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5123,7 +5710,46 @@ instance.taxAgency = __raw_taxAgency;
 
 
                             }{
-                                const __raw_zip = obj["zip"] as number;instance.zip = __raw_zip;
+                                const __raw_zip = obj["zip"] as number;if (!(typeof __raw_zip === "number")) {
+                                                    errors.push({ field: "zip", message: __raw_zip == null ? "TaxRate.zip is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.zip = __raw_zip;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5383,11 +6009,50 @@ instance.taxAgency = __raw_taxAgency;
 
 
                             }{
-                                const __raw_city = obj["city"] as string;
-                                            if (__raw_city == null) { errors.push({ field: "city", message: "TaxRate.city is required" }); } else {
+                                const __raw_city = obj["city"] as string;if (!(typeof __raw_city === "string")) {
+                                                    errors.push({ field: "city", message: __raw_city == null ? "TaxRate.city is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_city == null) { errors.push({ field: "city", message: "TaxRate.city is required" }); } else {
 if (__raw_city.length === 0) { errors.push({ field: "city", message: "TaxRate.city must not be empty" }); }
 }
-instance.city = __raw_city;
+
+
+
+
+                                                    instance.city = __raw_city;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5647,11 +6312,50 @@ instance.city = __raw_city;
 
 
                             }{
-                                const __raw_county = obj["county"] as string;
-                                            if (__raw_county == null) { errors.push({ field: "county", message: "TaxRate.county is required" }); } else {
+                                const __raw_county = obj["county"] as string;if (!(typeof __raw_county === "string")) {
+                                                    errors.push({ field: "county", message: __raw_county == null ? "TaxRate.county is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_county == null) { errors.push({ field: "county", message: "TaxRate.county is required" }); } else {
 if (__raw_county.length === 0) { errors.push({ field: "county", message: "TaxRate.county must not be empty" }); }
 }
-instance.county = __raw_county;
+
+
+
+
+                                                    instance.county = __raw_county;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5911,11 +6615,50 @@ instance.county = __raw_county;
 
 
                             }{
-                                const __raw_state = obj["state"] as string;
-                                            if (__raw_state == null) { errors.push({ field: "state", message: "TaxRate.state is required" }); } else {
+                                const __raw_state = obj["state"] as string;if (!(typeof __raw_state === "string")) {
+                                                    errors.push({ field: "state", message: __raw_state == null ? "TaxRate.state is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_state == null) { errors.push({ field: "state", message: "TaxRate.state is required" }); } else {
 if (__raw_state.length === 0) { errors.push({ field: "state", message: "TaxRate.state must not be empty" }); }
 }
-instance.state = __raw_state;
+
+
+
+
+                                                    instance.state = __raw_state;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6175,7 +6918,46 @@ instance.state = __raw_state;
 
 
                             }{
-                                const __raw_isActive = obj["isActive"] as boolean;instance.isActive = __raw_isActive;
+                                const __raw_isActive = obj["isActive"] as boolean;if (!(typeof __raw_isActive === "boolean")) {
+                                                    errors.push({ field: "isActive", message: __raw_isActive == null ? "TaxRate.isActive is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.isActive = __raw_isActive;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6435,11 +7217,50 @@ instance.state = __raw_state;
 
 
                             }{
-                                const __raw_description = obj["description"] as string;
-                                            if (__raw_description == null) { errors.push({ field: "description", message: "TaxRate.description is required" }); } else {
+                                const __raw_description = obj["description"] as string;if (!(typeof __raw_description === "string")) {
+                                                    errors.push({ field: "description", message: __raw_description == null ? "TaxRate.description is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_description == null) { errors.push({ field: "description", message: "TaxRate.description is required" }); } else {
 if (__raw_description.length === 0) { errors.push({ field: "description", message: "TaxRate.description must not be empty" }); }
 }
-instance.description = __raw_description;
+
+
+
+
+                                                    instance.description = __raw_description;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6958,7 +7779,115 @@ instance.description = __raw_description;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8096,7 +9025,18 @@ if (__val.length === 0) { errors.push({ field: "description", message: "TaxRate.
             return toExit(taxRateDecode(obj));
         }
 
-export const TaxRate = {
+export const TaxRate: {
+  readonly defaultValue: typeof taxRateDefaultValue;
+  readonly encode: typeof taxRateEncode;
+  readonly encodeWithContext: typeof taxRateEncodeWithContext;
+  readonly decode: typeof taxRateDecode;
+  readonly decodeWithContext: typeof taxRateDecodeWithContext;
+  readonly validateFields: typeof taxRateValidateFields;
+  readonly hasShape: typeof taxRateHasShape;
+  readonly is: typeof taxRateIs;
+  readonly createForm: typeof taxRateCreateForm;
+  readonly fromFormData: typeof taxRateFromFormData;
+} = {
   defaultValue: taxRateDefaultValue,
   encode: taxRateEncode,
   encodeWithContext: taxRateEncodeWithContext,
@@ -8107,7 +9047,7 @@ export const TaxRate = {
   is: taxRateIs,
   createForm: taxRateCreateForm,
   fromFormData: taxRateFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -8115,31 +9055,32 @@ export const TaxRate = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..139 -> expanded 58..90
-original 167..188 -> expanded 90..111
-original 229..234 -> expanded 111..116
-original 275..298 -> expanded 116..139
-original 345..350 -> expanded 139..144
-original 391..419 -> expanded 144..172
-original 469..491 -> expanded 172..194
-original 532..537 -> expanded 194..199
-original 578..601 -> expanded 199..222
-original 644..649 -> expanded 222..227
-original 690..715 -> expanded 227..252
-original 757..762 -> expanded 252..257
-original 803..827 -> expanded 257..281
-original 872..900 -> expanded 281..309
-original 952..957 -> expanded 309..314
-original 998..1028 -> expanded 314..344
-original 1056..1061 -> expanded 344..349
-original 1080..1128 -> expanded 349..397
-original 1128..1129 -> expanded 34182..34183
-generated 397..634 <- Default
-generated 634..2395 <- Encode
-generated 2395..18772 <- Decode
-generated 18772..33807 <- Gigaform
-generated 33807..34182 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..139 -> expanded 627..659
+original 167..188 -> expanded 659..680
+original 229..234 -> expanded 680..685
+original 275..298 -> expanded 685..708
+original 345..350 -> expanded 708..713
+original 391..419 -> expanded 713..741
+original 469..491 -> expanded 741..763
+original 532..537 -> expanded 763..768
+original 578..601 -> expanded 768..791
+original 644..649 -> expanded 791..796
+original 690..715 -> expanded 796..821
+original 757..762 -> expanded 821..826
+original 803..827 -> expanded 826..850
+original 872..900 -> expanded 850..878
+original 952..957 -> expanded 878..883
+original 998..1028 -> expanded 883..913
+original 1056..1061 -> expanded 913..918
+original 1080..1128 -> expanded 918..966
+original 1128..1129 -> expanded 39064..39065
+generated 0..569 <- imports
+generated 966..1203 <- Default
+generated 1203..2964 <- Encode
+generated 2964..23160 <- Decode
+generated 23160..38195 <- Gigaform
+generated 38195..39064 <- __convenience_const
 
 ## Metadata
 

@@ -69,10 +69,13 @@ type User = {
                             return result;
                         }
 
-const User = {
+const User: {
+  readonly encode: typeof userEncode;
+  readonly encodeWithContext: typeof userEncodeWithContext;
+} = {
   encode: userEncode,
   encodeWithContext: userEncodeWithContext
-} as const;
+};
 
 ## DTS
 
@@ -126,10 +129,13 @@ type User = {
                             return result;
                         }
 
-const User = {
+const User: {
+  readonly encode: typeof userEncode;
+  readonly encodeWithContext: typeof userEncodeWithContext;
+} = {
   encode: userEncode,
   encodeWithContext: userEncodeWithContext
-} as const;
+};
 
 ## Diagnostics
 
@@ -137,10 +143,11 @@ const User = {
 
 ## Mapping
 
-original 22..74 -> expanded 0..52
-original 74..75 -> expanded 1712..1713
-generated 52..1619 <- Encode
-generated 1619..1712 <- __convenience_const
+original 22..74 -> expanded 78..130
+original 74..75 -> expanded 1884..1885
+generated 0..78 <- imports
+generated 130..1697 <- Encode
+generated 1697..1884 <- __convenience_const
 
 ## Metadata
 

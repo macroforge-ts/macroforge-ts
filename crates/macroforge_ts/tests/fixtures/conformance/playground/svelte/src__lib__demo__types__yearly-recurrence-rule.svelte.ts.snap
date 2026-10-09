@@ -237,7 +237,46 @@ quantityOfYears: 0,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_quantityOfYears = obj["quantityOfYears"] as number;instance.quantityOfYears = __raw_quantityOfYears;
+                                const __raw_quantityOfYears = obj["quantityOfYears"] as number;if (!(typeof __raw_quantityOfYears === "number")) {
+                                                    errors.push({ field: "quantityOfYears", message: __raw_quantityOfYears == null ? "YearlyRecurrenceRule.quantityOfYears is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.quantityOfYears = __raw_quantityOfYears;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1065,6 +1104,82 @@ quantityOfYears: 0,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as YearlyRecurrenceRule;
@@ -1249,7 +1364,18 @@ quantityOfYears: 0,
             return toExit(yearlyRecurrenceRuleDecode(obj));
         }
 
-export const YearlyRecurrenceRule = {
+export const YearlyRecurrenceRule: {
+  readonly defaultValue: typeof yearlyRecurrenceRuleDefaultValue;
+  readonly encode: typeof yearlyRecurrenceRuleEncode;
+  readonly encodeWithContext: typeof yearlyRecurrenceRuleEncodeWithContext;
+  readonly decode: typeof yearlyRecurrenceRuleDecode;
+  readonly decodeWithContext: typeof yearlyRecurrenceRuleDecodeWithContext;
+  readonly validateFields: typeof yearlyRecurrenceRuleValidateFields;
+  readonly hasShape: typeof yearlyRecurrenceRuleHasShape;
+  readonly is: typeof yearlyRecurrenceRuleIs;
+  readonly createForm: typeof yearlyRecurrenceRuleCreateForm;
+  readonly fromFormData: typeof yearlyRecurrenceRuleFromFormData;
+} = {
   defaultValue: yearlyRecurrenceRuleDefaultValue,
   encode: yearlyRecurrenceRuleEncode,
   encodeWithContext: yearlyRecurrenceRuleEncodeWithContext,
@@ -1260,7 +1386,7 @@ export const YearlyRecurrenceRule = {
   is: yearlyRecurrenceRuleIs,
   createForm: yearlyRecurrenceRuleCreateForm,
   fromFormData: yearlyRecurrenceRuleFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1480,7 +1606,46 @@ quantityOfYears: 0,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_quantityOfYears = obj["quantityOfYears"] as number;instance.quantityOfYears = __raw_quantityOfYears;
+                                const __raw_quantityOfYears = obj["quantityOfYears"] as number;if (!(typeof __raw_quantityOfYears === "number")) {
+                                                    errors.push({ field: "quantityOfYears", message: __raw_quantityOfYears == null ? "YearlyRecurrenceRule.quantityOfYears is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.quantityOfYears = __raw_quantityOfYears;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2308,6 +2473,82 @@ quantityOfYears: 0,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as YearlyRecurrenceRule;
@@ -2492,7 +2733,18 @@ quantityOfYears: 0,
             return toExit(yearlyRecurrenceRuleDecode(obj));
         }
 
-export const YearlyRecurrenceRule = {
+export const YearlyRecurrenceRule: {
+  readonly defaultValue: typeof yearlyRecurrenceRuleDefaultValue;
+  readonly encode: typeof yearlyRecurrenceRuleEncode;
+  readonly encodeWithContext: typeof yearlyRecurrenceRuleEncodeWithContext;
+  readonly decode: typeof yearlyRecurrenceRuleDecode;
+  readonly decodeWithContext: typeof yearlyRecurrenceRuleDecodeWithContext;
+  readonly validateFields: typeof yearlyRecurrenceRuleValidateFields;
+  readonly hasShape: typeof yearlyRecurrenceRuleHasShape;
+  readonly is: typeof yearlyRecurrenceRuleIs;
+  readonly createForm: typeof yearlyRecurrenceRuleCreateForm;
+  readonly fromFormData: typeof yearlyRecurrenceRuleFromFormData;
+} = {
   defaultValue: yearlyRecurrenceRuleDefaultValue,
   encode: yearlyRecurrenceRuleEncode,
   encodeWithContext: yearlyRecurrenceRuleEncodeWithContext,
@@ -2503,7 +2755,7 @@ export const YearlyRecurrenceRule = {
   is: yearlyRecurrenceRuleIs,
   createForm: yearlyRecurrenceRuleCreateForm,
   fromFormData: yearlyRecurrenceRuleFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -2511,14 +2763,15 @@ export const YearlyRecurrenceRule = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..178 -> expanded 58..129
-original 178..179 -> expanded 12259..12260
-generated 129..283 <- Default
-generated 283..1869 <- Encode
-generated 1869..7141 <- Decode
-generated 7141..11741 <- Gigaform
-generated 11741..12259 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..178 -> expanded 627..698
+original 178..179 -> expanded 13982..13983
+generated 0..569 <- imports
+generated 698..852 <- Default
+generated 852..2438 <- Encode
+generated 2438..8240 <- Decode
+generated 8240..12840 <- Gigaform
+generated 12840..13982 <- __convenience_const
 
 ## Metadata
 

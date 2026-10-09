@@ -30,9 +30,11 @@ parts.push("y: " + value.y);
                             return "Point { " + parts.join(", ") + " }";
                         }
 
-const Point = {
+const Point: {
+  readonly toString: typeof pointToString;
+} = {
   toString: pointToString
-} as const;
+};
 
 ## DTS
 
@@ -49,9 +51,11 @@ parts.push("y: " + value.y);
                             return "Point { " + parts.join(", ") + " }";
                         }
 
-const Point = {
+const Point: {
+  readonly toString: typeof pointToString;
+} = {
   toString: pointToString
-} as const;
+};
 
 ## Diagnostics
 
@@ -60,9 +64,9 @@ const Point = {
 ## Mapping
 
 original 21..69 -> expanded 0..48
-original 69..70 -> expanded 400..401
+original 69..70 -> expanded 439..440
 generated 48..345 <- Debug
-generated 345..400 <- __convenience_const
+generated 345..439 <- __convenience_const
 
 ## Metadata
 

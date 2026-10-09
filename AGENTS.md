@@ -47,8 +47,7 @@
 ## Generated And Published Surfaces
 
 - Keep the Rust crate, Deno packages, website, and MCP docs consistent when changing exported
-  macro-author APIs. The documentation examples compile and run in
-  `crates/macroforge_ts/tests/doc_examples.rs`.
+  macro-author APIs. Their Rust doc examples run as doctests in `pixi run test:rust`.
 - Workspace Rust uses the pinned toolchain in `rust-toolchain.toml`; its WASM targets are
   `wasm32-unknown-unknown` and `wasm32-wasip1`. The Zed extensions must build for `wasm32-wasip1`,
   which `verify` checks.

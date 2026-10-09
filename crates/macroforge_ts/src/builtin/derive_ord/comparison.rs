@@ -41,9 +41,25 @@ pub(crate) fn generate_field_compare_for_interface(
     resolved: Option<&ResolvedTypeRef>,
     registry: &TypeRegistry,
 ) -> String {
-    let field_name = &field.name;
-    let ts_type = &field.ts_type;
+    generate_value_compare(
+        &field.ts_type,
+        &format!("{self_var}.{}", field.name),
+        &format!("{other_var}.{}", field.name),
+        resolved,
+        registry,
+    )
+}
 
+/// Generates the comparison of two values of `ts_type`, given as expressions
+/// (`left` and `right`), with the same strategies as
+/// [`generate_field_compare_for_interface`].
+pub(crate) fn generate_value_compare(
+    ts_type: &str,
+    left: &str,
+    right: &str,
+    resolved: Option<&ResolvedTypeRef>,
+    registry: &TypeRegistry,
+) -> String {
     // Type-aware path: direct compare call when type has @derive(Ord)
     if let Some(resolved) = resolved
         && !resolved.is_collection
@@ -51,22 +67,20 @@ pub(crate) fn generate_field_compare_for_interface(
         && type_has_derive(registry, &resolved.base_type_name, "Ord")
     {
         let fn_name = standalone_fn_name(&resolved.base_type_name, "Compare");
-        return format!("{fn_name}({self_var}.{field_name}, {other_var}.{field_name})");
+        return format!("{fn_name}({left}, {right})");
     }
 
     if is_numeric_type(ts_type) {
         format!(
-            "({self_var}.{field_name} < {other_var}.{field_name} ? -1 : \
-             {self_var}.{field_name} > {other_var}.{field_name} ? 1 : 0)"
+            "({left} < {right} ? -1 : \
+             {left} > {right} ? 1 : 0)"
         )
     } else if ts_type == "string" {
-        format!(
-            "((cmp => cmp < 0 ? -1 : cmp > 0 ? 1 : 0)({self_var}.{field_name}.localeCompare({other_var}.{field_name})))"
-        )
+        format!("((cmp => cmp < 0 ? -1 : cmp > 0 ? 1 : 0)({left}.localeCompare({right})))")
     } else if ts_type == "boolean" {
         format!(
-            "({self_var}.{field_name} === {other_var}.{field_name} ? 0 : \
-             {self_var}.{field_name} ? 1 : -1)"
+            "({left} === {right} ? 0 : \
+             {left} ? 1 : -1)"
         )
     } else if is_primitive_type(ts_type) {
         "0".to_string()
@@ -76,23 +90,25 @@ pub(crate) fn generate_field_compare_for_interface(
     {
         format!(
             "(() => {{ \
-                const a = {self_var}.{field_name} ?? []; \
-                const b = {other_var}.{field_name} ?? []; \
-                const minLen = Math.min(a.length, b.length); \
+                const __left = {left} ?? []; \
+                const __right = {right} ?? []; \
+                const minLen = Math.min(__left.length, __right.length); \
                 for (let i = 0; i < minLen; i++) {{ \
-                    const cmp = typeof (a[i] as any)?.compareTo === 'function' \
-                        ? (a[i] as any).compareTo(b[i]) ?? 0 \
-                        : (a[i] < b[i] ? -1 : a[i] > b[i] ? 1 : 0); \
+                    const __l: any = __left[i]; \
+                    const __r: any = __right[i]; \
+                    const cmp = typeof __l?.compareTo === 'function' \
+                        ? __l.compareTo(__r) ?? 0 \
+                        : (__l < __r ? -1 : __l > __r ? 1 : 0); \
                     if (cmp !== 0) return cmp; \
                 }} \
-                return a.length < b.length ? -1 : a.length > b.length ? 1 : 0; \
+                return __left.length < __right.length ? -1 : __left.length > __right.length ? 1 : 0; \
             }})()"
         )
     } else if ts_type == "Date" {
         format!(
             "(() => {{ \
-                const ta = {self_var}.{field_name}?.getTime() ?? 0; \
-                const tb = {other_var}.{field_name}?.getTime() ?? 0; \
+                const ta = {left}?.getTime() ?? 0; \
+                const tb = {right}?.getTime() ?? 0; \
                 return ta < tb ? -1 : ta > tb ? 1 : 0; \
             }})()"
         )
@@ -102,13 +118,13 @@ pub(crate) fn generate_field_compare_for_interface(
         } else {
             "toString()"
         };
-        let a = format!("{self_var}.{field_name}.{prop}");
-        let b = format!("{other_var}.{field_name}.{prop}");
+        let a = format!("{left}.{prop}");
+        let b = format!("{right}.{prop}");
         format!("((cmp => cmp < 0 ? -1 : cmp > 0 ? 1 : 0)({a}.localeCompare({b})))")
     } else {
         format!(
-            "(typeof ({self_var}.{field_name} as any)?.compareTo === 'function' \
-                ? ({self_var}.{field_name} as any).compareTo({other_var}.{field_name}) ?? 0 \
+            "(typeof ({left} as any)?.compareTo === 'function' \
+                ? ({left} as any).compareTo({right}) ?? 0 \
                 : 0)"
         )
     }

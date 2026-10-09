@@ -1,9 +1,11 @@
 //! TypeScript type categorization for encoding strategy selection.
 
 use super::foreign_types::{ForeignTypeMatch, register_foreign_type_namespaces};
-use super::helpers::{find_top_level_comma, split_top_level_union};
+use super::helpers::find_top_level_comma;
 use crate::host::ForeignTypeConfig;
 use crate::host::import_registry::with_registry;
+use crate::ts_syn::abi::ir::is_primitive_keyword;
+use crate::ts_syn::abi::ir::split_top_level_union;
 
 /// Determines the encoding strategy for a TypeScript type
 #[derive(Debug, Clone, PartialEq)]
@@ -81,13 +83,11 @@ impl TypeCategory {
             return Self::Primitive;
         }
 
-        // Handle primitives
-        match trimmed {
-            "string" | "number" | "boolean" | "null" | "undefined" | "bigint" => {
-                return Self::Primitive;
-            }
-            "Date" => return Self::Date,
-            _ => {}
+        if is_primitive_keyword(trimmed) {
+            return Self::Primitive;
+        }
+        if trimmed == "Date" {
+            return Self::Date;
         }
 
         // Handle Array<T> or T[]

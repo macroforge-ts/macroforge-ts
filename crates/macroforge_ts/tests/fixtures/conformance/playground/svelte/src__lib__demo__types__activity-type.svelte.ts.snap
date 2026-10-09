@@ -890,6 +890,18 @@ export function activityTypeDefaultValue(): ActivityType {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function activityTypeHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
@@ -1085,8 +1097,11 @@ export function activityTypeDefaultValue(): ActivityType {
 
         }
 
-        export function activityTypeIs(value: unknown): value is ActivityType {
-            return activityTypeHasShape(value);
+        export function activityTypeIs(value: unknown): value is ActivityType {return activityTypeHasShape(value);
+
+
+
+
         }
 
 /** Per-variant error types  */
@@ -1374,7 +1389,17 @@ if (variant === "Paid") { return paidDefaultValue() as ActivityType; }
             return toExit(activityTypeDecode(obj));
         }
 
-export const ActivityType = {
+export const ActivityType: {
+  readonly defaultValue: typeof activityTypeDefaultValue;
+  readonly encode: typeof activityTypeEncode;
+  readonly encodeWithContext: typeof activityTypeEncodeWithContext;
+  readonly decode: typeof activityTypeDecode;
+  readonly decodeWithContext: typeof activityTypeDecodeWithContext;
+  readonly hasShape: typeof activityTypeHasShape;
+  readonly is: typeof activityTypeIs;
+  readonly createForm: typeof activityTypeCreateForm;
+  readonly fromFormData: typeof activityTypeFromFormData;
+} = {
   defaultValue: activityTypeDefaultValue,
   encode: activityTypeEncode,
   encodeWithContext: activityTypeEncodeWithContext,
@@ -1384,7 +1409,7 @@ export const ActivityType = {
   is: activityTypeIs,
   createForm: activityTypeCreateForm,
   fromFormData: activityTypeFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2239,6 +2264,18 @@ export function activityTypeDefaultValue(): ActivityType {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function activityTypeHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
@@ -2434,8 +2471,11 @@ export function activityTypeDefaultValue(): ActivityType {
 
         }
 
-        export function activityTypeIs(value: unknown): value is ActivityType {
-            return activityTypeHasShape(value);
+        export function activityTypeIs(value: unknown): value is ActivityType {return activityTypeHasShape(value);
+
+
+
+
         }
 
 /** Per-variant error types  */
@@ -2723,7 +2763,17 @@ if (variant === "Paid") { return paidDefaultValue() as ActivityType; }
             return toExit(activityTypeDecode(obj));
         }
 
-export const ActivityType = {
+export const ActivityType: {
+  readonly defaultValue: typeof activityTypeDefaultValue;
+  readonly encode: typeof activityTypeEncode;
+  readonly encodeWithContext: typeof activityTypeEncodeWithContext;
+  readonly decode: typeof activityTypeDecode;
+  readonly decodeWithContext: typeof activityTypeDecodeWithContext;
+  readonly hasShape: typeof activityTypeHasShape;
+  readonly is: typeof activityTypeIs;
+  readonly createForm: typeof activityTypeCreateForm;
+  readonly fromFormData: typeof activityTypeFromFormData;
+} = {
   defaultValue: activityTypeDefaultValue,
   encode: activityTypeEncode,
   encodeWithContext: activityTypeEncodeWithContext,
@@ -2733,7 +2783,7 @@ export const ActivityType = {
   is: activityTypeIs,
   createForm: activityTypeCreateForm,
   fromFormData: activityTypeFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -2741,14 +2791,15 @@ export const ActivityType = {
 
 ## Mapping
 
-original 0..341 -> expanded 0..341
-original 390..512 -> expanded 341..463
-original 512..513 -> expanded 24021..24022
-generated 463..607 <- Default
-generated 607..2535 <- Encode
-generated 2535..14794 <- Decode
-generated 14794..23637 <- Gigaform
-generated 23637..24021 <- __convenience_const
+original 0..341 -> expanded 1547..1888
+original 390..512 -> expanded 1888..2010
+original 512..513 -> expanded 26053..26054
+generated 0..1547 <- imports
+generated 2010..2154 <- Default
+generated 2154..4082 <- Encode
+generated 4082..16344 <- Decode
+generated 16344..25187 <- Gigaform
+generated 25187..26053 <- __convenience_const
 
 ## Metadata
 

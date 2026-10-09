@@ -32,9 +32,11 @@ active: false,
 };
                     }
 
-export const Assignment = {
+export const Assignment: {
+  readonly defaultValue: typeof assignmentDefaultValue;
+} = {
   defaultValue: assignmentDefaultValue
-} as const;
+};
 
 ## DTS
 
@@ -52,9 +54,11 @@ active: false,
 };
                     }
 
-export const Assignment = {
+export const Assignment: {
+  readonly defaultValue: typeof assignmentDefaultValue;
+} = {
   defaultValue: assignmentDefaultValue
-} as const;
+};
 
 ## Diagnostics
 
@@ -63,9 +67,9 @@ export const Assignment = {
 ## Mapping
 
 original 23..133 -> expanded 0..110
-original 133..134 -> expanded 343..344
+original 133..134 -> expanded 395..396
 generated 110..263 <- Default
-generated 263..343 <- __convenience_const
+generated 263..395 <- __convenience_const
 
 ## Metadata
 

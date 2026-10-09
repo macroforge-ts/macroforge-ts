@@ -446,7 +446,46 @@ commissions: [],
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Order.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -989,6 +1028,38 @@ commissions: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_stage = obj["stage"] as OrderStage;ctx.pushScope("stage");
                                             try {
@@ -1266,8 +1337,79 @@ commissions: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_number = obj["number"] as number;instance.number = __raw_number;
+                                const __raw_number = obj["number"] as number;if (!(typeof __raw_number === "number")) {
+                                                    errors.push({ field: "number", message: __raw_number == null ? "Order.number is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.number = __raw_number;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1877,12 +2019,83 @@ commissions: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_opportunity = obj["opportunity"] as string;
-                                            if (__raw_opportunity == null) { errors.push({ field: "opportunity", message: "Order.opportunity is required" }); } else {
+                                const __raw_opportunity = obj["opportunity"] as string;if (!(typeof __raw_opportunity === "string")) {
+                                                    errors.push({ field: "opportunity", message: __raw_opportunity == null ? "Order.opportunity is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_opportunity == null) { errors.push({ field: "opportunity", message: "Order.opportunity is required" }); } else {
 if (__raw_opportunity.length === 0) { errors.push({ field: "opportunity", message: "Order.opportunity must not be empty" }); }
 }
-instance.opportunity = __raw_opportunity;
+
+
+
+
+                                                    instance.opportunity = __raw_opportunity;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2142,11 +2355,50 @@ instance.opportunity = __raw_opportunity;
 
 
                             }{
-                                const __raw_reference = obj["reference"] as string;
-                                            if (__raw_reference == null) { errors.push({ field: "reference", message: "Order.reference is required" }); } else {
+                                const __raw_reference = obj["reference"] as string;if (!(typeof __raw_reference === "string")) {
+                                                    errors.push({ field: "reference", message: __raw_reference == null ? "Order.reference is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_reference == null) { errors.push({ field: "reference", message: "Order.reference is required" }); } else {
 if (__raw_reference.length === 0) { errors.push({ field: "reference", message: "Order.reference must not be empty" }); }
 }
-instance.reference = __raw_reference;
+
+
+
+
+                                                    instance.reference = __raw_reference;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2406,11 +2658,50 @@ instance.reference = __raw_reference;
 
 
                             }{
-                                const __raw_leadSource = obj["leadSource"] as string;
-                                            if (__raw_leadSource == null) { errors.push({ field: "leadSource", message: "Order.leadSource is required" }); } else {
+                                const __raw_leadSource = obj["leadSource"] as string;if (!(typeof __raw_leadSource === "string")) {
+                                                    errors.push({ field: "leadSource", message: __raw_leadSource == null ? "Order.leadSource is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_leadSource == null) { errors.push({ field: "leadSource", message: "Order.leadSource is required" }); } else {
 if (__raw_leadSource.length === 0) { errors.push({ field: "leadSource", message: "Order.leadSource must not be empty" }); }
 }
-instance.leadSource = __raw_leadSource;
+
+
+
+
+                                                    instance.leadSource = __raw_leadSource;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2953,12 +3244,83 @@ instance.leadSource = __raw_leadSource;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_group = obj["group"] as string;
-                                            if (__raw_group == null) { errors.push({ field: "group", message: "Order.group is required" }); } else {
+                                const __raw_group = obj["group"] as string;if (!(typeof __raw_group === "string")) {
+                                                    errors.push({ field: "group", message: __raw_group == null ? "Order.group is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_group == null) { errors.push({ field: "group", message: "Order.group is required" }); } else {
 if (__raw_group.length === 0) { errors.push({ field: "group", message: "Order.group must not be empty" }); }
 }
-instance.group = __raw_group;
+
+
+
+
+                                                    instance.group = __raw_group;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3218,11 +3580,50 @@ instance.group = __raw_group;
 
 
                             }{
-                                const __raw_subgroup = obj["subgroup"] as string;
-                                            if (__raw_subgroup == null) { errors.push({ field: "subgroup", message: "Order.subgroup is required" }); } else {
+                                const __raw_subgroup = obj["subgroup"] as string;if (!(typeof __raw_subgroup === "string")) {
+                                                    errors.push({ field: "subgroup", message: __raw_subgroup == null ? "Order.subgroup is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_subgroup == null) { errors.push({ field: "subgroup", message: "Order.subgroup is required" }); } else {
 if (__raw_subgroup.length === 0) { errors.push({ field: "subgroup", message: "Order.subgroup must not be empty" }); }
 }
-instance.subgroup = __raw_subgroup;
+
+
+
+
+                                                    instance.subgroup = __raw_subgroup;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3482,7 +3883,46 @@ instance.subgroup = __raw_subgroup;
 
 
                             }{
-                                const __raw_isPosted = obj["isPosted"] as boolean;instance.isPosted = __raw_isPosted;
+                                const __raw_isPosted = obj["isPosted"] as boolean;if (!(typeof __raw_isPosted === "boolean")) {
+                                                    errors.push({ field: "isPosted", message: __raw_isPosted == null ? "Order.isPosted is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.isPosted = __raw_isPosted;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3742,7 +4182,46 @@ instance.subgroup = __raw_subgroup;
 
 
                             }{
-                                const __raw_needsReview = obj["needsReview"] as boolean;instance.needsReview = __raw_needsReview;
+                                const __raw_needsReview = obj["needsReview"] as boolean;if (!(typeof __raw_needsReview === "boolean")) {
+                                                    errors.push({ field: "needsReview", message: __raw_needsReview == null ? "Order.needsReview is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.needsReview = __raw_needsReview;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4002,11 +4481,50 @@ instance.subgroup = __raw_subgroup;
 
 
                             }{
-                                const __raw_actionItem = obj["actionItem"] as string;
-                                            if (__raw_actionItem == null) { errors.push({ field: "actionItem", message: "Order.actionItem is required" }); } else {
+                                const __raw_actionItem = obj["actionItem"] as string;if (!(typeof __raw_actionItem === "string")) {
+                                                    errors.push({ field: "actionItem", message: __raw_actionItem == null ? "Order.actionItem is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_actionItem == null) { errors.push({ field: "actionItem", message: "Order.actionItem is required" }); } else {
 if (__raw_actionItem.length === 0) { errors.push({ field: "actionItem", message: "Order.actionItem must not be empty" }); }
 }
-instance.actionItem = __raw_actionItem;
+
+
+
+
+                                                    instance.actionItem = __raw_actionItem;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4266,10 +4784,14 @@ instance.actionItem = __raw_actionItem;
 
 
                             }{
-                                const __raw_upsale = obj["upsale"] as number;instance.upsale = __raw_upsale;
+                                const __raw_upsale = obj["upsale"] as number;if (!(typeof __raw_upsale === "number")) {
+                                                    errors.push({ field: "upsale", message: __raw_upsale == null ? "Order.upsale is required" : "expected number" });
+                                                } else {
 
 
 
+                                                    instance.upsale = __raw_upsale;
+                                                }
 
 
 
@@ -4525,7 +5047,46 @@ instance.actionItem = __raw_actionItem;
 
 
 
-                            }instance.dateCreated = ((raw: unknown) => __mf_DateTime.unsafeMake(raw as __mf_DateTime.DateTime.Input))(obj["dateCreated"]);{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.dateCreated = ((raw: unknown) => __mf_DateTime.unsafeMake(raw as __mf_DateTime.DateTime.Input))(obj["dateCreated"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "dateCreated", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }{
                                 const __raw_appointment = obj["appointment"] as string | Appointment;if (typeof __raw_appointment === "string") {
                                                 instance.appointment = __raw_appointment;
 
@@ -4551,6 +5112,38 @@ instance.actionItem = __raw_actionItem;
                                                     ctx.popScope();
                                                 }
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5160,6 +5753,38 @@ instance.actionItem = __raw_actionItem;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_package = obj["package"] as Array<string | Package> | null;if (__raw_package === null) {
                                                     instance.package = null;
@@ -5187,6 +5812,38 @@ instance.actionItem = __raw_actionItem;
 
 
                                                 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5730,11 +6387,47 @@ instance.actionItem = __raw_actionItem;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_balance = obj["balance"] as number;instance.balance = __raw_balance;
+                                const __raw_balance = obj["balance"] as number;if (!(typeof __raw_balance === "number")) {
+                                                    errors.push({ field: "balance", message: __raw_balance == null ? "Order.balance is required" : "expected number" });
+                                                } else {
 
 
 
+                                                    instance.balance = __raw_balance;
+                                                }
 
 
 
@@ -5990,8 +6683,86 @@ instance.actionItem = __raw_actionItem;
 
 
 
-                            }instance.due = ((raw: unknown) => __mf_DateTime.unsafeMake(raw as __mf_DateTime.DateTime.Input))(obj["due"]);{
-                                const __raw_total = obj["total"] as number;instance.total = __raw_total;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.due = ((raw: unknown) => __mf_DateTime.unsafeMake(raw as __mf_DateTime.DateTime.Input))(obj["due"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "due", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }{
+                                const __raw_total = obj["total"] as number;if (!(typeof __raw_total === "number")) {
+                                                    errors.push({ field: "total", message: __raw_total == null ? "Order.total is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.total = __raw_total;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6276,6 +7047,38 @@ instance.actionItem = __raw_actionItem;
                                                     ctx.popScope();
                                                 }
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6883,8 +7686,83 @@ instance.actionItem = __raw_actionItem;
 
 
 
-                            }instance.memo = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["memo"]);{
-                                const __raw_discount = obj["discount"] as number;instance.discount = __raw_discount;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.memo = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["memo"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "memo", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }{
+                                const __raw_discount = obj["discount"] as number;if (!(typeof __raw_discount === "number")) {
+                                                    errors.push({ field: "discount", message: __raw_discount == null ? "Order.discount is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.discount = __raw_discount;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7144,7 +8022,46 @@ instance.actionItem = __raw_actionItem;
 
 
                             }{
-                                const __raw_tip = obj["tip"] as number;instance.tip = __raw_tip;
+                                const __raw_tip = obj["tip"] as number;if (!(typeof __raw_tip === "number")) {
+                                                    errors.push({ field: "tip", message: __raw_tip == null ? "Order.tip is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.tip = __raw_tip;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7717,7 +8634,115 @@ instance.actionItem = __raw_actionItem;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9602,7 +10627,18 @@ if (__val.length === 0) { errors.push({ field: "actionItem", message: "Order.act
             return toExit(orderDecode(obj));
         }
 
-export const Order = {
+export const Order: {
+  readonly defaultValue: typeof orderDefaultValue;
+  readonly encode: typeof orderEncode;
+  readonly encodeWithContext: typeof orderEncodeWithContext;
+  readonly decode: typeof orderDecode;
+  readonly decodeWithContext: typeof orderDecodeWithContext;
+  readonly validateFields: typeof orderValidateFields;
+  readonly hasShape: typeof orderHasShape;
+  readonly is: typeof orderIs;
+  readonly createForm: typeof orderCreateForm;
+  readonly fromFormData: typeof orderFromFormData;
+} = {
   defaultValue: orderDefaultValue,
   encode: orderEncode,
   encodeWithContext: orderEncodeWithContext,
@@ -9613,7 +10649,7 @@ export const Order = {
   is: orderIs,
   createForm: orderCreateForm,
   fromFormData: orderFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -10026,7 +11062,46 @@ commissions: [],
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Order.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -10569,6 +11644,38 @@ commissions: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_stage = obj["stage"] as OrderStage;ctx.pushScope("stage");
                                             try {
@@ -10846,8 +11953,79 @@ commissions: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_number = obj["number"] as number;instance.number = __raw_number;
+                                const __raw_number = obj["number"] as number;if (!(typeof __raw_number === "number")) {
+                                                    errors.push({ field: "number", message: __raw_number == null ? "Order.number is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.number = __raw_number;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -11457,12 +12635,83 @@ commissions: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_opportunity = obj["opportunity"] as string;
-                                            if (__raw_opportunity == null) { errors.push({ field: "opportunity", message: "Order.opportunity is required" }); } else {
+                                const __raw_opportunity = obj["opportunity"] as string;if (!(typeof __raw_opportunity === "string")) {
+                                                    errors.push({ field: "opportunity", message: __raw_opportunity == null ? "Order.opportunity is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_opportunity == null) { errors.push({ field: "opportunity", message: "Order.opportunity is required" }); } else {
 if (__raw_opportunity.length === 0) { errors.push({ field: "opportunity", message: "Order.opportunity must not be empty" }); }
 }
-instance.opportunity = __raw_opportunity;
+
+
+
+
+                                                    instance.opportunity = __raw_opportunity;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -11722,11 +12971,50 @@ instance.opportunity = __raw_opportunity;
 
 
                             }{
-                                const __raw_reference = obj["reference"] as string;
-                                            if (__raw_reference == null) { errors.push({ field: "reference", message: "Order.reference is required" }); } else {
+                                const __raw_reference = obj["reference"] as string;if (!(typeof __raw_reference === "string")) {
+                                                    errors.push({ field: "reference", message: __raw_reference == null ? "Order.reference is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_reference == null) { errors.push({ field: "reference", message: "Order.reference is required" }); } else {
 if (__raw_reference.length === 0) { errors.push({ field: "reference", message: "Order.reference must not be empty" }); }
 }
-instance.reference = __raw_reference;
+
+
+
+
+                                                    instance.reference = __raw_reference;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -11986,11 +13274,50 @@ instance.reference = __raw_reference;
 
 
                             }{
-                                const __raw_leadSource = obj["leadSource"] as string;
-                                            if (__raw_leadSource == null) { errors.push({ field: "leadSource", message: "Order.leadSource is required" }); } else {
+                                const __raw_leadSource = obj["leadSource"] as string;if (!(typeof __raw_leadSource === "string")) {
+                                                    errors.push({ field: "leadSource", message: __raw_leadSource == null ? "Order.leadSource is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_leadSource == null) { errors.push({ field: "leadSource", message: "Order.leadSource is required" }); } else {
 if (__raw_leadSource.length === 0) { errors.push({ field: "leadSource", message: "Order.leadSource must not be empty" }); }
 }
-instance.leadSource = __raw_leadSource;
+
+
+
+
+                                                    instance.leadSource = __raw_leadSource;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12533,12 +13860,83 @@ instance.leadSource = __raw_leadSource;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_group = obj["group"] as string;
-                                            if (__raw_group == null) { errors.push({ field: "group", message: "Order.group is required" }); } else {
+                                const __raw_group = obj["group"] as string;if (!(typeof __raw_group === "string")) {
+                                                    errors.push({ field: "group", message: __raw_group == null ? "Order.group is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_group == null) { errors.push({ field: "group", message: "Order.group is required" }); } else {
 if (__raw_group.length === 0) { errors.push({ field: "group", message: "Order.group must not be empty" }); }
 }
-instance.group = __raw_group;
+
+
+
+
+                                                    instance.group = __raw_group;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12798,11 +14196,50 @@ instance.group = __raw_group;
 
 
                             }{
-                                const __raw_subgroup = obj["subgroup"] as string;
-                                            if (__raw_subgroup == null) { errors.push({ field: "subgroup", message: "Order.subgroup is required" }); } else {
+                                const __raw_subgroup = obj["subgroup"] as string;if (!(typeof __raw_subgroup === "string")) {
+                                                    errors.push({ field: "subgroup", message: __raw_subgroup == null ? "Order.subgroup is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_subgroup == null) { errors.push({ field: "subgroup", message: "Order.subgroup is required" }); } else {
 if (__raw_subgroup.length === 0) { errors.push({ field: "subgroup", message: "Order.subgroup must not be empty" }); }
 }
-instance.subgroup = __raw_subgroup;
+
+
+
+
+                                                    instance.subgroup = __raw_subgroup;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -13062,7 +14499,46 @@ instance.subgroup = __raw_subgroup;
 
 
                             }{
-                                const __raw_isPosted = obj["isPosted"] as boolean;instance.isPosted = __raw_isPosted;
+                                const __raw_isPosted = obj["isPosted"] as boolean;if (!(typeof __raw_isPosted === "boolean")) {
+                                                    errors.push({ field: "isPosted", message: __raw_isPosted == null ? "Order.isPosted is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.isPosted = __raw_isPosted;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -13322,7 +14798,46 @@ instance.subgroup = __raw_subgroup;
 
 
                             }{
-                                const __raw_needsReview = obj["needsReview"] as boolean;instance.needsReview = __raw_needsReview;
+                                const __raw_needsReview = obj["needsReview"] as boolean;if (!(typeof __raw_needsReview === "boolean")) {
+                                                    errors.push({ field: "needsReview", message: __raw_needsReview == null ? "Order.needsReview is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.needsReview = __raw_needsReview;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -13582,11 +15097,50 @@ instance.subgroup = __raw_subgroup;
 
 
                             }{
-                                const __raw_actionItem = obj["actionItem"] as string;
-                                            if (__raw_actionItem == null) { errors.push({ field: "actionItem", message: "Order.actionItem is required" }); } else {
+                                const __raw_actionItem = obj["actionItem"] as string;if (!(typeof __raw_actionItem === "string")) {
+                                                    errors.push({ field: "actionItem", message: __raw_actionItem == null ? "Order.actionItem is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_actionItem == null) { errors.push({ field: "actionItem", message: "Order.actionItem is required" }); } else {
 if (__raw_actionItem.length === 0) { errors.push({ field: "actionItem", message: "Order.actionItem must not be empty" }); }
 }
-instance.actionItem = __raw_actionItem;
+
+
+
+
+                                                    instance.actionItem = __raw_actionItem;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -13846,10 +15400,14 @@ instance.actionItem = __raw_actionItem;
 
 
                             }{
-                                const __raw_upsale = obj["upsale"] as number;instance.upsale = __raw_upsale;
+                                const __raw_upsale = obj["upsale"] as number;if (!(typeof __raw_upsale === "number")) {
+                                                    errors.push({ field: "upsale", message: __raw_upsale == null ? "Order.upsale is required" : "expected number" });
+                                                } else {
 
 
 
+                                                    instance.upsale = __raw_upsale;
+                                                }
 
 
 
@@ -14105,7 +15663,46 @@ instance.actionItem = __raw_actionItem;
 
 
 
-                            }instance.dateCreated = ((raw: unknown) => __mf_DateTime.unsafeMake(raw as __mf_DateTime.DateTime.Input))(obj["dateCreated"]);{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.dateCreated = ((raw: unknown) => __mf_DateTime.unsafeMake(raw as __mf_DateTime.DateTime.Input))(obj["dateCreated"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "dateCreated", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }{
                                 const __raw_appointment = obj["appointment"] as string | Appointment;if (typeof __raw_appointment === "string") {
                                                 instance.appointment = __raw_appointment;
 
@@ -14131,6 +15728,38 @@ instance.actionItem = __raw_actionItem;
                                                     ctx.popScope();
                                                 }
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -14740,6 +16369,38 @@ instance.actionItem = __raw_actionItem;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_package = obj["package"] as Array<string | Package> | null;if (__raw_package === null) {
                                                     instance.package = null;
@@ -14767,6 +16428,38 @@ instance.actionItem = __raw_actionItem;
 
 
                                                 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -15310,11 +17003,47 @@ instance.actionItem = __raw_actionItem;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_balance = obj["balance"] as number;instance.balance = __raw_balance;
+                                const __raw_balance = obj["balance"] as number;if (!(typeof __raw_balance === "number")) {
+                                                    errors.push({ field: "balance", message: __raw_balance == null ? "Order.balance is required" : "expected number" });
+                                                } else {
 
 
 
+                                                    instance.balance = __raw_balance;
+                                                }
 
 
 
@@ -15570,8 +17299,86 @@ instance.actionItem = __raw_actionItem;
 
 
 
-                            }instance.due = ((raw: unknown) => __mf_DateTime.unsafeMake(raw as __mf_DateTime.DateTime.Input))(obj["due"]);{
-                                const __raw_total = obj["total"] as number;instance.total = __raw_total;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.due = ((raw: unknown) => __mf_DateTime.unsafeMake(raw as __mf_DateTime.DateTime.Input))(obj["due"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "due", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }{
+                                const __raw_total = obj["total"] as number;if (!(typeof __raw_total === "number")) {
+                                                    errors.push({ field: "total", message: __raw_total == null ? "Order.total is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.total = __raw_total;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -15856,6 +17663,38 @@ instance.actionItem = __raw_actionItem;
                                                     ctx.popScope();
                                                 }
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -16463,8 +18302,83 @@ instance.actionItem = __raw_actionItem;
 
 
 
-                            }instance.memo = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["memo"]);{
-                                const __raw_discount = obj["discount"] as number;instance.discount = __raw_discount;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.memo = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["memo"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "memo", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }{
+                                const __raw_discount = obj["discount"] as number;if (!(typeof __raw_discount === "number")) {
+                                                    errors.push({ field: "discount", message: __raw_discount == null ? "Order.discount is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.discount = __raw_discount;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -16724,7 +18638,46 @@ instance.actionItem = __raw_actionItem;
 
 
                             }{
-                                const __raw_tip = obj["tip"] as number;instance.tip = __raw_tip;
+                                const __raw_tip = obj["tip"] as number;if (!(typeof __raw_tip === "number")) {
+                                                    errors.push({ field: "tip", message: __raw_tip == null ? "Order.tip is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.tip = __raw_tip;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -17297,7 +19250,115 @@ instance.actionItem = __raw_actionItem;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -19182,7 +21243,18 @@ if (__val.length === 0) { errors.push({ field: "actionItem", message: "Order.act
             return toExit(orderDecode(obj));
         }
 
-export const Order = {
+export const Order: {
+  readonly defaultValue: typeof orderDefaultValue;
+  readonly encode: typeof orderEncode;
+  readonly encodeWithContext: typeof orderEncodeWithContext;
+  readonly decode: typeof orderDecode;
+  readonly decodeWithContext: typeof orderDecodeWithContext;
+  readonly validateFields: typeof orderValidateFields;
+  readonly hasShape: typeof orderHasShape;
+  readonly is: typeof orderIs;
+  readonly createForm: typeof orderCreateForm;
+  readonly fromFormData: typeof orderFromFormData;
+} = {
   defaultValue: orderDefaultValue,
   encode: orderEncode,
   encodeWithContext: orderEncodeWithContext,
@@ -19193,7 +21265,7 @@ export const Order = {
   is: orderIs,
   createForm: orderCreateForm,
   fromFormData: orderFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -19201,54 +21273,55 @@ export const Order = {
 
 ## Mapping
 
-original 0..570 -> expanded 0..570
-original 619..649 -> expanded 570..600
-original 677..698 -> expanded 600..621
-original 796..801 -> expanded 621..626
-original 820..856 -> expanded 626..662
-original 1031..1036 -> expanded 662..667
-original 1063..1091 -> expanded 667..695
-original 1119..1144 -> expanded 695..720
-original 1172..1216 -> expanded 720..764
-original 1264..1269 -> expanded 764..769
-original 1310..1340 -> expanded 769..799
-original 1386..1391 -> expanded 799..804
-original 1432..1460 -> expanded 804..832
-original 1531..1536 -> expanded 832..837
-original 1577..1606 -> expanded 837..866
-original 1707..1712 -> expanded 866..871
-original 1731..1769 -> expanded 871..909
-original 1834..1839 -> expanded 909..914
-original 1880..1904 -> expanded 914..938
-original 1972..1977 -> expanded 938..943
-original 2018..2045 -> expanded 943..970
-original 2090..2118 -> expanded 970..998
-original 2169..2200 -> expanded 998..1029
-original 2248..2253 -> expanded 1029..1034
-original 2294..2323 -> expanded 1034..1063
-original 2351..2376 -> expanded 1063..1088
-original 2404..2445 -> expanded 1088..1129
-original 2551..2556 -> expanded 1129..1134
-original 2575..2619 -> expanded 1134..1178
-original 2710..2756 -> expanded 1178..1224
-original 2784..2834 -> expanded 1224..1274
-original 2862..2916 -> expanded 1274..1328
-original 2944..2970 -> expanded 1328..1354
-original 3014..3047 -> expanded 1354..1387
-original 3075..3099 -> expanded 1387..1411
-original 3148..3153 -> expanded 1411..1416
-original 3172..3202 -> expanded 1416..1446
-original 3261..3302 -> expanded 1446..1487
-original 3347..3385 -> expanded 1487..1525
-original 3413..3440 -> expanded 1525..1552
-original 3468..3490 -> expanded 1552..1574
-original 3518..3552 -> expanded 1574..1608
-original 3552..3553 -> expanded 97069..97070
-generated 1608..2202 <- Default
-generated 2202..6501 <- Encode
-generated 6501..49587 <- Decode
-generated 49587..96716 <- Gigaform
-generated 96716..97069 <- __convenience_const
+original 0..570 -> expanded 1580..2150
+original 619..649 -> expanded 2150..2180
+original 677..698 -> expanded 2180..2201
+original 796..801 -> expanded 2201..2206
+original 820..856 -> expanded 2206..2242
+original 1031..1036 -> expanded 2242..2247
+original 1063..1091 -> expanded 2247..2275
+original 1119..1144 -> expanded 2275..2300
+original 1172..1216 -> expanded 2300..2344
+original 1264..1269 -> expanded 2344..2349
+original 1310..1340 -> expanded 2349..2379
+original 1386..1391 -> expanded 2379..2384
+original 1432..1460 -> expanded 2384..2412
+original 1531..1536 -> expanded 2412..2417
+original 1577..1606 -> expanded 2417..2446
+original 1707..1712 -> expanded 2446..2451
+original 1731..1769 -> expanded 2451..2489
+original 1834..1839 -> expanded 2489..2494
+original 1880..1904 -> expanded 2494..2518
+original 1972..1977 -> expanded 2518..2523
+original 2018..2045 -> expanded 2523..2550
+original 2090..2118 -> expanded 2550..2578
+original 2169..2200 -> expanded 2578..2609
+original 2248..2253 -> expanded 2609..2614
+original 2294..2323 -> expanded 2614..2643
+original 2351..2376 -> expanded 2643..2668
+original 2404..2445 -> expanded 2668..2709
+original 2551..2556 -> expanded 2709..2714
+original 2575..2619 -> expanded 2714..2758
+original 2710..2756 -> expanded 2758..2804
+original 2784..2834 -> expanded 2804..2854
+original 2862..2916 -> expanded 2854..2908
+original 2944..2970 -> expanded 2908..2934
+original 3014..3047 -> expanded 2934..2967
+original 3075..3099 -> expanded 2967..2991
+original 3148..3153 -> expanded 2991..2996
+original 3172..3202 -> expanded 2996..3026
+original 3261..3302 -> expanded 3026..3067
+original 3347..3385 -> expanded 3067..3105
+original 3413..3440 -> expanded 3105..3132
+original 3468..3490 -> expanded 3132..3154
+original 3518..3552 -> expanded 3154..3188
+original 3552..3553 -> expanded 106603..106604
+generated 0..1580 <- imports
+generated 3188..3782 <- Default
+generated 3782..8081 <- Encode
+generated 8081..58647 <- Decode
+generated 58647..105776 <- Gigaform
+generated 105776..106603 <- __convenience_const
 
 ## Metadata
 

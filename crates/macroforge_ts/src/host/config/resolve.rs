@@ -471,8 +471,13 @@ impl Resolver {
                             module.location()
                         )));
                     };
-                    let foreign_type =
-                        parse_single_foreign_type(&name, entry, &module.imports, module.source)?;
+                    let foreign_type = parse_single_foreign_type(
+                        &module.location(),
+                        &name,
+                        entry,
+                        &module.imports,
+                        module.source,
+                    )?;
                     foreign_types = merge_foreign_types(foreign_types, vec![foreign_type]);
                 }
             }

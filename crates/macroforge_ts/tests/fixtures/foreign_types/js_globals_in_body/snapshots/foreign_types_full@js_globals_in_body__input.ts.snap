@@ -241,13 +241,93 @@ at: (() => {
                     ctx.register(obj.__id as number, instance);
                 }
 
-                ctx.trackForFreeze(instance);instance.at = ((raw: unknown) => {
+                ctx.trackForFreeze(instance);try {
+                                        instance.at = ((raw: unknown) => {
 	if (!Array.isArray(raw) && typeof raw !== "string") {
 		console.error("bad DateTime.Utc payload", raw);
 		return DateTime.make(0);
 	}
 	return DateTime.make(raw as string);
 })(obj["at"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "at", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -874,7 +954,16 @@ at: (() => {
                 return result.success;
             }
 
-export const Event = {
+export const Event: {
+  readonly defaultValue: typeof eventDefaultValue;
+  readonly encode: typeof eventEncode;
+  readonly encodeWithContext: typeof eventEncodeWithContext;
+  readonly decode: typeof eventDecode;
+  readonly decodeWithContext: typeof eventDecodeWithContext;
+  readonly validateFields: typeof eventValidateFields;
+  readonly hasShape: typeof eventHasShape;
+  readonly is: typeof eventIs;
+} = {
   defaultValue: eventDefaultValue,
   encode: eventEncode,
   encodeWithContext: eventEncodeWithContext,
@@ -883,7 +972,7 @@ export const Event = {
   validateFields: eventValidateFields,
   hasShape: eventHasShape,
   is: eventIs
-} as const;
+};
 
 ## DTS
 
@@ -1105,13 +1194,93 @@ at: (() => {
                     ctx.register(obj.__id as number, instance);
                 }
 
-                ctx.trackForFreeze(instance);instance.at = ((raw: unknown) => {
+                ctx.trackForFreeze(instance);try {
+                                        instance.at = ((raw: unknown) => {
 	if (!Array.isArray(raw) && typeof raw !== "string") {
 		console.error("bad DateTime.Utc payload", raw);
 		return DateTime.make(0);
 	}
 	return DateTime.make(raw as string);
 })(obj["at"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "at", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1738,7 +1907,16 @@ at: (() => {
                 return result.success;
             }
 
-export const Event = {
+export const Event: {
+  readonly defaultValue: typeof eventDefaultValue;
+  readonly encode: typeof eventEncode;
+  readonly encodeWithContext: typeof eventEncodeWithContext;
+  readonly decode: typeof eventDecode;
+  readonly decodeWithContext: typeof eventDecodeWithContext;
+  readonly validateFields: typeof eventValidateFields;
+  readonly hasShape: typeof eventHasShape;
+  readonly is: typeof eventIs;
+} = {
   defaultValue: eventDefaultValue,
   encode: eventEncode,
   encodeWithContext: eventEncodeWithContext,
@@ -1747,7 +1925,7 @@ export const Event = {
   validateFields: eventValidateFields,
   hasShape: eventHasShape,
   is: eventIs
-} as const;
+};
 
 ## Diagnostics
 
@@ -1755,13 +1933,14 @@ export const Event = {
 
 ## Mapping
 
-original 0..36 -> expanded 0..36
-original 75..124 -> expanded 36..85
-original 124..125 -> expanded 6833..6834
-generated 85..279 <- Default
-generated 279..1795 <- Encode
-generated 1795..6546 <- Decode
-generated 6546..6833 <- __convenience_const
+original 0..36 -> expanded 385..421
+original 75..124 -> expanded 421..470
+original 124..125 -> expanded 7951..7952
+generated 0..385 <- imports
+generated 470..664 <- Default
+generated 664..2180 <- Encode
+generated 2180..7288 <- Decode
+generated 7288..7951 <- __convenience_const
 
 ## Metadata
 

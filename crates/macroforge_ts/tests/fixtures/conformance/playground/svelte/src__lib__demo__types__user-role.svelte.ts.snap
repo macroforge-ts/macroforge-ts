@@ -131,8 +131,8 @@ export function userRoleDefaultValue(): UserRole {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function userRoleDecodeWithContext(value: any, ctx: __mf_DecodeContext): UserRole | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function userRoleDecodeWithContext(value: any, _ctx: __mf_DecodeContext): UserRole | __mf_PendingRef {
                 switch (value) {
                     case 'Administrator':
                     case 'SalesRepresentative':
@@ -425,7 +425,17 @@ if (variant === "InformationTechnology") { return "InformationTechnology" as Use
             return toExit(userRoleDecode(obj));
         }
 
-export const UserRole = {
+export const UserRole: {
+  readonly defaultValue: typeof userRoleDefaultValue;
+  readonly encode: typeof userRoleEncode;
+  readonly encodeWithContext: typeof userRoleEncodeWithContext;
+  readonly decode: typeof userRoleDecode;
+  readonly decodeWithContext: typeof userRoleDecodeWithContext;
+  readonly hasShape: typeof userRoleHasShape;
+  readonly is: typeof userRoleIs;
+  readonly createForm: typeof userRoleCreateForm;
+  readonly fromFormData: typeof userRoleFromFormData;
+} = {
   defaultValue: userRoleDefaultValue,
   encode: userRoleEncode,
   encodeWithContext: userRoleEncodeWithContext,
@@ -435,7 +445,7 @@ export const UserRole = {
   is: userRoleIs,
   createForm: userRoleCreateForm,
   fromFormData: userRoleFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -549,8 +559,8 @@ export function userRoleDefaultValue(): UserRole {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function userRoleDecodeWithContext(value: any, ctx: __mf_DecodeContext): UserRole | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function userRoleDecodeWithContext(value: any, _ctx: __mf_DecodeContext): UserRole | __mf_PendingRef {
                 switch (value) {
                     case 'Administrator':
                     case 'SalesRepresentative':
@@ -843,7 +853,17 @@ if (variant === "InformationTechnology") { return "InformationTechnology" as Use
             return toExit(userRoleDecode(obj));
         }
 
-export const UserRole = {
+export const UserRole: {
+  readonly defaultValue: typeof userRoleDefaultValue;
+  readonly encode: typeof userRoleEncode;
+  readonly encodeWithContext: typeof userRoleEncodeWithContext;
+  readonly decode: typeof userRoleDecode;
+  readonly decodeWithContext: typeof userRoleDecodeWithContext;
+  readonly hasShape: typeof userRoleHasShape;
+  readonly is: typeof userRoleIs;
+  readonly createForm: typeof userRoleCreateForm;
+  readonly fromFormData: typeof userRoleFromFormData;
+} = {
   defaultValue: userRoleDefaultValue,
   encode: userRoleEncode,
   encodeWithContext: userRoleEncodeWithContext,
@@ -853,7 +873,7 @@ export const UserRole = {
   is: userRoleIs,
   createForm: userRoleCreateForm,
   fromFormData: userRoleFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -861,14 +881,15 @@ export const UserRole = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..269 -> expanded 58..220
-original 269..270 -> expanded 13910..13911
-generated 220..350 <- Default
-generated 350..2258 <- Encode
-generated 2258..4871 <- Decode
-generated 4871..13566 <- Gigaform
-generated 13566..13910 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..269 -> expanded 627..789
+original 269..270 -> expanded 14985..14986
+generated 0..569 <- imports
+generated 789..919 <- Default
+generated 919..2827 <- Encode
+generated 2827..5500 <- Decode
+generated 5500..14195 <- Gigaform
+generated 14195..14985 <- __convenience_const
 
 ## Metadata
 

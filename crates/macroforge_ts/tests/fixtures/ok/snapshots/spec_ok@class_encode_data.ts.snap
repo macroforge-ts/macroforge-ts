@@ -285,12 +285,13 @@ class Data {
 
 ## Mapping
 
-original 0..41 -> expanded 0..41
-original 63..94 -> expanded 41..72
-original 94..95 -> expanded 774..775
-original 95..96 -> expanded 2243..2244
-generated 72..774 <- Encode
-generated 775..2243 <- Encode
+original 0..41 -> expanded 78..119
+original 63..94 -> expanded 119..150
+original 94..95 -> expanded 852..853
+original 95..96 -> expanded 2321..2322
+generated 0..78 <- imports
+generated 150..852 <- Encode
+generated 853..2321 <- Encode
 
 ## Metadata
 

@@ -248,11 +248,50 @@ active: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_main = obj["main"] as string;
-                                            if (__raw_main == null) { errors.push({ field: "main", message: "Colors.main is required" }); } else {
+                                const __raw_main = obj["main"] as string;if (!(typeof __raw_main === "string")) {
+                                                    errors.push({ field: "main", message: __raw_main == null ? "Colors.main is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_main == null) { errors.push({ field: "main", message: "Colors.main is required" }); } else {
 if (__raw_main.length === 0) { errors.push({ field: "main", message: "Colors.main must not be empty" }); }
 }
-instance.main = __raw_main;
+
+
+
+
+                                                    instance.main = __raw_main;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -512,11 +551,50 @@ instance.main = __raw_main;
 
 
                             }{
-                                const __raw_hover = obj["hover"] as string;
-                                            if (__raw_hover == null) { errors.push({ field: "hover", message: "Colors.hover is required" }); } else {
+                                const __raw_hover = obj["hover"] as string;if (!(typeof __raw_hover === "string")) {
+                                                    errors.push({ field: "hover", message: __raw_hover == null ? "Colors.hover is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_hover == null) { errors.push({ field: "hover", message: "Colors.hover is required" }); } else {
 if (__raw_hover.length === 0) { errors.push({ field: "hover", message: "Colors.hover must not be empty" }); }
 }
-instance.hover = __raw_hover;
+
+
+
+
+                                                    instance.hover = __raw_hover;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -776,11 +854,50 @@ instance.hover = __raw_hover;
 
 
                             }{
-                                const __raw_active = obj["active"] as string;
-                                            if (__raw_active == null) { errors.push({ field: "active", message: "Colors.active is required" }); } else {
+                                const __raw_active = obj["active"] as string;if (!(typeof __raw_active === "string")) {
+                                                    errors.push({ field: "active", message: __raw_active == null ? "Colors.active is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_active == null) { errors.push({ field: "active", message: "Colors.active is required" }); } else {
 if (__raw_active.length === 0) { errors.push({ field: "active", message: "Colors.active must not be empty" }); }
 }
-instance.active = __raw_active;
+
+
+
+
+                                                    instance.active = __raw_active;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1040,6 +1157,82 @@ instance.active = __raw_active;
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1912,7 +2105,18 @@ if (__val.length === 0) { errors.push({ field: "active", message: "Colors.active
             return toExit(colorsDecode(obj));
         }
 
-export const Colors = {
+export const Colors: {
+  readonly defaultValue: typeof colorsDefaultValue;
+  readonly encode: typeof colorsEncode;
+  readonly encodeWithContext: typeof colorsEncodeWithContext;
+  readonly decode: typeof colorsDecode;
+  readonly decodeWithContext: typeof colorsDecodeWithContext;
+  readonly validateFields: typeof colorsValidateFields;
+  readonly hasShape: typeof colorsHasShape;
+  readonly is: typeof colorsIs;
+  readonly createForm: typeof colorsCreateForm;
+  readonly fromFormData: typeof colorsFromFormData;
+} = {
   defaultValue: colorsDefaultValue,
   encode: colorsEncode,
   encodeWithContext: colorsEncodeWithContext,
@@ -1923,7 +2127,7 @@ export const Colors = {
   is: colorsIs,
   createForm: colorsCreateForm,
   fromFormData: colorsFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2154,11 +2358,50 @@ active: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_main = obj["main"] as string;
-                                            if (__raw_main == null) { errors.push({ field: "main", message: "Colors.main is required" }); } else {
+                                const __raw_main = obj["main"] as string;if (!(typeof __raw_main === "string")) {
+                                                    errors.push({ field: "main", message: __raw_main == null ? "Colors.main is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_main == null) { errors.push({ field: "main", message: "Colors.main is required" }); } else {
 if (__raw_main.length === 0) { errors.push({ field: "main", message: "Colors.main must not be empty" }); }
 }
-instance.main = __raw_main;
+
+
+
+
+                                                    instance.main = __raw_main;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2418,11 +2661,50 @@ instance.main = __raw_main;
 
 
                             }{
-                                const __raw_hover = obj["hover"] as string;
-                                            if (__raw_hover == null) { errors.push({ field: "hover", message: "Colors.hover is required" }); } else {
+                                const __raw_hover = obj["hover"] as string;if (!(typeof __raw_hover === "string")) {
+                                                    errors.push({ field: "hover", message: __raw_hover == null ? "Colors.hover is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_hover == null) { errors.push({ field: "hover", message: "Colors.hover is required" }); } else {
 if (__raw_hover.length === 0) { errors.push({ field: "hover", message: "Colors.hover must not be empty" }); }
 }
-instance.hover = __raw_hover;
+
+
+
+
+                                                    instance.hover = __raw_hover;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2682,11 +2964,50 @@ instance.hover = __raw_hover;
 
 
                             }{
-                                const __raw_active = obj["active"] as string;
-                                            if (__raw_active == null) { errors.push({ field: "active", message: "Colors.active is required" }); } else {
+                                const __raw_active = obj["active"] as string;if (!(typeof __raw_active === "string")) {
+                                                    errors.push({ field: "active", message: __raw_active == null ? "Colors.active is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_active == null) { errors.push({ field: "active", message: "Colors.active is required" }); } else {
 if (__raw_active.length === 0) { errors.push({ field: "active", message: "Colors.active must not be empty" }); }
 }
-instance.active = __raw_active;
+
+
+
+
+                                                    instance.active = __raw_active;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2946,6 +3267,82 @@ instance.active = __raw_active;
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3818,7 +4215,18 @@ if (__val.length === 0) { errors.push({ field: "active", message: "Colors.active
             return toExit(colorsDecode(obj));
         }
 
-export const Colors = {
+export const Colors: {
+  readonly defaultValue: typeof colorsDefaultValue;
+  readonly encode: typeof colorsEncode;
+  readonly encodeWithContext: typeof colorsEncodeWithContext;
+  readonly decode: typeof colorsDecode;
+  readonly decodeWithContext: typeof colorsDecodeWithContext;
+  readonly validateFields: typeof colorsValidateFields;
+  readonly hasShape: typeof colorsHasShape;
+  readonly is: typeof colorsIs;
+  readonly createForm: typeof colorsCreateForm;
+  readonly fromFormData: typeof colorsFromFormData;
+} = {
   defaultValue: colorsDefaultValue,
   encode: colorsEncode,
   encodeWithContext: colorsEncodeWithContext,
@@ -3829,7 +4237,7 @@ export const Colors = {
   is: colorsIs,
   createForm: colorsCreateForm,
   fromFormData: colorsFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3837,17 +4245,18 @@ export const Colors = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..138 -> expanded 58..89
-original 179..202 -> expanded 89..112
-original 243..267 -> expanded 112..136
-original 308..330 -> expanded 136..158
-original 330..331 -> expanded 17495..17496
-generated 158..297 <- Default
-generated 297..1833 <- Encode
-generated 1833..11025 <- Decode
-generated 11025..17131 <- Gigaform
-generated 17131..17495 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..138 -> expanded 627..658
+original 179..202 -> expanded 658..681
+original 243..267 -> expanded 681..705
+original 308..330 -> expanded 705..727
+original 330..331 -> expanded 19860..19861
+generated 0..569 <- imports
+generated 727..866 <- Default
+generated 866..2402 <- Encode
+generated 2402..12906 <- Decode
+generated 12906..19012 <- Gigaform
+generated 19012..19860 <- __convenience_const
 
 ## Metadata
 

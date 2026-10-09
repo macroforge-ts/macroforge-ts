@@ -37,7 +37,10 @@ const result = (() => {
 
 ## Mapping
 
-(none)
+original 52..54 -> expanded 0..2
+original 139..156 -> expanded 2..19
+original 169..171 -> expanded 77..79
+generated 19..77 <- $withTemp
 
 ## Metadata
 

@@ -28,7 +28,7 @@ interface Data {
 
 ## Diagnostics
 
-Error [4..24]: Macro 'NonExistent' is not a Macroforge built-in macro. Ensure you are using the 'import macro' syntax import statement.
+Error [5..25]: Macro 'NonExistent' is not a Macroforge built-in macro. Ensure you are using the 'import macro' syntax import statement.
 
 ## Mapping
 

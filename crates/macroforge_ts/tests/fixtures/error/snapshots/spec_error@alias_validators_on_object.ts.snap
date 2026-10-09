@@ -1,0 +1,48 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/alias_validators_on_object.ts
+---
+## Input
+
+/** @derive(Decode) */
+/** @endec(email) */
+type Contact = {
+  address: string;
+};
+
+## Changed
+
+true
+
+## Output
+
+type Contact = {
+  address: string;
+};
+
+## DTS
+
+type Contact = {
+  address: string;
+};
+
+## Diagnostics
+
+Error [45..83]: @endec validators on type 'Contact' only apply to primitive and branded primitive aliases; put them on the fields instead
+
+## Mapping
+
+original 43..83 -> expanded 0..40
+
+## Metadata
+
+type Contact: {"body":{"Object":{"fields":[{"decorators":[],"name":"address","optional":false,"readonly":false,"span":{"end":80,"start":64},"ts_type":"string"}]}},"decorators":[{"args_src":"email","name":"endec","span":{"end":44,"start":24}},{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"name":"Contact","span":{"end":83,"start":45},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

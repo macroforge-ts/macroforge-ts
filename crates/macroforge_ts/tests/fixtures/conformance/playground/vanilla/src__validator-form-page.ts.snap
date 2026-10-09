@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/validator-form-page.ts
-sha256 940ae8148b60cbbfd9bada7766fd640a0f9019cd0acffb8c971843ce0c20da1d
+sha256 c02efe88f2c36cf1c491958704e345293824ffa6604e7c85ea7b4f182c521fd0
 
 ## Changed
 
@@ -24,7 +24,7 @@ false
 
 ## Mapping
 
-original 0..11423 -> expanded 0..11423
+original 0..13994 -> expanded 0..13994
 
 ## Metadata
 

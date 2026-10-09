@@ -131,7 +131,46 @@ constructor(props: { host: string; port: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_host = obj["host"] as string;instance.host = __raw_host;
+                            const __raw_host = obj["host"] as string;if (!(typeof __raw_host === "string")) {
+                                                errors.push({ field: "host", message: __raw_host == null ? "Config.host is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.host = __raw_host;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -393,7 +432,46 @@ constructor(props: { host: string; port: number }) {
 
 
                         }{
-                            const __raw_port = obj["port"] as number;instance.port = __raw_port;
+                            const __raw_port = obj["port"] as number;if (!(typeof __raw_port === "number")) {
+                                                errors.push({ field: "port", message: __raw_port == null ? "Config.port is required" : "expected number" });
+                                            } else {
+
+
+
+                                                instance.port = __raw_port;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -976,7 +1054,46 @@ constructor(props: { host: string; port: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_host = obj["host"] as string;instance.host = __raw_host;
+                            const __raw_host = obj["host"] as string;if (!(typeof __raw_host === "string")) {
+                                                errors.push({ field: "host", message: __raw_host == null ? "Config.host is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.host = __raw_host;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1238,7 +1355,46 @@ constructor(props: { host: string; port: number }) {
 
 
                         }{
-                            const __raw_port = obj["port"] as number;instance.port = __raw_port;
+                            const __raw_port = obj["port"] as number;if (!(typeof __raw_port === "number")) {
+                                                errors.push({ field: "port", message: __raw_port == null ? "Config.port is required" : "expected number" });
+                                            } else {
+
+
+
+                                                instance.port = __raw_port;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1717,13 +1873,14 @@ constructor(props: { host: string; port: number }) {
 
 ## Mapping
 
-original 30..82 -> expanded 0..52
-original 82..83 -> expanded 5598..5599
-original 83..84 -> expanded 8226..8227
-generated 52..762 <- Encode
-generated 762..5598 <- Decode
-generated 5599..7106 <- Encode
-generated 7106..8226 <- Decode
+original 30..82 -> expanded 385..437
+original 82..83 -> expanded 6743..6744
+original 83..84 -> expanded 9371..9372
+generated 0..385 <- imports
+generated 437..1147 <- Encode
+generated 1147..6743 <- Decode
+generated 6744..8251 <- Encode
+generated 8251..9371 <- Decode
 
 ## Metadata
 

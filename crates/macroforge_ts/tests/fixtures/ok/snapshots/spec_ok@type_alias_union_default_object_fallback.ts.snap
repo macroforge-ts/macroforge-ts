@@ -23,9 +23,11 @@ export function statusDefaultValue(): Status {
 });
                         }
 
-export const Status = {
+export const Status: {
+  readonly defaultValue: typeof statusDefaultValue;
+} = {
   defaultValue: statusDefaultValue
-} as const;
+};
 
 ## DTS
 
@@ -38,9 +40,11 @@ export function statusDefaultValue(): Status {
 });
                         }
 
-export const Status = {
+export const Status: {
+  readonly defaultValue: typeof statusDefaultValue;
+} = {
   defaultValue: statusDefaultValue
-} as const;
+};
 
 ## Diagnostics
 
@@ -49,9 +53,9 @@ export const Status = {
 ## Mapping
 
 original 23..117 -> expanded 0..94
-original 117..118 -> expanded 309..310
+original 117..118 -> expanded 357..358
 generated 94..237 <- Default
-generated 237..309 <- __convenience_const
+generated 237..357 <- __convenience_const
 
 ## Metadata
 

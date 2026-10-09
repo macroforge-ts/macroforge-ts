@@ -262,7 +262,46 @@ date: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Ordered.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -805,6 +844,38 @@ date: "",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_out = obj["out"] as string | Order;if (typeof __raw_out === "string") {
                                                 instance.out = __raw_out;
@@ -1089,8 +1160,79 @@ date: "",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_date = obj["date"] as string;instance.date = __raw_date;
+                                const __raw_date = obj["date"] as string;if (!(typeof __raw_date === "string")) {
+                                                    errors.push({ field: "date", message: __raw_date == null ? "Ordered.date is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.date = __raw_date;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1350,6 +1492,82 @@ date: "",
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2188,7 +2406,18 @@ date: "",
             return toExit(orderedDecode(obj));
         }
 
-export const Ordered = {
+export const Ordered: {
+  readonly defaultValue: typeof orderedDefaultValue;
+  readonly encode: typeof orderedEncode;
+  readonly encodeWithContext: typeof orderedEncodeWithContext;
+  readonly decode: typeof orderedDecode;
+  readonly decodeWithContext: typeof orderedDecodeWithContext;
+  readonly validateFields: typeof orderedValidateFields;
+  readonly hasShape: typeof orderedHasShape;
+  readonly is: typeof orderedIs;
+  readonly createForm: typeof orderedCreateForm;
+  readonly fromFormData: typeof orderedFromFormData;
+} = {
   defaultValue: orderedDefaultValue,
   encode: orderedEncode,
   encodeWithContext: orderedEncodeWithContext,
@@ -2199,7 +2428,7 @@ export const Ordered = {
   is: orderedIs,
   createForm: orderedCreateForm,
   fromFormData: orderedFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2440,7 +2669,46 @@ date: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Ordered.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2983,6 +3251,38 @@ date: "",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_out = obj["out"] as string | Order;if (typeof __raw_out === "string") {
                                                 instance.out = __raw_out;
@@ -3267,8 +3567,79 @@ date: "",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_date = obj["date"] as string;instance.date = __raw_date;
+                                const __raw_date = obj["date"] as string;if (!(typeof __raw_date === "string")) {
+                                                    errors.push({ field: "date", message: __raw_date == null ? "Ordered.date is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.date = __raw_date;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3528,6 +3899,82 @@ date: "",
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4366,7 +4813,18 @@ date: "",
             return toExit(orderedDecode(obj));
         }
 
-export const Ordered = {
+export const Ordered: {
+  readonly defaultValue: typeof orderedDefaultValue;
+  readonly encode: typeof orderedEncode;
+  readonly encodeWithContext: typeof orderedEncodeWithContext;
+  readonly decode: typeof orderedDecode;
+  readonly decodeWithContext: typeof orderedDecodeWithContext;
+  readonly validateFields: typeof orderedValidateFields;
+  readonly hasShape: typeof orderedHasShape;
+  readonly is: typeof orderedIs;
+  readonly createForm: typeof orderedCreateForm;
+  readonly fromFormData: typeof orderedFromFormData;
+} = {
   defaultValue: orderedDefaultValue,
   encode: orderedEncode,
   encodeWithContext: orderedEncodeWithContext,
@@ -4377,7 +4835,7 @@ export const Ordered = {
   is: orderedIs,
   createForm: orderedCreateForm,
   fromFormData: orderedFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -4385,16 +4843,17 @@ export const Ordered = {
 
 ## Mapping
 
-original 0..153 -> expanded 0..153
-original 202..250 -> expanded 153..201
-original 269..300 -> expanded 201..232
-original 319..364 -> expanded 232..277
-original 364..365 -> expanded 19488..19489
-generated 277..420 <- Default
-generated 420..2309 <- Encode
-generated 2309..11962 <- Decode
-generated 11962..19113 <- Gigaform
-generated 19113..19488 <- __convenience_const
+original 0..153 -> expanded 805..958
+original 202..250 -> expanded 958..1006
+original 269..300 -> expanded 1006..1037
+original 319..364 -> expanded 1037..1082
+original 364..365 -> expanded 21713..21714
+generated 0..805 <- imports
+generated 1082..1225 <- Default
+generated 1225..3114 <- Encode
+generated 3114..13693 <- Decode
+generated 13693..20844 <- Gigaform
+generated 20844..21713 <- __convenience_const
 
 ## Metadata
 

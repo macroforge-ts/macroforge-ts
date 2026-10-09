@@ -38,7 +38,15 @@ export const crossFileId = 42;
 
 ## Mapping
 
-(none)
+original 0..520 -> expanded 0..520
+original 526..558 -> expanded 522..554
+original 571..602 -> expanded 561..592
+original 629..658 -> expanded 613..642
+original 671..673 -> expanded 644..646
+generated 520..522 <- $vec
+generated 554..561 <- $vec
+generated 592..613 <- $vec
+generated 642..644 <- $identity
 
 ## Metadata
 

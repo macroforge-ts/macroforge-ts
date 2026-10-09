@@ -85,7 +85,7 @@
 pub mod config;
 
 /// Attribute macros (`@cfg`, `@deprecated`, `@mustUse`, `@nonExhaustive`):
-/// pre-pass that runs before `@buildtime` and derive dispatch.
+/// the pre-pass that runs before `@buildtime` and derive dispatch.
 pub mod attributes;
 
 /// Build-time `@buildtime` evaluation: sandboxed JS execution during
@@ -143,7 +143,7 @@ pub mod type_resolver;
 // Primary exports for convenience
 pub use config::{
     CONFIG_CACHE, ForeignTypeConfig, ImportInfo, MacroConfig, MacroforgeConfig,
-    MacroforgeConfigLoader, clear_config_cache,
+    MacroforgeConfigLoader, clear_config_cache, find_project_root,
 };
 pub use dispatch::MacroDispatcher;
 pub use error::{MacroError, Result};

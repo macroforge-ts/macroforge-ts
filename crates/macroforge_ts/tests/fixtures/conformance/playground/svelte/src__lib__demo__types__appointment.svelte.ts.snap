@@ -342,7 +342,46 @@ recurrenceRule: null,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Appointment.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -602,11 +641,50 @@ recurrenceRule: null,
 
 
                             }{
-                                const __raw_title = obj["title"] as string;
-                                            if (__raw_title == null) { errors.push({ field: "title", message: "Appointment.title is required" }); } else {
+                                const __raw_title = obj["title"] as string;if (!(typeof __raw_title === "string")) {
+                                                    errors.push({ field: "title", message: __raw_title == null ? "Appointment.title is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_title == null) { errors.push({ field: "title", message: "Appointment.title is required" }); } else {
 if (__raw_title.length === 0) { errors.push({ field: "title", message: "Appointment.title must not be empty" }); }
 }
-instance.title = __raw_title;
+
+
+
+
+                                                    instance.title = __raw_title;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1142,8 +1220,83 @@ instance.title = __raw_title;
 
 
 
-                            }instance.begins = ((raw: unknown) => __mf_DateTime.unsafeMake(raw as __mf_DateTime.DateTime.Input))(obj["begins"]);{
-                                const __raw_duration = obj["duration"] as number;instance.duration = __raw_duration;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.begins = ((raw: unknown) => __mf_DateTime.unsafeMake(raw as __mf_DateTime.DateTime.Input))(obj["begins"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "begins", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }{
+                                const __raw_duration = obj["duration"] as number;if (!(typeof __raw_duration === "number")) {
+                                                    errors.push({ field: "duration", message: __raw_duration == null ? "Appointment.duration is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.duration = __raw_duration;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1403,7 +1556,46 @@ instance.title = __raw_title;
 
 
                             }{
-                                const __raw_timeZone = obj["timeZone"] as string;instance.timeZone = __raw_timeZone;
+                                const __raw_timeZone = obj["timeZone"] as string;if (!(typeof __raw_timeZone === "string")) {
+                                                    errors.push({ field: "timeZone", message: __raw_timeZone == null ? "Appointment.timeZone is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.timeZone = __raw_timeZone;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1663,7 +1855,46 @@ instance.title = __raw_title;
 
 
                             }{
-                                const __raw_offsetMs = obj["offsetMs"] as number;instance.offsetMs = __raw_offsetMs;
+                                const __raw_offsetMs = obj["offsetMs"] as number;if (!(typeof __raw_offsetMs === "number")) {
+                                                    errors.push({ field: "offsetMs", message: __raw_offsetMs == null ? "Appointment.offsetMs is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.offsetMs = __raw_offsetMs;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1923,7 +2154,46 @@ instance.title = __raw_title;
 
 
                             }{
-                                const __raw_allDay = obj["allDay"] as boolean;instance.allDay = __raw_allDay;
+                                const __raw_allDay = obj["allDay"] as boolean;if (!(typeof __raw_allDay === "boolean")) {
+                                                    errors.push({ field: "allDay", message: __raw_allDay == null ? "Appointment.allDay is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.allDay = __raw_allDay;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2183,7 +2453,46 @@ instance.title = __raw_title;
 
 
                             }{
-                                const __raw_multiDay = obj["multiDay"] as boolean;instance.multiDay = __raw_multiDay;
+                                const __raw_multiDay = obj["multiDay"] as boolean;if (!(typeof __raw_multiDay === "boolean")) {
+                                                    errors.push({ field: "multiDay", message: __raw_multiDay == null ? "Appointment.multiDay is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.multiDay = __raw_multiDay;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2793,6 +3102,38 @@ instance.title = __raw_title;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_location = obj["location"] as string | Site;if (typeof __raw_location === "string") {
                                                 instance.location = __raw_location;
@@ -3077,7 +3418,43 @@ instance.title = __raw_title;
 
 
 
-                            }instance.description = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["description"]);{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.description = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["description"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "description", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }{
                                 const __raw_colors = obj["colors"] as Colors;ctx.pushScope("colors");
                                             try {
                                                 const __result = colorsDecodeWithContext(__raw_colors, ctx);
@@ -3096,6 +3473,38 @@ instance.title = __raw_title;
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3657,7 +4066,115 @@ instance.title = __raw_title;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4955,7 +5472,18 @@ if (__val.length === 0) { errors.push({ field: "title", message: "Appointment.ti
             return toExit(appointmentDecode(obj));
         }
 
-export const Appointment = {
+export const Appointment: {
+  readonly defaultValue: typeof appointmentDefaultValue;
+  readonly encode: typeof appointmentEncode;
+  readonly encodeWithContext: typeof appointmentEncodeWithContext;
+  readonly decode: typeof appointmentDecode;
+  readonly decodeWithContext: typeof appointmentDecodeWithContext;
+  readonly validateFields: typeof appointmentValidateFields;
+  readonly hasShape: typeof appointmentHasShape;
+  readonly is: typeof appointmentIs;
+  readonly createForm: typeof appointmentCreateForm;
+  readonly fromFormData: typeof appointmentFromFormData;
+} = {
   defaultValue: appointmentDefaultValue,
   encode: appointmentEncode,
   encodeWithContext: appointmentEncodeWithContext,
@@ -4966,7 +5494,7 @@ export const Appointment = {
   is: appointmentIs,
   createForm: appointmentCreateForm,
   fromFormData: appointmentFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -5280,7 +5808,46 @@ recurrenceRule: null,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Appointment.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5540,11 +6107,50 @@ recurrenceRule: null,
 
 
                             }{
-                                const __raw_title = obj["title"] as string;
-                                            if (__raw_title == null) { errors.push({ field: "title", message: "Appointment.title is required" }); } else {
+                                const __raw_title = obj["title"] as string;if (!(typeof __raw_title === "string")) {
+                                                    errors.push({ field: "title", message: __raw_title == null ? "Appointment.title is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_title == null) { errors.push({ field: "title", message: "Appointment.title is required" }); } else {
 if (__raw_title.length === 0) { errors.push({ field: "title", message: "Appointment.title must not be empty" }); }
 }
-instance.title = __raw_title;
+
+
+
+
+                                                    instance.title = __raw_title;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6080,8 +6686,83 @@ instance.title = __raw_title;
 
 
 
-                            }instance.begins = ((raw: unknown) => __mf_DateTime.unsafeMake(raw as __mf_DateTime.DateTime.Input))(obj["begins"]);{
-                                const __raw_duration = obj["duration"] as number;instance.duration = __raw_duration;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.begins = ((raw: unknown) => __mf_DateTime.unsafeMake(raw as __mf_DateTime.DateTime.Input))(obj["begins"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "begins", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }{
+                                const __raw_duration = obj["duration"] as number;if (!(typeof __raw_duration === "number")) {
+                                                    errors.push({ field: "duration", message: __raw_duration == null ? "Appointment.duration is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.duration = __raw_duration;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6341,7 +7022,46 @@ instance.title = __raw_title;
 
 
                             }{
-                                const __raw_timeZone = obj["timeZone"] as string;instance.timeZone = __raw_timeZone;
+                                const __raw_timeZone = obj["timeZone"] as string;if (!(typeof __raw_timeZone === "string")) {
+                                                    errors.push({ field: "timeZone", message: __raw_timeZone == null ? "Appointment.timeZone is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.timeZone = __raw_timeZone;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6601,7 +7321,46 @@ instance.title = __raw_title;
 
 
                             }{
-                                const __raw_offsetMs = obj["offsetMs"] as number;instance.offsetMs = __raw_offsetMs;
+                                const __raw_offsetMs = obj["offsetMs"] as number;if (!(typeof __raw_offsetMs === "number")) {
+                                                    errors.push({ field: "offsetMs", message: __raw_offsetMs == null ? "Appointment.offsetMs is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.offsetMs = __raw_offsetMs;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6861,7 +7620,46 @@ instance.title = __raw_title;
 
 
                             }{
-                                const __raw_allDay = obj["allDay"] as boolean;instance.allDay = __raw_allDay;
+                                const __raw_allDay = obj["allDay"] as boolean;if (!(typeof __raw_allDay === "boolean")) {
+                                                    errors.push({ field: "allDay", message: __raw_allDay == null ? "Appointment.allDay is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.allDay = __raw_allDay;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7121,7 +7919,46 @@ instance.title = __raw_title;
 
 
                             }{
-                                const __raw_multiDay = obj["multiDay"] as boolean;instance.multiDay = __raw_multiDay;
+                                const __raw_multiDay = obj["multiDay"] as boolean;if (!(typeof __raw_multiDay === "boolean")) {
+                                                    errors.push({ field: "multiDay", message: __raw_multiDay == null ? "Appointment.multiDay is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.multiDay = __raw_multiDay;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7731,6 +8568,38 @@ instance.title = __raw_title;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_location = obj["location"] as string | Site;if (typeof __raw_location === "string") {
                                                 instance.location = __raw_location;
@@ -8015,7 +8884,43 @@ instance.title = __raw_title;
 
 
 
-                            }instance.description = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["description"]);{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.description = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["description"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "description", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }{
                                 const __raw_colors = obj["colors"] as Colors;ctx.pushScope("colors");
                                             try {
                                                 const __result = colorsDecodeWithContext(__raw_colors, ctx);
@@ -8034,6 +8939,38 @@ instance.title = __raw_title;
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8595,7 +9532,115 @@ instance.title = __raw_title;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9893,7 +10938,18 @@ if (__val.length === 0) { errors.push({ field: "title", message: "Appointment.ti
             return toExit(appointmentDecode(obj));
         }
 
-export const Appointment = {
+export const Appointment: {
+  readonly defaultValue: typeof appointmentDefaultValue;
+  readonly encode: typeof appointmentEncode;
+  readonly encodeWithContext: typeof appointmentEncodeWithContext;
+  readonly decode: typeof appointmentDecode;
+  readonly decodeWithContext: typeof appointmentDecodeWithContext;
+  readonly validateFields: typeof appointmentValidateFields;
+  readonly hasShape: typeof appointmentHasShape;
+  readonly is: typeof appointmentIs;
+  readonly createForm: typeof appointmentCreateForm;
+  readonly fromFormData: typeof appointmentFromFormData;
+} = {
   defaultValue: appointmentDefaultValue,
   encode: appointmentEncode,
   encodeWithContext: appointmentEncodeWithContext,
@@ -9904,7 +10960,7 @@ export const Appointment = {
   is: appointmentIs,
   createForm: appointmentCreateForm,
   fromFormData: appointmentFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -9912,32 +10968,33 @@ export const Appointment = {
 
 ## Mapping
 
-original 0..359 -> expanded 0..359
-original 408..444 -> expanded 359..395
-original 472..493 -> expanded 395..416
-original 535..540 -> expanded 416..421
-original 581..605 -> expanded 421..445
-original 784..789 -> expanded 445..450
-original 817..842 -> expanded 450..475
-original 889..925 -> expanded 475..511
-original 980..1007 -> expanded 511..538
-original 1053..1080 -> expanded 538..565
-original 1108..1135 -> expanded 565..592
-original 1181..1207 -> expanded 592..618
-original 1255..1283 -> expanded 618..646
-original 1372..1418 -> expanded 646..692
-original 1471..1476 -> expanded 692..697
-original 1495..1529 -> expanded 697..731
-original 1581..1626 -> expanded 731..776
-original 1654..1659 -> expanded 776..781
-original 1732..1757 -> expanded 781..806
-original 1785..1830 -> expanded 806..851
-original 1830..1831 -> expanded 51723..51724
-generated 851..1284 <- Default
-generated 1284..4083 <- Encode
-generated 4083..25800 <- Decode
-generated 25800..51304 <- Gigaform
-generated 51304..51723 <- __convenience_const
+original 0..359 -> expanded 1273..1632
+original 408..444 -> expanded 1632..1668
+original 472..493 -> expanded 1668..1689
+original 535..540 -> expanded 1689..1694
+original 581..605 -> expanded 1694..1718
+original 784..789 -> expanded 1718..1723
+original 817..842 -> expanded 1723..1748
+original 889..925 -> expanded 1748..1784
+original 980..1007 -> expanded 1784..1811
+original 1053..1080 -> expanded 1811..1838
+original 1108..1135 -> expanded 1838..1865
+original 1181..1207 -> expanded 1865..1891
+original 1255..1283 -> expanded 1891..1919
+original 1372..1418 -> expanded 1919..1965
+original 1471..1476 -> expanded 1965..1970
+original 1495..1529 -> expanded 1970..2004
+original 1581..1626 -> expanded 2004..2049
+original 1654..1659 -> expanded 2049..2054
+original 1732..1757 -> expanded 2054..2079
+original 1785..1830 -> expanded 2079..2124
+original 1830..1831 -> expanded 57232..57233
+generated 0..1273 <- imports
+generated 2124..2557 <- Default
+generated 2557..5356 <- Encode
+generated 5356..30775 <- Decode
+generated 30775..56279 <- Gigaform
+generated 56279..57232 <- __convenience_const
 
 ## Metadata
 

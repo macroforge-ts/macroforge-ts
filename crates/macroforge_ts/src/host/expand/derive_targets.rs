@@ -295,28 +295,27 @@ pub(crate) fn find_macro_name_span(
     None
 }
 
+/// `span` narrowed to the `@derive(...)` directive when it covers the JSDoc
+/// holding one. Both spans are 1-based.
 pub(crate) fn diagnostic_span_for_derive(span: SpanIR, source: &str) -> SpanIR {
     let start = span.start.saturating_sub(1) as usize;
     let end = span.end.saturating_sub(1) as usize;
-
-    if start >= source.len() {
-        return SpanIR::new(span.start.saturating_sub(1), span.end.saturating_sub(1));
+    let Some(comment) = source.get(start..end.min(source.len())) else {
+        return span;
+    };
+    if !comment.starts_with("/**") {
+        return span;
     }
-
-    if source[start..].starts_with("/**") {
-        let comment_slice = &source[start..end.min(source.len())];
-        if let Some(at_pos) = comment_slice
-            .find("@derive")
-            .or_else(|| comment_slice.find("@Derive"))
-            && let Some(close_pos) = comment_slice[at_pos..].find(')')
-        {
-            let derive_start = start + at_pos;
-            let derive_end = derive_start + close_pos + 1;
-            return SpanIR::new(derive_start as u32, derive_end as u32);
-        }
-    }
-
-    SpanIR::new(span.start.saturating_sub(1), span.end.saturating_sub(1))
+    comment
+        .find("@derive")
+        .or_else(|| comment.find("@Derive"))
+        .and_then(|at| {
+            comment[at..].find(')').map(|close| {
+                let derive_start = (start + at) as u32 + 1;
+                SpanIR::new(derive_start, derive_start + close as u32 + 1)
+            })
+        })
+        .unwrap_or(span)
 }
 
 fn parse_derive_decorator(

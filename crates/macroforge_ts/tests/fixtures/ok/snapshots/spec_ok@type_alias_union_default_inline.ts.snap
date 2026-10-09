@@ -20,9 +20,11 @@ export function activityTypeDefaultValue(): ActivityType {
                             return createdDefaultValue();
                         }
 
-export const ActivityType = {
+export const ActivityType: {
+  readonly defaultValue: typeof activityTypeDefaultValue;
+} = {
   defaultValue: activityTypeDefaultValue
-} as const;
+};
 
 ## DTS
 
@@ -32,9 +34,11 @@ export function activityTypeDefaultValue(): ActivityType {
                             return createdDefaultValue();
                         }
 
-export const ActivityType = {
+export const ActivityType: {
+  readonly defaultValue: typeof activityTypeDefaultValue;
+} = {
   defaultValue: activityTypeDefaultValue
-} as const;
+};
 
 ## Diagnostics
 
@@ -43,9 +47,9 @@ export const ActivityType = {
 ## Mapping
 
 original 23..91 -> expanded 0..68
-original 91..92 -> expanded 296..297
+original 91..92 -> expanded 350..351
 generated 68..212 <- Default
-generated 212..296 <- __convenience_const
+generated 212..350 <- __convenience_const
 
 ## Metadata
 

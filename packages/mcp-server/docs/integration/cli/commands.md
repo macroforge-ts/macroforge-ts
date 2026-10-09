@@ -1,5 +1,11 @@
 ## Commands
 
+Each command works on a project: the nearest directory at or above its target that holds a
+`macroforge.config.*`, `package.json`, `deno.json` or `deno.jsonc`. The target is the file or
+directory given to `expand`, otherwise the current directory. The project's state lives in its
+`.macroforge/` directory. `expand` on a file outside any project expands it on its own and writes no
+state; the other commands report that no project was found.
+
 ### macroforge expand
 
 Expands macros in a TypeScript file and outputs the transformed code.
@@ -63,7 +69,7 @@ macroforge expand src/user.ts --out dist/user.js --types-out dist/user.d.t
 
 Note
 
-Expansion runs natively in Rust — no Node.js process is spawned. External macro packages are loaded
+Expansion runs natively in Rust; no Node.js process is spawned. External macro packages are loaded
 from `node_modules` via FFI, so run the CLI from your project root when your code uses them.
 
 ### macroforge tsc
@@ -146,11 +152,11 @@ macroforge svelte-package [options]
 
 Packaging is incremental. Each run records what it consumed and produced under
 `.macroforge/svelte-package/`, and a run whose inputs all match the previous one exits without
-repackaging. When a rebuild is needed, only the files that changed are re-expanded — the rest keep
+repackaging. When a rebuild is needed, only the files that changed are re-expanded. The rest keep
 the expanded output from last time.
 
-A file that differs only in formatting — trailing whitespace, runs of blank lines — does not count
-as a change. Note that `.ts` is transpiled on the way into the package so its layout is discarded
+A file that differs only in formatting (trailing whitespace, runs of blank lines) does not count as
+a change. Note that `.ts` is transpiled on the way into the package so its layout is discarded
 anyway, but `.svelte` and `.js` are copied through verbatim: a formatting-only edit to those will
 not reach the package until the next real change or a `--full-rebuild`.
 

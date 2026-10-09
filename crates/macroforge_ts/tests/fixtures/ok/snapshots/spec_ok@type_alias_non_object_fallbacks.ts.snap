@@ -1,0 +1,397 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_non_object_fallbacks.ts
+---
+## Input
+
+/** @derive(Clone, PartialOrd, Ord) */
+export type Level = 1 | 2 | 3;
+
+/** @derive(Clone, PartialOrd, Ord) */
+export type Mode = "light" | "dark";
+
+/** @derive(Clone, PartialOrd, Ord) */
+export type Pair = [string, number];
+
+/** @derive(Clone, PartialOrd, Ord) */
+export type Meters = $Newtype<number>;
+
+## Changed
+
+true
+
+## Output
+
+declare const __mf_newtype_1: unique symbol;
+
+export type Level = 1 | 2 | 3;
+
+export function levelClone(value: Level): Level {
+                        return value;
+                    }
+
+export function levelPartialCompare(a: Level, b: Level): number | null {
+                        if (a === b) return 0;
+
+                        const left: unknown = a;
+                        const right: unknown = b;
+                        if (typeof left === "number" && typeof right === "number") {
+                            return left < right ? -1 : left > right ? 1 : 0;
+                        }
+                        if (typeof left === "string" && typeof right === "string") {
+                            return left.localeCompare(right);
+                        }
+                        return null;
+                    }
+
+export function levelCompare(a: Level, b: Level): number {
+                        if (a === b) return 0;
+
+                        const left: unknown = a;
+                        const right: unknown = b;
+                        if (typeof left === "number" && typeof right === "number") {
+                            return left < right ? -1 : left > right ? 1 : 0;
+                        }
+                        if (typeof left === "string" && typeof right === "string") {
+                            const cmp = left.localeCompare(right);
+                            return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
+                        }
+                        return 0;
+                    }
+
+export const Level: {
+  readonly clone: typeof levelClone;
+  readonly partialCompare: typeof levelPartialCompare;
+  readonly compare: typeof levelCompare;
+} = {
+  clone: levelClone,
+  partialCompare: levelPartialCompare,
+  compare: levelCompare
+};
+
+
+export type Mode = "light" | "dark";
+
+export function modeClone(value: Mode): Mode {
+                        return value;
+                    }
+
+export function modePartialCompare(a: Mode, b: Mode): number | null {
+                        if (a === b) return 0;
+
+                        const left: unknown = a;
+                        const right: unknown = b;
+                        if (typeof left === "number" && typeof right === "number") {
+                            return left < right ? -1 : left > right ? 1 : 0;
+                        }
+                        if (typeof left === "string" && typeof right === "string") {
+                            return left.localeCompare(right);
+                        }
+                        return null;
+                    }
+
+export function modeCompare(a: Mode, b: Mode): number {
+                        if (a === b) return 0;
+
+                        const left: unknown = a;
+                        const right: unknown = b;
+                        if (typeof left === "number" && typeof right === "number") {
+                            return left < right ? -1 : left > right ? 1 : 0;
+                        }
+                        if (typeof left === "string" && typeof right === "string") {
+                            const cmp = left.localeCompare(right);
+                            return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
+                        }
+                        return 0;
+                    }
+
+export const Mode: {
+  readonly clone: typeof modeClone;
+  readonly partialCompare: typeof modePartialCompare;
+  readonly compare: typeof modeCompare;
+} = {
+  clone: modeClone,
+  partialCompare: modePartialCompare,
+  compare: modeCompare
+};
+
+
+export type Pair = [string, number];
+
+export function pairClone(value: Pair): Pair {
+                        return [...value];
+                    }
+
+export function pairPartialCompare(a: Pair, b: Pair): number | null {
+                        if (a === b) return 0;
+                        const left0 = a[0];
+const right0 = b[0];
+const cmp0 = left0.localeCompare(right0);
+if (cmp0 !== 0) return cmp0;
+const left1 = a[1];
+const right1 = b[1];
+const cmp1 = (left1 < right1 ? -1 : left1 > right1 ? 1 : 0);
+if (cmp1 !== 0) return cmp1;
+return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
+                    }
+
+export function pairCompare(a: Pair, b: Pair): number {
+                        if (a === b) return 0;
+                        const left0 = a[0];
+const right0 = b[0];
+const cmp0 = ((cmp => cmp < 0 ? -1 : cmp > 0 ? 1 : 0)(left0.localeCompare(right0)));
+if (cmp0 !== 0) return cmp0;
+const left1 = a[1];
+const right1 = b[1];
+const cmp1 = (left1 < right1 ? -1 : left1 > right1 ? 1 : 0);
+if (cmp1 !== 0) return cmp1;
+return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
+                    }
+
+export const Pair: {
+  readonly clone: typeof pairClone;
+  readonly partialCompare: typeof pairPartialCompare;
+  readonly compare: typeof pairCompare;
+} = {
+  clone: pairClone,
+  partialCompare: pairPartialCompare,
+  compare: pairCompare
+};
+
+
+export type Meters = number & { readonly [__mf_newtype_1]: true };
+
+export function metersClone(value: Meters): Meters {
+                        return value;
+                    }
+
+export function metersPartialCompare(a: Meters, b: Meters): number | null {
+                        return a < b ? -1 : a > b ? 1 : a === b ? 0 : null;
+                    }
+
+export function metersCompare(a: Meters, b: Meters): number {
+                        return a < b ? -1 : a > b ? 1 : 0;
+                    }
+
+export const Meters: {
+  readonly clone: typeof metersClone;
+  readonly partialCompare: typeof metersPartialCompare;
+  readonly compare: typeof metersCompare;
+} = {
+  clone: metersClone,
+  partialCompare: metersPartialCompare,
+  compare: metersCompare
+};
+
+## DTS
+
+declare const __mf_newtype_1: unique symbol;
+
+export type Level = 1 | 2 | 3;
+
+export function levelClone(value: Level): Level {
+                        return value;
+                    }
+
+export function levelPartialCompare(a: Level, b: Level): number | null {
+                        if (a === b) return 0;
+
+                        const left: unknown = a;
+                        const right: unknown = b;
+                        if (typeof left === "number" && typeof right === "number") {
+                            return left < right ? -1 : left > right ? 1 : 0;
+                        }
+                        if (typeof left === "string" && typeof right === "string") {
+                            return left.localeCompare(right);
+                        }
+                        return null;
+                    }
+
+export function levelCompare(a: Level, b: Level): number {
+                        if (a === b) return 0;
+
+                        const left: unknown = a;
+                        const right: unknown = b;
+                        if (typeof left === "number" && typeof right === "number") {
+                            return left < right ? -1 : left > right ? 1 : 0;
+                        }
+                        if (typeof left === "string" && typeof right === "string") {
+                            const cmp = left.localeCompare(right);
+                            return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
+                        }
+                        return 0;
+                    }
+
+export const Level: {
+  readonly clone: typeof levelClone;
+  readonly partialCompare: typeof levelPartialCompare;
+  readonly compare: typeof levelCompare;
+} = {
+  clone: levelClone,
+  partialCompare: levelPartialCompare,
+  compare: levelCompare
+};
+
+
+export type Mode = "light" | "dark";
+
+export function modeClone(value: Mode): Mode {
+                        return value;
+                    }
+
+export function modePartialCompare(a: Mode, b: Mode): number | null {
+                        if (a === b) return 0;
+
+                        const left: unknown = a;
+                        const right: unknown = b;
+                        if (typeof left === "number" && typeof right === "number") {
+                            return left < right ? -1 : left > right ? 1 : 0;
+                        }
+                        if (typeof left === "string" && typeof right === "string") {
+                            return left.localeCompare(right);
+                        }
+                        return null;
+                    }
+
+export function modeCompare(a: Mode, b: Mode): number {
+                        if (a === b) return 0;
+
+                        const left: unknown = a;
+                        const right: unknown = b;
+                        if (typeof left === "number" && typeof right === "number") {
+                            return left < right ? -1 : left > right ? 1 : 0;
+                        }
+                        if (typeof left === "string" && typeof right === "string") {
+                            const cmp = left.localeCompare(right);
+                            return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
+                        }
+                        return 0;
+                    }
+
+export const Mode: {
+  readonly clone: typeof modeClone;
+  readonly partialCompare: typeof modePartialCompare;
+  readonly compare: typeof modeCompare;
+} = {
+  clone: modeClone,
+  partialCompare: modePartialCompare,
+  compare: modeCompare
+};
+
+
+export type Pair = [string, number];
+
+export function pairClone(value: Pair): Pair {
+                        return [...value];
+                    }
+
+export function pairPartialCompare(a: Pair, b: Pair): number | null {
+                        if (a === b) return 0;
+                        const left0 = a[0];
+const right0 = b[0];
+const cmp0 = left0.localeCompare(right0);
+if (cmp0 !== 0) return cmp0;
+const left1 = a[1];
+const right1 = b[1];
+const cmp1 = (left1 < right1 ? -1 : left1 > right1 ? 1 : 0);
+if (cmp1 !== 0) return cmp1;
+return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
+                    }
+
+export function pairCompare(a: Pair, b: Pair): number {
+                        if (a === b) return 0;
+                        const left0 = a[0];
+const right0 = b[0];
+const cmp0 = ((cmp => cmp < 0 ? -1 : cmp > 0 ? 1 : 0)(left0.localeCompare(right0)));
+if (cmp0 !== 0) return cmp0;
+const left1 = a[1];
+const right1 = b[1];
+const cmp1 = (left1 < right1 ? -1 : left1 > right1 ? 1 : 0);
+if (cmp1 !== 0) return cmp1;
+return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
+                    }
+
+export const Pair: {
+  readonly clone: typeof pairClone;
+  readonly partialCompare: typeof pairPartialCompare;
+  readonly compare: typeof pairCompare;
+} = {
+  clone: pairClone,
+  partialCompare: pairPartialCompare,
+  compare: pairCompare
+};
+
+
+export type Meters = number & { readonly [__mf_newtype_1]: true };
+
+export function metersClone(value: Meters): Meters {
+                        return value;
+                    }
+
+export function metersPartialCompare(a: Meters, b: Meters): number | null {
+                        return a < b ? -1 : a > b ? 1 : a === b ? 0 : null;
+                    }
+
+export function metersCompare(a: Meters, b: Meters): number {
+                        return a < b ? -1 : a > b ? 1 : 0;
+                    }
+
+export const Meters: {
+  readonly clone: typeof metersClone;
+  readonly partialCompare: typeof metersPartialCompare;
+  readonly compare: typeof metersCompare;
+} = {
+  clone: metersClone,
+  partialCompare: metersPartialCompare,
+  compare: metersCompare
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 38..69 -> expanded 45..76
+original 69..71 -> expanded 1773..1775
+original 109..146 -> expanded 1775..1812
+original 146..148 -> expanded 3493..3495
+original 186..223 -> expanded 3495..3532
+original 223..225 -> expanded 4856..4858
+original 263..285 -> expanded 4858..4880
+original 301..302 -> expanded 4924..4925
+original 302..303 -> expanded 5614..5615
+generated 0..45 <- $Newtype
+generated 76..187 <- Clone
+generated 187..828 <- PartialOrd
+generated 828..1524 <- Ord
+generated 1524..1773 <- __convenience_const
+generated 1812..1920 <- Clone
+generated 1920..2558 <- PartialOrd
+generated 2558..3251 <- Ord
+generated 3251..3493 <- __convenience_const
+generated 3532..3645 <- Clone
+generated 3645..4115 <- PartialOrd
+generated 4115..4614 <- Ord
+generated 4614..4856 <- __convenience_const
+generated 4880..4924 <- $Newtype
+generated 4925..5039 <- Clone
+generated 5039..5214 <- PartialOrd
+generated 5214..5358 <- Ord
+generated 5358..5614 <- __convenience_const
+
+## Metadata
+
+type Level: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"1"}},{"decorators":[],"kind":{"Literal":"2"}},{"decorators":[],"kind":{"Literal":"3"}}]},"decorators":[{"args_src":"Clone, PartialOrd, Ord","name":"Derive","span":{"end":84,"start":46}}],"name":"Level","span":{"end":115,"start":92},"type_params":[]}
+type Mode: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"\"light\""}},{"decorators":[],"kind":{"Literal":"\"dark\""}}]},"decorators":[{"args_src":"Clone, PartialOrd, Ord","name":"Derive","span":{"end":155,"start":117}}],"name":"Mode","span":{"end":192,"start":163},"type_params":[]}
+type Pair: {"body":{"Tuple":["string","number"]},"decorators":[{"args_src":"Clone, PartialOrd, Ord","name":"Derive","span":{"end":232,"start":194}}],"name":"Pair","span":{"end":269,"start":240},"type_params":[]}
+type Meters: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"Brand":["__mf_newtype_1"]}}]},"decorators":[{"args_src":"Clone, PartialOrd, Ord","name":"Derive","span":{"end":309,"start":271}}],"name":"Meters","span":{"end":376,"start":317},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

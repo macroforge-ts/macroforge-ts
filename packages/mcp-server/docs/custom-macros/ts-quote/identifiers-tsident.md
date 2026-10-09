@@ -9,10 +9,10 @@ Rust
 use macroforge_ts::ts_syn::ts_ident;
 
 let type_name = input.name();
-let serialize_fn = ts_ident!("{}Serialize", type_name.to_lowercase()); // userSerialize
+let encode_fn = ts_ident!("{}Encode", type_name.to_lowercase()); // userEncode
 
 let code = ts_template! {
-    export function @{serialize_fn}(value: @{type_name}): string { ... }
+    export function @{encode_fn}(value: @{type_name}): string { ... }
 };
 ```
 

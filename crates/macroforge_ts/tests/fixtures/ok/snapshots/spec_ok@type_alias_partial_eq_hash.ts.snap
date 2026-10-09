@@ -38,10 +38,13 @@ export function vectorHashCode(value: Vector): number {
                         return hash;
                     }
 
-const Vector = {
+const Vector: {
+  readonly equals: typeof vectorEquals;
+  readonly hashCode: typeof vectorHashCode;
+} = {
   equals: vectorEquals,
   hashCode: vectorHashCode
-} as const;
+};
 
 ## DTS
 
@@ -65,10 +68,13 @@ export function vectorHashCode(value: Vector): number {
                         return hash;
                     }
 
-const Vector = {
+const Vector: {
+  readonly equals: typeof vectorEquals;
+  readonly hashCode: typeof vectorHashCode;
+} = {
   equals: vectorEquals,
   hashCode: vectorHashCode
-} as const;
+};
 
 ## Diagnostics
 
@@ -77,10 +83,10 @@ const Vector = {
 ## Mapping
 
 original 31..95 -> expanded 0..64
-original 95..96 -> expanded 957..958
+original 95..96 -> expanded 1037..1038
 generated 64..273 <- PartialEq
 generated 273..876 <- Hash
-generated 876..957 <- __convenience_const
+generated 876..1037 <- __convenience_const
 
 ## Metadata
 

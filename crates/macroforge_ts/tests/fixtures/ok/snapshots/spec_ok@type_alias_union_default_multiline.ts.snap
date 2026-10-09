@@ -23,9 +23,11 @@ export function multilineUnionDefaultValue(): MultilineUnion {
                             return TypeA.defaultValue();
                         }
 
-export const MultilineUnion = {
+export const MultilineUnion: {
+  readonly defaultValue: typeof multilineUnionDefaultValue;
+} = {
   defaultValue: multilineUnionDefaultValue
-} as const;
+};
 
 ## DTS
 
@@ -35,9 +37,11 @@ export function multilineUnionDefaultValue(): MultilineUnion {
                             return TypeA.defaultValue();
                         }
 
-export const MultilineUnion = {
+export const MultilineUnion: {
+  readonly defaultValue: typeof multilineUnionDefaultValue;
+} = {
   defaultValue: multilineUnionDefaultValue
-} as const;
+};
 
 ## Diagnostics
 
@@ -46,9 +50,9 @@ export const MultilineUnion = {
 ## Mapping
 
 original 61..113 -> expanded 0..52
-original 113..114 -> expanded 287..288
+original 113..114 -> expanded 343..344
 generated 52..199 <- Default
-generated 199..287 <- __convenience_const
+generated 199..343 <- __convenience_const
 
 ## Metadata
 

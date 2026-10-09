@@ -52,6 +52,7 @@ use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, MacroContextIR, MacroResul
 ///     config: None,
 ///     type_registry: macroforge_ts_syn::abi::ir::type_registry::TypeRegistry::default(),
 ///     resolved_fields: None,
+///     expansion_id: 0,
 /// };
 ///
 /// // Dispatch the macro call

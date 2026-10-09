@@ -37,7 +37,7 @@ export function statusToString(value: Status): string {const key = Status[value 
                 }
 
 export namespace Status {
-  export const toString = statusToString;
+  export const toString: typeof statusToString = statusToString;
 }
 
 ## DTS
@@ -63,7 +63,7 @@ export function statusToString(value: Status): string {const key = Status[value 
                 }
 
 export namespace Status {
-  export const toString = statusToString;
+  export const toString: typeof statusToString = statusToString;
 }
 
 ## Diagnostics
@@ -73,9 +73,9 @@ export namespace Status {
 ## Mapping
 
 original 21..69 -> expanded 0..48
-original 69..70 -> expanded 453..454
+original 69..70 -> expanded 476..477
 generated 48..382 <- Debug
-generated 382..453 <- __convenience_const
+generated 382..476 <- __convenience_const
 
 ## Metadata
 

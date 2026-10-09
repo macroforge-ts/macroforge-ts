@@ -255,7 +255,46 @@ detailedCards: false,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_daysPerWeek = obj["daysPerWeek"] as number;instance.daysPerWeek = __raw_daysPerWeek;
+                                const __raw_daysPerWeek = obj["daysPerWeek"] as number;if (!(typeof __raw_daysPerWeek === "number")) {
+                                                    errors.push({ field: "daysPerWeek", message: __raw_daysPerWeek == null ? "ScheduleSettings.daysPerWeek is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.daysPerWeek = __raw_daysPerWeek;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -533,6 +572,38 @@ detailedCards: false,
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1105,8 +1176,79 @@ detailedCards: false,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_detailedCards = obj["detailedCards"] as boolean;instance.detailedCards = __raw_detailedCards;
+                                const __raw_detailedCards = obj["detailedCards"] as boolean;if (!(typeof __raw_detailedCards === "boolean")) {
+                                                    errors.push({ field: "detailedCards", message: __raw_detailedCards == null ? "ScheduleSettings.detailedCards is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.detailedCards = __raw_detailedCards;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1366,6 +1508,82 @@ detailedCards: false,
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2244,7 +2462,18 @@ detailedCards: false,
             return toExit(scheduleSettingsDecode(obj));
         }
 
-export const ScheduleSettings = {
+export const ScheduleSettings: {
+  readonly defaultValue: typeof scheduleSettingsDefaultValue;
+  readonly encode: typeof scheduleSettingsEncode;
+  readonly encodeWithContext: typeof scheduleSettingsEncodeWithContext;
+  readonly decode: typeof scheduleSettingsDecode;
+  readonly decodeWithContext: typeof scheduleSettingsDecodeWithContext;
+  readonly validateFields: typeof scheduleSettingsValidateFields;
+  readonly hasShape: typeof scheduleSettingsHasShape;
+  readonly is: typeof scheduleSettingsIs;
+  readonly createForm: typeof scheduleSettingsCreateForm;
+  readonly fromFormData: typeof scheduleSettingsFromFormData;
+} = {
   defaultValue: scheduleSettingsDefaultValue,
   encode: scheduleSettingsEncode,
   encodeWithContext: scheduleSettingsEncodeWithContext,
@@ -2255,7 +2484,7 @@ export const ScheduleSettings = {
   is: scheduleSettingsIs,
   createForm: scheduleSettingsCreateForm,
   fromFormData: scheduleSettingsFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2490,7 +2719,46 @@ detailedCards: false,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_daysPerWeek = obj["daysPerWeek"] as number;instance.daysPerWeek = __raw_daysPerWeek;
+                                const __raw_daysPerWeek = obj["daysPerWeek"] as number;if (!(typeof __raw_daysPerWeek === "number")) {
+                                                    errors.push({ field: "daysPerWeek", message: __raw_daysPerWeek == null ? "ScheduleSettings.daysPerWeek is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.daysPerWeek = __raw_daysPerWeek;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2768,6 +3036,38 @@ detailedCards: false,
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3340,8 +3640,79 @@ detailedCards: false,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_detailedCards = obj["detailedCards"] as boolean;instance.detailedCards = __raw_detailedCards;
+                                const __raw_detailedCards = obj["detailedCards"] as boolean;if (!(typeof __raw_detailedCards === "boolean")) {
+                                                    errors.push({ field: "detailedCards", message: __raw_detailedCards == null ? "ScheduleSettings.detailedCards is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.detailedCards = __raw_detailedCards;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3601,6 +3972,82 @@ detailedCards: false,
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4479,7 +4926,18 @@ detailedCards: false,
             return toExit(scheduleSettingsDecode(obj));
         }
 
-export const ScheduleSettings = {
+export const ScheduleSettings: {
+  readonly defaultValue: typeof scheduleSettingsDefaultValue;
+  readonly encode: typeof scheduleSettingsEncode;
+  readonly encodeWithContext: typeof scheduleSettingsEncodeWithContext;
+  readonly decode: typeof scheduleSettingsDecode;
+  readonly decodeWithContext: typeof scheduleSettingsDecodeWithContext;
+  readonly validateFields: typeof scheduleSettingsValidateFields;
+  readonly hasShape: typeof scheduleSettingsHasShape;
+  readonly is: typeof scheduleSettingsIs;
+  readonly createForm: typeof scheduleSettingsCreateForm;
+  readonly fromFormData: typeof scheduleSettingsFromFormData;
+} = {
   defaultValue: scheduleSettingsDefaultValue,
   encode: scheduleSettingsEncode,
   encodeWithContext: scheduleSettingsEncodeWithContext,
@@ -4490,7 +4948,7 @@ export const ScheduleSettings = {
   is: scheduleSettingsIs,
   createForm: scheduleSettingsCreateForm,
   fromFormData: scheduleSettingsFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -4498,15 +4956,16 @@ export const ScheduleSettings = {
 
 ## Mapping
 
-original 0..113 -> expanded 0..113
-original 162..228 -> expanded 113..179
-original 253..343 -> expanded 179..269
-original 343..344 -> expanded 21099..21100
-generated 269..473 <- Default
-generated 473..2181 <- Encode
-generated 2181..10546 <- Decode
-generated 10546..20625 <- Gigaform
-generated 20625..21099 <- __convenience_const
+original 0..113 -> expanded 773..886
+original 162..228 -> expanded 886..952
+original 253..343 -> expanded 952..1042
+original 343..344 -> expanded 23474..23475
+generated 0..773 <- imports
+generated 1042..1246 <- Default
+generated 1246..2954 <- Encode
+generated 2954..12337 <- Decode
+generated 12337..22416 <- Gigaform
+generated 22416..23474 <- __convenience_const
 
 ## Metadata
 

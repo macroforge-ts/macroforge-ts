@@ -41,7 +41,7 @@ pub mod non_exhaustive;
 #[cfg(test)]
 mod tests;
 
-use std::path::PathBuf;
+use crate::host::patch_applicator::ApplyResult;
 
 use oxc::ast::ast::Program;
 
@@ -51,8 +51,9 @@ use macroforge_ts_syn::config::MacroforgeConfig;
 /// Output of the attribute pre-pass.
 #[derive(Debug, Clone, Default)]
 pub struct AttributePrepassOutput {
-    /// Rewritten source, or `None` if no annotation produced a patch.
-    pub rewritten: Option<String>,
+    /// Rewritten source and its mapping back to the input, or `None` if no
+    /// annotation produced a patch.
+    pub rewritten: Option<ApplyResult>,
     /// Diagnostics surfaced to the user. `@mustUse` errors, config-driven
     /// `failOnUse` errors from `@deprecated`, and predicate errors from
     /// `@cfg` all land here.
@@ -64,15 +65,12 @@ pub struct AttributePrepassOutput {
 /// * `program`: parsed OXC AST.
 /// * `source`: the original text (used for span-to-text lookups and JSDoc
 ///   parsing).
-/// * `_origin_path`: currently unused but plumbed through so diagnostics
-///   can grow a path field later without breaking the signature.
 /// * `config`: resolved `MacroforgeConfig`. Determines what `@cfg`
 ///   predicates pass, what `@deprecated` emits, and what brand
 ///   `@nonExhaustive` injects.
 pub fn run_prepass(
     program: &Program<'_>,
     source: &str,
-    _origin_path: &std::path::Path,
     config: &MacroforgeConfig,
 ) -> AttributePrepassOutput {
     let discovered = discovery::discover(program, source);
@@ -113,7 +111,7 @@ pub fn run_prepass(
         None
     } else {
         let applicator = crate::host::patch_applicator::PatchApplicator::new(source, patches);
-        match applicator.apply() {
+        match applicator.apply_with_mapping(Some("attributes")) {
             Ok(rewritten) => Some(rewritten),
             Err(error) => {
                 diagnostics.push(Diagnostic {
@@ -128,7 +126,6 @@ pub fn run_prepass(
         }
     };
 
-    let _ = PathBuf::new(); // keep PathBuf in scope for future use
     AttributePrepassOutput {
         rewritten,
         diagnostics,

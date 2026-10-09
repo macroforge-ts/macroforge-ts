@@ -67,7 +67,14 @@ type Pair = [string,number];
 
 ## Mapping
 
-original 0..336 -> expanded 0..336
+original 0..188 -> expanded 0..188
+original 240..242 -> expanded 188..190
+original 382..384 -> expanded 190..192
+original 500..574 -> expanded 192..266
+original 589..603 -> expanded 305..319
+original 625..627 -> expanded 334..336
+generated 266..305 <- $ReadOnly
+generated 319..334 <- $Tuple
 
 ## Metadata
 

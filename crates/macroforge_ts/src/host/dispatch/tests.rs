@@ -72,6 +72,7 @@ fn test_dispatch() {
         config: None,
         type_registry: crate::ts_syn::abi::ir::type_registry::TypeRegistry::default(),
         resolved_fields: None,
+        expansion_id: 0,
     };
 
     let result = dispatcher.dispatch(ctx);

@@ -77,6 +77,7 @@ const BUILTIN_MACROS: &[(&str, &str, &str)] = &[
     ),
     ("encode", "src/builtin/endec/derive_encode/mod.rs", "Encode"),
     ("decode", "src/builtin/endec/derive_decode/mod.rs", "Decode"),
+    ("newtype", "src/builtin/newtype/mod.rs", "Newtype"),
 ];
 
 /// Where the Rust API JSON lives, relative to the repository root.
@@ -444,8 +445,10 @@ fn strip_template_braces(md: &str) -> String {
 
 /// Generate a .svx page wrapping markdown content with svelte:head metadata.
 fn generate_svx_page(display_name: &str, description: &str, content_md: &str) -> String {
-    // Extract first paragraph as meta description (first non-empty lines until blank line)
-    let meta_desc = description.replace('"', "&quot;");
+    // Svelte reads `{` in an attribute as an expression, which HTML escaping leaves alone.
+    let meta_desc = html_escape::encode_double_quoted_attribute(description)
+        .replace('{', "&#123;")
+        .replace('}', "&#125;");
 
     let mut page = String::new();
     page.push_str("<!--\n");
@@ -702,6 +705,14 @@ class User {
         assert!(result.contains("<title>Debug Macro - Macroforge Documentation</title>"));
         assert!(result.contains("Some description"));
         assert!(result.contains("# Debug"));
+    }
+
+    #[test]
+    fn test_generate_svx_page_escapes_description() {
+        let result = generate_svx_page("Newtype", "`$Newtype<T>` is \"branded\" & {opaque}", "");
+        assert!(result.contains(
+            "content=\"`$Newtype&lt;T&gt;` is &quot;branded&quot; &amp; &#123;opaque&#125;\""
+        ));
     }
 
     #[test]

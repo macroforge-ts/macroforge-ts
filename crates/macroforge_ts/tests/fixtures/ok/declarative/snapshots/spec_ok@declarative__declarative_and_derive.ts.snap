@@ -64,12 +64,15 @@ const greeting = 'hello';
 
 ## Mapping
 
-original 0..4 -> expanded 0..4
-original 25..57 -> expanded 4..36
-original 57..58 -> expanded 141..142
-original 58..86 -> expanded 397..425
+original 52..54 -> expanded 0..2
+original 104..106 -> expanded 2..4
+original 127..159 -> expanded 4..36
+original 159..160 -> expanded 141..142
+original 160..179 -> expanded 397..416
+original 197..199 -> expanded 423..425
 generated 36..141 <- Debug
 generated 142..397 <- Debug
+generated 416..423 <- $identity
 
 ## Metadata
 

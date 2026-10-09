@@ -135,8 +135,8 @@ export function applicationsDefaultValue(): Applications {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function applicationsDecodeWithContext(value: any, ctx: __mf_DecodeContext): Applications | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function applicationsDecodeWithContext(value: any, _ctx: __mf_DecodeContext): Applications | __mf_PendingRef {
                 switch (value) {
                     case 'Sales':
                     case 'Accounting':
@@ -491,7 +491,17 @@ if (variant === "Website") { return "Website" as Applications; }
             return toExit(applicationsDecode(obj));
         }
 
-export const Applications = {
+export const Applications: {
+  readonly defaultValue: typeof applicationsDefaultValue;
+  readonly encode: typeof applicationsEncode;
+  readonly encodeWithContext: typeof applicationsEncodeWithContext;
+  readonly decode: typeof applicationsDecode;
+  readonly decodeWithContext: typeof applicationsDecodeWithContext;
+  readonly hasShape: typeof applicationsHasShape;
+  readonly is: typeof applicationsIs;
+  readonly createForm: typeof applicationsCreateForm;
+  readonly fromFormData: typeof applicationsFromFormData;
+} = {
   defaultValue: applicationsDefaultValue,
   encode: applicationsEncode,
   encodeWithContext: applicationsEncodeWithContext,
@@ -501,7 +511,7 @@ export const Applications = {
   is: applicationsIs,
   createForm: applicationsCreateForm,
   fromFormData: applicationsFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -619,8 +629,8 @@ export function applicationsDefaultValue(): Applications {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function applicationsDecodeWithContext(value: any, ctx: __mf_DecodeContext): Applications | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function applicationsDecodeWithContext(value: any, _ctx: __mf_DecodeContext): Applications | __mf_PendingRef {
                 switch (value) {
                     case 'Sales':
                     case 'Accounting':
@@ -975,7 +985,17 @@ if (variant === "Website") { return "Website" as Applications; }
             return toExit(applicationsDecode(obj));
         }
 
-export const Applications = {
+export const Applications: {
+  readonly defaultValue: typeof applicationsDefaultValue;
+  readonly encode: typeof applicationsEncode;
+  readonly encodeWithContext: typeof applicationsEncodeWithContext;
+  readonly decode: typeof applicationsDecode;
+  readonly decodeWithContext: typeof applicationsDecodeWithContext;
+  readonly hasShape: typeof applicationsHasShape;
+  readonly is: typeof applicationsIs;
+  readonly createForm: typeof applicationsCreateForm;
+  readonly fromFormData: typeof applicationsFromFormData;
+} = {
   defaultValue: applicationsDefaultValue,
   encode: applicationsEncode,
   encodeWithContext: applicationsEncodeWithContext,
@@ -985,7 +1005,7 @@ export const Applications = {
   is: applicationsIs,
   createForm: applicationsCreateForm,
   fromFormData: applicationsFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -993,14 +1013,15 @@ export const Applications = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..274 -> expanded 58..225
-original 274..275 -> expanded 15519..15520
-generated 225..355 <- Default
-generated 355..2283 <- Encode
-generated 2283..5049 <- Decode
-generated 5049..15135 <- Gigaform
-generated 15135..15519 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..274 -> expanded 627..794
+original 274..275 -> expanded 16630..16631
+generated 0..569 <- imports
+generated 794..924 <- Default
+generated 924..2852 <- Encode
+generated 2852..5678 <- Decode
+generated 5678..15764 <- Gigaform
+generated 15764..16630 <- __convenience_const
 
 ## Metadata
 

@@ -1,15 +1,8 @@
 use crate::ast::{Expr, Ident};
 
+use super::super::value_kind::EndecValueKind;
 use super::super::{TypeCategory, ValidatorSpec};
-
-/// Classifies how a type's value behaves during decoding.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(super) enum EndecValueKind {
-    PrimitiveLike,
-    Date,
-    NullableDate,
-    Other,
-}
+use super::validation::Missing;
 
 /// Contains field information needed for JSON decoding code generation.
 ///
@@ -121,14 +114,19 @@ impl DecodeField {
         !self.validators.is_empty()
     }
 
-    /// Whether the field's type allows a missing value: `T | null`,
-    /// `T | undefined`, or an optional field.
-    pub fn accepts_missing(&self) -> bool {
-        self.optional
+    /// What a missing value means for this field: allowed for `T | null`,
+    /// `T | undefined` and optional fields, required otherwise.
+    pub fn missing(&self) -> Missing {
+        if self.optional
             || matches!(
                 self.type_cat,
                 TypeCategory::Nullable(_) | TypeCategory::Optional(_)
             )
+        {
+            Missing::Allowed
+        } else {
+            Missing::Required
+        }
     }
 
     /// Returns true if the primitive arm of a `primitive | Encodable` union

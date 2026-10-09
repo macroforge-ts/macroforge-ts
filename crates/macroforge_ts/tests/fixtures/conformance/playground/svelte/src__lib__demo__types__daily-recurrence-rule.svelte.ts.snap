@@ -237,7 +237,46 @@ quantityOfDays: 0,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_quantityOfDays = obj["quantityOfDays"] as number;instance.quantityOfDays = __raw_quantityOfDays;
+                                const __raw_quantityOfDays = obj["quantityOfDays"] as number;if (!(typeof __raw_quantityOfDays === "number")) {
+                                                    errors.push({ field: "quantityOfDays", message: __raw_quantityOfDays == null ? "DailyRecurrenceRule.quantityOfDays is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.quantityOfDays = __raw_quantityOfDays;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1065,6 +1104,82 @@ quantityOfDays: 0,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as DailyRecurrenceRule;
@@ -1249,7 +1364,18 @@ quantityOfDays: 0,
             return toExit(dailyRecurrenceRuleDecode(obj));
         }
 
-export const DailyRecurrenceRule = {
+export const DailyRecurrenceRule: {
+  readonly defaultValue: typeof dailyRecurrenceRuleDefaultValue;
+  readonly encode: typeof dailyRecurrenceRuleEncode;
+  readonly encodeWithContext: typeof dailyRecurrenceRuleEncodeWithContext;
+  readonly decode: typeof dailyRecurrenceRuleDecode;
+  readonly decodeWithContext: typeof dailyRecurrenceRuleDecodeWithContext;
+  readonly validateFields: typeof dailyRecurrenceRuleValidateFields;
+  readonly hasShape: typeof dailyRecurrenceRuleHasShape;
+  readonly is: typeof dailyRecurrenceRuleIs;
+  readonly createForm: typeof dailyRecurrenceRuleCreateForm;
+  readonly fromFormData: typeof dailyRecurrenceRuleFromFormData;
+} = {
   defaultValue: dailyRecurrenceRuleDefaultValue,
   encode: dailyRecurrenceRuleEncode,
   encodeWithContext: dailyRecurrenceRuleEncodeWithContext,
@@ -1260,7 +1386,7 @@ export const DailyRecurrenceRule = {
   is: dailyRecurrenceRuleIs,
   createForm: dailyRecurrenceRuleCreateForm,
   fromFormData: dailyRecurrenceRuleFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1480,7 +1606,46 @@ quantityOfDays: 0,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_quantityOfDays = obj["quantityOfDays"] as number;instance.quantityOfDays = __raw_quantityOfDays;
+                                const __raw_quantityOfDays = obj["quantityOfDays"] as number;if (!(typeof __raw_quantityOfDays === "number")) {
+                                                    errors.push({ field: "quantityOfDays", message: __raw_quantityOfDays == null ? "DailyRecurrenceRule.quantityOfDays is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.quantityOfDays = __raw_quantityOfDays;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2308,6 +2473,82 @@ quantityOfDays: 0,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as DailyRecurrenceRule;
@@ -2492,7 +2733,18 @@ quantityOfDays: 0,
             return toExit(dailyRecurrenceRuleDecode(obj));
         }
 
-export const DailyRecurrenceRule = {
+export const DailyRecurrenceRule: {
+  readonly defaultValue: typeof dailyRecurrenceRuleDefaultValue;
+  readonly encode: typeof dailyRecurrenceRuleEncode;
+  readonly encodeWithContext: typeof dailyRecurrenceRuleEncodeWithContext;
+  readonly decode: typeof dailyRecurrenceRuleDecode;
+  readonly decodeWithContext: typeof dailyRecurrenceRuleDecodeWithContext;
+  readonly validateFields: typeof dailyRecurrenceRuleValidateFields;
+  readonly hasShape: typeof dailyRecurrenceRuleHasShape;
+  readonly is: typeof dailyRecurrenceRuleIs;
+  readonly createForm: typeof dailyRecurrenceRuleCreateForm;
+  readonly fromFormData: typeof dailyRecurrenceRuleFromFormData;
+} = {
   defaultValue: dailyRecurrenceRuleDefaultValue,
   encode: dailyRecurrenceRuleEncode,
   encodeWithContext: dailyRecurrenceRuleEncodeWithContext,
@@ -2503,7 +2755,7 @@ export const DailyRecurrenceRule = {
   is: dailyRecurrenceRuleIs,
   createForm: dailyRecurrenceRuleCreateForm,
   fromFormData: dailyRecurrenceRuleFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -2511,14 +2763,15 @@ export const DailyRecurrenceRule = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..176 -> expanded 58..127
-original 176..177 -> expanded 12158..12159
-generated 127..278 <- Default
-generated 278..1856 <- Encode
-generated 1856..7103 <- Decode
-generated 7103..11651 <- Gigaform
-generated 11651..12158 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..176 -> expanded 627..696
+original 176..177 -> expanded 13866..13867
+generated 0..569 <- imports
+generated 696..847 <- Default
+generated 847..2425 <- Encode
+generated 2425..8197 <- Decode
+generated 8197..12745 <- Gigaform
+generated 12745..13866 <- __convenience_const
 
 ## Metadata
 

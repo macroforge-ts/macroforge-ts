@@ -53,6 +53,13 @@ There is no class to attach statics to for the last three, so they get functions
 a grouping `const`: or, for enums, a merged `namespace`: is also emitted so you can still write
 `User.encode(...)`.
 
+### Primitive aliases
+
+A type alias of a primitive, plain (`type Port = number`) or branded with
+[`$Newtype`](/docs/builtin-macros/newtype), encodes as the bare primitive. Its `decode` rejects any
+other `typeof` and runs the [validators written on the alias](/docs/endec/validators), so `decode`
+is the validated constructor and `is` the narrowing guard.
+
 ### Enums differ
 
 Enum `decode` **throws** on invalid input rather than returning the success/errors union. Enum

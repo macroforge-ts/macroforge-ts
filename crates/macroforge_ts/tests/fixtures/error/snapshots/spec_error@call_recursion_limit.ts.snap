@@ -1,0 +1,44 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/call_recursion_limit.ts
+---
+## Input
+
+/** import macro { forever } from "@macroforge/test-macros" */
+
+export const never = $forever(x);
+
+## Changed
+
+true
+
+## Output
+
+(unchanged)
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+Error [86..97]: macro output expanded more than 64 levels deep; a macro probably emits a call to itself
+
+## Mapping
+
+original 0..85 -> expanded 0..85
+original 96..98 -> expanded 96..98
+generated 85..96 <- $forever
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

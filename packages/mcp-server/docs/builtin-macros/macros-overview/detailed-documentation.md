@@ -11,3 +11,4 @@ Each macro has its own options and behaviors:
 - [**PartialOrd**](../docs/builtin-macros/partial-ord) - Partial ordering comparison
 - [**Encode**](../docs/builtin-macros/encode) - JSON encoding with endec-style options
 - [**Decode**](../docs/builtin-macros/decode) - JSON decoding with validation
+- [**$Newtype**](../docs/builtin-macros/newtype) - Nominal brands, constructed through `Decode`

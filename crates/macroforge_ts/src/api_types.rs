@@ -13,8 +13,8 @@ use serde::{Deserialize, Serialize};
 ///
 /// * `level` - Severity level: "error", "warning", "info"
 /// * `message` - Human-readable description of the issue
-/// * `start` - Optional byte offset where the issue starts in the source
-/// * `end` - Optional byte offset where the issue ends in the source
+/// * `start` - Optional 0-based UTF-16 offset where the issue starts in the source
+/// * `end` - Optional 0-based UTF-16 offset where the issue ends in the source
 ///
 /// # Example
 ///
@@ -35,10 +35,10 @@ pub struct MacroDiagnostic {
     pub level: String,
     /// Human-readable message describing the diagnostic.
     pub message: String,
-    /// Byte offset in the original source where the issue starts.
+    /// 0-based UTF-16 offset in the original source where the issue starts.
     /// `None` if the diagnostic is not associated with a specific location.
     pub start: Option<u32>,
-    /// Byte offset in the original source where the issue ends.
+    /// 0-based UTF-16 offset in the original source where the issue ends.
     /// `None` if the diagnostic is not associated with a specific location.
     pub end: Option<u32>,
 }
@@ -57,13 +57,13 @@ pub struct MacroDiagnostic {
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MappingSegmentResult {
-    /// Byte offset where this segment starts in the original source.
+    /// UTF-16 offset where this segment starts in the original source.
     pub original_start: u32,
-    /// Byte offset where this segment ends in the original source.
+    /// UTF-16 offset where this segment ends in the original source.
     pub original_end: u32,
-    /// Byte offset where this segment starts in the expanded source.
+    /// UTF-16 offset where this segment starts in the expanded source.
     pub expanded_start: u32,
-    /// Byte offset where this segment ends in the expanded source.
+    /// UTF-16 offset where this segment ends in the expanded source.
     pub expanded_end: u32,
 }
 
@@ -80,9 +80,9 @@ pub struct MappingSegmentResult {
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GeneratedRegionResult {
-    /// Byte offset where the generated region starts in the expanded source.
+    /// UTF-16 offset where the generated region starts in the expanded source.
     pub start: u32,
-    /// Byte offset where the generated region ends in the expanded source.
+    /// UTF-16 offset where the generated region ends in the expanded source.
     pub end: u32,
     /// Name of the macro that generated this region (e.g., "Debug", "Clone").
     pub source_macro: String,
@@ -211,9 +211,9 @@ pub struct SyntaxCheckResult {
 /// Used for mapping diagnostics and other positional information.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct SpanResult {
-    /// Byte offset where the span starts.
+    /// UTF-16 offset where the span starts.
     pub start: u32,
-    /// Length of the span in bytes.
+    /// Length of the span in UTF-16 code units.
     pub length: u32,
 }
 
@@ -223,9 +223,9 @@ pub struct SpanResult {
 /// with language servers and IDEs.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct JsDiagnostic {
-    /// Byte offset where the diagnostic starts. `None` for global diagnostics.
+    /// UTF-16 offset where the diagnostic starts. `None` for global diagnostics.
     pub start: Option<u32>,
-    /// Length of the diagnostic span in bytes.
+    /// Length of the diagnostic span in UTF-16 code units.
     pub length: Option<u32>,
     /// Human-readable diagnostic message.
     pub message: Option<String>,

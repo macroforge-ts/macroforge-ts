@@ -40,8 +40,8 @@ enum Direction {
                 }
 
 namespace Direction {
-  export const encode = directionEncode;
-  export const encodeWithContext = directionEncodeWithContext;
+  export const encode: typeof directionEncode = directionEncode;
+  export const encodeWithContext: typeof directionEncodeWithContext = directionEncodeWithContext;
 }
 
 ## DTS
@@ -65,8 +65,8 @@ enum Direction {
                 }
 
 namespace Direction {
-  export const encode = directionEncode;
-  export const encodeWithContext = directionEncodeWithContext;
+  export const encode: typeof directionEncode = directionEncode;
+  export const encodeWithContext: typeof directionEncodeWithContext = directionEncodeWithContext;
 }
 
 ## Diagnostics
@@ -75,10 +75,11 @@ namespace Direction {
 
 ## Mapping
 
-original 22..82 -> expanded 0..60
-original 82..83 -> expanded 743..744
-generated 60..614 <- Encode
-generated 614..743 <- __convenience_const
+original 22..82 -> expanded 83..143
+original 82..83 -> expanded 885..886
+generated 0..83 <- imports
+generated 143..697 <- Encode
+generated 697..885 <- __convenience_const
 
 ## Metadata
 

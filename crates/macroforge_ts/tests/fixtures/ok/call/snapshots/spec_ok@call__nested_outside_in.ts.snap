@@ -1,0 +1,50 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/call/nested_outside_in.ts
+---
+## Input
+
+/** import macro { stringify, concat_names, twice } from "@macroforge/test-macros" */
+
+export const quotedCall = $stringify($concat_names(a, b));
+export const doubled = $twice(ab);
+
+## Changed
+
+true
+
+## Output
+
+/** import macro { stringify, concat_names, twice } from "@macroforge/test-macros" */
+
+export const quotedCall = "$concat_names(a, b)";
+export const doubled = "ab_ab";
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..113 -> expanded 0..113
+original 144..169 -> expanded 134..159
+original 179..181 -> expanded 166..168
+generated 113..134 <- $stringify
+generated 159..166 <- $twice
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

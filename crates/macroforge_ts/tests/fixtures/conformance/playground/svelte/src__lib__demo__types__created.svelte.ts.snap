@@ -237,8 +237,43 @@ initialData: null,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_initialData = obj["initialData"] as string | null;
-                                                instance.initialData = __raw_initialData;
+                                const __raw_initialData = obj["initialData"] as string | null;if (!(typeof __raw_initialData === "string" || __raw_initialData === null)) {
+                                                        errors.push({ field: "initialData", message: "expected string | null" });
+                                                    } else {
+                                                        instance.initialData = __raw_initialData;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1066,6 +1101,82 @@ initialData: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Created;
@@ -1246,7 +1357,18 @@ initialData: null,
             return toExit(createdDecode(obj));
         }
 
-export const Created = {
+export const Created: {
+  readonly defaultValue: typeof createdDefaultValue;
+  readonly encode: typeof createdEncode;
+  readonly encodeWithContext: typeof createdEncodeWithContext;
+  readonly decode: typeof createdDecode;
+  readonly decodeWithContext: typeof createdDecodeWithContext;
+  readonly validateFields: typeof createdValidateFields;
+  readonly hasShape: typeof createdHasShape;
+  readonly is: typeof createdIs;
+  readonly createForm: typeof createdCreateForm;
+  readonly fromFormData: typeof createdFromFormData;
+} = {
   defaultValue: createdDefaultValue,
   encode: createdEncode,
   encodeWithContext: createdEncodeWithContext,
@@ -1257,7 +1379,7 @@ export const Created = {
   is: createdIs,
   createForm: createdCreateForm,
   fromFormData: createdFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1477,8 +1599,43 @@ initialData: null,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_initialData = obj["initialData"] as string | null;
-                                                instance.initialData = __raw_initialData;
+                                const __raw_initialData = obj["initialData"] as string | null;if (!(typeof __raw_initialData === "string" || __raw_initialData === null)) {
+                                                        errors.push({ field: "initialData", message: "expected string | null" });
+                                                    } else {
+                                                        instance.initialData = __raw_initialData;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2306,6 +2463,82 @@ initialData: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Created;
@@ -2486,7 +2719,18 @@ initialData: null,
             return toExit(createdDecode(obj));
         }
 
-export const Created = {
+export const Created: {
+  readonly defaultValue: typeof createdDefaultValue;
+  readonly encode: typeof createdEncode;
+  readonly encodeWithContext: typeof createdEncodeWithContext;
+  readonly decode: typeof createdDecode;
+  readonly decodeWithContext: typeof createdDecodeWithContext;
+  readonly validateFields: typeof createdValidateFields;
+  readonly hasShape: typeof createdHasShape;
+  readonly is: typeof createdIs;
+  readonly createForm: typeof createdCreateForm;
+  readonly fromFormData: typeof createdFromFormData;
+} = {
   defaultValue: createdDefaultValue,
   encode: createdEncode,
   encodeWithContext: createdEncodeWithContext,
@@ -2497,7 +2741,7 @@ export const Created = {
   is: createdIs,
   createForm: createdCreateForm,
   fromFormData: createdFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -2505,14 +2749,15 @@ export const Created = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..168 -> expanded 58..119
-original 168..169 -> expanded 11118..11119
-generated 119..246 <- Default
-generated 246..1746 <- Encode
-generated 1746..6812 <- Decode
-generated 6812..10743 <- Gigaform
-generated 10743..11118 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..168 -> expanded 627..688
+original 168..169 -> expanded 12619..12620
+generated 0..569 <- imports
+generated 688..815 <- Default
+generated 815..2315 <- Encode
+generated 2315..7819 <- Decode
+generated 7819..11750 <- Gigaform
+generated 11750..12619 <- __convenience_const
 
 ## Metadata
 

@@ -128,7 +128,7 @@ After calling list-sections, analyze the use_cases and fetch ALL relevant sectio
 Returns structured JSON diagnostics with:
 - level: error | warning | info
 - message: What's wrong
-- location: Byte offset range in the input code (when available)
+- location: 0-based UTF-16 offset range in the input code (when available)
 - summary: Count of errors, warnings, and info messages
 
 This tool MUST be used before sending Macroforge code to the user.
@@ -162,7 +162,7 @@ Detects:
 
 Shows:
 - The fully expanded TypeScript code with all generated methods
-- Any diagnostics (errors, warnings, info) with byte offset locations (when available)
+- Any diagnostics (errors, warnings, info) with UTF-16 offset locations (when available)
 
 Useful for:
 - Seeing what code the macros generate
@@ -396,7 +396,7 @@ function handleGetDocumentation(args: { section: string | string[] }) {
  * ## Response Format
  *
  * Returns JSON with:
- * - `diagnostics` - Array of issues with message and byte offset location (when available)
+ * - `diagnostics` - Array of issues with message and UTF-16 offset location (when available)
  * - `summary` - Counts of errors, warnings, and info messages
  * - `require_another_tool_call_after_fixing` - True if errors exist (should revalidate)
  *
@@ -496,7 +496,7 @@ async function handleAutofixer(args: { code: string; filename?: string }) {
  *
  * Returns human-readable markdown with:
  * - The fully expanded TypeScript code in a code block
- * - Any diagnostics (errors, warnings, info) with byte offset locations when available
+ * - Any diagnostics (errors, warnings, info) with UTF-16 offset locations when available
  *
  * @param args - Tool arguments
  * @param args.code - TypeScript source code with @derive decorators to expand
@@ -678,8 +678,8 @@ Available decorators: ${manifest.decorators.map((d) => d.export).join(', ')}`
  *
  * @property level - Severity level: 'error', 'warning', or 'info' (lowercase)
  * @property message - Human-readable description of the issue
- * @property start - Optional byte offset in the source where the issue starts
- * @property end - Optional byte offset in the source where the issue ends
+ * @property start - Optional 0-based UTF-16 offset in the source where the issue starts
+ * @property end - Optional 0-based UTF-16 offset in the source where the issue ends
  */
 interface Diagnostic {
     level: string;
@@ -787,7 +787,7 @@ interface MacroforgeModule {
  * Provides a JSON response that clients can parse to display errors,
  * navigate to problem locations, and determine if re-validation is needed.
  *
- * @property diagnostics - Array of diagnostic messages with byte offset locations
+ * @property diagnostics - Array of diagnostic messages with UTF-16 offset locations
  * @property summary - Counts of errors, warnings, and info messages
  * @property require_another_tool_call_after_fixing - True if errors exist and client should revalidate after fixing
  */
@@ -797,7 +797,7 @@ interface AutofixerResult {
         level: string;
         /** Human-readable description of the issue */
         message: string;
-        /** Source location as byte offsets into the input code, if available */
+        /** Source location as 0-based UTF-16 offsets into the input code, if available */
         location?: { start: number; end: number };
     }>;
     /** Summary counts for quick overview */

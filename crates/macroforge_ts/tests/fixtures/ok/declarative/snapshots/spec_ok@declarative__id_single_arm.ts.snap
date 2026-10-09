@@ -33,7 +33,12 @@ const b = someFunction(arg1, arg2);
 
 ## Mapping
 
-(none)
+original 52..54 -> expanded 0..2
+original 98..110 -> expanded 2..14
+original 120..132 -> expanded 19..31
+original 161..163 -> expanded 55..57
+generated 14..19 <- $id
+generated 31..55 <- $id
 
 ## Metadata
 

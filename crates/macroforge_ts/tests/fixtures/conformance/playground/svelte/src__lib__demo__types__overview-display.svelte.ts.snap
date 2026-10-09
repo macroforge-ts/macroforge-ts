@@ -123,8 +123,8 @@ export function overviewDisplayDefaultValue(): OverviewDisplay {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function overviewDisplayDecodeWithContext(value: any, ctx: __mf_DecodeContext): OverviewDisplay | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function overviewDisplayDecodeWithContext(value: any, _ctx: __mf_DecodeContext): OverviewDisplay | __mf_PendingRef {
                 switch (value) {
                     case 'Card':
                     case 'Table':
@@ -324,7 +324,17 @@ if (variant === "Table") { return "Table" as OverviewDisplay; }
             return toExit(overviewDisplayDecode(obj));
         }
 
-export const OverviewDisplay = {
+export const OverviewDisplay: {
+  readonly defaultValue: typeof overviewDisplayDefaultValue;
+  readonly encode: typeof overviewDisplayEncode;
+  readonly encodeWithContext: typeof overviewDisplayEncodeWithContext;
+  readonly decode: typeof overviewDisplayDecode;
+  readonly decodeWithContext: typeof overviewDisplayDecodeWithContext;
+  readonly hasShape: typeof overviewDisplayHasShape;
+  readonly is: typeof overviewDisplayIs;
+  readonly createForm: typeof overviewDisplayCreateForm;
+  readonly fromFormData: typeof overviewDisplayFromFormData;
+} = {
   defaultValue: overviewDisplayDefaultValue,
   encode: overviewDisplayEncode,
   encodeWithContext: overviewDisplayEncodeWithContext,
@@ -334,7 +344,7 @@ export const OverviewDisplay = {
   is: overviewDisplayIs,
   createForm: overviewDisplayCreateForm,
   fromFormData: overviewDisplayFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -440,8 +450,8 @@ export function overviewDisplayDefaultValue(): OverviewDisplay {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function overviewDisplayDecodeWithContext(value: any, ctx: __mf_DecodeContext): OverviewDisplay | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function overviewDisplayDecodeWithContext(value: any, _ctx: __mf_DecodeContext): OverviewDisplay | __mf_PendingRef {
                 switch (value) {
                     case 'Card':
                     case 'Table':
@@ -641,7 +651,17 @@ if (variant === "Table") { return "Table" as OverviewDisplay; }
             return toExit(overviewDisplayDecode(obj));
         }
 
-export const OverviewDisplay = {
+export const OverviewDisplay: {
+  readonly defaultValue: typeof overviewDisplayDefaultValue;
+  readonly encode: typeof overviewDisplayEncode;
+  readonly encodeWithContext: typeof overviewDisplayEncodeWithContext;
+  readonly decode: typeof overviewDisplayDecode;
+  readonly decodeWithContext: typeof overviewDisplayDecodeWithContext;
+  readonly hasShape: typeof overviewDisplayHasShape;
+  readonly is: typeof overviewDisplayIs;
+  readonly createForm: typeof overviewDisplayCreateForm;
+  readonly fromFormData: typeof overviewDisplayFromFormData;
+} = {
   defaultValue: overviewDisplayDefaultValue,
   encode: overviewDisplayEncode,
   encodeWithContext: overviewDisplayEncodeWithContext,
@@ -651,7 +671,7 @@ export const OverviewDisplay = {
   is: overviewDisplayIs,
   createForm: overviewDisplayCreateForm,
   fromFormData: overviewDisplayFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -659,14 +679,15 @@ export const OverviewDisplay = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..171 -> expanded 58..122
-original 171..172 -> expanded 10192..10193
-generated 122..257 <- Default
-generated 257..2200 <- Encode
-generated 2200..4272 <- Decode
-generated 4272..9778 <- Gigaform
-generated 9778..10192 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..171 -> expanded 627..691
+original 171..172 -> expanded 11330..11331
+generated 0..569 <- imports
+generated 691..826 <- Default
+generated 826..2769 <- Encode
+generated 2769..4901 <- Decode
+generated 4901..10407 <- Gigaform
+generated 10407..11330 <- __convenience_const
 
 ## Metadata
 

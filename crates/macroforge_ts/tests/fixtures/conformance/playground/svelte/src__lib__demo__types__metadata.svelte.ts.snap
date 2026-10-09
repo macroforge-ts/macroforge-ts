@@ -250,7 +250,46 @@ roles: [],
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_createdAt = obj["createdAt"] as string;instance.createdAt = __raw_createdAt;
+                                const __raw_createdAt = obj["createdAt"] as string;if (!(typeof __raw_createdAt === "string")) {
+                                                    errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Metadata.createdAt is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.createdAt = __raw_createdAt;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -510,8 +549,43 @@ roles: [],
 
 
                             }{
-                                const __raw_lastLogin = obj["lastLogin"] as string | null;
-                                                instance.lastLogin = __raw_lastLogin;
+                                const __raw_lastLogin = obj["lastLogin"] as string | null;if (!(typeof __raw_lastLogin === "string" || __raw_lastLogin === null)) {
+                                                        errors.push({ field: "lastLogin", message: "expected string | null" });
+                                                    } else {
+                                                        instance.lastLogin = __raw_lastLogin;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -771,7 +845,46 @@ roles: [],
 
 
                             }{
-                                const __raw_isActive = obj["isActive"] as boolean;instance.isActive = __raw_isActive;
+                                const __raw_isActive = obj["isActive"] as boolean;if (!(typeof __raw_isActive === "boolean")) {
+                                                    errors.push({ field: "isActive", message: __raw_isActive == null ? "Metadata.isActive is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.isActive = __raw_isActive;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1344,7 +1457,115 @@ roles: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2199,7 +2420,18 @@ roles: [],
             return toExit(metadataDecode(obj));
         }
 
-export const Metadata = {
+export const Metadata: {
+  readonly defaultValue: typeof metadataDefaultValue;
+  readonly encode: typeof metadataEncode;
+  readonly encodeWithContext: typeof metadataEncodeWithContext;
+  readonly decode: typeof metadataDecode;
+  readonly decodeWithContext: typeof metadataDecodeWithContext;
+  readonly validateFields: typeof metadataValidateFields;
+  readonly hasShape: typeof metadataHasShape;
+  readonly is: typeof metadataIs;
+  readonly createForm: typeof metadataCreateForm;
+  readonly fromFormData: typeof metadataFromFormData;
+} = {
   defaultValue: metadataDefaultValue,
   encode: metadataEncode,
   encodeWithContext: metadataEncodeWithContext,
@@ -2210,7 +2442,7 @@ export const Metadata = {
   is: metadataIs,
   createForm: metadataCreateForm,
   fromFormData: metadataFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2442,7 +2674,46 @@ roles: [],
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_createdAt = obj["createdAt"] as string;instance.createdAt = __raw_createdAt;
+                                const __raw_createdAt = obj["createdAt"] as string;if (!(typeof __raw_createdAt === "string")) {
+                                                    errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Metadata.createdAt is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.createdAt = __raw_createdAt;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2702,8 +2973,43 @@ roles: [],
 
 
                             }{
-                                const __raw_lastLogin = obj["lastLogin"] as string | null;
-                                                instance.lastLogin = __raw_lastLogin;
+                                const __raw_lastLogin = obj["lastLogin"] as string | null;if (!(typeof __raw_lastLogin === "string" || __raw_lastLogin === null)) {
+                                                        errors.push({ field: "lastLogin", message: "expected string | null" });
+                                                    } else {
+                                                        instance.lastLogin = __raw_lastLogin;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2963,7 +3269,46 @@ roles: [],
 
 
                             }{
-                                const __raw_isActive = obj["isActive"] as boolean;instance.isActive = __raw_isActive;
+                                const __raw_isActive = obj["isActive"] as boolean;if (!(typeof __raw_isActive === "boolean")) {
+                                                    errors.push({ field: "isActive", message: __raw_isActive == null ? "Metadata.isActive is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.isActive = __raw_isActive;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3536,7 +3881,115 @@ roles: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4391,7 +4844,18 @@ roles: [],
             return toExit(metadataDecode(obj));
         }
 
-export const Metadata = {
+export const Metadata: {
+  readonly defaultValue: typeof metadataDefaultValue;
+  readonly encode: typeof metadataEncode;
+  readonly encodeWithContext: typeof metadataEncodeWithContext;
+  readonly decode: typeof metadataDecode;
+  readonly decodeWithContext: typeof metadataDecodeWithContext;
+  readonly validateFields: typeof metadataValidateFields;
+  readonly hasShape: typeof metadataHasShape;
+  readonly is: typeof metadataIs;
+  readonly createForm: typeof metadataCreateForm;
+  readonly fromFormData: typeof metadataFromFormData;
+} = {
   defaultValue: metadataDefaultValue,
   encode: metadataEncode,
   encodeWithContext: metadataEncodeWithContext,
@@ -4402,7 +4866,7 @@ export const Metadata = {
   is: metadataIs,
   createForm: metadataCreateForm,
   fromFormData: metadataFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -4410,14 +4874,15 @@ export const Metadata = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..239 -> expanded 58..190
-original 239..240 -> expanded 17678..17679
-generated 190..360 <- Default
-generated 360..1957 <- Encode
-generated 1957..8892 <- Decode
-generated 8892..17292 <- Gigaform
-generated 17292..17678 <- __convenience_const
+original 0..58 -> expanded 641..699
+original 107..239 -> expanded 699..831
+original 239..240 -> expanded 20121..20122
+generated 0..641 <- imports
+generated 831..1001 <- Default
+generated 1001..2598 <- Encode
+generated 2598..10831 <- Decode
+generated 10831..19231 <- Gigaform
+generated 19231..20121 <- __convenience_const
 
 ## Metadata
 

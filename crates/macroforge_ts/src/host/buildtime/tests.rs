@@ -454,7 +454,7 @@ const ANSWER = 6 * 7;
         "diagnostics: {:?}",
         out.diagnostics
     );
-    let rewritten = out.rewritten.expect("expected rewrite");
+    let rewritten = out.rewritten.expect("expected rewrite").code;
     assert!(rewritten.contains("const ANSWER = 42;"), "got: {rewritten}");
     assert!(out.dependencies.is_empty());
 }
@@ -470,7 +470,7 @@ export const ANSWER = 6 * 7;
         "diagnostics: {:?}",
         out.diagnostics
     );
-    let rewritten = out.rewritten.expect("expected rewrite");
+    let rewritten = out.rewritten.expect("expected rewrite").code;
     assert!(
         rewritten.contains("export const ANSWER = 42;"),
         "got: {rewritten}"
@@ -492,7 +492,7 @@ const AFTER = 2;
         "diagnostics: {:?}",
         out.diagnostics
     );
-    let rewritten = out.rewritten.expect("expected rewrite");
+    let rewritten = out.rewritten.expect("expected rewrite").code;
     assert!(rewritten.contains("const NORMAL = 1;"));
     assert!(rewritten.contains("const ANSWER = 42;"));
     assert!(rewritten.contains("const AFTER = 2;"));
@@ -521,7 +521,7 @@ function gen() {
         "diagnostics: {:?}",
         out.diagnostics
     );
-    let rewritten = out.rewritten.expect("expected rewrite");
+    let rewritten = out.rewritten.expect("expected rewrite").code;
     // The function declaration is replaced with the returned source.
     assert!(
         rewritten.contains("export const FROM_GEN = 99;"),
@@ -543,7 +543,7 @@ function compute() {
         "diagnostics: {:?}",
         out.diagnostics
     );
-    let rewritten = out.rewritten.expect("expected rewrite");
+    let rewritten = out.rewritten.expect("expected rewrite").code;
     assert!(
         rewritten.contains("const compute = 42;"),
         "got: {rewritten}"
@@ -592,7 +592,7 @@ const FROM_FILE = buildtime.fs.readJson({path_lit}).value;
         out.diagnostics
     );
     assert_eq!(out.dependencies.len(), 1);
-    let rewritten = out.rewritten.expect("expected rewrite");
+    let rewritten = out.rewritten.expect("expected rewrite").code;
     assert!(
         rewritten.contains(r#"const FROM_FILE = "from-disk";"#),
         "got: {rewritten}"
@@ -650,7 +650,7 @@ const RESULT = upper("hello");
         "diagnostics: {:?}",
         out.diagnostics
     );
-    let rewritten = out.rewritten.expect("expected rewrite");
+    let rewritten = out.rewritten.expect("expected rewrite").code;
     assert!(
         rewritten.contains(r#"const RESULT = "HELLO";"#),
         "got: {rewritten}"
@@ -670,7 +670,7 @@ const TOTAL = MULTIPLIER * 5;
         "diagnostics: {:?}",
         out.diagnostics
     );
-    let rewritten = out.rewritten.expect("expected rewrite");
+    let rewritten = out.rewritten.expect("expected rewrite").code;
     assert!(rewritten.contains("const TOTAL = 50;"), "got: {rewritten}");
 }
 
@@ -700,7 +700,7 @@ const GREETINGS = ((): Record<string, string> => {
             .map(|d| &d.message)
             .collect::<Vec<_>>()
     );
-    let rewritten = out.rewritten.expect("expected rewrite");
+    let rewritten = out.rewritten.expect("expected rewrite").code;
     assert!(
         rewritten.contains(r#"alice"#) && rewritten.contains("GREETINGS"),
         "got: {rewritten}"
@@ -743,7 +743,7 @@ fn prepass_actual_playground_demo_file() {
             .map(|d| &d.message)
             .collect::<Vec<_>>()
     );
-    let rewritten = out.rewritten.expect("expected rewrite");
+    let rewritten = out.rewritten.expect("expected rewrite").code;
     eprintln!("REWRITTEN:\n{}\n----", rewritten);
     assert!(rewritten.contains("const GREETINGS"), "GREETINGS missing");
 }
@@ -807,7 +807,7 @@ export function collectBuildtimeDemo(): BuildtimeDemoResult {
             .map(|d| &d.message)
             .collect::<Vec<_>>()
     );
-    let rewritten = out.rewritten.expect("expected rewrite");
+    let rewritten = out.rewritten.expect("expected rewrite").code;
     eprintln!("REWRITTEN:\n{}\n----", rewritten);
     assert!(
         rewritten.contains("const ANSWER = 42;"),
@@ -854,6 +854,15 @@ const VAL = helper();
         "warning: {}",
         warnings[0].message
     );
+    let statement = r#"console.log("side-effect at module load");"#;
+    assert_eq!(
+        warnings[0].span,
+        Some(crate::ts_syn::abi::SpanIR::new(
+            1,
+            statement.len() as u32 + 1
+        )),
+        "the warning spans the impure statement"
+    );
 }
 
 #[test]
@@ -870,7 +879,7 @@ const RESULT = await Promise.resolve(7).then(x => x * 6);
         "diagnostics: {:?}",
         out.diagnostics
     );
-    let rewritten = out.rewritten.expect("expected rewrite");
+    let rewritten = out.rewritten.expect("expected rewrite").code;
     assert!(rewritten.contains("const RESULT = 42;"), "got: {rewritten}");
 }
 
@@ -889,7 +898,7 @@ const CHAIN = await (async () => {
         "diagnostics: {:?}",
         out.diagnostics
     );
-    let rewritten = out.rewritten.expect("expected rewrite");
+    let rewritten = out.rewritten.expect("expected rewrite").code;
     assert!(rewritten.contains("const CHAIN = 42;"), "got: {rewritten}");
 }
 
@@ -904,7 +913,7 @@ type UserId = "string";
         "diagnostics: {:?}",
         out.diagnostics
     );
-    let rewritten = out.rewritten.expect("expected rewrite");
+    let rewritten = out.rewritten.expect("expected rewrite").code;
     assert!(
         rewritten.contains("type UserId = string;"),
         "got: {rewritten}"
@@ -922,7 +931,7 @@ type UnionOfLits = `"a" | "b" | "c"`;
         "diagnostics: {:?}",
         out.diagnostics
     );
-    let rewritten = out.rewritten.expect("expected rewrite");
+    let rewritten = out.rewritten.expect("expected rewrite").code;
     assert!(
         rewritten.contains(r#"type UnionOfLits = "a" | "b" | "c";"#),
         "got: {rewritten}"
@@ -935,7 +944,7 @@ fn prepass_tier3_type_export_preserved() {
 export type Level = "number";
 "#;
     let out = run_prepass_fixture(src);
-    let rewritten = out.rewritten.expect("expected rewrite");
+    let rewritten = out.rewritten.expect("expected rewrite").code;
     assert!(
         rewritten.contains("export type Level = number;"),
         "got: {rewritten}"
@@ -983,7 +992,7 @@ const B = 2 + 2;
         "diagnostics: {:?}",
         out.diagnostics
     );
-    let rewritten = out.rewritten.expect("expected rewrite");
+    let rewritten = out.rewritten.expect("expected rewrite").code;
     assert!(rewritten.contains("const A = 2;"));
     assert!(rewritten.contains("const B = 4;"));
 }

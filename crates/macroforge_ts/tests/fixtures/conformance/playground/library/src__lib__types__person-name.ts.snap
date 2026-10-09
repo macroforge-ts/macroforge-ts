@@ -237,11 +237,50 @@ lastName: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_firstName = obj["firstName"] as string;
-                                            if (__raw_firstName == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
+                                const __raw_firstName = obj["firstName"] as string;if (!(typeof __raw_firstName === "string")) {
+                                                    errors.push({ field: "firstName", message: __raw_firstName == null ? "PersonName.firstName is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_firstName == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
 if (__raw_firstName.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
 }
-instance.firstName = __raw_firstName;
+
+
+
+
+                                                    instance.firstName = __raw_firstName;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -501,11 +540,50 @@ instance.firstName = __raw_firstName;
 
 
                             }{
-                                const __raw_lastName = obj["lastName"] as string;
-                                            if (__raw_lastName == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
+                                const __raw_lastName = obj["lastName"] as string;if (!(typeof __raw_lastName === "string")) {
+                                                    errors.push({ field: "lastName", message: __raw_lastName == null ? "PersonName.lastName is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_lastName == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
 if (__raw_lastName.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
 }
-instance.lastName = __raw_lastName;
+
+
+
+
+                                                    instance.lastName = __raw_lastName;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1333,6 +1411,82 @@ instance.lastName = __raw_lastName;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as PersonName;
@@ -1439,7 +1593,16 @@ if (__val.length === 0) { errors.push({ field: "lastName", message: "PersonName.
                 return result.success;
             }
 
-export const PersonName = {
+export const PersonName: {
+  readonly defaultValue: typeof personNameDefaultValue;
+  readonly encode: typeof personNameEncode;
+  readonly encodeWithContext: typeof personNameEncodeWithContext;
+  readonly decode: typeof personNameDecode;
+  readonly decodeWithContext: typeof personNameDecodeWithContext;
+  readonly validateFields: typeof personNameValidateFields;
+  readonly hasShape: typeof personNameHasShape;
+  readonly is: typeof personNameIs;
+} = {
   defaultValue: personNameDefaultValue,
   encode: personNameEncode,
   encodeWithContext: personNameEncodeWithContext,
@@ -1448,7 +1611,7 @@ export const PersonName = {
   validateFields: personNameValidateFields,
   hasShape: personNameHasShape,
   is: personNameIs
-} as const;
+};
 
 ## DTS
 
@@ -1671,11 +1834,50 @@ lastName: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_firstName = obj["firstName"] as string;
-                                            if (__raw_firstName == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
+                                const __raw_firstName = obj["firstName"] as string;if (!(typeof __raw_firstName === "string")) {
+                                                    errors.push({ field: "firstName", message: __raw_firstName == null ? "PersonName.firstName is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_firstName == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
 if (__raw_firstName.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
 }
-instance.firstName = __raw_firstName;
+
+
+
+
+                                                    instance.firstName = __raw_firstName;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1935,11 +2137,50 @@ instance.firstName = __raw_firstName;
 
 
                             }{
-                                const __raw_lastName = obj["lastName"] as string;
-                                            if (__raw_lastName == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
+                                const __raw_lastName = obj["lastName"] as string;if (!(typeof __raw_lastName === "string")) {
+                                                    errors.push({ field: "lastName", message: __raw_lastName == null ? "PersonName.lastName is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_lastName == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
 if (__raw_lastName.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
 }
-instance.lastName = __raw_lastName;
+
+
+
+
+                                                    instance.lastName = __raw_lastName;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2767,6 +3008,82 @@ instance.lastName = __raw_lastName;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as PersonName;
@@ -2873,7 +3190,16 @@ if (__val.length === 0) { errors.push({ field: "lastName", message: "PersonName.
                 return result.success;
             }
 
-export const PersonName = {
+export const PersonName: {
+  readonly defaultValue: typeof personNameDefaultValue;
+  readonly encode: typeof personNameEncode;
+  readonly encodeWithContext: typeof personNameEncodeWithContext;
+  readonly decode: typeof personNameDecode;
+  readonly decodeWithContext: typeof personNameDecodeWithContext;
+  readonly validateFields: typeof personNameValidateFields;
+  readonly hasShape: typeof personNameHasShape;
+  readonly is: typeof personNameIs;
+} = {
   defaultValue: personNameDefaultValue,
   encode: personNameEncode,
   encodeWithContext: personNameEncodeWithContext,
@@ -2882,7 +3208,7 @@ export const PersonName = {
   validateFields: personNameValidateFields,
   hasShape: personNameHasShape,
   is: personNameIs
-} as const;
+};
 
 ## Diagnostics
 
@@ -2890,14 +3216,15 @@ export const PersonName = {
 
 ## Mapping
 
-original 39..74 -> expanded 0..35
-original 115..143 -> expanded 35..63
-original 184..208 -> expanded 63..87
-original 208..209 -> expanded 10056..10057
-generated 87..230 <- Default
-generated 230..1777 <- Encode
-generated 1777..9724 <- Decode
-generated 9724..10056 <- __convenience_const
+original 39..74 -> expanded 385..420
+original 115..143 -> expanded 420..448
+original 184..208 -> expanded 448..472
+original 208..209 -> expanded 11793..11794
+generated 0..385 <- imports
+generated 472..615 <- Default
+generated 615..2162 <- Encode
+generated 2162..11045 <- Decode
+generated 11045..11793 <- __convenience_const
 
 ## Metadata
 

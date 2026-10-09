@@ -1,22 +1,24 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
 ---
-## Types (157)
+## Types (174)
 
 Address 1397622768841615
 AddressPatch e55d6c1e595797d4
 AllMacrosTestClass ba2e6c8e88758a69
 ApiStatus 57f42a116e057cb5
 AttrMacroResults de5c32380bead57f
-AttributesResults a0a19d265d821e91
+AttributesResults a5d0fc3c75e245e4
 BetweenBigIntValidator 0056fdf721a087b8
 BetweenDateValidator ed918b6daec61e2f
 BetweenValidator 6efa53bd3f3a9480
-BuildtimeDemoResult 6390b0c40ea6be4f
+BuildtimeDemoResult 5d2f61e5dd3072e4
 CapitalizedValidator b4ba65549c640989
+Cents 96d76f93b416c1b5
 Color c41d29e946bcc255
 CombinedNumberValidatorsTest 6c2ad43f1502f3f6
 CombinedStringValidatorsTest c21f32d9de686bc1
+Contact 75765ef9c40ac818
 Container 8b373bd10e94e690
 ContainerFailure 556538bad33d3a7f
 Coordinate3D 3b67485f942cf6f2
@@ -87,8 +89,10 @@ DocValidDate 8651d2595fca8065
 E2eResults 5563d784f74844f4
 EmailValidator 4e2c86d1b9b34cb0
 EndsWithValidator 582e71d990fb9b84
+Entry 6021f9308c0bfbe0
 EnumDeriveResults a3d882081a44ba18
-EventForm 2013bb775c356910
+EventForm d7453c08e8de14e2
+Fallback f82b11d1ac8c53a3
 FiniteValidator e26fd062c3acb492
 FormModel 4ec5d42d7647bcd1
 GreaterThanBigIntValidator 2f375dcba6c51a25
@@ -97,6 +101,7 @@ GreaterThanOrEqualToBigIntValidator 4b0493b7731688fb
 GreaterThanOrEqualToDateValidator 53464571013ef84f
 GreaterThanOrEqualToValidator 38db1e61ed3b593a
 GreaterThanValidator 40bf8023fc9784a0
+Grid 19ce65730a9d2423
 ImportedCustomValidator b55941a1ccabfbcc
 IncludesValidator 91f7dec2cbb53de1
 Inner 273d52255c3a1734
@@ -112,9 +117,11 @@ LessThanOrEqualToDateValidator b7ec6cbeb2fd1764
 LessThanOrEqualToValidator 29461f421729f3f2
 LessThanValidator ffaf6258e81c3fe3
 LowercaseValidator fa44334a00a8df5d
-MacroTestResults e6bb96f9d4b44f2c
+MacroTestResults 4da05ddeb79ec5da
 MaxItemsValidator 54718dc0bd7a9684
 MaxLengthValidator b782888c88060e9a
+MeasurementForm e5c2abfbee21dabb
+Meters 6b184dea5703560b
 MinItemsValidator 1fd500f1104ebc26
 MinLengthValidator 276b7b60a6ebdfb4
 MixedValidatorsTest bcc87d9c2c479c85
@@ -130,22 +137,31 @@ NonNegativeValidator 5ea8df9c6bcf9d78
 NonPositiveBigIntValidator 8a918c6130fa4a7c
 NonPositiveValidator 217150b73b621b1f
 PatternValidator 56c4470a4603be0b
+Phone 6e7d7d5769a18c46
 Point c4ee3a1e063aa654
+Port acab5dae9a8581f8
 PositiveBigIntValidator e5dcf66bfc3e4687
 PositiveValidator 1e81e7a726ed420c
 Priority a2027827376d7edd
 Probed 0a97ebd8f1a5ac1f
 ProcMacroDeriveResults de81250ee99d3447
-ProductForm 44d58fd04b95164e
+ProductForm 802cb494098fccf4
+Profile f573cecf9ab867cb
+Reachable 7a3c32f08927fcfd
 RecursiveDeserResult 47d81d50b6c7d75a
-RunesTestResults 434c37fc6dab69e7
+Run 99fa21d99dc2a5cd
+RunesTestResults 9830d1b0f3859772
+Scores cc9b2e3757a88bd8
 ServerStatus a6f77a8f50f170a0
 Signal d5eba5767f773e2b
+Span 70110ad9823ac14a
 StartsWithValidator 1857d2291f885ec9
 Status 5f5a3a003501afe3
 Store b767724ee6c2b8d8
 Subscriber b37ba2fda76cb5ed
+Tagged 6783afe0b7118678
 TrimmedValidator ecea7ec845c2de93
+Trip 43b71d3c6a5f9b0b
 TypeAliasDeriveResults 16ef14b074d39621
 Uint8Validator 350740b4786c148b
 UncapitalizedValidator 9708fb7c775892da
@@ -154,14 +170,15 @@ UrlValidator 6006c7f8aa5af967
 User 83fd180b9ef8c24f
 UserId d78391a8bdd1d874
 UserProfile ca6657d0ea201d69
-UserRegistrationForm 9c691e03670a1bf7
+UserRegistrationForm d4582ec68c63abdf
+Username 12eb93a2891cbe96
 UuidValidator bd9c3a8c2ed4b9b6
 ValidDateValidator 0968a9d9ae8d120f
-ValidationResult 48c5afabf91fef90
-ValidatorFormResults 1b4694bb9817459a
-VanillaPlayground bd3940a533e6eaab
+ValidationResult c8a1f98e85967d3d
+ValidatorFormResults 9deef3f87ed52d1e
+VanillaPlayground 158343d6fd579221
 
-## Qualified types (157)
+## Qualified types (175)
 
 src/all-macros-test.ts::AllMacrosTestClass ba2e6c8e88758a69
 src/attributes-test.ts::ServerStatus a6f77a8f50f170a0
@@ -187,12 +204,16 @@ src/enum-type-examples.ts::Priority a2027827376d7edd
 src/enum-type-examples.ts::Status 5f5a3a003501afe3
 src/enum-type-examples.ts::UserProfile ca6657d0ea201d69
 src/form-model.ts::FormModel 4ec5d42d7647bcd1
-src/playground-globals.ts::AttributesResults a0a19d265d821e91
-src/playground-globals.ts::BuildtimeDemoResult 6390b0c40ea6be4f
-src/playground-globals.ts::MacroTestResults e6bb96f9d4b44f2c
-src/playground-globals.ts::RunesTestResults 434c37fc6dab69e7
-src/playground-globals.ts::ValidatorFormResults 1b4694bb9817459a
-src/playground-globals.ts::VanillaPlayground bd3940a533e6eaab
+src/ordering-tests.ts::Entry 6021f9308c0bfbe0
+src/ordering-tests.ts::Grid 19ce65730a9d2423
+src/ordering-tests.ts::Scores cc9b2e3757a88bd8
+src/ordering-tests.ts::Span 70110ad9823ac14a
+src/playground-globals.ts::AttributesResults a5d0fc3c75e245e4
+src/playground-globals.ts::BuildtimeDemoResult 5d2f61e5dd3072e4
+src/playground-globals.ts::MacroTestResults 4da05ddeb79ec5da
+src/playground-globals.ts::RunesTestResults 9830d1b0f3859772
+src/playground-globals.ts::ValidatorFormResults 9deef3f87ed52d1e
+src/playground-globals.ts::VanillaPlayground 158343d6fd579221
 src/runes-runtime.ts::Derived d2988ab88c7dfbea
 src/runes-runtime.ts::Signal d5eba5767f773e2b
 src/runes-runtime.ts::Subscriber b37ba2fda76cb5ed
@@ -202,10 +223,11 @@ src/runtime-deser-test.ts::Inner 273d52255c3a1734
 src/runtime-deser-test.ts::RecursiveDeserResult 47d81d50b6c7d75a
 src/store.svelte.ts::Store b767724ee6c2b8d8
 src/user.ts::User 83fd180b9ef8c24f
-src/validator-form.ts::EventForm 2013bb775c356910
-src/validator-form.ts::ProductForm 44d58fd04b95164e
-src/validator-form.ts::UserRegistrationForm 9c691e03670a1bf7
-src/validator-form.ts::ValidationResult 48c5afabf91fef90
+src/validator-form.ts::EventForm d7453c08e8de14e2
+src/validator-form.ts::MeasurementForm e5c2abfbee21dabb
+src/validator-form.ts::ProductForm 802cb494098fccf4
+src/validator-form.ts::UserRegistrationForm d4582ec68c63abdf
+src/validator-form.ts::ValidationResult c8a1f98e85967d3d
 src/validators/array-validator-tests.ts::ItemsCountValidator 67cbae878a807227
 src/validators/array-validator-tests.ts::MaxItemsValidator 54718dc0bd7a9684
 src/validators/array-validator-tests.ts::MinItemsValidator 1fd500f1104ebc26
@@ -289,6 +311,15 @@ src/validators/edge-case-tests.ts::CombinedStringValidatorsTest c21f32d9de686bc1
 src/validators/edge-case-tests.ts::CustomMessageTest a92c82952c5f7f69
 src/validators/edge-case-tests.ts::MixedValidatorsTest bcc87d9c2c479c85
 src/validators/edge-case-tests.ts::MultipleValidatorsTest 0c5d35fe489d03db
+src/validators/field-type-tests.ts::Cents 96d76f93b416c1b5
+src/validators/field-type-tests.ts::Profile f573cecf9ab867cb
+src/validators/field-type-tests.ts::Tagged 6783afe0b7118678
+src/validators/newtype-consumer.ts::Trip 43b71d3c6a5f9b0b
+src/validators/newtype-validator-tests.ts::Cents ee22dace2948a85a
+src/validators/newtype-validator-tests.ts::Meters 6b184dea5703560b
+src/validators/newtype-validator-tests.ts::Port acab5dae9a8581f8
+src/validators/newtype-validator-tests.ts::Run 99fa21d99dc2a5cd
+src/validators/newtype-validator-tests.ts::Username 12eb93a2891cbe96
 src/validators/number-validator-tests.ts::BetweenValidator 6efa53bd3f3a9480
 src/validators/number-validator-tests.ts::FiniteValidator e26fd062c3acb492
 src/validators/number-validator-tests.ts::GreaterThanOrEqualToValidator 38db1e61ed3b593a
@@ -320,7 +351,11 @@ src/validators/string-validator-tests.ts::UncapitalizedValidator 9708fb7c775892d
 src/validators/string-validator-tests.ts::UppercaseValidator 1b00aebd85c3ade3
 src/validators/string-validator-tests.ts::UrlValidator 6006c7f8aa5af967
 src/validators/string-validator-tests.ts::UuidValidator bd9c3a8c2ed4b9b6
+src/validators/union-arm-validator-tests.ts::Contact 75765ef9c40ac818
+src/validators/union-arm-validator-tests.ts::Fallback f82b11d1ac8c53a3
+src/validators/union-arm-validator-tests.ts::Phone 6e7d7d5769a18c46
+src/validators/union-arm-validator-tests.ts::Reachable 7a3c32f08927fcfd
 
 ## Ambiguous names
 
-(none)
+Cents

@@ -540,6 +540,38 @@ columnConfigs: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_cardOrRow = obj["cardOrRow"] as OverviewDisplay;ctx.pushScope("cardOrRow");
                                             try {
@@ -817,8 +849,79 @@ columnConfigs: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_perPage = obj["perPage"] as number;instance.perPage = __raw_perPage;
+                                const __raw_perPage = obj["perPage"] as number;if (!(typeof __raw_perPage === "number")) {
+                                                    errors.push({ field: "perPage", message: __raw_perPage == null ? "OverviewSettings.perPage is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.perPage = __raw_perPage;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1426,7 +1529,115 @@ columnConfigs: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2344,7 +2555,18 @@ columnConfigs: [],
             return toExit(overviewSettingsDecode(obj));
         }
 
-export const OverviewSettings = {
+export const OverviewSettings: {
+  readonly defaultValue: typeof overviewSettingsDefaultValue;
+  readonly encode: typeof overviewSettingsEncode;
+  readonly encodeWithContext: typeof overviewSettingsEncodeWithContext;
+  readonly decode: typeof overviewSettingsDecode;
+  readonly decodeWithContext: typeof overviewSettingsDecodeWithContext;
+  readonly validateFields: typeof overviewSettingsValidateFields;
+  readonly hasShape: typeof overviewSettingsHasShape;
+  readonly is: typeof overviewSettingsIs;
+  readonly createForm: typeof overviewSettingsCreateForm;
+  readonly fromFormData: typeof overviewSettingsFromFormData;
+} = {
   defaultValue: overviewSettingsDefaultValue,
   encode: overviewSettingsEncode,
   encodeWithContext: overviewSettingsEncodeWithContext,
@@ -2355,7 +2577,7 @@ export const OverviewSettings = {
   is: overviewSettingsIs,
   createForm: overviewSettingsCreateForm,
   fromFormData: overviewSettingsFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2871,6 +3093,38 @@ columnConfigs: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_cardOrRow = obj["cardOrRow"] as OverviewDisplay;ctx.pushScope("cardOrRow");
                                             try {
@@ -3148,8 +3402,79 @@ columnConfigs: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_perPage = obj["perPage"] as number;instance.perPage = __raw_perPage;
+                                const __raw_perPage = obj["perPage"] as number;if (!(typeof __raw_perPage === "number")) {
+                                                    errors.push({ field: "perPage", message: __raw_perPage == null ? "OverviewSettings.perPage is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.perPage = __raw_perPage;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3757,7 +4082,115 @@ columnConfigs: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4675,7 +5108,18 @@ columnConfigs: [],
             return toExit(overviewSettingsDecode(obj));
         }
 
-export const OverviewSettings = {
+export const OverviewSettings: {
+  readonly defaultValue: typeof overviewSettingsDefaultValue;
+  readonly encode: typeof overviewSettingsEncode;
+  readonly encodeWithContext: typeof overviewSettingsEncodeWithContext;
+  readonly decode: typeof overviewSettingsDecode;
+  readonly decodeWithContext: typeof overviewSettingsDecodeWithContext;
+  readonly validateFields: typeof overviewSettingsValidateFields;
+  readonly hasShape: typeof overviewSettingsHasShape;
+  readonly is: typeof overviewSettingsIs;
+  readonly createForm: typeof overviewSettingsCreateForm;
+  readonly fromFormData: typeof overviewSettingsFromFormData;
+} = {
   defaultValue: overviewSettingsDefaultValue,
   encode: overviewSettingsEncode,
   encodeWithContext: overviewSettingsEncodeWithContext,
@@ -4686,7 +5130,7 @@ export const OverviewSettings = {
   is: overviewSettingsIs,
   createForm: overviewSettingsCreateForm,
   fromFormData: overviewSettingsFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -4694,16 +5138,17 @@ export const OverviewSettings = {
 
 ## Mapping
 
-original 0..239 -> expanded 0..239
-original 288..329 -> expanded 239..280
-original 354..385 -> expanded 280..311
-original 409..504 -> expanded 311..406
-original 504..505 -> expanded 26691..26692
-generated 406..604 <- Default
-generated 604..2509 <- Encode
-generated 2509..14561 <- Decode
-generated 14561..26217 <- Gigaform
-generated 26217..26691 <- __convenience_const
+original 0..239 -> expanded 1062..1301
+original 288..329 -> expanded 1301..1342
+original 354..385 -> expanded 1342..1373
+original 409..504 -> expanded 1373..1468
+original 504..505 -> expanded 28927..28928
+generated 0..1062 <- imports
+generated 1468..1666 <- Default
+generated 1666..3571 <- Encode
+generated 3571..16213 <- Decode
+generated 16213..27869 <- Gigaform
+generated 27869..28927 <- __convenience_const
 
 ## Metadata
 

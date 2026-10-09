@@ -150,6 +150,27 @@ fn test_buildtime_rejects_writes_and_network() {
 }
 
 #[test]
+fn a_foreign_type_rejects_what_it_cannot_read() {
+    for entry in [
+        "serialize: (v) => v.toString()",
+        "...shared",
+        "get encode() { return (v) => v; }",
+    ] {
+        let content = format!(
+            "const shared = {{ from: [\"effect\"] }};\n\
+             export default {{ foreignTypes: {{ DateTime: {{ {entry} }} }} }}"
+        );
+        assert!(
+            matches!(
+                parse(&content, "macroforge.config.js"),
+                Err(crate::host::MacroError::InvalidConfig(_))
+            ),
+            "`{entry}` must be rejected"
+        );
+    }
+}
+
+#[test]
 fn test_buildtime_block_defaults_when_absent() {
     let content = r#"
             export default { keepDecorators: true }

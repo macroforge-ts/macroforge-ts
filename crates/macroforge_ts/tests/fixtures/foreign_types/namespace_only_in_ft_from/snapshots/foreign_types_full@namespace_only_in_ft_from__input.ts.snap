@@ -35,9 +35,11 @@ createdAt: (() => __mf_Option.match(DateTime.make(new Date()), {
 };
                     }
 
-export const Foo = {
+export const Foo: {
+  readonly defaultValue: typeof fooDefaultValue;
+} = {
   defaultValue: fooDefaultValue
-} as const;
+};
 
 ## DTS
 
@@ -57,9 +59,11 @@ createdAt: (() => __mf_Option.match(DateTime.make(new Date()), {
 };
                     }
 
-export const Foo = {
+export const Foo: {
+  readonly defaultValue: typeof fooDefaultValue;
+} = {
   defaultValue: fooDefaultValue
-} as const;
+};
 
 ## Diagnostics
 
@@ -67,11 +71,12 @@ export const Foo = {
 
 ## Mapping
 
-original 0..36 -> expanded 0..36
-original 59..113 -> expanded 36..90
-original 113..114 -> expanded 381..382
-generated 90..315 <- Default
-generated 315..381 <- __convenience_const
+original 0..36 -> expanded 48..84
+original 59..113 -> expanded 84..138
+original 113..114 -> expanded 474..475
+generated 0..48 <- imports
+generated 138..363 <- Default
+generated 363..474 <- __convenience_const
 
 ## Metadata
 

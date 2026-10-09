@@ -109,7 +109,46 @@ export interface Inner {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Inner.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -631,8 +670,79 @@ export interface Inner {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_score = obj["score"] as number;instance.score = __raw_score;
+                                const __raw_score = obj["score"] as number;if (!(typeof __raw_score === "number")) {
+                                                    errors.push({ field: "score", message: __raw_score == null ? "Inner.score is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.score = __raw_score;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -892,6 +1002,82 @@ export interface Inner {
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1518,13 +1704,19 @@ export interface Inner {
                 return result.success;
             }
 
-export const Inner = {
+export const Inner: {
+  readonly decode: typeof innerDecode;
+  readonly decodeWithContext: typeof innerDecodeWithContext;
+  readonly validateFields: typeof innerValidateFields;
+  readonly hasShape: typeof innerHasShape;
+  readonly is: typeof innerIs;
+} = {
   decode: innerDecode,
   decodeWithContext: innerDecodeWithContext,
   validateFields: innerValidateFields,
   hasShape: innerHasShape,
   is: innerIs
-} as const;
+};
 
 /** @derive(Decode) */
 export interface Container {
@@ -1703,6 +1895,38 @@ export interface Container {
 
 
                                         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2530,6 +2754,82 @@ export interface Container {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Container;
@@ -2588,13 +2888,19 @@ export interface Container {
                 return result.success;
             }
 
-export const Container = {
+export const Container: {
+  readonly decode: typeof containerDecode;
+  readonly decodeWithContext: typeof containerDecodeWithContext;
+  readonly validateFields: typeof containerValidateFields;
+  readonly hasShape: typeof containerHasShape;
+  readonly is: typeof containerIs;
+} = {
   decode: containerDecode,
   decodeWithContext: containerDecodeWithContext,
   validateFields: containerValidateFields,
   hasShape: containerHasShape,
   is: containerIs
-} as const;
+};
 
 export function testNormal() {
     return Container.decode({
@@ -2759,7 +3065,46 @@ export interface Inner {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Inner.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3281,8 +3626,79 @@ export interface Inner {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_score = obj["score"] as number;instance.score = __raw_score;
+                                const __raw_score = obj["score"] as number;if (!(typeof __raw_score === "number")) {
+                                                    errors.push({ field: "score", message: __raw_score == null ? "Inner.score is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.score = __raw_score;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3542,6 +3958,82 @@ export interface Inner {
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4168,13 +4660,19 @@ export interface Inner {
                 return result.success;
             }
 
-export const Inner = {
+export const Inner: {
+  readonly decode: typeof innerDecode;
+  readonly decodeWithContext: typeof innerDecodeWithContext;
+  readonly validateFields: typeof innerValidateFields;
+  readonly hasShape: typeof innerHasShape;
+  readonly is: typeof innerIs;
+} = {
   decode: innerDecode,
   decodeWithContext: innerDecodeWithContext,
   validateFields: innerValidateFields,
   hasShape: innerHasShape,
   is: innerIs
-} as const;
+};
 
 /** @derive(Decode) */
 export interface Container {
@@ -4353,6 +4851,38 @@ export interface Container {
 
 
                                         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5180,6 +5710,82 @@ export interface Container {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Container;
@@ -5238,13 +5844,19 @@ export interface Container {
                 return result.success;
             }
 
-export const Container = {
+export const Container: {
+  readonly decode: typeof containerDecode;
+  readonly decodeWithContext: typeof containerDecodeWithContext;
+  readonly validateFields: typeof containerValidateFields;
+  readonly hasShape: typeof containerHasShape;
+  readonly is: typeof containerIs;
+} = {
   decode: containerDecode,
   decodeWithContext: containerDecodeWithContext,
   validateFields: containerValidateFields,
   hasShape: containerHasShape,
   is: containerIs
-} as const;
+};
 
 export function testNormal() {
     return Container.decode({
@@ -5320,13 +5932,14 @@ export function testRecursiveActual(): RecursiveDeserResult {
 
 ## Mapping
 
-original 0..107 -> expanded 0..107
-original 107..182 -> expanded 6598..6673
-original 182..2159 -> expanded 14485..16462
-generated 107..6414 <- Decode
-generated 6414..6598 <- __convenience_const
-generated 6673..14277 <- Decode
-generated 14277..14485 <- __convenience_const
+original 0..107 -> expanded 307..414
+original 107..182 -> expanded 8032..8107
+original 182..2159 -> expanded 16272..18249
+generated 0..307 <- imports
+generated 414..7623 <- Decode
+generated 7623..8032 <- __convenience_const
+generated 8107..15819 <- Decode
+generated 15819..16272 <- __convenience_const
 
 ## Metadata
 

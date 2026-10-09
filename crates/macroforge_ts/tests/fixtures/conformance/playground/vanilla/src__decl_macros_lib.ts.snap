@@ -27,7 +27,10 @@ true
 
 ## Mapping
 
-(none)
+original 0..204 -> expanded 0..204
+original 256..258 -> expanded 204..206
+original 333..335 -> expanded 206..208
+original 392..393 -> expanded 208..209
 
 ## Metadata
 

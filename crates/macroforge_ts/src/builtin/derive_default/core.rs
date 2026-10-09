@@ -6,11 +6,14 @@ use crate::builtin::derive_common::{
     has_known_default,
 };
 use crate::macros::{ts_macro_derive, ts_template};
+use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::abi::ir::{
     FileImportEntry, TypeBody, TypeDefinitionIR, TypeMemberKind, TypeRegistry,
 };
 use crate::ts_syn::ts_ident;
-use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
+use crate::ts_syn::{
+    Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, parse_ts_macro_input,
+};
 
 use super::types::{DefaultField, validate_default_fields};
 
@@ -251,12 +254,11 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 })
                 .collect::<Result<_, MacroforgeError>>()?;
 
-            // Generate the method body using parsed field data
-            // Note: field_data is consumed by the body! macro below
-            let _ = &field_data; // Explicitly mark as used to satisfy clippy
             let class_body = ts_template!(Within {
                 static defaultValue(): @{class_ident.clone()} {
-                    const instance = new @{class_expr.clone()}();
+                    // Like Rust's derive, a default runs no constructor: one that
+                    // takes arguments (such as Decode's) has nothing to give it.
+                    const instance: @{class_ident.clone()} = Object.create(@{class_expr.clone()}.prototype);
                     {#for (name_ident, value_expr) in field_data}
                         instance.@{name_ident} = @{value_expr};
                     {/for}
@@ -264,16 +266,16 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 }
             });
 
-            // Also generate standalone function for consistency
-            // Using {$typescript} to compose TsStream objects
+            // The standalone function goes below the class and the static method
+            // inside it; merging keeps each stream's placement, which composing
+            // one into the other would lose.
             let fn_name_ident = ts_ident!("{}DefaultValue", class_name.to_case(Case::Camel));
-            Ok(ts_template! {
-                {$typescript class_body}
-
+            let standalone = ts_template! {
                 export function @{fn_name_ident}(): @{class_ident.clone()} {
                     return @{class_expr.clone()}.defaultValue();
                 }
-            })
+            };
+            Ok(standalone.merge(class_body))
         }
         Data::Enum(enum_data) => {
             let enum_name = input.name();
@@ -862,7 +864,43 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         .collect::<Vec<_>>(),
                 );
 
-                if let Some(default_variant) = default_opts.value {
+                // A primitive alias defaults like a primitive field, and the
+                // value is cast because a branded alias is not its base type.
+                let primitive = crate::builtin::endec::primitive_base(type_alias.body());
+
+                // The primitive's zero may fail the alias's validators, so a
+                // validated alias names its default, as a Rust newtype without a
+                // valid zero has no derived `Default`.
+                if primitive.is_some() && default_opts.value.is_none() {
+                    let mut diagnostics = DiagnosticCollector::new();
+                    let validators = crate::builtin::endec::decorator_validators(
+                        &type_alias.inner.decorators,
+                        &format!("type '{type_name}'"),
+                        &mut diagnostics,
+                    );
+                    if diagnostics.has_errors() {
+                        return Err(MacroforgeErrors::new(diagnostics.into_vec()).into());
+                    }
+                    if !validators.is_empty() {
+                        return Err(MacroforgeError::new(
+                            input.decorator_span(),
+                            format!(
+                                "@derive(Default) on '{type_name}' requires @default(value): its validators may reject the default of its base type"
+                            ),
+                        ));
+                    }
+                }
+
+                let default_value = match (default_opts.value, primitive) {
+                    (Some(value), Some(_)) => Some(format!("({value}) as {full_type_name}")),
+                    (None, Some(base)) => Some(format!(
+                        "{} as {full_type_name}",
+                        crate::builtin::derive_common::get_type_default(base)
+                    )),
+                    (value, None) => value,
+                };
+
+                if let Some(default_variant) = default_value {
                     let fn_name_ident = ts_ident!("{}DefaultValue", type_name.to_case(Case::Camel));
                     let return_expr = Expr::parse(&default_variant).map_err(|err| {
                         MacroforgeError::new(

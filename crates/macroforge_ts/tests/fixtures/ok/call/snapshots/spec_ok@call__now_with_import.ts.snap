@@ -30,7 +30,10 @@ export const startedAt = currentTime();
 
 ## Mapping
 
-(none)
+original 0..85 -> expanded 56..141
+original 91..93 -> expanded 154..156
+generated 0..56 <- macro
+generated 141..154 <- $now
 
 ## Metadata
 

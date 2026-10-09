@@ -145,10 +145,13 @@ interface Point {
                     return result;
                 }
 
-const Point = {
+const Point: {
+  readonly encode: typeof pointEncode;
+  readonly encodeWithContext: typeof pointEncodeWithContext;
+} = {
   encode: pointEncode,
   encodeWithContext: pointEncodeWithContext
-} as const;
+};
 
 ## DTS
 
@@ -278,10 +281,13 @@ interface Point {
                     return result;
                 }
 
-const Point = {
+const Point: {
+  readonly encode: typeof pointEncode;
+  readonly encodeWithContext: typeof pointEncodeWithContext;
+} = {
   encode: pointEncode,
   encodeWithContext: pointEncodeWithContext
-} as const;
+};
 
 ## Diagnostics
 
@@ -289,10 +295,11 @@ const Point = {
 
 ## Mapping
 
-original 22..72 -> expanded 0..50
-original 72..73 -> expanded 1633..1634
-generated 50..1537 <- Encode
-generated 1537..1633 <- __convenience_const
+original 22..72 -> expanded 78..128
+original 72..73 -> expanded 1807..1808
+generated 0..78 <- imports
+generated 128..1615 <- Encode
+generated 1615..1807 <- __convenience_const
 
 ## Metadata
 

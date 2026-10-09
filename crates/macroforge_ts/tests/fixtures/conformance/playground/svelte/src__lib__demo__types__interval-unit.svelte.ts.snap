@@ -125,8 +125,8 @@ export function intervalUnitDefaultValue(): IntervalUnit {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function intervalUnitDecodeWithContext(value: any, ctx: __mf_DecodeContext): IntervalUnit | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function intervalUnitDecodeWithContext(value: any, _ctx: __mf_DecodeContext): IntervalUnit | __mf_PendingRef {
                 switch (value) {
                     case 'Day':
                     case 'Week':
@@ -388,7 +388,17 @@ if (variant === "Year") { return "Year" as IntervalUnit; }
             return toExit(intervalUnitDecode(obj));
         }
 
-export const IntervalUnit = {
+export const IntervalUnit: {
+  readonly defaultValue: typeof intervalUnitDefaultValue;
+  readonly encode: typeof intervalUnitEncode;
+  readonly encodeWithContext: typeof intervalUnitEncodeWithContext;
+  readonly decode: typeof intervalUnitDecode;
+  readonly decodeWithContext: typeof intervalUnitDecodeWithContext;
+  readonly hasShape: typeof intervalUnitHasShape;
+  readonly is: typeof intervalUnitIs;
+  readonly createForm: typeof intervalUnitCreateForm;
+  readonly fromFormData: typeof intervalUnitFromFormData;
+} = {
   defaultValue: intervalUnitDefaultValue,
   encode: intervalUnitEncode,
   encodeWithContext: intervalUnitEncodeWithContext,
@@ -398,7 +408,7 @@ export const IntervalUnit = {
   is: intervalUnitIs,
   createForm: intervalUnitCreateForm,
   fromFormData: intervalUnitFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -506,8 +516,8 @@ export function intervalUnitDefaultValue(): IntervalUnit {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function intervalUnitDecodeWithContext(value: any, ctx: __mf_DecodeContext): IntervalUnit | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function intervalUnitDecodeWithContext(value: any, _ctx: __mf_DecodeContext): IntervalUnit | __mf_PendingRef {
                 switch (value) {
                     case 'Day':
                     case 'Week':
@@ -769,7 +779,17 @@ if (variant === "Year") { return "Year" as IntervalUnit; }
             return toExit(intervalUnitDecode(obj));
         }
 
-export const IntervalUnit = {
+export const IntervalUnit: {
+  readonly defaultValue: typeof intervalUnitDefaultValue;
+  readonly encode: typeof intervalUnitEncode;
+  readonly encodeWithContext: typeof intervalUnitEncodeWithContext;
+  readonly decode: typeof intervalUnitDecode;
+  readonly decodeWithContext: typeof intervalUnitDecodeWithContext;
+  readonly hasShape: typeof intervalUnitHasShape;
+  readonly is: typeof intervalUnitIs;
+  readonly createForm: typeof intervalUnitCreateForm;
+  readonly fromFormData: typeof intervalUnitFromFormData;
+} = {
   defaultValue: intervalUnitDefaultValue,
   encode: intervalUnitEncode,
   encodeWithContext: intervalUnitEncodeWithContext,
@@ -779,7 +799,7 @@ export const IntervalUnit = {
   is: intervalUnitIs,
   createForm: intervalUnitCreateForm,
   fromFormData: intervalUnitFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -787,14 +807,15 @@ export const IntervalUnit = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..185 -> expanded 58..136
-original 185..186 -> expanded 11799..11800
-generated 136..264 <- Default
-generated 264..2192 <- Encode
-generated 2192..4453 <- Decode
-generated 4453..11415 <- Gigaform
-generated 11415..11799 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..185 -> expanded 627..705
+original 185..186 -> expanded 12910..12911
+generated 0..569 <- imports
+generated 705..833 <- Default
+generated 833..2761 <- Encode
+generated 2761..5082 <- Decode
+generated 5082..12044 <- Gigaform
+generated 12044..12910 <- __convenience_const
 
 ## Metadata
 

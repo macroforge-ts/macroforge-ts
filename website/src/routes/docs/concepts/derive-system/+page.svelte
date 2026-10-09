@@ -81,7 +81,7 @@ class User {
 }`} lang="typescript" />
 
 <Alert type="note" title="Built-in macros">
-	Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Encode, Decode) do not require an import statement.
+	Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Encode, Decode, and the type-position <code>$Newtype</code>) do not require an import statement.
 </Alert>
 
 <h3 id="field-attributes">Field Attributes</h3>
@@ -181,7 +181,7 @@ class User {
 		<tr>
 			<td>Built-in</td>
 			<td>No</td>
-			<td>Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Encode, Decode</td>
+			<td>Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Encode, Decode, <code>$Newtype</code></td>
 		</tr>
 		<tr>
 			<td>Custom</td>

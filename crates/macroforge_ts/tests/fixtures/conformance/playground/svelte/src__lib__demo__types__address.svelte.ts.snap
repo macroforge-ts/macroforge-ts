@@ -253,11 +253,50 @@ zipcode: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_street = obj["street"] as string;
-                                            if (__raw_street == null) { errors.push({ field: "street", message: "Address.street is required" }); } else {
+                                const __raw_street = obj["street"] as string;if (!(typeof __raw_street === "string")) {
+                                                    errors.push({ field: "street", message: __raw_street == null ? "Address.street is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_street == null) { errors.push({ field: "street", message: "Address.street is required" }); } else {
 if (__raw_street.length === 0) { errors.push({ field: "street", message: "Address.street must not be empty" }); }
 }
-instance.street = __raw_street;
+
+
+
+
+                                                    instance.street = __raw_street;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -517,11 +556,50 @@ instance.street = __raw_street;
 
 
                             }{
-                                const __raw_city = obj["city"] as string;
-                                            if (__raw_city == null) { errors.push({ field: "city", message: "Address.city is required" }); } else {
+                                const __raw_city = obj["city"] as string;if (!(typeof __raw_city === "string")) {
+                                                    errors.push({ field: "city", message: __raw_city == null ? "Address.city is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_city == null) { errors.push({ field: "city", message: "Address.city is required" }); } else {
 if (__raw_city.length === 0) { errors.push({ field: "city", message: "Address.city must not be empty" }); }
 }
-instance.city = __raw_city;
+
+
+
+
+                                                    instance.city = __raw_city;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -781,11 +859,50 @@ instance.city = __raw_city;
 
 
                             }{
-                                const __raw_state = obj["state"] as string;
-                                            if (__raw_state == null) { errors.push({ field: "state", message: "Address.state is required" }); } else {
+                                const __raw_state = obj["state"] as string;if (!(typeof __raw_state === "string")) {
+                                                    errors.push({ field: "state", message: __raw_state == null ? "Address.state is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_state == null) { errors.push({ field: "state", message: "Address.state is required" }); } else {
 if (__raw_state.length === 0) { errors.push({ field: "state", message: "Address.state must not be empty" }); }
 }
-instance.state = __raw_state;
+
+
+
+
+                                                    instance.state = __raw_state;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1045,11 +1162,50 @@ instance.state = __raw_state;
 
 
                             }{
-                                const __raw_zipcode = obj["zipcode"] as string;
-                                            if (__raw_zipcode == null) { errors.push({ field: "zipcode", message: "Address.zipcode is required" }); } else {
+                                const __raw_zipcode = obj["zipcode"] as string;if (!(typeof __raw_zipcode === "string")) {
+                                                    errors.push({ field: "zipcode", message: __raw_zipcode == null ? "Address.zipcode is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_zipcode == null) { errors.push({ field: "zipcode", message: "Address.zipcode is required" }); } else {
 if (__raw_zipcode.length === 0) { errors.push({ field: "zipcode", message: "Address.zipcode must not be empty" }); }
 }
-instance.zipcode = __raw_zipcode;
+
+
+
+
+                                                    instance.zipcode = __raw_zipcode;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1309,6 +1465,82 @@ instance.zipcode = __raw_zipcode;
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2227,7 +2459,18 @@ if (__val.length === 0) { errors.push({ field: "zipcode", message: "Address.zipc
             return toExit(addressDecode(obj));
         }
 
-export const Address = {
+export const Address: {
+  readonly defaultValue: typeof addressDefaultValue;
+  readonly encode: typeof addressEncode;
+  readonly encodeWithContext: typeof addressEncodeWithContext;
+  readonly decode: typeof addressDecode;
+  readonly decodeWithContext: typeof addressDecodeWithContext;
+  readonly validateFields: typeof addressValidateFields;
+  readonly hasShape: typeof addressHasShape;
+  readonly is: typeof addressIs;
+  readonly createForm: typeof addressCreateForm;
+  readonly fromFormData: typeof addressFromFormData;
+} = {
   defaultValue: addressDefaultValue,
   encode: addressEncode,
   encodeWithContext: addressEncodeWithContext,
@@ -2238,7 +2481,7 @@ export const Address = {
   is: addressIs,
   createForm: addressCreateForm,
   fromFormData: addressFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2474,11 +2717,50 @@ zipcode: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_street = obj["street"] as string;
-                                            if (__raw_street == null) { errors.push({ field: "street", message: "Address.street is required" }); } else {
+                                const __raw_street = obj["street"] as string;if (!(typeof __raw_street === "string")) {
+                                                    errors.push({ field: "street", message: __raw_street == null ? "Address.street is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_street == null) { errors.push({ field: "street", message: "Address.street is required" }); } else {
 if (__raw_street.length === 0) { errors.push({ field: "street", message: "Address.street must not be empty" }); }
 }
-instance.street = __raw_street;
+
+
+
+
+                                                    instance.street = __raw_street;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2738,11 +3020,50 @@ instance.street = __raw_street;
 
 
                             }{
-                                const __raw_city = obj["city"] as string;
-                                            if (__raw_city == null) { errors.push({ field: "city", message: "Address.city is required" }); } else {
+                                const __raw_city = obj["city"] as string;if (!(typeof __raw_city === "string")) {
+                                                    errors.push({ field: "city", message: __raw_city == null ? "Address.city is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_city == null) { errors.push({ field: "city", message: "Address.city is required" }); } else {
 if (__raw_city.length === 0) { errors.push({ field: "city", message: "Address.city must not be empty" }); }
 }
-instance.city = __raw_city;
+
+
+
+
+                                                    instance.city = __raw_city;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3002,11 +3323,50 @@ instance.city = __raw_city;
 
 
                             }{
-                                const __raw_state = obj["state"] as string;
-                                            if (__raw_state == null) { errors.push({ field: "state", message: "Address.state is required" }); } else {
+                                const __raw_state = obj["state"] as string;if (!(typeof __raw_state === "string")) {
+                                                    errors.push({ field: "state", message: __raw_state == null ? "Address.state is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_state == null) { errors.push({ field: "state", message: "Address.state is required" }); } else {
 if (__raw_state.length === 0) { errors.push({ field: "state", message: "Address.state must not be empty" }); }
 }
-instance.state = __raw_state;
+
+
+
+
+                                                    instance.state = __raw_state;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3266,11 +3626,50 @@ instance.state = __raw_state;
 
 
                             }{
-                                const __raw_zipcode = obj["zipcode"] as string;
-                                            if (__raw_zipcode == null) { errors.push({ field: "zipcode", message: "Address.zipcode is required" }); } else {
+                                const __raw_zipcode = obj["zipcode"] as string;if (!(typeof __raw_zipcode === "string")) {
+                                                    errors.push({ field: "zipcode", message: __raw_zipcode == null ? "Address.zipcode is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_zipcode == null) { errors.push({ field: "zipcode", message: "Address.zipcode is required" }); } else {
 if (__raw_zipcode.length === 0) { errors.push({ field: "zipcode", message: "Address.zipcode must not be empty" }); }
 }
-instance.zipcode = __raw_zipcode;
+
+
+
+
+                                                    instance.zipcode = __raw_zipcode;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3530,6 +3929,82 @@ instance.zipcode = __raw_zipcode;
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4448,7 +4923,18 @@ if (__val.length === 0) { errors.push({ field: "zipcode", message: "Address.zipc
             return toExit(addressDecode(obj));
         }
 
-export const Address = {
+export const Address: {
+  readonly defaultValue: typeof addressDefaultValue;
+  readonly encode: typeof addressEncode;
+  readonly encodeWithContext: typeof addressEncodeWithContext;
+  readonly decode: typeof addressDecode;
+  readonly decodeWithContext: typeof addressDecodeWithContext;
+  readonly validateFields: typeof addressValidateFields;
+  readonly hasShape: typeof addressHasShape;
+  readonly is: typeof addressIs;
+  readonly createForm: typeof addressCreateForm;
+  readonly fromFormData: typeof addressFromFormData;
+} = {
   defaultValue: addressDefaultValue,
   encode: addressEncode,
   encodeWithContext: addressEncodeWithContext,
@@ -4459,7 +4945,7 @@ export const Address = {
   is: addressIs,
   createForm: addressCreateForm,
   fromFormData: addressFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -4467,18 +4953,19 @@ export const Address = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..139 -> expanded 58..90
-original 180..205 -> expanded 90..115
-original 246..269 -> expanded 115..138
-original 310..334 -> expanded 138..162
-original 375..398 -> expanded 162..185
-original 398..399 -> expanded 20457..20458
-generated 185..339 <- Default
-generated 339..1912 <- Encode
-generated 1912..12736 <- Decode
-generated 12736..20082 <- Gigaform
-generated 20082..20457 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..139 -> expanded 627..659
+original 180..205 -> expanded 659..684
+original 246..269 -> expanded 684..707
+original 310..334 -> expanded 707..731
+original 375..398 -> expanded 731..754
+original 398..399 -> expanded 23256..23257
+generated 0..569 <- imports
+generated 754..908 <- Default
+generated 908..2481 <- Encode
+generated 2481..15041 <- Decode
+generated 15041..22387 <- Gigaform
+generated 22387..23256 <- __convenience_const
 
 ## Metadata
 

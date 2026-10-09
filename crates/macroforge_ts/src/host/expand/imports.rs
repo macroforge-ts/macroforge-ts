@@ -17,6 +17,9 @@ const BUILTIN_MACRO_NAMES: &[&str] = &[
     "Decode",
 ];
 
+/// Built-in type-position call macros, available everywhere without an import.
+const BUILTIN_CALL_MACRO_NAMES: &[&str] = &["$Newtype"];
+
 /// Warns on each built-in macro imported from a macro module: built-ins need
 /// no import, so the import is dead and suggests otherwise.
 pub(super) fn check_builtin_import_warnings(
@@ -46,17 +49,23 @@ pub(super) fn check_builtin_import_warnings(
                 }
                 ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => continue,
             };
-            if !BUILTIN_MACRO_NAMES.contains(&local_name) {
+            let help = if BUILTIN_MACRO_NAMES.contains(&local_name) {
+                format!(
+                    "Remove this import - just use @derive({local_name}) directly in a JSDoc comment"
+                )
+            } else if BUILTIN_CALL_MACRO_NAMES.contains(&local_name) {
+                format!("Remove this import - just write {local_name}<T> in type position")
+            } else {
                 continue;
-            }
+            };
             warnings.push(Diagnostic {
                 level: DiagnosticLevel::Warning,
-                message: format!("'{local_name}' is a built-in macro and doesn't need to be imported"),
-                span: Some(SpanIR::new(span.start, span.end)),
+                message: format!(
+                    "'{local_name}' is a built-in macro and doesn't need to be imported"
+                ),
+                span: Some(SpanIR::new(span.start + 1, span.end + 1)),
                 notes: vec![],
-                help: Some(format!(
-                    "Remove this import - just use @derive({local_name}) directly in a JSDoc comment"
-                )),
+                help: Some(help),
             });
         }
     }

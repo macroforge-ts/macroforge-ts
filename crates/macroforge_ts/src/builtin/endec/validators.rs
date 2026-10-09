@@ -269,10 +269,12 @@ const KNOWN_OPTIONS: &[&str] = &[
 /// - Explicit array: validate: ["email", "maxLength(255)"]
 /// - Object array: validate: [{ validate: "email", message: "..." }]
 /// - Shorthand: @endec(email) or @endec(minLength(2), maxLength(50))
+///
+/// `subject` prefixes diagnostics, e.g. `field 'email'` or `type 'Meters'`.
 pub fn extract_validators(
     args: &str,
     decorator_span: SpanIR,
-    field_name: &str,
+    subject: &str,
     diagnostics: &mut DiagnosticCollector,
 ) -> Vec<ValidatorSpec> {
     let mut validators = Vec::new();
@@ -284,13 +286,13 @@ pub fn extract_validators(
         if remainder.starts_with(':') || remainder.starts_with('=') {
             let value_start = &remainder[1..].trim_start();
             if value_start.starts_with('[') {
-                return parse_validator_array(value_start, decorator_span, field_name, diagnostics);
+                return parse_validator_array(value_start, decorator_span, subject, diagnostics);
             } else {
                 diagnostics.error(
                     decorator_span,
                     format!(
-                        "field '{}': validate must be an array, e.g., validate: [\"email\"]",
-                        field_name
+                        "{}: validate must be an array, e.g., validate: [\"email\"]",
+                        subject
                     ),
                 );
                 return validators;
@@ -339,14 +341,11 @@ pub fn extract_validators(
                     if let Some(help) = err.help {
                         diagnostics.error_with_help(
                             decorator_span,
-                            format!("field '{}': {}", field_name, err.message),
+                            format!("{}: {}", subject, err.message),
                             help,
                         );
                     } else {
-                        diagnostics.error(
-                            decorator_span,
-                            format!("field '{}': {}", field_name, err.message),
-                        );
+                        diagnostics.error(decorator_span, format!("{}: {}", subject, err.message));
                     }
                 }
             }
@@ -410,7 +409,7 @@ fn split_decorator_args(input: &str) -> Vec<String> {
 fn parse_validator_array(
     input: &str,
     decorator_span: SpanIR,
-    field_name: &str,
+    subject: &str,
     diagnostics: &mut DiagnosticCollector,
 ) -> Vec<ValidatorSpec> {
     let mut validators = Vec::new();
@@ -419,7 +418,7 @@ fn parse_validator_array(
     let Some(content) = extract_bracket_content(input, '[', ']') else {
         diagnostics.error(
             decorator_span,
-            format!("field '{}': malformed validator array", field_name),
+            format!("{}: malformed validator array", subject),
         );
         return validators;
     };
@@ -435,14 +434,11 @@ fn parse_validator_array(
                     if let Some(help) = err.help {
                         diagnostics.error_with_help(
                             decorator_span,
-                            format!("field '{}': {}", field_name, err.message),
+                            format!("{}: {}", subject, err.message),
                             help,
                         );
                     } else {
-                        diagnostics.error(
-                            decorator_span,
-                            format!("field '{}': {}", field_name, err.message),
-                        );
+                        diagnostics.error(decorator_span, format!("{}: {}", subject, err.message));
                     }
                 }
             }
@@ -458,14 +454,12 @@ fn parse_validator_array(
                         if let Some(help) = err.help {
                             diagnostics.error_with_help(
                                 decorator_span,
-                                format!("field '{}': {}", field_name, err.message),
+                                format!("{}: {}", subject, err.message),
                                 help,
                             );
                         } else {
-                            diagnostics.error(
-                                decorator_span,
-                                format!("field '{}': {}", field_name, err.message),
-                            );
+                            diagnostics
+                                .error(decorator_span, format!("{}: {}", subject, err.message));
                         }
                     }
                 }

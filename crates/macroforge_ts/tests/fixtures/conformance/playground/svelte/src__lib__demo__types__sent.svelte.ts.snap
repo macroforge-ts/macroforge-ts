@@ -241,8 +241,43 @@ method: null,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_recipient = obj["recipient"] as string | null;
-                                                instance.recipient = __raw_recipient;
+                                const __raw_recipient = obj["recipient"] as string | null;if (!(typeof __raw_recipient === "string" || __raw_recipient === null)) {
+                                                        errors.push({ field: "recipient", message: "expected string | null" });
+                                                    } else {
+                                                        instance.recipient = __raw_recipient;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -502,8 +537,43 @@ method: null,
 
 
                             }{
-                                const __raw_method = obj["method"] as string | null;
-                                                instance.method = __raw_method;
+                                const __raw_method = obj["method"] as string | null;if (!(typeof __raw_method === "string" || __raw_method === null)) {
+                                                        errors.push({ field: "method", message: "expected string | null" });
+                                                    } else {
+                                                        instance.method = __raw_method;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1331,6 +1401,82 @@ method: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Sent;
@@ -1541,7 +1687,18 @@ method: null,
             return toExit(sentDecode(obj));
         }
 
-export const Sent = {
+export const Sent: {
+  readonly defaultValue: typeof sentDefaultValue;
+  readonly encode: typeof sentEncode;
+  readonly encodeWithContext: typeof sentEncodeWithContext;
+  readonly decode: typeof sentDecode;
+  readonly decodeWithContext: typeof sentDecodeWithContext;
+  readonly validateFields: typeof sentValidateFields;
+  readonly hasShape: typeof sentHasShape;
+  readonly is: typeof sentIs;
+  readonly createForm: typeof sentCreateForm;
+  readonly fromFormData: typeof sentFromFormData;
+} = {
   defaultValue: sentDefaultValue,
   encode: sentEncode,
   encodeWithContext: sentEncodeWithContext,
@@ -1552,7 +1709,7 @@ export const Sent = {
   is: sentIs,
   createForm: sentCreateForm,
   fromFormData: sentFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1776,8 +1933,43 @@ method: null,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_recipient = obj["recipient"] as string | null;
-                                                instance.recipient = __raw_recipient;
+                                const __raw_recipient = obj["recipient"] as string | null;if (!(typeof __raw_recipient === "string" || __raw_recipient === null)) {
+                                                        errors.push({ field: "recipient", message: "expected string | null" });
+                                                    } else {
+                                                        instance.recipient = __raw_recipient;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2037,8 +2229,43 @@ method: null,
 
 
                             }{
-                                const __raw_method = obj["method"] as string | null;
-                                                instance.method = __raw_method;
+                                const __raw_method = obj["method"] as string | null;if (!(typeof __raw_method === "string" || __raw_method === null)) {
+                                                        errors.push({ field: "method", message: "expected string | null" });
+                                                    } else {
+                                                        instance.method = __raw_method;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2866,6 +3093,82 @@ method: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Sent;
@@ -3076,7 +3379,18 @@ method: null,
             return toExit(sentDecode(obj));
         }
 
-export const Sent = {
+export const Sent: {
+  readonly defaultValue: typeof sentDefaultValue;
+  readonly encode: typeof sentEncode;
+  readonly encodeWithContext: typeof sentEncodeWithContext;
+  readonly decode: typeof sentDecode;
+  readonly decodeWithContext: typeof sentDecodeWithContext;
+  readonly validateFields: typeof sentValidateFields;
+  readonly hasShape: typeof sentHasShape;
+  readonly is: typeof sentIs;
+  readonly createForm: typeof sentCreateForm;
+  readonly fromFormData: typeof sentFromFormData;
+} = {
   defaultValue: sentDefaultValue,
   encode: sentEncode,
   encodeWithContext: sentEncodeWithContext,
@@ -3087,7 +3401,7 @@ export const Sent = {
   is: sentIs,
   createForm: sentCreateForm,
   fromFormData: sentFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3095,14 +3409,15 @@ export const Sent = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..190 -> expanded 58..141
-original 190..191 -> expanded 12757..12758
-generated 141..274 <- Default
-generated 274..1781 <- Encode
-generated 1781..7398 <- Decode
-generated 7398..12415 <- Gigaform
-generated 12415..12757 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..190 -> expanded 627..710
+original 190..191 -> expanded 14569..14570
+generated 0..569 <- imports
+generated 710..843 <- Default
+generated 843..2350 <- Encode
+generated 2350..8746 <- Decode
+generated 8746..13763 <- Gigaform
+generated 13763..14569 <- __convenience_const
 
 ## Metadata
 

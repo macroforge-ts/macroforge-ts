@@ -111,7 +111,46 @@ interface Point {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_x = obj["x"] as number;instance.x = __raw_x;
+                                const __raw_x = obj["x"] as number;if (!(typeof __raw_x === "number")) {
+                                                    errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.x = __raw_x;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -371,7 +410,46 @@ interface Point {
 
 
                             }{
-                                const __raw_y = obj["y"] as number;instance.y = __raw_y;
+                                const __raw_y = obj["y"] as number;if (!(typeof __raw_y === "number")) {
+                                                    errors.push({ field: "y", message: __raw_y == null ? "Point.y is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.y = __raw_y;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1199,6 +1277,82 @@ interface Point {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Point;
@@ -1257,13 +1411,19 @@ interface Point {
                 return result.success;
             }
 
-const Point = {
+const Point: {
+  readonly decode: typeof pointDecode;
+  readonly decodeWithContext: typeof pointDecodeWithContext;
+  readonly validateFields: typeof pointValidateFields;
+  readonly hasShape: typeof pointHasShape;
+  readonly is: typeof pointIs;
+} = {
   decode: pointDecode,
   decodeWithContext: pointDecodeWithContext,
   validateFields: pointValidateFields,
   hasShape: pointHasShape,
   is: pointIs
-} as const;
+};
 
 ## DTS
 
@@ -1356,7 +1516,46 @@ interface Point {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_x = obj["x"] as number;instance.x = __raw_x;
+                                const __raw_x = obj["x"] as number;if (!(typeof __raw_x === "number")) {
+                                                    errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.x = __raw_x;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1616,7 +1815,46 @@ interface Point {
 
 
                             }{
-                                const __raw_y = obj["y"] as number;instance.y = __raw_y;
+                                const __raw_y = obj["y"] as number;if (!(typeof __raw_y === "number")) {
+                                                    errors.push({ field: "y", message: __raw_y == null ? "Point.y is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.y = __raw_y;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2444,6 +2682,82 @@ interface Point {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Point;
@@ -2502,13 +2816,19 @@ interface Point {
                 return result.success;
             }
 
-const Point = {
+const Point: {
+  readonly decode: typeof pointDecode;
+  readonly decodeWithContext: typeof pointDecodeWithContext;
+  readonly validateFields: typeof pointValidateFields;
+  readonly hasShape: typeof pointHasShape;
+  readonly is: typeof pointIs;
+} = {
   decode: pointDecode,
   decodeWithContext: pointDecodeWithContext,
   validateFields: pointValidateFields,
   hasShape: pointHasShape,
   is: pointIs
-} as const;
+};
 
 ## Diagnostics
 
@@ -2516,10 +2836,11 @@ const Point = {
 
 ## Mapping
 
-original 22..72 -> expanded 0..50
-original 72..73 -> expanded 5659..5660
-generated 50..5482 <- Decode
-generated 5482..5659 <- __convenience_const
+original 22..72 -> expanded 307..357
+original 72..73 -> expanded 7033..7034
+generated 0..307 <- imports
+generated 357..6631 <- Decode
+generated 6631..7033 <- __convenience_const
 
 ## Metadata
 

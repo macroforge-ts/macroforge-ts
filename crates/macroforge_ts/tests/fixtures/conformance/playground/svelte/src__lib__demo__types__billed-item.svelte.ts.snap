@@ -534,234 +534,6 @@ upsale: false,
 
 
 
-                            }{
-                                const __raw_quantity = obj["quantity"] as number;instance.quantity = __raw_quantity;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -795,7 +567,46 @@ upsale: false,
 
 
                             }{
-                                const __raw_taxed = obj["taxed"] as boolean;instance.taxed = __raw_taxed;
+                                const __raw_quantity = obj["quantity"] as number;if (!(typeof __raw_quantity === "number")) {
+                                                    errors.push({ field: "quantity", message: __raw_quantity == null ? "BilledItem.quantity is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.quantity = __raw_quantity;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1055,7 +866,345 @@ upsale: false,
 
 
                             }{
-                                const __raw_upsale = obj["upsale"] as boolean;instance.upsale = __raw_upsale;
+                                const __raw_taxed = obj["taxed"] as boolean;if (!(typeof __raw_taxed === "boolean")) {
+                                                    errors.push({ field: "taxed", message: __raw_taxed == null ? "BilledItem.taxed is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.taxed = __raw_taxed;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_upsale = obj["upsale"] as boolean;if (!(typeof __raw_upsale === "boolean")) {
+                                                    errors.push({ field: "upsale", message: __raw_upsale == null ? "BilledItem.upsale is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.upsale = __raw_upsale;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1315,6 +1464,82 @@ upsale: false,
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2183,7 +2408,18 @@ upsale: false,
             return toExit(billedItemDecode(obj));
         }
 
-export const BilledItem = {
+export const BilledItem: {
+  readonly defaultValue: typeof billedItemDefaultValue;
+  readonly encode: typeof billedItemEncode;
+  readonly encodeWithContext: typeof billedItemEncodeWithContext;
+  readonly decode: typeof billedItemDecode;
+  readonly decodeWithContext: typeof billedItemDecodeWithContext;
+  readonly validateFields: typeof billedItemValidateFields;
+  readonly hasShape: typeof billedItemHasShape;
+  readonly is: typeof billedItemIs;
+  readonly createForm: typeof billedItemCreateForm;
+  readonly fromFormData: typeof billedItemFromFormData;
+} = {
   defaultValue: billedItemDefaultValue,
   encode: billedItemEncode,
   encodeWithContext: billedItemEncodeWithContext,
@@ -2194,7 +2430,7 @@ export const BilledItem = {
   is: billedItemIs,
   createForm: billedItemCreateForm,
   fromFormData: billedItemFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2709,234 +2945,6 @@ upsale: false,
 
 
 
-                            }{
-                                const __raw_quantity = obj["quantity"] as number;instance.quantity = __raw_quantity;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2970,7 +2978,46 @@ upsale: false,
 
 
                             }{
-                                const __raw_taxed = obj["taxed"] as boolean;instance.taxed = __raw_taxed;
+                                const __raw_quantity = obj["quantity"] as number;if (!(typeof __raw_quantity === "number")) {
+                                                    errors.push({ field: "quantity", message: __raw_quantity == null ? "BilledItem.quantity is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.quantity = __raw_quantity;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3230,7 +3277,345 @@ upsale: false,
 
 
                             }{
-                                const __raw_upsale = obj["upsale"] as boolean;instance.upsale = __raw_upsale;
+                                const __raw_taxed = obj["taxed"] as boolean;if (!(typeof __raw_taxed === "boolean")) {
+                                                    errors.push({ field: "taxed", message: __raw_taxed == null ? "BilledItem.taxed is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.taxed = __raw_taxed;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_upsale = obj["upsale"] as boolean;if (!(typeof __raw_upsale === "boolean")) {
+                                                    errors.push({ field: "upsale", message: __raw_upsale == null ? "BilledItem.upsale is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.upsale = __raw_upsale;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3490,6 +3875,82 @@ upsale: false,
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4358,7 +4819,18 @@ upsale: false,
             return toExit(billedItemDecode(obj));
         }
 
-export const BilledItem = {
+export const BilledItem: {
+  readonly defaultValue: typeof billedItemDefaultValue;
+  readonly encode: typeof billedItemEncode;
+  readonly encodeWithContext: typeof billedItemEncodeWithContext;
+  readonly decode: typeof billedItemDecode;
+  readonly decodeWithContext: typeof billedItemDecodeWithContext;
+  readonly validateFields: typeof billedItemValidateFields;
+  readonly hasShape: typeof billedItemHasShape;
+  readonly is: typeof billedItemIs;
+  readonly createForm: typeof billedItemCreateForm;
+  readonly fromFormData: typeof billedItemFromFormData;
+} = {
   defaultValue: billedItemDefaultValue,
   encode: billedItemEncode,
   encodeWithContext: billedItemEncodeWithContext,
@@ -4369,7 +4841,7 @@ export const BilledItem = {
   is: billedItemIs,
   createForm: billedItemCreateForm,
   fromFormData: billedItemFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -4377,19 +4849,20 @@ export const BilledItem = {
 
 ## Mapping
 
-original 0..102 -> expanded 0..102
-original 151..186 -> expanded 102..137
-original 297..302 -> expanded 137..142
-original 321..342 -> expanded 142..163
-original 406..433 -> expanded 163..190
-original 477..502 -> expanded 190..215
-original 547..570 -> expanded 215..238
-original 570..571 -> expanded 19089..19090
-generated 238..404 <- Default
-generated 404..2025 <- Encode
-generated 2025..9942 <- Decode
-generated 9942..18681 <- Gigaform
-generated 18681..19089 <- __convenience_const
+original 0..102 -> expanded 679..781
+original 151..186 -> expanded 781..816
+original 297..302 -> expanded 816..821
+original 321..342 -> expanded 821..842
+original 406..433 -> expanded 842..869
+original 477..502 -> expanded 869..894
+original 547..570 -> expanded 894..917
+original 570..571 -> expanded 21632..21633
+generated 0..679 <- imports
+generated 917..1083 <- Default
+generated 1083..2704 <- Encode
+generated 2704..11961 <- Decode
+generated 11961..20700 <- Gigaform
+generated 20700..21632 <- __convenience_const
 
 ## Metadata
 

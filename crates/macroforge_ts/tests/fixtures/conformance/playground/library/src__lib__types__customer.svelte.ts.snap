@@ -516,8 +516,79 @@ email: "",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_email = obj["email"] as string;instance.email = __raw_email;
+                                const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                    errors.push({ field: "email", message: __raw_email == null ? "Customer.email is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.email = __raw_email;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1345,6 +1416,82 @@ email: "",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Customer;
@@ -1403,7 +1550,16 @@ email: "",
                 return result.success;
             }
 
-export const Customer = {
+export const Customer: {
+  readonly defaultValue: typeof customerDefaultValue;
+  readonly encode: typeof customerEncode;
+  readonly encodeWithContext: typeof customerEncodeWithContext;
+  readonly decode: typeof customerDecode;
+  readonly decodeWithContext: typeof customerDecodeWithContext;
+  readonly validateFields: typeof customerValidateFields;
+  readonly hasShape: typeof customerHasShape;
+  readonly is: typeof customerIs;
+} = {
   defaultValue: customerDefaultValue,
   encode: customerEncode,
   encodeWithContext: customerEncodeWithContext,
@@ -1412,7 +1568,7 @@ export const Customer = {
   validateFields: customerValidateFields,
   hasShape: customerHasShape,
   is: customerIs
-} as const;
+};
 
 ## DTS
 
@@ -1912,8 +2068,79 @@ email: "",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_email = obj["email"] as string;instance.email = __raw_email;
+                                const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                    errors.push({ field: "email", message: __raw_email == null ? "Customer.email is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.email = __raw_email;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2741,6 +2968,82 @@ email: "",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Customer;
@@ -2799,7 +3102,16 @@ email: "",
                 return result.success;
             }
 
-export const Customer = {
+export const Customer: {
+  readonly defaultValue: typeof customerDefaultValue;
+  readonly encode: typeof customerEncode;
+  readonly encodeWithContext: typeof customerEncodeWithContext;
+  readonly decode: typeof customerDecode;
+  readonly decodeWithContext: typeof customerDecodeWithContext;
+  readonly validateFields: typeof customerValidateFields;
+  readonly hasShape: typeof customerHasShape;
+  readonly is: typeof customerIs;
+} = {
   defaultValue: customerDefaultValue,
   encode: customerEncode,
   encodeWithContext: customerEncodeWithContext,
@@ -2808,7 +3120,7 @@ export const Customer = {
   validateFields: customerValidateFields,
   hasShape: customerHasShape,
   is: customerIs
-} as const;
+};
 
 ## Diagnostics
 
@@ -2816,13 +3128,14 @@ export const Customer = {
 
 ## Mapping
 
-original 0..53 -> expanded 0..53
-original 92..163 -> expanded 53..124
-original 163..164 -> expanded 8895..8896
-generated 124..277 <- Default
-generated 277..1830 <- Encode
-generated 1830..8581 <- Decode
-generated 8581..8895 <- __convenience_const
+original 0..53 -> expanded 572..625
+original 92..163 -> expanded 625..696
+original 163..164 -> expanded 10377..10378
+generated 0..572 <- imports
+generated 696..849 <- Default
+generated 849..2402 <- Encode
+generated 2402..9663 <- Decode
+generated 9663..10377 <- __convenience_const
 
 ## Metadata
 

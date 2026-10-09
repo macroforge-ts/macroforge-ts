@@ -49,6 +49,15 @@
 //! `Decode` additionally generates `static is(value)` / `static hasShape(obj)` type
 //! guards and `validateField`/`validateFields` helpers; see [`endec`] for the full surface.
 //!
+//! ## Type-Position Macros
+//!
+//! | Macro | Expands To | Description |
+//! |-------|------------|-------------|
+//! | `$Newtype<T>` | `T & { readonly [brand]: true }` | Nominal brand backed by a per-site `unique symbol` |
+//!
+//! A `$Newtype` over a primitive gets checked `decode` / `is` from `Decode`,
+//! including validators written on the alias itself; see [`newtype`].
+//!
 //! ## Field-Level Decorators
 //!
 //! Most macros support field-level decorators to customize behavior:
@@ -108,6 +117,9 @@ mod derive_partial_ord;
 
 /// Encoding macros (Encode, Decode).
 pub mod endec;
+
+/// `$Newtype<T>` type-position macro (nominal symbol brands).
+pub mod newtype;
 
 /// Return type code generation helpers for Decode and PartialOrd macros.
 pub mod return_types;

@@ -314,10 +314,14 @@ lastLoginAt: (() => Option.none())(),
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "User.id is required" : "expected string" });
+                                                } else {
 
 
 
+                                                    instance.id = __raw_id;
+                                                }
 
 
 
@@ -573,12 +577,90 @@ lastLoginAt: (() => Option.none())(),
 
 
 
-                            }instance.email = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["email"]);{
-                                const __raw_firstName = obj["firstName"] as string;
-                                            if (__raw_firstName == null) { errors.push({ field: "firstName", message: "User.firstName is required" }); } else {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.email = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["email"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "email", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }{
+                                const __raw_firstName = obj["firstName"] as string;if (!(typeof __raw_firstName === "string")) {
+                                                    errors.push({ field: "firstName", message: __raw_firstName == null ? "User.firstName is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_firstName == null) { errors.push({ field: "firstName", message: "User.firstName is required" }); } else {
 if (__raw_firstName.length === 0) { errors.push({ field: "firstName", message: "User.firstName must not be empty" }); }
 }
-instance.firstName = __raw_firstName;
+
+
+
+
+                                                    instance.firstName = __raw_firstName;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -838,15 +920,18 @@ instance.firstName = __raw_firstName;
 
 
                             }{
-                                const __raw_lastName = obj["lastName"] as string;
-                                            if (__raw_lastName == null) { errors.push({ field: "lastName", message: "User.lastName is required" }); } else {
+                                const __raw_lastName = obj["lastName"] as string;if (!(typeof __raw_lastName === "string")) {
+                                                    errors.push({ field: "lastName", message: __raw_lastName == null ? "User.lastName is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_lastName == null) { errors.push({ field: "lastName", message: "User.lastName is required" }); } else {
 if (__raw_lastName.length === 0) { errors.push({ field: "lastName", message: "User.lastName must not be empty" }); }
 }
-instance.lastName = __raw_lastName;
 
 
 
 
+                                                    instance.lastName = __raw_lastName;
+                                                }
 
 
 
@@ -1101,7 +1186,51 @@ instance.lastName = __raw_lastName;
 
 
 
-                            }instance.password = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["password"]);instance.metadata = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["metadata"]);{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.password = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["password"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "password", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }try {
+                                        instance.metadata = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["metadata"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "metadata", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }{
                                 const __raw_settings = obj["settings"] as Settings;ctx.pushScope("settings");
                                             try {
                                                 const __result = settingsDecodeWithContext(__raw_settings, ctx);
@@ -1120,6 +1249,38 @@ instance.lastName = __raw_lastName;
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1655,11 +1816,47 @@ instance.lastName = __raw_lastName;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_emailVerified = obj["emailVerified"] as boolean;instance.emailVerified = __raw_emailVerified;
+                                const __raw_emailVerified = obj["emailVerified"] as boolean;if (!(typeof __raw_emailVerified === "boolean")) {
+                                                    errors.push({ field: "emailVerified", message: __raw_emailVerified == null ? "User.emailVerified is required" : "expected boolean" });
+                                                } else {
 
 
 
+                                                    instance.emailVerified = __raw_emailVerified;
+                                                }
 
 
 
@@ -1915,7 +2112,58 @@ instance.lastName = __raw_lastName;
 
 
 
-                            }instance.verificationToken = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["verificationToken"]);instance.verificationExpires = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["verificationExpires"]);instance.passwordResetToken = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["passwordResetToken"]);instance.passwordResetExpires = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["passwordResetExpires"]);{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.verificationToken = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["verificationToken"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "verificationToken", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }try {
+                                        instance.verificationExpires = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["verificationExpires"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "verificationExpires", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }try {
+                                        instance.passwordResetToken = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["passwordResetToken"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "passwordResetToken", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }try {
+                                        instance.passwordResetExpires = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["passwordResetExpires"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "passwordResetExpires", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }{
                                 const __raw_permissions = obj["permissions"] as AppPermissions;ctx.pushScope("permissions");
                                             try {
                                                 const __result = appPermissionsDecodeWithContext(__raw_permissions, ctx);
@@ -2192,7 +2440,123 @@ instance.lastName = __raw_lastName;
 
 
 
-                            }instance.createdAt = ((raw: unknown) => __mf_DateTime.unsafeMake(raw as __mf_DateTime.DateTime.Input))(obj["createdAt"]);instance.lastLoginAt = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["lastLoginAt"]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.createdAt = ((raw: unknown) => __mf_DateTime.unsafeMake(raw as __mf_DateTime.DateTime.Input))(obj["createdAt"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "createdAt", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }try {
+                                        instance.lastLoginAt = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["lastLoginAt"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "lastLoginAt", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3682,7 +4046,18 @@ if (__val.length === 0) { errors.push({ field: "lastName", message: "User.lastNa
             return toExit(userDecode(obj));
         }
 
-export const User = {
+export const User: {
+  readonly defaultValue: typeof userDefaultValue;
+  readonly encode: typeof userEncode;
+  readonly encodeWithContext: typeof userEncodeWithContext;
+  readonly decode: typeof userDecode;
+  readonly decodeWithContext: typeof userDecodeWithContext;
+  readonly validateFields: typeof userValidateFields;
+  readonly hasShape: typeof userHasShape;
+  readonly is: typeof userIs;
+  readonly createForm: typeof userCreateForm;
+  readonly fromFormData: typeof userFromFormData;
+} = {
   defaultValue: userDefaultValue,
   encode: userEncode,
   encodeWithContext: userEncodeWithContext,
@@ -3693,7 +4068,7 @@ export const User = {
   is: userIs,
   createForm: userCreateForm,
   fromFormData: userFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -3982,10 +4357,14 @@ lastLoginAt: (() => Option.none())(),
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "User.id is required" : "expected string" });
+                                                } else {
 
 
 
+                                                    instance.id = __raw_id;
+                                                }
 
 
 
@@ -4241,12 +4620,90 @@ lastLoginAt: (() => Option.none())(),
 
 
 
-                            }instance.email = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["email"]);{
-                                const __raw_firstName = obj["firstName"] as string;
-                                            if (__raw_firstName == null) { errors.push({ field: "firstName", message: "User.firstName is required" }); } else {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.email = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["email"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "email", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }{
+                                const __raw_firstName = obj["firstName"] as string;if (!(typeof __raw_firstName === "string")) {
+                                                    errors.push({ field: "firstName", message: __raw_firstName == null ? "User.firstName is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_firstName == null) { errors.push({ field: "firstName", message: "User.firstName is required" }); } else {
 if (__raw_firstName.length === 0) { errors.push({ field: "firstName", message: "User.firstName must not be empty" }); }
 }
-instance.firstName = __raw_firstName;
+
+
+
+
+                                                    instance.firstName = __raw_firstName;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4506,15 +4963,18 @@ instance.firstName = __raw_firstName;
 
 
                             }{
-                                const __raw_lastName = obj["lastName"] as string;
-                                            if (__raw_lastName == null) { errors.push({ field: "lastName", message: "User.lastName is required" }); } else {
+                                const __raw_lastName = obj["lastName"] as string;if (!(typeof __raw_lastName === "string")) {
+                                                    errors.push({ field: "lastName", message: __raw_lastName == null ? "User.lastName is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_lastName == null) { errors.push({ field: "lastName", message: "User.lastName is required" }); } else {
 if (__raw_lastName.length === 0) { errors.push({ field: "lastName", message: "User.lastName must not be empty" }); }
 }
-instance.lastName = __raw_lastName;
 
 
 
 
+                                                    instance.lastName = __raw_lastName;
+                                                }
 
 
 
@@ -4769,7 +5229,51 @@ instance.lastName = __raw_lastName;
 
 
 
-                            }instance.password = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["password"]);instance.metadata = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["metadata"]);{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.password = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["password"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "password", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }try {
+                                        instance.metadata = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["metadata"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "metadata", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }{
                                 const __raw_settings = obj["settings"] as Settings;ctx.pushScope("settings");
                                             try {
                                                 const __result = settingsDecodeWithContext(__raw_settings, ctx);
@@ -4788,6 +5292,38 @@ instance.lastName = __raw_lastName;
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5323,11 +5859,47 @@ instance.lastName = __raw_lastName;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_emailVerified = obj["emailVerified"] as boolean;instance.emailVerified = __raw_emailVerified;
+                                const __raw_emailVerified = obj["emailVerified"] as boolean;if (!(typeof __raw_emailVerified === "boolean")) {
+                                                    errors.push({ field: "emailVerified", message: __raw_emailVerified == null ? "User.emailVerified is required" : "expected boolean" });
+                                                } else {
 
 
 
+                                                    instance.emailVerified = __raw_emailVerified;
+                                                }
 
 
 
@@ -5583,7 +6155,58 @@ instance.lastName = __raw_lastName;
 
 
 
-                            }instance.verificationToken = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["verificationToken"]);instance.verificationExpires = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["verificationExpires"]);instance.passwordResetToken = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["passwordResetToken"]);instance.passwordResetExpires = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["passwordResetExpires"]);{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.verificationToken = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["verificationToken"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "verificationToken", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }try {
+                                        instance.verificationExpires = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["verificationExpires"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "verificationExpires", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }try {
+                                        instance.passwordResetToken = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["passwordResetToken"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "passwordResetToken", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }try {
+                                        instance.passwordResetExpires = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["passwordResetExpires"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "passwordResetExpires", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }{
                                 const __raw_permissions = obj["permissions"] as AppPermissions;ctx.pushScope("permissions");
                                             try {
                                                 const __result = appPermissionsDecodeWithContext(__raw_permissions, ctx);
@@ -5860,7 +6483,123 @@ instance.lastName = __raw_lastName;
 
 
 
-                            }instance.createdAt = ((raw: unknown) => __mf_DateTime.unsafeMake(raw as __mf_DateTime.DateTime.Input))(obj["createdAt"]);instance.lastLoginAt = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["lastLoginAt"]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }try {
+                                        instance.createdAt = ((raw: unknown) => __mf_DateTime.unsafeMake(raw as __mf_DateTime.DateTime.Input))(obj["createdAt"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "createdAt", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }try {
+                                        instance.lastLoginAt = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["lastLoginAt"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "lastLoginAt", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7350,7 +8089,18 @@ if (__val.length === 0) { errors.push({ field: "lastName", message: "User.lastNa
             return toExit(userDecode(obj));
         }
 
-export const User = {
+export const User: {
+  readonly defaultValue: typeof userDefaultValue;
+  readonly encode: typeof userEncode;
+  readonly encodeWithContext: typeof userEncodeWithContext;
+  readonly decode: typeof userDecode;
+  readonly decodeWithContext: typeof userDecodeWithContext;
+  readonly validateFields: typeof userValidateFields;
+  readonly hasShape: typeof userHasShape;
+  readonly is: typeof userIs;
+  readonly createForm: typeof userCreateForm;
+  readonly fromFormData: typeof userFromFormData;
+} = {
   defaultValue: userDefaultValue,
   encode: userEncode,
   encodeWithContext: userEncodeWithContext,
@@ -7361,7 +8111,7 @@ export const User = {
   is: userIs,
   createForm: userCreateForm,
   fromFormData: userFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -7369,17 +8119,18 @@ export const User = {
 
 ## Mapping
 
-original 0..325 -> expanded 0..325
-original 374..453 -> expanded 325..404
-original 494..522 -> expanded 404..432
-original 563..690 -> expanded 432..559
-original 722..1102 -> expanded 559..939
-original 1102..1103 -> expanded 55000..55001
-generated 939..1570 <- Default
-generated 1570..4220 <- Encode
-generated 4220..21301 <- Decode
-generated 21301..54658 <- Gigaform
-generated 54658..55000 <- __convenience_const
+original 0..325 -> expanded 1123..1448
+original 374..453 -> expanded 1448..1527
+original 494..522 -> expanded 1527..1555
+original 563..690 -> expanded 1555..1682
+original 722..1102 -> expanded 1682..2062
+original 1102..1103 -> expanded 61051..61052
+generated 0..1123 <- imports
+generated 2062..2693 <- Default
+generated 2693..5343 <- Encode
+generated 5343..26888 <- Decode
+generated 26888..60245 <- Gigaform
+generated 60245..61051 <- __convenience_const
 
 ## Metadata
 

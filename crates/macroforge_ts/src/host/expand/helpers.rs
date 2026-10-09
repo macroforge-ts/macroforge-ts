@@ -80,7 +80,7 @@ pub(super) fn generate_convenience_export(
             let entries: Vec<String> = functions
                 .iter()
                 .map(|(full_name, short_name)| {
-                    format!("  export const {} = {};", short_name, full_name)
+                    format!("  export const {short_name}: typeof {full_name} = {full_name};")
                 })
                 .collect();
 
@@ -92,16 +92,22 @@ pub(super) fn generate_convenience_export(
             )
         }
         _ => {
-            // Interfaces and type aliases use const object
+            // Interfaces and type aliases use a const object. Its type is written
+            // out so `--isolatedDeclarations` (and JSR) can emit it unaided.
+            let members: Vec<String> = functions
+                .iter()
+                .map(|(full_name, short_name)| {
+                    format!("  readonly {short_name}: typeof {full_name};")
+                })
+                .collect();
             let entries: Vec<String> = functions
                 .iter()
-                .map(|(full_name, short_name)| format!("  {}: {}", short_name, full_name))
+                .map(|(full_name, short_name)| format!("  {short_name}: {full_name}"))
                 .collect();
 
             format!(
-                "{}const {} = {{\n{}\n}} as const;",
-                export_keyword,
-                type_name,
+                "{export_keyword}const {type_name}: {{\n{}\n}} = {{\n{}\n}};",
+                members.join("\n"),
                 entries.join(",\n")
             )
         }

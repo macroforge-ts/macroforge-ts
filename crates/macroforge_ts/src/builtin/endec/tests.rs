@@ -1,4 +1,8 @@
-use super::*;
+use super::{
+    EndecContainerOptions, EndecFieldOptions, RenameAll, TaggingMode, TypeCategory, Validator,
+    extract_validators,
+};
+use crate::ts_syn::abi::ir::split_top_level_union;
 use crate::ts_syn::abi::{DiagnosticCollector, SpanIR};
 
 fn span() -> SpanIR {
@@ -396,7 +400,7 @@ fn test_extract_validators_from_args() {
     let validators = extract_validators(
         r#"{ validate: ["email", "maxLength(255)"] }"#,
         span(),
-        "test_field",
+        "field 'test_field'",
         &mut diagnostics,
     );
     assert_eq!(validators.len(), 2);
@@ -411,7 +415,7 @@ fn test_extract_validators_with_message() {
     let validators = extract_validators(
         r#"{ validate: [{ validate: "email", message: "Invalid email!" }] }"#,
         span(),
-        "test_field",
+        "field 'test_field'",
         &mut diagnostics,
     );
     assert_eq!(validators.len(), 1);
@@ -429,7 +433,7 @@ fn test_extract_validators_mixed() {
     let validators = extract_validators(
         r#"{ validate: ["nonEmpty", { validate: "email", message: "Bad email" }] }"#,
         span(),
-        "test_field",
+        "field 'test_field'",
         &mut diagnostics,
     );
     assert_eq!(validators.len(), 2);
@@ -744,7 +748,7 @@ fn test_extract_validators_collects_errors() {
     let validators = extract_validators(
         r#"{ validate: ["unknownValidator", "email"] }"#,
         span(),
-        "test_field",
+        "field 'test_field'",
         &mut diagnostics,
     );
     // Should still extract the valid "email" validator
@@ -761,7 +765,7 @@ fn test_extract_validators_multiple_errors() {
     let validators = extract_validators(
         r#"{ validate: ["unknown1", "unknown2", "email"] }"#,
         span(),
-        "test_field",
+        "field 'test_field'",
         &mut diagnostics,
     );
     // Should still extract the valid "email" validator

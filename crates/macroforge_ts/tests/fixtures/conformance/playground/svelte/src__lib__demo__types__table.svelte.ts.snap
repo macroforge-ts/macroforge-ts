@@ -157,8 +157,8 @@ export function tableDefaultValue(): Table {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function tableDecodeWithContext(value: any, ctx: __mf_DecodeContext): Table | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function tableDecodeWithContext(value: any, _ctx: __mf_DecodeContext): Table | __mf_PendingRef {
                 switch (value) {
                     case 'Account':
                     case 'Did':
@@ -854,7 +854,17 @@ if (variant === "Ordered") { return "Ordered" as Table; }
             return toExit(tableDecode(obj));
         }
 
-export const Table = {
+export const Table: {
+  readonly defaultValue: typeof tableDefaultValue;
+  readonly encode: typeof tableEncode;
+  readonly encodeWithContext: typeof tableEncodeWithContext;
+  readonly decode: typeof tableDecode;
+  readonly decodeWithContext: typeof tableDecodeWithContext;
+  readonly hasShape: typeof tableHasShape;
+  readonly is: typeof tableIs;
+  readonly createForm: typeof tableCreateForm;
+  readonly fromFormData: typeof tableFromFormData;
+} = {
   defaultValue: tableDefaultValue,
   encode: tableEncode,
   encodeWithContext: tableEncodeWithContext,
@@ -864,7 +874,7 @@ export const Table = {
   is: tableIs,
   createForm: tableCreateForm,
   fromFormData: tableFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1004,8 +1014,8 @@ export function tableDefaultValue(): Table {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function tableDecodeWithContext(value: any, ctx: __mf_DecodeContext): Table | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function tableDecodeWithContext(value: any, _ctx: __mf_DecodeContext): Table | __mf_PendingRef {
                 switch (value) {
                     case 'Account':
                     case 'Did':
@@ -1701,7 +1711,17 @@ if (variant === "Ordered") { return "Ordered" as Table; }
             return toExit(tableDecode(obj));
         }
 
-export const Table = {
+export const Table: {
+  readonly defaultValue: typeof tableDefaultValue;
+  readonly encode: typeof tableEncode;
+  readonly encodeWithContext: typeof tableEncodeWithContext;
+  readonly decode: typeof tableDecode;
+  readonly decodeWithContext: typeof tableDecodeWithContext;
+  readonly hasShape: typeof tableHasShape;
+  readonly is: typeof tableIs;
+  readonly createForm: typeof tableCreateForm;
+  readonly fromFormData: typeof tableFromFormData;
+} = {
   defaultValue: tableDefaultValue,
   encode: tableEncode,
   encodeWithContext: tableEncodeWithContext,
@@ -1711,7 +1731,7 @@ export const Table = {
   is: tableIs,
   createForm: tableCreateForm,
   fromFormData: tableFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -1719,14 +1739,15 @@ export const Table = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..425 -> expanded 58..376
-original 425..426 -> expanded 24851..24852
-generated 376..494 <- Default
-generated 494..2387 <- Encode
-generated 2387..6409 <- Decode
-generated 6409..24537 <- Gigaform
-generated 24537..24851 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..425 -> expanded 627..945
+original 425..426 -> expanded 25899..25900
+generated 0..569 <- imports
+generated 945..1063 <- Default
+generated 1063..2956 <- Encode
+generated 2956..7038 <- Decode
+generated 7038..25166 <- Gigaform
+generated 25166..25899 <- __convenience_const
 
 ## Metadata
 

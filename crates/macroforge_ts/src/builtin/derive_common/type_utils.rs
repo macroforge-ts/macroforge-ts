@@ -1,26 +1,117 @@
 use convert_case::{Case, Casing};
 
-use crate::builtin::endec::{TypeCategory, get_foreign_types, split_top_level_union};
-use crate::ts_syn::abi::ir::{FileImportEntry, TypeRegistry, resolve_generic_aliases};
+use crate::builtin::endec::{TypeCategory, get_foreign_types};
+use crate::ts_syn::abi::ir::{
+    FileImportEntry, TypeRegistry, is_primitive_keyword, resolve_generic_aliases,
+    split_top_level_union,
+};
 
-/// Check if a TypeScript type is a primitive type
+/// Check if a TypeScript type is a primitive or opaque built-in keyword, whose
+/// values are compared, hashed and copied by reference or value as they are
 pub fn is_primitive_type(ts_type: &str) -> bool {
-    matches!(
-        ts_type.trim(),
-        "string"
-            | "number"
-            | "boolean"
-            | "bigint"
-            | "null"
-            | "undefined"
-            | "unknown"
-            | "any"
-            | "void"
-            | "never"
-            | "object"
-            | "symbol"
-            | "Function"
-    )
+    is_primitive_keyword(ts_type)
+        || matches!(
+            ts_type.trim(),
+            "unknown" | "any" | "void" | "never" | "object" | "symbol" | "Function"
+        )
+}
+
+/// Statements comparing `a` and `b` of one primitive base and returning
+/// -1, 0 or 1. With `partial`, an unordered pair (NaN) returns `null` and a
+/// string comparison returns `localeCompare` unclamped.
+pub fn primitive_compare_statements(base: &str, partial: bool) -> String {
+    match base {
+        "string" if partial => "return a.localeCompare(b);",
+        "string" => "const cmp = a.localeCompare(b);\nreturn cmp < 0 ? -1 : cmp > 0 ? 1 : 0;",
+        "boolean" => "return a === b ? 0 : a ? 1 : -1;",
+        _ if partial => "return a < b ? -1 : a > b ? 1 : a === b ? 0 : null;",
+        _ => "return a < b ? -1 : a > b ? 1 : 0;",
+    }
+    .to_string()
+}
+
+/// One element of a tuple type, as written in the tuple's source.
+pub struct TupleElement<'a> {
+    /// The element's type, without its label, `?` or `...`.
+    pub ts_type: &'a str,
+    /// Whether this is a rest element (`...T[]`), which takes every remaining
+    /// position.
+    pub rest: bool,
+    /// Whether the element may be absent (`T?` or `name?: T`).
+    pub optional: bool,
+}
+
+/// Reads a tuple element such as `number`, `name: string`, `count?: number`
+/// or `...rest: string[]`.
+pub fn tuple_element(source: &str) -> TupleElement<'_> {
+    let trimmed = source.trim();
+    let (rest, unspread) = match trimmed.strip_prefix("...") {
+        Some(inner) => (true, inner.trim_start()),
+        None => (false, trimmed),
+    };
+    let labeled_optional = unspread
+        .split_once(':')
+        .is_some_and(|(label, _)| label.trim().ends_with('?'));
+    let unlabeled = unspread
+        .split_once(':')
+        .filter(|(label, _)| {
+            let name = label.trim().trim_end_matches('?');
+            !name.is_empty()
+                && name
+                    .chars()
+                    .all(|c| c.is_alphanumeric() || c == '_' || c == '$')
+        })
+        .map_or(unspread, |(_, ty)| ty.trim());
+    TupleElement {
+        ts_type: unlabeled.strip_suffix('?').unwrap_or(unlabeled).trim(),
+        rest,
+        optional: labeled_optional || unlabeled.ends_with('?'),
+    }
+}
+
+/// Statements comparing tuples `a` and `b` element by element, returning the
+/// first non-zero result. `compare` renders one comparison of a type between
+/// two expressions; a `null` from it (a partial order) is returned as is. A
+/// rest element compares the remaining slices as arrays, and tuples equal on
+/// every fixed element order by length.
+pub fn tuple_compare_statements(
+    elements: &[String],
+    compare: impl Fn(&str, &str, &str) -> String,
+) -> String {
+    let mut body = String::new();
+    for (index, source) in elements.iter().enumerate() {
+        let element = tuple_element(source);
+        let (left, right) = if element.rest {
+            (format!("a.slice({index})"), format!("b.slice({index})"))
+        } else {
+            (format!("a[{index}]"), format!("b[{index}]"))
+        };
+        body.push_str(&format!(
+            "const left{index} = {left};\nconst right{index} = {right};\n"
+        ));
+        let typed = compare(
+            element.ts_type,
+            &format!("left{index}"),
+            &format!("right{index}"),
+        );
+        // An absent optional element orders before a present one.
+        let comparison = if element.optional {
+            format!(
+                "left{index} === undefined || right{index} === undefined \
+                 ? (left{index} === right{index} ? 0 : left{index} === undefined ? -1 : 1) \
+                 : {typed}"
+            )
+        } else {
+            typed
+        };
+        body.push_str(&format!(
+            "const cmp{index} = {comparison};\nif (cmp{index} !== 0) return cmp{index};\n"
+        ));
+        if element.rest {
+            return body + "return 0;";
+        }
+    }
+    body + "return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;"
 }
 
 /// Check if a TypeScript type is numeric
@@ -42,7 +133,7 @@ pub fn is_generic_type(type_name: &str) -> bool {
 }
 
 /// Detect the resolved shape of `RecordLink<T> = string | T` and similar
-/// primitive-plus-user-type unions. Returns `(primitive, serializable)` when
+/// primitive-plus-user-type unions. Returns `(primitive, encodable)` when
 /// `ts_type` is a two-member top-level union where exactly one side is a
 /// primitive and the other is a user-defined type (uppercase, non-primitive).
 ///

@@ -1,7 +1,11 @@
 /**
  * Validator form model for E2E testing.
- * Tests string, number, array, and date validators with real form validation.
+ * Tests string, number, array, and date validators with real form validation,
+ * and newtypes and a validated union arm as field types.
  */
+
+import type { Contact } from './validators/union-arm-validator-tests.ts';
+import type { Cents, Meters, Username } from './validators/newtype-validator-tests.ts';
 
 /** @derive(Decode) */
 export class UserRegistrationForm {
@@ -54,6 +58,17 @@ export class EventForm {
     maxAttendees: number;
 }
 
+/** @derive(Decode) */
+export class MeasurementForm {
+    runner: Username;
+
+    distance: Meters;
+
+    cents: Cents;
+
+    contact: Contact;
+}
+
 // Type for validation result (matches macroforge's vanilla return type)
 export type ValidationResult<T> =
     | {
@@ -78,4 +93,8 @@ export function validateProduct(data: unknown): ValidationResult<ProductForm> {
 export function validateEvent(data: unknown): ValidationResult<EventForm> {
     const result = EventForm.decode(JSON.stringify(data));
     return result;
+}
+
+export function validateMeasurement(data: unknown): ValidationResult<MeasurementForm> {
+    return MeasurementForm.decode(data);
 }
