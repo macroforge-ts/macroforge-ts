@@ -129,8 +129,8 @@ export function rowHeightDefaultValue(): RowHeight {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function rowHeightDecodeWithContext(value: any, ctx: __mf_DecodeContext): RowHeight | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function rowHeightDecodeWithContext(value: any, _ctx: __mf_DecodeContext): RowHeight | __mf_PendingRef {
                 switch (value) {
                     case 'ExtraSmall':
                     case 'Small':
@@ -392,7 +392,17 @@ if (variant === "Large") { return "Large" as RowHeight; }
             return toExit(rowHeightDecode(obj));
         }
 
-export const RowHeight = {
+export const RowHeight: {
+  readonly defaultValue: typeof rowHeightDefaultValue;
+  readonly encode: typeof rowHeightEncode;
+  readonly encodeWithContext: typeof rowHeightEncodeWithContext;
+  readonly decode: typeof rowHeightDecode;
+  readonly decodeWithContext: typeof rowHeightDecodeWithContext;
+  readonly hasShape: typeof rowHeightHasShape;
+  readonly is: typeof rowHeightIs;
+  readonly createForm: typeof rowHeightCreateForm;
+  readonly fromFormData: typeof rowHeightFromFormData;
+} = {
   defaultValue: rowHeightDefaultValue,
   encode: rowHeightEncode,
   encodeWithContext: rowHeightEncodeWithContext,
@@ -402,7 +412,7 @@ export const RowHeight = {
   is: rowHeightIs,
   createForm: rowHeightCreateForm,
   fromFormData: rowHeightFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -514,8 +524,8 @@ export function rowHeightDefaultValue(): RowHeight {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function rowHeightDecodeWithContext(value: any, ctx: __mf_DecodeContext): RowHeight | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function rowHeightDecodeWithContext(value: any, _ctx: __mf_DecodeContext): RowHeight | __mf_PendingRef {
                 switch (value) {
                     case 'ExtraSmall':
                     case 'Small':
@@ -777,7 +787,17 @@ if (variant === "Large") { return "Large" as RowHeight; }
             return toExit(rowHeightDecode(obj));
         }
 
-export const RowHeight = {
+export const RowHeight: {
+  readonly defaultValue: typeof rowHeightDefaultValue;
+  readonly encode: typeof rowHeightEncode;
+  readonly encodeWithContext: typeof rowHeightEncodeWithContext;
+  readonly decode: typeof rowHeightDecode;
+  readonly decodeWithContext: typeof rowHeightDecodeWithContext;
+  readonly hasShape: typeof rowHeightHasShape;
+  readonly is: typeof rowHeightIs;
+  readonly createForm: typeof rowHeightCreateForm;
+  readonly fromFormData: typeof rowHeightFromFormData;
+} = {
   defaultValue: rowHeightDefaultValue,
   encode: rowHeightEncode,
   encodeWithContext: rowHeightEncodeWithContext,
@@ -787,7 +807,7 @@ export const RowHeight = {
   is: rowHeightIs,
   createForm: rowHeightCreateForm,
   fromFormData: rowHeightFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -795,14 +815,15 @@ export const RowHeight = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..210 -> expanded 58..161
-original 210..211 -> expanded 11813..11814
-generated 161..286 <- Default
-generated 286..2199 <- Encode
-generated 2199..4474 <- Decode
-generated 4474..11459 <- Gigaform
-generated 11459..11813 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..210 -> expanded 627..730
+original 210..211 -> expanded 12897..12898
+generated 0..569 <- imports
+generated 730..855 <- Default
+generated 855..2768 <- Encode
+generated 2768..5103 <- Decode
+generated 5103..12088 <- Gigaform
+generated 12088..12897 <- __convenience_const
 
 ## Metadata
 

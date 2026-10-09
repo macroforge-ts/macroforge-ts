@@ -123,8 +123,8 @@ export function sectorDefaultValue(): Sector {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function sectorDecodeWithContext(value: any, ctx: __mf_DecodeContext): Sector | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function sectorDecodeWithContext(value: any, _ctx: __mf_DecodeContext): Sector | __mf_PendingRef {
                 switch (value) {
                     case 'Residential':
                     case 'Commercial':
@@ -324,7 +324,17 @@ if (variant === "Commercial") { return "Commercial" as Sector; }
             return toExit(sectorDecode(obj));
         }
 
-export const Sector = {
+export const Sector: {
+  readonly defaultValue: typeof sectorDefaultValue;
+  readonly encode: typeof sectorEncode;
+  readonly encodeWithContext: typeof sectorEncodeWithContext;
+  readonly decode: typeof sectorDecode;
+  readonly decodeWithContext: typeof sectorDecodeWithContext;
+  readonly hasShape: typeof sectorHasShape;
+  readonly is: typeof sectorIs;
+  readonly createForm: typeof sectorCreateForm;
+  readonly fromFormData: typeof sectorFromFormData;
+} = {
   defaultValue: sectorDefaultValue,
   encode: sectorEncode,
   encodeWithContext: sectorEncodeWithContext,
@@ -334,7 +344,7 @@ export const Sector = {
   is: sectorIs,
   createForm: sectorCreateForm,
   fromFormData: sectorFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -440,8 +450,8 @@ export function sectorDefaultValue(): Sector {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function sectorDecodeWithContext(value: any, ctx: __mf_DecodeContext): Sector | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function sectorDecodeWithContext(value: any, _ctx: __mf_DecodeContext): Sector | __mf_PendingRef {
                 switch (value) {
                     case 'Residential':
                     case 'Commercial':
@@ -641,7 +651,17 @@ if (variant === "Commercial") { return "Commercial" as Sector; }
             return toExit(sectorDecode(obj));
         }
 
-export const Sector = {
+export const Sector: {
+  readonly defaultValue: typeof sectorDefaultValue;
+  readonly encode: typeof sectorEncode;
+  readonly encodeWithContext: typeof sectorEncodeWithContext;
+  readonly decode: typeof sectorDecode;
+  readonly decodeWithContext: typeof sectorDecodeWithContext;
+  readonly hasShape: typeof sectorHasShape;
+  readonly is: typeof sectorIs;
+  readonly createForm: typeof sectorCreateForm;
+  readonly fromFormData: typeof sectorFromFormData;
+} = {
   defaultValue: sectorDefaultValue,
   encode: sectorEncode,
   encodeWithContext: sectorEncodeWithContext,
@@ -651,7 +671,7 @@ export const Sector = {
   is: sectorIs,
   createForm: sectorCreateForm,
   fromFormData: sectorFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -659,14 +679,15 @@ export const Sector = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..174 -> expanded 58..125
-original 174..175 -> expanded 9808..9809
-generated 125..249 <- Default
-generated 249..2147 <- Encode
-generated 2147..4171 <- Decode
-generated 4171..9484 <- Gigaform
-generated 9484..9808 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..174 -> expanded 627..694
+original 174..175 -> expanded 10865..10866
+generated 0..569 <- imports
+generated 694..818 <- Default
+generated 818..2716 <- Encode
+generated 2716..4800 <- Decode
+generated 4800..10113 <- Gigaform
+generated 10113..10865 <- __convenience_const
 
 ## Metadata
 

@@ -47,7 +47,10 @@ true
 
 ## Mapping
 
-(none)
+original 0..405 -> expanded 0..405
+original 457..459 -> expanded 405..407
+original 534..536 -> expanded 407..409
+original 593..594 -> expanded 409..410
 
 ## Metadata
 

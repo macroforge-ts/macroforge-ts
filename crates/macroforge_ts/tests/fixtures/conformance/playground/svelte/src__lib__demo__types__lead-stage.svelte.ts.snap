@@ -131,8 +131,8 @@ export function leadStageDefaultValue(): LeadStage {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function leadStageDecodeWithContext(value: any, ctx: __mf_DecodeContext): LeadStage | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function leadStageDecodeWithContext(value: any, _ctx: __mf_DecodeContext): LeadStage | __mf_PendingRef {
                 switch (value) {
                     case 'Open':
                     case 'InitialContact':
@@ -425,7 +425,17 @@ if (variant === "Negotiation") { return "Negotiation" as LeadStage; }
             return toExit(leadStageDecode(obj));
         }
 
-export const LeadStage = {
+export const LeadStage: {
+  readonly defaultValue: typeof leadStageDefaultValue;
+  readonly encode: typeof leadStageEncode;
+  readonly encodeWithContext: typeof leadStageEncodeWithContext;
+  readonly decode: typeof leadStageDecode;
+  readonly decodeWithContext: typeof leadStageDecodeWithContext;
+  readonly hasShape: typeof leadStageHasShape;
+  readonly is: typeof leadStageIs;
+  readonly createForm: typeof leadStageCreateForm;
+  readonly fromFormData: typeof leadStageFromFormData;
+} = {
   defaultValue: leadStageDefaultValue,
   encode: leadStageEncode,
   encodeWithContext: leadStageEncodeWithContext,
@@ -435,7 +445,7 @@ export const LeadStage = {
   is: leadStageIs,
   createForm: leadStageCreateForm,
   fromFormData: leadStageFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -549,8 +559,8 @@ export function leadStageDefaultValue(): LeadStage {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function leadStageDecodeWithContext(value: any, ctx: __mf_DecodeContext): LeadStage | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function leadStageDecodeWithContext(value: any, _ctx: __mf_DecodeContext): LeadStage | __mf_PendingRef {
                 switch (value) {
                     case 'Open':
                     case 'InitialContact':
@@ -843,7 +853,17 @@ if (variant === "Negotiation") { return "Negotiation" as LeadStage; }
             return toExit(leadStageDecode(obj));
         }
 
-export const LeadStage = {
+export const LeadStage: {
+  readonly defaultValue: typeof leadStageDefaultValue;
+  readonly encode: typeof leadStageEncode;
+  readonly encodeWithContext: typeof leadStageEncodeWithContext;
+  readonly decode: typeof leadStageDecode;
+  readonly decodeWithContext: typeof leadStageDecodeWithContext;
+  readonly hasShape: typeof leadStageHasShape;
+  readonly is: typeof leadStageIs;
+  readonly createForm: typeof leadStageCreateForm;
+  readonly fromFormData: typeof leadStageFromFormData;
+} = {
   defaultValue: leadStageDefaultValue,
   encode: leadStageEncode,
   encodeWithContext: leadStageEncodeWithContext,
@@ -853,7 +873,7 @@ export const LeadStage = {
   is: leadStageIs,
   createForm: leadStageCreateForm,
   fromFormData: leadStageFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -861,14 +881,15 @@ export const LeadStage = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..239 -> expanded 58..190
-original 239..240 -> expanded 13151..13152
-generated 190..313 <- Default
-generated 313..2226 <- Encode
-generated 2226..4696 <- Decode
-generated 4696..12797 <- Gigaform
-generated 12797..13151 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..239 -> expanded 627..759
+original 239..240 -> expanded 14235..14236
+generated 0..569 <- imports
+generated 759..882 <- Default
+generated 882..2795 <- Encode
+generated 2795..5325 <- Decode
+generated 5325..13426 <- Gigaform
+generated 13426..14235 <- __convenience_const
 
 ## Metadata
 

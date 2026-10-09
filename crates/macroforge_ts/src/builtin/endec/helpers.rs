@@ -1,6 +1,17 @@
 //! Helper functions for parsing decorator arguments.
 
 use crate::builtin::derive_common::{find_named_value, parse_string_literal};
+use crate::ts_syn::abi::ir::type_alias::TypeBody;
+
+/// The primitive keyword a type alias body stands for: a bare primitive, a
+/// symbol-branded primitive, or `$Newtype<primitive>` as the unexpanded
+/// project scan records it.
+pub fn primitive_base(body: &TypeBody) -> Option<&str> {
+    body.primitive_base().or_else(|| match body {
+        TypeBody::Other(text) => crate::builtin::newtype::unexpanded_base(text),
+        _ => None,
+    })
+}
 
 /// The value of the option `name` in a decorator's argument text: a string
 /// literal's decoded value, or else the expression written there, up to the
@@ -77,47 +88,4 @@ pub(crate) fn find_top_level_comma(s: &str) -> Option<usize> {
         }
     }
     None
-}
-
-/// Split a type string on `|` at the top level only.
-///
-/// Respects `<>`, `()`, `[]` nesting and string literals (`'...'`, `"..."`),
-/// so `Pick<User, 'name' | 'email'>` is **not** split on the `|` inside the
-/// angle brackets.  Returns `None` when no top-level `|` exists.
-pub(crate) fn split_top_level_union(s: &str) -> Option<Vec<&str>> {
-    let mut parts = Vec::new();
-    let mut depth = 0usize;
-    let mut in_string = false;
-    let mut string_char = '"';
-    let mut start = 0;
-    let mut found_pipe = false;
-
-    for (i, c) in s.char_indices() {
-        if in_string {
-            if c == string_char {
-                in_string = false;
-            }
-            continue;
-        }
-        match c {
-            '\'' | '"' => {
-                in_string = true;
-                string_char = c;
-            }
-            '<' | '(' | '[' | '{' => depth += 1,
-            '>' | ')' | ']' | '}' => depth = depth.saturating_sub(1),
-            '|' if depth == 0 => {
-                parts.push(s[start..i].trim());
-                start = i + 1;
-                found_pipe = true;
-            }
-            _ => {}
-        }
-    }
-
-    if !found_pipe {
-        return None;
-    }
-    parts.push(s[start..].trim());
-    Some(parts)
 }

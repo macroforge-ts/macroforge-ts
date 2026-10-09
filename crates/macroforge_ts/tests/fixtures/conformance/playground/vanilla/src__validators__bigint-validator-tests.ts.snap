@@ -117,13 +117,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "GreaterThanBigIntValidator.value is required" }); } else {
 if (__convertedVal <= 0n) { errors.push({ field: "value", message: "GreaterThanBigIntValidator.value must be greater than 0" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -352,13 +354,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "GreaterThanOrEqualToBigIntValidator.value is required" }); } else {
 if (__convertedVal < 0n) { errors.push({ field: "value", message: "GreaterThanOrEqualToBigIntValidator.value must be greater than or equal to 0" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -587,13 +591,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "LessThanBigIntValidator.value is required" }); } else {
 if (__convertedVal >= 1000n) { errors.push({ field: "value", message: "LessThanBigIntValidator.value must be less than 1000" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -822,13 +828,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "LessThanOrEqualToBigIntValidator.value is required" }); } else {
 if (__convertedVal > 1000n) { errors.push({ field: "value", message: "LessThanOrEqualToBigIntValidator.value must be less than or equal to 1000" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -1057,13 +1065,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "BetweenBigIntValidator.value is required" }); } else {
 if (__convertedVal < 0n || __convertedVal > 1000n) { errors.push({ field: "value", message: "BetweenBigIntValidator.value must be between 0 and 1000" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -1292,13 +1302,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "PositiveBigIntValidator.value is required" }); } else {
 if (__convertedVal <= 0n) { errors.push({ field: "value", message: "PositiveBigIntValidator.value must be positive" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -1527,13 +1539,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "NonNegativeBigIntValidator.value is required" }); } else {
 if (__convertedVal < 0n) { errors.push({ field: "value", message: "NonNegativeBigIntValidator.value must be non-negative" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -1762,13 +1776,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "NegativeBigIntValidator.value is required" }); } else {
 if (__convertedVal >= 0n) { errors.push({ field: "value", message: "NegativeBigIntValidator.value must be negative" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -1997,13 +2013,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "NonPositiveBigIntValidator.value is required" }); } else {
 if (__convertedVal > 0n) { errors.push({ field: "value", message: "NonPositiveBigIntValidator.value must be non-positive" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -2238,13 +2256,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "GreaterThanBigIntValidator.value is required" }); } else {
 if (__convertedVal <= 0n) { errors.push({ field: "value", message: "GreaterThanBigIntValidator.value must be greater than 0" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -2473,13 +2493,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "GreaterThanOrEqualToBigIntValidator.value is required" }); } else {
 if (__convertedVal < 0n) { errors.push({ field: "value", message: "GreaterThanOrEqualToBigIntValidator.value must be greater than or equal to 0" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -2708,13 +2730,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "LessThanBigIntValidator.value is required" }); } else {
 if (__convertedVal >= 1000n) { errors.push({ field: "value", message: "LessThanBigIntValidator.value must be less than 1000" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -2943,13 +2967,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "LessThanOrEqualToBigIntValidator.value is required" }); } else {
 if (__convertedVal > 1000n) { errors.push({ field: "value", message: "LessThanOrEqualToBigIntValidator.value must be less than or equal to 1000" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -3178,13 +3204,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "BetweenBigIntValidator.value is required" }); } else {
 if (__convertedVal < 0n || __convertedVal > 1000n) { errors.push({ field: "value", message: "BetweenBigIntValidator.value must be between 0 and 1000" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -3413,13 +3441,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "PositiveBigIntValidator.value is required" }); } else {
 if (__convertedVal <= 0n) { errors.push({ field: "value", message: "PositiveBigIntValidator.value must be positive" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -3648,13 +3678,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "NonNegativeBigIntValidator.value is required" }); } else {
 if (__convertedVal < 0n) { errors.push({ field: "value", message: "NonNegativeBigIntValidator.value must be non-negative" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -3883,13 +3915,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "NegativeBigIntValidator.value is required" }); } else {
 if (__convertedVal >= 0n) { errors.push({ field: "value", message: "NegativeBigIntValidator.value must be negative" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -4118,13 +4152,15 @@ constructor(props: { value: bigint }) {
             }
 
 
-            ctx.trackForFreeze(instance);{
+            ctx.trackForFreeze(instance);try {
                                     const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
                                     if (__convertedVal == null) { errors.push({ field: "value", message: "NonPositiveBigIntValidator.value is required" }); } else {
 if (__convertedVal > 0n) { errors.push({ field: "value", message: "NonPositiveBigIntValidator.value must be non-positive" }); }
 }
 
                                     instance.value = __convertedVal;
+                                } catch (__error) {
+                                    errors.push({ field: "value", message: __error instanceof Error ? __error.message : String(__error) });
                                 }
 
 
@@ -4262,43 +4298,44 @@ if (__val > 0n) { errors.push({ field: "value", message: "NonPositiveBigIntValid
 
 ## Mapping
 
-original 0..261 -> expanded 0..261
-original 261..262 -> expanded 5855..5856
-original 262..464 -> expanded 7156..7358
-original 464..465 -> expanded 13165..13166
-original 465..634 -> expanded 14547..14716
-original 634..635 -> expanded 20259..20260
-original 635..831 -> expanded 21533..21729
-original 831..832 -> expanded 27485..27486
-original 832..1001 -> expanded 28840..29009
-original 1001..1002 -> expanded 34592..34593
-original 1002..1165 -> expanded 35857..36020
-original 1165..1166 -> expanded 41536..41537
-original 1166..1338 -> expanded 42810..42982
-original 1338..1339 -> expanded 48567..48568
-original 1339..1502 -> expanded 49868..50031
-original 1502..1503 -> expanded 55547..55548
-original 1503..1675 -> expanded 56821..56993
-original 1675..1676 -> expanded 62578..62579
-original 1676..1677 -> expanded 63879..63880
-generated 261..5855 <- Decode
-generated 5856..7156 <- Decode
-generated 7358..13165 <- Decode
-generated 13166..14547 <- Decode
-generated 14716..20259 <- Decode
-generated 20260..21533 <- Decode
-generated 21729..27485 <- Decode
-generated 27486..28840 <- Decode
-generated 29009..34592 <- Decode
-generated 34593..35857 <- Decode
-generated 36020..41536 <- Decode
-generated 41537..42810 <- Decode
-generated 42982..48567 <- Decode
-generated 48568..49868 <- Decode
-generated 50031..55547 <- Decode
-generated 55548..56821 <- Decode
-generated 56993..62578 <- Decode
-generated 62579..63879 <- Decode
+original 0..261 -> expanded 307..568
+original 261..262 -> expanded 6358..6359
+original 262..464 -> expanded 7659..7861
+original 464..465 -> expanded 13864..13865
+original 465..634 -> expanded 15246..15415
+original 634..635 -> expanded 21154..21155
+original 635..831 -> expanded 22428..22624
+original 831..832 -> expanded 28576..28577
+original 832..1001 -> expanded 29931..30100
+original 1001..1002 -> expanded 35879..35880
+original 1002..1165 -> expanded 37144..37307
+original 1165..1166 -> expanded 43019..43020
+original 1166..1338 -> expanded 44293..44465
+original 1338..1339 -> expanded 50246..50247
+original 1339..1502 -> expanded 51547..51710
+original 1502..1503 -> expanded 57422..57423
+original 1503..1675 -> expanded 58696..58868
+original 1675..1676 -> expanded 64649..64650
+original 1676..1677 -> expanded 65950..65951
+generated 0..307 <- imports
+generated 568..6358 <- Decode
+generated 6359..7659 <- Decode
+generated 7861..13864 <- Decode
+generated 13865..15246 <- Decode
+generated 15415..21154 <- Decode
+generated 21155..22428 <- Decode
+generated 22624..28576 <- Decode
+generated 28577..29931 <- Decode
+generated 30100..35879 <- Decode
+generated 35880..37144 <- Decode
+generated 37307..43019 <- Decode
+generated 43020..44293 <- Decode
+generated 44465..50246 <- Decode
+generated 50247..51547 <- Decode
+generated 51710..57422 <- Decode
+generated 57423..58696 <- Decode
+generated 58868..64649 <- Decode
+generated 64650..65950 <- Decode
 
 ## Metadata
 

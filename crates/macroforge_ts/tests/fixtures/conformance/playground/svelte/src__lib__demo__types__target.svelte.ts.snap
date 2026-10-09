@@ -1132,6 +1132,18 @@ export function targetDefaultValue(): Target {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function targetHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
@@ -1349,8 +1361,11 @@ export function targetDefaultValue(): Target {
 
         }
 
-        export function targetIs(value: unknown): value is Target {
-            return targetHasShape(value);
+        export function targetIs(value: unknown): value is Target {return targetHasShape(value);
+
+
+
+
         }
 
 /** Per-variant error types  */
@@ -1957,7 +1972,17 @@ if (variant === "Ordered") { return orderedDefaultValue() as Target; }
             return toExit(targetDecode(obj));
         }
 
-export const Target = {
+export const Target: {
+  readonly defaultValue: typeof targetDefaultValue;
+  readonly encode: typeof targetEncode;
+  readonly encodeWithContext: typeof targetEncodeWithContext;
+  readonly decode: typeof targetDecode;
+  readonly decodeWithContext: typeof targetDecodeWithContext;
+  readonly hasShape: typeof targetHasShape;
+  readonly is: typeof targetIs;
+  readonly createForm: typeof targetCreateForm;
+  readonly fromFormData: typeof targetFromFormData;
+} = {
   defaultValue: targetDefaultValue,
   encode: targetEncode,
   encodeWithContext: targetEncodeWithContext,
@@ -1967,7 +1992,7 @@ export const Target = {
   is: targetIs,
   createForm: targetCreateForm,
   fromFormData: targetFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -3031,6 +3056,18 @@ export function targetDefaultValue(): Target {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function targetHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
@@ -3248,8 +3285,11 @@ export function targetDefaultValue(): Target {
 
         }
 
-        export function targetIs(value: unknown): value is Target {
-            return targetHasShape(value);
+        export function targetIs(value: unknown): value is Target {return targetHasShape(value);
+
+
+
+
         }
 
 /** Per-variant error types  */
@@ -3856,7 +3896,17 @@ if (variant === "Ordered") { return orderedDefaultValue() as Target; }
             return toExit(targetDecode(obj));
         }
 
-export const Target = {
+export const Target: {
+  readonly defaultValue: typeof targetDefaultValue;
+  readonly encode: typeof targetEncode;
+  readonly encodeWithContext: typeof targetEncodeWithContext;
+  readonly decode: typeof targetDecode;
+  readonly decodeWithContext: typeof targetDecodeWithContext;
+  readonly hasShape: typeof targetHasShape;
+  readonly is: typeof targetIs;
+  readonly createForm: typeof targetCreateForm;
+  readonly fromFormData: typeof targetFromFormData;
+} = {
   defaultValue: targetDefaultValue,
   encode: targetEncode,
   encodeWithContext: targetEncodeWithContext,
@@ -3866,7 +3916,7 @@ export const Target = {
   is: targetIs,
   createForm: targetCreateForm,
   fromFormData: targetFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3874,14 +3924,15 @@ export const Target = {
 
 ## Mapping
 
-original 0..887 -> expanded 0..887
-original 936..1209 -> expanded 887..1160
-original 1209..1210 -> expanded 46396..46397
-generated 1160..1292 <- Default
-generated 1292..3190 <- Encode
-generated 3190..28548 <- Decode
-generated 28548..46072 <- Gigaform
-generated 46072..46396 <- __convenience_const
+original 0..887 -> expanded 3427..4314
+original 936..1209 -> expanded 4314..4587
+original 1209..1210 -> expanded 50254..50255
+generated 0..3427 <- imports
+generated 4587..4719 <- Default
+generated 4719..6617 <- Encode
+generated 6617..31978 <- Decode
+generated 31978..49502 <- Gigaform
+generated 49502..50254 <- __convenience_const
 
 ## Metadata
 

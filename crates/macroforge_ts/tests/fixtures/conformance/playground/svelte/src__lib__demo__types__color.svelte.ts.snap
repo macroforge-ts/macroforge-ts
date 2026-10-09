@@ -245,7 +245,46 @@ blue: 0,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_red = obj["red"] as number;instance.red = __raw_red;
+                                const __raw_red = obj["red"] as number;if (!(typeof __raw_red === "number")) {
+                                                    errors.push({ field: "red", message: __raw_red == null ? "Color.red is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.red = __raw_red;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -505,7 +544,46 @@ blue: 0,
 
 
                             }{
-                                const __raw_green = obj["green"] as number;instance.green = __raw_green;
+                                const __raw_green = obj["green"] as number;if (!(typeof __raw_green === "number")) {
+                                                    errors.push({ field: "green", message: __raw_green == null ? "Color.green is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.green = __raw_green;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -765,7 +843,46 @@ blue: 0,
 
 
                             }{
-                                const __raw_blue = obj["blue"] as number;instance.blue = __raw_blue;
+                                const __raw_blue = obj["blue"] as number;if (!(typeof __raw_blue === "number")) {
+                                                    errors.push({ field: "blue", message: __raw_blue == null ? "Color.blue is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.blue = __raw_blue;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1593,6 +1710,82 @@ blue: 0,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Color;
@@ -1845,7 +2038,18 @@ blue: 0,
             return toExit(colorDecode(obj));
         }
 
-export const Color = {
+export const Color: {
+  readonly defaultValue: typeof colorDefaultValue;
+  readonly encode: typeof colorEncode;
+  readonly encodeWithContext: typeof colorEncodeWithContext;
+  readonly decode: typeof colorDecode;
+  readonly decodeWithContext: typeof colorDecodeWithContext;
+  readonly validateFields: typeof colorValidateFields;
+  readonly hasShape: typeof colorHasShape;
+  readonly is: typeof colorIs;
+  readonly createForm: typeof colorCreateForm;
+  readonly fromFormData: typeof colorFromFormData;
+} = {
   defaultValue: colorDefaultValue,
   encode: colorEncode,
   encodeWithContext: colorEncodeWithContext,
@@ -1856,7 +2060,7 @@ export const Color = {
   is: colorIs,
   createForm: colorCreateForm,
   fromFormData: colorFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2084,7 +2288,46 @@ blue: 0,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_red = obj["red"] as number;instance.red = __raw_red;
+                                const __raw_red = obj["red"] as number;if (!(typeof __raw_red === "number")) {
+                                                    errors.push({ field: "red", message: __raw_red == null ? "Color.red is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.red = __raw_red;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2344,7 +2587,46 @@ blue: 0,
 
 
                             }{
-                                const __raw_green = obj["green"] as number;instance.green = __raw_green;
+                                const __raw_green = obj["green"] as number;if (!(typeof __raw_green === "number")) {
+                                                    errors.push({ field: "green", message: __raw_green == null ? "Color.green is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.green = __raw_green;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2604,7 +2886,46 @@ blue: 0,
 
 
                             }{
-                                const __raw_blue = obj["blue"] as number;instance.blue = __raw_blue;
+                                const __raw_blue = obj["blue"] as number;if (!(typeof __raw_blue === "number")) {
+                                                    errors.push({ field: "blue", message: __raw_blue == null ? "Color.blue is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.blue = __raw_blue;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3432,6 +3753,82 @@ blue: 0,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Color;
@@ -3684,7 +4081,18 @@ blue: 0,
             return toExit(colorDecode(obj));
         }
 
-export const Color = {
+export const Color: {
+  readonly defaultValue: typeof colorDefaultValue;
+  readonly encode: typeof colorEncode;
+  readonly encodeWithContext: typeof colorEncodeWithContext;
+  readonly decode: typeof colorDecode;
+  readonly decodeWithContext: typeof colorDecodeWithContext;
+  readonly validateFields: typeof colorValidateFields;
+  readonly hasShape: typeof colorHasShape;
+  readonly is: typeof colorIs;
+  readonly createForm: typeof colorCreateForm;
+  readonly fromFormData: typeof colorFromFormData;
+} = {
   defaultValue: colorDefaultValue,
   encode: colorEncode,
   encodeWithContext: colorEncodeWithContext,
@@ -3695,7 +4103,7 @@ export const Color = {
   is: colorIs,
   createForm: colorCreateForm,
   fromFormData: colorFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3703,14 +4111,15 @@ export const Color = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..188 -> expanded 58..139
-original 188..189 -> expanded 14810..14811
-generated 139..270 <- Default
-generated 270..1794 <- Encode
-generated 1794..7817 <- Decode
-generated 7817..14457 <- Gigaform
-generated 14457..14810 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..188 -> expanded 627..708
+original 188..189 -> expanded 17114..17115
+generated 0..569 <- imports
+generated 708..839 <- Default
+generated 839..2363 <- Encode
+generated 2363..9647 <- Decode
+generated 9647..16287 <- Gigaform
+generated 16287..17114 <- __convenience_const
 
 ## Metadata
 

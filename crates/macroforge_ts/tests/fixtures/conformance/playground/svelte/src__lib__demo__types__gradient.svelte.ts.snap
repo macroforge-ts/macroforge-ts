@@ -237,7 +237,46 @@ startHue: 0,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_startHue = obj["startHue"] as number;instance.startHue = __raw_startHue;
+                                const __raw_startHue = obj["startHue"] as number;if (!(typeof __raw_startHue === "number")) {
+                                                    errors.push({ field: "startHue", message: __raw_startHue == null ? "Gradient.startHue is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.startHue = __raw_startHue;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1065,6 +1104,82 @@ startHue: 0,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Gradient;
@@ -1249,7 +1364,18 @@ startHue: 0,
             return toExit(gradientDecode(obj));
         }
 
-export const Gradient = {
+export const Gradient: {
+  readonly defaultValue: typeof gradientDefaultValue;
+  readonly encode: typeof gradientEncode;
+  readonly encodeWithContext: typeof gradientEncodeWithContext;
+  readonly decode: typeof gradientDecode;
+  readonly decodeWithContext: typeof gradientDecodeWithContext;
+  readonly validateFields: typeof gradientValidateFields;
+  readonly hasShape: typeof gradientHasShape;
+  readonly is: typeof gradientIs;
+  readonly createForm: typeof gradientCreateForm;
+  readonly fromFormData: typeof gradientFromFormData;
+} = {
   defaultValue: gradientDefaultValue,
   encode: gradientEncode,
   encodeWithContext: gradientEncodeWithContext,
@@ -1260,7 +1386,7 @@ export const Gradient = {
   is: gradientIs,
   createForm: gradientCreateForm,
   fromFormData: gradientFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1480,7 +1606,46 @@ startHue: 0,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_startHue = obj["startHue"] as number;instance.startHue = __raw_startHue;
+                                const __raw_startHue = obj["startHue"] as number;if (!(typeof __raw_startHue === "number")) {
+                                                    errors.push({ field: "startHue", message: __raw_startHue == null ? "Gradient.startHue is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.startHue = __raw_startHue;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2308,6 +2473,82 @@ startHue: 0,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Gradient;
@@ -2492,7 +2733,18 @@ startHue: 0,
             return toExit(gradientDecode(obj));
         }
 
-export const Gradient = {
+export const Gradient: {
+  readonly defaultValue: typeof gradientDefaultValue;
+  readonly encode: typeof gradientEncode;
+  readonly encodeWithContext: typeof gradientEncodeWithContext;
+  readonly decode: typeof gradientDecode;
+  readonly decodeWithContext: typeof gradientDecodeWithContext;
+  readonly validateFields: typeof gradientValidateFields;
+  readonly hasShape: typeof gradientHasShape;
+  readonly is: typeof gradientIs;
+  readonly createForm: typeof gradientCreateForm;
+  readonly fromFormData: typeof gradientFromFormData;
+} = {
   defaultValue: gradientDefaultValue,
   encode: gradientEncode,
   encodeWithContext: gradientEncodeWithContext,
@@ -2503,7 +2755,7 @@ export const Gradient = {
   is: gradientIs,
   createForm: gradientCreateForm,
   fromFormData: gradientFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -2511,14 +2763,15 @@ export const Gradient = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..159 -> expanded 58..110
-original 159..160 -> expanded 11237..11238
-generated 110..233 <- Default
-generated 233..1733 <- Encode
-generated 1733..6740 <- Decode
-generated 6740..10851 <- Gigaform
-generated 10851..11237 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..159 -> expanded 627..679
+original 159..160 -> expanded 12800..12801
+generated 0..569 <- imports
+generated 679..802 <- Default
+generated 802..2302 <- Encode
+generated 2302..7799 <- Decode
+generated 7799..11910 <- Gigaform
+generated 11910..12800 <- __convenience_const
 
 ## Metadata
 

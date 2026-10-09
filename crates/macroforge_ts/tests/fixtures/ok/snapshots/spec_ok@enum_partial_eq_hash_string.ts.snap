@@ -37,8 +37,8 @@ export function colorHashCode(value: Color): number {
                     }
 
 namespace Color {
-  export const equals = colorEquals;
-  export const hashCode = colorHashCode;
+  export const equals: typeof colorEquals = colorEquals;
+  export const hashCode: typeof colorHashCode = colorHashCode;
 }
 
 ## DTS
@@ -62,8 +62,8 @@ export function colorHashCode(value: Color): number {
                     }
 
 namespace Color {
-  export const equals = colorEquals;
-  export const hashCode = colorHashCode;
+  export const equals: typeof colorEquals = colorEquals;
+  export const hashCode: typeof colorHashCode = colorHashCode;
 }
 
 ## Diagnostics
@@ -73,10 +73,10 @@ namespace Color {
 ## Mapping
 
 original 31..102 -> expanded 0..71
-original 102..103 -> expanded 601..602
+original 102..103 -> expanded 643..644
 generated 71..185 <- PartialEq
 generated 185..502 <- Hash
-generated 502..601 <- __convenience_const
+generated 502..643 <- __convenience_const
 
 ## Metadata
 

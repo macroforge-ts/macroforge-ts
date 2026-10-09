@@ -31,7 +31,11 @@ export const userName = "user_name";
 
 ## Mapping
 
-(none)
+original 0..91 -> expanded 0..91
+original 114..140 -> expanded 100..126
+original 165..167 -> expanded 137..139
+generated 91..100 <- $concat_names
+generated 126..137 <- $concat_names
 
 ## Metadata
 

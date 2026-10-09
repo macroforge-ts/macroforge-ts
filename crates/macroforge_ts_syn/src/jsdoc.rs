@@ -295,7 +295,7 @@ mod adjacency_tests {
     #[test]
     fn a_floor_keeps_the_previous_siblings_comments_out() {
         let source =
-            "class A {\n  /** @serde(skip) */\n  a: string;\n  /** b */ /** @x */\n  b: string;\n}";
+            "class A {\n  /** @endec(skip) */\n  a: string;\n  /** b */ /** @x */\n  b: string;\n}";
         let floor = source.find("a: string;").unwrap_or_default() + "a: string;".len();
         let target = source.find("b: string").unwrap_or_default();
         let nearest = adjacent_jsdoc_after(source, floor, target);

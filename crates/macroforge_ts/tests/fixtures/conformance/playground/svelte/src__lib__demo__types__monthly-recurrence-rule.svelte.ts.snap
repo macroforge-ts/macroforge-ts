@@ -246,7 +246,46 @@ name: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_quantityOfMonths = obj["quantityOfMonths"] as number;instance.quantityOfMonths = __raw_quantityOfMonths;
+                                const __raw_quantityOfMonths = obj["quantityOfMonths"] as number;if (!(typeof __raw_quantityOfMonths === "number")) {
+                                                    errors.push({ field: "quantityOfMonths", message: __raw_quantityOfMonths == null ? "MonthlyRecurrenceRule.quantityOfMonths is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.quantityOfMonths = __raw_quantityOfMonths;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -506,7 +545,46 @@ name: "",
 
 
                             }{
-                                const __raw_day = obj["day"] as number;instance.day = __raw_day;
+                                const __raw_day = obj["day"] as number;if (!(typeof __raw_day === "number")) {
+                                                    errors.push({ field: "day", message: __raw_day == null ? "MonthlyRecurrenceRule.day is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.day = __raw_day;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -766,11 +844,50 @@ name: "",
 
 
                             }{
-                                const __raw_name = obj["name"] as string;
-                                            if (__raw_name == null) { errors.push({ field: "name", message: "MonthlyRecurrenceRule.name is required" }); } else {
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "MonthlyRecurrenceRule.name is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_name == null) { errors.push({ field: "name", message: "MonthlyRecurrenceRule.name is required" }); } else {
 if (__raw_name.length === 0) { errors.push({ field: "name", message: "MonthlyRecurrenceRule.name must not be empty" }); }
 }
-instance.name = __raw_name;
+
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1030,6 +1147,82 @@ instance.name = __raw_name;
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1878,7 +2071,18 @@ if (__val.length === 0) { errors.push({ field: "name", message: "MonthlyRecurren
             return toExit(monthlyRecurrenceRuleDecode(obj));
         }
 
-export const MonthlyRecurrenceRule = {
+export const MonthlyRecurrenceRule: {
+  readonly defaultValue: typeof monthlyRecurrenceRuleDefaultValue;
+  readonly encode: typeof monthlyRecurrenceRuleEncode;
+  readonly encodeWithContext: typeof monthlyRecurrenceRuleEncodeWithContext;
+  readonly decode: typeof monthlyRecurrenceRuleDecode;
+  readonly decodeWithContext: typeof monthlyRecurrenceRuleDecodeWithContext;
+  readonly validateFields: typeof monthlyRecurrenceRuleValidateFields;
+  readonly hasShape: typeof monthlyRecurrenceRuleHasShape;
+  readonly is: typeof monthlyRecurrenceRuleIs;
+  readonly createForm: typeof monthlyRecurrenceRuleCreateForm;
+  readonly fromFormData: typeof monthlyRecurrenceRuleFromFormData;
+} = {
   defaultValue: monthlyRecurrenceRuleDefaultValue,
   encode: monthlyRecurrenceRuleEncode,
   encodeWithContext: monthlyRecurrenceRuleEncodeWithContext,
@@ -1889,7 +2093,7 @@ export const MonthlyRecurrenceRule = {
   is: monthlyRecurrenceRuleIs,
   createForm: monthlyRecurrenceRuleCreateForm,
   fromFormData: monthlyRecurrenceRuleFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2118,7 +2322,46 @@ name: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_quantityOfMonths = obj["quantityOfMonths"] as number;instance.quantityOfMonths = __raw_quantityOfMonths;
+                                const __raw_quantityOfMonths = obj["quantityOfMonths"] as number;if (!(typeof __raw_quantityOfMonths === "number")) {
+                                                    errors.push({ field: "quantityOfMonths", message: __raw_quantityOfMonths == null ? "MonthlyRecurrenceRule.quantityOfMonths is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.quantityOfMonths = __raw_quantityOfMonths;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2378,7 +2621,46 @@ name: "",
 
 
                             }{
-                                const __raw_day = obj["day"] as number;instance.day = __raw_day;
+                                const __raw_day = obj["day"] as number;if (!(typeof __raw_day === "number")) {
+                                                    errors.push({ field: "day", message: __raw_day == null ? "MonthlyRecurrenceRule.day is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.day = __raw_day;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2638,11 +2920,50 @@ name: "",
 
 
                             }{
-                                const __raw_name = obj["name"] as string;
-                                            if (__raw_name == null) { errors.push({ field: "name", message: "MonthlyRecurrenceRule.name is required" }); } else {
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "MonthlyRecurrenceRule.name is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_name == null) { errors.push({ field: "name", message: "MonthlyRecurrenceRule.name is required" }); } else {
 if (__raw_name.length === 0) { errors.push({ field: "name", message: "MonthlyRecurrenceRule.name must not be empty" }); }
 }
-instance.name = __raw_name;
+
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2902,6 +3223,82 @@ instance.name = __raw_name;
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3750,7 +4147,18 @@ if (__val.length === 0) { errors.push({ field: "name", message: "MonthlyRecurren
             return toExit(monthlyRecurrenceRuleDecode(obj));
         }
 
-export const MonthlyRecurrenceRule = {
+export const MonthlyRecurrenceRule: {
+  readonly defaultValue: typeof monthlyRecurrenceRuleDefaultValue;
+  readonly encode: typeof monthlyRecurrenceRuleEncode;
+  readonly encodeWithContext: typeof monthlyRecurrenceRuleEncodeWithContext;
+  readonly decode: typeof monthlyRecurrenceRuleDecode;
+  readonly decodeWithContext: typeof monthlyRecurrenceRuleDecodeWithContext;
+  readonly validateFields: typeof monthlyRecurrenceRuleValidateFields;
+  readonly hasShape: typeof monthlyRecurrenceRuleHasShape;
+  readonly is: typeof monthlyRecurrenceRuleIs;
+  readonly createForm: typeof monthlyRecurrenceRuleCreateForm;
+  readonly fromFormData: typeof monthlyRecurrenceRuleFromFormData;
+} = {
   defaultValue: monthlyRecurrenceRuleDefaultValue,
   encode: monthlyRecurrenceRuleEncode,
   encodeWithContext: monthlyRecurrenceRuleEncodeWithContext,
@@ -3761,7 +4169,7 @@ export const MonthlyRecurrenceRule = {
   is: monthlyRecurrenceRuleIs,
   createForm: monthlyRecurrenceRuleCreateForm,
   fromFormData: monthlyRecurrenceRuleFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3769,15 +4177,16 @@ export const MonthlyRecurrenceRule = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..200 -> expanded 58..151
-original 241..261 -> expanded 151..171
-original 261..262 -> expanded 17300..17301
-generated 171..346 <- Default
-generated 346..1988 <- Encode
-generated 1988..9610 <- Decode
-generated 9610..16771 <- Gigaform
-generated 16771..17300 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..200 -> expanded 627..720
+original 241..261 -> expanded 720..740
+original 261..262 -> expanded 19868..19869
+generated 0..569 <- imports
+generated 740..915 <- Default
+generated 915..2557 <- Encode
+generated 2557..11544 <- Decode
+generated 11544..18705 <- Gigaform
+generated 18705..19868 <- __convenience_const
 
 ## Metadata
 

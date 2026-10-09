@@ -800,6 +800,18 @@ export function accountNameDefaultValue(): AccountName {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function accountNameHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
@@ -987,8 +999,11 @@ export function accountNameDefaultValue(): AccountName {
 
         }
 
-        export function accountNameIs(value: unknown): value is AccountName {
-            return accountNameHasShape(value);
+        export function accountNameIs(value: unknown): value is AccountName {return accountNameHasShape(value);
+
+
+
+
         }
 
 /** Per-variant error types  */
@@ -1160,7 +1175,17 @@ if (variant === "PersonName") { return personNameDefaultValue() as AccountName; 
             return toExit(accountNameDecode(obj));
         }
 
-export const AccountName = {
+export const AccountName: {
+  readonly defaultValue: typeof accountNameDefaultValue;
+  readonly encode: typeof accountNameEncode;
+  readonly encodeWithContext: typeof accountNameEncodeWithContext;
+  readonly decode: typeof accountNameDecode;
+  readonly decodeWithContext: typeof accountNameDecodeWithContext;
+  readonly hasShape: typeof accountNameHasShape;
+  readonly is: typeof accountNameIs;
+  readonly createForm: typeof accountNameCreateForm;
+  readonly fromFormData: typeof accountNameFromFormData;
+} = {
   defaultValue: accountNameDefaultValue,
   encode: accountNameEncode,
   encodeWithContext: accountNameEncodeWithContext,
@@ -1170,7 +1195,7 @@ export const AccountName = {
   is: accountNameIs,
   createForm: accountNameCreateForm,
   fromFormData: accountNameFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1947,6 +1972,18 @@ export function accountNameDefaultValue(): AccountName {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function accountNameHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
@@ -2134,8 +2171,11 @@ export function accountNameDefaultValue(): AccountName {
 
         }
 
-        export function accountNameIs(value: unknown): value is AccountName {
-            return accountNameHasShape(value);
+        export function accountNameIs(value: unknown): value is AccountName {return accountNameHasShape(value);
+
+
+
+
         }
 
 /** Per-variant error types  */
@@ -2307,7 +2347,17 @@ if (variant === "PersonName") { return personNameDefaultValue() as AccountName; 
             return toExit(accountNameDecode(obj));
         }
 
-export const AccountName = {
+export const AccountName: {
+  readonly defaultValue: typeof accountNameDefaultValue;
+  readonly encode: typeof accountNameEncode;
+  readonly encodeWithContext: typeof accountNameEncodeWithContext;
+  readonly decode: typeof accountNameDecode;
+  readonly decodeWithContext: typeof accountNameDecodeWithContext;
+  readonly hasShape: typeof accountNameHasShape;
+  readonly is: typeof accountNameIs;
+  readonly createForm: typeof accountNameCreateForm;
+  readonly fromFormData: typeof accountNameFromFormData;
+} = {
   defaultValue: accountNameDefaultValue,
   encode: accountNameEncode,
   encodeWithContext: accountNameEncodeWithContext,
@@ -2317,7 +2367,7 @@ export const AccountName = {
   is: accountNameIs,
   createForm: accountNameCreateForm,
   fromFormData: accountNameFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -2325,14 +2375,15 @@ export const AccountName = {
 
 ## Mapping
 
-original 0..173 -> expanded 0..173
-original 355..423 -> expanded 173..241
-original 423..424 -> expanded 15739..15740
-generated 241..387 <- Default
-generated 387..2310 <- Encode
-generated 2310..9813 <- Decode
-generated 9813..15365 <- Gigaform
-generated 15365..15739 <- __convenience_const
+original 0..173 -> expanded 955..1128
+original 355..423 -> expanded 1128..1196
+original 423..424 -> expanded 17170..17171
+generated 0..955 <- imports
+generated 1196..1342 <- Default
+generated 1342..3265 <- Encode
+generated 3265..10771 <- Decode
+generated 10771..16323 <- Gigaform
+generated 16323..17170 <- __convenience_const
 
 ## Metadata
 

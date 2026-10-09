@@ -555,9 +555,76 @@ formatter: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_formatter = obj["formatter"] as string | null;
-                                                instance.formatter = __raw_formatter;
+                                const __raw_formatter = obj["formatter"] as string | null;if (!(typeof __raw_formatter === "string" || __raw_formatter === null)) {
+                                                        errors.push({ field: "formatter", message: "expected string | null" });
+                                                    } else {
+                                                        instance.formatter = __raw_formatter;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1385,6 +1452,82 @@ formatter: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as DataPath;
@@ -1608,7 +1751,18 @@ formatter: null,
             return toExit(dataPathDecode(obj));
         }
 
-export const DataPath = {
+export const DataPath: {
+  readonly defaultValue: typeof dataPathDefaultValue;
+  readonly encode: typeof dataPathEncode;
+  readonly encodeWithContext: typeof dataPathEncodeWithContext;
+  readonly decode: typeof dataPathDecode;
+  readonly decodeWithContext: typeof dataPathDecodeWithContext;
+  readonly validateFields: typeof dataPathValidateFields;
+  readonly hasShape: typeof dataPathHasShape;
+  readonly is: typeof dataPathIs;
+  readonly createForm: typeof dataPathCreateForm;
+  readonly fromFormData: typeof dataPathFromFormData;
+} = {
   defaultValue: dataPathDefaultValue,
   encode: dataPathEncode,
   encodeWithContext: dataPathEncodeWithContext,
@@ -1619,7 +1773,7 @@ export const DataPath = {
   is: dataPathIs,
   createForm: dataPathCreateForm,
   fromFormData: dataPathFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2156,9 +2310,76 @@ formatter: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_formatter = obj["formatter"] as string | null;
-                                                instance.formatter = __raw_formatter;
+                                const __raw_formatter = obj["formatter"] as string | null;if (!(typeof __raw_formatter === "string" || __raw_formatter === null)) {
+                                                        errors.push({ field: "formatter", message: "expected string | null" });
+                                                    } else {
+                                                        instance.formatter = __raw_formatter;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2986,6 +3207,82 @@ formatter: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as DataPath;
@@ -3209,7 +3506,18 @@ formatter: null,
             return toExit(dataPathDecode(obj));
         }
 
-export const DataPath = {
+export const DataPath: {
+  readonly defaultValue: typeof dataPathDefaultValue;
+  readonly encode: typeof dataPathEncode;
+  readonly encodeWithContext: typeof dataPathEncodeWithContext;
+  readonly decode: typeof dataPathDecode;
+  readonly decodeWithContext: typeof dataPathDecodeWithContext;
+  readonly validateFields: typeof dataPathValidateFields;
+  readonly hasShape: typeof dataPathHasShape;
+  readonly is: typeof dataPathIs;
+  readonly createForm: typeof dataPathCreateForm;
+  readonly fromFormData: typeof dataPathFromFormData;
+} = {
   defaultValue: dataPathDefaultValue,
   encode: dataPathEncode,
   encodeWithContext: dataPathEncodeWithContext,
@@ -3220,7 +3528,7 @@ export const DataPath = {
   is: dataPathIs,
   createForm: dataPathCreateForm,
   fromFormData: dataPathFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3228,14 +3536,15 @@ export const DataPath = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..192 -> expanded 58..143
-original 192..193 -> expanded 13685..13686
-generated 143..280 <- Default
-generated 280..1807 <- Encode
-generated 1807..7572 <- Decode
-generated 7572..13299 <- Gigaform
-generated 13299..13685 <- __convenience_const
+original 0..58 -> expanded 641..699
+original 107..192 -> expanded 699..784
+original 192..193 -> expanded 15294..15295
+generated 0..641 <- imports
+generated 784..921 <- Default
+generated 921..2448 <- Encode
+generated 2448..8677 <- Decode
+generated 8677..14404 <- Gigaform
+generated 14404..15294 <- __convenience_const
 
 ## Metadata
 

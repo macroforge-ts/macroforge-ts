@@ -41,8 +41,27 @@ pub(crate) fn generate_field_compare_for_interface(
     resolved: Option<&ResolvedTypeRef>,
     registry: &TypeRegistry,
 ) -> String {
-    let field_name = &field.name;
-    let ts_type = &field.ts_type;
+    generate_value_compare(
+        &field.ts_type,
+        &format!("{self_var}.{}", field.name),
+        &format!("{other_var}.{}", field.name),
+        allow_null,
+        resolved,
+        registry,
+    )
+}
+
+/// Generates the comparison of two values of `ts_type`, given as expressions
+/// (`left` and `right`), with the same strategies as
+/// [`generate_field_compare_for_interface`].
+pub(crate) fn generate_value_compare(
+    ts_type: &str,
+    left: &str,
+    right: &str,
+    allow_null: bool,
+    resolved: Option<&ResolvedTypeRef>,
+    registry: &TypeRegistry,
+) -> String {
     let null_return = if allow_null { "null" } else { "0" };
 
     // Type-aware path: direct compare call when type has @derive(PartialOrd)
@@ -52,23 +71,23 @@ pub(crate) fn generate_field_compare_for_interface(
         && type_has_derive(registry, &resolved.base_type_name, "PartialOrd")
     {
         let fn_name = standalone_fn_name(&resolved.base_type_name, "PartialCompare");
-        return format!("{fn_name}({self_var}.{field_name}, {other_var}.{field_name})");
+        return format!("{fn_name}({left}, {right})");
     }
 
     if is_numeric_type(ts_type) {
         format!(
-            "({self_var}.{field_name} < {other_var}.{field_name} ? -1 : \
-             {self_var}.{field_name} > {other_var}.{field_name} ? 1 : 0)"
+            "({left} < {right} ? -1 : \
+             {left} > {right} ? 1 : 0)"
         )
     } else if ts_type == "string" {
-        format!("{self_var}.{field_name}.localeCompare({other_var}.{field_name})")
+        format!("{left}.localeCompare({right})")
     } else if ts_type == "boolean" {
         format!(
-            "({self_var}.{field_name} === {other_var}.{field_name} ? 0 : \
-             {self_var}.{field_name} ? 1 : -1)"
+            "({left} === {right} ? 0 : \
+             {left} ? 1 : -1)"
         )
     } else if is_primitive_type(ts_type) {
-        format!("({self_var}.{field_name} === {other_var}.{field_name} ? 0 : {null_return})")
+        format!("({left} === {right} ? 0 : {null_return})")
     } else if ts_type.ends_with("[]")
         || ts_type.starts_with("Array<")
         || ts_type.starts_with("ReadonlyArray<")
@@ -77,32 +96,34 @@ pub(crate) fn generate_field_compare_for_interface(
         let unwrap_opt = unwrap_option_or_null("optResult");
         format!(
             "(() => {{ \
-                const a = {self_var}.{field_name}; \
-                const b = {other_var}.{field_name}; \
-                if (!Array.isArray(a) || !Array.isArray(b)) return {null_return}; \
-                const minLen = Math.min(a.length, b.length); \
+                const __left = {left}; \
+                const __right = {right}; \
+                if (!Array.isArray(__left) || !Array.isArray(__right)) return {null_return}; \
+                const minLen = Math.min(__left.length, __right.length); \
                 for (let i = 0; i < minLen; i++) {{ \
+                    const __l: any = __left[i]; \
+                    const __r: any = __right[i]; \
                     let cmp: number | null; \
-                    if (typeof (a[i] as any)?.compareTo === 'function') {{ \
-                        const optResult = (a[i] as any).compareTo(b[i]); \
+                    if (typeof __l?.compareTo === 'function') {{ \
+                        const optResult = __l.compareTo(__r); \
                         cmp = {unwrap_opt}; \
                     }} else {{ \
-                        cmp = a[i] < b[i] ? -1 : a[i] > b[i] ? 1 : 0; \
+                        cmp = __l < __r ? -1 : __l > __r ? 1 : 0; \
                     }} \
                     if (cmp === null) return {null_return}; \
                     if (cmp !== 0) return cmp; \
                 }} \
-                return a.length < b.length ? -1 : a.length > b.length ? 1 : 0; \
+                return __left.length < __right.length ? -1 : __left.length > __right.length ? 1 : 0; \
             }})()"
         )
     } else if ts_type == "Date" {
         format!(
             "(() => {{ \
-                const a = {self_var}.{field_name}; \
-                const b = {other_var}.{field_name}; \
-                if (!(a instanceof Date) || !(b instanceof Date)) return {null_return}; \
-                const ta = a.getTime(); \
-                const tb = b.getTime(); \
+                const __left = {left}; \
+                const __right = {right}; \
+                if (!(__left instanceof Date) || !(__right instanceof Date)) return {null_return}; \
+                const ta = __left.getTime(); \
+                const tb = __right.getTime(); \
                 return ta < tb ? -1 : ta > tb ? 1 : 0; \
             }})()"
         )
@@ -112,8 +133,8 @@ pub(crate) fn generate_field_compare_for_interface(
         } else {
             "toString()"
         };
-        let a = format!("{self_var}.{field_name}.{method}");
-        let b = format!("{other_var}.{field_name}.{method}");
+        let a = format!("{left}.{method}");
+        let b = format!("{right}.{method}");
         format!("((cmp => cmp < 0 ? -1 : cmp > 0 ? 1 : 0)({a}.localeCompare({b})))")
     } else {
         // For objects, check for compareTo method that returns Option<number> or number | null
@@ -121,11 +142,11 @@ pub(crate) fn generate_field_compare_for_interface(
         let is_none = is_none_check("optResult");
         format!(
             "(() => {{ \
-                if (typeof ({self_var}.{field_name} as any)?.compareTo === 'function') {{ \
-                    const optResult = ({self_var}.{field_name} as any).compareTo({other_var}.{field_name}); \
+                if (typeof ({left} as any)?.compareTo === 'function') {{ \
+                    const optResult = ({left} as any).compareTo({right}); \
                     return {is_none} ? {null_return} : {unwrap_opt}; \
                 }} \
-                return {self_var}.{field_name} === {other_var}.{field_name} ? 0 : {null_return}; \
+                return {left} === {right} ? 0 : {null_return}; \
             }})()"
         )
     }

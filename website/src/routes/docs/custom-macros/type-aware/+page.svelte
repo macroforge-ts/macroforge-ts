@@ -209,7 +209,7 @@ let shape = resolve_generic_aliases(
     .and_then(|config| config.foreign_types.iter().find(|ft| ft.name == field.ts_type));
 
 if let Some(foreign) = foreign {
-    // foreign.serialize_expr, deserialize_expr, default_expr, has_shape_expr
+    // foreign.encode_expr, decode_expr, default_expr, has_shape_expr
     // hold the configured expressions, as source text
 }`} lang="rust" />
 

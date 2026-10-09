@@ -101,10 +101,12 @@ export function isMacroSourceFile(fileName) {
 }
 
 /**
- * Expands a file's macros. A failed expansion ends the check: type-checking
- * the unexpanded text would report on code the build never produces.
+ * Expands `sourceText`, printing macro diagnostics and exiting on an error,
+ * and returns the whole result: the code and its `sourceMapping`. A failed
+ * expansion ends the check: type-checking the unexpanded text would report on
+ * code the build never produces.
  */
-export function expandSource(plugin, fileName, sourceText, options) {
+export function expandSourceResult(plugin, fileName, sourceText, options) {
   let result;
   try {
     result = plugin.processFile(fileName, sourceText, options);
@@ -117,12 +119,41 @@ export function expandSource(plugin, fileName, sourceText, options) {
     if (diagnostic.level === "info") continue;
     console.error(
       `[macroforge] ${diagnostic.level}: ${fileName}${
-        diagnostic.start === undefined ? "" : `@${diagnostic.start}`
+        diagnostic.start === undefined ? "" : position(sourceText, diagnostic.start)
       }: ${diagnostic.message}`,
     );
   }
   if (result.diagnostics.some((diagnostic) => diagnostic.level === "error")) {
     process.exit(1);
   }
-  return result.code;
+  return result;
+}
+
+/** `:line:column`, 1-based, of a 0-based offset in `text`. */
+function position(text, offset) {
+  const before = text.slice(0, offset);
+  const line = before.split("\n").length;
+  return `:${line}:${offset - before.lastIndexOf("\n")}`;
+}
+
+/** Expands `sourceText` like `expandSourceResult`, returning only the code. */
+export function expandSource(plugin, fileName, sourceText, options) {
+  return expandSourceResult(plugin, fileName, sourceText, options).code;
+}
+
+/**
+ * Maps a span of a file's expansion back onto the file as written. Code a
+ * macro generated has no source position, so its span is anchored, empty,
+ * where that code was inserted, and `generatedBy` names the macro.
+ */
+export function mapSpanToSource(macros, mapping, start, length) {
+  const mapped = new macros.PositionMapper(mapping).mapSpanToOriginal(start, length);
+  if (mapped) return { start: mapped.start, length: mapped.length, generatedBy: undefined };
+  const region = mapping.generatedRegions.find(
+    (candidate) => start >= candidate.start && start < candidate.end,
+  );
+  const anchor = mapping.segments
+    .filter((segment) => segment.expandedEnd <= start)
+    .reduce((position, segment) => Math.max(position, segment.originalEnd), 0);
+  return { start: anchor, length: 0, generatedBy: region?.sourceMacro ?? "a macro" };
 }

@@ -443,6 +443,38 @@ instance.items = __raw_items as string[];
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }
 
 
@@ -997,6 +1029,38 @@ instance.items = __raw_items as string[];
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }
 
 
@@ -1291,6 +1355,38 @@ instance.items = __raw_items as string[];
 
 
                                     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2111,6 +2207,38 @@ instance.items = __raw_items as string[];
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }
 
 
@@ -2405,6 +2533,38 @@ instance.items = __raw_items as string[];
 
 
                                     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3219,6 +3379,38 @@ instance.items = __raw_items as string[];
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }
 
 
@@ -3356,19 +3548,20 @@ if (__val.length !== 3) { errors.push({ field: "items", message: "ItemsCountVali
 
 ## Mapping
 
-original 0..240 -> expanded 0..240
-original 240..241 -> expanded 6031..6032
-original 241..396 -> expanded 7251..7406
-original 396..397 -> expanded 13200..13201
-original 397..558 -> expanded 14420..14581
-original 558..559 -> expanded 20418..20419
-original 559..560 -> expanded 21656..21657
-generated 240..6031 <- Decode
-generated 6032..7251 <- Decode
-generated 7406..13200 <- Decode
-generated 13201..14420 <- Decode
-generated 14581..20418 <- Decode
-generated 20419..21656 <- Decode
+original 0..240 -> expanded 307..547
+original 240..241 -> expanded 6370..6371
+original 241..396 -> expanded 7590..7745
+original 396..397 -> expanded 13571..13572
+original 397..558 -> expanded 14791..14952
+original 558..559 -> expanded 20821..20822
+original 559..560 -> expanded 22059..22060
+generated 0..307 <- imports
+generated 547..6370 <- Decode
+generated 6371..7590 <- Decode
+generated 7745..13571 <- Decode
+generated 13572..14791 <- Decode
+generated 14952..20821 <- Decode
+generated 20822..22059 <- Decode
 
 ## Metadata
 

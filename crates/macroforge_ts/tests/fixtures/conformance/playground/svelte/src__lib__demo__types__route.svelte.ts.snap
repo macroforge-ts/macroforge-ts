@@ -291,7 +291,46 @@ color: null,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Route.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -835,234 +874,6 @@ color: null,
 
 
 
-                            }{
-                                const __raw_active = obj["active"] as boolean;instance.active = __raw_active;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1096,11 +907,349 @@ color: null,
 
 
                             }{
-                                const __raw_name = obj["name"] as string;
-                                            if (__raw_name == null) { errors.push({ field: "name", message: "Route.name is required" }); } else {
+                                const __raw_active = obj["active"] as boolean;if (!(typeof __raw_active === "boolean")) {
+                                                    errors.push({ field: "active", message: __raw_active == null ? "Route.active is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.active = __raw_active;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Route.name is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_name == null) { errors.push({ field: "name", message: "Route.name is required" }); } else {
 if (__raw_name.length === 0) { errors.push({ field: "name", message: "Route.name must not be empty" }); }
 }
-instance.name = __raw_name;
+
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1360,11 +1509,50 @@ instance.name = __raw_name;
 
 
                             }{
-                                const __raw_phone = obj["phone"] as string;
-                                            if (__raw_phone == null) { errors.push({ field: "phone", message: "Route.phone is required" }); } else {
+                                const __raw_phone = obj["phone"] as string;if (!(typeof __raw_phone === "string")) {
+                                                    errors.push({ field: "phone", message: __raw_phone == null ? "Route.phone is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_phone == null) { errors.push({ field: "phone", message: "Route.phone is required" }); } else {
 if (__raw_phone.length === 0) { errors.push({ field: "phone", message: "Route.phone must not be empty" }); }
 }
-instance.phone = __raw_phone;
+
+
+
+
+                                                    instance.phone = __raw_phone;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1624,11 +1812,50 @@ instance.phone = __raw_phone;
 
 
                             }{
-                                const __raw_position = obj["position"] as string;
-                                            if (__raw_position == null) { errors.push({ field: "position", message: "Route.position is required" }); } else {
+                                const __raw_position = obj["position"] as string;if (!(typeof __raw_position === "string")) {
+                                                    errors.push({ field: "position", message: __raw_position == null ? "Route.position is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_position == null) { errors.push({ field: "position", message: "Route.position is required" }); } else {
 if (__raw_position.length === 0) { errors.push({ field: "position", message: "Route.position must not be empty" }); }
 }
-instance.position = __raw_position;
+
+
+
+
+                                                    instance.position = __raw_position;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1888,7 +2115,46 @@ instance.position = __raw_position;
 
 
                             }{
-                                const __raw_serviceRoute = obj["serviceRoute"] as boolean;instance.serviceRoute = __raw_serviceRoute;
+                                const __raw_serviceRoute = obj["serviceRoute"] as boolean;if (!(typeof __raw_serviceRoute === "boolean")) {
+                                                    errors.push({ field: "serviceRoute", message: __raw_serviceRoute == null ? "Route.serviceRoute is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.serviceRoute = __raw_serviceRoute;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2148,7 +2414,46 @@ instance.position = __raw_position;
 
 
                             }{
-                                const __raw_defaultDurationHours = obj["defaultDurationHours"] as number;instance.defaultDurationHours = __raw_defaultDurationHours;
+                                const __raw_defaultDurationHours = obj["defaultDurationHours"] as number;if (!(typeof __raw_defaultDurationHours === "number")) {
+                                                    errors.push({ field: "defaultDurationHours", message: __raw_defaultDurationHours == null ? "Route.defaultDurationHours is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.defaultDurationHours = __raw_defaultDurationHours;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2721,235 +3026,6 @@ instance.position = __raw_position;
 
 
 
-                            }{
-                                const __raw_icon = obj["icon"] as string | null;
-                                                instance.icon = __raw_icon;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2983,8 +3059,339 @@ instance.position = __raw_position;
 
 
                             }{
-                                const __raw_color = obj["color"] as string | null;
-                                                instance.color = __raw_color;
+                                const __raw_icon = obj["icon"] as string | null;if (!(typeof __raw_icon === "string" || __raw_icon === null)) {
+                                                        errors.push({ field: "icon", message: "expected string | null" });
+                                                    } else {
+                                                        instance.icon = __raw_icon;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_color = obj["color"] as string | null;if (!(typeof __raw_color === "string" || __raw_color === null)) {
+                                                        errors.push({ field: "color", message: "expected string | null" });
+                                                    } else {
+                                                        instance.color = __raw_color;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3244,6 +3651,82 @@ instance.position = __raw_position;
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4379,7 +4862,18 @@ if (__val.length === 0) { errors.push({ field: "position", message: "Route.posit
             return toExit(routeDecode(obj));
         }
 
-export const Route = {
+export const Route: {
+  readonly defaultValue: typeof routeDefaultValue;
+  readonly encode: typeof routeEncode;
+  readonly encodeWithContext: typeof routeEncodeWithContext;
+  readonly decode: typeof routeDecode;
+  readonly decodeWithContext: typeof routeDecodeWithContext;
+  readonly validateFields: typeof routeValidateFields;
+  readonly hasShape: typeof routeHasShape;
+  readonly is: typeof routeIs;
+  readonly createForm: typeof routeCreateForm;
+  readonly fromFormData: typeof routeFromFormData;
+} = {
   defaultValue: routeDefaultValue,
   encode: routeEncode,
   encodeWithContext: routeEncodeWithContext,
@@ -4390,7 +4884,7 @@ export const Route = {
   is: routeIs,
   createForm: routeCreateForm,
   fromFormData: routeFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -4663,7 +5157,46 @@ color: null,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Route.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5207,234 +5740,6 @@ color: null,
 
 
 
-                            }{
-                                const __raw_active = obj["active"] as boolean;instance.active = __raw_active;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -5468,11 +5773,349 @@ color: null,
 
 
                             }{
-                                const __raw_name = obj["name"] as string;
-                                            if (__raw_name == null) { errors.push({ field: "name", message: "Route.name is required" }); } else {
+                                const __raw_active = obj["active"] as boolean;if (!(typeof __raw_active === "boolean")) {
+                                                    errors.push({ field: "active", message: __raw_active == null ? "Route.active is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.active = __raw_active;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Route.name is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_name == null) { errors.push({ field: "name", message: "Route.name is required" }); } else {
 if (__raw_name.length === 0) { errors.push({ field: "name", message: "Route.name must not be empty" }); }
 }
-instance.name = __raw_name;
+
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5732,11 +6375,50 @@ instance.name = __raw_name;
 
 
                             }{
-                                const __raw_phone = obj["phone"] as string;
-                                            if (__raw_phone == null) { errors.push({ field: "phone", message: "Route.phone is required" }); } else {
+                                const __raw_phone = obj["phone"] as string;if (!(typeof __raw_phone === "string")) {
+                                                    errors.push({ field: "phone", message: __raw_phone == null ? "Route.phone is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_phone == null) { errors.push({ field: "phone", message: "Route.phone is required" }); } else {
 if (__raw_phone.length === 0) { errors.push({ field: "phone", message: "Route.phone must not be empty" }); }
 }
-instance.phone = __raw_phone;
+
+
+
+
+                                                    instance.phone = __raw_phone;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5996,11 +6678,50 @@ instance.phone = __raw_phone;
 
 
                             }{
-                                const __raw_position = obj["position"] as string;
-                                            if (__raw_position == null) { errors.push({ field: "position", message: "Route.position is required" }); } else {
+                                const __raw_position = obj["position"] as string;if (!(typeof __raw_position === "string")) {
+                                                    errors.push({ field: "position", message: __raw_position == null ? "Route.position is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_position == null) { errors.push({ field: "position", message: "Route.position is required" }); } else {
 if (__raw_position.length === 0) { errors.push({ field: "position", message: "Route.position must not be empty" }); }
 }
-instance.position = __raw_position;
+
+
+
+
+                                                    instance.position = __raw_position;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6260,7 +6981,46 @@ instance.position = __raw_position;
 
 
                             }{
-                                const __raw_serviceRoute = obj["serviceRoute"] as boolean;instance.serviceRoute = __raw_serviceRoute;
+                                const __raw_serviceRoute = obj["serviceRoute"] as boolean;if (!(typeof __raw_serviceRoute === "boolean")) {
+                                                    errors.push({ field: "serviceRoute", message: __raw_serviceRoute == null ? "Route.serviceRoute is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.serviceRoute = __raw_serviceRoute;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6520,7 +7280,46 @@ instance.position = __raw_position;
 
 
                             }{
-                                const __raw_defaultDurationHours = obj["defaultDurationHours"] as number;instance.defaultDurationHours = __raw_defaultDurationHours;
+                                const __raw_defaultDurationHours = obj["defaultDurationHours"] as number;if (!(typeof __raw_defaultDurationHours === "number")) {
+                                                    errors.push({ field: "defaultDurationHours", message: __raw_defaultDurationHours == null ? "Route.defaultDurationHours is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.defaultDurationHours = __raw_defaultDurationHours;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7093,235 +7892,6 @@ instance.position = __raw_position;
 
 
 
-                            }{
-                                const __raw_icon = obj["icon"] as string | null;
-                                                instance.icon = __raw_icon;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -7355,8 +7925,339 @@ instance.position = __raw_position;
 
 
                             }{
-                                const __raw_color = obj["color"] as string | null;
-                                                instance.color = __raw_color;
+                                const __raw_icon = obj["icon"] as string | null;if (!(typeof __raw_icon === "string" || __raw_icon === null)) {
+                                                        errors.push({ field: "icon", message: "expected string | null" });
+                                                    } else {
+                                                        instance.icon = __raw_icon;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_color = obj["color"] as string | null;if (!(typeof __raw_color === "string" || __raw_color === null)) {
+                                                        errors.push({ field: "color", message: "expected string | null" });
+                                                    } else {
+                                                        instance.color = __raw_color;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7616,6 +8517,82 @@ instance.position = __raw_position;
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8751,7 +9728,18 @@ if (__val.length === 0) { errors.push({ field: "position", message: "Route.posit
             return toExit(routeDecode(obj));
         }
 
-export const Route = {
+export const Route: {
+  readonly defaultValue: typeof routeDefaultValue;
+  readonly encode: typeof routeEncode;
+  readonly encodeWithContext: typeof routeEncodeWithContext;
+  readonly decode: typeof routeDecode;
+  readonly decodeWithContext: typeof routeDecodeWithContext;
+  readonly validateFields: typeof routeValidateFields;
+  readonly hasShape: typeof routeHasShape;
+  readonly is: typeof routeIs;
+  readonly createForm: typeof routeCreateForm;
+  readonly fromFormData: typeof routeFromFormData;
+} = {
   defaultValue: routeDefaultValue,
   encode: routeEncode,
   encodeWithContext: routeEncodeWithContext,
@@ -8762,7 +9750,7 @@ export const Route = {
   is: routeIs,
   createForm: routeCreateForm,
   fromFormData: routeFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -8770,17 +9758,18 @@ export const Route = {
 
 ## Mapping
 
-original 0..110 -> expanded 0..110
-original 159..270 -> expanded 110..221
-original 311..334 -> expanded 221..244
-original 375..399 -> expanded 244..268
-original 440..601 -> expanded 268..429
-original 601..602 -> expanded 34525..34526
-generated 429..685 <- Default
-generated 685..2671 <- Encode
-generated 2671..16967 <- Decode
-generated 16967..34172 <- Gigaform
-generated 34172..34525 <- __convenience_const
+original 0..110 -> expanded 641..751
+original 159..270 -> expanded 751..862
+original 311..334 -> expanded 862..885
+original 375..399 -> expanded 885..909
+original 440..601 -> expanded 909..1070
+original 601..602 -> expanded 39386..39387
+generated 0..641 <- imports
+generated 1070..1326 <- Default
+generated 1326..3312 <- Encode
+generated 3312..21354 <- Decode
+generated 21354..38559 <- Gigaform
+generated 38559..39386 <- __convenience_const
 
 ## Metadata
 

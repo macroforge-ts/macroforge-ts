@@ -5,11 +5,12 @@ use crate::ts_syn::{DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, ts
 
 use convert_case::{Case, Casing};
 
+use super::super::value_kind::EndecValueKind;
 use super::super::{EndecContainerOptions, TypeCategory};
 use super::field_processing::to_decode_field;
-use super::helpers::{nested_decode_fn_name, nested_decode_result_fn_name};
-use super::types::{DecodeField, EndecValueKind};
-use super::validation::generate_field_validations;
+use super::helpers::{nested_decode_fn_name, nested_decode_result_fn_name, primitive_check};
+use super::types::DecodeField;
+use super::validation::{Missing, generate_field_validations};
 use crate::builtin::return_types::{
     DECODE_CONTEXT, DECODE_ERROR, DECODE_OPTIONS, PENDING_REF, decode_return_type, is_ok_check,
     wrap_error, wrap_success,
@@ -216,26 +217,38 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
                             {#if field.optional}
                                 if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
                                     {#if has_validators}
-                                        {
+                                        try {
                                             const __convertedVal = (@{fn_expr})(obj["@{field.json_key}"]);
-                                            {$let validation_code = generate_field_validations(&field.validators, "__convertedVal", &field.json_key, interface_name, field.accepts_missing())}
+                                            {$let validation_code = generate_field_validations(&field.validators, "__convertedVal", &field.json_key, interface_name, field.missing())}
                                             {$typescript validation_code}
                                             instance.@{field.field_ident} = __convertedVal;
+                                        } catch (__error) {
+                                            errors.push({ field: "@{field.json_key}", message: __error instanceof Error ? __error.message : String(__error) });
                                         }
                                     {:else}
-                                        instance.@{field.field_ident} = (@{fn_expr})(obj["@{field.json_key}"]);
+                                        try {
+                                            instance.@{field.field_ident} = (@{fn_expr})(obj["@{field.json_key}"]);
+                                        } catch (__error) {
+                                            errors.push({ field: "@{field.json_key}", message: __error instanceof Error ? __error.message : String(__error) });
+                                        }
                                     {/if}
                                 }
                             {:else}
                                 {#if has_validators}
-                                    {
+                                    try {
                                         const __convertedVal = (@{fn_expr})(obj["@{field.json_key}"]);
-                                        {$let validation_code = generate_field_validations(&field.validators, "__convertedVal", &field.json_key, interface_name, field.accepts_missing())}
+                                        {$let validation_code = generate_field_validations(&field.validators, "__convertedVal", &field.json_key, interface_name, field.missing())}
                                         {$typescript validation_code}
                                         instance.@{field.field_ident} = __convertedVal;
+                                    } catch (__error) {
+                                        errors.push({ field: "@{field.json_key}", message: __error instanceof Error ? __error.message : String(__error) });
                                     }
                                 {:else}
-                                    instance.@{field.field_ident} = (@{fn_expr})(obj["@{field.json_key}"]);
+                                    try {
+                                        instance.@{field.field_ident} = (@{fn_expr})(obj["@{field.json_key}"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "@{field.json_key}", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }
                                 {/if}
                             {/if}
                         {:else}
@@ -244,12 +257,11 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
                                 const @{raw_var_ident} = obj["@{field.json_key}"] as @{field.raw_cast_type};
                                 {#match &field.type_cat}
                                     {:case TypeCategory::Primitive}
-                                        {#if has_validators}
-                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name, field.accepts_missing())}
-                                            {$typescript validation_code}
-
-                                        {/if}
                                         {#if field.decimal_format}
+                                            {#if has_validators}
+                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name, field.missing())}
+                                                {$typescript validation_code}
+                                            {/if}
                                             {
                                                 const __numVal = globalThis.Number(@{raw_var_ident});
                                                 if (globalThis.Number.isNaN(__numVal)) {
@@ -259,20 +271,36 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
                                                 }
                                             }
                                         {:else}
-                                            instance.@{field.field_ident} = @{raw_var_ident};
+                                            {#if let Some(primitive) = primitive_check(&field, &raw_var_name, interface_name)}
+                                                if (@{primitive.mismatch}) {
+                                                    errors.push({ field: "@{field.json_key}", message: @{primitive.message} });
+                                                } else {
+                                                    {#if has_validators}
+                                                        {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name, field.missing())}
+                                                        {$typescript validation_code}
+                                                    {/if}
+                                                    instance.@{field.field_ident} = @{raw_var_ident};
+                                                }
+                                            {:else}
+                                                {#if has_validators}
+                                                    {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name, field.missing())}
+                                                    {$typescript validation_code}
+                                                {/if}
+                                                instance.@{field.field_ident} = @{raw_var_ident};
+                                            {/if}
                                         {/if}
 
                                     {:case TypeCategory::Date}
                                         {
                                             const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident} as Date;
-                                            {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, interface_name, field.accepts_missing())}{$typescript validation_code}{/if}
+                                            {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, interface_name, field.missing())}{$typescript validation_code}{/if}
                                             instance.@{field.field_ident} = __dateVal;
                                         }
 
                                     {:case TypeCategory::Array(inner)}
                                         if (Array.isArray(@{raw_var_ident})) {
                                             {#if has_validators}
-                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name, field.accepts_missing())}
+                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name, field.missing())}
                                                 {$typescript validation_code}
 
                                             {/if}
@@ -411,7 +439,7 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
                                             if (typeof @{raw_var_ident} === "@{prim}") {
                                                 instance.@{field.field_ident} = @{raw_var_ident};
                                                 {#if field.has_union_string_validators()}
-                                                    {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, interface_name, true)}
+                                                    {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, interface_name, Missing::Excluded)}
                                                     {$typescript usv_code}
                                                 {/if}
                                             } else {
@@ -458,14 +486,23 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
                                     {:case TypeCategory::Nullable(_)}
                                         {#match field.nullable_inner_kind.unwrap_or(EndecValueKind::Other)}
                                             {:case EndecValueKind::PrimitiveLike}
-                                                {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name, field.accepts_missing())}{$typescript validation_code}{/if}
-                                                instance.@{field.field_ident} = @{raw_var_ident};
+                                                {#if let Some(primitive) = primitive_check(&field, &raw_var_name, interface_name)}
+                                                    if (@{primitive.mismatch}) {
+                                                        errors.push({ field: "@{field.json_key}", message: @{primitive.message} });
+                                                    } else {
+                                                        {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name, field.missing())}{$typescript validation_code}{/if}
+                                                        instance.@{field.field_ident} = @{raw_var_ident};
+                                                    }
+                                                {:else}
+                                                    {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name, field.missing())}{$typescript validation_code}{/if}
+                                                    instance.@{field.field_ident} = @{raw_var_ident};
+                                                {/if}
                                             {:case EndecValueKind::Date}
                                                 if (@{raw_var_ident} === null) {
                                                     instance.@{field.field_ident} = null;
                                                 } else {
                                                     const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident};
-                                                    {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, interface_name, field.accepts_missing())}{$typescript validation_code}{/if}
+                                                    {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, interface_name, field.missing())}{$typescript validation_code}{/if}
                                                     instance.@{field.field_ident} = __dateVal;
                                                 }
                                             {:case _}
@@ -499,7 +536,15 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
                                         {/match}
 
                                     {:case _}
-                                        instance.@{field.field_ident} = @{raw_var_ident};
+                                        {#if let Some(primitive) = primitive_check(&field, &raw_var_name, interface_name)}
+                                            if (@{primitive.mismatch}) {
+                                                errors.push({ field: "@{field.json_key}", message: @{primitive.message} });
+                                            } else {
+                                                instance.@{field.field_ident} = @{raw_var_ident};
+                                            }
+                                        {:else}
+                                            instance.@{field.field_ident} = @{raw_var_ident};
+                                        {/if}
                                 {/match}
                             }
                             {#if let Some(default_expr) = &field.default_expr}
@@ -512,12 +557,11 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
                                 const @{raw_var_ident} = obj["@{field.json_key}"] as @{field.raw_cast_type};
                                 {#match &field.type_cat}
                                     {:case TypeCategory::Primitive}
-                                        {#if has_validators}
-                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name, field.accepts_missing())}
-                                            {$typescript validation_code}
-
-                                        {/if}
                                         {#if field.decimal_format}
+                                            {#if has_validators}
+                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name, field.missing())}
+                                                {$typescript validation_code}
+                                            {/if}
                                             {
                                                 const __numVal = globalThis.Number(@{raw_var_ident});
                                                 if (globalThis.Number.isNaN(__numVal)) {
@@ -527,20 +571,36 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
                                                 }
                                             }
                                         {:else}
-                                            instance.@{field.field_ident} = @{raw_var_ident};
+                                            {#if let Some(primitive) = primitive_check(&field, &raw_var_name, interface_name)}
+                                                if (@{primitive.mismatch}) {
+                                                    errors.push({ field: "@{field.json_key}", message: @{primitive.message} });
+                                                } else {
+                                                    {#if has_validators}
+                                                        {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name, field.missing())}
+                                                        {$typescript validation_code}
+                                                    {/if}
+                                                    instance.@{field.field_ident} = @{raw_var_ident};
+                                                }
+                                            {:else}
+                                                {#if has_validators}
+                                                    {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name, field.missing())}
+                                                    {$typescript validation_code}
+                                                {/if}
+                                                instance.@{field.field_ident} = @{raw_var_ident};
+                                            {/if}
                                         {/if}
 
                                     {:case TypeCategory::Date}
                                         {
                                             const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident} as Date;
-                                            {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, interface_name, field.accepts_missing())}{$typescript validation_code}{/if}
+                                            {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, interface_name, field.missing())}{$typescript validation_code}{/if}
                                             instance.@{field.field_ident} = __dateVal;
                                         }
 
                                     {:case TypeCategory::Array(inner)}
                                         if (Array.isArray(@{raw_var_ident})) {
                                             {#if has_validators}
-                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name, field.accepts_missing())}
+                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name, field.missing())}
                                                 {$typescript validation_code}
 
                                             {/if}
@@ -679,7 +739,7 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
                                             if (typeof @{raw_var_ident} === "@{prim}") {
                                                 instance.@{field.field_ident} = @{raw_var_ident};
                                                 {#if field.has_union_string_validators()}
-                                                    {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, interface_name, true)}
+                                                    {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, interface_name, Missing::Excluded)}
                                                     {$typescript usv_code}
                                                 {/if}
                                             } else {
@@ -726,14 +786,23 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
                                     {:case TypeCategory::Nullable(_)}
                                         {#match field.nullable_inner_kind.unwrap_or(EndecValueKind::Other)}
                                             {:case EndecValueKind::PrimitiveLike}
-                                                {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name, field.accepts_missing())}{$typescript validation_code}{/if}
-                                                instance.@{field.field_ident} = @{raw_var_ident};
+                                                {#if let Some(primitive) = primitive_check(&field, &raw_var_name, interface_name)}
+                                                    if (@{primitive.mismatch}) {
+                                                        errors.push({ field: "@{field.json_key}", message: @{primitive.message} });
+                                                    } else {
+                                                        {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name, field.missing())}{$typescript validation_code}{/if}
+                                                        instance.@{field.field_ident} = @{raw_var_ident};
+                                                    }
+                                                {:else}
+                                                    {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, interface_name, field.missing())}{$typescript validation_code}{/if}
+                                                    instance.@{field.field_ident} = @{raw_var_ident};
+                                                {/if}
                                             {:case EndecValueKind::Date}
                                                 if (@{raw_var_ident} === null) {
                                                     instance.@{field.field_ident} = null;
                                                 } else {
                                                     const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident};
-                                                    {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, interface_name, field.accepts_missing())}{$typescript validation_code}{/if}
+                                                    {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, interface_name, field.missing())}{$typescript validation_code}{/if}
                                                     instance.@{field.field_ident} = __dateVal;
                                                 }
                                             {:case _}
@@ -767,7 +836,15 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
                                         {/match}
 
                                     {:case _}
-                                        instance.@{field.field_ident} = @{raw_var_ident};
+                                        {#if let Some(primitive) = primitive_check(&field, &raw_var_name, interface_name)}
+                                            if (@{primitive.mismatch}) {
+                                                errors.push({ field: "@{field.json_key}", message: @{primitive.message} });
+                                            } else {
+                                                instance.@{field.field_ident} = @{raw_var_ident};
+                                            }
+                                        {:else}
+                                            instance.@{field.field_ident} = @{raw_var_ident};
+                                        {/if}
                                 {/match}
                             }
                         {/if}
@@ -789,7 +866,7 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
                 {#for field in &fields_with_validators}
                 if (_field === "@{field.field_name}") {
                     const __val = _value as @{field.ts_type};
-                    {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, interface_name, field.accepts_missing())}
+                    {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, interface_name, field.missing())}
                     {$typescript validation_code}
 
                 }
@@ -808,7 +885,7 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
                 {#for field in &fields_with_validators}
                 if ("@{field.field_name}" in _partial && _partial.@{field.field_ident} !== undefined) {
                     const __val = _partial.@{field.field_ident} as @{field.ts_type};
-                    {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, interface_name, field.accepts_missing())}
+                    {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, interface_name, field.missing())}
                     {$typescript validation_code}
 
                 }

@@ -1,0 +1,41 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/union_arm_validators_on_object.ts
+---
+## Input
+
+/** @derive(Decode) */
+type Shape = /** @endec(email) */ { address: string } | string;
+
+## Changed
+
+true
+
+## Output
+
+type Shape = /** @endec(email) */ { address: string } | string;
+
+## DTS
+
+type Shape = /** @endec(email) */ { address: string } | string;
+
+## Diagnostics
+
+Error [37..57]: @endec validators on arm 'object' of type 'Shape' only apply to primitive arms; put them on the variant's fields instead
+
+## Mapping
+
+original 22..87 -> expanded 0..65
+
+## Metadata
+
+type Shape: {"body":{"Union":[{"decorators":[{"args_src":"email","name":"endec","span":{"end":57,"start":37}}],"kind":{"Object":{"fields":[{"decorators":[],"name":"address","optional":false,"readonly":false,"span":{"end":75,"start":60},"ts_type":"string"}]}}},{"decorators":[],"kind":{"TypeRef":"string"}}]},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"name":"Shape","span":{"end":87,"start":24},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

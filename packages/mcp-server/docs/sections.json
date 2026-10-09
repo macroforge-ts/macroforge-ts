@@ -38,7 +38,7 @@
         "category": "concepts",
         "category_title": "Core Concepts",
         "path": "concepts/derive-system/built-in-vs-custom-macros.md",
-        "use_cases": "@derive, decorator, import macro",
+        "use_cases": "@derive, decorator, import macro, $newtype",
         "parent_id": "derive-system"
     },
     {
@@ -144,6 +144,15 @@
         "parent_id": "macros-overview"
     },
     {
+        "id": "macros-overview/type-position-macros",
+        "title": "Overview: Type-Position Macros",
+        "category": "builtin-macros",
+        "category_title": "Built-in Macros",
+        "path": "builtin-macros/macros-overview/type-position-macros.md",
+        "use_cases": "all macros, list, @derive, $newtype<t>, unique symbol, @derive",
+        "parent_id": "macros-overview"
+    },
+    {
         "id": "macros-overview/interface-support",
         "title": "Overview: Interface Support",
         "category": "builtin-macros",
@@ -176,7 +185,7 @@
         "category": "builtin-macros",
         "category_title": "Built-in Macros",
         "path": "builtin-macros/macros-overview/detailed-documentation.md",
-        "use_cases": "all macros, list",
+        "use_cases": "all macros, list, decode",
         "parent_id": "macros-overview"
     },
     {
@@ -189,6 +198,7 @@
         "is_chunked": true,
         "chunk_ids": [
             "macros-overview/overview",
+            "macros-overview/type-position-macros",
             "macros-overview/interface-support",
             "macros-overview/enum-support",
             "macros-overview/type-alias-support",
@@ -266,6 +276,14 @@
         "category_title": "Built-in Macros",
         "path": "builtin-macros/decode.md",
         "use_cases": "fromJSON, decoding, parsing, validation, json"
+    },
+    {
+        "id": "newtype",
+        "title": "$Newtype",
+        "category": "builtin-macros",
+        "category_title": "Built-in Macros",
+        "path": "builtin-macros/newtype.md",
+        "use_cases": "newtype, brand, branded type, nominal type, unique symbol, opaque type"
     },
     {
         "id": "endec",
@@ -887,7 +905,7 @@
         "category": "integration",
         "category_title": "Integration",
         "path": "integration/cli/commands.md",
-        "use_cases": "command line, macroforge command",
+        "use_cases": "command line, macroforge command, macroforge.config.*, package.json, deno.json, deno.jsonc",
         "parent_id": "cli"
     },
     {

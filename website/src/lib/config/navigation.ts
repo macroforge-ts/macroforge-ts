@@ -89,6 +89,8 @@ export function resolvePath(path: Pathname): ResolvedPathname {
             return resolve('/docs/builtin-macros/encode');
         case '/docs/builtin-macros/decode':
             return resolve('/docs/builtin-macros/decode');
+        case '/docs/builtin-macros/newtype':
+            return resolve('/docs/builtin-macros/newtype');
 
         // Custom Macros
         case '/docs/custom-macros':
@@ -211,7 +213,8 @@ export const navigation: NavSection[] = [
             { title: 'PartialEq', href: '/docs/builtin-macros/partial-eq' },
             { title: 'PartialOrd', href: '/docs/builtin-macros/partial-ord' },
             { title: 'Encode', href: '/docs/builtin-macros/encode' },
-            { title: 'Decode', href: '/docs/builtin-macros/decode' }
+            { title: 'Decode', href: '/docs/builtin-macros/decode' },
+            { title: '$Newtype', href: '/docs/builtin-macros/newtype' }
         ]
     },
     {

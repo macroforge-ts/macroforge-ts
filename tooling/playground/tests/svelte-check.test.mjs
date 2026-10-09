@@ -9,6 +9,8 @@
  */
 
 import { assert, assertEquals, assertStringIncludes } from '@std/assert';
+import { rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { runCli, svelteRoot } from './test-utils.mjs';
 
 // ============================================================================
@@ -118,4 +120,41 @@ Deno.test('svelte-check: --fail-on-warnings exits non-zero on warnings', () => {
         result.status === 0 || result.status === 1,
         `Should exit cleanly (0 or 1), got ${result.status}.\nstdout: ${result.stdout}\nstderr: ${result.stderr}`
     );
+});
+
+// ============================================================================
+// Positions in expanded files
+// ============================================================================
+
+Deno.test('svelte-check: reports errors at their source position in every format', () => {
+    const probe = join(svelteRoot, 'src', 'lib', 'position-probe.ts');
+    writeFileSync(
+        probe,
+        [
+            '/** @derive(Debug, Encode) */',
+            'export interface Probe { a: number }',
+            "export const label = 'café 🚀';",
+            'export const wrong: string = 42;',
+            ''
+        ].join('\n')
+    );
+    try {
+        // Output without colour codes, which the human format puts in the path.
+        const colour = new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, 'g');
+        const run = (output) => {
+            const result = runCli(
+                ['svelte-check', '--tsconfig', './tsconfig.json', '--output', output],
+                { cwd: svelteRoot }
+            );
+            return (result.stdout + result.stderr).replace(colour, '');
+        };
+        assertStringIncludes(run('human'), 'position-probe.ts:4:14');
+        assertStringIncludes(run('machine'), '"src/lib/position-probe.ts" 4:14');
+        assertStringIncludes(
+            run('machine-verbose'),
+            '"filename":"src/lib/position-probe.ts","start":{"line":3,"character":13}'
+        );
+    } finally {
+        rmSync(probe, { force: true });
+    }
 });

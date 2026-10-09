@@ -124,8 +124,8 @@ export function statusDefaultValue(): Status {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function statusDecodeWithContext(value: any, ctx: __mf_DecodeContext): Status | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function statusDecodeWithContext(value: any, _ctx: __mf_DecodeContext): Status | __mf_PendingRef {
                 switch (value) {
                     case 'Scheduled':
                     case 'OnDeck':
@@ -356,7 +356,17 @@ if (variant === "Waiting") { return "Waiting" as Status; }
             return toExit(statusDecode(obj));
         }
 
-export const Status = {
+export const Status: {
+  readonly defaultValue: typeof statusDefaultValue;
+  readonly encode: typeof statusEncode;
+  readonly encodeWithContext: typeof statusEncodeWithContext;
+  readonly decode: typeof statusDecode;
+  readonly decodeWithContext: typeof statusDecodeWithContext;
+  readonly hasShape: typeof statusHasShape;
+  readonly is: typeof statusIs;
+  readonly createForm: typeof statusCreateForm;
+  readonly fromFormData: typeof statusFromFormData;
+} = {
   defaultValue: statusDefaultValue,
   encode: statusEncode,
   encodeWithContext: statusEncodeWithContext,
@@ -366,7 +376,7 @@ export const Status = {
   is: statusIs,
   createForm: statusCreateForm,
   fromFormData: statusFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -473,8 +483,8 @@ export function statusDefaultValue(): Status {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function statusDecodeWithContext(value: any, ctx: __mf_DecodeContext): Status | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function statusDecodeWithContext(value: any, _ctx: __mf_DecodeContext): Status | __mf_PendingRef {
                 switch (value) {
                     case 'Scheduled':
                     case 'OnDeck':
@@ -705,7 +715,17 @@ if (variant === "Waiting") { return "Waiting" as Status; }
             return toExit(statusDecode(obj));
         }
 
-export const Status = {
+export const Status: {
+  readonly defaultValue: typeof statusDefaultValue;
+  readonly encode: typeof statusEncode;
+  readonly encodeWithContext: typeof statusEncodeWithContext;
+  readonly decode: typeof statusDecode;
+  readonly decodeWithContext: typeof statusDecodeWithContext;
+  readonly hasShape: typeof statusHasShape;
+  readonly is: typeof statusIs;
+  readonly createForm: typeof statusCreateForm;
+  readonly fromFormData: typeof statusFromFormData;
+} = {
   defaultValue: statusDefaultValue,
   encode: statusEncode,
   encodeWithContext: statusEncodeWithContext,
@@ -715,7 +735,7 @@ export const Status = {
   is: statusIs,
   createForm: statusCreateForm,
   fromFormData: statusFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -723,14 +743,15 @@ export const Status = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..180 -> expanded 58..131
-original 180..181 -> expanded 10613..10614
-generated 131..253 <- Default
-generated 253..2151 <- Encode
-generated 2151..4275 <- Decode
-generated 4275..10289 <- Gigaform
-generated 10289..10613 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..180 -> expanded 627..700
+original 180..181 -> expanded 11670..11671
+generated 0..569 <- imports
+generated 700..822 <- Default
+generated 822..2720 <- Encode
+generated 2720..4904 <- Decode
+generated 4904..10918 <- Gigaform
+generated 10918..11670 <- __convenience_const
 
 ## Metadata
 

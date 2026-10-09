@@ -33,7 +33,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                         return None;
                     }
                     let label = opts.rename.unwrap_or_else(|| field.name.clone());
-                    Some((label, field.name.clone(), field.ts_type.clone()))
+                    Some((label, field.name.clone()))
                 })
                 .collect();
 
@@ -43,9 +43,9 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
             // Build push statements with type-aware value expressions
             let mut push_stmts = String::new();
-            for (label, name, ts_type) in &debug_fields {
+            for (label, name) in &debug_fields {
                 let resolved = resolved_fields.and_then(|rf| rf.get(name));
-                let val_expr = debug_value_expr(name, ts_type, "value", resolved, type_registry);
+                let val_expr = debug_value_expr(name, "value", resolved, type_registry);
                 push_stmts.push_str(&format!("parts.push(\"{label}: \" + {val_expr});\n"));
             }
 
@@ -121,7 +121,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                         return None;
                     }
                     let label = opts.rename.unwrap_or_else(|| field.name.clone());
-                    Some((label, field.name.clone(), field.ts_type.clone()))
+                    Some((label, field.name.clone()))
                 })
                 .collect();
 
@@ -135,10 +135,9 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 })
             } else {
                 let mut push_stmts = String::new();
-                for (label, name, ts_type) in &debug_fields {
+                for (label, name) in &debug_fields {
                     let resolved = resolved_fields.and_then(|rf| rf.get(name));
-                    let val_expr =
-                        debug_value_expr(name, ts_type, "value", resolved, type_registry);
+                    let val_expr = debug_value_expr(name, "value", resolved, type_registry);
                     push_stmts.push_str(&format!("parts.push(\"{label}: \" + {val_expr});\n"));
                 }
 
@@ -168,7 +167,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                             return None;
                         }
                         let label = opts.rename.unwrap_or_else(|| field.name.clone());
-                        Some((label, field.name.clone(), field.ts_type.clone()))
+                        Some((label, field.name.clone()))
                     })
                     .collect();
 
@@ -182,10 +181,9 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                     })
                 } else {
                     let mut push_stmts = String::new();
-                    for (label, name, ts_type) in &debug_fields {
+                    for (label, name) in &debug_fields {
                         let resolved = resolved_fields.and_then(|rf| rf.get(name));
-                        let val_expr =
-                            debug_value_expr(name, ts_type, "value", resolved, type_registry);
+                        let val_expr = debug_value_expr(name, "value", resolved, type_registry);
                         push_stmts.push_str(&format!("parts.push(\"{label}: \" + {val_expr});\n"));
                     }
 
@@ -197,6 +195,14 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                         }
                     })
                 }
+            } else if crate::builtin::endec::primitive_base(type_alias.body()) == Some("bigint") {
+                // JSON has no bigint, so it renders as a field of that type does.
+                let fn_name_ident = ts_ident!("{}ToString", type_name.to_case(Case::Camel));
+                Ok(ts_template! {
+                    export function @{fn_name_ident}(value: @{type_ident.clone()}): string {
+                        return "@{type_name}(" + String(value) + ")";
+                    }
+                })
             } else {
                 // Union, intersection, tuple, or simple alias: use JSON.stringify
                 let fn_name_ident = ts_ident!("{}ToString", type_name.to_case(Case::Camel));

@@ -821,6 +821,18 @@ export function actorDefaultValue(): Actor {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function actorHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
@@ -1010,8 +1022,11 @@ export function actorDefaultValue(): Actor {
 
         }
 
-        export function actorIs(value: unknown): value is Actor {
-            return actorHasShape(value);
+        export function actorIs(value: unknown): value is Actor {return actorHasShape(value);
+
+
+
+
         }
 
 /** Per-variant error types  */
@@ -1212,7 +1227,17 @@ if (variant === "Account") { return accountDefaultValue() as Actor; }
             return toExit(actorDecode(obj));
         }
 
-export const Actor = {
+export const Actor: {
+  readonly defaultValue: typeof actorDefaultValue;
+  readonly encode: typeof actorEncode;
+  readonly encodeWithContext: typeof actorEncodeWithContext;
+  readonly decode: typeof actorDecode;
+  readonly decodeWithContext: typeof actorDecodeWithContext;
+  readonly hasShape: typeof actorHasShape;
+  readonly is: typeof actorIs;
+  readonly createForm: typeof actorCreateForm;
+  readonly fromFormData: typeof actorFromFormData;
+} = {
   defaultValue: actorDefaultValue,
   encode: actorEncode,
   encodeWithContext: actorEncodeWithContext,
@@ -1222,7 +1247,7 @@ export const Actor = {
   is: actorIs,
   createForm: actorCreateForm,
   fromFormData: actorFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2017,6 +2042,18 @@ export function actorDefaultValue(): Actor {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function actorHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
@@ -2206,8 +2243,11 @@ export function actorDefaultValue(): Actor {
 
         }
 
-        export function actorIs(value: unknown): value is Actor {
-            return actorHasShape(value);
+        export function actorIs(value: unknown): value is Actor {return actorHasShape(value);
+
+
+
+
         }
 
 /** Per-variant error types  */
@@ -2408,7 +2448,17 @@ if (variant === "Account") { return accountDefaultValue() as Actor; }
             return toExit(actorDecode(obj));
         }
 
-export const Actor = {
+export const Actor: {
+  readonly defaultValue: typeof actorDefaultValue;
+  readonly encode: typeof actorEncode;
+  readonly encodeWithContext: typeof actorEncodeWithContext;
+  readonly decode: typeof actorDecode;
+  readonly decodeWithContext: typeof actorDecodeWithContext;
+  readonly hasShape: typeof actorHasShape;
+  readonly is: typeof actorIs;
+  readonly createForm: typeof actorCreateForm;
+  readonly fromFormData: typeof actorFromFormData;
+} = {
   defaultValue: actorDefaultValue,
   encode: actorEncode,
   encodeWithContext: actorEncodeWithContext,
@@ -2418,7 +2468,7 @@ export const Actor = {
   is: actorIs,
   createForm: actorCreateForm,
   fromFormData: actorFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -2426,14 +2476,15 @@ export const Actor = {
 
 ## Mapping
 
-original 0..202 -> expanded 0..202
-original 251..314 -> expanded 202..265
-original 314..315 -> expanded 16949..16950
-generated 265..392 <- Default
-generated 392..2285 <- Encode
-generated 2285..10762 <- Decode
-generated 10762..16635 <- Gigaform
-generated 16635..16949 <- __convenience_const
+original 0..202 -> expanded 1064..1266
+original 251..314 -> expanded 1266..1329
+original 314..315 -> expanded 18435..18436
+generated 0..1064 <- imports
+generated 1329..1456 <- Default
+generated 1456..3349 <- Encode
+generated 3349..11829 <- Decode
+generated 11829..17702 <- Gigaform
+generated 17702..18435 <- __convenience_const
 
 ## Metadata
 

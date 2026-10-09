@@ -56,7 +56,21 @@ export const declarativeMacrosErased = true;
 
 ## Mapping
 
-(none)
+original 0..440 -> expanded 0..440
+original 492..562 -> expanded 440..510
+original 630..677 -> expanded 510..557
+original 721..793 -> expanded 557..629
+original 882..908 -> expanded 629..655
+original 914..940 -> expanded 657..683
+original 953..978 -> expanded 690..715
+original 1005..1035 -> expanded 736..766
+original 1042..1074 -> expanded 768..800
+original 1087..1364 -> expanded 862..1139
+generated 655..657 <- $vec
+generated 683..690 <- $vec
+generated 715..736 <- $vec
+generated 766..768 <- $id
+generated 800..862 <- $withTemp
 
 ## Metadata
 

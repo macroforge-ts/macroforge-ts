@@ -113,14 +113,14 @@ pub fn rewrite(
     // In dev, or when no Auto macros are registered, we skip the first
     // pass entirely; the rewrite pass does all the work in one go.
     let has_auto = registry.iter().any(|(_, def)| def.mode == MacroMode::Auto);
-    // Run the megamorph analyzer when we're in prod (the original
-    // condition) OR when dev-mode `force_share` is set (PR 17).
+    // Run the megamorph analyzer in prod, or in dev when `force_share` is
+    // set.
     let run_analyzer =
         has_auto && (matches!(build_mode, BuildMode::Prod) || build_mode.force_share());
     let megamorph_report = if run_analyzer {
-        // PR 14: emit a one-time `Info` diagnostic when the analyzer runs
-        // without project-wide type information. The registry is always
-        // present now, but an empty one means no scan ran, so the analyzer
+        // Emit a one-time `Info` diagnostic when the analyzer runs without
+        // project-wide type information. An empty registry means no scan
+        // ran, so the analyzer
         // falls back to name-prefix bucketing, which a user running in
         // prod may not realize without an explicit notice.
         if type_registry.is_empty() {
@@ -145,7 +145,7 @@ pub fn rewrite(
 
     // Emit non-fatal diagnostics for any Auto macro the analyzer
     // examined. Warnings for megamorphic cases (Cluster / ForceExpand),
-    // and (when `analyzer_telemetry` is enabled, PR 14) an
+    // and, when `analyzer_telemetry` is enabled, an
     // additional `Info` diagnostic for every decision so users can
     // see the full analyzer trace, not just the problem cases.
     if let Some(report) = &megamorph_report {
@@ -226,6 +226,8 @@ pub fn rewrite(
         proc_dispatcher: proc_fallback.as_ref().map(|f| f.dispatcher),
         import_sources: proc_fallback.as_ref().map(|f| f.import_sources),
         external_loader: proc_fallback.as_ref().and_then(|f| f.external_loader),
+        lookup_site: None,
+        depth: 0,
     };
     visitor.visit_program(program);
 
@@ -351,6 +353,13 @@ pub(super) struct RewriteVisitor<'a> {
     pub(super) import_sources: Option<&'a std::collections::HashMap<String, String>>,
     /// Optional external macro loader for proc macros in separate packages.
     pub(super) external_loader: Option<&'a crate::host::expand::ExternalMacroLoader>,
+    /// Where macro names resolve while expanding another macro's output: the
+    /// original call site, whose scope the output belongs to. `None` for the
+    /// source itself, whose calls resolve where they are written.
+    lookup_site: Option<u32>,
+    /// How many macro outputs deep this walk is, bounded by
+    /// [`MAX_OUTPUT_DEPTH`].
+    depth: u32,
 }
 
 impl RewriteVisitor<'_> {
@@ -358,13 +367,17 @@ impl RewriteVisitor<'_> {
         self.counter += 1;
         self.counter
     }
+
+    /// The position a macro written at `own` resolves from.
+    pub(super) fn lookup_position(&self, own: u32) -> u32 {
+        self.lookup_site.unwrap_or(own)
+    }
 }
 
 /// Peel off parenthesized / TS-cast wrappers to reach the "real"
 /// expression underneath. Used by [`RewriteVisitor::visit_expression_statement`]
 /// so constructs like `($macro(x));` or `$macro(x) as unknown;` still
-/// expand in Statement context: the wrappers preserve statement-ness,
-/// matching the hand-rolled walker's previous behavior.
+/// expand in Statement context: the wrappers preserve statement-ness.
 fn unwrap_paren_and_casts<'b, 'a>(expr: &'b Expression<'a>) -> &'b Expression<'a> {
     match expr {
         Expression::ParenthesizedExpression(p) => unwrap_paren_and_casts(&p.expression),
@@ -400,9 +413,9 @@ impl<'a> Visit<'a> for RewriteVisitor<'_> {
         {
             return;
         }
-        // Otherwise let the default walker descend into the expression;
-        // any nested macro calls will reach `visit_call_expression`
-        // in Expression context.
+        // Otherwise let the default walker descend into the expression, so
+        // any nested macro calls reach `visit_call_expression` in
+        // Expression context.
         walk::walk_expression_statement(self, es);
     }
 
@@ -426,9 +439,9 @@ impl<'a> Visit<'a> for RewriteVisitor<'_> {
         walk::walk_ts_type_reference(self, tr);
     }
 
-    // The overrides below are not strictly necessary: the generated
+    // The overrides below are not strictly necessary (the generated
     // default walkers already descend into JSX expression containers,
-    // decorators, and class property definitions, but spelling them
+    // decorators, and class property definitions), but spelling them
     // out makes the "yes, we cover these positions" guarantee explicit
     // to future readers and gives us a hook if we ever need per-node
     // state tracking.
@@ -519,8 +532,8 @@ fn resolve_emission_strategy<'a>(
         },
         MacroMode::ShareOnly | MacroMode::ShareAnyway => {
             // Always share regardless of build mode. Fall back to
-            // inline expand if `call_arms`/`runtime` are missing:
-            // validation in discovery prevents that, but we stay
+            // inline expand if `call_arms`/`runtime` are missing.
+            // Validation in discovery prevents that, but we stay
             // defensive.
             match def.call_arms.as_deref() {
                 Some(call_arms) if def.runtime.is_some() => {
@@ -583,7 +596,7 @@ fn resolve_emission_strategy<'a>(
 /// call site's `arg_shapes`, and return the cluster's id. If no
 /// cluster matches (e.g. the analyzer's report is out-of-date
 /// because the first pass and the rewrite pass walked slightly
-/// different fragment sets), return `None`, and the caller falls back
+/// different fragment sets), return `None`; the caller falls back
 /// to single-helper behavior with a defensive diagnostic.
 fn resolve_cluster_id<'a>(
     clusters: &'a [super::megamorph::TypeCluster],
@@ -670,8 +683,11 @@ pub(super) fn try_rewrite_call(
     // `const $foo` inside a function body shadows the outer one
     // at call sites within the same function.
     let call_pos = call.span.start + 1;
-    let Some(def_arc) = visitor.registry.lookup_at(name, call_pos) else {
-        // Not a declarative macro, so try proc macro dispatch.
+    let Some(def_arc) = visitor
+        .registry
+        .lookup_at(name, visitor.lookup_position(call_pos))
+    else {
+        // Not a declarative macro: try proc macro dispatch.
         return try_dispatch_proc_call(call, callee_name, visitor);
     };
     let def = def_arc.as_ref();
@@ -689,8 +705,8 @@ pub(super) fn try_rewrite_call(
         EmissionPlan::ShareSingle { arms } => (*arms, Some(String::new())),
         EmissionPlan::ShareClustered { arms, clusters } => {
             // Compute this call site's full shape tuple the same way
-            // the analyzer's first pass did, one shape per positional
-            // argument, in left-to-right order (PR 7 / fix D), AND
+            // the analyzer's first pass did: one shape per positional
+            // argument, in left-to-right order, AND
             // threading the project-wide type registry through so
             // fingerprinted shapes compare equal to what the collector
             // built. Without the registry the rewriter would produce
@@ -704,7 +720,7 @@ pub(super) fn try_rewrite_call(
             let resolved = resolve_cluster_id(clusters, &arg_shapes).map(|s| s.to_string());
             if resolved.is_none() {
                 // The analyzer didn't place this call's shape in any
-                // cluster, so this is a defensive fallback to the single-helper
+                // cluster: defensive fallback to the single-helper
                 // path. This can happen if the first-pass walker
                 // and the rewrite pass see different fragment sets,
                 // or if the user's code changed between analysis and
@@ -814,9 +830,16 @@ pub(super) fn try_rewrite_call(
                     let span = call.span;
                     let span_ir = SpanIR::new(span.start + 1, span.end + 1);
                     let cluster_attr = cluster_id.as_deref().unwrap_or("");
+                    let position = match context {
+                        ExpansionContext::Statement => OutputPosition::Statement,
+                        ExpansionContext::Expression | ExpansionContext::Type => {
+                            OutputPosition::Value
+                        }
+                    };
+                    let code = expand_macro_output(visitor, &expanded, position, span_ir);
                     visitor.output.patches.push(Patch::Replace {
                         span: span_ir,
-                        code: expanded,
+                        code,
                         // PR 14: per-call-site attribution carries
                         // the cluster id so error blame
                         // disambiguates between variants of the
@@ -914,19 +937,18 @@ fn try_dispatch_proc_call(
         return false;
     };
 
-    // Extract the raw argument text between the parens.
-    let args_start = call.span.start as usize;
-    let args_end = call.span.end as usize;
-    let call_source = &visitor.source[args_start..args_end];
-    let args_source = if let Some(open) = call_source.find('(') {
-        let inner = &call_source[open + 1..];
-        if let Some(close) = inner.rfind(')') {
-            inner[..close].to_string()
-        } else {
-            inner.to_string()
+    // Extract the raw argument text between the parens. Nested macro calls
+    // stay unexpanded, as a Rust proc macro sees them.
+    let call_source = &visitor.source[call.span.start as usize..call.span.end as usize];
+    let args_source = match call_source.find('(') {
+        Some(open) => {
+            let inner = &call_source[open + 1..];
+            inner
+                .rfind(')')
+                .map_or(inner, |close| &inner[..close])
+                .to_string()
         }
-    } else {
-        String::new()
+        None => String::new(),
     };
 
     let call_span = SpanIR::new(call.span.start + 1, call.span.end + 1);
@@ -946,6 +968,7 @@ fn try_dispatch_proc_call(
         config: None,
         type_registry: crate::ts_syn::abi::ir::type_registry::TypeRegistry::default(),
         resolved_fields: None,
+        expansion_id: visitor.next_id(),
     };
 
     // Try the built-in dispatcher first, then the external loader.
@@ -957,35 +980,36 @@ fn try_dispatch_proc_call(
     });
 
     if is_not_found {
-        if let Some(loader) = visitor.external_loader {
-            match loader.run_macro(&ctx) {
-                Ok(external_result) => result = external_result,
-                Err(error) => {
-                    // The call stays as written, and says why.
-                    visitor.output.diagnostics.push(Diagnostic {
-                        level: DiagnosticLevel::Error,
-                        message: format!(
-                            "Failed to run the external call macro `{callee_name}` from \
-                             `{}`: {error:#}",
-                            ctx.module_path
-                        ),
-                        span: Some(call_span),
-                        notes: vec![],
-                        help: None,
-                    });
-                    return false;
-                }
-            }
-        } else {
+        let Some(loader) = visitor.external_loader else {
             return false;
+        };
+        match loader.run_macro(&ctx) {
+            Ok(external_result) => result = external_result,
+            Err(error) => {
+                // The call stays as written, and says why.
+                visitor.output.diagnostics.push(Diagnostic {
+                    level: DiagnosticLevel::Error,
+                    message: format!(
+                        "Failed to run the external call macro `{callee_name}` from \
+                         `{}`: {error:#}",
+                        ctx.module_path
+                    ),
+                    span: Some(call_span),
+                    notes: vec![],
+                    help: None,
+                });
+                return false;
+            }
         }
     }
 
-    // If the macro returned tokens, use those as the replacement text.
+    // If the macro returned tokens, use those as the replacement text, with
+    // any macro calls it emitted expanded in turn.
     if let Some(tokens) = &result.tokens {
+        let code = expand_macro_output(visitor, tokens, OutputPosition::Value, call_span);
         visitor.output.patches.push(Patch::Replace {
             span: call_span,
-            code: tokens.clone(),
+            code,
             source_macro: Some(format!("${}", name_without_dollar)),
         });
     }
@@ -1005,6 +1029,136 @@ fn try_dispatch_proc_call(
     }
 
     true
+}
+
+/// How many macro outputs deep expansion goes before reporting a runaway
+/// macro. Each level parses and walks its output, so it costs far more stack
+/// than a declarative step and is bounded well below that limit; Rust's own
+/// default `recursion_limit` is 128.
+const MAX_OUTPUT_DEPTH: u32 = 64;
+
+/// Where a proc macro's output stands, which decides how it parses when the
+/// macro calls inside it are expanded.
+#[derive(Clone, Copy)]
+pub(super) enum OutputPosition {
+    /// A type, for `$Name<...>` in type position.
+    Type,
+    /// An expression, for `$name(...)` in value position.
+    Value,
+    /// Statements, for a declarative macro expanded as a statement.
+    Statement,
+}
+
+/// Expands the macro calls in a proc macro's output, outside-in as in Rust:
+/// the macro saw its arguments unexpanded, and the calls it emits expand now.
+/// Their names resolve at the original call site. Replacements land in the
+/// returned text, file-level inserts (a brand's `declare const`, a shared
+/// runtime) go to the file, and diagnostics point at the call.
+pub(super) fn expand_macro_output(
+    visitor: &mut RewriteVisitor<'_>,
+    output: &str,
+    position: OutputPosition,
+    call_span: SpanIR,
+) -> String {
+    // Output parses as plain TypeScript, where no `$name` is a Svelte rune.
+    if !crate::expand_core::has_dollar_call(output, "") {
+        return output.to_string();
+    }
+    if visitor.depth >= MAX_OUTPUT_DEPTH {
+        visitor.output.diagnostics.push(Diagnostic {
+            level: DiagnosticLevel::Error,
+            message: format!(
+                "macro output expanded more than {MAX_OUTPUT_DEPTH} levels deep; a macro probably emits a call to itself"
+            ),
+            span: Some(call_span),
+            notes: vec![],
+            help: None,
+        });
+        return output.to_string();
+    }
+
+    let (prefix, suffix) = match position {
+        OutputPosition::Type => ("type __mf_output = ", ";"),
+        OutputPosition::Value => ("(", ");"),
+        OutputPosition::Statement => ("", ""),
+    };
+    let source = format!("{prefix}{output}{suffix}");
+    let allocator = oxc::allocator::Allocator::default();
+    let parsed = oxc::parser::Parser::new(&allocator, &source, oxc::span::SourceType::ts()).parse();
+    if !parsed.diagnostics.is_empty() {
+        visitor.output.diagnostics.push(Diagnostic {
+            level: DiagnosticLevel::Error,
+            message: format!(
+                "macro output does not parse, so the macros in it cannot expand: {}",
+                parsed
+                    .diagnostics
+                    .iter()
+                    .map(ToString::to_string)
+                    .collect::<Vec<_>>()
+                    .join("; ")
+            ),
+            span: Some(call_span),
+            notes: vec![],
+            help: None,
+        });
+        return output.to_string();
+    }
+
+    let mut nested = RewriteOutput::default();
+    let mut sub = RewriteVisitor {
+        registry: visitor.registry,
+        source: &source,
+        output: &mut nested,
+        counter: visitor.counter,
+        build_mode: visitor.build_mode,
+        emitted_runtimes: std::mem::take(&mut visitor.emitted_runtimes),
+        megamorph_report: visitor.megamorph_report,
+        type_rewritten: HashSet::new(),
+        type_registry: visitor.type_registry,
+        proc_dispatcher: visitor.proc_dispatcher,
+        import_sources: visitor.import_sources,
+        external_loader: visitor.external_loader,
+        lookup_site: Some(visitor.lookup_position(call_span.start)),
+        depth: visitor.depth + 1,
+    };
+    sub.visit_program(&parsed.program);
+    visitor.counter = sub.counter;
+    visitor.emitted_runtimes = std::mem::take(&mut sub.emitted_runtimes);
+
+    // Patch spans are 1-based; the output occupies `first..=last` of `source`.
+    let first = prefix.len() as u32 + 1;
+    let last = first + output.len() as u32;
+    let within = |span: &SpanIR| span.start >= first && span.end <= last;
+    let mut local: Vec<(u32, u32, String)> = Vec::new();
+    for patch in nested.patches {
+        match patch {
+            Patch::Replace { span, code, .. } | Patch::ReplaceRaw { span, code, .. }
+                if within(&span) =>
+            {
+                local.push((span.start, span.end, code));
+            }
+            Patch::Insert { at, code, .. } | Patch::InsertRaw { at, code, .. }
+                if within(&at) && at.start != 1 =>
+            {
+                local.push((at.start, at.start, code));
+            }
+            Patch::Delete { span } if within(&span) => {
+                local.push((span.start, span.end, String::new()))
+            }
+            other => visitor.output.patches.push(other),
+        }
+    }
+    let mut expanded = output.to_string();
+    local.sort_by_key(|(start, _, _)| std::cmp::Reverse(*start));
+    for (start, end, code) in local {
+        expanded.replace_range((start - first) as usize..(end - first) as usize, &code);
+    }
+    for mut diagnostic in nested.diagnostics {
+        diagnostic.span = Some(call_span);
+        visitor.output.diagnostics.push(diagnostic);
+    }
+    visitor.output.imports.extend(nested.imports);
+    expanded
 }
 
 // ---------------------------------------------------------------------------
@@ -1038,7 +1192,7 @@ impl<'a> RewriteVisitor<'a> {
 
     /// Returns `true` if the given `(start, end)` span has not been
     /// rewritten yet and records it as rewritten. Returns `false` if
-    /// the span was already recorded, and the caller should skip it.
+    /// the span was already recorded; the caller should skip it.
     pub(super) fn record_type_rewrite(&mut self, start: u32, end: u32) -> bool {
         self.type_rewritten.insert((start, end))
     }

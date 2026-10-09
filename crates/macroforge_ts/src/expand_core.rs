@@ -277,26 +277,69 @@ fn serialize_metadata(
     }
 }
 
-/// Converts an expansion into the result the bindings return, with its
-/// classes as metadata when `emit_metadata` is set.
+/// Converts byte offsets in `text` to UTF-16 code units, the unit JavaScript
+/// and TypeScript count positions in. An offset inside a character maps to
+/// that character's start.
+struct Utf16Offsets(Option<Vec<u32>>);
+
+impl Utf16Offsets {
+    fn new(text: &str) -> Self {
+        if text.is_ascii() {
+            return Self(None);
+        }
+        let mut units = vec![0u32; text.len() + 1];
+        let mut position = 0u32;
+        for (byte, character) in text.char_indices() {
+            for offset in 0..character.len_utf8() {
+                units[byte + offset] = position;
+            }
+            position += character.len_utf16() as u32;
+        }
+        units[text.len()] = position;
+        Self(Some(units))
+    }
+
+    fn convert(&self, byte: u32) -> u32 {
+        match &self.0 {
+            None => byte,
+            Some(units) => units
+                .get(byte as usize)
+                .or(units.last())
+                .copied()
+                .unwrap_or(byte),
+        }
+    }
+}
+
+/// Converts an expansion of `original` into the result the bindings return,
+/// with diagnostics and its source mapping in 0-based UTF-16 positions, and
+/// its classes as metadata when `emit_metadata` is set.
 fn expansion_result(
-    expansion: crate::host::expand::MacroExpansion,
+    mut expansion: crate::host::expand::MacroExpansion,
+    original: &str,
     emit_metadata: bool,
 ) -> Result<ExpandResult> {
+    inject_log_comments(&mut expansion, *LOG_LEVEL)?;
     let metadata = if emit_metadata {
         serialize_metadata(&expansion.classes)
             .context("failed to serialize the expansion's class metadata")?
     } else {
         None
     };
+    let original_units = Utf16Offsets::new(original);
+    let expanded_units = Utf16Offsets::new(&expansion.code);
     let diagnostics = expansion
         .diagnostics
         .into_iter()
         .map(|diagnostic| MacroDiagnostic {
             level: format!("{:?}", diagnostic.level).to_lowercase(),
             message: diagnostic.message,
-            start: diagnostic.span.map(|span| span.start),
-            end: diagnostic.span.map(|span| span.end),
+            start: diagnostic
+                .span
+                .map(|span| original_units.convert(span.start.saturating_sub(1))),
+            end: diagnostic
+                .span
+                .map(|span| original_units.convert(span.end.saturating_sub(1))),
         })
         .collect();
 
@@ -305,24 +348,24 @@ fn expansion_result(
             .segments
             .into_iter()
             .map(|segment| MappingSegmentResult {
-                original_start: segment.original_start,
-                original_end: segment.original_end,
-                expanded_start: segment.expanded_start,
-                expanded_end: segment.expanded_end,
+                original_start: original_units.convert(segment.original_start),
+                original_end: original_units.convert(segment.original_end),
+                expanded_start: expanded_units.convert(segment.expanded_start),
+                expanded_end: expanded_units.convert(segment.expanded_end),
             })
             .collect(),
         generated_regions: mapping
             .generated_regions
             .into_iter()
             .map(|region| GeneratedRegionResult {
-                start: region.start,
-                end: region.end,
+                start: expanded_units.convert(region.start),
+                end: expanded_units.convert(region.end),
                 source_macro: region.source_macro,
             })
             .collect(),
     });
 
-    let mut result = ExpandResult {
+    Ok(ExpandResult {
         metadata,
         code: expansion.code,
         types: expansion.type_output,
@@ -333,9 +376,7 @@ fn expansion_result(
             .iter()
             .map(|path| path.to_string_lossy().into_owned())
             .collect(),
-    };
-    inject_log_comments(&mut result);
-    Ok(result)
+    })
 }
 
 // ============================================================================
@@ -360,7 +401,7 @@ pub(crate) fn expand_inner(
         .as_ref()
         .and_then(|options| options.emit_metadata)
         .unwrap_or(true);
-    expansion_result(expansion, emit_metadata)
+    expansion_result(expansion, code, emit_metadata)
 }
 
 // ============================================================================
@@ -369,7 +410,7 @@ pub(crate) fn expand_inner(
 
 /// Log levels for MF_LOG env var, ordered by verbosity.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
-enum LogLevel {
+pub(crate) enum LogLevel {
     Off = 0,
     Error = 1,
     Warn = 2,
@@ -394,75 +435,82 @@ fn parse_log_level() -> LogLevel {
 }
 
 /// Inject trace/debug diagnostics as comments into expanded code.
-/// Diagnostics with spans are inserted above the relevant line;
-/// those without spans go into a block comment at the top.
-fn inject_log_comments(result: &mut ExpandResult) {
-    let level = *LOG_LEVEL;
+/// Diagnostics with spans are inserted above the line their span maps to;
+/// those without spans go into a block comment at the top. The comments are
+/// generated regions of the source mapping, like any other generated code.
+pub(crate) fn inject_log_comments(
+    expansion: &mut crate::host::expand::MacroExpansion,
+    level: LogLevel,
+) -> Result<()> {
+    use crate::host::patch_applicator::PatchApplicator;
+    use crate::ts_syn::abi::{DiagnosticLevel, Patch, SpanIR};
+
     if level == LogLevel::Off {
-        return;
+        return Ok(());
     }
 
-    let trace_diags: Vec<_> = result
+    let logged: Vec<_> = expansion
         .diagnostics
         .iter()
-        .filter(|d| {
-            d.message.starts_with("[trace]") && level >= LogLevel::Trace
-                || d.level == "error" && level >= LogLevel::Error
-                || d.level == "warning" && level >= LogLevel::Warn
-                || d.level == "info" && level >= LogLevel::Info
+        .filter(|diagnostic| {
+            diagnostic.message.starts_with("[trace]") && level >= LogLevel::Trace
+                || diagnostic.level == DiagnosticLevel::Error && level >= LogLevel::Error
+                || diagnostic.level == DiagnosticLevel::Warning && level >= LogLevel::Warn
+                || diagnostic.level == DiagnosticLevel::Info && level >= LogLevel::Info
         })
         .collect();
-
-    if trace_diags.is_empty() {
-        return;
+    if logged.is_empty() {
+        return Ok(());
     }
 
-    // Separate positioned vs unpositioned
-    let mut positioned: Vec<(u32, &str)> = Vec::new();
-    let mut top_lines: Vec<String> = Vec::new();
-
-    for d in &trace_diags {
-        if let Some(start) = d.start {
-            positioned.push((start, &d.message));
-        } else {
-            top_lines.push(format!("// {}", d.message));
-        }
-    }
-
-    // Build the top block
+    let code = &expansion.code;
     let mut header = String::new();
-    if !top_lines.is_empty() {
-        header.push_str("/*\n * MF_LOG output\n");
-        for line in &top_lines {
+    let mut patches = Vec::new();
+    for diagnostic in &logged {
+        let Some(span) = diagnostic.span else {
             header.push_str(" * ");
-            header.push_str(line.trim_start_matches("// "));
+            header.push_str(&diagnostic.message);
             header.push('\n');
-        }
-        header.push_str(" */\n");
+            continue;
+        };
+        let original = span.start.saturating_sub(1);
+        let offset = expansion
+            .source_mapping
+            .as_ref()
+            .map_or(original, |mapping| mapping.original_to_expanded(original));
+        let offset = (offset as usize).min(code.len());
+        let line_start = code
+            .get(..offset)
+            .and_then(|before| before.rfind('\n'))
+            .map_or(0, |newline| newline + 1);
+        let indent: String = code[line_start..]
+            .chars()
+            .take_while(|character| *character == ' ' || *character == '\t')
+            .collect();
+        let at = line_start as u32 + 1;
+        patches.push(Patch::Insert {
+            at: SpanIR::new(at, at),
+            code: format!("{indent}// {}\n", diagnostic.message),
+            source_macro: None,
+        });
     }
-
-    // Insert positioned comments (process in reverse order to preserve offsets)
-    let mut code = result.code.clone();
-    positioned.sort_by_key(|p| std::cmp::Reverse(p.0));
-    for (offset, msg) in &positioned {
-        let offset = *offset as usize;
-        if offset <= code.len() {
-            // Find the start of the line containing this offset
-            let line_start = code[..offset].rfind('\n').map(|i| i + 1).unwrap_or(0);
-            let indent = &code[line_start..offset]
-                .chars()
-                .take_while(|c| c.is_whitespace())
-                .collect::<String>();
-            let comment = format!("{}// {}\n", indent, msg);
-            code.insert_str(line_start, &comment);
-        }
-    }
-
     if !header.is_empty() {
-        code.insert_str(0, &header);
+        patches.push(Patch::Insert {
+            at: SpanIR::new(1, 1),
+            code: format!("/*\n * MF_LOG output\n{header} */\n"),
+            source_macro: None,
+        });
     }
 
-    result.code = code;
+    let applied = PatchApplicator::new(code, patches)
+        .apply_with_mapping(Some("MF_LOG"))
+        .context("failed to insert MF_LOG comments")?;
+    expansion.source_mapping = Some(match expansion.source_mapping.take() {
+        Some(mapping) => mapping.compose(&applied.mapping),
+        None => applied.mapping,
+    });
+    expansion.code = applied.code;
+    Ok(())
 }
 
 // ============================================================================

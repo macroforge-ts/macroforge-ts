@@ -245,8 +245,43 @@ paymentMethod: null,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_amount = obj["amount"] as number | null;
-                                                instance.amount = __raw_amount;
+                                const __raw_amount = obj["amount"] as number | null;if (!(typeof __raw_amount === "number" || __raw_amount === null)) {
+                                                        errors.push({ field: "amount", message: "expected number | null" });
+                                                    } else {
+                                                        instance.amount = __raw_amount;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -506,8 +541,43 @@ paymentMethod: null,
 
 
                             }{
-                                const __raw_currency = obj["currency"] as string | null;
-                                                instance.currency = __raw_currency;
+                                const __raw_currency = obj["currency"] as string | null;if (!(typeof __raw_currency === "string" || __raw_currency === null)) {
+                                                        errors.push({ field: "currency", message: "expected string | null" });
+                                                    } else {
+                                                        instance.currency = __raw_currency;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -767,8 +837,43 @@ paymentMethod: null,
 
 
                             }{
-                                const __raw_paymentMethod = obj["paymentMethod"] as string | null;
-                                                instance.paymentMethod = __raw_paymentMethod;
+                                const __raw_paymentMethod = obj["paymentMethod"] as string | null;if (!(typeof __raw_paymentMethod === "string" || __raw_paymentMethod === null)) {
+                                                        errors.push({ field: "paymentMethod", message: "expected string | null" });
+                                                    } else {
+                                                        instance.paymentMethod = __raw_paymentMethod;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1596,6 +1701,82 @@ paymentMethod: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Paid;
@@ -1840,7 +2021,18 @@ paymentMethod: null,
             return toExit(paidDecode(obj));
         }
 
-export const Paid = {
+export const Paid: {
+  readonly defaultValue: typeof paidDefaultValue;
+  readonly encode: typeof paidEncode;
+  readonly encodeWithContext: typeof paidEncodeWithContext;
+  readonly decode: typeof paidDecode;
+  readonly decodeWithContext: typeof paidDecodeWithContext;
+  readonly validateFields: typeof paidValidateFields;
+  readonly hasShape: typeof paidHasShape;
+  readonly is: typeof paidIs;
+  readonly createForm: typeof paidCreateForm;
+  readonly fromFormData: typeof paidFromFormData;
+} = {
   defaultValue: paidDefaultValue,
   encode: paidEncode,
   encodeWithContext: paidEncodeWithContext,
@@ -1851,7 +2043,7 @@ export const Paid = {
   is: paidIs,
   createForm: paidCreateForm,
   fromFormData: paidFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2079,8 +2271,43 @@ paymentMethod: null,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_amount = obj["amount"] as number | null;
-                                                instance.amount = __raw_amount;
+                                const __raw_amount = obj["amount"] as number | null;if (!(typeof __raw_amount === "number" || __raw_amount === null)) {
+                                                        errors.push({ field: "amount", message: "expected number | null" });
+                                                    } else {
+                                                        instance.amount = __raw_amount;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2340,8 +2567,43 @@ paymentMethod: null,
 
 
                             }{
-                                const __raw_currency = obj["currency"] as string | null;
-                                                instance.currency = __raw_currency;
+                                const __raw_currency = obj["currency"] as string | null;if (!(typeof __raw_currency === "string" || __raw_currency === null)) {
+                                                        errors.push({ field: "currency", message: "expected string | null" });
+                                                    } else {
+                                                        instance.currency = __raw_currency;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2601,8 +2863,43 @@ paymentMethod: null,
 
 
                             }{
-                                const __raw_paymentMethod = obj["paymentMethod"] as string | null;
-                                                instance.paymentMethod = __raw_paymentMethod;
+                                const __raw_paymentMethod = obj["paymentMethod"] as string | null;if (!(typeof __raw_paymentMethod === "string" || __raw_paymentMethod === null)) {
+                                                        errors.push({ field: "paymentMethod", message: "expected string | null" });
+                                                    } else {
+                                                        instance.paymentMethod = __raw_paymentMethod;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3430,6 +3727,82 @@ paymentMethod: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Paid;
@@ -3674,7 +4047,18 @@ paymentMethod: null,
             return toExit(paidDecode(obj));
         }
 
-export const Paid = {
+export const Paid: {
+  readonly defaultValue: typeof paidDefaultValue;
+  readonly encode: typeof paidEncode;
+  readonly encodeWithContext: typeof paidEncodeWithContext;
+  readonly decode: typeof paidDecode;
+  readonly decodeWithContext: typeof paidDecodeWithContext;
+  readonly validateFields: typeof paidValidateFields;
+  readonly hasShape: typeof paidHasShape;
+  readonly is: typeof paidIs;
+  readonly createForm: typeof paidCreateForm;
+  readonly fromFormData: typeof paidFromFormData;
+} = {
   defaultValue: paidDefaultValue,
   encode: paidEncode,
   encodeWithContext: paidEncodeWithContext,
@@ -3685,7 +4069,7 @@ export const Paid = {
   is: paidIs,
   createForm: paidCreateForm,
   fromFormData: paidFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3693,14 +4077,15 @@ export const Paid = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..223 -> expanded 58..174
-original 223..224 -> expanded 15061..15062
-generated 174..327 <- Default
-generated 327..1875 <- Encode
-generated 1875..8153 <- Decode
-generated 8153..14719 <- Gigaform
-generated 14719..15061 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..223 -> expanded 627..743
+original 223..224 -> expanded 17238..17239
+generated 0..569 <- imports
+generated 743..896 <- Default
+generated 896..2444 <- Encode
+generated 2444..9866 <- Decode
+generated 9866..16432 <- Gigaform
+generated 16432..17238 <- __convenience_const
 
 ## Metadata
 

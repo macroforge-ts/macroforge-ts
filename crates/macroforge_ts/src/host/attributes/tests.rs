@@ -2,8 +2,6 @@
 //! program, runs [`super::run_prepass`] against it, and asserts on the
 //! rewritten source / diagnostics.
 
-use std::path::PathBuf;
-
 use oxc::allocator::Allocator;
 use oxc::parser::Parser;
 use oxc::span::SourceType;
@@ -22,7 +20,7 @@ fn run(code: &str, config: &MacroforgeConfig) -> super::AttributePrepassOutput {
         "parse errors: {:?}",
         ret.diagnostics
     );
-    run_prepass(&ret.program, code, &PathBuf::from("/tmp/test.ts"), config)
+    run_prepass(&ret.program, code, config)
 }
 
 fn base_config() -> MacroforgeConfig {
@@ -47,7 +45,7 @@ export function render() {}
         "unexpected errors: {:?}",
         out.diagnostics
     );
-    let rewritten = out.rewritten.expect("should have rewritten");
+    let rewritten = out.rewritten.expect("should have rewritten").code;
     assert!(
         !rewritten.contains("render"),
         "render should be stripped, got:\n{rewritten}"
@@ -94,7 +92,8 @@ export function render() {}
     let out = run(src, &config);
     let rewritten = out
         .rewritten
-        .expect("should have rewritten to strip comment");
+        .expect("should have rewritten to strip comment")
+        .code;
     assert!(
         rewritten.contains("function render"),
         "render should survive:\n{rewritten}"
@@ -116,7 +115,7 @@ export function onlyOnDebug() {}
         ..Default::default()
     };
     let out = run(src, &config);
-    let rewritten = out.rewritten.expect("should strip");
+    let rewritten = out.rewritten.expect("should strip").code;
     assert!(
         !rewritten.contains("onlyOnDebug"),
         "AND should strip when one key fails"
@@ -134,7 +133,7 @@ fn deprecated_injects_tsc_jsdoc_with_message() {
 export function render() {}
 "#;
     let out = run(src, &base_config());
-    let rewritten = out.rewritten.expect("should rewrite");
+    let rewritten = out.rewritten.expect("should rewrite").code;
     assert!(
         rewritten.contains("@deprecated use render2 instead"),
         "tsc-visible JSDoc missing:\n{rewritten}"
@@ -207,7 +206,7 @@ fn non_exhaustive_brands_type_alias_rhs() {
 export type Kind = 'a' | 'b' | 'c';
 "#;
     let out = run(src, &base_config());
-    let rewritten = out.rewritten.expect("should rewrite RHS");
+    let rewritten = out.rewritten.expect("should rewrite RHS").code;
     assert!(
         rewritten.contains("readonly __nonExhaustive"),
         "brand missing from rewrite:\n{rewritten}"
@@ -229,7 +228,7 @@ type Kind = 'a';
         brand: "__extensible".into(),
     };
     let out = run(src, &config);
-    let rewritten = out.rewritten.expect("should rewrite");
+    let rewritten = out.rewritten.expect("should rewrite").code;
     assert!(
         rewritten.contains("__extensible"),
         "custom brand missing:\n{rewritten}"

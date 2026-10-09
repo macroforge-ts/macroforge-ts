@@ -131,8 +131,8 @@ export function weekOfMonthDefaultValue(): WeekOfMonth {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function weekOfMonthDecodeWithContext(value: any, ctx: __mf_DecodeContext): WeekOfMonth | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function weekOfMonthDecodeWithContext(value: any, _ctx: __mf_DecodeContext): WeekOfMonth | __mf_PendingRef {
                 switch (value) {
                     case 'First':
                     case 'Second':
@@ -425,7 +425,17 @@ if (variant === "Last") { return "Last" as WeekOfMonth; }
             return toExit(weekOfMonthDecode(obj));
         }
 
-export const WeekOfMonth = {
+export const WeekOfMonth: {
+  readonly defaultValue: typeof weekOfMonthDefaultValue;
+  readonly encode: typeof weekOfMonthEncode;
+  readonly encodeWithContext: typeof weekOfMonthEncodeWithContext;
+  readonly decode: typeof weekOfMonthDecode;
+  readonly decodeWithContext: typeof weekOfMonthDecodeWithContext;
+  readonly hasShape: typeof weekOfMonthHasShape;
+  readonly is: typeof weekOfMonthIs;
+  readonly createForm: typeof weekOfMonthCreateForm;
+  readonly fromFormData: typeof weekOfMonthFromFormData;
+} = {
   defaultValue: weekOfMonthDefaultValue,
   encode: weekOfMonthEncode,
   encodeWithContext: weekOfMonthEncodeWithContext,
@@ -435,7 +445,7 @@ export const WeekOfMonth = {
   is: weekOfMonthIs,
   createForm: weekOfMonthCreateForm,
   fromFormData: weekOfMonthFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -549,8 +559,8 @@ export function weekOfMonthDefaultValue(): WeekOfMonth {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function weekOfMonthDecodeWithContext(value: any, ctx: __mf_DecodeContext): WeekOfMonth | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function weekOfMonthDecodeWithContext(value: any, _ctx: __mf_DecodeContext): WeekOfMonth | __mf_PendingRef {
                 switch (value) {
                     case 'First':
                     case 'Second':
@@ -843,7 +853,17 @@ if (variant === "Last") { return "Last" as WeekOfMonth; }
             return toExit(weekOfMonthDecode(obj));
         }
 
-export const WeekOfMonth = {
+export const WeekOfMonth: {
+  readonly defaultValue: typeof weekOfMonthDefaultValue;
+  readonly encode: typeof weekOfMonthEncode;
+  readonly encodeWithContext: typeof weekOfMonthEncodeWithContext;
+  readonly decode: typeof weekOfMonthDecode;
+  readonly decodeWithContext: typeof weekOfMonthDecodeWithContext;
+  readonly hasShape: typeof weekOfMonthHasShape;
+  readonly is: typeof weekOfMonthIs;
+  readonly createForm: typeof weekOfMonthCreateForm;
+  readonly fromFormData: typeof weekOfMonthFromFormData;
+} = {
   defaultValue: weekOfMonthDefaultValue,
   encode: weekOfMonthEncode,
   encodeWithContext: weekOfMonthEncodeWithContext,
@@ -853,7 +873,7 @@ export const WeekOfMonth = {
   is: weekOfMonthIs,
   createForm: weekOfMonthCreateForm,
   fromFormData: weekOfMonthFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -861,14 +881,15 @@ export const WeekOfMonth = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..221 -> expanded 58..172
-original 221..222 -> expanded 12824..12825
-generated 172..300 <- Default
-generated 300..2223 <- Encode
-generated 2223..4617 <- Decode
-generated 4617..12450 <- Gigaform
-generated 12450..12824 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..221 -> expanded 627..741
+original 221..222 -> expanded 13926..13927
+generated 0..569 <- imports
+generated 741..869 <- Default
+generated 869..2792 <- Encode
+generated 2792..5246 <- Decode
+generated 5246..13079 <- Gigaform
+generated 13079..13926 <- __convenience_const
 
 ## Metadata
 

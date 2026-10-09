@@ -1,4 +1,9 @@
-use super::*;
+use super::{
+    CompareFieldOptions, DefaultFieldOptions, collection_element_type, fields_from_definition,
+    flatten_intersection_fields, get_effective_fields, get_type_default, is_generic_type,
+    is_numeric_type, is_primitive_type, parse_generic_type, resolved_type_has_derive,
+    standalone_fn_name, tuple_element, type_has_derive,
+};
 use crate::ts_syn::ResolvedTypeRef;
 use crate::ts_syn::abi::SpanIR;
 
@@ -102,7 +107,7 @@ fn test_get_type_default() {
     // Generic type instantiations without a TypeRegistry cannot be resolved,
     // so they fall back to `undefined`. With a registry, `RecordLink<T>`
     // expands to its body (`string | T`) and the default flows through the
-    // primitive-or-serializable detector to `"place:holder"`. See
+    // primitive-or-encodable detector to `"place:holder"`. See
     // `get_type_default_with_registry` for the resolved path.
     assert_eq!(get_type_default("RecordLink<Service>"), "undefined");
     assert_eq!(get_type_default("Result<User, Error>"), "undefined");
@@ -703,4 +708,26 @@ fn flatten_intersection_stops_at_a_circular_alias() {
 
     let members = vec![TypeMember::new(TypeMemberKind::TypeRef("Left".to_string()))];
     assert!(flatten_intersection_fields(&members, &registry).is_none());
+}
+
+#[test]
+fn test_tuple_element_strips_labels_optional_and_rest() {
+    let plain = tuple_element(" number ");
+    assert_eq!((plain.ts_type, plain.rest), ("number", false));
+    let labeled = tuple_element("name: string");
+    assert_eq!((labeled.ts_type, labeled.rest), ("string", false));
+    let optional = tuple_element("count?: number");
+    assert_eq!((optional.ts_type, optional.rest), ("number", false));
+    assert!(optional.optional);
+    assert!(!plain.optional);
+    let bare_optional = tuple_element("boolean?");
+    assert!(bare_optional.optional);
+    assert_eq!(
+        (bare_optional.ts_type, bare_optional.rest),
+        ("boolean", false)
+    );
+    let rest = tuple_element("...tags: string[]");
+    assert_eq!((rest.ts_type, rest.rest), ("string[]", true));
+    let object = tuple_element("{ a: number }");
+    assert_eq!((object.ts_type, object.rest), ("{ a: number }", false));
 }

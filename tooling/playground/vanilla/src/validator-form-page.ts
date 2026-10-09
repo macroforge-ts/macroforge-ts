@@ -6,6 +6,7 @@ import { formText, requireElement, requireForm } from './dom.util.ts';
 import { playgroundResults, type ValidatorFormResults } from './playground-globals.ts';
 import {
     validateEvent,
+    validateMeasurement,
     validateProduct,
     validateUserRegistration,
     type ValidationResult
@@ -30,7 +31,12 @@ function renderErrors(errors: Array<{ field: string; message: string }>): HTMLEl
 function renderSuccess(data: unknown): HTMLElement {
     const output = document.createElement('pre');
     output.className = 'success-output';
-    output.textContent = JSON.stringify(data, null, 2);
+    // A decoded bigint has no JSON form, so it is shown by its digits.
+    output.textContent = JSON.stringify(
+        data,
+        (_key, value) => (typeof value === 'bigint' ? value.toString() : value),
+        2
+    );
     return output;
 }
 
@@ -231,6 +237,39 @@ export function initValidatorFormPage() {
       <div id="product-result" class="result-container" data-testid="product-result"></div>
     </div>
 
+    <!-- Measurement Form -->
+    <div class="form-section">
+      <h3>Measurement</h3>
+      <form id="measurement-form" data-testid="measurement-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="measurement-runner">Runner</label>
+            <input type="text" id="measurement-runner" name="runner" data-testid="measurement-runner" placeholder="ada">
+            <div class="hint">Username newtype: non-empty, at most 16 characters</div>
+          </div>
+          <div class="form-group">
+            <label for="measurement-distance">Distance (m)</label>
+            <input type="text" id="measurement-distance" name="distance" data-testid="measurement-distance" placeholder="12.5">
+            <div class="hint">Meters newtype: a non-negative, finite number</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="measurement-cents">Fee (cents)</label>
+            <input type="text" id="measurement-cents" name="cents" data-testid="measurement-cents" placeholder="1250">
+            <div class="hint">Cents newtype: a non-negative whole number of any size</div>
+          </div>
+          <div class="form-group">
+            <label for="measurement-contact">Contact</label>
+            <input type="text" id="measurement-contact" name="contact" data-testid="measurement-contact" placeholder="ada@example.com">
+            <div class="hint">An email address</div>
+          </div>
+        </div>
+        <button type="submit" data-testid="submit-measurement">Submit Measurement</button>
+      </form>
+      <div id="measurement-result" class="result-container" data-testid="measurement-result"></div>
+    </div>
+
     <!-- Event Form -->
     <div class="form-section">
       <h3>Event Creation</h3>
@@ -295,6 +334,25 @@ export function initValidatorFormPage() {
             }),
         (result) => {
             formResults.product = result;
+        }
+    );
+
+    // Text fields reach the decoder as typed, so it is the newtypes that decide
+    // what a distance or a fee may be.
+    wireForm(
+        'measurement-form',
+        'measurement-result',
+        (form) =>
+            validateMeasurement({
+                runner: formText(form, 'runner'),
+                distance: formText(form, 'distance') === ''
+                    ? ''
+                    : Number(formText(form, 'distance')),
+                cents: formText(form, 'cents'),
+                contact: formText(form, 'contact')
+            }),
+        (result) => {
+            formResults.measurement = result;
         }
     );
 

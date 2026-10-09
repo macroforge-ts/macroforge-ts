@@ -811,6 +811,18 @@ export function propValueDefaultValue(): PropValue {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function propValueHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
@@ -985,8 +997,11 @@ export function propValueDefaultValue(): PropValue {
 
         }
 
-        export function propValueIs(value: unknown): value is PropValue {
-            return propValueHasShape(value);
+        export function propValueIs(value: unknown): value is PropValue {return propValueHasShape(value);
+
+
+
+
         }
 export function propValueStringIs(__v: unknown): __v is Extract<PropValue, { type: 'String' }> {
                     return __v !== null
@@ -1024,7 +1039,22 @@ export function propValueExpressionIs(__v: unknown): __v is Extract<PropValue, {
                         && (__v as Record<string, unknown>)["type"] === "Expression";
                 }
 
-export const PropValue = {
+export const PropValue: {
+  readonly defaultValue: typeof propValueDefaultValue;
+  readonly encode: typeof propValueEncode;
+  readonly encodeWithContext: typeof propValueEncodeWithContext;
+  readonly decode: typeof propValueDecode;
+  readonly decodeWithContext: typeof propValueDecodeWithContext;
+  readonly hasShape: typeof propValueHasShape;
+  readonly is: typeof propValueIs;
+  readonly stringIs: typeof propValueStringIs;
+  readonly numberIs: typeof propValueNumberIs;
+  readonly booleanIs: typeof propValueBooleanIs;
+  readonly jsonIs: typeof propValueJsonIs;
+  readonly assetIs: typeof propValueAssetIs;
+  readonly pageIs: typeof propValuePageIs;
+  readonly expressionIs: typeof propValueExpressionIs;
+} = {
   defaultValue: propValueDefaultValue,
   encode: propValueEncode,
   encodeWithContext: propValueEncodeWithContext,
@@ -1039,7 +1069,7 @@ export const PropValue = {
   assetIs: propValueAssetIs,
   pageIs: propValuePageIs,
   expressionIs: propValueExpressionIs
-} as const;
+};
 
 ## DTS
 
@@ -1826,6 +1856,18 @@ export function propValueDefaultValue(): PropValue {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function propValueHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
@@ -2000,8 +2042,11 @@ export function propValueDefaultValue(): PropValue {
 
         }
 
-        export function propValueIs(value: unknown): value is PropValue {
-            return propValueHasShape(value);
+        export function propValueIs(value: unknown): value is PropValue {return propValueHasShape(value);
+
+
+
+
         }
 export function propValueStringIs(__v: unknown): __v is Extract<PropValue, { type: 'String' }> {
                     return __v !== null
@@ -2039,7 +2084,22 @@ export function propValueExpressionIs(__v: unknown): __v is Extract<PropValue, {
                         && (__v as Record<string, unknown>)["type"] === "Expression";
                 }
 
-export const PropValue = {
+export const PropValue: {
+  readonly defaultValue: typeof propValueDefaultValue;
+  readonly encode: typeof propValueEncode;
+  readonly encodeWithContext: typeof propValueEncodeWithContext;
+  readonly decode: typeof propValueDecode;
+  readonly decodeWithContext: typeof propValueDecodeWithContext;
+  readonly hasShape: typeof propValueHasShape;
+  readonly is: typeof propValueIs;
+  readonly stringIs: typeof propValueStringIs;
+  readonly numberIs: typeof propValueNumberIs;
+  readonly booleanIs: typeof propValueBooleanIs;
+  readonly jsonIs: typeof propValueJsonIs;
+  readonly assetIs: typeof propValueAssetIs;
+  readonly pageIs: typeof propValuePageIs;
+  readonly expressionIs: typeof propValueExpressionIs;
+} = {
   defaultValue: propValueDefaultValue,
   encode: propValueEncode,
   encodeWithContext: propValueEncodeWithContext,
@@ -2054,7 +2114,7 @@ export const PropValue = {
   assetIs: propValueAssetIs,
   pageIs: propValuePageIs,
   expressionIs: propValueExpressionIs
-} as const;
+};
 
 ## Diagnostics
 
@@ -2062,12 +2122,13 @@ export const PropValue = {
 
 ## Mapping
 
-original 88..410 -> expanded 0..322
-original 410..411 -> expanded 12030..12031
-generated 322..472 <- Default
-generated 472..2492 <- Encode
-generated 2492..11533 <- Decode
-generated 11533..12030 <- __convenience_const
+original 88..410 -> expanded 385..707
+original 410..411 -> expanded 13096..13097
+generated 0..385 <- imports
+generated 707..857 <- Default
+generated 857..2877 <- Encode
+generated 2877..11921 <- Decode
+generated 11921..13096 <- __convenience_const
 
 ## Metadata
 

@@ -26,9 +26,11 @@ export function unionWithVariantDefaultDefaultValue(): UnionWithVariantDefault {
                             return variantADefaultValue();
                         }
 
-export const UnionWithVariantDefault = {
+export const UnionWithVariantDefault: {
+  readonly defaultValue: typeof unionWithVariantDefaultDefaultValue;
+} = {
   defaultValue: unionWithVariantDefaultDefaultValue
-} as const;
+};
 
 ## DTS
 
@@ -41,9 +43,11 @@ export function unionWithVariantDefaultDefaultValue(): UnionWithVariantDefault {
                             return variantADefaultValue();
                         }
 
-export const UnionWithVariantDefault = {
+export const UnionWithVariantDefault: {
+  readonly defaultValue: typeof unionWithVariantDefaultDefaultValue;
+} = {
   defaultValue: unionWithVariantDefaultDefaultValue
-} as const;
+};
 
 ## Diagnostics
 
@@ -52,9 +56,9 @@ export const UnionWithVariantDefault = {
 ## Mapping
 
 original 23..123 -> expanded 0..100
-original 123..124 -> expanded 373..374
+original 123..124 -> expanded 438..439
 generated 100..267 <- Default
-generated 267..373 <- __convenience_const
+generated 267..438 <- __convenience_const
 
 ## Metadata
 

@@ -294,7 +294,46 @@ y: 0,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_x = obj["x"] as number;instance.x = __raw_x;
+                                const __raw_x = obj["x"] as number;if (!(typeof __raw_x === "number")) {
+                                                    errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.x = __raw_x;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -554,7 +593,46 @@ y: 0,
 
 
                             }{
-                                const __raw_y = obj["y"] as number;instance.y = __raw_y;
+                                const __raw_y = obj["y"] as number;if (!(typeof __raw_y === "number")) {
+                                                    errors.push({ field: "y", message: __raw_y == null ? "Point.y is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.y = __raw_y;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1382,6 +1460,82 @@ y: 0,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Point;
@@ -1440,7 +1594,22 @@ y: 0,
                 return result.success;
             }
 
-export const Point = {
+export const Point: {
+  readonly toString: typeof pointToString;
+  readonly clone: typeof pointClone;
+  readonly equals: typeof pointEquals;
+  readonly hashCode: typeof pointHashCode;
+  readonly partialCompare: typeof pointPartialCompare;
+  readonly compare: typeof pointCompare;
+  readonly defaultValue: typeof pointDefaultValue;
+  readonly encode: typeof pointEncode;
+  readonly encodeWithContext: typeof pointEncodeWithContext;
+  readonly decode: typeof pointDecode;
+  readonly decodeWithContext: typeof pointDecodeWithContext;
+  readonly validateFields: typeof pointValidateFields;
+  readonly hasShape: typeof pointHasShape;
+  readonly is: typeof pointIs;
+} = {
   toString: pointToString,
   clone: pointClone,
   equals: pointEquals,
@@ -1455,7 +1624,7 @@ export const Point = {
   validateFields: pointValidateFields,
   hasShape: pointHasShape,
   is: pointIs
-} as const;
+};
 
 ## DTS
 
@@ -1730,7 +1899,46 @@ y: 0,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_x = obj["x"] as number;instance.x = __raw_x;
+                                const __raw_x = obj["x"] as number;if (!(typeof __raw_x === "number")) {
+                                                    errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.x = __raw_x;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1990,7 +2198,46 @@ y: 0,
 
 
                             }{
-                                const __raw_y = obj["y"] as number;instance.y = __raw_y;
+                                const __raw_y = obj["y"] as number;if (!(typeof __raw_y === "number")) {
+                                                    errors.push({ field: "y", message: __raw_y == null ? "Point.y is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.y = __raw_y;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2818,6 +3065,82 @@ y: 0,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Point;
@@ -2876,7 +3199,22 @@ y: 0,
                 return result.success;
             }
 
-export const Point = {
+export const Point: {
+  readonly toString: typeof pointToString;
+  readonly clone: typeof pointClone;
+  readonly equals: typeof pointEquals;
+  readonly hashCode: typeof pointHashCode;
+  readonly partialCompare: typeof pointPartialCompare;
+  readonly compare: typeof pointCompare;
+  readonly defaultValue: typeof pointDefaultValue;
+  readonly encode: typeof pointEncode;
+  readonly encodeWithContext: typeof pointEncodeWithContext;
+  readonly decode: typeof pointDecode;
+  readonly decodeWithContext: typeof pointDecodeWithContext;
+  readonly validateFields: typeof pointValidateFields;
+  readonly hasShape: typeof pointHasShape;
+  readonly is: typeof pointIs;
+} = {
   toString: pointToString,
   clone: pointClone,
   equals: pointEquals,
@@ -2891,7 +3229,7 @@ export const Point = {
   validateFields: pointValidateFields,
   hasShape: pointHasShape,
   is: pointIs
-} as const;
+};
 
 ## Diagnostics
 
@@ -2899,18 +3237,19 @@ export const Point = {
 
 ## Mapping
 
-original 87..144 -> expanded 0..57
-original 144..145 -> expanded 9514..9515
-generated 57..338 <- Debug
-generated 338..558 <- Clone
-generated 558..737 <- PartialEq
-generated 737..1178 <- Hash
-generated 1178..1604 <- PartialOrd
-generated 1604..2030 <- Ord
-generated 2030..2146 <- Default
-generated 2146..3633 <- Encode
-generated 3633..9065 <- Decode
-generated 9065..9514 <- __convenience_const
+original 87..144 -> expanded 385..442
+original 144..145 -> expanded 11375..11376
+generated 0..385 <- imports
+generated 442..723 <- Debug
+generated 723..943 <- Clone
+generated 943..1122 <- PartialEq
+generated 1122..1563 <- Hash
+generated 1563..1989 <- PartialOrd
+generated 1989..2415 <- Ord
+generated 2415..2531 <- Default
+generated 2531..4018 <- Encode
+generated 4018..10292 <- Decode
+generated 10292..11375 <- __convenience_const
 
 ## Metadata
 

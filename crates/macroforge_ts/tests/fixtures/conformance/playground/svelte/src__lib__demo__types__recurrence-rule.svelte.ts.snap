@@ -562,8 +562,79 @@ additionalInstances: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_recurrenceBegins = obj["recurrenceBegins"] as string;instance.recurrenceBegins = __raw_recurrenceBegins;
+                                const __raw_recurrenceBegins = obj["recurrenceBegins"] as string;if (!(typeof __raw_recurrenceBegins === "string")) {
+                                                    errors.push({ field: "recurrenceBegins", message: __raw_recurrenceBegins == null ? "RecurrenceRule.recurrenceBegins is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.recurrenceBegins = __raw_recurrenceBegins;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1125,6 +1196,38 @@ additionalInstances: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_cancelledInstances = obj["cancelledInstances"] as Array<string> | null;if (__raw_cancelledInstances === null) {
                                                     instance.cancelledInstances = null;
@@ -1152,6 +1255,38 @@ additionalInstances: null,
 
 
                                                 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1695,7 +1830,115 @@ additionalInstances: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2584,7 +2827,18 @@ additionalInstances: null,
             return toExit(recurrenceRuleDecode(obj));
         }
 
-export const RecurrenceRule = {
+export const RecurrenceRule: {
+  readonly defaultValue: typeof recurrenceRuleDefaultValue;
+  readonly encode: typeof recurrenceRuleEncode;
+  readonly encodeWithContext: typeof recurrenceRuleEncodeWithContext;
+  readonly decode: typeof recurrenceRuleDecode;
+  readonly decodeWithContext: typeof recurrenceRuleDecodeWithContext;
+  readonly validateFields: typeof recurrenceRuleValidateFields;
+  readonly hasShape: typeof recurrenceRuleHasShape;
+  readonly is: typeof recurrenceRuleIs;
+  readonly createForm: typeof recurrenceRuleCreateForm;
+  readonly fromFormData: typeof recurrenceRuleFromFormData;
+} = {
   defaultValue: recurrenceRuleDefaultValue,
   encode: recurrenceRuleEncode,
   encodeWithContext: recurrenceRuleEncodeWithContext,
@@ -2595,7 +2849,7 @@ export const RecurrenceRule = {
   is: recurrenceRuleIs,
   createForm: recurrenceRuleCreateForm,
   fromFormData: recurrenceRuleFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -3135,8 +3389,79 @@ additionalInstances: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_recurrenceBegins = obj["recurrenceBegins"] as string;instance.recurrenceBegins = __raw_recurrenceBegins;
+                                const __raw_recurrenceBegins = obj["recurrenceBegins"] as string;if (!(typeof __raw_recurrenceBegins === "string")) {
+                                                    errors.push({ field: "recurrenceBegins", message: __raw_recurrenceBegins == null ? "RecurrenceRule.recurrenceBegins is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.recurrenceBegins = __raw_recurrenceBegins;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3698,6 +4023,38 @@ additionalInstances: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_cancelledInstances = obj["cancelledInstances"] as Array<string> | null;if (__raw_cancelledInstances === null) {
                                                     instance.cancelledInstances = null;
@@ -3725,6 +4082,38 @@ additionalInstances: null,
 
 
                                                 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4268,7 +4657,115 @@ additionalInstances: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5157,7 +5654,18 @@ additionalInstances: null,
             return toExit(recurrenceRuleDecode(obj));
         }
 
-export const RecurrenceRule = {
+export const RecurrenceRule: {
+  readonly defaultValue: typeof recurrenceRuleDefaultValue;
+  readonly encode: typeof recurrenceRuleEncode;
+  readonly encodeWithContext: typeof recurrenceRuleEncodeWithContext;
+  readonly decode: typeof recurrenceRuleDecode;
+  readonly decodeWithContext: typeof recurrenceRuleDecodeWithContext;
+  readonly validateFields: typeof recurrenceRuleValidateFields;
+  readonly hasShape: typeof recurrenceRuleHasShape;
+  readonly is: typeof recurrenceRuleIs;
+  readonly createForm: typeof recurrenceRuleCreateForm;
+  readonly fromFormData: typeof recurrenceRuleFromFormData;
+} = {
   defaultValue: recurrenceRuleDefaultValue,
   encode: recurrenceRuleEncode,
   encodeWithContext: recurrenceRuleEncodeWithContext,
@@ -5168,7 +5676,7 @@ export const RecurrenceRule = {
   is: recurrenceRuleIs,
   createForm: recurrenceRuleCreateForm,
   fromFormData: recurrenceRuleFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -5176,14 +5684,15 @@ export const RecurrenceRule = {
 
 ## Mapping
 
-original 0..172 -> expanded 0..172
-original 221..446 -> expanded 172..397
-original 446..447 -> expanded 25449..25450
-generated 397..650 <- Default
-generated 650..3182 <- Encode
-generated 3182..14387 <- Decode
-generated 14387..24997 <- Gigaform
-generated 24997..25449 <- __convenience_const
+original 0..172 -> expanded 901..1073
+original 221..446 -> expanded 1073..1298
+original 446..447 -> expanded 27570..27571
+generated 0..901 <- imports
+generated 1298..1551 <- Default
+generated 1551..4083 <- Encode
+generated 4083..15944 <- Decode
+generated 15944..26554 <- Gigaform
+generated 26554..27570 <- __convenience_const
 
 ## Metadata
 

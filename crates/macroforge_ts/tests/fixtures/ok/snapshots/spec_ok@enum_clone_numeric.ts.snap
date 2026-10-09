@@ -29,7 +29,7 @@ export function priorityClone(value: Priority): Priority {
                 }
 
 namespace Priority {
-  export const clone = priorityClone;
+  export const clone: typeof priorityClone = priorityClone;
 }
 
 ## DTS
@@ -45,7 +45,7 @@ export function priorityClone(value: Priority): Priority {
                 }
 
 namespace Priority {
-  export const clone = priorityClone;
+  export const clone: typeof priorityClone = priorityClone;
 }
 
 ## Diagnostics
@@ -55,9 +55,9 @@ namespace Priority {
 ## Mapping
 
 original 21..81 -> expanded 0..60
-original 81..82 -> expanded 234..235
+original 81..82 -> expanded 256..257
 generated 60..172 <- Clone
-generated 172..234 <- __convenience_const
+generated 172..256 <- __convenience_const
 
 ## Metadata
 

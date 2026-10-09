@@ -31,7 +31,11 @@ export const identifier = "foo";
 
 ## Mapping
 
-(none)
+original 0..88 -> expanded 0..88
+original 105..133 -> expanded 95..123
+original 148..150 -> expanded 128..130
+generated 88..95 <- $stringify
+generated 123..128 <- $stringify
 
 ## Metadata
 

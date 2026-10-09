@@ -242,11 +242,50 @@ replyTo: null,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_comment = obj["comment"] as string;
-                                            if (__raw_comment == null) { errors.push({ field: "comment", message: "Commented.comment is required" }); } else {
+                                const __raw_comment = obj["comment"] as string;if (!(typeof __raw_comment === "string")) {
+                                                    errors.push({ field: "comment", message: __raw_comment == null ? "Commented.comment is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_comment == null) { errors.push({ field: "comment", message: "Commented.comment is required" }); } else {
 if (__raw_comment.length === 0) { errors.push({ field: "comment", message: "Commented.comment must not be empty" }); }
 }
-instance.comment = __raw_comment;
+
+
+
+
+                                                    instance.comment = __raw_comment;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -506,8 +545,43 @@ instance.comment = __raw_comment;
 
 
                             }{
-                                const __raw_replyTo = obj["replyTo"] as string | null;
-                                                instance.replyTo = __raw_replyTo;
+                                const __raw_replyTo = obj["replyTo"] as string | null;if (!(typeof __raw_replyTo === "string" || __raw_replyTo === null)) {
+                                                        errors.push({ field: "replyTo", message: "expected string | null" });
+                                                    } else {
+                                                        instance.replyTo = __raw_replyTo;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1335,6 +1409,82 @@ instance.comment = __raw_comment;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Commented;
@@ -1577,7 +1727,18 @@ if (__val.length === 0) { errors.push({ field: "comment", message: "Commented.co
             return toExit(commentedDecode(obj));
         }
 
-export const Commented = {
+export const Commented: {
+  readonly defaultValue: typeof commentedDefaultValue;
+  readonly encode: typeof commentedEncode;
+  readonly encodeWithContext: typeof commentedEncodeWithContext;
+  readonly decode: typeof commentedDecode;
+  readonly decodeWithContext: typeof commentedDecodeWithContext;
+  readonly validateFields: typeof commentedValidateFields;
+  readonly hasShape: typeof commentedHasShape;
+  readonly is: typeof commentedIs;
+  readonly createForm: typeof commentedCreateForm;
+  readonly fromFormData: typeof commentedFromFormData;
+} = {
   defaultValue: commentedDefaultValue,
   encode: commentedEncode,
   encodeWithContext: commentedEncodeWithContext,
@@ -1588,7 +1749,7 @@ export const Commented = {
   is: commentedIs,
   createForm: commentedCreateForm,
   fromFormData: commentedFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1813,11 +1974,50 @@ replyTo: null,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_comment = obj["comment"] as string;
-                                            if (__raw_comment == null) { errors.push({ field: "comment", message: "Commented.comment is required" }); } else {
+                                const __raw_comment = obj["comment"] as string;if (!(typeof __raw_comment === "string")) {
+                                                    errors.push({ field: "comment", message: __raw_comment == null ? "Commented.comment is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_comment == null) { errors.push({ field: "comment", message: "Commented.comment is required" }); } else {
 if (__raw_comment.length === 0) { errors.push({ field: "comment", message: "Commented.comment must not be empty" }); }
 }
-instance.comment = __raw_comment;
+
+
+
+
+                                                    instance.comment = __raw_comment;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2077,8 +2277,43 @@ instance.comment = __raw_comment;
 
 
                             }{
-                                const __raw_replyTo = obj["replyTo"] as string | null;
-                                                instance.replyTo = __raw_replyTo;
+                                const __raw_replyTo = obj["replyTo"] as string | null;if (!(typeof __raw_replyTo === "string" || __raw_replyTo === null)) {
+                                                        errors.push({ field: "replyTo", message: "expected string | null" });
+                                                    } else {
+                                                        instance.replyTo = __raw_replyTo;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2906,6 +3141,82 @@ instance.comment = __raw_comment;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Commented;
@@ -3148,7 +3459,18 @@ if (__val.length === 0) { errors.push({ field: "comment", message: "Commented.co
             return toExit(commentedDecode(obj));
         }
 
-export const Commented = {
+export const Commented: {
+  readonly defaultValue: typeof commentedDefaultValue;
+  readonly encode: typeof commentedEncode;
+  readonly encodeWithContext: typeof commentedEncodeWithContext;
+  readonly decode: typeof commentedDecode;
+  readonly decodeWithContext: typeof commentedDecodeWithContext;
+  readonly validateFields: typeof commentedValidateFields;
+  readonly hasShape: typeof commentedHasShape;
+  readonly is: typeof commentedIs;
+  readonly createForm: typeof commentedCreateForm;
+  readonly fromFormData: typeof commentedFromFormData;
+} = {
   defaultValue: commentedDefaultValue,
   encode: commentedEncode,
   encodeWithContext: commentedEncodeWithContext,
@@ -3159,7 +3481,7 @@ export const Commented = {
   is: commentedIs,
   createForm: commentedCreateForm,
   fromFormData: commentedFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3167,15 +3489,16 @@ export const Commented = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..141 -> expanded 58..92
-original 182..233 -> expanded 92..143
-original 233..234 -> expanded 14187..14188
-generated 143..283 <- Default
-generated 283..1818 <- Encode
-generated 1818..8678 <- Decode
-generated 8678..13790 <- Gigaform
-generated 13790..14187 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..141 -> expanded 627..661
+original 182..233 -> expanded 661..712
+original 233..234 -> expanded 16119..16120
+generated 0..569 <- imports
+generated 712..852 <- Default
+generated 852..2387 <- Encode
+generated 2387..10096 <- Decode
+generated 10096..15208 <- Gigaform
+generated 15208..16119 <- __convenience_const
 
 ## Metadata
 

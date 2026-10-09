@@ -111,7 +111,46 @@ type Settings = {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_theme = obj["theme"] as string;instance.theme = __raw_theme;
+                                const __raw_theme = obj["theme"] as string;if (!(typeof __raw_theme === "string")) {
+                                                    errors.push({ field: "theme", message: __raw_theme == null ? "Settings.theme is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.theme = __raw_theme;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -299,7 +338,46 @@ type Settings = {
 
 
                             }{
-                                const __raw_language = obj["language"] as string;instance.language = __raw_language;
+                                const __raw_language = obj["language"] as string;if (!(typeof __raw_language === "string")) {
+                                                    errors.push({ field: "language", message: __raw_language == null ? "Settings.language is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.language = __raw_language;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -911,6 +989,82 @@ type Settings = {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Settings;
@@ -969,13 +1123,19 @@ type Settings = {
                 return settingsHasShape(obj);
             }
 
-const Settings = {
+const Settings: {
+  readonly decode: typeof settingsDecode;
+  readonly decodeWithContext: typeof settingsDecodeWithContext;
+  readonly validateFields: typeof settingsValidateFields;
+  readonly hasShape: typeof settingsHasShape;
+  readonly is: typeof settingsIs;
+} = {
   decode: settingsDecode,
   decodeWithContext: settingsDecodeWithContext,
   validateFields: settingsValidateFields,
   hasShape: settingsHasShape,
   is: settingsIs
-} as const;
+};
 
 ## DTS
 
@@ -1068,7 +1228,46 @@ type Settings = {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_theme = obj["theme"] as string;instance.theme = __raw_theme;
+                                const __raw_theme = obj["theme"] as string;if (!(typeof __raw_theme === "string")) {
+                                                    errors.push({ field: "theme", message: __raw_theme == null ? "Settings.theme is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.theme = __raw_theme;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1256,7 +1455,46 @@ type Settings = {
 
 
                             }{
-                                const __raw_language = obj["language"] as string;instance.language = __raw_language;
+                                const __raw_language = obj["language"] as string;if (!(typeof __raw_language === "string")) {
+                                                    errors.push({ field: "language", message: __raw_language == null ? "Settings.language is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.language = __raw_language;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1868,6 +2106,82 @@ type Settings = {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Settings;
@@ -1926,13 +2240,19 @@ type Settings = {
                 return settingsHasShape(obj);
             }
 
-const Settings = {
+const Settings: {
+  readonly decode: typeof settingsDecode;
+  readonly decodeWithContext: typeof settingsDecodeWithContext;
+  readonly validateFields: typeof settingsValidateFields;
+  readonly hasShape: typeof settingsHasShape;
+  readonly is: typeof settingsIs;
+} = {
   decode: settingsDecode,
   decodeWithContext: settingsDecodeWithContext,
   validateFields: settingsValidateFields,
   hasShape: settingsHasShape,
   is: settingsIs
-} as const;
+};
 
 ## Diagnostics
 
@@ -1940,10 +2260,11 @@ const Settings = {
 
 ## Mapping
 
-original 22..84 -> expanded 0..62
-original 84..85 -> expanded 5404..5405
-generated 62..5209 <- Decode
-generated 5209..5404 <- __convenience_const
+original 22..84 -> expanded 307..369
+original 84..85 -> expanded 6843..6844
+generated 0..307 <- imports
+generated 369..6408 <- Decode
+generated 6408..6843 <- __convenience_const
 
 ## Metadata
 

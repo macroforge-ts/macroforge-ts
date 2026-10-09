@@ -174,6 +174,11 @@ export type Ref = string | { id: string };
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as Ref | __mf_PendingRef;
                         }if (typeof value === "string") {
+
+
+
+
+
                                         return value as Ref;
                                     }
 
@@ -226,6 +231,18 @@ export type Ref = string | { id: string };
                                 field: "_root",
                                 message: "Ref.decodeWithContext: value does not match any union member"
                             }]);
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -936,18 +953,28 @@ export type Ref = string | { id: string };
 
         }
 
-        export function refIs(value: unknown): value is Ref {
-            return refHasShape(value);
+        export function refIs(value: unknown): value is Ref {return refHasShape(value);
+
+
+
+
         }
 
-export const Ref = {
+export const Ref: {
+  readonly encode: typeof refEncode;
+  readonly encodeWithContext: typeof refEncodeWithContext;
+  readonly decode: typeof refDecode;
+  readonly decodeWithContext: typeof refDecodeWithContext;
+  readonly hasShape: typeof refHasShape;
+  readonly is: typeof refIs;
+} = {
   encode: refEncode,
   encodeWithContext: refEncodeWithContext,
   decode: refDecode,
   decodeWithContext: refDecodeWithContext,
   hasShape: refHasShape,
   is: refIs
-} as const;
+};
 
 
 export type Stage = 'Active' | { Invoice: Ref };
@@ -1688,6 +1715,18 @@ export type Stage = 'Active' | { Invoice: Ref };
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function stageHasShape(value: unknown): boolean {const allowedLiterals = ['Active'] as const;
@@ -1866,8 +1905,11 @@ export type Stage = 'Active' | { Invoice: Ref };
 
         }
 
-        export function stageIs(value: unknown): value is Stage {
-            return stageHasShape(value);
+        export function stageIs(value: unknown): value is Stage {return stageHasShape(value);
+
+
+
+
         }
 export function stageInvoiceIs(__v: unknown): __v is Extract<Stage, { Invoice: any }> {
                     return __v !== null
@@ -1875,7 +1917,15 @@ export function stageInvoiceIs(__v: unknown): __v is Extract<Stage, { Invoice: a
                         && "Invoice" in __v;
                 }
 
-export const Stage = {
+export const Stage: {
+  readonly encode: typeof stageEncode;
+  readonly encodeWithContext: typeof stageEncodeWithContext;
+  readonly decode: typeof stageDecode;
+  readonly decodeWithContext: typeof stageDecodeWithContext;
+  readonly hasShape: typeof stageHasShape;
+  readonly is: typeof stageIs;
+  readonly invoiceIs: typeof stageInvoiceIs;
+} = {
   encode: stageEncode,
   encodeWithContext: stageEncodeWithContext,
   decode: stageDecode,
@@ -1883,7 +1933,7 @@ export const Stage = {
   hasShape: stageHasShape,
   is: stageIs,
   invoiceIs: stageInvoiceIs
-} as const;
+};
 
 ## DTS
 
@@ -2033,6 +2083,11 @@ export type Ref = string | { id: string };
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as Ref | __mf_PendingRef;
                         }if (typeof value === "string") {
+
+
+
+
+
                                         return value as Ref;
                                     }
 
@@ -2085,6 +2140,18 @@ export type Ref = string | { id: string };
                                 field: "_root",
                                 message: "Ref.decodeWithContext: value does not match any union member"
                             }]);
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2795,18 +2862,28 @@ export type Ref = string | { id: string };
 
         }
 
-        export function refIs(value: unknown): value is Ref {
-            return refHasShape(value);
+        export function refIs(value: unknown): value is Ref {return refHasShape(value);
+
+
+
+
         }
 
-export const Ref = {
+export const Ref: {
+  readonly encode: typeof refEncode;
+  readonly encodeWithContext: typeof refEncodeWithContext;
+  readonly decode: typeof refDecode;
+  readonly decodeWithContext: typeof refDecodeWithContext;
+  readonly hasShape: typeof refHasShape;
+  readonly is: typeof refIs;
+} = {
   encode: refEncode,
   encodeWithContext: refEncodeWithContext,
   decode: refDecode,
   decodeWithContext: refDecodeWithContext,
   hasShape: refHasShape,
   is: refIs
-} as const;
+};
 
 
 export type Stage = 'Active' | { Invoice: Ref };
@@ -3547,6 +3624,18 @@ export type Stage = 'Active' | { Invoice: Ref };
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function stageHasShape(value: unknown): boolean {const allowedLiterals = ['Active'] as const;
@@ -3725,8 +3814,11 @@ export type Stage = 'Active' | { Invoice: Ref };
 
         }
 
-        export function stageIs(value: unknown): value is Stage {
-            return stageHasShape(value);
+        export function stageIs(value: unknown): value is Stage {return stageHasShape(value);
+
+
+
+
         }
 export function stageInvoiceIs(__v: unknown): __v is Extract<Stage, { Invoice: any }> {
                     return __v !== null
@@ -3734,7 +3826,15 @@ export function stageInvoiceIs(__v: unknown): __v is Extract<Stage, { Invoice: a
                         && "Invoice" in __v;
                 }
 
-export const Stage = {
+export const Stage: {
+  readonly encode: typeof stageEncode;
+  readonly encodeWithContext: typeof stageEncodeWithContext;
+  readonly decode: typeof stageDecode;
+  readonly decodeWithContext: typeof stageDecodeWithContext;
+  readonly hasShape: typeof stageHasShape;
+  readonly is: typeof stageIs;
+  readonly invoiceIs: typeof stageInvoiceIs;
+} = {
   encode: stageEncode,
   encodeWithContext: stageEncodeWithContext,
   decode: stageDecode,
@@ -3742,7 +3842,7 @@ export const Stage = {
   hasShape: stageHasShape,
   is: stageIs,
   invoiceIs: stageInvoiceIs
-} as const;
+};
 
 ## Diagnostics
 
@@ -3750,17 +3850,18 @@ export const Stage = {
 
 ## Mapping
 
-original 0..278 -> expanded 0..278
-original 308..351 -> expanded 278..321
-original 351..353 -> expanded 6203..6205
-original 425..474 -> expanded 6205..6254
-original 474..475 -> expanded 13716..13717
-generated 321..2204 <- Encode
-generated 2204..6004 <- Decode
-generated 6004..6203 <- __convenience_const
-generated 6254..8712 <- Encode
-generated 8712..13474 <- Decode
-generated 13474..13716 <- __convenience_const
+original 0..278 -> expanded 385..663
+original 308..351 -> expanded 663..706
+original 351..353 -> expanded 6854..6856
+original 425..474 -> expanded 6856..6905
+original 474..475 -> expanded 14685..14686
+generated 0..385 <- imports
+generated 706..2589 <- Encode
+generated 2589..6397 <- Decode
+generated 6397..6854 <- __convenience_const
+generated 6905..9363 <- Encode
+generated 9363..14128 <- Decode
+generated 14128..14685 <- __convenience_const
 
 ## Metadata
 

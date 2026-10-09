@@ -238,7 +238,87 @@ at: (() => DateTime.make(new Date()))(),
                     ctx.register(obj.__id as number, instance);
                 }
 
-                ctx.trackForFreeze(instance);instance.at = ((raw: unknown) => DateTime.make(raw as string))(obj["at"]);
+                ctx.trackForFreeze(instance);try {
+                                        instance.at = ((raw: unknown) => DateTime.make(raw as string))(obj["at"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "at", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -865,7 +945,16 @@ at: (() => DateTime.make(new Date()))(),
                 return result.success;
             }
 
-export const Tick = {
+export const Tick: {
+  readonly defaultValue: typeof tickDefaultValue;
+  readonly encode: typeof tickEncode;
+  readonly encodeWithContext: typeof tickEncodeWithContext;
+  readonly decode: typeof tickDecode;
+  readonly decodeWithContext: typeof tickDecodeWithContext;
+  readonly validateFields: typeof tickValidateFields;
+  readonly hasShape: typeof tickHasShape;
+  readonly is: typeof tickIs;
+} = {
   defaultValue: tickDefaultValue,
   encode: tickEncode,
   encodeWithContext: tickEncodeWithContext,
@@ -874,7 +963,7 @@ export const Tick = {
   validateFields: tickValidateFields,
   hasShape: tickHasShape,
   is: tickIs
-} as const;
+};
 
 ## DTS
 
@@ -1093,7 +1182,87 @@ at: (() => DateTime.make(new Date()))(),
                     ctx.register(obj.__id as number, instance);
                 }
 
-                ctx.trackForFreeze(instance);instance.at = ((raw: unknown) => DateTime.make(raw as string))(obj["at"]);
+                ctx.trackForFreeze(instance);try {
+                                        instance.at = ((raw: unknown) => DateTime.make(raw as string))(obj["at"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "at", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1720,7 +1889,16 @@ at: (() => DateTime.make(new Date()))(),
                 return result.success;
             }
 
-export const Tick = {
+export const Tick: {
+  readonly defaultValue: typeof tickDefaultValue;
+  readonly encode: typeof tickEncode;
+  readonly encodeWithContext: typeof tickEncodeWithContext;
+  readonly decode: typeof tickDecode;
+  readonly decodeWithContext: typeof tickDecodeWithContext;
+  readonly validateFields: typeof tickValidateFields;
+  readonly hasShape: typeof tickHasShape;
+  readonly is: typeof tickIs;
+} = {
   defaultValue: tickDefaultValue,
   encode: tickEncode,
   encodeWithContext: tickEncodeWithContext,
@@ -1729,7 +1907,7 @@ export const Tick = {
   validateFields: tickValidateFields,
   hasShape: tickHasShape,
   is: tickIs
-} as const;
+};
 
 ## Diagnostics
 
@@ -1737,13 +1915,14 @@ export const Tick = {
 
 ## Mapping
 
-original 0..36 -> expanded 0..36
-original 75..123 -> expanded 36..84
-original 123..124 -> expanded 6600..6601
-generated 84..227 <- Default
-generated 227..1737 <- Encode
-generated 1737..6322 <- Decode
-generated 6322..6600 <- __convenience_const
+original 0..36 -> expanded 385..421
+original 75..123 -> expanded 421..469
+original 123..124 -> expanded 7710..7711
+generated 0..385 <- imports
+generated 469..612 <- Default
+generated 612..2122 <- Encode
+generated 2122..7064 <- Decode
+generated 7064..7710 <- __convenience_const
 
 ## Metadata
 

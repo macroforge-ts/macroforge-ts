@@ -1,5 +1,5 @@
 //! Reading values out of a decorator's argument text, such as the
-//! `skip, rename: "id"` in `@serde(skip, rename: "id")`, and writing string
+//! `skip, rename: "id"` in `@endec(skip, rename: "id")`, and writing string
 //! values back out as JavaScript.
 
 /// Check if a decorator argument string contains the given flag.

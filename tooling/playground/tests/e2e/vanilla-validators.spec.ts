@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 import { readVanillaSlice } from './vanilla-playground.ts';
 
 test.describe('Vanilla Validator Form E2E Tests', () => {
@@ -339,5 +339,79 @@ test.describe('Vanilla Validator Form E2E Tests', () => {
             }
             expect(product.errors.length).toBeGreaterThan(0);
         });
+    });
+});
+
+test.describe('Vanilla Measurement Form (newtypes)', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/');
+        await page.getByTestId('nav-validator-form').click();
+        await expect(page.getByTestId('measurement-form')).toBeVisible();
+    });
+
+    async function submitMeasurement(
+        page: Page,
+        values: { runner: string; distance: string; cents: string; contact: string }
+    ) {
+        await page.getByTestId('measurement-runner').fill(values.runner);
+        await page.getByTestId('measurement-distance').fill(values.distance);
+        await page.getByTestId('measurement-cents').fill(values.cents);
+        await page.getByTestId('measurement-contact').fill(values.contact);
+        await page.getByTestId('submit-measurement').click();
+        return page.getByTestId('measurement-result');
+    }
+
+    const valid = {
+        runner: 'ada',
+        distance: '12.5',
+        cents: '123456789012345678901',
+        contact: 'ada@example.com'
+    };
+
+    test('accepts valid newtype values and keeps every bigint digit', async ({ page }) => {
+        const result = await submitMeasurement(page, valid);
+        await expect(result).toHaveAttribute('data-validation-success', 'true');
+        await expect(result).toContainText('"cents": "123456789012345678901"');
+        await expect(result).toContainText('"distance": 12.5');
+    });
+
+    test('rejects a negative distance through the Meters newtype', async ({ page }) => {
+        const result = await submitMeasurement(page, { ...valid, distance: '-3' });
+        await expect(result).toHaveAttribute('data-validation-success', 'false');
+        await expect(result).toContainText('distance:');
+        await expect(result).toContainText('Meters must be non-negative');
+    });
+
+    test('rejects an empty distance as the wrong type', async ({ page }) => {
+        const result = await submitMeasurement(page, { ...valid, distance: '' });
+        await expect(result).toHaveAttribute('data-validation-success', 'false');
+        await expect(result).toContainText('expected number');
+    });
+
+    test('rejects an empty runner through the Username newtype', async ({ page }) => {
+        const result = await submitMeasurement(page, { ...valid, runner: '' });
+        await expect(result).toHaveAttribute('data-validation-success', 'false');
+        await expect(result).toContainText('runner:');
+        await expect(result).toContainText('must not be empty');
+    });
+
+    test('rejects a fractional fee through the Cents newtype', async ({ page }) => {
+        const result = await submitMeasurement(page, { ...valid, cents: '12.5' });
+        await expect(result).toHaveAttribute('data-validation-success', 'false');
+        await expect(result).toContainText('cents:');
+        await expect(result).toContainText('expected bigint');
+    });
+
+    test('rejects a negative fee through the Cents validators', async ({ page }) => {
+        const result = await submitMeasurement(page, { ...valid, cents: '-1' });
+        await expect(result).toHaveAttribute('data-validation-success', 'false');
+        await expect(result).toContainText('Cents must be non-negative');
+    });
+
+    test('rejects a contact the union arm validator refuses', async ({ page }) => {
+        const result = await submitMeasurement(page, { ...valid, contact: 'nobody' });
+        await expect(result).toHaveAttribute('data-validation-success', 'false');
+        await expect(result).toContainText('contact:');
+        await expect(result).toContainText('valid email');
     });
 });

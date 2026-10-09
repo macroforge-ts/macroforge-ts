@@ -5,6 +5,7 @@ import type { AllMacrosTestClass } from './all-macros-test.ts';
 import type { E2eResults } from './e2e-results.ts';
 import type {
     EventForm,
+    MeasurementForm,
     ProductForm,
     UserRegistrationForm,
     ValidationResult
@@ -63,6 +64,7 @@ export interface ValidatorFormResults {
     userRegistration?: ValidationResult<UserRegistrationForm>;
     product?: ValidationResult<ProductForm>;
     event?: ValidationResult<EventForm>;
+    measurement?: ValidationResult<MeasurementForm>;
 }
 
 /**

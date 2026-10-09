@@ -253,7 +253,7 @@ Rust
 
 ```
 pub struct DecoratorIR {
-    pub name: String,      // e.g. "serde"
+    pub name: String,      // e.g. "endec"
     pub args_src: String,  // the arguments as written, e.g. "skip, rename: \\"id\\""
     pub span: SpanIR,
 }

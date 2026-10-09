@@ -162,6 +162,11 @@ export function recordLinkDefaultValue<T>(): RecordLink<T> {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as RecordLink<T> | __mf_PendingRef;
                         }if (typeof value === "string") {
+
+
+
+
+
                                         return value as RecordLink<T>;
                                     }return value as RecordLink<T>;
 
@@ -180,6 +185,18 @@ export function recordLinkDefaultValue<T>(): RecordLink<T> {
                                 field: "_root",
                                 message: "RecordLink.decodeWithContext: value does not match any union member"
                             }]);
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -880,8 +897,11 @@ export function recordLinkDefaultValue<T>(): RecordLink<T> {
 
         }
 
-        export function recordLinkIs<T>(value: unknown): value is RecordLink<T> {
-            return recordLinkHasShape<T>(value);
+        export function recordLinkIs<T>(value: unknown): value is RecordLink<T> {return recordLinkHasShape<T>(value);
+
+
+
+
         }
 
 ## DTS
@@ -1030,6 +1050,11 @@ export function recordLinkDefaultValue<T>(): RecordLink<T> {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as RecordLink<T> | __mf_PendingRef;
                         }if (typeof value === "string") {
+
+
+
+
+
                                         return value as RecordLink<T>;
                                     }return value as RecordLink<T>;
 
@@ -1048,6 +1073,18 @@ export function recordLinkDefaultValue<T>(): RecordLink<T> {
                                 field: "_root",
                                 message: "RecordLink.decodeWithContext: value does not match any union member"
                             }]);
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1748,8 +1785,11 @@ export function recordLinkDefaultValue<T>(): RecordLink<T> {
 
         }
 
-        export function recordLinkIs<T>(value: unknown): value is RecordLink<T> {
-            return recordLinkHasShape<T>(value);
+        export function recordLinkIs<T>(value: unknown): value is RecordLink<T> {return recordLinkHasShape<T>(value);
+
+
+
+
         }
 
 ## Diagnostics
@@ -1758,11 +1798,12 @@ export function recordLinkDefaultValue<T>(): RecordLink<T> {
 
 ## Mapping
 
-original 39..95 -> expanded 0..56
-original 95..96 -> expanded 5524..5525
-generated 56..183 <- Default
-generated 183..2113 <- Encode
-generated 2113..5524 <- Decode
+original 39..95 -> expanded 385..441
+original 95..96 -> expanded 5917..5918
+generated 0..385 <- imports
+generated 441..568 <- Default
+generated 568..2498 <- Encode
+generated 2498..5917 <- Decode
 
 ## Metadata
 

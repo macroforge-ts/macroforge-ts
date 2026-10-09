@@ -5,6 +5,27 @@ use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
 
 use super::types::HashField;
 
+/// The hash of a primitive value given as the expression `value`: integers as
+/// themselves, other numbers, bigints and strings by their characters, and
+/// booleans by the Java constants.
+pub(crate) fn primitive_hash_expr(ts_type: &str, value: &str) -> String {
+    match ts_type {
+        "number" => format!(
+            "(Number.isInteger({value}) \
+                ? {value} | 0 \
+                : {value}.toString().split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))"
+        ),
+        "bigint" => format!(
+            "{value}.toString().split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)"
+        ),
+        "string" => {
+            format!("({value} ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)")
+        }
+        "boolean" => format!("({value} ? 1231 : 1237)"),
+        _ => format!("({value} != null ? 1 : 0)"),
+    }
+}
+
 /// Generates JavaScript code that computes a hash contribution for a single field.
 ///
 /// This function produces an expression that evaluates to an integer hash value.
@@ -105,31 +126,7 @@ pub fn generate_field_hash_for_interface(
 
     // Fallback: original duck-typing behavior
     if is_primitive_type(ts_type) {
-        match ts_type.as_str() {
-            "number" => {
-                format!(
-                    "(Number.isInteger({var}.{field_name}) \
-                        ? {var}.{field_name} | 0 \
-                        : {var}.{field_name}.toString().split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))"
-                )
-            }
-            "bigint" => {
-                format!(
-                    "{var}.{field_name}.toString().split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)"
-                )
-            }
-            "string" => {
-                format!(
-                    "({var}.{field_name} ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)"
-                )
-            }
-            "boolean" => {
-                format!("({var}.{field_name} ? 1231 : 1237)")
-            }
-            _ => {
-                format!("({var}.{field_name} != null ? 1 : 0)")
-            }
-        }
+        primitive_hash_expr(ts_type, &format!("{var}.{field_name}"))
     } else if ts_type.ends_with("[]")
         || ts_type.starts_with("Array<")
         || ts_type.starts_with("ReadonlyArray<")

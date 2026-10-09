@@ -31,7 +31,7 @@ interface Config {
 
 ## Diagnostics
 
-Error [4..22]: Macro 'Encodable' is not a Macroforge built-in macro. Ensure you are using the 'import macro' syntax import statement.
+Error [5..23]: Macro 'Encodable' is not a Macroforge built-in macro. Ensure you are using the 'import macro' syntax import statement.
 
 ## Mapping
 

@@ -125,7 +125,46 @@ constructor(props: { name: string; age: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                            const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                errors.push({ field: "name", message: __raw_name == null ? "User.name is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.name = __raw_name;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -387,7 +426,46 @@ constructor(props: { name: string; age: number }) {
 
 
                         }{
-                            const __raw_age = obj["age"] as number;instance.age = __raw_age;
+                            const __raw_age = obj["age"] as number;if (!(typeof __raw_age === "number")) {
+                                                errors.push({ field: "age", message: __raw_age == null ? "User.age is required" : "expected number" });
+                                            } else {
+
+
+
+                                                instance.age = __raw_age;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -851,7 +929,46 @@ constructor(props: { name: string; age: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                            const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                errors.push({ field: "name", message: __raw_name == null ? "User.name is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.name = __raw_name;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1113,7 +1230,46 @@ constructor(props: { name: string; age: number }) {
 
 
                         }{
-                            const __raw_age = obj["age"] as number;instance.age = __raw_age;
+                            const __raw_age = obj["age"] as number;if (!(typeof __raw_age === "number")) {
+                                                errors.push({ field: "age", message: __raw_age == null ? "User.age is required" : "expected number" });
+                                            } else {
+
+
+
+                                                instance.age = __raw_age;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1479,12 +1635,13 @@ constructor(props: { name: string; age: number }) {
 
 ## Mapping
 
-original 0..41 -> expanded 0..41
-original 63..112 -> expanded 41..90
-original 112..113 -> expanded 4888..4889
-original 113..114 -> expanded 5991..5992
-generated 90..4888 <- Decode
-generated 4889..5991 <- Decode
+original 0..41 -> expanded 307..348
+original 63..112 -> expanded 348..397
+original 112..113 -> expanded 5947..5948
+original 113..114 -> expanded 7050..7051
+generated 0..307 <- imports
+generated 397..5947 <- Decode
+generated 5948..7050 <- Decode
 
 ## Metadata
 

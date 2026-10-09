@@ -74,6 +74,29 @@
 	</tbody>
 </table>
 
+<h2 id="type-position-macros">Type-Position Macros</h2>
+
+<p>
+	One built-in macro is written where a type goes rather than in <code>@derive</code>:
+</p>
+
+<table>
+	<thead>
+		<tr>
+			<th>Macro</th>
+			<th>Expands To</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td><a href={resolve('/docs/builtin-macros/newtype')}><code>$Newtype&lt;T&gt;</code></a></td>
+			<td><code>T &amp; &lbrace; readonly [brand]: true &rbrace;</code></td>
+			<td>Nominal brand backed by a per-site <code>unique symbol</code></td>
+		</tr>
+	</tbody>
+</table>
+
 <h2 id="using-built-in-macros">Using Built-in Macros</h2>
 
 <p>
@@ -237,4 +260,5 @@ console.log(User.equals(user, copy)); // true`} lang="typescript" />
 	<li><a href={resolve('/docs/builtin-macros/partial-ord')}><strong>PartialOrd</strong></a> - Partial ordering comparison</li>
 	<li><a href={resolve('/docs/builtin-macros/encode')}><strong>Encode</strong></a> - JSON encoding with endec-style options</li>
 	<li><a href={resolve('/docs/builtin-macros/decode')}><strong>Decode</strong></a> - JSON decoding with validation</li>
+	<li><a href={resolve('/docs/builtin-macros/newtype')}><strong>$Newtype</strong></a> - Nominal brands, constructed through <code>Decode</code></li>
 </ul>

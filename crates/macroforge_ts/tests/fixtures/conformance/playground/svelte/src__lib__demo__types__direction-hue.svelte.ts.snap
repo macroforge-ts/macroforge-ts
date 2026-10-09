@@ -241,7 +241,46 @@ hue: 0,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_bearing = obj["bearing"] as number;instance.bearing = __raw_bearing;
+                                const __raw_bearing = obj["bearing"] as number;if (!(typeof __raw_bearing === "number")) {
+                                                    errors.push({ field: "bearing", message: __raw_bearing == null ? "DirectionHue.bearing is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.bearing = __raw_bearing;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -501,7 +540,46 @@ hue: 0,
 
 
                             }{
-                                const __raw_hue = obj["hue"] as number;instance.hue = __raw_hue;
+                                const __raw_hue = obj["hue"] as number;if (!(typeof __raw_hue === "number")) {
+                                                    errors.push({ field: "hue", message: __raw_hue == null ? "DirectionHue.hue is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.hue = __raw_hue;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1329,6 +1407,82 @@ hue: 0,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as DirectionHue;
@@ -1547,7 +1701,18 @@ hue: 0,
             return toExit(directionHueDecode(obj));
         }
 
-export const DirectionHue = {
+export const DirectionHue: {
+  readonly defaultValue: typeof directionHueDefaultValue;
+  readonly encode: typeof directionHueEncode;
+  readonly encodeWithContext: typeof directionHueEncodeWithContext;
+  readonly decode: typeof directionHueDecode;
+  readonly decodeWithContext: typeof directionHueDecodeWithContext;
+  readonly validateFields: typeof directionHueValidateFields;
+  readonly hasShape: typeof directionHueHasShape;
+  readonly is: typeof directionHueIs;
+  readonly createForm: typeof directionHueCreateForm;
+  readonly fromFormData: typeof directionHueFromFormData;
+} = {
   defaultValue: directionHueDefaultValue,
   encode: directionHueEncode,
   encodeWithContext: directionHueEncodeWithContext,
@@ -1558,7 +1723,7 @@ export const DirectionHue = {
   is: directionHueIs,
   createForm: directionHueCreateForm,
   fromFormData: directionHueFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1782,7 +1947,46 @@ hue: 0,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_bearing = obj["bearing"] as number;instance.bearing = __raw_bearing;
+                                const __raw_bearing = obj["bearing"] as number;if (!(typeof __raw_bearing === "number")) {
+                                                    errors.push({ field: "bearing", message: __raw_bearing == null ? "DirectionHue.bearing is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.bearing = __raw_bearing;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2042,7 +2246,46 @@ hue: 0,
 
 
                             }{
-                                const __raw_hue = obj["hue"] as number;instance.hue = __raw_hue;
+                                const __raw_hue = obj["hue"] as number;if (!(typeof __raw_hue === "number")) {
+                                                    errors.push({ field: "hue", message: __raw_hue == null ? "DirectionHue.hue is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.hue = __raw_hue;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2870,6 +3113,82 @@ hue: 0,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as DirectionHue;
@@ -3088,7 +3407,18 @@ hue: 0,
             return toExit(directionHueDecode(obj));
         }
 
-export const DirectionHue = {
+export const DirectionHue: {
+  readonly defaultValue: typeof directionHueDefaultValue;
+  readonly encode: typeof directionHueEncode;
+  readonly encodeWithContext: typeof directionHueEncodeWithContext;
+  readonly decode: typeof directionHueDecode;
+  readonly decodeWithContext: typeof directionHueDecodeWithContext;
+  readonly validateFields: typeof directionHueValidateFields;
+  readonly hasShape: typeof directionHueHasShape;
+  readonly is: typeof directionHueIs;
+  readonly createForm: typeof directionHueCreateForm;
+  readonly fromFormData: typeof directionHueFromFormData;
+} = {
   defaultValue: directionHueDefaultValue,
   encode: directionHueEncode,
   encodeWithContext: directionHueEncodeWithContext,
@@ -3099,7 +3429,7 @@ export const DirectionHue = {
   is: directionHueIs,
   createForm: directionHueCreateForm,
   fromFormData: directionHueFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3107,14 +3437,15 @@ export const DirectionHue = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..179 -> expanded 58..130
-original 179..180 -> expanded 13377..13378
-generated 130..268 <- Default
-generated 268..1813 <- Encode
-generated 1813..7427 <- Decode
-generated 7427..12947 <- Gigaform
-generated 12947..13377 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..179 -> expanded 627..699
+original 179..180 -> expanded 15378..15379
+generated 0..569 <- imports
+generated 699..837 <- Default
+generated 837..2382 <- Encode
+generated 2382..8884 <- Decode
+generated 8884..14404 <- Gigaform
+generated 14404..15378 <- __convenience_const
 
 ## Metadata
 

@@ -557,6 +557,38 @@ metadata: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_out = obj["out"] as string | Target;if (typeof __raw_out === "string") {
                                                 instance.out = __raw_out;
@@ -841,8 +873,79 @@ metadata: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Did.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1378,234 +1481,6 @@ metadata: null,
 
 
 
-                            }{
-                                const __raw_createdAt = obj["createdAt"] as string;instance.createdAt = __raw_createdAt;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1639,8 +1514,342 @@ metadata: null,
 
 
                             }{
-                                const __raw_metadata = obj["metadata"] as string | null;
-                                                instance.metadata = __raw_metadata;
+                                const __raw_createdAt = obj["createdAt"] as string;if (!(typeof __raw_createdAt === "string")) {
+                                                    errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Did.createdAt is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.createdAt = __raw_createdAt;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_metadata = obj["metadata"] as string | null;if (!(typeof __raw_metadata === "string" || __raw_metadata === null)) {
+                                                        errors.push({ field: "metadata", message: "expected string | null" });
+                                                    } else {
+                                                        instance.metadata = __raw_metadata;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1900,6 +2109,82 @@ metadata: null,
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2818,7 +3103,18 @@ metadata: null,
             return toExit(didDecode(obj));
         }
 
-export const Did = {
+export const Did: {
+  readonly defaultValue: typeof didDefaultValue;
+  readonly encode: typeof didEncode;
+  readonly encodeWithContext: typeof didEncodeWithContext;
+  readonly decode: typeof didDecode;
+  readonly decodeWithContext: typeof didDecodeWithContext;
+  readonly validateFields: typeof didValidateFields;
+  readonly hasShape: typeof didHasShape;
+  readonly is: typeof didIs;
+  readonly createForm: typeof didCreateForm;
+  readonly fromFormData: typeof didFromFormData;
+} = {
   defaultValue: didDefaultValue,
   encode: didEncode,
   encodeWithContext: didEncodeWithContext,
@@ -2829,7 +3125,7 @@ export const Did = {
   is: didIs,
   createForm: didCreateForm,
   fromFormData: didFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -3362,6 +3658,38 @@ metadata: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_out = obj["out"] as string | Target;if (typeof __raw_out === "string") {
                                                 instance.out = __raw_out;
@@ -3646,8 +3974,79 @@ metadata: null,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Did.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4183,234 +4582,6 @@ metadata: null,
 
 
 
-                            }{
-                                const __raw_createdAt = obj["createdAt"] as string;instance.createdAt = __raw_createdAt;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -4444,8 +4615,342 @@ metadata: null,
 
 
                             }{
-                                const __raw_metadata = obj["metadata"] as string | null;
-                                                instance.metadata = __raw_metadata;
+                                const __raw_createdAt = obj["createdAt"] as string;if (!(typeof __raw_createdAt === "string")) {
+                                                    errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Did.createdAt is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.createdAt = __raw_createdAt;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_metadata = obj["metadata"] as string | null;if (!(typeof __raw_metadata === "string" || __raw_metadata === null)) {
+                                                        errors.push({ field: "metadata", message: "expected string | null" });
+                                                    } else {
+                                                        instance.metadata = __raw_metadata;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4705,6 +5210,82 @@ metadata: null,
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5623,7 +6204,18 @@ metadata: null,
             return toExit(didDecode(obj));
         }
 
-export const Did = {
+export const Did: {
+  readonly defaultValue: typeof didDefaultValue;
+  readonly encode: typeof didEncode;
+  readonly encodeWithContext: typeof didEncodeWithContext;
+  readonly decode: typeof didDecode;
+  readonly decodeWithContext: typeof didDecodeWithContext;
+  readonly validateFields: typeof didValidateFields;
+  readonly hasShape: typeof didHasShape;
+  readonly is: typeof didIs;
+  readonly createForm: typeof didCreateForm;
+  readonly fromFormData: typeof didFromFormData;
+} = {
   defaultValue: didDefaultValue,
   encode: didEncode,
   encodeWithContext: didEncodeWithContext,
@@ -5634,7 +6226,7 @@ export const Did = {
   is: didIs,
   createForm: didCreateForm,
   fromFormData: didFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -5642,16 +6234,17 @@ export const Did = {
 
 ## Mapping
 
-original 0..211 -> expanded 0..211
-original 260..288 -> expanded 211..239
-original 307..336 -> expanded 239..268
-original 355..483 -> expanded 268..396
-original 483..484 -> expanded 25527..25528
-generated 396..594 <- Default
-generated 594..2578 <- Encode
-generated 2578..14674 <- Decode
-generated 14674..25196 <- Gigaform
-generated 25196..25527 <- __convenience_const
+original 0..211 -> expanded 1012..1223
+original 260..288 -> expanded 1223..1251
+original 307..336 -> expanded 1251..1280
+original 355..483 -> expanded 1280..1408
+original 483..484 -> expanded 28316..28317
+generated 0..1012 <- imports
+generated 1408..1606 <- Default
+generated 1606..3590 <- Encode
+generated 3590..17009 <- Decode
+generated 17009..27531 <- Gigaform
+generated 27531..28316 <- __convenience_const
 
 ## Metadata
 

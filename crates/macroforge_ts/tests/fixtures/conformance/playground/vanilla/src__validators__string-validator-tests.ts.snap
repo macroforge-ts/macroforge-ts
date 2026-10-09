@@ -119,11 +119,50 @@ constructor(props: { email: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_email = obj["email"] as string;
-                                        if (__raw_email == null) { errors.push({ field: "email", message: "EmailValidator.email is required" }); } else {
+                            const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                errors.push({ field: "email", message: __raw_email == null ? "EmailValidator.email is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_email == null) { errors.push({ field: "email", message: "EmailValidator.email is required" }); } else {
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "email", message: "EmailValidator.email must be a valid email" }); }
 }
-instance.email = __raw_email;
+
+
+
+
+                                                instance.email = __raw_email;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -613,11 +652,50 @@ constructor(props: { url: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_url = obj["url"] as string;
-                                        if (__raw_url == null) { errors.push({ field: "url", message: "UrlValidator.url is required" }); } else {
+                            const __raw_url = obj["url"] as string;if (!(typeof __raw_url === "string")) {
+                                                errors.push({ field: "url", message: __raw_url == null ? "UrlValidator.url is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_url == null) { errors.push({ field: "url", message: "UrlValidator.url is required" }); } else {
 if (!URL.canParse(__raw_url)) { errors.push({ field: "url", message: "UrlValidator.url must be a valid URL" }); }
 }
-instance.url = __raw_url;
+
+
+
+
+                                                instance.url = __raw_url;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1107,11 +1185,50 @@ constructor(props: { id: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_id = obj["id"] as string;
-                                        if (__raw_id == null) { errors.push({ field: "id", message: "UuidValidator.id is required" }); } else {
+                            const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                errors.push({ field: "id", message: __raw_id == null ? "UuidValidator.id is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_id == null) { errors.push({ field: "id", message: "UuidValidator.id is required" }); } else {
 if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__raw_id)) { errors.push({ field: "id", message: "UuidValidator.id must be a valid UUID" }); }
 }
-instance.id = __raw_id;
+
+
+
+
+                                                instance.id = __raw_id;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1601,11 +1718,50 @@ constructor(props: { shortText: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_shortText = obj["shortText"] as string;
-                                        if (__raw_shortText == null) { errors.push({ field: "shortText", message: "MaxLengthValidator.shortText is required" }); } else {
+                            const __raw_shortText = obj["shortText"] as string;if (!(typeof __raw_shortText === "string")) {
+                                                errors.push({ field: "shortText", message: __raw_shortText == null ? "MaxLengthValidator.shortText is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_shortText == null) { errors.push({ field: "shortText", message: "MaxLengthValidator.shortText is required" }); } else {
 if (__raw_shortText.length > 10) { errors.push({ field: "shortText", message: "MaxLengthValidator.shortText must have at most 10 characters" }); }
 }
-instance.shortText = __raw_shortText;
+
+
+
+
+                                                instance.shortText = __raw_shortText;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2095,11 +2251,50 @@ constructor(props: { longText: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_longText = obj["longText"] as string;
-                                        if (__raw_longText == null) { errors.push({ field: "longText", message: "MinLengthValidator.longText is required" }); } else {
+                            const __raw_longText = obj["longText"] as string;if (!(typeof __raw_longText === "string")) {
+                                                errors.push({ field: "longText", message: __raw_longText == null ? "MinLengthValidator.longText is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_longText == null) { errors.push({ field: "longText", message: "MinLengthValidator.longText is required" }); } else {
 if (__raw_longText.length < 5) { errors.push({ field: "longText", message: "MinLengthValidator.longText must have at least 5 characters" }); }
 }
-instance.longText = __raw_longText;
+
+
+
+
+                                                instance.longText = __raw_longText;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2589,11 +2784,50 @@ constructor(props: { fixedText: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_fixedText = obj["fixedText"] as string;
-                                        if (__raw_fixedText == null) { errors.push({ field: "fixedText", message: "LengthValidator.fixedText is required" }); } else {
+                            const __raw_fixedText = obj["fixedText"] as string;if (!(typeof __raw_fixedText === "string")) {
+                                                errors.push({ field: "fixedText", message: __raw_fixedText == null ? "LengthValidator.fixedText is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_fixedText == null) { errors.push({ field: "fixedText", message: "LengthValidator.fixedText is required" }); } else {
 if (__raw_fixedText.length !== 8) { errors.push({ field: "fixedText", message: "LengthValidator.fixedText must have exactly 8 characters" }); }
 }
-instance.fixedText = __raw_fixedText;
+
+
+
+
+                                                instance.fixedText = __raw_fixedText;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3083,11 +3317,50 @@ constructor(props: { rangedText: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_rangedText = obj["rangedText"] as string;
-                                        if (__raw_rangedText == null) { errors.push({ field: "rangedText", message: "LengthRangeValidator.rangedText is required" }); } else {
+                            const __raw_rangedText = obj["rangedText"] as string;if (!(typeof __raw_rangedText === "string")) {
+                                                errors.push({ field: "rangedText", message: __raw_rangedText == null ? "LengthRangeValidator.rangedText is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_rangedText == null) { errors.push({ field: "rangedText", message: "LengthRangeValidator.rangedText is required" }); } else {
 if (__raw_rangedText.length < 5 || __raw_rangedText.length > 10) { errors.push({ field: "rangedText", message: "LengthRangeValidator.rangedText must have between 5 and 10 characters" }); }
 }
-instance.rangedText = __raw_rangedText;
+
+
+
+
+                                                instance.rangedText = __raw_rangedText;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3577,11 +3850,50 @@ constructor(props: { code: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_code = obj["code"] as string;
-                                        if (__raw_code == null) { errors.push({ field: "code", message: "PatternValidator.code is required" }); } else {
+                            const __raw_code = obj["code"] as string;if (!(typeof __raw_code === "string")) {
+                                                errors.push({ field: "code", message: __raw_code == null ? "PatternValidator.code is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_code == null) { errors.push({ field: "code", message: "PatternValidator.code is required" }); } else {
 if (!/^[A-Z]{3}$/.test(__raw_code)) { errors.push({ field: "code", message: "PatternValidator.code must match pattern ^[A-Z]{3}$" }); }
 }
-instance.code = __raw_code;
+
+
+
+
+                                                instance.code = __raw_code;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4071,11 +4383,50 @@ constructor(props: { required: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_required = obj["required"] as string;
-                                        if (__raw_required == null) { errors.push({ field: "required", message: "NonEmptyValidator.required is required" }); } else {
+                            const __raw_required = obj["required"] as string;if (!(typeof __raw_required === "string")) {
+                                                errors.push({ field: "required", message: __raw_required == null ? "NonEmptyValidator.required is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_required == null) { errors.push({ field: "required", message: "NonEmptyValidator.required is required" }); } else {
 if (__raw_required.length === 0) { errors.push({ field: "required", message: "NonEmptyValidator.required must not be empty" }); }
 }
-instance.required = __raw_required;
+
+
+
+
+                                                instance.required = __raw_required;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4565,11 +4916,50 @@ constructor(props: { trimmed: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_trimmed = obj["trimmed"] as string;
-                                        if (__raw_trimmed == null) { errors.push({ field: "trimmed", message: "TrimmedValidator.trimmed is required" }); } else {
+                            const __raw_trimmed = obj["trimmed"] as string;if (!(typeof __raw_trimmed === "string")) {
+                                                errors.push({ field: "trimmed", message: __raw_trimmed == null ? "TrimmedValidator.trimmed is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_trimmed == null) { errors.push({ field: "trimmed", message: "TrimmedValidator.trimmed is required" }); } else {
 if (__raw_trimmed !== __raw_trimmed.trim()) { errors.push({ field: "trimmed", message: "TrimmedValidator.trimmed must be trimmed" }); }
 }
-instance.trimmed = __raw_trimmed;
+
+
+
+
+                                                instance.trimmed = __raw_trimmed;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5059,11 +5449,50 @@ constructor(props: { lower: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_lower = obj["lower"] as string;
-                                        if (__raw_lower == null) { errors.push({ field: "lower", message: "LowercaseValidator.lower is required" }); } else {
+                            const __raw_lower = obj["lower"] as string;if (!(typeof __raw_lower === "string")) {
+                                                errors.push({ field: "lower", message: __raw_lower == null ? "LowercaseValidator.lower is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_lower == null) { errors.push({ field: "lower", message: "LowercaseValidator.lower is required" }); } else {
 if (__raw_lower !== __raw_lower.toLowerCase()) { errors.push({ field: "lower", message: "LowercaseValidator.lower must be lowercase" }); }
 }
-instance.lower = __raw_lower;
+
+
+
+
+                                                instance.lower = __raw_lower;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5553,11 +5982,50 @@ constructor(props: { upper: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_upper = obj["upper"] as string;
-                                        if (__raw_upper == null) { errors.push({ field: "upper", message: "UppercaseValidator.upper is required" }); } else {
+                            const __raw_upper = obj["upper"] as string;if (!(typeof __raw_upper === "string")) {
+                                                errors.push({ field: "upper", message: __raw_upper == null ? "UppercaseValidator.upper is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_upper == null) { errors.push({ field: "upper", message: "UppercaseValidator.upper is required" }); } else {
 if (__raw_upper !== __raw_upper.toUpperCase()) { errors.push({ field: "upper", message: "UppercaseValidator.upper must be uppercase" }); }
 }
-instance.upper = __raw_upper;
+
+
+
+
+                                                instance.upper = __raw_upper;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6047,11 +6515,50 @@ constructor(props: { cap: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_cap = obj["cap"] as string;
-                                        if (__raw_cap == null) { errors.push({ field: "cap", message: "CapitalizedValidator.cap is required" }); } else {
+                            const __raw_cap = obj["cap"] as string;if (!(typeof __raw_cap === "string")) {
+                                                errors.push({ field: "cap", message: __raw_cap == null ? "CapitalizedValidator.cap is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_cap == null) { errors.push({ field: "cap", message: "CapitalizedValidator.cap is required" }); } else {
 if (__raw_cap.length > 0 && __raw_cap[0] !== __raw_cap[0].toUpperCase()) { errors.push({ field: "cap", message: "CapitalizedValidator.cap must be capitalized" }); }
 }
-instance.cap = __raw_cap;
+
+
+
+
+                                                instance.cap = __raw_cap;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6541,11 +7048,50 @@ constructor(props: { uncap: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_uncap = obj["uncap"] as string;
-                                        if (__raw_uncap == null) { errors.push({ field: "uncap", message: "UncapitalizedValidator.uncap is required" }); } else {
+                            const __raw_uncap = obj["uncap"] as string;if (!(typeof __raw_uncap === "string")) {
+                                                errors.push({ field: "uncap", message: __raw_uncap == null ? "UncapitalizedValidator.uncap is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_uncap == null) { errors.push({ field: "uncap", message: "UncapitalizedValidator.uncap is required" }); } else {
 if (__raw_uncap.length > 0 && __raw_uncap[0] !== __raw_uncap[0].toLowerCase()) { errors.push({ field: "uncap", message: "UncapitalizedValidator.uncap must be uncapitalized" }); }
 }
-instance.uncap = __raw_uncap;
+
+
+
+
+                                                instance.uncap = __raw_uncap;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7035,11 +7581,50 @@ constructor(props: { secureUrl: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_secureUrl = obj["secureUrl"] as string;
-                                        if (__raw_secureUrl == null) { errors.push({ field: "secureUrl", message: "StartsWithValidator.secureUrl is required" }); } else {
+                            const __raw_secureUrl = obj["secureUrl"] as string;if (!(typeof __raw_secureUrl === "string")) {
+                                                errors.push({ field: "secureUrl", message: __raw_secureUrl == null ? "StartsWithValidator.secureUrl is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_secureUrl == null) { errors.push({ field: "secureUrl", message: "StartsWithValidator.secureUrl is required" }); } else {
 if (!__raw_secureUrl.startsWith("https://")) { errors.push({ field: "secureUrl", message: "StartsWithValidator.secureUrl must start with 'https://'" }); }
 }
-instance.secureUrl = __raw_secureUrl;
+
+
+
+
+                                                instance.secureUrl = __raw_secureUrl;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7529,11 +8114,50 @@ constructor(props: { filename: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_filename = obj["filename"] as string;
-                                        if (__raw_filename == null) { errors.push({ field: "filename", message: "EndsWithValidator.filename is required" }); } else {
+                            const __raw_filename = obj["filename"] as string;if (!(typeof __raw_filename === "string")) {
+                                                errors.push({ field: "filename", message: __raw_filename == null ? "EndsWithValidator.filename is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_filename == null) { errors.push({ field: "filename", message: "EndsWithValidator.filename is required" }); } else {
 if (!__raw_filename.endsWith(".json")) { errors.push({ field: "filename", message: "EndsWithValidator.filename must end with '.json'" }); }
 }
-instance.filename = __raw_filename;
+
+
+
+
+                                                instance.filename = __raw_filename;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8023,11 +8647,50 @@ constructor(props: { emailLike: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_emailLike = obj["emailLike"] as string;
-                                        if (__raw_emailLike == null) { errors.push({ field: "emailLike", message: "IncludesValidator.emailLike is required" }); } else {
+                            const __raw_emailLike = obj["emailLike"] as string;if (!(typeof __raw_emailLike === "string")) {
+                                                errors.push({ field: "emailLike", message: __raw_emailLike == null ? "IncludesValidator.emailLike is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_emailLike == null) { errors.push({ field: "emailLike", message: "IncludesValidator.emailLike is required" }); } else {
 if (!__raw_emailLike.includes("@")) { errors.push({ field: "emailLike", message: "IncludesValidator.emailLike must include '@'" }); }
 }
-instance.emailLike = __raw_emailLike;
+
+
+
+
+                                                instance.emailLike = __raw_emailLike;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8524,11 +9187,50 @@ constructor(props: { email: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_email = obj["email"] as string;
-                                        if (__raw_email == null) { errors.push({ field: "email", message: "EmailValidator.email is required" }); } else {
+                            const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                errors.push({ field: "email", message: __raw_email == null ? "EmailValidator.email is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_email == null) { errors.push({ field: "email", message: "EmailValidator.email is required" }); } else {
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "email", message: "EmailValidator.email must be a valid email" }); }
 }
-instance.email = __raw_email;
+
+
+
+
+                                                instance.email = __raw_email;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9018,11 +9720,50 @@ constructor(props: { url: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_url = obj["url"] as string;
-                                        if (__raw_url == null) { errors.push({ field: "url", message: "UrlValidator.url is required" }); } else {
+                            const __raw_url = obj["url"] as string;if (!(typeof __raw_url === "string")) {
+                                                errors.push({ field: "url", message: __raw_url == null ? "UrlValidator.url is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_url == null) { errors.push({ field: "url", message: "UrlValidator.url is required" }); } else {
 if (!URL.canParse(__raw_url)) { errors.push({ field: "url", message: "UrlValidator.url must be a valid URL" }); }
 }
-instance.url = __raw_url;
+
+
+
+
+                                                instance.url = __raw_url;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9512,11 +10253,50 @@ constructor(props: { id: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_id = obj["id"] as string;
-                                        if (__raw_id == null) { errors.push({ field: "id", message: "UuidValidator.id is required" }); } else {
+                            const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                errors.push({ field: "id", message: __raw_id == null ? "UuidValidator.id is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_id == null) { errors.push({ field: "id", message: "UuidValidator.id is required" }); } else {
 if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__raw_id)) { errors.push({ field: "id", message: "UuidValidator.id must be a valid UUID" }); }
 }
-instance.id = __raw_id;
+
+
+
+
+                                                instance.id = __raw_id;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -10006,11 +10786,50 @@ constructor(props: { shortText: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_shortText = obj["shortText"] as string;
-                                        if (__raw_shortText == null) { errors.push({ field: "shortText", message: "MaxLengthValidator.shortText is required" }); } else {
+                            const __raw_shortText = obj["shortText"] as string;if (!(typeof __raw_shortText === "string")) {
+                                                errors.push({ field: "shortText", message: __raw_shortText == null ? "MaxLengthValidator.shortText is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_shortText == null) { errors.push({ field: "shortText", message: "MaxLengthValidator.shortText is required" }); } else {
 if (__raw_shortText.length > 10) { errors.push({ field: "shortText", message: "MaxLengthValidator.shortText must have at most 10 characters" }); }
 }
-instance.shortText = __raw_shortText;
+
+
+
+
+                                                instance.shortText = __raw_shortText;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -10500,11 +11319,50 @@ constructor(props: { longText: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_longText = obj["longText"] as string;
-                                        if (__raw_longText == null) { errors.push({ field: "longText", message: "MinLengthValidator.longText is required" }); } else {
+                            const __raw_longText = obj["longText"] as string;if (!(typeof __raw_longText === "string")) {
+                                                errors.push({ field: "longText", message: __raw_longText == null ? "MinLengthValidator.longText is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_longText == null) { errors.push({ field: "longText", message: "MinLengthValidator.longText is required" }); } else {
 if (__raw_longText.length < 5) { errors.push({ field: "longText", message: "MinLengthValidator.longText must have at least 5 characters" }); }
 }
-instance.longText = __raw_longText;
+
+
+
+
+                                                instance.longText = __raw_longText;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -10994,11 +11852,50 @@ constructor(props: { fixedText: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_fixedText = obj["fixedText"] as string;
-                                        if (__raw_fixedText == null) { errors.push({ field: "fixedText", message: "LengthValidator.fixedText is required" }); } else {
+                            const __raw_fixedText = obj["fixedText"] as string;if (!(typeof __raw_fixedText === "string")) {
+                                                errors.push({ field: "fixedText", message: __raw_fixedText == null ? "LengthValidator.fixedText is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_fixedText == null) { errors.push({ field: "fixedText", message: "LengthValidator.fixedText is required" }); } else {
 if (__raw_fixedText.length !== 8) { errors.push({ field: "fixedText", message: "LengthValidator.fixedText must have exactly 8 characters" }); }
 }
-instance.fixedText = __raw_fixedText;
+
+
+
+
+                                                instance.fixedText = __raw_fixedText;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -11488,11 +12385,50 @@ constructor(props: { rangedText: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_rangedText = obj["rangedText"] as string;
-                                        if (__raw_rangedText == null) { errors.push({ field: "rangedText", message: "LengthRangeValidator.rangedText is required" }); } else {
+                            const __raw_rangedText = obj["rangedText"] as string;if (!(typeof __raw_rangedText === "string")) {
+                                                errors.push({ field: "rangedText", message: __raw_rangedText == null ? "LengthRangeValidator.rangedText is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_rangedText == null) { errors.push({ field: "rangedText", message: "LengthRangeValidator.rangedText is required" }); } else {
 if (__raw_rangedText.length < 5 || __raw_rangedText.length > 10) { errors.push({ field: "rangedText", message: "LengthRangeValidator.rangedText must have between 5 and 10 characters" }); }
 }
-instance.rangedText = __raw_rangedText;
+
+
+
+
+                                                instance.rangedText = __raw_rangedText;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -11982,11 +12918,50 @@ constructor(props: { code: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_code = obj["code"] as string;
-                                        if (__raw_code == null) { errors.push({ field: "code", message: "PatternValidator.code is required" }); } else {
+                            const __raw_code = obj["code"] as string;if (!(typeof __raw_code === "string")) {
+                                                errors.push({ field: "code", message: __raw_code == null ? "PatternValidator.code is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_code == null) { errors.push({ field: "code", message: "PatternValidator.code is required" }); } else {
 if (!/^[A-Z]{3}$/.test(__raw_code)) { errors.push({ field: "code", message: "PatternValidator.code must match pattern ^[A-Z]{3}$" }); }
 }
-instance.code = __raw_code;
+
+
+
+
+                                                instance.code = __raw_code;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12476,11 +13451,50 @@ constructor(props: { required: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_required = obj["required"] as string;
-                                        if (__raw_required == null) { errors.push({ field: "required", message: "NonEmptyValidator.required is required" }); } else {
+                            const __raw_required = obj["required"] as string;if (!(typeof __raw_required === "string")) {
+                                                errors.push({ field: "required", message: __raw_required == null ? "NonEmptyValidator.required is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_required == null) { errors.push({ field: "required", message: "NonEmptyValidator.required is required" }); } else {
 if (__raw_required.length === 0) { errors.push({ field: "required", message: "NonEmptyValidator.required must not be empty" }); }
 }
-instance.required = __raw_required;
+
+
+
+
+                                                instance.required = __raw_required;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12970,11 +13984,50 @@ constructor(props: { trimmed: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_trimmed = obj["trimmed"] as string;
-                                        if (__raw_trimmed == null) { errors.push({ field: "trimmed", message: "TrimmedValidator.trimmed is required" }); } else {
+                            const __raw_trimmed = obj["trimmed"] as string;if (!(typeof __raw_trimmed === "string")) {
+                                                errors.push({ field: "trimmed", message: __raw_trimmed == null ? "TrimmedValidator.trimmed is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_trimmed == null) { errors.push({ field: "trimmed", message: "TrimmedValidator.trimmed is required" }); } else {
 if (__raw_trimmed !== __raw_trimmed.trim()) { errors.push({ field: "trimmed", message: "TrimmedValidator.trimmed must be trimmed" }); }
 }
-instance.trimmed = __raw_trimmed;
+
+
+
+
+                                                instance.trimmed = __raw_trimmed;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -13464,11 +14517,50 @@ constructor(props: { lower: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_lower = obj["lower"] as string;
-                                        if (__raw_lower == null) { errors.push({ field: "lower", message: "LowercaseValidator.lower is required" }); } else {
+                            const __raw_lower = obj["lower"] as string;if (!(typeof __raw_lower === "string")) {
+                                                errors.push({ field: "lower", message: __raw_lower == null ? "LowercaseValidator.lower is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_lower == null) { errors.push({ field: "lower", message: "LowercaseValidator.lower is required" }); } else {
 if (__raw_lower !== __raw_lower.toLowerCase()) { errors.push({ field: "lower", message: "LowercaseValidator.lower must be lowercase" }); }
 }
-instance.lower = __raw_lower;
+
+
+
+
+                                                instance.lower = __raw_lower;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -13958,11 +15050,50 @@ constructor(props: { upper: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_upper = obj["upper"] as string;
-                                        if (__raw_upper == null) { errors.push({ field: "upper", message: "UppercaseValidator.upper is required" }); } else {
+                            const __raw_upper = obj["upper"] as string;if (!(typeof __raw_upper === "string")) {
+                                                errors.push({ field: "upper", message: __raw_upper == null ? "UppercaseValidator.upper is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_upper == null) { errors.push({ field: "upper", message: "UppercaseValidator.upper is required" }); } else {
 if (__raw_upper !== __raw_upper.toUpperCase()) { errors.push({ field: "upper", message: "UppercaseValidator.upper must be uppercase" }); }
 }
-instance.upper = __raw_upper;
+
+
+
+
+                                                instance.upper = __raw_upper;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -14452,11 +15583,50 @@ constructor(props: { cap: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_cap = obj["cap"] as string;
-                                        if (__raw_cap == null) { errors.push({ field: "cap", message: "CapitalizedValidator.cap is required" }); } else {
+                            const __raw_cap = obj["cap"] as string;if (!(typeof __raw_cap === "string")) {
+                                                errors.push({ field: "cap", message: __raw_cap == null ? "CapitalizedValidator.cap is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_cap == null) { errors.push({ field: "cap", message: "CapitalizedValidator.cap is required" }); } else {
 if (__raw_cap.length > 0 && __raw_cap[0] !== __raw_cap[0].toUpperCase()) { errors.push({ field: "cap", message: "CapitalizedValidator.cap must be capitalized" }); }
 }
-instance.cap = __raw_cap;
+
+
+
+
+                                                instance.cap = __raw_cap;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -14946,11 +16116,50 @@ constructor(props: { uncap: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_uncap = obj["uncap"] as string;
-                                        if (__raw_uncap == null) { errors.push({ field: "uncap", message: "UncapitalizedValidator.uncap is required" }); } else {
+                            const __raw_uncap = obj["uncap"] as string;if (!(typeof __raw_uncap === "string")) {
+                                                errors.push({ field: "uncap", message: __raw_uncap == null ? "UncapitalizedValidator.uncap is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_uncap == null) { errors.push({ field: "uncap", message: "UncapitalizedValidator.uncap is required" }); } else {
 if (__raw_uncap.length > 0 && __raw_uncap[0] !== __raw_uncap[0].toLowerCase()) { errors.push({ field: "uncap", message: "UncapitalizedValidator.uncap must be uncapitalized" }); }
 }
-instance.uncap = __raw_uncap;
+
+
+
+
+                                                instance.uncap = __raw_uncap;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -15440,11 +16649,50 @@ constructor(props: { secureUrl: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_secureUrl = obj["secureUrl"] as string;
-                                        if (__raw_secureUrl == null) { errors.push({ field: "secureUrl", message: "StartsWithValidator.secureUrl is required" }); } else {
+                            const __raw_secureUrl = obj["secureUrl"] as string;if (!(typeof __raw_secureUrl === "string")) {
+                                                errors.push({ field: "secureUrl", message: __raw_secureUrl == null ? "StartsWithValidator.secureUrl is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_secureUrl == null) { errors.push({ field: "secureUrl", message: "StartsWithValidator.secureUrl is required" }); } else {
 if (!__raw_secureUrl.startsWith("https://")) { errors.push({ field: "secureUrl", message: "StartsWithValidator.secureUrl must start with 'https://'" }); }
 }
-instance.secureUrl = __raw_secureUrl;
+
+
+
+
+                                                instance.secureUrl = __raw_secureUrl;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -15934,11 +17182,50 @@ constructor(props: { filename: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_filename = obj["filename"] as string;
-                                        if (__raw_filename == null) { errors.push({ field: "filename", message: "EndsWithValidator.filename is required" }); } else {
+                            const __raw_filename = obj["filename"] as string;if (!(typeof __raw_filename === "string")) {
+                                                errors.push({ field: "filename", message: __raw_filename == null ? "EndsWithValidator.filename is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_filename == null) { errors.push({ field: "filename", message: "EndsWithValidator.filename is required" }); } else {
 if (!__raw_filename.endsWith(".json")) { errors.push({ field: "filename", message: "EndsWithValidator.filename must end with '.json'" }); }
 }
-instance.filename = __raw_filename;
+
+
+
+
+                                                instance.filename = __raw_filename;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -16428,11 +17715,50 @@ constructor(props: { emailLike: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_emailLike = obj["emailLike"] as string;
-                                        if (__raw_emailLike == null) { errors.push({ field: "emailLike", message: "IncludesValidator.emailLike is required" }); } else {
+                            const __raw_emailLike = obj["emailLike"] as string;if (!(typeof __raw_emailLike === "string")) {
+                                                errors.push({ field: "emailLike", message: __raw_emailLike == null ? "IncludesValidator.emailLike is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_emailLike == null) { errors.push({ field: "emailLike", message: "IncludesValidator.emailLike is required" }); } else {
 if (!__raw_emailLike.includes("@")) { errors.push({ field: "emailLike", message: "IncludesValidator.emailLike must include '@'" }); }
 }
-instance.emailLike = __raw_emailLike;
+
+
+
+
+                                                instance.emailLike = __raw_emailLike;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -16830,75 +18156,76 @@ if (!__val.includes("@")) { errors.push({ field: "emailLike", message: "Includes
 
 ## Mapping
 
-original 0..276 -> expanded 0..276
-original 276..277 -> expanded 5896..5897
-original 277..405 -> expanded 7089..7217
-original 405..406 -> expanded 12672..12673
-original 406..536 -> expanded 13847..13977
-original 536..537 -> expanded 19601..19602
-original 537..693 -> expanded 20785..20941
-original 693..694 -> expanded 26711..26712
-original 694..848 -> expanded 27940..28094
-original 848..849 -> expanded 33833..33834
-original 849..1003 -> expanded 35062..35216
-original 1003..1004 -> expanded 40926..40927
-original 1004..1190 -> expanded 42128..42314
-original 1190..1191 -> expanded 48241..48242
-original 1191..1346 -> expanded 49488..49643
-original 1346..1347 -> expanded 55251..55252
-original 1347..1495 -> expanded 56462..56610
-original 1495..1496 -> expanded 62293..62294
-original 1496..1640 -> expanded 63513..63657
-original 1640..1641 -> expanded 69306..69307
-original 1641..1789 -> expanded 70517..70665
-original 1789..1790 -> expanded 76323..76324
-original 1790..1938 -> expanded 77552..77700
-original 1938..1939 -> expanded 83358..83359
-original 1939..2091 -> expanded 84587..84739
-original 2091..2092 -> expanded 90467..90468
-original 2092..2252 -> expanded 91714..91874
-original 2252..2253 -> expanded 97708..97709
-original 2253..2420 -> expanded 98973..99140
-original 2420..2421 -> expanded 104951..104952
-original 2421..2578 -> expanded 106189..106346
-original 2578..2579 -> expanded 112059..112060
-original 2579..2733 -> expanded 113279..113433
-original 2733..2734 -> expanded 119147..119148
-original 2734..2735 -> expanded 120367..120368
-generated 276..5896 <- Decode
-generated 5897..7089 <- Decode
-generated 7217..12672 <- Decode
-generated 12673..13847 <- Decode
-generated 13977..19601 <- Decode
-generated 19602..20785 <- Decode
-generated 20941..26711 <- Decode
-generated 26712..27940 <- Decode
-generated 28094..33833 <- Decode
-generated 33834..35062 <- Decode
-generated 35216..40926 <- Decode
-generated 40927..42128 <- Decode
-generated 42314..48241 <- Decode
-generated 48242..49488 <- Decode
-generated 49643..55251 <- Decode
-generated 55252..56462 <- Decode
-generated 56610..62293 <- Decode
-generated 62294..63513 <- Decode
-generated 63657..69306 <- Decode
-generated 69307..70517 <- Decode
-generated 70665..76323 <- Decode
-generated 76324..77552 <- Decode
-generated 77700..83358 <- Decode
-generated 83359..84587 <- Decode
-generated 84739..90467 <- Decode
-generated 90468..91714 <- Decode
-generated 91874..97708 <- Decode
-generated 97709..98973 <- Decode
-generated 99140..104951 <- Decode
-generated 104952..106189 <- Decode
-generated 106346..112059 <- Decode
-generated 112060..113279 <- Decode
-generated 113433..119147 <- Decode
-generated 119148..120367 <- Decode
+original 0..276 -> expanded 307..583
+original 276..277 -> expanded 6607..6608
+original 277..405 -> expanded 7800..7928
+original 405..406 -> expanded 13777..13778
+original 406..536 -> expanded 14952..15082
+original 536..537 -> expanded 21097..21098
+original 537..693 -> expanded 22281..22437
+original 693..694 -> expanded 28631..28632
+original 694..848 -> expanded 29860..30014
+original 848..849 -> expanded 36173..36174
+original 849..1003 -> expanded 37402..37556
+original 1003..1004 -> expanded 43687..43688
+original 1004..1190 -> expanded 44889..45075
+original 1190..1191 -> expanded 51432..51433
+original 1191..1346 -> expanded 52679..52834
+original 1346..1347 -> expanded 58844..58845
+original 1347..1495 -> expanded 60055..60203
+original 1495..1496 -> expanded 66305..66306
+original 1496..1640 -> expanded 67525..67669
+original 1640..1641 -> expanded 73732..73733
+original 1641..1789 -> expanded 74943..75091
+original 1789..1790 -> expanded 81157..81158
+original 1790..1938 -> expanded 82386..82534
+original 1938..1939 -> expanded 88600..88601
+original 1939..2091 -> expanded 89829..89981
+original 2091..2092 -> expanded 96111..96112
+original 2092..2252 -> expanded 97358..97518
+original 2252..2253 -> expanded 103764..103765
+original 2253..2420 -> expanded 105029..105196
+original 2420..2421 -> expanded 111432..111433
+original 2421..2578 -> expanded 112670..112827
+original 2578..2579 -> expanded 118959..118960
+original 2579..2733 -> expanded 120179..120333
+original 2733..2734 -> expanded 126470..126471
+original 2734..2735 -> expanded 127690..127691
+generated 0..307 <- imports
+generated 583..6607 <- Decode
+generated 6608..7800 <- Decode
+generated 7928..13777 <- Decode
+generated 13778..14952 <- Decode
+generated 15082..21097 <- Decode
+generated 21098..22281 <- Decode
+generated 22437..28631 <- Decode
+generated 28632..29860 <- Decode
+generated 30014..36173 <- Decode
+generated 36174..37402 <- Decode
+generated 37556..43687 <- Decode
+generated 43688..44889 <- Decode
+generated 45075..51432 <- Decode
+generated 51433..52679 <- Decode
+generated 52834..58844 <- Decode
+generated 58845..60055 <- Decode
+generated 60203..66305 <- Decode
+generated 66306..67525 <- Decode
+generated 67669..73732 <- Decode
+generated 73733..74943 <- Decode
+generated 75091..81157 <- Decode
+generated 81158..82386 <- Decode
+generated 82534..88600 <- Decode
+generated 88601..89829 <- Decode
+generated 89981..96111 <- Decode
+generated 96112..97358 <- Decode
+generated 97518..103764 <- Decode
+generated 103765..105029 <- Decode
+generated 105196..111432 <- Decode
+generated 111433..112670 <- Decode
+generated 112827..118959 <- Decode
+generated 118960..120179 <- Decode
+generated 120333..126470 <- Decode
+generated 126471..127690 <- Decode
 
 ## Metadata
 

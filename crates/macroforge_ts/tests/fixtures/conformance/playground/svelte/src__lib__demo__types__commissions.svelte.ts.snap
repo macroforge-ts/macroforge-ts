@@ -243,11 +243,50 @@ salesRep: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_technician = obj["technician"] as string;
-                                            if (__raw_technician == null) { errors.push({ field: "technician", message: "Commissions.technician is required" }); } else {
+                                const __raw_technician = obj["technician"] as string;if (!(typeof __raw_technician === "string")) {
+                                                    errors.push({ field: "technician", message: __raw_technician == null ? "Commissions.technician is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_technician == null) { errors.push({ field: "technician", message: "Commissions.technician is required" }); } else {
 if (__raw_technician.length === 0) { errors.push({ field: "technician", message: "Commissions.technician must not be empty" }); }
 }
-instance.technician = __raw_technician;
+
+
+
+
+                                                    instance.technician = __raw_technician;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -507,11 +546,50 @@ instance.technician = __raw_technician;
 
 
                             }{
-                                const __raw_salesRep = obj["salesRep"] as string;
-                                            if (__raw_salesRep == null) { errors.push({ field: "salesRep", message: "Commissions.salesRep is required" }); } else {
+                                const __raw_salesRep = obj["salesRep"] as string;if (!(typeof __raw_salesRep === "string")) {
+                                                    errors.push({ field: "salesRep", message: __raw_salesRep == null ? "Commissions.salesRep is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_salesRep == null) { errors.push({ field: "salesRep", message: "Commissions.salesRep is required" }); } else {
 if (__raw_salesRep.length === 0) { errors.push({ field: "salesRep", message: "Commissions.salesRep must not be empty" }); }
 }
-instance.salesRep = __raw_salesRep;
+
+
+
+
+                                                    instance.salesRep = __raw_salesRep;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1339,6 +1417,82 @@ instance.salesRep = __raw_salesRep;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Commissions;
@@ -1597,7 +1751,18 @@ if (__val.length === 0) { errors.push({ field: "salesRep", message: "Commissions
             return toExit(commissionsDecode(obj));
         }
 
-export const Commissions = {
+export const Commissions: {
+  readonly defaultValue: typeof commissionsDefaultValue;
+  readonly encode: typeof commissionsEncode;
+  readonly encodeWithContext: typeof commissionsEncodeWithContext;
+  readonly decode: typeof commissionsDecode;
+  readonly decodeWithContext: typeof commissionsDecodeWithContext;
+  readonly validateFields: typeof commissionsValidateFields;
+  readonly hasShape: typeof commissionsHasShape;
+  readonly is: typeof commissionsIs;
+  readonly createForm: typeof commissionsCreateForm;
+  readonly fromFormData: typeof commissionsFromFormData;
+} = {
   defaultValue: commissionsDefaultValue,
   encode: commissionsEncode,
   encodeWithContext: commissionsEncodeWithContext,
@@ -1608,7 +1773,7 @@ export const Commissions = {
   is: commissionsIs,
   createForm: commissionsCreateForm,
   fromFormData: commissionsFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1834,11 +1999,50 @@ salesRep: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_technician = obj["technician"] as string;
-                                            if (__raw_technician == null) { errors.push({ field: "technician", message: "Commissions.technician is required" }); } else {
+                                const __raw_technician = obj["technician"] as string;if (!(typeof __raw_technician === "string")) {
+                                                    errors.push({ field: "technician", message: __raw_technician == null ? "Commissions.technician is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_technician == null) { errors.push({ field: "technician", message: "Commissions.technician is required" }); } else {
 if (__raw_technician.length === 0) { errors.push({ field: "technician", message: "Commissions.technician must not be empty" }); }
 }
-instance.technician = __raw_technician;
+
+
+
+
+                                                    instance.technician = __raw_technician;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2098,11 +2302,50 @@ instance.technician = __raw_technician;
 
 
                             }{
-                                const __raw_salesRep = obj["salesRep"] as string;
-                                            if (__raw_salesRep == null) { errors.push({ field: "salesRep", message: "Commissions.salesRep is required" }); } else {
+                                const __raw_salesRep = obj["salesRep"] as string;if (!(typeof __raw_salesRep === "string")) {
+                                                    errors.push({ field: "salesRep", message: __raw_salesRep == null ? "Commissions.salesRep is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_salesRep == null) { errors.push({ field: "salesRep", message: "Commissions.salesRep is required" }); } else {
 if (__raw_salesRep.length === 0) { errors.push({ field: "salesRep", message: "Commissions.salesRep must not be empty" }); }
 }
-instance.salesRep = __raw_salesRep;
+
+
+
+
+                                                    instance.salesRep = __raw_salesRep;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2930,6 +3173,82 @@ instance.salesRep = __raw_salesRep;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Commissions;
@@ -3188,7 +3507,18 @@ if (__val.length === 0) { errors.push({ field: "salesRep", message: "Commissions
             return toExit(commissionsDecode(obj));
         }
 
-export const Commissions = {
+export const Commissions: {
+  readonly defaultValue: typeof commissionsDefaultValue;
+  readonly encode: typeof commissionsEncode;
+  readonly encodeWithContext: typeof commissionsEncodeWithContext;
+  readonly decode: typeof commissionsDecode;
+  readonly decodeWithContext: typeof commissionsDecodeWithContext;
+  readonly validateFields: typeof commissionsValidateFields;
+  readonly hasShape: typeof commissionsHasShape;
+  readonly is: typeof commissionsIs;
+  readonly createForm: typeof commissionsCreateForm;
+  readonly fromFormData: typeof commissionsFromFormData;
+} = {
   defaultValue: commissionsDefaultValue,
   encode: commissionsEncode,
   encodeWithContext: commissionsEncodeWithContext,
@@ -3199,7 +3529,7 @@ export const Commissions = {
   is: commissionsIs,
   createForm: commissionsCreateForm,
   fromFormData: commissionsFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3207,16 +3537,17 @@ export const Commissions = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..143 -> expanded 58..94
-original 184..213 -> expanded 94..123
-original 254..278 -> expanded 123..147
-original 278..279 -> expanded 15503..15504
-generated 147..293 <- Default
-generated 293..1848 <- Encode
-generated 1848..9850 <- Decode
-generated 9850..15084 <- Gigaform
-generated 15084..15503 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..143 -> expanded 627..663
+original 184..213 -> expanded 663..692
+original 254..278 -> expanded 692..716
+original 278..279 -> expanded 17548..17549
+generated 0..569 <- imports
+generated 716..862 <- Default
+generated 862..2417 <- Encode
+generated 2417..11361 <- Decode
+generated 11361..16595 <- Gigaform
+generated 16595..17548 <- __convenience_const
 
 ## Metadata
 

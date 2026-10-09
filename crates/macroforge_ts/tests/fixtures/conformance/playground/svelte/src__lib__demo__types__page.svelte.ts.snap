@@ -171,8 +171,8 @@ export function pageDefaultValue(): Page {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function pageDecodeWithContext(value: any, ctx: __mf_DecodeContext): Page | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function pageDecodeWithContext(value: any, _ctx: __mf_DecodeContext): Page | __mf_PendingRef {
                 switch (value) {
                     case 'SalesHomeDashboard':
                     case 'SalesHomeProducts':
@@ -1085,7 +1085,17 @@ if (variant === "UserHome") { return "UserHome" as Page; }
             return toExit(pageDecode(obj));
         }
 
-export const Page = {
+export const Page: {
+  readonly defaultValue: typeof pageDefaultValue;
+  readonly encode: typeof pageEncode;
+  readonly encodeWithContext: typeof pageEncodeWithContext;
+  readonly decode: typeof pageDecode;
+  readonly decodeWithContext: typeof pageDecodeWithContext;
+  readonly hasShape: typeof pageHasShape;
+  readonly is: typeof pageIs;
+  readonly createForm: typeof pageCreateForm;
+  readonly fromFormData: typeof pageFromFormData;
+} = {
   defaultValue: pageDefaultValue,
   encode: pageEncode,
   encodeWithContext: pageEncodeWithContext,
@@ -1095,7 +1105,7 @@ export const Page = {
   is: pageIs,
   createForm: pageCreateForm,
   fromFormData: pageFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1249,8 +1259,8 @@ export function pageDefaultValue(): Page {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function pageDecodeWithContext(value: any, ctx: __mf_DecodeContext): Page | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function pageDecodeWithContext(value: any, _ctx: __mf_DecodeContext): Page | __mf_PendingRef {
                 switch (value) {
                     case 'SalesHomeDashboard':
                     case 'SalesHomeProducts':
@@ -2163,7 +2173,17 @@ if (variant === "UserHome") { return "UserHome" as Page; }
             return toExit(pageDecode(obj));
         }
 
-export const Page = {
+export const Page: {
+  readonly defaultValue: typeof pageDefaultValue;
+  readonly encode: typeof pageEncode;
+  readonly encodeWithContext: typeof pageEncodeWithContext;
+  readonly decode: typeof pageDecode;
+  readonly decodeWithContext: typeof pageDecodeWithContext;
+  readonly hasShape: typeof pageHasShape;
+  readonly is: typeof pageIs;
+  readonly createForm: typeof pageCreateForm;
+  readonly fromFormData: typeof pageFromFormData;
+} = {
   defaultValue: pageDefaultValue,
   encode: pageEncode,
   encodeWithContext: pageEncodeWithContext,
@@ -2173,7 +2193,7 @@ export const Page = {
   is: pageIs,
   createForm: pageCreateForm,
   fromFormData: pageFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -2181,14 +2201,15 @@ export const Page = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..871 -> expanded 58..822
-original 871..872 -> expanded 40447..40448
-generated 822..949 <- Default
-generated 949..2837 <- Encode
-generated 2837..9432 <- Decode
-generated 9432..40143 <- Gigaform
-generated 40143..40447 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..871 -> expanded 627..1391
+original 871..872 -> expanded 41486..41487
+generated 0..569 <- imports
+generated 1391..1518 <- Default
+generated 1518..3406 <- Encode
+generated 3406..10061 <- Decode
+generated 10061..40772 <- Gigaform
+generated 40772..41486 <- __convenience_const
 
 ## Metadata
 

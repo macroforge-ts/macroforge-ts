@@ -5,7 +5,6 @@ use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
 /// When the field type has @derive(Debug), calls the standalone toString function.
 pub(super) fn debug_value_expr(
     field_name: &str,
-    _ts_type: &str,
     var: &str,
     resolved: Option<&ResolvedTypeRef>,
     registry: &TypeRegistry,

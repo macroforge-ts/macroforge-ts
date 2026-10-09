@@ -13,12 +13,13 @@
 //! ┌──────────────────────────────────────────┐
 //! │            MacroExpander                  │
 //! │                                           │
-//! │  0. declarative_prepass()             │
-//! │     - Discover/rewrite `$name(...)`       │
-//! │       declarative macro calls (oxc only)  │
+//! │  0. Pre-passes, each on the last's output │
+//! │     - attributes_prepass(): @cfg etc.     │
+//! │     - buildtime_prepass(): @buildtime     │
+//! │     - declarative_prepass(): `$name(...)` │
+//! │       call macros                         │
 //! │                                           │
-//! │  1. prepare_expansion_context()           │
-//! │     - Lower AST to IR (ClassIR, etc.)    │
+//! │  1. Lower the AST to IR (ClassIR, etc.)   │
 //! │                                           │
 //! │  2. collect_macro_patches()               │
 //! │     - Find @derive decorators and         │
@@ -140,7 +141,8 @@ const DERIVE_MODULE_PATH: &str = "@macro/derive";
 pub struct MacroExpansion {
     /// The expanded source code after macro processing.
     pub code: String,
-    /// Diagnostics (errors, warnings, info) generated during expansion.
+    /// Diagnostics (errors, warnings, info) generated during expansion, with
+    /// spans in the source as written.
     pub diagnostics: Vec<Diagnostic>,
     /// Whether any macros were expanded (i.e., source code was modified).
     pub changed: bool,
@@ -215,8 +217,9 @@ type ContextFactory = Box<dyn Fn(String, String) -> MacroContextIR>;
 
 /// What the declarative pre-pass produced.
 struct DeclarativeOutcome<'a> {
-    /// The rewritten source, when a declarative macro fired.
-    rewritten: Option<String>,
+    /// The rewritten source and its mapping back to the input, when a
+    /// declarative macro fired.
+    rewritten: Option<crate::host::patch_applicator::ApplyResult>,
     diagnostics: Vec<Diagnostic>,
     /// The parse of the unchanged source, for the main pass to reuse; `None`
     /// when the source was rewritten or never parsed.
@@ -250,6 +253,36 @@ fn join_parse_diagnostics(diagnostics: &[oxc::diagnostics::OxcDiagnostic]) -> St
         .map(|diagnostic| diagnostic.to_string())
         .collect::<Vec<_>>()
         .join("; ")
+}
+
+/// `mapping` followed by the stage that produced `step`, if that stage changed
+/// anything.
+fn then_mapping(
+    mapping: Option<SourceMapping>,
+    step: Option<&crate::host::patch_applicator::ApplyResult>,
+) -> Option<SourceMapping> {
+    match (mapping, step) {
+        (Some(mapping), Some(step)) => Some(mapping.compose(&step.mapping)),
+        (None, Some(step)) => Some(step.mapping.clone()),
+        (mapping, None) => mapping,
+    }
+}
+
+/// Moves each diagnostic span from a stage's input onto the file as written.
+/// A span in generated code lands where that code was inserted.
+fn map_diagnostic_spans(diagnostics: &mut [Diagnostic], mapping: Option<&SourceMapping>) {
+    let Some(mapping) = mapping else {
+        return;
+    };
+    for span in diagnostics
+        .iter_mut()
+        .filter_map(|diagnostic| diagnostic.span.as_mut())
+    {
+        // Spans are 1-based, mappings 0-based.
+        let (start, end) =
+            mapping.span_to_original(span.start.saturating_sub(1), span.end.saturating_sub(1));
+        *span = SpanIR::new(start + 1, end + 1);
+    }
 }
 
 /// Lowered IR representations of TypeScript declarations
@@ -666,63 +699,56 @@ impl MacroExpander {
         let validate = self.build_mode.is_dev();
         let jsx = file_name.ends_with(".tsx");
         let file_type = crate::source_type::for_path(file_name);
-        if validate && file_type == crate::host::declarative::validation_source_type(jsx) {
-            // Validation and import stripping parse the output the same way,
-            // so they share one parse.
-            let applied = applicator.apply_with_mapping(None)?;
-            let output_allocator = oxc::allocator::Allocator::default();
-            let reparsed = Parser::new(&output_allocator, &applied.code, file_type).parse();
-            diagnostics.extend(crate::host::declarative::attribute_parse_errors(
-                reparsed.diagnostics,
+        let applied = applicator.apply_with_mapping(None)?;
+        // Validation and import stripping parse the output the same way, so
+        // they share one parse when the source types agree.
+        let output_allocator = oxc::allocator::Allocator::default();
+        let mut shared_parse = (validate
+            && file_type == crate::host::declarative::validation_source_type(jsx))
+        .then(|| Parser::new(&output_allocator, &applied.code, file_type).parse());
+        match &mut shared_parse {
+            Some(reparsed) => diagnostics.extend(crate::host::declarative::attribute_parse_errors(
+                std::mem::take(&mut reparsed.diagnostics),
                 &applied.mapping,
-            ));
-            let parses = !diagnostics
-                .iter()
-                .any(|diagnostic| diagnostic.level == DiagnosticLevel::Error);
-            let stripped = if parses {
-                crate::host::declarative::macro_imports::strip_consumed_macro_imports_in(
+            )),
+            None if validate => {
+                diagnostics.extend(crate::host::declarative::validate_expanded_source(
                     &applied.code,
-                    &reparsed.program,
-                )
-                .map_err(MacroError::Declarative)?
-            } else {
-                None
-            };
-            return Ok(DeclarativeOutcome {
-                rewritten: Some(stripped.unwrap_or(applied.code)),
-                diagnostics,
-                parsed: None,
-            });
+                    &applied.mapping,
+                    jsx,
+                ))
+            }
+            None => {}
         }
-        let new_source = if validate {
-            let applied = applicator.apply_with_mapping(None)?;
-            let validation = crate::host::declarative::validate_expanded_source(
-                &applied.code,
-                &applied.mapping,
-                jsx,
-            );
-            diagnostics.extend(validation);
-            applied.code
-        } else {
-            applicator.apply()?
-        };
         // Output that doesn't parse is reported downstream with the
         // attribution validation just produced; only valid output is cleaned.
         let parses = !diagnostics
             .iter()
             .any(|diagnostic| diagnostic.level == DiagnosticLevel::Error);
-        let new_source = if parses {
-            crate::host::declarative::macro_imports::strip_consumed_macro_imports(
-                &new_source,
+        let stripped = match (parses, &shared_parse) {
+            (false, _) => None,
+            (true, Some(reparsed)) => {
+                crate::host::declarative::macro_imports::strip_consumed_macro_imports_in(
+                    &applied.code,
+                    &reparsed.program,
+                )
+                .map_err(MacroError::Declarative)?
+            }
+            (true, None) => crate::host::declarative::macro_imports::strip_consumed_macro_imports(
+                &applied.code,
                 file_name,
             )
-            .map_err(MacroError::Declarative)?
-            .unwrap_or(new_source)
-        } else {
-            new_source
+            .map_err(MacroError::Declarative)?,
+        };
+        let rewritten = match stripped {
+            Some(stripped) => crate::host::patch_applicator::ApplyResult {
+                mapping: applied.mapping.compose(&stripped.mapping),
+                code: stripped.code,
+            },
+            None => applied,
         };
         Ok(DeclarativeOutcome {
-            rewritten: Some(new_source),
+            rewritten: Some(rewritten),
             diagnostics,
             parsed: None,
         })
@@ -737,7 +763,15 @@ impl MacroExpander {
         source: &'a str,
         file_name: &str,
         allocator: &'a oxc::allocator::Allocator,
-    ) -> Result<PrepassStage<'a, (Option<String>, Vec<Diagnostic>)>> {
+    ) -> Result<
+        PrepassStage<
+            'a,
+            (
+                Option<crate::host::patch_applicator::ApplyResult>,
+                Vec<Diagnostic>,
+            ),
+        >,
+    > {
         let has_any_tag = ["@cfg", "@deprecated", "@mustUse", "@nonExhaustive"]
             .iter()
             .any(|tag| source.contains(tag));
@@ -756,12 +790,8 @@ impl MacroExpander {
                 join_parse_diagnostics(&parsed.diagnostics)
             )));
         }
-        let out = crate::host::attributes::run_prepass(
-            &parsed.program,
-            source,
-            std::path::Path::new(file_name),
-            &self.project_config,
-        );
+        let out =
+            crate::host::attributes::run_prepass(&parsed.program, source, &self.project_config);
         let parsed = out.rewritten.is_none().then_some(parsed);
         Ok(PrepassStage {
             output: (out.rewritten, out.diagnostics),
@@ -853,22 +883,36 @@ impl MacroExpander {
         let allocator = Allocator::default();
         let attributes = self.attributes_prepass(source, file_name, &allocator)?;
         let (attribute_rewritten, mut prepass_diagnostics) = attributes.output;
-        let source: &str = attribute_rewritten.as_deref().unwrap_or(source);
+        let source: &str = attribute_rewritten
+            .as_ref()
+            .map_or(source, |rewritten| rewritten.code.as_str());
+
+        // From the file as written to the source the next stage sees.
+        let mut prepass_mapping = attribute_rewritten
+            .as_ref()
+            .map(|rewritten| rewritten.mapping.clone());
 
         let buildtime_stage =
             self.buildtime_prepass(source, file_name, &allocator, attributes.parsed)?;
         let mut buildtime = buildtime_stage.output;
+        map_diagnostic_spans(&mut buildtime.diagnostics, prepass_mapping.as_ref());
         prepass_diagnostics.append(&mut buildtime.diagnostics);
-        let source: &str = buildtime.rewritten.as_deref().unwrap_or(source);
+        let source: &str = buildtime
+            .rewritten
+            .as_ref()
+            .map_or(source, |rewritten| rewritten.code.as_str());
+        prepass_mapping = then_mapping(prepass_mapping, buildtime.rewritten.as_ref());
 
-        let declarative =
+        let mut declarative =
             self.declarative_prepass(source, file_name, &allocator, buildtime_stage.parsed)?;
-        prepass_diagnostics.extend(declarative.diagnostics);
-        let source: &str = declarative.rewritten.as_deref().unwrap_or(source);
-
-        let changed_by_prepass = attribute_rewritten.is_some()
-            || buildtime.rewritten.is_some()
-            || declarative.rewritten.is_some();
+        map_diagnostic_spans(&mut declarative.diagnostics, prepass_mapping.as_ref());
+        prepass_diagnostics.append(&mut declarative.diagnostics);
+        let source: &str = declarative
+            .rewritten
+            .as_ref()
+            .map_or(source, |rewritten| rewritten.code.as_str());
+        prepass_mapping = then_mapping(prepass_mapping, declarative.rewritten.as_ref());
+        let changed_by_prepass = prepass_mapping.is_some();
 
         // An unchanged source was parsed already by the declarative pass.
         let parsed = match declarative.parsed {
@@ -890,7 +934,9 @@ impl MacroExpander {
             )));
         }
 
-        prepass_diagnostics.extend(check_builtin_import_warnings(&parsed.program));
+        let mut import_warnings = check_builtin_import_warnings(&parsed.program);
+        map_diagnostic_spans(&mut import_warnings, prepass_mapping.as_ref());
+        prepass_diagnostics.append(&mut import_warnings);
 
         let valid_annotations = self.valid_annotation_names(
             &crate::ts_syn::import_registry::macro_imports_in_comments(
@@ -927,7 +973,7 @@ impl MacroExpander {
                 interfaces: Vec::new(),
                 enums: Vec::new(),
                 type_aliases: Vec::new(),
-                source_mapping: None,
+                source_mapping: prepass_mapping,
                 buildtime_dependencies: buildtime.dependencies,
                 registry_reads: None,
             });
@@ -943,11 +989,12 @@ impl MacroExpander {
         };
 
         let (collector, mut diagnostics) = self.collect_macro_patches(items, file_name, source);
-
+        map_diagnostic_spans(&mut diagnostics, prepass_mapping.as_ref());
         prepass_diagnostics.append(&mut diagnostics);
 
         let mut result = self.apply_and_finalize_expansion(
             source,
+            prepass_mapping.as_ref(),
             collector,
             &mut prepass_diagnostics,
             items_clone,
@@ -1902,10 +1949,12 @@ impl MacroExpander {
 
     /// Phase 3: apply the collected runtime and type patches, build the
     /// source mapping, optionally strip decorators, and assemble the final
-    /// [`MacroExpansion`].
+    /// [`MacroExpansion`]. `prepass_mapping` maps the file as written to
+    /// `source`, so the final mapping reaches back to what the user wrote.
     pub(crate) fn apply_and_finalize_expansion(
         &self,
         source: &str,
+        prepass_mapping: Option<&SourceMapping>,
         collector: PatchCollector,
         diagnostics: &mut Vec<Diagnostic>,
         items: LoweredItems,
@@ -1920,12 +1969,6 @@ impl MacroExpander {
         let has_patches = collector.has_patches();
         let (runtime_result, type_output) = collector.apply(source, None)?;
 
-        let source_mapping = if runtime_result.mapping.is_empty() {
-            None
-        } else {
-            Some(runtime_result.mapping)
-        };
-
         let mut code = runtime_result.code;
 
         // Emit all generated imports from the registry (namespace + type-only)
@@ -1934,6 +1977,13 @@ impl MacroExpander {
         if !import_block.is_empty() {
             code = format!("{}{}", import_block, code);
         }
+
+        let source_mapping = prepass_mapping
+            .map_or(runtime_result.mapping.clone(), |mapping| {
+                mapping.compose(&runtime_result.mapping)
+            })
+            .with_prefix(import_block.len() as u32, "imports");
+        let source_mapping = (!source_mapping.is_empty()).then_some(source_mapping);
 
         let mut expansion = MacroExpansion {
             code,

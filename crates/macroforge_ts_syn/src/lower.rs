@@ -2,8 +2,17 @@
 
 use crate::LoweredTarget;
 use crate::TsSynError;
-use crate::abi::*;
-use ::oxc::ast::ast::*;
+use crate::abi::{
+    ClassIR, DecoratorIR, EnumIR, EnumValue, EnumVariantIR, FieldIR, FunctionIR, FunctionParamIR,
+    InterfaceFieldIR, InterfaceIR, InterfaceMethodIR, MethodSigIR, SpanIR, TypeAliasIR, TypeBody,
+    TypeMember, TypeMemberKind, Visibility,
+};
+use ::oxc::ast::ast::{
+    BindingPattern, Class, ClassElement, Declaration, ExportDefaultDeclarationKind, Expression,
+    Function, Program, PropertyKey, Statement, TSAccessibility, TSEnumDeclaration,
+    TSEnumMemberName, TSInterfaceDeclaration, TSSignature, TSType, TSTypeAliasDeclaration,
+    TSTypeLiteral, TSTypeName, UnaryOperator,
+};
 use oxc::span::GetSpan;
 use std::collections::HashSet;
 
@@ -12,7 +21,7 @@ fn oxc_span_ir(span: oxc::span::Span) -> SpanIR {
     SpanIR::new(span.start + 1, span.end + 1)
 }
 
-/// Collect JSDoc field-level decorators (e.g. `/** @serde({ rename: "user_id" }) */`)
+/// Collect JSDoc field-level decorators (e.g. `/** @endec({ rename: "user_id" }) */`)
 /// from the source text preceding a given 0-based byte offset. `floor` is
 /// where the previous sibling ends: no comment of this declaration's starts
 /// before it, so the search stops there instead of scanning the file.
@@ -110,7 +119,7 @@ fn lower_class(
         }
     }
 
-    // JSDoc class-level decorators (e.g. @serde({ denyUnknownFields: true }))
+    // JSDoc class-level decorators (e.g. @endec({ denyUnknownFields: true }))
     let decorators = collect_leading_decorators(source, 0, decl.span.start as usize, filter);
 
     let mut fields = Vec::new();
@@ -549,10 +558,14 @@ fn lower_union_member(t: &TSType<'_>, floor: usize, source: &str) -> TypeMember 
     let decorators = collect_leading_decorators(source, floor, sp.start as usize, None);
     let kind = match t {
         TSType::TSLiteralType(_) => TypeMemberKind::Literal(text),
-        TSType::TSTypeLiteral(lit) => {
-            let (fields, _) = lower_interface_members(&lit.members, lit.span.start, source, None);
-            TypeMemberKind::Object { fields }
-        }
+        TSType::TSTypeLiteral(lit) => match brand_symbols(lit) {
+            Some(symbols) => TypeMemberKind::Brand(symbols),
+            None => {
+                let (fields, _) =
+                    lower_interface_members(&lit.members, lit.span.start, source, None);
+                TypeMemberKind::Object { fields }
+            }
+        },
         TSType::TSIntersectionType(inter) => {
             TypeMemberKind::Intersection(lower_union_members(&inter.types, source))
         }
@@ -570,6 +583,23 @@ fn lower_union_member(t: &TSType<'_>, floor: usize, source: &str) -> TypeMember 
         _ => TypeMemberKind::TypeRef(text),
     };
     TypeMember::with_decorators(kind, decorators)
+}
+
+/// Symbol identifiers of a type literal made only of computed `[X]` keys.
+fn brand_symbols(lit: &TSTypeLiteral<'_>) -> Option<Vec<String>> {
+    if lit.members.is_empty() {
+        return None;
+    }
+    lit.members
+        .iter()
+        .map(|member| match member {
+            TSSignature::TSPropertySignature(prop) if prop.computed => match &prop.key {
+                PropertyKey::Identifier(ident) => Some(ident.name.to_string()),
+                _ => None,
+            },
+            _ => None,
+        })
+        .collect()
 }
 
 fn lower_type_body(ts_type: &TSType<'_>, source: &str) -> TypeBody {
@@ -826,7 +856,10 @@ pub fn collect_exported_names(program: &Program<'_>) -> HashSet<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{
+        ClassIR, InterfaceIR, Program, SpanIR, TypeAliasIR, TypeBody, TypeMemberKind,
+        lower_classes, lower_interfaces, lower_type_aliases,
+    };
     use oxc::allocator::Allocator;
     use oxc::parser::Parser;
     use oxc::span::SourceType;
@@ -1056,5 +1089,73 @@ type ContactInfo = {
                 field.decorators
             );
         }
+    }
+
+    #[test]
+    fn symbol_keyed_literal_lowers_to_brand() {
+        let alias = single_type_alias(
+            "declare const MetersBrand: unique symbol;\ntype Meters = number & { readonly [MetersBrand]: true };",
+        );
+        let TypeBody::Intersection(members) = &alias.body else {
+            panic!("expected an intersection body, got {:?}", alias.body);
+        };
+        assert_eq!(members[0].kind, TypeMemberKind::TypeRef("number".into()));
+        assert_eq!(
+            members[1].kind,
+            TypeMemberKind::Brand(vec!["MetersBrand".into()])
+        );
+        assert_eq!(alias.body.primitive_base(), Some("number"));
+    }
+
+    #[test]
+    fn mixed_literal_is_still_a_branded_primitive() {
+        let alias = single_type_alias(
+            "declare const B: unique symbol;\ntype Tagged = number & { readonly [B]: true; label: string };",
+        );
+        let TypeBody::Intersection(members) = &alias.body else {
+            panic!("expected an intersection body, got {:?}", alias.body);
+        };
+        assert!(members[1].is_object());
+        assert_eq!(alias.body.primitive_base(), Some("number"));
+    }
+
+    #[test]
+    fn string_keyed_brand_is_a_primitive_base() {
+        let alias = single_type_alias("type Tagged = number & { readonly __brand: \"Tagged\" };");
+        assert_eq!(alias.body.primitive_base(), Some("number"));
+        let empty = single_type_alias("type Loose = string & {};");
+        assert_eq!(empty.body.primitive_base(), Some("string"));
+    }
+
+    #[test]
+    fn primitive_base_of_plain_and_non_primitive_aliases() {
+        assert_eq!(
+            single_type_alias("type Id = string;").body.primitive_base(),
+            Some("string")
+        );
+        assert_eq!(
+            single_type_alias("type Big = bigint;")
+                .body
+                .primitive_base(),
+            Some("bigint")
+        );
+        assert_eq!(
+            single_type_alias("type U = User;").body.primitive_base(),
+            None
+        );
+        assert_eq!(
+            single_type_alias(
+                "declare const B: unique symbol;\ntype U = User & { readonly [B]: true };"
+            )
+            .body
+            .primitive_base(),
+            None
+        );
+        assert_eq!(
+            single_type_alias("type T = number & string & {};")
+                .body
+                .primitive_base(),
+            None
+        );
     }
 }

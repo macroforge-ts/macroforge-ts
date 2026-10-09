@@ -14,6 +14,24 @@ mod builtin_import_warning_tests {
     }
 
     #[test]
+    fn warns_on_importing_newtype_from_macroforge() {
+        let source = r#"import { $Newtype } from "@macroforge/core";
+
+export type Meters = $Newtype<number>;"#;
+
+        let warnings = warnings_for(source);
+
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].message.contains("$Newtype"));
+        assert!(
+            warnings[0]
+                .help
+                .as_deref()
+                .is_some_and(|help| help.contains("$Newtype<T> in type position"))
+        );
+    }
+
+    #[test]
     fn warns_on_importing_debug_from_macroforge() {
         let source = r#"import { Debug } from "@macroforge/core";
 
@@ -121,7 +139,11 @@ class User {
 
         assert_eq!(warnings.len(), 1);
         let span = warnings[0].span.expect("warning should carry a span");
-        assert_eq!(&source[span.start as usize..span.end as usize], "Debug");
+        // Spans are 1-based.
+        assert_eq!(
+            &source[span.start as usize - 1..span.end as usize - 1],
+            "Debug"
+        );
     }
 
     #[test]

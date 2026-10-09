@@ -40,7 +40,7 @@ const BASE: &str = r#"
     export default {
         keepDecorators: true,
         foreignTypes: {
-            "DateTime.DateTime": { from: ["effect"], serialize: (v) => DateTime.formatIso(v) },
+            "DateTime.DateTime": { from: ["effect"], encode: (v) => DateTime.formatIso(v) },
             "Duration.Duration": { from: ["effect"] },
         },
     };

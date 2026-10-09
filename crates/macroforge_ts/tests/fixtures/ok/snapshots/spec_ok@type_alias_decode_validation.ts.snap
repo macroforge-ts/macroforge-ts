@@ -117,11 +117,50 @@ type ContactInfo = {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_primaryEmail = obj["primaryEmail"] as string;
-                                            if (__raw_primaryEmail == null) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail is required" }); } else {
+                                const __raw_primaryEmail = obj["primaryEmail"] as string;if (!(typeof __raw_primaryEmail === "string")) {
+                                                    errors.push({ field: "primaryEmail", message: __raw_primaryEmail == null ? "ContactInfo.primaryEmail is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_primaryEmail == null) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail is required" }); } else {
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_primaryEmail)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
 }
-instance.primaryEmail = __raw_primaryEmail;
+
+
+
+
+                                                    instance.primaryEmail = __raw_primaryEmail;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -309,12 +348,51 @@ instance.primaryEmail = __raw_primaryEmail;
 
 
                             }{
-                                const __raw_address = obj["address"] as string;
-                                            if (__raw_address == null) { errors.push({ field: "address", message: "ContactInfo.address is required" }); } else {
+                                const __raw_address = obj["address"] as string;if (!(typeof __raw_address === "string")) {
+                                                    errors.push({ field: "address", message: __raw_address == null ? "ContactInfo.address is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_address == null) { errors.push({ field: "address", message: "ContactInfo.address is required" }); } else {
 if (__raw_address.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
 if (__raw_address.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
 }
-instance.address = __raw_address;
+
+
+
+
+                                                    instance.address = __raw_address;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -926,6 +1004,82 @@ instance.address = __raw_address;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as ContactInfo;
@@ -1034,13 +1188,19 @@ if (__val.length > 100) { errors.push({ field: "address", message: "ContactInfo.
                 return contactInfoHasShape(obj);
             }
 
-const ContactInfo = {
+const ContactInfo: {
+  readonly decode: typeof contactInfoDecode;
+  readonly decodeWithContext: typeof contactInfoDecodeWithContext;
+  readonly validateFields: typeof contactInfoValidateFields;
+  readonly hasShape: typeof contactInfoHasShape;
+  readonly is: typeof contactInfoIs;
+} = {
   decode: contactInfoDecode,
   decodeWithContext: contactInfoDecodeWithContext,
   validateFields: contactInfoValidateFields,
   hasShape: contactInfoHasShape,
   is: contactInfoIs
-} as const;
+};
 
 ## DTS
 
@@ -1136,11 +1296,50 @@ type ContactInfo = {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_primaryEmail = obj["primaryEmail"] as string;
-                                            if (__raw_primaryEmail == null) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail is required" }); } else {
+                                const __raw_primaryEmail = obj["primaryEmail"] as string;if (!(typeof __raw_primaryEmail === "string")) {
+                                                    errors.push({ field: "primaryEmail", message: __raw_primaryEmail == null ? "ContactInfo.primaryEmail is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_primaryEmail == null) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail is required" }); } else {
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_primaryEmail)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
 }
-instance.primaryEmail = __raw_primaryEmail;
+
+
+
+
+                                                    instance.primaryEmail = __raw_primaryEmail;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1328,12 +1527,51 @@ instance.primaryEmail = __raw_primaryEmail;
 
 
                             }{
-                                const __raw_address = obj["address"] as string;
-                                            if (__raw_address == null) { errors.push({ field: "address", message: "ContactInfo.address is required" }); } else {
+                                const __raw_address = obj["address"] as string;if (!(typeof __raw_address === "string")) {
+                                                    errors.push({ field: "address", message: __raw_address == null ? "ContactInfo.address is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_address == null) { errors.push({ field: "address", message: "ContactInfo.address is required" }); } else {
 if (__raw_address.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
 if (__raw_address.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
 }
-instance.address = __raw_address;
+
+
+
+
+                                                    instance.address = __raw_address;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1945,6 +2183,82 @@ instance.address = __raw_address;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as ContactInfo;
@@ -2053,13 +2367,19 @@ if (__val.length > 100) { errors.push({ field: "address", message: "ContactInfo.
                 return contactInfoHasShape(obj);
             }
 
-const ContactInfo = {
+const ContactInfo: {
+  readonly decode: typeof contactInfoDecode;
+  readonly decodeWithContext: typeof contactInfoDecodeWithContext;
+  readonly validateFields: typeof contactInfoValidateFields;
+  readonly hasShape: typeof contactInfoHasShape;
+  readonly is: typeof contactInfoIs;
+} = {
   decode: contactInfoDecode,
   decodeWithContext: contactInfoDecodeWithContext,
   validateFields: contactInfoValidateFields,
   hasShape: contactInfoHasShape,
   is: contactInfoIs
-} as const;
+};
 
 ## Diagnostics
 
@@ -2067,10 +2387,11 @@ const ContactInfo = {
 
 ## Mapping
 
-original 22..167 -> expanded 0..145
-original 167..168 -> expanded 8478..8479
-generated 145..8265 <- Decode
-generated 8265..8478 <- __convenience_const
+original 22..167 -> expanded 307..452
+original 167..168 -> expanded 9986..9987
+generated 0..307 <- imports
+generated 452..9518 <- Decode
+generated 9518..9986 <- __convenience_const
 
 ## Metadata
 

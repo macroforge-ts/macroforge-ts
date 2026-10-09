@@ -620,6 +620,38 @@ homePage: "UserHome",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_commissions = obj["commissions"] as Commissions | null;if (__raw_commissions === null) {
                                                     instance.commissions = null;
@@ -665,6 +697,38 @@ homePage: "UserHome",
 
 
                                                 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1200,6 +1264,38 @@ homePage: "UserHome",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_accountOverviewSettings = obj["accountOverviewSettings"] as OverviewSettings;ctx.pushScope("accountOverviewSettings");
                                             try {
@@ -1219,6 +1315,38 @@ homePage: "UserHome",
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1754,6 +1882,38 @@ homePage: "UserHome",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_appointmentOverviewSettings = obj["appointmentOverviewSettings"] as OverviewSettings;ctx.pushScope("appointmentOverviewSettings");
                                             try {
@@ -1773,6 +1933,38 @@ homePage: "UserHome",
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2308,6 +2500,38 @@ homePage: "UserHome",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_packageOverviewSettings = obj["packageOverviewSettings"] as OverviewSettings;ctx.pushScope("packageOverviewSettings");
                                             try {
@@ -2327,6 +2551,38 @@ homePage: "UserHome",
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2862,6 +3118,38 @@ homePage: "UserHome",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_orderOverviewSettings = obj["orderOverviewSettings"] as OverviewSettings;ctx.pushScope("orderOverviewSettings");
                                             try {
@@ -2881,6 +3169,38 @@ homePage: "UserHome",
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3416,6 +3736,38 @@ homePage: "UserHome",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_homePage = obj["homePage"] as Page;ctx.pushScope("homePage");
                                             try {
@@ -3693,7 +4045,115 @@ homePage: "UserHome",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5012,7 +5472,18 @@ homePage: "UserHome",
             return toExit(settingsDecode(obj));
         }
 
-export const Settings = {
+export const Settings: {
+  readonly defaultValue: typeof settingsDefaultValue;
+  readonly encode: typeof settingsEncode;
+  readonly encodeWithContext: typeof settingsEncodeWithContext;
+  readonly decode: typeof settingsDecode;
+  readonly decodeWithContext: typeof settingsDecodeWithContext;
+  readonly validateFields: typeof settingsValidateFields;
+  readonly hasShape: typeof settingsHasShape;
+  readonly is: typeof settingsIs;
+  readonly createForm: typeof settingsCreateForm;
+  readonly fromFormData: typeof settingsFromFormData;
+} = {
   defaultValue: settingsDefaultValue,
   encode: settingsEncode,
   encodeWithContext: settingsEncodeWithContext,
@@ -5023,7 +5494,7 @@ export const Settings = {
   is: settingsIs,
   createForm: settingsCreateForm,
   fromFormData: settingsFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -5614,6 +6085,38 @@ homePage: "UserHome",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_commissions = obj["commissions"] as Commissions | null;if (__raw_commissions === null) {
                                                     instance.commissions = null;
@@ -5659,6 +6162,38 @@ homePage: "UserHome",
 
 
                                                 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6194,6 +6729,38 @@ homePage: "UserHome",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_accountOverviewSettings = obj["accountOverviewSettings"] as OverviewSettings;ctx.pushScope("accountOverviewSettings");
                                             try {
@@ -6213,6 +6780,38 @@ homePage: "UserHome",
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6748,6 +7347,38 @@ homePage: "UserHome",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_appointmentOverviewSettings = obj["appointmentOverviewSettings"] as OverviewSettings;ctx.pushScope("appointmentOverviewSettings");
                                             try {
@@ -6767,6 +7398,38 @@ homePage: "UserHome",
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7302,6 +7965,38 @@ homePage: "UserHome",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_packageOverviewSettings = obj["packageOverviewSettings"] as OverviewSettings;ctx.pushScope("packageOverviewSettings");
                                             try {
@@ -7321,6 +8016,38 @@ homePage: "UserHome",
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7856,6 +8583,38 @@ homePage: "UserHome",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_orderOverviewSettings = obj["orderOverviewSettings"] as OverviewSettings;ctx.pushScope("orderOverviewSettings");
                                             try {
@@ -7875,6 +8634,38 @@ homePage: "UserHome",
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8410,6 +9201,38 @@ homePage: "UserHome",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_homePage = obj["homePage"] as Page;ctx.pushScope("homePage");
                                             try {
@@ -8687,7 +9510,115 @@ homePage: "UserHome",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -10006,7 +10937,18 @@ homePage: "UserHome",
             return toExit(settingsDecode(obj));
         }
 
-export const Settings = {
+export const Settings: {
+  readonly defaultValue: typeof settingsDefaultValue;
+  readonly encode: typeof settingsEncode;
+  readonly encodeWithContext: typeof settingsEncodeWithContext;
+  readonly decode: typeof settingsDecode;
+  readonly decodeWithContext: typeof settingsDecodeWithContext;
+  readonly validateFields: typeof settingsValidateFields;
+  readonly hasShape: typeof settingsHasShape;
+  readonly is: typeof settingsIs;
+  readonly createForm: typeof settingsCreateForm;
+  readonly fromFormData: typeof settingsFromFormData;
+} = {
   defaultValue: settingsDefaultValue,
   encode: settingsEncode,
   encodeWithContext: settingsEncodeWithContext,
@@ -10017,7 +10959,7 @@ export const Settings = {
   is: settingsIs,
   createForm: settingsCreateForm,
   fromFormData: settingsFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -10025,15 +10967,16 @@ export const Settings = {
 
 ## Mapping
 
-original 0..379 -> expanded 0..379
-original 428..976 -> expanded 379..927
-original 1003..1025 -> expanded 927..949
-original 1025..1026 -> expanded 64865..64866
-generated 949..1637 <- Default
-generated 1637..4819 <- Encode
-generated 4819..33543 <- Decode
-generated 33543..64479 <- Gigaform
-generated 64479..64865 <- __convenience_const
+original 0..379 -> expanded 1479..1858
+original 428..976 -> expanded 1858..2406
+original 1003..1025 -> expanded 2406..2428
+original 1025..1026 -> expanded 67308..67309
+generated 0..1479 <- imports
+generated 2428..3116 <- Default
+generated 3116..6298 <- Encode
+generated 6298..35482 <- Decode
+generated 35482..66418 <- Gigaform
+generated 66418..67308 <- __convenience_const
 
 ## Metadata
 

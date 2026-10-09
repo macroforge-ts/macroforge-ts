@@ -25,7 +25,7 @@ struct DeriveInput {
 }
 
 struct Attribute {
-    fn name(&self) -> &str;   // e.g. "serde"
+    fn name(&self) -> &str;   // e.g. "endec"
     fn args(&self) -> &str;   // the arguments as written
     fn span(&self) -> SpanIR;
 }

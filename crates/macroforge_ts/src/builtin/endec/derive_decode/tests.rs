@@ -1,5 +1,5 @@
 use super::types::DecodeField;
-use super::validation::generate_field_validations;
+use super::validation::{Missing, generate_field_validations};
 
 use crate::ts_syn::ts_ident;
 
@@ -53,7 +53,7 @@ fn test_field_validations_check_each_validator() {
             validator,
             custom_message: None,
         };
-        generate_field_validations(&[spec], "n", "count", "Counter", true)
+        generate_field_validations(&[spec], "n", "count", "Counter", Missing::Excluded)
             .source()
             .to_string()
     };
@@ -62,4 +62,25 @@ fn test_field_validations_check_each_validator() {
     assert!(checks(Validator::MaxLength(255)).contains("if (n.length > 255)"));
     // nonNegativeInt must enforce both integrality and non-negativity
     assert!(checks(Validator::NonNegativeInt).contains("if (!Number.isInteger(n) || n < 0)"));
+}
+
+#[test]
+fn test_field_validations_guard_a_missing_value_as_the_type_says() {
+    let guarded = |missing: Missing| {
+        let spec = ValidatorSpec {
+            validator: Validator::NonEmpty,
+            custom_message: None,
+        };
+        generate_field_validations(&[spec], "n", "name", "User", missing)
+            .source()
+            .to_string()
+    };
+
+    assert!(guarded(Missing::Allowed).starts_with("if (n != null) {"));
+    assert!(guarded(Missing::Required).starts_with(
+        "if (n == null) { errors.push({ field: \"name\", message: \"User.name is required\" }); } else {"
+    ));
+    let excluded = guarded(Missing::Excluded);
+    assert!(!excluded.contains("null"), "{excluded}");
+    assert!(excluded.starts_with("if (n.length === 0)"), "{excluded}");
 }

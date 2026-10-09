@@ -238,11 +238,50 @@ name: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_name = obj["name"] as string;
-                                            if (__raw_name == null) { errors.push({ field: "name", message: "LastName.name is required" }); } else {
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "LastName.name is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_name == null) { errors.push({ field: "name", message: "LastName.name is required" }); } else {
 if (__raw_name.length === 0) { errors.push({ field: "name", message: "LastName.name must not be empty" }); }
 }
-instance.name = __raw_name;
+
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1070,6 +1109,82 @@ instance.name = __raw_name;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as LastName;
@@ -1282,7 +1397,18 @@ if (__val.length === 0) { errors.push({ field: "name", message: "LastName.name m
             return toExit(lastNameDecode(obj));
         }
 
-export const LastName = {
+export const LastName: {
+  readonly defaultValue: typeof lastNameDefaultValue;
+  readonly encode: typeof lastNameEncode;
+  readonly encodeWithContext: typeof lastNameEncodeWithContext;
+  readonly decode: typeof lastNameDecode;
+  readonly decodeWithContext: typeof lastNameDecodeWithContext;
+  readonly validateFields: typeof lastNameValidateFields;
+  readonly hasShape: typeof lastNameHasShape;
+  readonly is: typeof lastNameIs;
+  readonly createForm: typeof lastNameCreateForm;
+  readonly fromFormData: typeof lastNameFromFormData;
+} = {
   defaultValue: lastNameDefaultValue,
   encode: lastNameEncode,
   encodeWithContext: lastNameEncodeWithContext,
@@ -1293,7 +1419,7 @@ export const LastName = {
   is: lastNameIs,
   createForm: lastNameCreateForm,
   fromFormData: lastNameFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1514,11 +1640,50 @@ name: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_name = obj["name"] as string;
-                                            if (__raw_name == null) { errors.push({ field: "name", message: "LastName.name is required" }); } else {
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "LastName.name is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_name == null) { errors.push({ field: "name", message: "LastName.name is required" }); } else {
 if (__raw_name.length === 0) { errors.push({ field: "name", message: "LastName.name must not be empty" }); }
 }
-instance.name = __raw_name;
+
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2346,6 +2511,82 @@ instance.name = __raw_name;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as LastName;
@@ -2558,7 +2799,18 @@ if (__val.length === 0) { errors.push({ field: "name", message: "LastName.name m
             return toExit(lastNameDecode(obj));
         }
 
-export const LastName = {
+export const LastName: {
+  readonly defaultValue: typeof lastNameDefaultValue;
+  readonly encode: typeof lastNameEncode;
+  readonly encodeWithContext: typeof lastNameEncodeWithContext;
+  readonly decode: typeof lastNameDecode;
+  readonly decodeWithContext: typeof lastNameDecodeWithContext;
+  readonly validateFields: typeof lastNameValidateFields;
+  readonly hasShape: typeof lastNameHasShape;
+  readonly is: typeof lastNameIs;
+  readonly createForm: typeof lastNameCreateForm;
+  readonly fromFormData: typeof lastNameFromFormData;
+} = {
   defaultValue: lastNameDefaultValue,
   encode: lastNameEncode,
   encodeWithContext: lastNameEncodeWithContext,
@@ -2569,7 +2821,7 @@ export const LastName = {
   is: lastNameIs,
   createForm: lastNameCreateForm,
   fromFormData: lastNameFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -2577,15 +2829,16 @@ export const LastName = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..140 -> expanded 58..91
-original 181..201 -> expanded 91..111
-original 201..202 -> expanded 12039..12040
-generated 111..231 <- Default
-generated 231..1723 <- Encode
-generated 1723..7858 <- Decode
-generated 7858..11653 <- Gigaform
-generated 11653..12039 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..140 -> expanded 627..660
+original 181..201 -> expanded 660..680
+original 201..202 -> expanded 13598..13599
+generated 0..569 <- imports
+generated 680..800 <- Default
+generated 800..2292 <- Encode
+generated 2292..8913 <- Decode
+generated 8913..12708 <- Gigaform
+generated 12708..13598 <- __convenience_const
 
 ## Metadata
 

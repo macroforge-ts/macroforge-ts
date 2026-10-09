@@ -127,7 +127,7 @@
         </tr>
         <tr>
             <td><code>&#123;$let name = expr&#125;</code></td>
-            <td>Define a local constant (<code>&#123;%let&#125;</code> is the same)</td>
+            <td>Define a local constant</td>
         </tr>
         <tr>
             <td><code>&#123;$let mut name = expr&#125;</code></td>
@@ -806,10 +806,10 @@ ts_template!(Within {
     code={`use macroforge_ts::ts_syn::ts_ident;
 
 let type_name = input.name();
-let serialize_fn = ts_ident!("{}Serialize", type_name.to_lowercase()); // userSerialize
+let encode_fn = ts_ident!("{}Encode", type_name.to_lowercase()); // userEncode
 
 let code = ts_template! {
-    export function @{serialize_fn}(value: @{type_name}): string { ... }
+    export function @{encode_fn}(value: @{type_name}): string { ... }
 };`}
     lang="rust"
 />

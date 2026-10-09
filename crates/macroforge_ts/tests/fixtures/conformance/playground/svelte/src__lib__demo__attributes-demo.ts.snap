@@ -65,7 +65,17 @@ handle.close();
 
 ## Mapping
 
-original 0..1166 -> expanded 0..1166
+original 0..388 -> expanded 0..388
+original 426..505 -> expanded 388..467
+original 643..645 -> expanded 467..469
+original 675..752 -> expanded 469..546
+original 867..869 -> expanded 546..548
+original 931..996 -> expanded 587..652
+original 1047..1136 -> expanded 652..741
+original 1157..1185 -> expanded 741..769
+original 1211..1534 -> expanded 843..1166
+generated 548..587 <- deprecated
+generated 769..843 <- nonExhaustive
 
 ## Metadata
 

@@ -453,7 +453,46 @@ customFields: [],
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Lead.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -713,8 +752,43 @@ customFields: [],
 
 
                             }{
-                                const __raw_number = obj["number"] as number | null;
-                                                instance.number = __raw_number;
+                                const __raw_number = obj["number"] as number | null;if (!(typeof __raw_number === "number" || __raw_number === null)) {
+                                                        errors.push({ field: "number", message: "expected number | null" });
+                                                    } else {
+                                                        instance.number = __raw_number;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -974,7 +1048,46 @@ customFields: [],
 
 
                             }{
-                                const __raw_accepted = obj["accepted"] as boolean;instance.accepted = __raw_accepted;
+                                const __raw_accepted = obj["accepted"] as boolean;if (!(typeof __raw_accepted === "boolean")) {
+                                                    errors.push({ field: "accepted", message: __raw_accepted == null ? "Lead.accepted is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.accepted = __raw_accepted;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1234,7 +1347,46 @@ customFields: [],
 
 
                             }{
-                                const __raw_probability = obj["probability"] as number;instance.probability = __raw_probability;
+                                const __raw_probability = obj["probability"] as number;if (!(typeof __raw_probability === "number")) {
+                                                    errors.push({ field: "probability", message: __raw_probability == null ? "Lead.probability is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.probability = __raw_probability;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1770,235 +1922,6 @@ customFields: [],
 
 
 
-                            }{
-                                const __raw_dueDate = obj["dueDate"] as string | null;
-                                                instance.dueDate = __raw_dueDate;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2032,8 +1955,43 @@ customFields: [],
 
 
                             }{
-                                const __raw_closeDate = obj["closeDate"] as string | null;
-                                                instance.closeDate = __raw_closeDate;
+                                const __raw_dueDate = obj["dueDate"] as string | null;if (!(typeof __raw_dueDate === "string" || __raw_dueDate === null)) {
+                                                        errors.push({ field: "dueDate", message: "expected string | null" });
+                                                    } else {
+                                                        instance.dueDate = __raw_dueDate;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2293,7 +2251,342 @@ customFields: [],
 
 
                             }{
-                                const __raw_value = obj["value"] as number;instance.value = __raw_value;
+                                const __raw_closeDate = obj["closeDate"] as string | null;if (!(typeof __raw_closeDate === "string" || __raw_closeDate === null)) {
+                                                        errors.push({ field: "closeDate", message: "expected string | null" });
+                                                    } else {
+                                                        instance.closeDate = __raw_closeDate;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                    errors.push({ field: "value", message: __raw_value == null ? "Lead.value is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.value = __raw_value;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2829,12 +3122,83 @@ customFields: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_status = obj["status"] as string;
-                                            if (__raw_status == null) { errors.push({ field: "status", message: "Lead.status is required" }); } else {
+                                const __raw_status = obj["status"] as string;if (!(typeof __raw_status === "string")) {
+                                                    errors.push({ field: "status", message: __raw_status == null ? "Lead.status is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_status == null) { errors.push({ field: "status", message: "Lead.status is required" }); } else {
 if (__raw_status.length === 0) { errors.push({ field: "status", message: "Lead.status must not be empty" }); }
 }
-instance.status = __raw_status;
+
+
+
+
+                                                    instance.status = __raw_status;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3094,8 +3458,43 @@ instance.status = __raw_status;
 
 
                             }{
-                                const __raw_description = obj["description"] as string | null;
-                                                instance.description = __raw_description;
+                                const __raw_description = obj["description"] as string | null;if (!(typeof __raw_description === "string" || __raw_description === null)) {
+                                                        errors.push({ field: "description", message: "expected string | null" });
+                                                    } else {
+                                                        instance.description = __raw_description;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3631,234 +4030,6 @@ instance.status = __raw_status;
 
 
 
-                            }{
-                                const __raw_favorite = obj["favorite"] as boolean;instance.favorite = __raw_favorite;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -3892,8 +4063,342 @@ instance.status = __raw_status;
 
 
                             }{
-                                const __raw_dateAdded = obj["dateAdded"] as string | null;
-                                                instance.dateAdded = __raw_dateAdded;
+                                const __raw_favorite = obj["favorite"] as boolean;if (!(typeof __raw_favorite === "boolean")) {
+                                                    errors.push({ field: "favorite", message: __raw_favorite == null ? "Lead.favorite is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.favorite = __raw_favorite;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_dateAdded = obj["dateAdded"] as string | null;if (!(typeof __raw_dateAdded === "string" || __raw_dateAdded === null)) {
+                                                        errors.push({ field: "dateAdded", message: "expected string | null" });
+                                                    } else {
+                                                        instance.dateAdded = __raw_dateAdded;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4437,6 +4942,38 @@ instance.status = __raw_status;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_sector = obj["sector"] as Sector;ctx.pushScope("sector");
                                             try {
@@ -4714,6 +5251,38 @@ instance.status = __raw_status;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_leadName = obj["leadName"] as AccountName;ctx.pushScope("leadName");
                                             try {
@@ -4733,6 +5302,38 @@ instance.status = __raw_status;
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5340,6 +5941,38 @@ instance.status = __raw_status;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_email = obj["email"] as Email;ctx.pushScope("email");
                                             try {
@@ -5617,9 +6250,76 @@ instance.status = __raw_status;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_leadSource = obj["leadSource"] as string | null;
-                                                instance.leadSource = __raw_leadSource;
+                                const __raw_leadSource = obj["leadSource"] as string | null;if (!(typeof __raw_leadSource === "string" || __raw_leadSource === null)) {
+                                                        errors.push({ field: "leadSource", message: "expected string | null" });
+                                                    } else {
+                                                        instance.leadSource = __raw_leadSource;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6162,12 +6862,83 @@ instance.status = __raw_status;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_memo = obj["memo"] as string;
-                                            if (__raw_memo == null) { errors.push({ field: "memo", message: "Lead.memo is required" }); } else {
+                                const __raw_memo = obj["memo"] as string;if (!(typeof __raw_memo === "string")) {
+                                                    errors.push({ field: "memo", message: __raw_memo == null ? "Lead.memo is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_memo == null) { errors.push({ field: "memo", message: "Lead.memo is required" }); } else {
 if (__raw_memo.length === 0) { errors.push({ field: "memo", message: "Lead.memo must not be empty" }); }
 }
-instance.memo = __raw_memo;
+
+
+
+
+                                                    instance.memo = __raw_memo;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6427,7 +7198,46 @@ instance.memo = __raw_memo;
 
 
                             }{
-                                const __raw_needsReview = obj["needsReview"] as boolean;instance.needsReview = __raw_needsReview;
+                                const __raw_needsReview = obj["needsReview"] as boolean;if (!(typeof __raw_needsReview === "boolean")) {
+                                                    errors.push({ field: "needsReview", message: __raw_needsReview == null ? "Lead.needsReview is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.needsReview = __raw_needsReview;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6687,7 +7497,46 @@ instance.memo = __raw_memo;
 
 
                             }{
-                                const __raw_hasAlert = obj["hasAlert"] as boolean;instance.hasAlert = __raw_hasAlert;
+                                const __raw_hasAlert = obj["hasAlert"] as boolean;if (!(typeof __raw_hasAlert === "boolean")) {
+                                                    errors.push({ field: "hasAlert", message: __raw_hasAlert == null ? "Lead.hasAlert is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.hasAlert = __raw_hasAlert;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7231,235 +8080,6 @@ instance.memo = __raw_memo;
 
 
 
-                            }{
-                                const __raw_color = obj["color"] as string | null;
-                                                instance.color = __raw_color;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -7493,11 +8113,346 @@ instance.memo = __raw_memo;
 
 
                             }{
-                                const __raw_accountType = obj["accountType"] as string;
-                                            if (__raw_accountType == null) { errors.push({ field: "accountType", message: "Lead.accountType is required" }); } else {
+                                const __raw_color = obj["color"] as string | null;if (!(typeof __raw_color === "string" || __raw_color === null)) {
+                                                        errors.push({ field: "color", message: "expected string | null" });
+                                                    } else {
+                                                        instance.color = __raw_color;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_accountType = obj["accountType"] as string;if (!(typeof __raw_accountType === "string")) {
+                                                    errors.push({ field: "accountType", message: __raw_accountType == null ? "Lead.accountType is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_accountType == null) { errors.push({ field: "accountType", message: "Lead.accountType is required" }); } else {
 if (__raw_accountType.length === 0) { errors.push({ field: "accountType", message: "Lead.accountType must not be empty" }); }
 }
-instance.accountType = __raw_accountType;
+
+
+
+
+                                                    instance.accountType = __raw_accountType;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7757,11 +8712,50 @@ instance.accountType = __raw_accountType;
 
 
                             }{
-                                const __raw_subtype = obj["subtype"] as string;
-                                            if (__raw_subtype == null) { errors.push({ field: "subtype", message: "Lead.subtype is required" }); } else {
+                                const __raw_subtype = obj["subtype"] as string;if (!(typeof __raw_subtype === "string")) {
+                                                    errors.push({ field: "subtype", message: __raw_subtype == null ? "Lead.subtype is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_subtype == null) { errors.push({ field: "subtype", message: "Lead.subtype is required" }); } else {
 if (__raw_subtype.length === 0) { errors.push({ field: "subtype", message: "Lead.subtype must not be empty" }); }
 }
-instance.subtype = __raw_subtype;
+
+
+
+
+                                                    instance.subtype = __raw_subtype;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8021,7 +9015,46 @@ instance.subtype = __raw_subtype;
 
 
                             }{
-                                const __raw_isTaxExempt = obj["isTaxExempt"] as boolean;instance.isTaxExempt = __raw_isTaxExempt;
+                                const __raw_isTaxExempt = obj["isTaxExempt"] as boolean;if (!(typeof __raw_isTaxExempt === "boolean")) {
+                                                    errors.push({ field: "isTaxExempt", message: __raw_isTaxExempt == null ? "Lead.isTaxExempt is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.isTaxExempt = __raw_isTaxExempt;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8281,11 +9314,50 @@ instance.subtype = __raw_subtype;
 
 
                             }{
-                                const __raw_paymentTerms = obj["paymentTerms"] as string;
-                                            if (__raw_paymentTerms == null) { errors.push({ field: "paymentTerms", message: "Lead.paymentTerms is required" }); } else {
+                                const __raw_paymentTerms = obj["paymentTerms"] as string;if (!(typeof __raw_paymentTerms === "string")) {
+                                                    errors.push({ field: "paymentTerms", message: __raw_paymentTerms == null ? "Lead.paymentTerms is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_paymentTerms == null) { errors.push({ field: "paymentTerms", message: "Lead.paymentTerms is required" }); } else {
 if (__raw_paymentTerms.length === 0) { errors.push({ field: "paymentTerms", message: "Lead.paymentTerms must not be empty" }); }
 }
-instance.paymentTerms = __raw_paymentTerms;
+
+
+
+
+                                                    instance.paymentTerms = __raw_paymentTerms;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8858,6 +9930,38 @@ instance.paymentTerms = __raw_paymentTerms;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_customFields = obj["customFields"] as Array<[string, string]>;if (Array.isArray(__raw_customFields)) {instance.customFields = __raw_customFields as [string, string][];
 
@@ -9172,7 +10276,115 @@ instance.paymentTerms = __raw_paymentTerms;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -11197,7 +12409,18 @@ if (__val.length === 0) { errors.push({ field: "paymentTerms", message: "Lead.pa
             return toExit(leadDecode(obj));
         }
 
-export const Lead = {
+export const Lead: {
+  readonly defaultValue: typeof leadDefaultValue;
+  readonly encode: typeof leadEncode;
+  readonly encodeWithContext: typeof leadEncodeWithContext;
+  readonly decode: typeof leadDecode;
+  readonly decodeWithContext: typeof leadDecodeWithContext;
+  readonly validateFields: typeof leadValidateFields;
+  readonly hasShape: typeof leadHasShape;
+  readonly is: typeof leadIs;
+  readonly createForm: typeof leadCreateForm;
+  readonly fromFormData: typeof leadFromFormData;
+} = {
   defaultValue: leadDefaultValue,
   encode: leadEncode,
   encodeWithContext: leadEncodeWithContext,
@@ -11208,7 +12431,7 @@ export const Lead = {
   is: leadIs,
   createForm: leadCreateForm,
   fromFormData: leadFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -11625,7 +12848,46 @@ customFields: [],
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Lead.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -11885,8 +13147,43 @@ customFields: [],
 
 
                             }{
-                                const __raw_number = obj["number"] as number | null;
-                                                instance.number = __raw_number;
+                                const __raw_number = obj["number"] as number | null;if (!(typeof __raw_number === "number" || __raw_number === null)) {
+                                                        errors.push({ field: "number", message: "expected number | null" });
+                                                    } else {
+                                                        instance.number = __raw_number;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12146,7 +13443,46 @@ customFields: [],
 
 
                             }{
-                                const __raw_accepted = obj["accepted"] as boolean;instance.accepted = __raw_accepted;
+                                const __raw_accepted = obj["accepted"] as boolean;if (!(typeof __raw_accepted === "boolean")) {
+                                                    errors.push({ field: "accepted", message: __raw_accepted == null ? "Lead.accepted is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.accepted = __raw_accepted;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12406,7 +13742,46 @@ customFields: [],
 
 
                             }{
-                                const __raw_probability = obj["probability"] as number;instance.probability = __raw_probability;
+                                const __raw_probability = obj["probability"] as number;if (!(typeof __raw_probability === "number")) {
+                                                    errors.push({ field: "probability", message: __raw_probability == null ? "Lead.probability is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.probability = __raw_probability;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12942,235 +14317,6 @@ customFields: [],
 
 
 
-                            }{
-                                const __raw_dueDate = obj["dueDate"] as string | null;
-                                                instance.dueDate = __raw_dueDate;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -13204,8 +14350,43 @@ customFields: [],
 
 
                             }{
-                                const __raw_closeDate = obj["closeDate"] as string | null;
-                                                instance.closeDate = __raw_closeDate;
+                                const __raw_dueDate = obj["dueDate"] as string | null;if (!(typeof __raw_dueDate === "string" || __raw_dueDate === null)) {
+                                                        errors.push({ field: "dueDate", message: "expected string | null" });
+                                                    } else {
+                                                        instance.dueDate = __raw_dueDate;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -13465,7 +14646,342 @@ customFields: [],
 
 
                             }{
-                                const __raw_value = obj["value"] as number;instance.value = __raw_value;
+                                const __raw_closeDate = obj["closeDate"] as string | null;if (!(typeof __raw_closeDate === "string" || __raw_closeDate === null)) {
+                                                        errors.push({ field: "closeDate", message: "expected string | null" });
+                                                    } else {
+                                                        instance.closeDate = __raw_closeDate;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_value = obj["value"] as number;if (!(typeof __raw_value === "number")) {
+                                                    errors.push({ field: "value", message: __raw_value == null ? "Lead.value is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.value = __raw_value;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -14001,12 +15517,83 @@ customFields: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_status = obj["status"] as string;
-                                            if (__raw_status == null) { errors.push({ field: "status", message: "Lead.status is required" }); } else {
+                                const __raw_status = obj["status"] as string;if (!(typeof __raw_status === "string")) {
+                                                    errors.push({ field: "status", message: __raw_status == null ? "Lead.status is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_status == null) { errors.push({ field: "status", message: "Lead.status is required" }); } else {
 if (__raw_status.length === 0) { errors.push({ field: "status", message: "Lead.status must not be empty" }); }
 }
-instance.status = __raw_status;
+
+
+
+
+                                                    instance.status = __raw_status;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -14266,8 +15853,43 @@ instance.status = __raw_status;
 
 
                             }{
-                                const __raw_description = obj["description"] as string | null;
-                                                instance.description = __raw_description;
+                                const __raw_description = obj["description"] as string | null;if (!(typeof __raw_description === "string" || __raw_description === null)) {
+                                                        errors.push({ field: "description", message: "expected string | null" });
+                                                    } else {
+                                                        instance.description = __raw_description;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -14803,234 +16425,6 @@ instance.status = __raw_status;
 
 
 
-                            }{
-                                const __raw_favorite = obj["favorite"] as boolean;instance.favorite = __raw_favorite;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -15064,8 +16458,342 @@ instance.status = __raw_status;
 
 
                             }{
-                                const __raw_dateAdded = obj["dateAdded"] as string | null;
-                                                instance.dateAdded = __raw_dateAdded;
+                                const __raw_favorite = obj["favorite"] as boolean;if (!(typeof __raw_favorite === "boolean")) {
+                                                    errors.push({ field: "favorite", message: __raw_favorite == null ? "Lead.favorite is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.favorite = __raw_favorite;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_dateAdded = obj["dateAdded"] as string | null;if (!(typeof __raw_dateAdded === "string" || __raw_dateAdded === null)) {
+                                                        errors.push({ field: "dateAdded", message: "expected string | null" });
+                                                    } else {
+                                                        instance.dateAdded = __raw_dateAdded;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -15609,6 +17337,38 @@ instance.status = __raw_status;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_sector = obj["sector"] as Sector;ctx.pushScope("sector");
                                             try {
@@ -15886,6 +17646,38 @@ instance.status = __raw_status;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_leadName = obj["leadName"] as AccountName;ctx.pushScope("leadName");
                                             try {
@@ -15905,6 +17697,38 @@ instance.status = __raw_status;
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -16512,6 +18336,38 @@ instance.status = __raw_status;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_email = obj["email"] as Email;ctx.pushScope("email");
                                             try {
@@ -16789,9 +18645,76 @@ instance.status = __raw_status;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_leadSource = obj["leadSource"] as string | null;
-                                                instance.leadSource = __raw_leadSource;
+                                const __raw_leadSource = obj["leadSource"] as string | null;if (!(typeof __raw_leadSource === "string" || __raw_leadSource === null)) {
+                                                        errors.push({ field: "leadSource", message: "expected string | null" });
+                                                    } else {
+                                                        instance.leadSource = __raw_leadSource;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -17334,12 +19257,83 @@ instance.status = __raw_status;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_memo = obj["memo"] as string;
-                                            if (__raw_memo == null) { errors.push({ field: "memo", message: "Lead.memo is required" }); } else {
+                                const __raw_memo = obj["memo"] as string;if (!(typeof __raw_memo === "string")) {
+                                                    errors.push({ field: "memo", message: __raw_memo == null ? "Lead.memo is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_memo == null) { errors.push({ field: "memo", message: "Lead.memo is required" }); } else {
 if (__raw_memo.length === 0) { errors.push({ field: "memo", message: "Lead.memo must not be empty" }); }
 }
-instance.memo = __raw_memo;
+
+
+
+
+                                                    instance.memo = __raw_memo;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -17599,7 +19593,46 @@ instance.memo = __raw_memo;
 
 
                             }{
-                                const __raw_needsReview = obj["needsReview"] as boolean;instance.needsReview = __raw_needsReview;
+                                const __raw_needsReview = obj["needsReview"] as boolean;if (!(typeof __raw_needsReview === "boolean")) {
+                                                    errors.push({ field: "needsReview", message: __raw_needsReview == null ? "Lead.needsReview is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.needsReview = __raw_needsReview;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -17859,7 +19892,46 @@ instance.memo = __raw_memo;
 
 
                             }{
-                                const __raw_hasAlert = obj["hasAlert"] as boolean;instance.hasAlert = __raw_hasAlert;
+                                const __raw_hasAlert = obj["hasAlert"] as boolean;if (!(typeof __raw_hasAlert === "boolean")) {
+                                                    errors.push({ field: "hasAlert", message: __raw_hasAlert == null ? "Lead.hasAlert is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.hasAlert = __raw_hasAlert;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -18403,235 +20475,6 @@ instance.memo = __raw_memo;
 
 
 
-                            }{
-                                const __raw_color = obj["color"] as string | null;
-                                                instance.color = __raw_color;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -18665,11 +20508,346 @@ instance.memo = __raw_memo;
 
 
                             }{
-                                const __raw_accountType = obj["accountType"] as string;
-                                            if (__raw_accountType == null) { errors.push({ field: "accountType", message: "Lead.accountType is required" }); } else {
+                                const __raw_color = obj["color"] as string | null;if (!(typeof __raw_color === "string" || __raw_color === null)) {
+                                                        errors.push({ field: "color", message: "expected string | null" });
+                                                    } else {
+                                                        instance.color = __raw_color;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_accountType = obj["accountType"] as string;if (!(typeof __raw_accountType === "string")) {
+                                                    errors.push({ field: "accountType", message: __raw_accountType == null ? "Lead.accountType is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_accountType == null) { errors.push({ field: "accountType", message: "Lead.accountType is required" }); } else {
 if (__raw_accountType.length === 0) { errors.push({ field: "accountType", message: "Lead.accountType must not be empty" }); }
 }
-instance.accountType = __raw_accountType;
+
+
+
+
+                                                    instance.accountType = __raw_accountType;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -18929,11 +21107,50 @@ instance.accountType = __raw_accountType;
 
 
                             }{
-                                const __raw_subtype = obj["subtype"] as string;
-                                            if (__raw_subtype == null) { errors.push({ field: "subtype", message: "Lead.subtype is required" }); } else {
+                                const __raw_subtype = obj["subtype"] as string;if (!(typeof __raw_subtype === "string")) {
+                                                    errors.push({ field: "subtype", message: __raw_subtype == null ? "Lead.subtype is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_subtype == null) { errors.push({ field: "subtype", message: "Lead.subtype is required" }); } else {
 if (__raw_subtype.length === 0) { errors.push({ field: "subtype", message: "Lead.subtype must not be empty" }); }
 }
-instance.subtype = __raw_subtype;
+
+
+
+
+                                                    instance.subtype = __raw_subtype;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -19193,7 +21410,46 @@ instance.subtype = __raw_subtype;
 
 
                             }{
-                                const __raw_isTaxExempt = obj["isTaxExempt"] as boolean;instance.isTaxExempt = __raw_isTaxExempt;
+                                const __raw_isTaxExempt = obj["isTaxExempt"] as boolean;if (!(typeof __raw_isTaxExempt === "boolean")) {
+                                                    errors.push({ field: "isTaxExempt", message: __raw_isTaxExempt == null ? "Lead.isTaxExempt is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.isTaxExempt = __raw_isTaxExempt;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -19453,11 +21709,50 @@ instance.subtype = __raw_subtype;
 
 
                             }{
-                                const __raw_paymentTerms = obj["paymentTerms"] as string;
-                                            if (__raw_paymentTerms == null) { errors.push({ field: "paymentTerms", message: "Lead.paymentTerms is required" }); } else {
+                                const __raw_paymentTerms = obj["paymentTerms"] as string;if (!(typeof __raw_paymentTerms === "string")) {
+                                                    errors.push({ field: "paymentTerms", message: __raw_paymentTerms == null ? "Lead.paymentTerms is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_paymentTerms == null) { errors.push({ field: "paymentTerms", message: "Lead.paymentTerms is required" }); } else {
 if (__raw_paymentTerms.length === 0) { errors.push({ field: "paymentTerms", message: "Lead.paymentTerms must not be empty" }); }
 }
-instance.paymentTerms = __raw_paymentTerms;
+
+
+
+
+                                                    instance.paymentTerms = __raw_paymentTerms;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -20030,6 +22325,38 @@ instance.paymentTerms = __raw_paymentTerms;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_customFields = obj["customFields"] as Array<[string, string]>;if (Array.isArray(__raw_customFields)) {instance.customFields = __raw_customFields as [string, string][];
 
@@ -20344,7 +22671,115 @@ instance.paymentTerms = __raw_paymentTerms;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -22369,7 +24804,18 @@ if (__val.length === 0) { errors.push({ field: "paymentTerms", message: "Lead.pa
             return toExit(leadDecode(obj));
         }
 
-export const Lead = {
+export const Lead: {
+  readonly defaultValue: typeof leadDefaultValue;
+  readonly encode: typeof leadEncode;
+  readonly encodeWithContext: typeof leadEncodeWithContext;
+  readonly decode: typeof leadDecode;
+  readonly decodeWithContext: typeof leadDecodeWithContext;
+  readonly validateFields: typeof leadValidateFields;
+  readonly hasShape: typeof leadHasShape;
+  readonly is: typeof leadIs;
+  readonly createForm: typeof leadCreateForm;
+  readonly fromFormData: typeof leadFromFormData;
+} = {
   defaultValue: leadDefaultValue,
   encode: leadEncode,
   encodeWithContext: leadEncodeWithContext,
@@ -22380,7 +24826,7 @@ export const Lead = {
   is: leadIs,
   createForm: leadCreateForm,
   fromFormData: leadFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -22388,56 +24834,57 @@ export const Lead = {
 
 ## Mapping
 
-original 0..572 -> expanded 0..572
-original 621..650 -> expanded 572..601
-original 678..699 -> expanded 601..622
-original 727..759 -> expanded 622..654
-original 787..815 -> expanded 654..682
-original 883..913 -> expanded 682..712
-original 1106..1111 -> expanded 712..717
-original 1136..1165 -> expanded 717..746
-original 1214..1247 -> expanded 746..779
-original 1298..1333 -> expanded 779..814
-original 1397..1421 -> expanded 814..838
-original 1718..1723 -> expanded 838..843
-original 1746..1773 -> expanded 843..870
-original 1816..1821 -> expanded 870..875
-original 1862..1887 -> expanded 875..900
-original 1939..1976 -> expanded 900..937
-original 2004..2009 -> expanded 937..942
-original 2042..2071 -> expanded 942..971
-original 2118..2146 -> expanded 971..999
-original 2174..2209 -> expanded 999..1034
-original 2309..2354 -> expanded 1034..1079
-original 2535..2540 -> expanded 1079..1084
-original 2570..2595 -> expanded 1084..1109
-original 2727..2759 -> expanded 1109..1141
-original 2812..2849 -> expanded 1141..1178
-original 2897..2920 -> expanded 1178..1201
-original 2991..3027 -> expanded 1201..1237
-original 3076..3081 -> expanded 1237..1242
-original 3100..3130 -> expanded 1242..1272
-original 3175..3180 -> expanded 1272..1277
-original 3221..3244 -> expanded 1277..1300
-original 3295..3326 -> expanded 1300..1331
-original 3374..3402 -> expanded 1331..1359
-original 3491..3536 -> expanded 1359..1404
-original 3564..3595 -> expanded 1404..1435
-original 3667..3672 -> expanded 1435..1440
-original 3713..3743 -> expanded 1440..1470
-original 3810..3815 -> expanded 1470..1475
-original 3856..3882 -> expanded 1475..1501
-original 3931..3962 -> expanded 1501..1532
-original 4035..4040 -> expanded 1532..1537
-original 4081..4112 -> expanded 1537..1568
-original 4153..4183 -> expanded 1568..1598
-original 4243..4288 -> expanded 1598..1643
-original 4288..4289 -> expanded 99943..99944
-generated 1643..2285 <- Default
-generated 2285..5700 <- Encode
-generated 5700..46448 <- Decode
-generated 46448..99601 <- Gigaform
-generated 99601..99943 <- __convenience_const
+original 0..572 -> expanded 1755..2327
+original 621..650 -> expanded 2327..2356
+original 678..699 -> expanded 2356..2377
+original 727..759 -> expanded 2377..2409
+original 787..815 -> expanded 2409..2437
+original 883..913 -> expanded 2437..2467
+original 1106..1111 -> expanded 2467..2472
+original 1136..1165 -> expanded 2472..2501
+original 1214..1247 -> expanded 2501..2534
+original 1298..1333 -> expanded 2534..2569
+original 1397..1421 -> expanded 2569..2593
+original 1718..1723 -> expanded 2593..2598
+original 1746..1773 -> expanded 2598..2625
+original 1816..1821 -> expanded 2625..2630
+original 1862..1887 -> expanded 2630..2655
+original 1939..1976 -> expanded 2655..2692
+original 2004..2009 -> expanded 2692..2697
+original 2042..2071 -> expanded 2697..2726
+original 2118..2146 -> expanded 2726..2754
+original 2174..2209 -> expanded 2754..2789
+original 2309..2354 -> expanded 2789..2834
+original 2535..2540 -> expanded 2834..2839
+original 2570..2595 -> expanded 2839..2864
+original 2727..2759 -> expanded 2864..2896
+original 2812..2849 -> expanded 2896..2933
+original 2897..2920 -> expanded 2933..2956
+original 2991..3027 -> expanded 2956..2992
+original 3076..3081 -> expanded 2992..2997
+original 3100..3130 -> expanded 2997..3027
+original 3175..3180 -> expanded 3027..3032
+original 3221..3244 -> expanded 3032..3055
+original 3295..3326 -> expanded 3055..3086
+original 3374..3402 -> expanded 3086..3114
+original 3491..3536 -> expanded 3114..3159
+original 3564..3595 -> expanded 3159..3190
+original 3667..3672 -> expanded 3190..3195
+original 3713..3743 -> expanded 3195..3225
+original 3810..3815 -> expanded 3225..3230
+original 3856..3882 -> expanded 3230..3256
+original 3931..3962 -> expanded 3256..3287
+original 4035..4040 -> expanded 3287..3292
+original 4081..4112 -> expanded 3292..3323
+original 4153..4183 -> expanded 3323..3353
+original 4243..4288 -> expanded 3353..3398
+original 4288..4289 -> expanded 110496..110497
+generated 0..1755 <- imports
+generated 3398..4040 <- Default
+generated 4040..7455 <- Encode
+generated 7455..56537 <- Decode
+generated 56537..109690 <- Gigaform
+generated 109690..110496 <- __convenience_const
 
 ## Metadata
 

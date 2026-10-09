@@ -592,7 +592,115 @@ mappings: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1376,7 +1484,18 @@ mappings: [],
             return toExit(customDecode(obj));
         }
 
-export const Custom = {
+export const Custom: {
+  readonly defaultValue: typeof customDefaultValue;
+  readonly encode: typeof customEncode;
+  readonly encodeWithContext: typeof customEncodeWithContext;
+  readonly decode: typeof customDecode;
+  readonly decodeWithContext: typeof customDecodeWithContext;
+  readonly validateFields: typeof customValidateFields;
+  readonly hasShape: typeof customHasShape;
+  readonly is: typeof customIs;
+  readonly createForm: typeof customCreateForm;
+  readonly fromFormData: typeof customFromFormData;
+} = {
   defaultValue: customDefaultValue,
   encode: customEncode,
   encodeWithContext: customEncodeWithContext,
@@ -1387,7 +1506,7 @@ export const Custom = {
   is: customIs,
   createForm: customCreateForm,
   fromFormData: customFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1959,7 +2078,115 @@ mappings: [],
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2743,7 +2970,18 @@ mappings: [],
             return toExit(customDecode(obj));
         }
 
-export const Custom = {
+export const Custom: {
+  readonly defaultValue: typeof customDefaultValue;
+  readonly encode: typeof customEncode;
+  readonly encodeWithContext: typeof customEncodeWithContext;
+  readonly decode: typeof customDecode;
+  readonly decodeWithContext: typeof customDecodeWithContext;
+  readonly validateFields: typeof customValidateFields;
+  readonly hasShape: typeof customHasShape;
+  readonly is: typeof customIs;
+  readonly createForm: typeof customCreateForm;
+  readonly fromFormData: typeof customFromFormData;
+} = {
   defaultValue: customDefaultValue,
   encode: customEncode,
   encodeWithContext: customEncodeWithContext,
@@ -2754,7 +2992,7 @@ export const Custom = {
   is: customIs,
   createForm: customCreateForm,
   fromFormData: customFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -2762,14 +3000,15 @@ export const Custom = {
 
 ## Mapping
 
-original 0..119 -> expanded 0..119
-original 168..231 -> expanded 119..182
-original 231..232 -> expanded 15562..15563
-generated 182..302 <- Default
-generated 302..1964 <- Encode
-generated 1964..9573 <- Decode
-generated 9573..15198 <- Gigaform
-generated 15198..15562 <- __convenience_const
+original 0..119 -> expanded 774..893
+original 168..231 -> expanded 893..956
+original 231..232 -> expanded 16928..16929
+generated 0..774 <- imports
+generated 956..1076 <- Default
+generated 1076..2738 <- Encode
+generated 2738..10455 <- Decode
+generated 10455..16080 <- Gigaform
+generated 16080..16928 <- __convenience_const
 
 ## Metadata
 

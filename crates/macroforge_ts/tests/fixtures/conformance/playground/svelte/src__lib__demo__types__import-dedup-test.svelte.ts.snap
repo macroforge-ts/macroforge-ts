@@ -130,7 +130,46 @@ export interface UserWithDecode {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "UserWithDecode.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -390,7 +429,46 @@ export interface UserWithDecode {
 
 
                             }{
-                                const __raw_age = obj["age"] as number;instance.age = __raw_age;
+                                const __raw_age = obj["age"] as number;if (!(typeof __raw_age === "number")) {
+                                                    errors.push({ field: "age", message: __raw_age == null ? "UserWithDecode.age is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.age = __raw_age;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -650,7 +728,46 @@ export interface UserWithDecode {
 
 
                             }{
-                                const __raw_email = obj["email"] as string;instance.email = __raw_email;
+                                const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                    errors.push({ field: "email", message: __raw_email == null ? "UserWithDecode.email is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.email = __raw_email;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -910,6 +1027,82 @@ export interface UserWithDecode {
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1536,13 +1729,19 @@ export interface UserWithDecode {
                 return result.success;
             }
 
-export const UserWithDecode = {
+export const UserWithDecode: {
+  readonly decode: typeof userWithDecodeDecode;
+  readonly decodeWithContext: typeof userWithDecodeDecodeWithContext;
+  readonly validateFields: typeof userWithDecodeValidateFields;
+  readonly hasShape: typeof userWithDecodeHasShape;
+  readonly is: typeof userWithDecodeIs;
+} = {
   decode: userWithDecodeDecode,
   decodeWithContext: userWithDecodeDecodeWithContext,
   validateFields: userWithDecodeValidateFields,
   hasShape: userWithDecodeHasShape,
   is: userWithDecodeIs
-} as const;
+};
 
 // Test 2: Type with PartialOrd (uses Option for return type)
 
@@ -1563,9 +1762,11 @@ if (cmp1 !== 0) return cmp1;
                         return 0;
                     }
 
-export const ComparableItem = {
+export const ComparableItem: {
+  readonly partialCompare: typeof comparableItemPartialCompare;
+} = {
   partialCompare: comparableItemPartialCompare
-} as const;
+};
 
 // Test 3: Type with both Decode and PartialOrd
 
@@ -1661,7 +1862,46 @@ export interface FullFeaturedType {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as number;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as number;if (!(typeof __raw_id === "number")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "FullFeaturedType.id is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1921,7 +2161,46 @@ export interface FullFeaturedType {
 
 
                             }{
-                                const __raw_value = obj["value"] as string;instance.value = __raw_value;
+                                const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                    errors.push({ field: "value", message: __raw_value == null ? "FullFeaturedType.value is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.value = __raw_value;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2181,7 +2460,46 @@ export interface FullFeaturedType {
 
 
                             }{
-                                const __raw_score = obj["score"] as number;instance.score = __raw_score;
+                                const __raw_score = obj["score"] as number;if (!(typeof __raw_score === "number")) {
+                                                    errors.push({ field: "score", message: __raw_score == null ? "FullFeaturedType.score is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.score = __raw_score;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2441,6 +2759,82 @@ export interface FullFeaturedType {
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3082,14 +3476,21 @@ if (cmp2 !== 0) return cmp2;
                         return 0;
                     }
 
-export const FullFeaturedType = {
+export const FullFeaturedType: {
+  readonly decode: typeof fullFeaturedTypeDecode;
+  readonly decodeWithContext: typeof fullFeaturedTypeDecodeWithContext;
+  readonly validateFields: typeof fullFeaturedTypeValidateFields;
+  readonly hasShape: typeof fullFeaturedTypeHasShape;
+  readonly is: typeof fullFeaturedTypeIs;
+  readonly partialCompare: typeof fullFeaturedTypePartialCompare;
+} = {
   decode: fullFeaturedTypeDecode,
   decodeWithContext: fullFeaturedTypeDecodeWithContext,
   validateFields: fullFeaturedTypeValidateFields,
   hasShape: fullFeaturedTypeHasShape,
   is: fullFeaturedTypeIs,
   partialCompare: fullFeaturedTypePartialCompare
-} as const;
+};
 
 // Test 4: Multiple types to stress test deduplication across types
 
@@ -3179,7 +3580,46 @@ export interface TypeA {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_fieldA = obj["fieldA"] as string;instance.fieldA = __raw_fieldA;
+                                const __raw_fieldA = obj["fieldA"] as string;if (!(typeof __raw_fieldA === "string")) {
+                                                    errors.push({ field: "fieldA", message: __raw_fieldA == null ? "TypeA.fieldA is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.fieldA = __raw_fieldA;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3439,6 +3879,82 @@ export interface TypeA {
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4065,13 +4581,19 @@ export interface TypeA {
                 return result.success;
             }
 
-export const TypeA = {
+export const TypeA: {
+  readonly decode: typeof typeADecode;
+  readonly decodeWithContext: typeof typeADecodeWithContext;
+  readonly validateFields: typeof typeAValidateFields;
+  readonly hasShape: typeof typeAHasShape;
+  readonly is: typeof typeAIs;
+} = {
   decode: typeADecode,
   decodeWithContext: typeADecodeWithContext,
   validateFields: typeAValidateFields,
   hasShape: typeAHasShape,
   is: typeAIs
-} as const;
+};
 
 
 export interface TypeB {
@@ -4160,7 +4682,46 @@ export interface TypeB {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_fieldB = obj["fieldB"] as number;instance.fieldB = __raw_fieldB;
+                                const __raw_fieldB = obj["fieldB"] as number;if (!(typeof __raw_fieldB === "number")) {
+                                                    errors.push({ field: "fieldB", message: __raw_fieldB == null ? "TypeB.fieldB is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.fieldB = __raw_fieldB;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4988,6 +5549,82 @@ export interface TypeB {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as TypeB;
@@ -5046,13 +5683,19 @@ export interface TypeB {
                 return result.success;
             }
 
-export const TypeB = {
+export const TypeB: {
+  readonly decode: typeof typeBDecode;
+  readonly decodeWithContext: typeof typeBDecodeWithContext;
+  readonly validateFields: typeof typeBValidateFields;
+  readonly hasShape: typeof typeBHasShape;
+  readonly is: typeof typeBIs;
+} = {
   decode: typeBDecode,
   decodeWithContext: typeBDecodeWithContext,
   validateFields: typeBValidateFields,
   hasShape: typeBHasShape,
   is: typeBIs
-} as const;
+};
 
 
 export interface TypeC {
@@ -5068,9 +5711,11 @@ if (cmp0 !== 0) return cmp0;
                         return 0;
                     }
 
-export const TypeC = {
+export const TypeC: {
+  readonly partialCompare: typeof typeCPartialCompare;
+} = {
   partialCompare: typeCPartialCompare
-} as const;
+};
 
 // Export a helper to verify imports work at runtime
 export function verifyImports(): void {
@@ -5206,7 +5851,46 @@ export interface UserWithDecode {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "UserWithDecode.name is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5466,7 +6150,46 @@ export interface UserWithDecode {
 
 
                             }{
-                                const __raw_age = obj["age"] as number;instance.age = __raw_age;
+                                const __raw_age = obj["age"] as number;if (!(typeof __raw_age === "number")) {
+                                                    errors.push({ field: "age", message: __raw_age == null ? "UserWithDecode.age is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.age = __raw_age;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5726,7 +6449,46 @@ export interface UserWithDecode {
 
 
                             }{
-                                const __raw_email = obj["email"] as string;instance.email = __raw_email;
+                                const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                    errors.push({ field: "email", message: __raw_email == null ? "UserWithDecode.email is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.email = __raw_email;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5986,6 +6748,82 @@ export interface UserWithDecode {
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6612,13 +7450,19 @@ export interface UserWithDecode {
                 return result.success;
             }
 
-export const UserWithDecode = {
+export const UserWithDecode: {
+  readonly decode: typeof userWithDecodeDecode;
+  readonly decodeWithContext: typeof userWithDecodeDecodeWithContext;
+  readonly validateFields: typeof userWithDecodeValidateFields;
+  readonly hasShape: typeof userWithDecodeHasShape;
+  readonly is: typeof userWithDecodeIs;
+} = {
   decode: userWithDecodeDecode,
   decodeWithContext: userWithDecodeDecodeWithContext,
   validateFields: userWithDecodeValidateFields,
   hasShape: userWithDecodeHasShape,
   is: userWithDecodeIs
-} as const;
+};
 
 // Test 2: Type with PartialOrd (uses Option for return type)
 
@@ -6639,9 +7483,11 @@ if (cmp1 !== 0) return cmp1;
                         return 0;
                     }
 
-export const ComparableItem = {
+export const ComparableItem: {
+  readonly partialCompare: typeof comparableItemPartialCompare;
+} = {
   partialCompare: comparableItemPartialCompare
-} as const;
+};
 
 // Test 3: Type with both Decode and PartialOrd
 
@@ -6737,7 +7583,46 @@ export interface FullFeaturedType {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as number;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as number;if (!(typeof __raw_id === "number")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "FullFeaturedType.id is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6997,7 +7882,46 @@ export interface FullFeaturedType {
 
 
                             }{
-                                const __raw_value = obj["value"] as string;instance.value = __raw_value;
+                                const __raw_value = obj["value"] as string;if (!(typeof __raw_value === "string")) {
+                                                    errors.push({ field: "value", message: __raw_value == null ? "FullFeaturedType.value is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.value = __raw_value;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7257,7 +8181,46 @@ export interface FullFeaturedType {
 
 
                             }{
-                                const __raw_score = obj["score"] as number;instance.score = __raw_score;
+                                const __raw_score = obj["score"] as number;if (!(typeof __raw_score === "number")) {
+                                                    errors.push({ field: "score", message: __raw_score == null ? "FullFeaturedType.score is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.score = __raw_score;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7517,6 +8480,82 @@ export interface FullFeaturedType {
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8158,14 +9197,21 @@ if (cmp2 !== 0) return cmp2;
                         return 0;
                     }
 
-export const FullFeaturedType = {
+export const FullFeaturedType: {
+  readonly decode: typeof fullFeaturedTypeDecode;
+  readonly decodeWithContext: typeof fullFeaturedTypeDecodeWithContext;
+  readonly validateFields: typeof fullFeaturedTypeValidateFields;
+  readonly hasShape: typeof fullFeaturedTypeHasShape;
+  readonly is: typeof fullFeaturedTypeIs;
+  readonly partialCompare: typeof fullFeaturedTypePartialCompare;
+} = {
   decode: fullFeaturedTypeDecode,
   decodeWithContext: fullFeaturedTypeDecodeWithContext,
   validateFields: fullFeaturedTypeValidateFields,
   hasShape: fullFeaturedTypeHasShape,
   is: fullFeaturedTypeIs,
   partialCompare: fullFeaturedTypePartialCompare
-} as const;
+};
 
 // Test 4: Multiple types to stress test deduplication across types
 
@@ -8255,7 +9301,46 @@ export interface TypeA {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_fieldA = obj["fieldA"] as string;instance.fieldA = __raw_fieldA;
+                                const __raw_fieldA = obj["fieldA"] as string;if (!(typeof __raw_fieldA === "string")) {
+                                                    errors.push({ field: "fieldA", message: __raw_fieldA == null ? "TypeA.fieldA is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.fieldA = __raw_fieldA;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8515,6 +9600,82 @@ export interface TypeA {
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9141,13 +10302,19 @@ export interface TypeA {
                 return result.success;
             }
 
-export const TypeA = {
+export const TypeA: {
+  readonly decode: typeof typeADecode;
+  readonly decodeWithContext: typeof typeADecodeWithContext;
+  readonly validateFields: typeof typeAValidateFields;
+  readonly hasShape: typeof typeAHasShape;
+  readonly is: typeof typeAIs;
+} = {
   decode: typeADecode,
   decodeWithContext: typeADecodeWithContext,
   validateFields: typeAValidateFields,
   hasShape: typeAHasShape,
   is: typeAIs
-} as const;
+};
 
 
 export interface TypeB {
@@ -9236,7 +10403,46 @@ export interface TypeB {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_fieldB = obj["fieldB"] as number;instance.fieldB = __raw_fieldB;
+                                const __raw_fieldB = obj["fieldB"] as number;if (!(typeof __raw_fieldB === "number")) {
+                                                    errors.push({ field: "fieldB", message: __raw_fieldB == null ? "TypeB.fieldB is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.fieldB = __raw_fieldB;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -10064,6 +11270,82 @@ export interface TypeB {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as TypeB;
@@ -10122,13 +11404,19 @@ export interface TypeB {
                 return result.success;
             }
 
-export const TypeB = {
+export const TypeB: {
+  readonly decode: typeof typeBDecode;
+  readonly decodeWithContext: typeof typeBDecodeWithContext;
+  readonly validateFields: typeof typeBValidateFields;
+  readonly hasShape: typeof typeBHasShape;
+  readonly is: typeof typeBIs;
+} = {
   decode: typeBDecode,
   decodeWithContext: typeBDecodeWithContext,
   validateFields: typeBValidateFields,
   hasShape: typeBHasShape,
   is: typeBIs
-} as const;
+};
 
 
 export interface TypeC {
@@ -10144,9 +11432,11 @@ if (cmp0 !== 0) return cmp0;
                         return 0;
                     }
 
-export const TypeC = {
+export const TypeC: {
+  readonly partialCompare: typeof typeCPartialCompare;
+} = {
   partialCompare: typeCPartialCompare
-} as const;
+};
 
 // Export a helper to verify imports work at runtime
 export function verifyImports(): void {
@@ -10172,32 +11462,33 @@ export function verifyImports(): void {
 
 ## Mapping
 
-original 0..745 -> expanded 0..745
-original 767..857 -> expanded 745..835
-original 857..921 -> expanded 7258..7322
-original 947..1023 -> expanded 7322..7398
-original 1023..1073 -> expanded 7963..8013
-original 1107..1199 -> expanded 8013..8105
-original 1199..1269 -> expanded 15211..15281
-original 1291..1338 -> expanded 15281..15328
-original 1338..1340 -> expanded 20451..20453
-original 1362..1409 -> expanded 20453..20500
-original 1409..1411 -> expanded 25623..25625
-original 1437..1484 -> expanded 25625..25672
-original 1484..2130 -> expanded 26080..26726
-generated 835..7020 <- Decode
-generated 7020..7258 <- __convenience_const
-generated 7398..7871 <- PartialOrd
-generated 7871..7963 <- __convenience_const
-generated 8105..14326 <- Decode
-generated 14326..14911 <- PartialOrd
-generated 14911..15211 <- __convenience_const
-generated 15328..20267 <- Decode
-generated 20267..20451 <- __convenience_const
-generated 20500..25439 <- Decode
-generated 25439..25623 <- __convenience_const
-generated 25672..26006 <- PartialOrd
-generated 26006..26080 <- __convenience_const
+original 0..745 -> expanded 307..1052
+original 767..857 -> expanded 1052..1142
+original 857..921 -> expanded 9123..9187
+original 947..1023 -> expanded 9187..9263
+original 1023..1073 -> expanded 9888..9938
+original 1107..1199 -> expanded 9938..10030
+original 1199..1269 -> expanded 18776..18846
+original 1291..1338 -> expanded 18846..18893
+original 1338..1340 -> expanded 24720..24722
+original 1362..1409 -> expanded 24722..24769
+original 1409..1411 -> expanded 30596..30598
+original 1437..1484 -> expanded 30598..30645
+original 1484..2130 -> expanded 31104..31750
+generated 0..307 <- imports
+generated 1142..8615 <- Decode
+generated 8615..9123 <- __convenience_const
+generated 9263..9736 <- PartialOrd
+generated 9736..9888 <- __convenience_const
+generated 10030..17545 <- Decode
+generated 17545..18130 <- PartialOrd
+generated 18130..18776 <- __convenience_const
+generated 18893..24311 <- Decode
+generated 24311..24720 <- __convenience_const
+generated 24769..30187 <- Decode
+generated 30187..30596 <- __convenience_const
+generated 30645..30979 <- PartialOrd
+generated 30979..31104 <- __convenience_const
 
 ## Metadata
 

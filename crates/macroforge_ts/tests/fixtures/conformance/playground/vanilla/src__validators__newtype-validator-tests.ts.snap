@@ -1,0 +1,5752 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/validators/newtype-validator-tests.ts
+sha256 95aea9c9e4a32a1c1f75e4628f7c1c0cb8c2a744c7b24088a0ab2ba19dc3f77a
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+declare const __mf_newtype_1: unique symbol;
+declare const __mf_newtype_2: unique symbol;
+declare const __mf_newtype_3: unique symbol;
+/**
+ * Newtype test types: `$Newtype` brands with alias-level validators, decoded
+ * on their own and as fields of a derived interface.
+ */
+
+/** @derive(Encode, Decode, Default, Debug, Clone, PartialEq, Hash, Ord) */
+/** @endec(nonNegative, finite) */
+/** @default(0) */
+export type Meters = number & { readonly [__mf_newtype_1]: true };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param _keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+                    export function metersEncode(value: Meters, _keepMetadata?: boolean): string {return JSON.stringify(value);
+
+
+
+
+                    }
+
+                    /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param _ctx - The encoding context, unused for primitives  */
+                    export function metersEncodeWithContext(value: Meters, _ctx: __mf_EncodeContext): unknown {return value;
+
+
+
+
+                    }
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DecodeContext.create();
+                const result = metersDecodeWithContext(data, ctx);
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: result
+});
+            } catch (e) {
+                if (e instanceof __mf_DecodeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters {const __decoded: unknown = value;
+
+
+
+
+
+
+
+
+
+
+
+            if (typeof __decoded !== "number") {
+                throw new __mf_DecodeError([{ field: "_root", message: "Meters.decodeWithContext: expected number" }]);
+            }const errors: Array<{ field: string; message: string }> = [];
+                if (__decoded < 0) { errors.push({ field: "_root", message: "Meters must be non-negative" }); }
+if (!Number.isFinite(__decoded)) { errors.push({ field: "_root", message: "Meters must be finite" }); }
+
+                ctx.pushErrors(errors);
+
+
+
+
+            return __decoded as Meters;
+        }
+
+        export function metersValidateField<K extends keyof Meters>(
+            _field: K,
+            _value: Meters[K]
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function metersValidateFields(
+            _partial: Partial<Meters>
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function metersHasShape(value: unknown): boolean {return typeof value === "number";
+
+
+
+
+        }
+
+        export function metersIs(value: unknown): value is Meters {return typeof value === "number" && metersDecode(value).success;
+
+
+
+
+        }
+
+export function metersDefaultValue(): Meters {
+                            return 0 as Meters;
+                        }
+
+export function metersToString(value: Meters): string {
+                        return "Meters(" + JSON.stringify(value) + ")";
+                    }
+
+export function metersClone(value: Meters): Meters {
+                        return value;
+                    }
+
+export function metersEquals(a: Meters, b: Meters): boolean {
+                        if (a === b) return true;
+                        if (typeof a === "object" && typeof b === "object" && a !== null && b !== null) {
+                            return JSON.stringify(a) === JSON.stringify(b);
+                        }
+                        return false;
+                    }
+
+export function metersHashCode(value: Meters): number {
+                        return Number.isInteger(value) ? value | 0 : value.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
+                    }
+
+export function metersCompare(a: Meters, b: Meters): number {
+                        return a < b ? -1 : a > b ? 1 : 0;
+                    }
+
+export const Meters: {
+  readonly encode: typeof metersEncode;
+  readonly encodeWithContext: typeof metersEncodeWithContext;
+  readonly decode: typeof metersDecode;
+  readonly decodeWithContext: typeof metersDecodeWithContext;
+  readonly validateFields: typeof metersValidateFields;
+  readonly hasShape: typeof metersHasShape;
+  readonly is: typeof metersIs;
+  readonly defaultValue: typeof metersDefaultValue;
+  readonly toString: typeof metersToString;
+  readonly clone: typeof metersClone;
+  readonly equals: typeof metersEquals;
+  readonly hashCode: typeof metersHashCode;
+  readonly compare: typeof metersCompare;
+} = {
+  encode: metersEncode,
+  encodeWithContext: metersEncodeWithContext,
+  decode: metersDecode,
+  decodeWithContext: metersDecodeWithContext,
+  validateFields: metersValidateFields,
+  hasShape: metersHasShape,
+  is: metersIs,
+  defaultValue: metersDefaultValue,
+  toString: metersToString,
+  clone: metersClone,
+  equals: metersEquals,
+  hashCode: metersHashCode,
+  compare: metersCompare
+};
+
+/** @derive(Encode, Decode) */
+/** @endec(nonEmpty, maxLength(16)) */
+export type Username = string & { readonly [__mf_newtype_2]: true };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param _keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+                    export function usernameEncode(value: Username, _keepMetadata?: boolean): string {return JSON.stringify(value);
+
+
+
+
+                    }
+
+                    /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param _ctx - The encoding context, unused for primitives  */
+                    export function usernameEncodeWithContext(value: Username, _ctx: __mf_EncodeContext): unknown {return value;
+
+
+
+
+                    }
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function usernameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Username } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = input;
+
+                const ctx = __mf_DecodeContext.create();
+                const result = usernameDecodeWithContext(data, ctx);
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: result
+});
+            } catch (e) {
+                if (e instanceof __mf_DecodeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function usernameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Username {const __decoded: unknown = value;
+
+
+
+
+
+
+
+
+
+
+
+            if (typeof __decoded !== "string") {
+                throw new __mf_DecodeError([{ field: "_root", message: "Username.decodeWithContext: expected string" }]);
+            }const errors: Array<{ field: string; message: string }> = [];
+                if (__decoded.length === 0) { errors.push({ field: "_root", message: "Username must not be empty" }); }
+if (__decoded.length > 16) { errors.push({ field: "_root", message: "Username must have at most 16 characters" }); }
+
+                ctx.pushErrors(errors);
+
+
+
+
+            return __decoded as Username;
+        }
+
+        export function usernameValidateField<K extends keyof Username>(
+            _field: K,
+            _value: Username[K]
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function usernameValidateFields(
+            _partial: Partial<Username>
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function usernameHasShape(value: unknown): boolean {return typeof value === "string";
+
+
+
+
+        }
+
+        export function usernameIs(value: unknown): value is Username {return typeof value === "string" && usernameDecode(value).success;
+
+
+
+
+        }
+
+export const Username: {
+  readonly encode: typeof usernameEncode;
+  readonly encodeWithContext: typeof usernameEncodeWithContext;
+  readonly decode: typeof usernameDecode;
+  readonly decodeWithContext: typeof usernameDecodeWithContext;
+  readonly validateFields: typeof usernameValidateFields;
+  readonly hasShape: typeof usernameHasShape;
+  readonly is: typeof usernameIs;
+} = {
+  encode: usernameEncode,
+  encodeWithContext: usernameEncodeWithContext,
+  decode: usernameDecode,
+  decodeWithContext: usernameDecodeWithContext,
+  validateFields: usernameValidateFields,
+  hasShape: usernameHasShape,
+  is: usernameIs
+};
+
+/** @derive(Encode, Decode) */
+export type Port = number;
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param _keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+                    export function portEncode(value: Port, _keepMetadata?: boolean): string {return JSON.stringify(value);
+
+
+
+
+                    }
+
+                    /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param _ctx - The encoding context, unused for primitives  */
+                    export function portEncodeWithContext(value: Port, _ctx: __mf_EncodeContext): unknown {return value;
+
+
+
+
+                    }
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function portDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Port } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DecodeContext.create();
+                const result = portDecodeWithContext(data, ctx);
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: result
+});
+            } catch (e) {
+                if (e instanceof __mf_DecodeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function portDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Port {const __decoded: unknown = value;
+
+
+
+
+
+
+
+
+
+
+
+            if (typeof __decoded !== "number") {
+                throw new __mf_DecodeError([{ field: "_root", message: "Port.decodeWithContext: expected number" }]);
+            }
+
+
+
+
+            return __decoded as Port;
+        }
+
+        export function portValidateField<K extends keyof Port>(
+            _field: K,
+            _value: Port[K]
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function portValidateFields(
+            _partial: Partial<Port>
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function portHasShape(value: unknown): boolean {return typeof value === "number";
+
+
+
+
+        }
+
+        export function portIs(value: unknown): value is Port {return typeof value === "number";
+
+
+
+
+        }
+
+export const Port: {
+  readonly encode: typeof portEncode;
+  readonly encodeWithContext: typeof portEncodeWithContext;
+  readonly decode: typeof portDecode;
+  readonly decodeWithContext: typeof portDecodeWithContext;
+  readonly validateFields: typeof portValidateFields;
+  readonly hasShape: typeof portHasShape;
+  readonly is: typeof portIs;
+} = {
+  encode: portEncode,
+  encodeWithContext: portEncodeWithContext,
+  decode: portDecode,
+  decodeWithContext: portDecodeWithContext,
+  validateFields: portValidateFields,
+  hasShape: portHasShape,
+  is: portIs
+};
+
+/** @derive(Encode, Decode) */
+/** @endec(nonNegativeBigInt) */
+export type Cents = bigint & { readonly [__mf_newtype_3]: true };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param _keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+                    export function centsEncode(value: Cents, _keepMetadata?: boolean): string {return JSON.stringify(((v) => String(v))(value));
+
+
+
+
+                    }
+
+                    /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param _ctx - The encoding context, unused for primitives  */
+                    export function centsEncodeWithContext(value: Cents, _ctx: __mf_EncodeContext): unknown {return ((v) => String(v))(value);
+
+
+
+
+                    }
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function centsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Cents } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = input;
+
+                const ctx = __mf_DecodeContext.create();
+                const result = centsDecodeWithContext(data, ctx);
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: result
+});
+            } catch (e) {
+                if (e instanceof __mf_DecodeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function centsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Cents {let __decoded: unknown = value;
+                if (typeof value !== "bigint") {
+                    try {
+                        __decoded = ((v) => BigInt(v as string))(value);
+                    } catch (__error) {
+                        throw new __mf_DecodeError([{ field: "_root", message: "Cents.decodeWithContext: expected bigint, " + String(__error) }]);
+                    }
+                }
+
+
+
+
+
+
+
+
+
+
+
+            if (typeof __decoded !== "bigint") {
+                throw new __mf_DecodeError([{ field: "_root", message: "Cents.decodeWithContext: expected bigint" }]);
+            }const errors: Array<{ field: string; message: string }> = [];
+                if (__decoded < 0n) { errors.push({ field: "_root", message: "Cents must be non-negative" }); }
+
+                ctx.pushErrors(errors);
+
+
+
+
+            return __decoded as Cents;
+        }
+
+        export function centsValidateField<K extends keyof Cents>(
+            _field: K,
+            _value: Cents[K]
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function centsValidateFields(
+            _partial: Partial<Cents>
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function centsHasShape(value: unknown): boolean {return typeof value === "bigint" || typeof value === "string";
+
+
+
+
+        }
+
+        export function centsIs(value: unknown): value is Cents {return typeof value === "bigint" && centsDecode(value).success;
+
+
+
+
+        }
+
+export const Cents: {
+  readonly encode: typeof centsEncode;
+  readonly encodeWithContext: typeof centsEncodeWithContext;
+  readonly decode: typeof centsDecode;
+  readonly decodeWithContext: typeof centsDecodeWithContext;
+  readonly validateFields: typeof centsValidateFields;
+  readonly hasShape: typeof centsHasShape;
+  readonly is: typeof centsIs;
+} = {
+  encode: centsEncode,
+  encodeWithContext: centsEncodeWithContext,
+  decode: centsDecode,
+  decodeWithContext: centsDecodeWithContext,
+  validateFields: centsValidateFields,
+  hasShape: centsHasShape,
+  is: centsIs
+};
+
+/** @derive(Encode, Decode) */
+export interface Run {
+    runner: Username;
+    distance: Meters;
+    splits: Meters[];
+    best?: Meters;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function runEncode(value: Run, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = runEncodeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function runEncodeWithContext(value: Run, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Run",
+                        __id,
+                    };result.runner = usernameEncodeWithContext(value.runner, ctx);result.distance = metersEncodeWithContext(value.distance, ctx);result.splits = value.splits.map(
+                                                            (item) => metersEncodeWithContext(item, ctx)
+                                                        );if (value.best !== undefined) {result.best = metersEncodeWithContext(value.best, ctx);
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function runDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Run } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = runDecodeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Run.decode: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DecodeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function runDecodeWithContext(value: any, ctx: __mf_DecodeContext): Run | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DecodeError([{ field: "_root", message: "Run.decodeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("runner" in obj)) {
+                            errors.push({ field: "runner", message: "missing required field" });
+                        }if (!("distance" in obj)) {
+                            errors.push({ field: "distance", message: "missing required field" });
+                        }if (!("splits" in obj)) {
+                            errors.push({ field: "splits", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_runner = obj["runner"] as Username;ctx.pushScope("runner");
+                                            try {
+                                                const __result = usernameDecodeWithContext(__raw_runner, ctx);
+                                                ctx.assignOrDefer(instance, "runner", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DecodeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "runner" : "runner." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_distance = obj["distance"] as Meters;ctx.pushScope("distance");
+                                            try {
+                                                const __result = metersDecodeWithContext(__raw_distance, ctx);
+                                                ctx.assignOrDefer(instance, "distance", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DecodeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "distance" : "distance." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_splits = obj["splits"] as Meters[];if (Array.isArray(__raw_splits)) {
+                                                        const __arr = __raw_splits.map((item: Meters | { __ref: number }, idx) => {
+
+
+
+
+
+
+
+
+                                                            if (typeof item === "object" && item !== null && "__ref" in item) {
+                                                                const result = ctx.getOrDefer(item.__ref);
+                                                                if (__mf_PendingRef.is(result)) {
+                                                                    return { __pendingIdx: idx, __refId: result.id };
+                                                                }
+                                                                return result;
+                                                            }
+                                                            const __elemResult = metersDecode(item);
+                                                            if (!__elemResult.success) {
+                                                                for (const __err of __elemResult.errors) {
+                                                                    errors.push({
+                                                                        field: __err.field === "_root"
+                                                                            ? "splits[" + idx + "]"
+                                                                            : "splits[" + idx + "]." + __err.field,
+                                                                        message: __err.message
+                                                                    });
+                                                                }
+                                                            }
+                                                            return __elemResult.success ? __elemResult.value : item;
+                                                        });
+                                                        instance.splits = __arr;
+                                                        __arr.forEach((item, idx) => {
+                                                            if (item && typeof item === "object" && "__pendingIdx" in item) {
+                                                                ctx.addPatch(instance.splits, idx, (item as any).__refId);
+                                                            }
+                                                        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }if ("best" in obj && obj["best"] !== undefined) {
+                                const __raw_best = obj["best"] as Meters;ctx.pushScope("best");
+                                            try {
+                                                const __result = metersDecodeWithContext(__raw_best, ctx);
+                                                ctx.assignOrDefer(instance, "best", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DecodeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "best" : "best." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Run;
+            }
+
+            export function runValidateField<K extends keyof Run>(
+                _field: K,
+                _value: Run[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function runValidateFields(
+                _partial: Partial<Run>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function runHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "runner" in o && "distance" in o && "splits" in o;
+            }
+
+            export function runIs(obj: unknown): obj is Run {
+                if (!runHasShape(obj)) {
+                    return false;
+                }
+                const result = runDecode(obj);
+                return result.success;
+            }
+
+export const Run: {
+  readonly encode: typeof runEncode;
+  readonly encodeWithContext: typeof runEncodeWithContext;
+  readonly decode: typeof runDecode;
+  readonly decodeWithContext: typeof runDecodeWithContext;
+  readonly validateFields: typeof runValidateFields;
+  readonly hasShape: typeof runHasShape;
+  readonly is: typeof runIs;
+} = {
+  encode: runEncode,
+  encodeWithContext: runEncodeWithContext,
+  decode: runDecode,
+  decodeWithContext: runDecodeWithContext,
+  validateFields: runValidateFields,
+  hasShape: runHasShape,
+  is: runIs
+};
+
+## DTS
+
+declare const __mf_newtype_1: unique symbol;
+declare const __mf_newtype_2: unique symbol;
+declare const __mf_newtype_3: unique symbol;
+/**
+ * Newtype test types: `$Newtype` brands with alias-level validators, decoded
+ * on their own and as fields of a derived interface.
+ */
+
+/** @derive(Encode, Decode, Default, Debug, Clone, PartialEq, Hash, Ord) */
+/** @endec(nonNegative, finite) */
+/** @default(0) */
+export type Meters = number & { readonly [__mf_newtype_1]: true };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param _keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+                    export function metersEncode(value: Meters, _keepMetadata?: boolean): string {return JSON.stringify(value);
+
+
+
+
+                    }
+
+                    /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param _ctx - The encoding context, unused for primitives  */
+                    export function metersEncodeWithContext(value: Meters, _ctx: __mf_EncodeContext): unknown {return value;
+
+
+
+
+                    }
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DecodeContext.create();
+                const result = metersDecodeWithContext(data, ctx);
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: result
+});
+            } catch (e) {
+                if (e instanceof __mf_DecodeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters {const __decoded: unknown = value;
+
+
+
+
+
+
+
+
+
+
+
+            if (typeof __decoded !== "number") {
+                throw new __mf_DecodeError([{ field: "_root", message: "Meters.decodeWithContext: expected number" }]);
+            }const errors: Array<{ field: string; message: string }> = [];
+                if (__decoded < 0) { errors.push({ field: "_root", message: "Meters must be non-negative" }); }
+if (!Number.isFinite(__decoded)) { errors.push({ field: "_root", message: "Meters must be finite" }); }
+
+                ctx.pushErrors(errors);
+
+
+
+
+            return __decoded as Meters;
+        }
+
+        export function metersValidateField<K extends keyof Meters>(
+            _field: K,
+            _value: Meters[K]
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function metersValidateFields(
+            _partial: Partial<Meters>
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function metersHasShape(value: unknown): boolean {return typeof value === "number";
+
+
+
+
+        }
+
+        export function metersIs(value: unknown): value is Meters {return typeof value === "number" && metersDecode(value).success;
+
+
+
+
+        }
+
+export function metersDefaultValue(): Meters {
+                            return 0 as Meters;
+                        }
+
+export function metersToString(value: Meters): string {
+                        return "Meters(" + JSON.stringify(value) + ")";
+                    }
+
+export function metersClone(value: Meters): Meters {
+                        return value;
+                    }
+
+export function metersEquals(a: Meters, b: Meters): boolean {
+                        if (a === b) return true;
+                        if (typeof a === "object" && typeof b === "object" && a !== null && b !== null) {
+                            return JSON.stringify(a) === JSON.stringify(b);
+                        }
+                        return false;
+                    }
+
+export function metersHashCode(value: Meters): number {
+                        return Number.isInteger(value) ? value | 0 : value.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
+                    }
+
+export function metersCompare(a: Meters, b: Meters): number {
+                        return a < b ? -1 : a > b ? 1 : 0;
+                    }
+
+export const Meters: {
+  readonly encode: typeof metersEncode;
+  readonly encodeWithContext: typeof metersEncodeWithContext;
+  readonly decode: typeof metersDecode;
+  readonly decodeWithContext: typeof metersDecodeWithContext;
+  readonly validateFields: typeof metersValidateFields;
+  readonly hasShape: typeof metersHasShape;
+  readonly is: typeof metersIs;
+  readonly defaultValue: typeof metersDefaultValue;
+  readonly toString: typeof metersToString;
+  readonly clone: typeof metersClone;
+  readonly equals: typeof metersEquals;
+  readonly hashCode: typeof metersHashCode;
+  readonly compare: typeof metersCompare;
+} = {
+  encode: metersEncode,
+  encodeWithContext: metersEncodeWithContext,
+  decode: metersDecode,
+  decodeWithContext: metersDecodeWithContext,
+  validateFields: metersValidateFields,
+  hasShape: metersHasShape,
+  is: metersIs,
+  defaultValue: metersDefaultValue,
+  toString: metersToString,
+  clone: metersClone,
+  equals: metersEquals,
+  hashCode: metersHashCode,
+  compare: metersCompare
+};
+
+/** @derive(Encode, Decode) */
+/** @endec(nonEmpty, maxLength(16)) */
+export type Username = string & { readonly [__mf_newtype_2]: true };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param _keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+                    export function usernameEncode(value: Username, _keepMetadata?: boolean): string {return JSON.stringify(value);
+
+
+
+
+                    }
+
+                    /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param _ctx - The encoding context, unused for primitives  */
+                    export function usernameEncodeWithContext(value: Username, _ctx: __mf_EncodeContext): unknown {return value;
+
+
+
+
+                    }
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function usernameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Username } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = input;
+
+                const ctx = __mf_DecodeContext.create();
+                const result = usernameDecodeWithContext(data, ctx);
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: result
+});
+            } catch (e) {
+                if (e instanceof __mf_DecodeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function usernameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Username {const __decoded: unknown = value;
+
+
+
+
+
+
+
+
+
+
+
+            if (typeof __decoded !== "string") {
+                throw new __mf_DecodeError([{ field: "_root", message: "Username.decodeWithContext: expected string" }]);
+            }const errors: Array<{ field: string; message: string }> = [];
+                if (__decoded.length === 0) { errors.push({ field: "_root", message: "Username must not be empty" }); }
+if (__decoded.length > 16) { errors.push({ field: "_root", message: "Username must have at most 16 characters" }); }
+
+                ctx.pushErrors(errors);
+
+
+
+
+            return __decoded as Username;
+        }
+
+        export function usernameValidateField<K extends keyof Username>(
+            _field: K,
+            _value: Username[K]
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function usernameValidateFields(
+            _partial: Partial<Username>
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function usernameHasShape(value: unknown): boolean {return typeof value === "string";
+
+
+
+
+        }
+
+        export function usernameIs(value: unknown): value is Username {return typeof value === "string" && usernameDecode(value).success;
+
+
+
+
+        }
+
+export const Username: {
+  readonly encode: typeof usernameEncode;
+  readonly encodeWithContext: typeof usernameEncodeWithContext;
+  readonly decode: typeof usernameDecode;
+  readonly decodeWithContext: typeof usernameDecodeWithContext;
+  readonly validateFields: typeof usernameValidateFields;
+  readonly hasShape: typeof usernameHasShape;
+  readonly is: typeof usernameIs;
+} = {
+  encode: usernameEncode,
+  encodeWithContext: usernameEncodeWithContext,
+  decode: usernameDecode,
+  decodeWithContext: usernameDecodeWithContext,
+  validateFields: usernameValidateFields,
+  hasShape: usernameHasShape,
+  is: usernameIs
+};
+
+/** @derive(Encode, Decode) */
+export type Port = number;
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param _keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+                    export function portEncode(value: Port, _keepMetadata?: boolean): string {return JSON.stringify(value);
+
+
+
+
+                    }
+
+                    /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param _ctx - The encoding context, unused for primitives  */
+                    export function portEncodeWithContext(value: Port, _ctx: __mf_EncodeContext): unknown {return value;
+
+
+
+
+                    }
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function portDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Port } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DecodeContext.create();
+                const result = portDecodeWithContext(data, ctx);
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: result
+});
+            } catch (e) {
+                if (e instanceof __mf_DecodeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function portDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Port {const __decoded: unknown = value;
+
+
+
+
+
+
+
+
+
+
+
+            if (typeof __decoded !== "number") {
+                throw new __mf_DecodeError([{ field: "_root", message: "Port.decodeWithContext: expected number" }]);
+            }
+
+
+
+
+            return __decoded as Port;
+        }
+
+        export function portValidateField<K extends keyof Port>(
+            _field: K,
+            _value: Port[K]
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function portValidateFields(
+            _partial: Partial<Port>
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function portHasShape(value: unknown): boolean {return typeof value === "number";
+
+
+
+
+        }
+
+        export function portIs(value: unknown): value is Port {return typeof value === "number";
+
+
+
+
+        }
+
+export const Port: {
+  readonly encode: typeof portEncode;
+  readonly encodeWithContext: typeof portEncodeWithContext;
+  readonly decode: typeof portDecode;
+  readonly decodeWithContext: typeof portDecodeWithContext;
+  readonly validateFields: typeof portValidateFields;
+  readonly hasShape: typeof portHasShape;
+  readonly is: typeof portIs;
+} = {
+  encode: portEncode,
+  encodeWithContext: portEncodeWithContext,
+  decode: portDecode,
+  decodeWithContext: portDecodeWithContext,
+  validateFields: portValidateFields,
+  hasShape: portHasShape,
+  is: portIs
+};
+
+/** @derive(Encode, Decode) */
+/** @endec(nonNegativeBigInt) */
+export type Cents = bigint & { readonly [__mf_newtype_3]: true };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param _keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+                    export function centsEncode(value: Cents, _keepMetadata?: boolean): string {return JSON.stringify(((v) => String(v))(value));
+
+
+
+
+                    }
+
+                    /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param _ctx - The encoding context, unused for primitives  */
+                    export function centsEncodeWithContext(value: Cents, _ctx: __mf_EncodeContext): unknown {return ((v) => String(v))(value);
+
+
+
+
+                    }
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function centsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Cents } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = input;
+
+                const ctx = __mf_DecodeContext.create();
+                const result = centsDecodeWithContext(data, ctx);
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: result
+});
+            } catch (e) {
+                if (e instanceof __mf_DecodeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function centsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Cents {let __decoded: unknown = value;
+                if (typeof value !== "bigint") {
+                    try {
+                        __decoded = ((v) => BigInt(v as string))(value);
+                    } catch (__error) {
+                        throw new __mf_DecodeError([{ field: "_root", message: "Cents.decodeWithContext: expected bigint, " + String(__error) }]);
+                    }
+                }
+
+
+
+
+
+
+
+
+
+
+
+            if (typeof __decoded !== "bigint") {
+                throw new __mf_DecodeError([{ field: "_root", message: "Cents.decodeWithContext: expected bigint" }]);
+            }const errors: Array<{ field: string; message: string }> = [];
+                if (__decoded < 0n) { errors.push({ field: "_root", message: "Cents must be non-negative" }); }
+
+                ctx.pushErrors(errors);
+
+
+
+
+            return __decoded as Cents;
+        }
+
+        export function centsValidateField<K extends keyof Cents>(
+            _field: K,
+            _value: Cents[K]
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function centsValidateFields(
+            _partial: Partial<Cents>
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function centsHasShape(value: unknown): boolean {return typeof value === "bigint" || typeof value === "string";
+
+
+
+
+        }
+
+        export function centsIs(value: unknown): value is Cents {return typeof value === "bigint" && centsDecode(value).success;
+
+
+
+
+        }
+
+export const Cents: {
+  readonly encode: typeof centsEncode;
+  readonly encodeWithContext: typeof centsEncodeWithContext;
+  readonly decode: typeof centsDecode;
+  readonly decodeWithContext: typeof centsDecodeWithContext;
+  readonly validateFields: typeof centsValidateFields;
+  readonly hasShape: typeof centsHasShape;
+  readonly is: typeof centsIs;
+} = {
+  encode: centsEncode,
+  encodeWithContext: centsEncodeWithContext,
+  decode: centsDecode,
+  decodeWithContext: centsDecodeWithContext,
+  validateFields: centsValidateFields,
+  hasShape: centsHasShape,
+  is: centsIs
+};
+
+/** @derive(Encode, Decode) */
+export interface Run {
+    runner: Username;
+    distance: Meters;
+    splits: Meters[];
+    best?: Meters;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function runEncode(value: Run, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = runEncodeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function runEncodeWithContext(value: Run, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Run",
+                        __id,
+                    };result.runner = usernameEncodeWithContext(value.runner, ctx);result.distance = metersEncodeWithContext(value.distance, ctx);result.splits = value.splits.map(
+                                                            (item) => metersEncodeWithContext(item, ctx)
+                                                        );if (value.best !== undefined) {result.best = metersEncodeWithContext(value.best, ctx);
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function runDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Run } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = runDecodeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Run.decode: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DecodeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function runDecodeWithContext(value: any, ctx: __mf_DecodeContext): Run | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DecodeError([{ field: "_root", message: "Run.decodeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("runner" in obj)) {
+                            errors.push({ field: "runner", message: "missing required field" });
+                        }if (!("distance" in obj)) {
+                            errors.push({ field: "distance", message: "missing required field" });
+                        }if (!("splits" in obj)) {
+                            errors.push({ field: "splits", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_runner = obj["runner"] as Username;ctx.pushScope("runner");
+                                            try {
+                                                const __result = usernameDecodeWithContext(__raw_runner, ctx);
+                                                ctx.assignOrDefer(instance, "runner", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DecodeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "runner" : "runner." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_distance = obj["distance"] as Meters;ctx.pushScope("distance");
+                                            try {
+                                                const __result = metersDecodeWithContext(__raw_distance, ctx);
+                                                ctx.assignOrDefer(instance, "distance", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DecodeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "distance" : "distance." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_splits = obj["splits"] as Meters[];if (Array.isArray(__raw_splits)) {
+                                                        const __arr = __raw_splits.map((item: Meters | { __ref: number }, idx) => {
+
+
+
+
+
+
+
+
+                                                            if (typeof item === "object" && item !== null && "__ref" in item) {
+                                                                const result = ctx.getOrDefer(item.__ref);
+                                                                if (__mf_PendingRef.is(result)) {
+                                                                    return { __pendingIdx: idx, __refId: result.id };
+                                                                }
+                                                                return result;
+                                                            }
+                                                            const __elemResult = metersDecode(item);
+                                                            if (!__elemResult.success) {
+                                                                for (const __err of __elemResult.errors) {
+                                                                    errors.push({
+                                                                        field: __err.field === "_root"
+                                                                            ? "splits[" + idx + "]"
+                                                                            : "splits[" + idx + "]." + __err.field,
+                                                                        message: __err.message
+                                                                    });
+                                                                }
+                                                            }
+                                                            return __elemResult.success ? __elemResult.value : item;
+                                                        });
+                                                        instance.splits = __arr;
+                                                        __arr.forEach((item, idx) => {
+                                                            if (item && typeof item === "object" && "__pendingIdx" in item) {
+                                                                ctx.addPatch(instance.splits, idx, (item as any).__refId);
+                                                            }
+                                                        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }if ("best" in obj && obj["best"] !== undefined) {
+                                const __raw_best = obj["best"] as Meters;ctx.pushScope("best");
+                                            try {
+                                                const __result = metersDecodeWithContext(__raw_best, ctx);
+                                                ctx.assignOrDefer(instance, "best", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DecodeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "best" : "best." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Run;
+            }
+
+            export function runValidateField<K extends keyof Run>(
+                _field: K,
+                _value: Run[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function runValidateFields(
+                _partial: Partial<Run>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function runHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "runner" in o && "distance" in o && "splits" in o;
+            }
+
+            export function runIs(obj: unknown): obj is Run {
+                if (!runHasShape(obj)) {
+                    return false;
+                }
+                const result = runDecode(obj);
+                return result.success;
+            }
+
+export const Run: {
+  readonly encode: typeof runEncode;
+  readonly encodeWithContext: typeof runEncodeWithContext;
+  readonly decode: typeof runDecode;
+  readonly decodeWithContext: typeof runDecodeWithContext;
+  readonly validateFields: typeof runValidateFields;
+  readonly hasShape: typeof runHasShape;
+  readonly is: typeof runIs;
+} = {
+  encode: runEncode,
+  encodeWithContext: runEncodeWithContext,
+  decode: runDecode,
+  decodeWithContext: runDecodeWithContext,
+  validateFields: runValidateFields,
+  hasShape: runHasShape,
+  is: runIs
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..292 -> expanded 520..812
+original 308..309 -> expanded 856..857
+original 309..404 -> expanded 6480..6575
+original 420..421 -> expanded 6619..6620
+original 421..480 -> expanded 10724..10783
+original 480..566 -> expanded 14428..14514
+original 582..583 -> expanded 14558..14559
+original 583..725 -> expanded 18875..19017
+original 725..726 -> expanded 34394..34395
+generated 0..385 <- imports
+generated 385..430 <- $Newtype
+generated 430..475 <- $Newtype
+generated 475..520 <- $Newtype
+generated 812..856 <- $Newtype
+generated 857..1547 <- Encode
+generated 1547..4326 <- Decode
+generated 4326..4448 <- Default
+generated 4448..4599 <- Debug
+generated 4599..4713 <- Clone
+generated 4713..5094 <- PartialEq
+generated 5094..5320 <- Hash
+generated 5320..5464 <- Ord
+generated 5464..6480 <- __convenience_const
+generated 6575..6619 <- $Newtype
+generated 6620..7318 <- Encode
+generated 7318..10102 <- Decode
+generated 10102..10724 <- __convenience_const
+generated 10783..11465 <- Encode
+generated 11465..13866 <- Decode
+generated 13866..14428 <- __convenience_const
+generated 14514..14558 <- $Newtype
+generated 14559..15285 <- Encode
+generated 15285..18298 <- Decode
+generated 18298..18875 <- __convenience_const
+generated 19017..20909 <- Encode
+generated 20909..33847 <- Decode
+generated 33847..34394 <- __convenience_const
+
+## Metadata
+
+interface Run: {"body_span":{"end":945,"start":857},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":835,"start":805}}],"fields":[{"decorators":[],"name":"runner","optional":false,"readonly":false,"span":{"end":880,"start":863},"ts_type":"Username"},{"decorators":[],"name":"distance","optional":false,"readonly":false,"span":{"end":902,"start":885},"ts_type":"Meters"},{"decorators":[],"name":"splits","optional":false,"readonly":false,"span":{"end":924,"start":907},"ts_type":"Meters[]"},{"decorators":[],"name":"best","optional":true,"readonly":false,"span":{"end":943,"start":929},"ts_type":"Meters"}],"heritage":[],"methods":[],"name":"Run","span":{"end":945,"start":843},"type_params":[]}
+type Meters: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"Brand":["__mf_newtype_1"]}}]},"decorators":[{"args_src":"0","name":"default","span":{"end":406,"start":388}},{"args_src":"nonNegative, finite","name":"endec","span":{"end":387,"start":353}},{"args_src":"Encode, Decode, Default, Debug, Clone, PartialEq, Hash, Ord","name":"Derive","span":{"end":352,"start":277}}],"name":"Meters","span":{"end":473,"start":414},"type_params":[]}
+type Username: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"Brand":["__mf_newtype_2"]}}]},"decorators":[{"args_src":"nonEmpty, maxLength(16)","name":"endec","span":{"end":544,"start":506}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":505,"start":475}}],"name":"Username","span":{"end":613,"start":552},"type_params":[]}
+type Port: {"body":{"Other":"number"},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":645,"start":615}}],"name":"Port","span":{"end":672,"start":653},"type_params":[]}
+type Cents: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"bigint"}},{"decorators":[],"kind":{"Brand":["__mf_newtype_3"]}}]},"decorators":[{"args_src":"nonNegativeBigInt","name":"endec","span":{"end":737,"start":705}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":704,"start":674}}],"name":"Cents","span":{"end":803,"start":745},"type_params":[]}
+
+## Registry reads
+
+Name("Cents")
+Name("Meters")
+Name("Port")
+Name("Username")
+Name("number")
+
+## Buildtime dependencies
+
+(none)

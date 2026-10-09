@@ -144,11 +144,50 @@ constructor(props: { email: string; password: string; username: string; age: num
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_email = obj["email"] as string;
-                                        if (__raw_email == null) { errors.push({ field: "email", message: "UserRegistrationForm.email is required" }); } else {
+                            const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                errors.push({ field: "email", message: __raw_email == null ? "UserRegistrationForm.email is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_email == null) { errors.push({ field: "email", message: "UserRegistrationForm.email is required" }); } else {
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "email", message: "UserRegistrationForm.email must be a valid email" }); }
 }
-instance.email = __raw_email;
+
+
+
+
+                                                instance.email = __raw_email;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -410,12 +449,51 @@ instance.email = __raw_email;
 
 
                         }{
-                            const __raw_password = obj["password"] as string;
-                                        if (__raw_password == null) { errors.push({ field: "password", message: "UserRegistrationForm.password is required" }); } else {
+                            const __raw_password = obj["password"] as string;if (!(typeof __raw_password === "string")) {
+                                                errors.push({ field: "password", message: __raw_password == null ? "UserRegistrationForm.password is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_password == null) { errors.push({ field: "password", message: "UserRegistrationForm.password is required" }); } else {
 if (__raw_password.length < 8) { errors.push({ field: "password", message: "UserRegistrationForm.password must have at least 8 characters" }); }
 if (__raw_password.length > 50) { errors.push({ field: "password", message: "UserRegistrationForm.password must have at most 50 characters" }); }
 }
-instance.password = __raw_password;
+
+
+
+
+                                                instance.password = __raw_password;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -677,14 +755,53 @@ instance.password = __raw_password;
 
 
                         }{
-                            const __raw_username = obj["username"] as string;
-                                        if (__raw_username == null) { errors.push({ field: "username", message: "UserRegistrationForm.username is required" }); } else {
+                            const __raw_username = obj["username"] as string;if (!(typeof __raw_username === "string")) {
+                                                errors.push({ field: "username", message: __raw_username == null ? "UserRegistrationForm.username is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_username == null) { errors.push({ field: "username", message: "UserRegistrationForm.username is required" }); } else {
 if (__raw_username.length < 3) { errors.push({ field: "username", message: "UserRegistrationForm.username must have at least 3 characters" }); }
 if (__raw_username.length > 20) { errors.push({ field: "username", message: "UserRegistrationForm.username must have at most 20 characters" }); }
 if (__raw_username !== __raw_username.toLowerCase()) { errors.push({ field: "username", message: "UserRegistrationForm.username must be lowercase" }); }
 if (!/^[a-z][a-z0-9_]+$/.test(__raw_username)) { errors.push({ field: "username", message: "UserRegistrationForm.username must match pattern ^[a-z][a-z0-9_]+$" }); }
 }
-instance.username = __raw_username;
+
+
+
+
+                                                instance.username = __raw_username;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -946,12 +1063,51 @@ instance.username = __raw_username;
 
 
                         }{
-                            const __raw_age = obj["age"] as number;
-                                        if (__raw_age == null) { errors.push({ field: "age", message: "UserRegistrationForm.age is required" }); } else {
+                            const __raw_age = obj["age"] as number;if (!(typeof __raw_age === "number")) {
+                                                errors.push({ field: "age", message: __raw_age == null ? "UserRegistrationForm.age is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_age == null) { errors.push({ field: "age", message: "UserRegistrationForm.age is required" }); } else {
 if (!Number.isInteger(__raw_age)) { errors.push({ field: "age", message: "UserRegistrationForm.age must be an integer" }); }
 if (__raw_age < 18 || __raw_age > 120) { errors.push({ field: "age", message: "UserRegistrationForm.age must be between 18 and 120" }); }
 }
-instance.age = __raw_age;
+
+
+
+
+                                                instance.age = __raw_age;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1213,11 +1369,50 @@ instance.age = __raw_age;
 
 
                         }{
-                            const __raw_website = obj["website"] as string;
-                                        if (__raw_website == null) { errors.push({ field: "website", message: "UserRegistrationForm.website is required" }); } else {
+                            const __raw_website = obj["website"] as string;if (!(typeof __raw_website === "string")) {
+                                                errors.push({ field: "website", message: __raw_website == null ? "UserRegistrationForm.website is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_website == null) { errors.push({ field: "website", message: "UserRegistrationForm.website is required" }); } else {
 if (!URL.canParse(__raw_website)) { errors.push({ field: "website", message: "UserRegistrationForm.website must be a valid URL" }); }
 }
-instance.website = __raw_website;
+
+
+
+
+                                                instance.website = __raw_website;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1804,12 +1999,51 @@ constructor(props: { name: string; price: number; quantity: number; tags: Array<
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_name = obj["name"] as string;
-                                        if (__raw_name == null) { errors.push({ field: "name", message: "ProductForm.name is required" }); } else {
+                            const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                errors.push({ field: "name", message: __raw_name == null ? "ProductForm.name is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_name == null) { errors.push({ field: "name", message: "ProductForm.name is required" }); } else {
 if (__raw_name.length === 0) { errors.push({ field: "name", message: "ProductForm.name must not be empty" }); }
 if (__raw_name.length > 100) { errors.push({ field: "name", message: "ProductForm.name must have at most 100 characters" }); }
 }
-instance.name = __raw_name;
+
+
+
+
+                                                instance.name = __raw_name;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2071,12 +2305,51 @@ instance.name = __raw_name;
 
 
                         }{
-                            const __raw_price = obj["price"] as number;
-                                        if (__raw_price == null) { errors.push({ field: "price", message: "ProductForm.price is required" }); } else {
+                            const __raw_price = obj["price"] as number;if (!(typeof __raw_price === "number")) {
+                                                errors.push({ field: "price", message: __raw_price == null ? "ProductForm.price is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_price == null) { errors.push({ field: "price", message: "ProductForm.price is required" }); } else {
 if (__raw_price <= 0) { errors.push({ field: "price", message: "ProductForm.price must be positive" }); }
 if (__raw_price >= 1000000) { errors.push({ field: "price", message: "ProductForm.price must be less than 1000000" }); }
 }
-instance.price = __raw_price;
+
+
+
+
+                                                instance.price = __raw_price;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2338,12 +2611,51 @@ instance.price = __raw_price;
 
 
                         }{
-                            const __raw_quantity = obj["quantity"] as number;
-                                        if (__raw_quantity == null) { errors.push({ field: "quantity", message: "ProductForm.quantity is required" }); } else {
+                            const __raw_quantity = obj["quantity"] as number;if (!(typeof __raw_quantity === "number")) {
+                                                errors.push({ field: "quantity", message: __raw_quantity == null ? "ProductForm.quantity is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_quantity == null) { errors.push({ field: "quantity", message: "ProductForm.quantity is required" }); } else {
 if (!Number.isInteger(__raw_quantity)) { errors.push({ field: "quantity", message: "ProductForm.quantity must be an integer" }); }
 if (__raw_quantity < 0) { errors.push({ field: "quantity", message: "ProductForm.quantity must be non-negative" }); }
 }
-instance.quantity = __raw_quantity;
+
+
+
+
+                                                instance.quantity = __raw_quantity;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2931,12 +3243,83 @@ instance.tags = __raw_tags as string[];
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }{
-                            const __raw_sku = obj["sku"] as string;
-                                        if (__raw_sku == null) { errors.push({ field: "sku", message: "ProductForm.sku is required" }); } else {
+                            const __raw_sku = obj["sku"] as string;if (!(typeof __raw_sku === "string")) {
+                                                errors.push({ field: "sku", message: __raw_sku == null ? "ProductForm.sku is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_sku == null) { errors.push({ field: "sku", message: "ProductForm.sku is required" }); } else {
 if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__raw_sku)) { errors.push({ field: "sku", message: "ProductForm.sku must be a valid UUID" }); }
 }
-instance.sku = __raw_sku;
+
+
+
+
+                                                instance.sku = __raw_sku;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3515,12 +3898,51 @@ constructor(props: { title: string; startDate: Date; endDate: Date; maxAttendees
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_title = obj["title"] as string;
-                                        if (__raw_title == null) { errors.push({ field: "title", message: "EventForm.title is required" }); } else {
+                            const __raw_title = obj["title"] as string;if (!(typeof __raw_title === "string")) {
+                                                errors.push({ field: "title", message: __raw_title == null ? "EventForm.title is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_title == null) { errors.push({ field: "title", message: "EventForm.title is required" }); } else {
 if (__raw_title.length === 0) { errors.push({ field: "title", message: "EventForm.title must not be empty" }); }
 if (__raw_title !== __raw_title.trim()) { errors.push({ field: "title", message: "EventForm.title must be trimmed" }); }
 }
-instance.title = __raw_title;
+
+
+
+
+                                                instance.title = __raw_title;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4050,6 +4472,38 @@ if (__dateVal.getTime() <= new Date("2020-01-01").getTime()) { errors.push({ fie
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }{
                             const __raw_endDate = obj["endDate"] as string | Date;{
                                         const __dateVal = typeof __raw_endDate === "string" ? new Date(__raw_endDate) : __raw_endDate as Date;if (__dateVal == null) { errors.push({ field: "endDate", message: "EventForm.endDate is required" }); } else {
@@ -4318,13 +4772,84 @@ if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "endDate", mess
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }{
-                            const __raw_maxAttendees = obj["maxAttendees"] as number;
-                                        if (__raw_maxAttendees == null) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees is required" }); } else {
+                            const __raw_maxAttendees = obj["maxAttendees"] as number;if (!(typeof __raw_maxAttendees === "number")) {
+                                                errors.push({ field: "maxAttendees", message: __raw_maxAttendees == null ? "EventForm.maxAttendees is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_maxAttendees == null) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees is required" }); } else {
 if (!Number.isInteger(__raw_maxAttendees)) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees must be an integer" }); }
 if (__raw_maxAttendees < 1 || __raw_maxAttendees > 1000) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees must be between 1 and 1000" }); }
 }
-instance.maxAttendees = __raw_maxAttendees;
+
+
+
+
+                                                instance.maxAttendees = __raw_maxAttendees;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4937,11 +5462,50 @@ constructor(props: { email: string; password: string; username: string; age: num
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_email = obj["email"] as string;
-                                        if (__raw_email == null) { errors.push({ field: "email", message: "UserRegistrationForm.email is required" }); } else {
+                            const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                errors.push({ field: "email", message: __raw_email == null ? "UserRegistrationForm.email is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_email == null) { errors.push({ field: "email", message: "UserRegistrationForm.email is required" }); } else {
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "email", message: "UserRegistrationForm.email must be a valid email" }); }
 }
-instance.email = __raw_email;
+
+
+
+
+                                                instance.email = __raw_email;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5203,12 +5767,51 @@ instance.email = __raw_email;
 
 
                         }{
-                            const __raw_password = obj["password"] as string;
-                                        if (__raw_password == null) { errors.push({ field: "password", message: "UserRegistrationForm.password is required" }); } else {
+                            const __raw_password = obj["password"] as string;if (!(typeof __raw_password === "string")) {
+                                                errors.push({ field: "password", message: __raw_password == null ? "UserRegistrationForm.password is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_password == null) { errors.push({ field: "password", message: "UserRegistrationForm.password is required" }); } else {
 if (__raw_password.length < 8) { errors.push({ field: "password", message: "UserRegistrationForm.password must have at least 8 characters" }); }
 if (__raw_password.length > 50) { errors.push({ field: "password", message: "UserRegistrationForm.password must have at most 50 characters" }); }
 }
-instance.password = __raw_password;
+
+
+
+
+                                                instance.password = __raw_password;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5470,14 +6073,53 @@ instance.password = __raw_password;
 
 
                         }{
-                            const __raw_username = obj["username"] as string;
-                                        if (__raw_username == null) { errors.push({ field: "username", message: "UserRegistrationForm.username is required" }); } else {
+                            const __raw_username = obj["username"] as string;if (!(typeof __raw_username === "string")) {
+                                                errors.push({ field: "username", message: __raw_username == null ? "UserRegistrationForm.username is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_username == null) { errors.push({ field: "username", message: "UserRegistrationForm.username is required" }); } else {
 if (__raw_username.length < 3) { errors.push({ field: "username", message: "UserRegistrationForm.username must have at least 3 characters" }); }
 if (__raw_username.length > 20) { errors.push({ field: "username", message: "UserRegistrationForm.username must have at most 20 characters" }); }
 if (__raw_username !== __raw_username.toLowerCase()) { errors.push({ field: "username", message: "UserRegistrationForm.username must be lowercase" }); }
 if (!/^[a-z][a-z0-9_]+$/.test(__raw_username)) { errors.push({ field: "username", message: "UserRegistrationForm.username must match pattern ^[a-z][a-z0-9_]+$" }); }
 }
-instance.username = __raw_username;
+
+
+
+
+                                                instance.username = __raw_username;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5739,12 +6381,51 @@ instance.username = __raw_username;
 
 
                         }{
-                            const __raw_age = obj["age"] as number;
-                                        if (__raw_age == null) { errors.push({ field: "age", message: "UserRegistrationForm.age is required" }); } else {
+                            const __raw_age = obj["age"] as number;if (!(typeof __raw_age === "number")) {
+                                                errors.push({ field: "age", message: __raw_age == null ? "UserRegistrationForm.age is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_age == null) { errors.push({ field: "age", message: "UserRegistrationForm.age is required" }); } else {
 if (!Number.isInteger(__raw_age)) { errors.push({ field: "age", message: "UserRegistrationForm.age must be an integer" }); }
 if (__raw_age < 18 || __raw_age > 120) { errors.push({ field: "age", message: "UserRegistrationForm.age must be between 18 and 120" }); }
 }
-instance.age = __raw_age;
+
+
+
+
+                                                instance.age = __raw_age;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6006,11 +6687,50 @@ instance.age = __raw_age;
 
 
                         }{
-                            const __raw_website = obj["website"] as string;
-                                        if (__raw_website == null) { errors.push({ field: "website", message: "UserRegistrationForm.website is required" }); } else {
+                            const __raw_website = obj["website"] as string;if (!(typeof __raw_website === "string")) {
+                                                errors.push({ field: "website", message: __raw_website == null ? "UserRegistrationForm.website is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_website == null) { errors.push({ field: "website", message: "UserRegistrationForm.website is required" }); } else {
 if (!URL.canParse(__raw_website)) { errors.push({ field: "website", message: "UserRegistrationForm.website must be a valid URL" }); }
 }
-instance.website = __raw_website;
+
+
+
+
+                                                instance.website = __raw_website;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6597,12 +7317,51 @@ constructor(props: { name: string; price: number; quantity: number; tags: Array<
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_name = obj["name"] as string;
-                                        if (__raw_name == null) { errors.push({ field: "name", message: "ProductForm.name is required" }); } else {
+                            const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                errors.push({ field: "name", message: __raw_name == null ? "ProductForm.name is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_name == null) { errors.push({ field: "name", message: "ProductForm.name is required" }); } else {
 if (__raw_name.length === 0) { errors.push({ field: "name", message: "ProductForm.name must not be empty" }); }
 if (__raw_name.length > 100) { errors.push({ field: "name", message: "ProductForm.name must have at most 100 characters" }); }
 }
-instance.name = __raw_name;
+
+
+
+
+                                                instance.name = __raw_name;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6864,12 +7623,51 @@ instance.name = __raw_name;
 
 
                         }{
-                            const __raw_price = obj["price"] as number;
-                                        if (__raw_price == null) { errors.push({ field: "price", message: "ProductForm.price is required" }); } else {
+                            const __raw_price = obj["price"] as number;if (!(typeof __raw_price === "number")) {
+                                                errors.push({ field: "price", message: __raw_price == null ? "ProductForm.price is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_price == null) { errors.push({ field: "price", message: "ProductForm.price is required" }); } else {
 if (__raw_price <= 0) { errors.push({ field: "price", message: "ProductForm.price must be positive" }); }
 if (__raw_price >= 1000000) { errors.push({ field: "price", message: "ProductForm.price must be less than 1000000" }); }
 }
-instance.price = __raw_price;
+
+
+
+
+                                                instance.price = __raw_price;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7131,12 +7929,51 @@ instance.price = __raw_price;
 
 
                         }{
-                            const __raw_quantity = obj["quantity"] as number;
-                                        if (__raw_quantity == null) { errors.push({ field: "quantity", message: "ProductForm.quantity is required" }); } else {
+                            const __raw_quantity = obj["quantity"] as number;if (!(typeof __raw_quantity === "number")) {
+                                                errors.push({ field: "quantity", message: __raw_quantity == null ? "ProductForm.quantity is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_quantity == null) { errors.push({ field: "quantity", message: "ProductForm.quantity is required" }); } else {
 if (!Number.isInteger(__raw_quantity)) { errors.push({ field: "quantity", message: "ProductForm.quantity must be an integer" }); }
 if (__raw_quantity < 0) { errors.push({ field: "quantity", message: "ProductForm.quantity must be non-negative" }); }
 }
-instance.quantity = __raw_quantity;
+
+
+
+
+                                                instance.quantity = __raw_quantity;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7724,12 +8561,83 @@ instance.tags = __raw_tags as string[];
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }{
-                            const __raw_sku = obj["sku"] as string;
-                                        if (__raw_sku == null) { errors.push({ field: "sku", message: "ProductForm.sku is required" }); } else {
+                            const __raw_sku = obj["sku"] as string;if (!(typeof __raw_sku === "string")) {
+                                                errors.push({ field: "sku", message: __raw_sku == null ? "ProductForm.sku is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_sku == null) { errors.push({ field: "sku", message: "ProductForm.sku is required" }); } else {
 if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__raw_sku)) { errors.push({ field: "sku", message: "ProductForm.sku must be a valid UUID" }); }
 }
-instance.sku = __raw_sku;
+
+
+
+
+                                                instance.sku = __raw_sku;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8308,12 +9216,51 @@ constructor(props: { title: string; startDate: Date; endDate: Date; maxAttendees
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_title = obj["title"] as string;
-                                        if (__raw_title == null) { errors.push({ field: "title", message: "EventForm.title is required" }); } else {
+                            const __raw_title = obj["title"] as string;if (!(typeof __raw_title === "string")) {
+                                                errors.push({ field: "title", message: __raw_title == null ? "EventForm.title is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_title == null) { errors.push({ field: "title", message: "EventForm.title is required" }); } else {
 if (__raw_title.length === 0) { errors.push({ field: "title", message: "EventForm.title must not be empty" }); }
 if (__raw_title !== __raw_title.trim()) { errors.push({ field: "title", message: "EventForm.title must be trimmed" }); }
 }
-instance.title = __raw_title;
+
+
+
+
+                                                instance.title = __raw_title;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8843,6 +9790,38 @@ if (__dateVal.getTime() <= new Date("2020-01-01").getTime()) { errors.push({ fie
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }{
                             const __raw_endDate = obj["endDate"] as string | Date;{
                                         const __dateVal = typeof __raw_endDate === "string" ? new Date(__raw_endDate) : __raw_endDate as Date;if (__dateVal == null) { errors.push({ field: "endDate", message: "EventForm.endDate is required" }); } else {
@@ -9111,13 +10090,84 @@ if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "endDate", mess
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }{
-                            const __raw_maxAttendees = obj["maxAttendees"] as number;
-                                        if (__raw_maxAttendees == null) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees is required" }); } else {
+                            const __raw_maxAttendees = obj["maxAttendees"] as number;if (!(typeof __raw_maxAttendees === "number")) {
+                                                errors.push({ field: "maxAttendees", message: __raw_maxAttendees == null ? "EventForm.maxAttendees is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_maxAttendees == null) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees is required" }); } else {
 if (!Number.isInteger(__raw_maxAttendees)) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees must be an integer" }); }
 if (__raw_maxAttendees < 1 || __raw_maxAttendees > 1000) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees must be between 1 and 1000" }); }
 }
-instance.maxAttendees = __raw_maxAttendees;
+
+
+
+
+                                                instance.maxAttendees = __raw_maxAttendees;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9606,36 +10656,37 @@ export function validateEvent(data: unknown): ValidationResult<EventForm> {
 
 ## Mapping
 
-original 0..204 -> expanded 0..204
-original 226..267 -> expanded 204..245
-original 305..330 -> expanded 245..270
-original 392..420 -> expanded 270..298
-original 529..557 -> expanded 298..326
-original 613..636 -> expanded 326..349
-original 672..694 -> expanded 349..371
-original 694..695 -> expanded 15033..15034
-original 695..697 -> expanded 16280..16282
-original 719..751 -> expanded 16282..16314
-original 810..834 -> expanded 16314..16338
-original 896..921 -> expanded 16338..16363
-original 972..1000 -> expanded 16363..16391
-original 1059..1090 -> expanded 16391..16422
-original 1127..1145 -> expanded 16422..16440
-original 1145..1146 -> expanded 29962..29963
-original 1146..1148 -> expanded 31128..31130
-original 1170..1200 -> expanded 31130..31160
-original 1252..1277 -> expanded 31160..31185
-original 1354..1381 -> expanded 31185..31212
-original 1423..1448 -> expanded 31212..31237
-original 1504..1531 -> expanded 31237..31264
-original 1531..1532 -> expanded 43460..43461
-original 1532..2731 -> expanded 44608..45807
-generated 371..15033 <- Decode
-generated 15034..16280 <- Decode
-generated 16440..29962 <- Decode
-generated 29963..31128 <- Decode
-generated 31264..43460 <- Decode
-generated 43461..44608 <- Decode
+original 0..204 -> expanded 307..511
+original 226..267 -> expanded 511..552
+original 305..330 -> expanded 552..577
+original 392..420 -> expanded 577..605
+original 529..557 -> expanded 605..633
+original 613..636 -> expanded 633..656
+original 672..694 -> expanded 656..678
+original 694..695 -> expanded 17414..17415
+original 695..697 -> expanded 18661..18663
+original 719..751 -> expanded 18663..18695
+original 810..834 -> expanded 18695..18719
+original 896..921 -> expanded 18719..18744
+original 972..1000 -> expanded 18744..18772
+original 1059..1090 -> expanded 18772..18803
+original 1127..1145 -> expanded 18803..18821
+original 1145..1146 -> expanded 33979..33980
+original 1146..1148 -> expanded 35145..35147
+original 1170..1200 -> expanded 35147..35177
+original 1252..1277 -> expanded 35177..35202
+original 1354..1381 -> expanded 35202..35229
+original 1423..1448 -> expanded 35229..35254
+original 1504..1531 -> expanded 35254..35281
+original 1531..1532 -> expanded 48367..48368
+original 1532..2731 -> expanded 49515..50714
+generated 0..307 <- imports
+generated 678..17414 <- Decode
+generated 17415..18661 <- Decode
+generated 18821..33979 <- Decode
+generated 33980..35145 <- Decode
+generated 35281..48367 <- Decode
+generated 48368..49515 <- Decode
 
 ## Metadata
 

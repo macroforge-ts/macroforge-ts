@@ -5,17 +5,19 @@ use crate::ts_syn::{DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, ts
 
 use convert_case::{Case, Casing};
 
+use super::super::validators::ValidatorSpec;
+use super::super::value_kind::EndecValueKind;
 use super::super::{
-    EndecContainerOptions, TaggingMode, TypeCategory, get_foreign_types,
-    rewrite_expression_namespaces,
+    EndecContainerOptions, TaggingMode, TypeCategory, decorator_validators, get_foreign_types,
+    primitive_base, rewrite_expression_namespaces,
 };
 use super::field_processing::to_decode_field;
 use super::helpers::{
     extract_base_type, nested_decode_fn_name, nested_decode_result_fn_name,
-    nested_has_shape_fn_name, type_accepts_string,
+    nested_has_shape_fn_name, primitive_check, type_accepts_string,
 };
-use super::types::{DecodeField, EncodableTypeRef, EndecValueKind};
-use super::validation::generate_field_validations;
+use super::types::{DecodeField, EncodableTypeRef};
+use super::validation::{Missing, generate_field_validations};
 use crate::builtin::return_types::{
     DECODE_CONTEXT, DECODE_ERROR, DECODE_OPTIONS, PENDING_REF, decode_return_type, wrap_error,
     wrap_success,
@@ -88,6 +90,28 @@ pub(super) fn handle_type_alias(input: &DeriveInput) -> Result<TsStream, Macrofo
         caller_file_path: input.context.file_name.as_str(),
         file_imports: &file_imports,
     };
+
+    let mut validator_diagnostics = DiagnosticCollector::new();
+    let validators = decorator_validators(
+        &type_alias.inner.decorators,
+        &format!("type '{type_name}'"),
+        &mut validator_diagnostics,
+    );
+    if validator_diagnostics.has_errors() {
+        return Err(MacroforgeErrors::new(validator_diagnostics.into_vec()).into());
+    }
+
+    if let Some(primitive) = primitive_base(type_alias.body()) {
+        return handle_primitive_type_alias(&alias, primitive, &validators);
+    }
+    if !validators.is_empty() {
+        return Err(MacroforgeError::new(
+            type_alias.inner.span,
+            format!(
+                "@endec validators on type '{type_name}' only apply to primitive and branded primitive aliases; put them on the fields instead"
+            ),
+        ));
+    }
 
     if let Some(fields) = type_alias.as_object() {
         handle_object_type_alias(&alias, fields)
@@ -323,26 +347,38 @@ fn handle_object_type_alias(
                             {#if field.optional}
                                 if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
                                     {#if has_validators}
-                                        {
+                                        try {
                                             const __convertedVal = (@{fn_expr})(obj["@{field.json_key}"]);
-                                            {$let validation_code = generate_field_validations(&field.validators, "__convertedVal", &field.json_key, type_name, field.accepts_missing())}
+                                            {$let validation_code = generate_field_validations(&field.validators, "__convertedVal", &field.json_key, type_name, field.missing())}
                                             {$typescript validation_code}
                                             instance.@{field.field_ident} = __convertedVal;
+                                        } catch (__error) {
+                                            errors.push({ field: "@{field.json_key}", message: __error instanceof Error ? __error.message : String(__error) });
                                         }
                                     {:else}
-                                        instance.@{field.field_ident} = (@{fn_expr})(obj["@{field.json_key}"]);
+                                        try {
+                                            instance.@{field.field_ident} = (@{fn_expr})(obj["@{field.json_key}"]);
+                                        } catch (__error) {
+                                            errors.push({ field: "@{field.json_key}", message: __error instanceof Error ? __error.message : String(__error) });
+                                        }
                                     {/if}
                                 }
                             {:else}
                                 {#if has_validators}
-                                    {
+                                    try {
                                         const __convertedVal = (@{fn_expr})(obj["@{field.json_key}"]);
-                                        {$let validation_code = generate_field_validations(&field.validators, "__convertedVal", &field.json_key, type_name, field.accepts_missing())}
+                                        {$let validation_code = generate_field_validations(&field.validators, "__convertedVal", &field.json_key, type_name, field.missing())}
                                         {$typescript validation_code}
                                         instance.@{field.field_ident} = __convertedVal;
+                                    } catch (__error) {
+                                        errors.push({ field: "@{field.json_key}", message: __error instanceof Error ? __error.message : String(__error) });
                                     }
                                 {:else}
-                                    instance.@{field.field_ident} = (@{fn_expr})(obj["@{field.json_key}"]);
+                                    try {
+                                        instance.@{field.field_ident} = (@{fn_expr})(obj["@{field.json_key}"]);
+                                    } catch (__error) {
+                                        errors.push({ field: "@{field.json_key}", message: __error instanceof Error ? __error.message : String(__error) });
+                                    }
                                 {/if}
                             {/if}
                         {:else}
@@ -351,12 +387,11 @@ fn handle_object_type_alias(
                                 const @{raw_var_ident} = obj["@{field.json_key}"] as @{field.raw_cast_type};
                                 {#match &field.type_cat}
                                     {:case TypeCategory::Primitive}
-                                        {#if has_validators}
-                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.accepts_missing())}
-                                            {$typescript validation_code}
-
-                                        {/if}
                                         {#if field.decimal_format}
+                                            {#if has_validators}
+                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.missing())}
+                                                {$typescript validation_code}
+                                            {/if}
                                             {
                                                 const __numVal = globalThis.Number(@{raw_var_ident});
                                                 if (globalThis.Number.isNaN(__numVal)) {
@@ -366,20 +401,36 @@ fn handle_object_type_alias(
                                                 }
                                             }
                                         {:else}
-                                            instance.@{field.field_ident} = @{raw_var_ident};
+                                            {#if let Some(primitive) = primitive_check(&field, &raw_var_name, type_name)}
+                                                if (@{primitive.mismatch}) {
+                                                    errors.push({ field: "@{field.json_key}", message: @{primitive.message} });
+                                                } else {
+                                                    {#if has_validators}
+                                                        {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.missing())}
+                                                        {$typescript validation_code}
+                                                    {/if}
+                                                    instance.@{field.field_ident} = @{raw_var_ident};
+                                                }
+                                            {:else}
+                                                {#if has_validators}
+                                                    {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.missing())}
+                                                    {$typescript validation_code}
+                                                {/if}
+                                                instance.@{field.field_ident} = @{raw_var_ident};
+                                            {/if}
                                         {/if}
 
                                     {:case TypeCategory::Date}
                                         {
                                             const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident} as Date;
-                                            {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name, field.accepts_missing())}{$typescript validation_code}{/if}
+                                            {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name, field.missing())}{$typescript validation_code}{/if}
                                             instance.@{field.field_ident} = __dateVal;
                                         }
 
                                     {:case TypeCategory::Array(inner)}
                                         if (Array.isArray(@{raw_var_ident})) {
                                             {#if has_validators}
-                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.accepts_missing())}
+                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.missing())}
                                                 {$typescript validation_code}
 
                                             {/if}
@@ -474,18 +525,18 @@ fn handle_object_type_alias(
                                         }
 
                                     {:case TypeCategory::Encodable(inner_type_name)}
-                                        {$let inner_type_expr: Expr = ts_ident!(inner_type_name).into()}
+                                        {$let inner_type_expr: Expr = ts_ident!(nested_decode_fn_name(inner_type_name)).into()}
                                         {#if let Some(prim) = &field.primitive_union_guard}
                                             if (typeof @{raw_var_ident} === "@{prim}") {
                                                 instance.@{field.field_ident} = @{raw_var_ident};
                                                 {#if field.has_union_string_validators()}
-                                                    {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, type_name, true)}
+                                                    {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, type_name, Missing::Excluded)}
                                                     {$typescript usv_code}
                                                 {/if}
                                             } else {
                                                 ctx.pushScope("@{field.json_key}");
                                                 try {
-                                                    const __result = @{inner_type_expr}.decodeWithContext(@{raw_var_ident}, ctx);
+                                                    const __result = @{inner_type_expr}(@{raw_var_ident}, ctx);
                                                     ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                                 } finally {
                                                     ctx.popScope();
@@ -494,7 +545,7 @@ fn handle_object_type_alias(
                                         {:else}
                                             ctx.pushScope("@{field.json_key}");
                                             try {
-                                                const __result = @{inner_type_expr}.decodeWithContext(@{raw_var_ident}, ctx);
+                                                const __result = @{inner_type_expr}(@{raw_var_ident}, ctx);
                                                 ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                             } finally {
                                                 ctx.popScope();
@@ -504,14 +555,23 @@ fn handle_object_type_alias(
                                     {:case TypeCategory::Nullable(_)}
                                         {#match field.nullable_inner_kind.unwrap_or(EndecValueKind::Other)}
                                             {:case EndecValueKind::PrimitiveLike}
-                                                {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.accepts_missing())}{$typescript validation_code}{/if}
-                                                instance.@{field.field_ident} = @{raw_var_ident};
+                                                {#if let Some(primitive) = primitive_check(&field, &raw_var_name, type_name)}
+                                                    if (@{primitive.mismatch}) {
+                                                        errors.push({ field: "@{field.json_key}", message: @{primitive.message} });
+                                                    } else {
+                                                        {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.missing())}{$typescript validation_code}{/if}
+                                                        instance.@{field.field_ident} = @{raw_var_ident};
+                                                    }
+                                                {:else}
+                                                    {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.missing())}{$typescript validation_code}{/if}
+                                                    instance.@{field.field_ident} = @{raw_var_ident};
+                                                {/if}
                                             {:case EndecValueKind::Date}
                                                 if (@{raw_var_ident} === null) {
                                                     instance.@{field.field_ident} = null;
                                                 } else {
                                                     const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident};
-                                                    {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name, field.accepts_missing())}{$typescript validation_code}{/if}
+                                                    {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name, field.missing())}{$typescript validation_code}{/if}
                                                     instance.@{field.field_ident} = __dateVal;
                                                 }
                                             {:case _}
@@ -519,10 +579,10 @@ fn handle_object_type_alias(
                                                     instance.@{field.field_ident} = null;
                                                 } else {
                                                     {#if let Some(inner_type) = &field.nullable_encodable_type}
-                                                        {$let inner_type_expr: Expr = ts_ident!(inner_type).into()}
+                                                        {$let inner_type_expr: Expr = ts_ident!(nested_decode_fn_name(inner_type)).into()}
                                                         ctx.pushScope("@{field.json_key}");
                                                         try {
-                                                            const __result = @{inner_type_expr}.decodeWithContext(@{raw_var_ident}, ctx);
+                                                            const __result = @{inner_type_expr}(@{raw_var_ident}, ctx);
                                                             ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                                         } finally {
                                                             ctx.popScope();
@@ -534,7 +594,15 @@ fn handle_object_type_alias(
                                         {/match}
 
                                     {:case _}
-                                        instance.@{field.field_ident} = @{raw_var_ident};
+                                        {#if let Some(primitive) = primitive_check(&field, &raw_var_name, type_name)}
+                                            if (@{primitive.mismatch}) {
+                                                errors.push({ field: "@{field.json_key}", message: @{primitive.message} });
+                                            } else {
+                                                instance.@{field.field_ident} = @{raw_var_ident};
+                                            }
+                                        {:else}
+                                            instance.@{field.field_ident} = @{raw_var_ident};
+                                        {/if}
                                 {/match}
                             }
                             {#if let Some(default_expr) = &field.default_expr}
@@ -547,12 +615,11 @@ fn handle_object_type_alias(
                                 const @{raw_var_ident} = obj["@{field.json_key}"] as @{field.raw_cast_type};
                                 {#match &field.type_cat}
                                     {:case TypeCategory::Primitive}
-                                        {#if has_validators}
-                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.accepts_missing())}
-                                            {$typescript validation_code}
-
-                                        {/if}
                                         {#if field.decimal_format}
+                                            {#if has_validators}
+                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.missing())}
+                                                {$typescript validation_code}
+                                            {/if}
                                             {
                                                 const __numVal = globalThis.Number(@{raw_var_ident});
                                                 if (globalThis.Number.isNaN(__numVal)) {
@@ -562,20 +629,36 @@ fn handle_object_type_alias(
                                                 }
                                             }
                                         {:else}
-                                            instance.@{field.field_ident} = @{raw_var_ident};
+                                            {#if let Some(primitive) = primitive_check(&field, &raw_var_name, type_name)}
+                                                if (@{primitive.mismatch}) {
+                                                    errors.push({ field: "@{field.json_key}", message: @{primitive.message} });
+                                                } else {
+                                                    {#if has_validators}
+                                                        {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.missing())}
+                                                        {$typescript validation_code}
+                                                    {/if}
+                                                    instance.@{field.field_ident} = @{raw_var_ident};
+                                                }
+                                            {:else}
+                                                {#if has_validators}
+                                                    {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.missing())}
+                                                    {$typescript validation_code}
+                                                {/if}
+                                                instance.@{field.field_ident} = @{raw_var_ident};
+                                            {/if}
                                         {/if}
 
                                     {:case TypeCategory::Date}
                                         {
                                             const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident} as Date;
-                                            {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name, field.accepts_missing())}{$typescript validation_code}{/if}
+                                            {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name, field.missing())}{$typescript validation_code}{/if}
                                             instance.@{field.field_ident} = __dateVal;
                                         }
 
                                     {:case TypeCategory::Array(inner)}
                                         if (Array.isArray(@{raw_var_ident})) {
                                             {#if has_validators}
-                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.accepts_missing())}
+                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.missing())}
                                                 {$typescript validation_code}
 
                                             {/if}
@@ -670,18 +753,18 @@ fn handle_object_type_alias(
                                         }
 
                                     {:case TypeCategory::Encodable(inner_type_name)}
-                                        {$let inner_type_expr: Expr = ts_ident!(inner_type_name).into()}
+                                        {$let inner_type_expr: Expr = ts_ident!(nested_decode_fn_name(inner_type_name)).into()}
                                         {#if let Some(prim) = &field.primitive_union_guard}
                                             if (typeof @{raw_var_ident} === "@{prim}") {
                                                 instance.@{field.field_ident} = @{raw_var_ident};
                                                 {#if field.has_union_string_validators()}
-                                                    {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, type_name, true)}
+                                                    {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, type_name, Missing::Excluded)}
                                                     {$typescript usv_code}
                                                 {/if}
                                             } else {
                                                 ctx.pushScope("@{field.json_key}");
                                                 try {
-                                                    const __result = @{inner_type_expr}.decodeWithContext(@{raw_var_ident}, ctx);
+                                                    const __result = @{inner_type_expr}(@{raw_var_ident}, ctx);
                                                     ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                                 } finally {
                                                     ctx.popScope();
@@ -690,7 +773,7 @@ fn handle_object_type_alias(
                                         {:else}
                                             ctx.pushScope("@{field.json_key}");
                                             try {
-                                                const __result = @{inner_type_expr}.decodeWithContext(@{raw_var_ident}, ctx);
+                                                const __result = @{inner_type_expr}(@{raw_var_ident}, ctx);
                                                 ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                             } finally {
                                                 ctx.popScope();
@@ -700,14 +783,23 @@ fn handle_object_type_alias(
                                     {:case TypeCategory::Nullable(_)}
                                         {#match field.nullable_inner_kind.unwrap_or(EndecValueKind::Other)}
                                             {:case EndecValueKind::PrimitiveLike}
-                                                {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.accepts_missing())}{$typescript validation_code}{/if}
-                                                instance.@{field.field_ident} = @{raw_var_ident};
+                                                {#if let Some(primitive) = primitive_check(&field, &raw_var_name, type_name)}
+                                                    if (@{primitive.mismatch}) {
+                                                        errors.push({ field: "@{field.json_key}", message: @{primitive.message} });
+                                                    } else {
+                                                        {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.missing())}{$typescript validation_code}{/if}
+                                                        instance.@{field.field_ident} = @{raw_var_ident};
+                                                    }
+                                                {:else}
+                                                    {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.missing())}{$typescript validation_code}{/if}
+                                                    instance.@{field.field_ident} = @{raw_var_ident};
+                                                {/if}
                                             {:case EndecValueKind::Date}
                                                 if (@{raw_var_ident} === null) {
                                                     instance.@{field.field_ident} = null;
                                                 } else {
                                                     const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident};
-                                                    {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name, field.accepts_missing())}{$typescript validation_code}{/if}
+                                                    {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name, field.missing())}{$typescript validation_code}{/if}
                                                     instance.@{field.field_ident} = __dateVal;
                                                 }
                                             {:case _}
@@ -715,10 +807,10 @@ fn handle_object_type_alias(
                                                     instance.@{field.field_ident} = null;
                                                 } else {
                                                     {#if let Some(inner_type) = &field.nullable_encodable_type}
-                                                        {$let inner_type_expr: Expr = ts_ident!(inner_type).into()}
+                                                        {$let inner_type_expr: Expr = ts_ident!(nested_decode_fn_name(inner_type)).into()}
                                                         ctx.pushScope("@{field.json_key}");
                                                         try {
-                                                            const __result = @{inner_type_expr}.decodeWithContext(@{raw_var_ident}, ctx);
+                                                            const __result = @{inner_type_expr}(@{raw_var_ident}, ctx);
                                                             ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                                         } finally {
                                                             ctx.popScope();
@@ -730,7 +822,15 @@ fn handle_object_type_alias(
                                         {/match}
 
                                     {:case _}
-                                        instance.@{field.field_ident} = @{raw_var_ident};
+                                        {#if let Some(primitive) = primitive_check(&field, &raw_var_name, type_name)}
+                                            if (@{primitive.mismatch}) {
+                                                errors.push({ field: "@{field.json_key}", message: @{primitive.message} });
+                                            } else {
+                                                instance.@{field.field_ident} = @{raw_var_ident};
+                                            }
+                                        {:else}
+                                            instance.@{field.field_ident} = @{raw_var_ident};
+                                        {/if}
                                 {/match}
                             }
                         {/if}
@@ -752,7 +852,7 @@ fn handle_object_type_alias(
                 {#for field in &fields_with_validators}
                 if (_field === "@{field.field_name}") {
                     const __val = _value as @{field.ts_type};
-                    {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name, field.accepts_missing())}
+                    {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name, field.missing())}
                     {$typescript validation_code}
 
                 }
@@ -771,7 +871,7 @@ fn handle_object_type_alias(
                 {#for field in &fields_with_validators}
                 if ("@{field.field_name}" in _partial && _partial.@{field.field_ident} !== undefined) {
                     const __val = _partial.@{field.field_ident} as @{field.ts_type};
-                    {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name, field.accepts_missing())}
+                    {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name, field.missing())}
                     {$typescript validation_code}
 
                 }
@@ -836,8 +936,6 @@ fn handle_union_type_alias(
     let tag_field = container_opts.tag_field_or_default();
 
     // Tagging mode variables for template branching
-    let _is_internally_tagged =
-        matches!(container_opts.tagging, TaggingMode::InternallyTagged { .. });
     let is_externally_tagged = matches!(container_opts.tagging, TaggingMode::ExternallyTagged);
     let is_adjacently_tagged =
         matches!(container_opts.tagging, TaggingMode::AdjacentlyTagged { .. });
@@ -864,6 +962,43 @@ fn handle_union_type_alias(
         .filter(|t| matches!(TypeCategory::from_ts_type(t), TypeCategory::Primitive))
         .cloned()
         .collect();
+
+    // Validators written on an arm (`| /** @endec(email) */ string`) run inside
+    // that arm's `typeof` branch. No other arm has a single value to validate.
+    let mut arm_diagnostics = DiagnosticCollector::new();
+    let mut primitive_arms: Vec<(String, Vec<ValidatorSpec>)> = primitive_types
+        .iter()
+        .map(|prim| (prim.clone(), Vec::new()))
+        .collect();
+    for member in members {
+        let arm = member.type_name().unwrap_or("object");
+        let validators = decorator_validators(
+            &member.decorators,
+            &format!("type '{type_name}' arm '{arm}'"),
+            &mut arm_diagnostics,
+        );
+        if validators.is_empty() {
+            continue;
+        }
+        match primitive_arms
+            .iter_mut()
+            .find(|(prim, _)| member.as_type_ref() == Some(prim.as_str()))
+        {
+            Some((_, arm_validators)) => arm_validators.extend(validators),
+            None => arm_diagnostics.error(
+                member.decorators.first().map_or(type_alias.inner.span, |d| d.span),
+                format!(
+                    "@endec validators on arm '{arm}' of type '{type_name}' only apply to primitive arms; put them on the variant's fields instead"
+                ),
+            ),
+        }
+    }
+    if arm_diagnostics.has_errors() {
+        return Err(MacroforgeErrors::new(arm_diagnostics.into_vec()).into());
+    }
+    let has_arm_validators = primitive_arms
+        .iter()
+        .any(|(_, validators)| !validators.is_empty());
 
     // Generic type parameters (like T, U) - these are passed through as-is
     let generic_type_params: Vec<String> = type_refs
@@ -1260,8 +1395,8 @@ fn handle_union_type_alias(
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants). */
-            export function @{fn_decode_internal_ident}(value: any, ctx: @{decode_context_ident}): @{full_type_ident} | @{pending_ref_ident} {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread. */
+            export function @{fn_decode_internal_ident}(value: any, _ctx: @{decode_context_ident}): @{full_type_ident} | @{pending_ref_ident} {
                 switch (value) {
                     {#for lit in &literals}
                     case @{lit}:
@@ -1308,6 +1443,7 @@ fn handle_union_type_alias(
     let fn_has_shape_ident =
         ts_ident!("{}HasShape{}", type_name.to_case(Case::Camel), generic_decl);
     let fn_has_shape_expr: Expr = fn_has_shape_ident.clone().into();
+    let fn_decode_expr: Expr = ts_ident!("{}Decode", type_name.to_case(Case::Camel)).into();
 
     // Compute return type and wrappers
     let return_type = decode_return_type(full_type_name);
@@ -1399,8 +1535,14 @@ fn handle_union_type_alias(
                         }
 
                         {#if is_primitive_only}
-                            {#for prim in &primitive_types}
+                            {#for (prim, arm_validators) in &primitive_arms}
                                 if (typeof value === "@{prim}") {
+                                    {#if !arm_validators.is_empty()}
+                                        const errors: Array<{ field: string; message: string }> = [];
+                                        {$let arm_validation = generate_field_validations(arm_validators, "value", "_root", type_name, Missing::Excluded)}
+                                        {$typescript arm_validation}
+                                        ctx.pushErrors(errors);
+                                    {/if}
                                     return value as @{full_type_ident};
                                 }
                             {/for}
@@ -1669,8 +1811,14 @@ fn handle_union_type_alias(
                             {/if}
 
                             {#if has_primitives}
-                                {#for prim in &primitive_types}
+                                {#for (prim, arm_validators) in &primitive_arms}
                                     if (typeof value === "@{prim}") {
+                                        {#if !arm_validators.is_empty()}
+                                            const errors: Array<{ field: string; message: string }> = [];
+                                            {$let arm_validation = generate_field_validations(arm_validators, "value", "_root", type_name, Missing::Excluded)}
+                                            {$typescript arm_validation}
+                                            ctx.pushErrors(errors);
+                                        {/if}
                                         return value as @{full_type_ident};
                                     }
                                 {/for}
@@ -2075,7 +2223,7 @@ fn handle_union_type_alias(
                             {#if has_object_variants || has_intersection_variants}
                                 if (typeof value === "object" && value !== null) {
                                     const __typeName = (value as any)["@{tag_field}"];
-                                    {%let all_tag_values: Vec<String> = object_variants.iter().map(|ov| format!("\"{}\"", ov.tag_value)).chain(intersection_variants.iter().map(|iv| format!("\"{}\"", iv.tag_value))).collect()}
+                                    {$let all_tag_values: Vec<String> = object_variants.iter().map(|ov| format!("\"{}\"", ov.tag_value)).chain(intersection_variants.iter().map(|iv| format!("\"{}\"", iv.tag_value))).collect()}
                                     if ([@{all_tag_values.join(", ")}].includes(__typeName)) return true;
                                 }
                             {/if}
@@ -2084,7 +2232,7 @@ fn handle_union_type_alias(
                                     const __keys = Object.keys(value);
                                     const __variantName = __keys[0];
                                     if (__variantName !== undefined) {
-                                        {%let all_variant_names: Vec<String> = external_object_variants.iter().map(|ov| format!("\"{}\"", ov.name)).collect()}
+                                        {$let all_variant_names: Vec<String> = external_object_variants.iter().map(|ov| format!("\"{}\"", ov.name)).collect()}
                                         if ([@{all_variant_names.join(", ")}].includes(__variantName)) return true;
                                     }
                                 }
@@ -2101,7 +2249,11 @@ fn handle_union_type_alias(
         }
 
         export function @{fn_is_ident}(value: unknown): value is @{full_type_ident} {
-            return @{fn_has_shape_expr}(value);
+            {#if has_arm_validators}
+                return @{fn_has_shape_expr}(value) && @{fn_decode_expr}(value).success;
+            {:else}
+                return @{fn_has_shape_expr}(value);
+            {/if}
         }
     };
     let mut result = result.merge(per_variant_is_stream);
@@ -2109,6 +2261,165 @@ fn handle_union_type_alias(
     result.add_aliased_import("DecodeError", crate::package::ENDEC);
     result.add_aliased_type_import("DecodeOptions", crate::package::ENDEC);
     result.add_aliased_import("PendingRef", crate::package::ENDEC);
+    Ok(result)
+}
+
+/// Decode for an alias of a primitive, optionally symbol-branded
+/// (`type Meters = number & { readonly [B]: true }`). The base primitive is
+/// checked and alias-level validators run before the value is branded. A base
+/// with a wire form in the foreign-type table (`bigint` travels as a string)
+/// is converted from it exactly as a field of that type would be.
+fn handle_primitive_type_alias(
+    alias: &AliasDecode,
+    primitive: &str,
+    validators: &[ValidatorSpec],
+) -> Result<TsStream, MacroforgeError> {
+    let AliasDecode {
+        type_name,
+        decode_context_ident,
+        decode_context_expr,
+        decode_error_expr,
+        decode_options_ident,
+        generic_decl,
+        generic_args,
+        full_type_name,
+        validate_field_generic_decl,
+        type_ident,
+        ..
+    } = alias;
+    let camel = type_name.to_case(Case::Camel);
+    let fn_decode_ident = ts_ident!("{}Decode{}", camel, generic_decl);
+    let fn_decode_expr: Expr = ts_ident!("{}Decode", camel).into();
+    let fn_decode_internal_ident = ts_ident!("{}DecodeWithContext{}", camel, generic_args);
+    let fn_decode_internal_expr: Expr = fn_decode_internal_ident.clone().into();
+    let fn_validate_field_ident =
+        ts_ident!("{}ValidateField{}", camel, validate_field_generic_decl);
+    let fn_validate_fields_ident = ts_ident!("{}ValidateFields", camel);
+    let fn_is_ident = ts_ident!("{}Is{}", camel, generic_decl);
+    let fn_has_shape_ident = ts_ident!("{}HasShape{}", camel, generic_decl);
+    let full_type_ident = ts_ident!(full_type_name);
+
+    let return_type_ident = ts_ident!(decode_return_type(full_type_name).as_str());
+    let success_result_expr =
+        Expr::parse(&wrap_success("result")).expect("decode success wrapper should parse");
+    let error_from_catch_expr =
+        Expr::parse(&wrap_error("e.errors")).expect("decode catch error wrapper should parse");
+    let error_generic_message_expr = Expr::parse(&wrap_error(r#"[{ field: "_root", message }]"#))
+        .expect("decode generic error wrapper should parse");
+    let error_from_ctx_expr =
+        Expr::parse(&wrap_error("__errors")).expect("decode ctx error wrapper should parse");
+    let wire_decode: Option<Expr> =
+        TypeCategory::match_foreign_type(primitive, &get_foreign_types())
+            .config
+            .and_then(|foreign| foreign.decode_expr.as_deref())
+            .map(|expr| {
+                Expr::parse(&rewrite_expression_namespaces(expr))
+                    .expect("foreign decode expression should parse")
+            });
+    // A string input is the value itself, not JSON: always for `string`, and for
+    // a wire-converted base, where parsing would round `bigint` digits.
+    let data_init_expr = if primitive == "string" || wire_decode.is_some() {
+        Expr::parse("input").expect("data init expr should parse")
+    } else {
+        Expr::parse(r#"typeof input === "string" ? JSON.parse(input) : input"#)
+            .expect("data init expr should parse")
+    };
+
+    let has_validators = !validators.is_empty();
+    let validation_code = generate_field_validations(
+        validators,
+        "__decoded",
+        "_root",
+        type_name,
+        Missing::Excluded,
+    );
+    // Only validators read the context; an unread parameter fails `noUnusedParameters`.
+    let ctx_param = ts_ident!(if has_validators { "ctx" } else { "_ctx" });
+
+    let mut result = ts_template! {
+        /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
+        export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}): @{return_type_ident} {
+            try {
+                const data = @{data_init_expr};
+
+                const ctx = @{decode_context_expr}.create();
+                const result = @{fn_decode_internal_expr}(data, ctx);
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return @{error_from_ctx_expr};
+                }
+
+                return @{success_result_expr};
+            } catch (e) {
+                if (e instanceof @{decode_error_expr}) {
+                    return @{error_from_catch_expr};
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return @{error_generic_message_expr};
+            }
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
+        export function @{fn_decode_internal_ident}(value: unknown, @{ctx_param}: @{decode_context_ident}): @{full_type_ident} {
+            {#if let Some(wire_decode) = &wire_decode}
+                let __decoded: unknown = value;
+                if (typeof value !== "@{primitive}") {
+                    try {
+                        __decoded = (@{wire_decode})(value);
+                    } catch (__error) {
+                        throw new @{decode_error_expr}([{ field: "_root", message: "@{type_name}.decodeWithContext: expected @{primitive}, " + String(__error) }]);
+                    }
+                }
+            {:else}
+                const __decoded: unknown = value;
+            {/if}
+            if (typeof __decoded !== "@{primitive}") {
+                throw new @{decode_error_expr}([{ field: "_root", message: "@{type_name}.decodeWithContext: expected @{primitive}" }]);
+            }
+            {#if has_validators}
+                const errors: Array<{ field: string; message: string }> = [];
+                {$typescript validation_code}
+                ctx.pushErrors(errors);
+            {/if}
+            return __decoded as @{full_type_ident};
+        }
+
+        export function @{fn_validate_field_ident}(
+            _field: K,
+            _value: @{type_ident}[K]
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function @{fn_validate_fields_ident}(
+            _partial: Partial<@{type_ident}>
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function @{fn_has_shape_ident}(value: unknown): boolean {
+            {#if wire_decode.is_some()}
+                return typeof value === "@{primitive}" || typeof value === "string";
+            {:else}
+                return typeof value === "@{primitive}";
+            {/if}
+        }
+
+        export function @{fn_is_ident}(value: unknown): value is @{full_type_ident} {
+            {#if has_validators}
+                return typeof value === "@{primitive}" && @{fn_decode_expr}(value).success;
+            {:else}
+                return typeof value === "@{primitive}";
+            {/if}
+        }
+    };
+    result.add_aliased_import("DecodeContext", crate::package::ENDEC);
+    result.add_aliased_import("DecodeError", crate::package::ENDEC);
+    result.add_aliased_type_import("DecodeOptions", crate::package::ENDEC);
     Ok(result)
 }
 

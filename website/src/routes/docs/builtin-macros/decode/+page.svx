@@ -41,6 +41,23 @@ surface (there is no class to attach statics to). **Enums** (`enum_handler`) get
 shapes, the enum `decode` function **throws** an `Error` on invalid values
 rather than returning a result union.
 
+A **type alias of a primitive**, plain (`type Port = number`) or branded
+(`type Meters = $Newtype<number>`), decodes to that primitive: `decode` rejects
+any other `typeof`, `hasShape` checks the `typeof`, and `is` additionally runs
+the alias's validators. Validators go on the alias itself:
+
+```typescript
+/** @derive(Decode) */
+/** @endec(nonNegative, finite) */
+type Meters = $Newtype<number>;
+
+metersDecode(-1);   // { success: false, errors: [{ field: "_root", ... }] }
+metersIs("12");     // false
+```
+
+Alias-level validators on any other alias shape are an expansion error; put
+them on the fields instead.
+
 Validation (see `validation`) runs during decoding and reports failures
 through the `errors` array of the result union. Field-level options are parsed by
 `field_processing`; see the parent endec module for the option and validator

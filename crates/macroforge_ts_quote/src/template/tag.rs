@@ -32,7 +32,7 @@ pub enum TagType {
     EndWhile,
     /// `{/match}`
     EndMatch,
-    /// `{%let name = expr}` or `{$let name = expr}`
+    /// `{$let name = expr}`
     Let(TokenStream2),
     /// `{$let mut name = expr}` - mutable let binding
     LetMut(TokenStream2),
@@ -153,16 +153,6 @@ pub fn analyze_tag(g: &Group) -> TagType {
             let cond: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
             return TagType::While(cond);
         }
-    }
-
-    // Check for {% ...} tags (let) - alternate syntax
-    if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
-        && p.as_char() == '%'
-        && i == "let"
-    {
-        // Format: {%let name = expr}
-        let body: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
-        return TagType::Let(body);
     }
 
     // Check for {$ ...} tags (directives: let, do, typescript)

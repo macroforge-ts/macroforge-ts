@@ -32,5 +32,5 @@ impl DebugFieldOptions {
     }
 }
 
-/// Debug field info: (label, field_name, ts_type)
-pub(super) type DebugField = (String, String, String);
+/// Debug field info: (label, field_name)
+pub(super) type DebugField = (String, String);

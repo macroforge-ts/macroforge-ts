@@ -16,22 +16,3 @@ macros work with classes, interfaces, enums, and type aliases.
 | [`PartialOrd`](../docs/builtin-macros/partial-ord) | `static compareTo(a: T, b: T): number &#124; null`                                                                       | Partial ordering comparison             |
 | [`Encode`](../docs/builtin-macros/encode)          | `static encode(value: T, keepMetadata?: boolean): string`                                                                | JSON encoding with type handling        |
 | [`Decode`](../docs/builtin-macros/decode)          | `static decode(input, opts?): &lbrace; success: true; value: T &rbrace; &#124; &lbrace; success: false; errors &rbrace;` | JSON decoding with validation           |
-
-## Using Built-in Macros
-
-Built-in macros don't require imports. Just use them with `@derive`:
-
-TypeScript
-
-```
-/** @derive(Debug, Clone, PartialEq) */
-class User {
-  name: string;
-  age: number;
-
-  constructor(name: string, age: number) {
-    this.name = name;
-    this.age = age;
-  }
-}
-```

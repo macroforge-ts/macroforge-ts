@@ -58,5 +58,5 @@ pub use registry_helpers::{
 pub use type_utils::{
     detect_primitive_encodable_union, get_type_default, get_type_default_with_registry,
     has_known_default, is_generic_type, is_nullable_type, is_numeric_type, is_primitive_type,
-    parse_generic_type,
+    parse_generic_type, primitive_compare_statements, tuple_compare_statements, tuple_element,
 };

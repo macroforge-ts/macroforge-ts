@@ -17,6 +17,14 @@ macros work with classes, interfaces, enums, and type aliases.
 | [`Encode`](../docs/builtin-macros/encode)          | `static encode(value: T, keepMetadata?: boolean): string`                                                                | JSON encoding with type handling        |
 | [`Decode`](../docs/builtin-macros/decode)          | `static decode(input, opts?): &lbrace; success: true; value: T &rbrace; &#124; &lbrace; success: false; errors &rbrace;` | JSON decoding with validation           |
 
+## Type-Position Macros
+
+One built-in macro is written where a type goes rather than in `@derive`:
+
+| Macro                                           | Expands To                                     | Description                                        |
+| ----------------------------------------------- | ---------------------------------------------- | -------------------------------------------------- |
+| [`$Newtype<T>`](../docs/builtin-macros/newtype) | `T & &lbrace; readonly [brand]: true &rbrace;` | Nominal brand backed by a per-site `unique symbol` |
+
 ## Using Built-in Macros
 
 Built-in macros don't require imports. Just use them with `@derive`:
@@ -189,3 +197,4 @@ Each macro has its own options and behaviors:
 - [**PartialOrd**](../docs/builtin-macros/partial-ord) - Partial ordering comparison
 - [**Encode**](../docs/builtin-macros/encode) - JSON encoding with endec-style options
 - [**Decode**](../docs/builtin-macros/decode) - JSON decoding with validation
+- [**$Newtype**](../docs/builtin-macros/newtype) - Nominal brands, constructed through `Decode`

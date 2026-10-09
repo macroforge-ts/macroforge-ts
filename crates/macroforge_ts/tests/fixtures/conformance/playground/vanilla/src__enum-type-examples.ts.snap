@@ -1,6 +1,5 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
-assertion_line: 259
 ---
 ## Source
 
@@ -120,15 +119,15 @@ export function statusHashCode(value: Status): number {
         }
 
 export namespace Status {
-  export const toString = statusToString;
-  export const clone = statusClone;
-  export const equals = statusEquals;
-  export const hashCode = statusHashCode;
-  export const encode = statusEncode;
-  export const encodeWithContext = statusEncodeWithContext;
-  export const decode = statusDecode;
-  export const decodeWithContext = statusDecodeWithContext;
-  export const is = statusIs;
+  export const toString: typeof statusToString = statusToString;
+  export const clone: typeof statusClone = statusClone;
+  export const equals: typeof statusEquals = statusEquals;
+  export const hashCode: typeof statusHashCode = statusHashCode;
+  export const encode: typeof statusEncode = statusEncode;
+  export const encodeWithContext: typeof statusEncodeWithContext = statusEncodeWithContext;
+  export const decode: typeof statusDecode = statusDecode;
+  export const decodeWithContext: typeof statusDecodeWithContext = statusDecodeWithContext;
+  export const is: typeof statusIs = statusIs;
 }
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
@@ -225,15 +224,15 @@ export function priorityHashCode(value: Priority): number {
         }
 
 export namespace Priority {
-  export const toString = priorityToString;
-  export const clone = priorityClone;
-  export const equals = priorityEquals;
-  export const hashCode = priorityHashCode;
-  export const encode = priorityEncode;
-  export const encodeWithContext = priorityEncodeWithContext;
-  export const decode = priorityDecode;
-  export const decodeWithContext = priorityDecodeWithContext;
-  export const is = priorityIs;
+  export const toString: typeof priorityToString = priorityToString;
+  export const clone: typeof priorityClone = priorityClone;
+  export const equals: typeof priorityEquals = priorityEquals;
+  export const hashCode: typeof priorityHashCode = priorityHashCode;
+  export const encode: typeof priorityEncode = priorityEncode;
+  export const encodeWithContext: typeof priorityEncodeWithContext = priorityEncodeWithContext;
+  export const decode: typeof priorityDecode = priorityDecode;
+  export const decodeWithContext: typeof priorityDecodeWithContext = priorityDecodeWithContext;
+  export const is: typeof priorityIs = priorityIs;
 }
 
 /** @derive(Debug, PartialEq, Hash) */
@@ -267,9 +266,9 @@ export function colorHashCode(value: Color): number {
                     }
 
 export namespace Color {
-  export const toString = colorToString;
-  export const equals = colorEquals;
-  export const hashCode = colorHashCode;
+  export const toString: typeof colorToString = colorToString;
+  export const equals: typeof colorEquals = colorEquals;
+  export const hashCode: typeof colorHashCode = colorHashCode;
 }
 
 // ==================== TYPE ALIAS EXAMPLES ====================
@@ -439,7 +438,46 @@ export function pointHashCode(value: Point): number {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_x = obj["x"] as number;instance.x = __raw_x;
+                                const __raw_x = obj["x"] as number;if (!(typeof __raw_x === "number")) {
+                                                    errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.x = __raw_x;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -627,7 +665,46 @@ export function pointHashCode(value: Point): number {
 
 
                             }{
-                                const __raw_y = obj["y"] as number;instance.y = __raw_y;
+                                const __raw_y = obj["y"] as number;if (!(typeof __raw_y === "number")) {
+                                                    errors.push({ field: "y", message: __raw_y == null ? "Point.y is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.y = __raw_y;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -815,6 +892,82 @@ export function pointHashCode(value: Point): number {
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1297,7 +1450,19 @@ export function pointHashCode(value: Point): number {
                 return pointHasShape(obj);
             }
 
-export const Point = {
+export const Point: {
+  readonly toString: typeof pointToString;
+  readonly clone: typeof pointClone;
+  readonly equals: typeof pointEquals;
+  readonly hashCode: typeof pointHashCode;
+  readonly encode: typeof pointEncode;
+  readonly encodeWithContext: typeof pointEncodeWithContext;
+  readonly decode: typeof pointDecode;
+  readonly decodeWithContext: typeof pointDecodeWithContext;
+  readonly validateFields: typeof pointValidateFields;
+  readonly hasShape: typeof pointHasShape;
+  readonly is: typeof pointIs;
+} = {
   toString: pointToString,
   clone: pointClone,
   equals: pointEquals,
@@ -1309,7 +1474,7 @@ export const Point = {
   validateFields: pointValidateFields,
   hasShape: pointHasShape,
   is: pointIs
-} as const;
+};
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type UserProfile = {
@@ -1491,7 +1656,46 @@ export function userProfileHashCode(value: UserProfile): number {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "UserProfile.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1679,7 +1883,46 @@ export function userProfileHashCode(value: UserProfile): number {
 
 
                             }{
-                                const __raw_username = obj["username"] as string;instance.username = __raw_username;
+                                const __raw_username = obj["username"] as string;if (!(typeof __raw_username === "string")) {
+                                                    errors.push({ field: "username", message: __raw_username == null ? "UserProfile.username is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.username = __raw_username;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1867,7 +2110,46 @@ export function userProfileHashCode(value: UserProfile): number {
 
 
                             }{
-                                const __raw_email = obj["email"] as string;instance.email = __raw_email;
+                                const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                    errors.push({ field: "email", message: __raw_email == null ? "UserProfile.email is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.email = __raw_email;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2055,7 +2337,46 @@ export function userProfileHashCode(value: UserProfile): number {
 
 
                             }{
-                                const __raw_age = obj["age"] as number;instance.age = __raw_age;
+                                const __raw_age = obj["age"] as number;if (!(typeof __raw_age === "number")) {
+                                                    errors.push({ field: "age", message: __raw_age == null ? "UserProfile.age is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.age = __raw_age;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2243,7 +2564,46 @@ export function userProfileHashCode(value: UserProfile): number {
 
 
                             }{
-                                const __raw_isVerified = obj["isVerified"] as boolean;instance.isVerified = __raw_isVerified;
+                                const __raw_isVerified = obj["isVerified"] as boolean;if (!(typeof __raw_isVerified === "boolean")) {
+                                                    errors.push({ field: "isVerified", message: __raw_isVerified == null ? "UserProfile.isVerified is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.isVerified = __raw_isVerified;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2431,6 +2791,82 @@ export function userProfileHashCode(value: UserProfile): number {
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2913,7 +3349,19 @@ export function userProfileHashCode(value: UserProfile): number {
                 return userProfileHasShape(obj);
             }
 
-export const UserProfile = {
+export const UserProfile: {
+  readonly toString: typeof userProfileToString;
+  readonly clone: typeof userProfileClone;
+  readonly equals: typeof userProfileEquals;
+  readonly hashCode: typeof userProfileHashCode;
+  readonly encode: typeof userProfileEncode;
+  readonly encodeWithContext: typeof userProfileEncodeWithContext;
+  readonly decode: typeof userProfileDecode;
+  readonly decodeWithContext: typeof userProfileDecodeWithContext;
+  readonly validateFields: typeof userProfileValidateFields;
+  readonly hasShape: typeof userProfileHasShape;
+  readonly is: typeof userProfileIs;
+} = {
   toString: userProfileToString,
   clone: userProfileClone,
   equals: userProfileEquals,
@@ -2925,7 +3373,7 @@ export const UserProfile = {
   validateFields: userProfileValidateFields,
   hasShape: userProfileHasShape,
   is: userProfileIs
-} as const;
+};
 
 /** @derive(Debug, Clone, PartialEq, Hash) */
 export type Coordinate3D = {
@@ -2966,12 +3414,17 @@ export function coordinate3DHashCode(value: Coordinate3D): number {
                         return hash;
                     }
 
-export const Coordinate3D = {
+export const Coordinate3D: {
+  readonly toString: typeof coordinate3DToString;
+  readonly clone: typeof coordinate3DClone;
+  readonly equals: typeof coordinate3DEquals;
+  readonly hashCode: typeof coordinate3DHashCode;
+} = {
   toString: coordinate3DToString,
   clone: coordinate3DClone,
   equals: coordinate3DEquals,
   hashCode: coordinate3DHashCode
-} as const;
+};
 
 /** @derive(Debug, PartialEq, Hash) */
 export type ApiStatus = 'loading' | 'success' | 'error';
@@ -2997,11 +3450,15 @@ export function apiStatusHashCode(value: ApiStatus): number {
                         return hash;
                     }
 
-export const ApiStatus = {
+export const ApiStatus: {
+  readonly toString: typeof apiStatusToString;
+  readonly equals: typeof apiStatusEquals;
+  readonly hashCode: typeof apiStatusHashCode;
+} = {
   toString: apiStatusToString,
   equals: apiStatusEquals,
   hashCode: apiStatusHashCode
-} as const;
+};
 
 // ==================== USAGE EXAMPLES ====================
 
@@ -3184,15 +3641,15 @@ export function statusHashCode(value: Status): number {
         }
 
 export namespace Status {
-  export const toString = statusToString;
-  export const clone = statusClone;
-  export const equals = statusEquals;
-  export const hashCode = statusHashCode;
-  export const encode = statusEncode;
-  export const encodeWithContext = statusEncodeWithContext;
-  export const decode = statusDecode;
-  export const decodeWithContext = statusDecodeWithContext;
-  export const is = statusIs;
+  export const toString: typeof statusToString = statusToString;
+  export const clone: typeof statusClone = statusClone;
+  export const equals: typeof statusEquals = statusEquals;
+  export const hashCode: typeof statusHashCode = statusHashCode;
+  export const encode: typeof statusEncode = statusEncode;
+  export const encodeWithContext: typeof statusEncodeWithContext = statusEncodeWithContext;
+  export const decode: typeof statusDecode = statusDecode;
+  export const decodeWithContext: typeof statusDecodeWithContext = statusDecodeWithContext;
+  export const is: typeof statusIs = statusIs;
 }
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
@@ -3289,15 +3746,15 @@ export function priorityHashCode(value: Priority): number {
         }
 
 export namespace Priority {
-  export const toString = priorityToString;
-  export const clone = priorityClone;
-  export const equals = priorityEquals;
-  export const hashCode = priorityHashCode;
-  export const encode = priorityEncode;
-  export const encodeWithContext = priorityEncodeWithContext;
-  export const decode = priorityDecode;
-  export const decodeWithContext = priorityDecodeWithContext;
-  export const is = priorityIs;
+  export const toString: typeof priorityToString = priorityToString;
+  export const clone: typeof priorityClone = priorityClone;
+  export const equals: typeof priorityEquals = priorityEquals;
+  export const hashCode: typeof priorityHashCode = priorityHashCode;
+  export const encode: typeof priorityEncode = priorityEncode;
+  export const encodeWithContext: typeof priorityEncodeWithContext = priorityEncodeWithContext;
+  export const decode: typeof priorityDecode = priorityDecode;
+  export const decodeWithContext: typeof priorityDecodeWithContext = priorityDecodeWithContext;
+  export const is: typeof priorityIs = priorityIs;
 }
 
 /** @derive(Debug, PartialEq, Hash) */
@@ -3331,9 +3788,9 @@ export function colorHashCode(value: Color): number {
                     }
 
 export namespace Color {
-  export const toString = colorToString;
-  export const equals = colorEquals;
-  export const hashCode = colorHashCode;
+  export const toString: typeof colorToString = colorToString;
+  export const equals: typeof colorEquals = colorEquals;
+  export const hashCode: typeof colorHashCode = colorHashCode;
 }
 
 // ==================== TYPE ALIAS EXAMPLES ====================
@@ -3503,7 +3960,46 @@ export function pointHashCode(value: Point): number {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_x = obj["x"] as number;instance.x = __raw_x;
+                                const __raw_x = obj["x"] as number;if (!(typeof __raw_x === "number")) {
+                                                    errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.x = __raw_x;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3691,7 +4187,46 @@ export function pointHashCode(value: Point): number {
 
 
                             }{
-                                const __raw_y = obj["y"] as number;instance.y = __raw_y;
+                                const __raw_y = obj["y"] as number;if (!(typeof __raw_y === "number")) {
+                                                    errors.push({ field: "y", message: __raw_y == null ? "Point.y is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.y = __raw_y;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3879,6 +4414,82 @@ export function pointHashCode(value: Point): number {
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4361,7 +4972,19 @@ export function pointHashCode(value: Point): number {
                 return pointHasShape(obj);
             }
 
-export const Point = {
+export const Point: {
+  readonly toString: typeof pointToString;
+  readonly clone: typeof pointClone;
+  readonly equals: typeof pointEquals;
+  readonly hashCode: typeof pointHashCode;
+  readonly encode: typeof pointEncode;
+  readonly encodeWithContext: typeof pointEncodeWithContext;
+  readonly decode: typeof pointDecode;
+  readonly decodeWithContext: typeof pointDecodeWithContext;
+  readonly validateFields: typeof pointValidateFields;
+  readonly hasShape: typeof pointHasShape;
+  readonly is: typeof pointIs;
+} = {
   toString: pointToString,
   clone: pointClone,
   equals: pointEquals,
@@ -4373,7 +4996,7 @@ export const Point = {
   validateFields: pointValidateFields,
   hasShape: pointHasShape,
   is: pointIs
-} as const;
+};
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type UserProfile = {
@@ -4555,7 +5178,46 @@ export function userProfileHashCode(value: UserProfile): number {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "UserProfile.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4743,7 +5405,46 @@ export function userProfileHashCode(value: UserProfile): number {
 
 
                             }{
-                                const __raw_username = obj["username"] as string;instance.username = __raw_username;
+                                const __raw_username = obj["username"] as string;if (!(typeof __raw_username === "string")) {
+                                                    errors.push({ field: "username", message: __raw_username == null ? "UserProfile.username is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.username = __raw_username;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4931,7 +5632,46 @@ export function userProfileHashCode(value: UserProfile): number {
 
 
                             }{
-                                const __raw_email = obj["email"] as string;instance.email = __raw_email;
+                                const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                    errors.push({ field: "email", message: __raw_email == null ? "UserProfile.email is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.email = __raw_email;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5119,7 +5859,46 @@ export function userProfileHashCode(value: UserProfile): number {
 
 
                             }{
-                                const __raw_age = obj["age"] as number;instance.age = __raw_age;
+                                const __raw_age = obj["age"] as number;if (!(typeof __raw_age === "number")) {
+                                                    errors.push({ field: "age", message: __raw_age == null ? "UserProfile.age is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.age = __raw_age;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5307,7 +6086,46 @@ export function userProfileHashCode(value: UserProfile): number {
 
 
                             }{
-                                const __raw_isVerified = obj["isVerified"] as boolean;instance.isVerified = __raw_isVerified;
+                                const __raw_isVerified = obj["isVerified"] as boolean;if (!(typeof __raw_isVerified === "boolean")) {
+                                                    errors.push({ field: "isVerified", message: __raw_isVerified == null ? "UserProfile.isVerified is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.isVerified = __raw_isVerified;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5495,6 +6313,82 @@ export function userProfileHashCode(value: UserProfile): number {
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5977,7 +6871,19 @@ export function userProfileHashCode(value: UserProfile): number {
                 return userProfileHasShape(obj);
             }
 
-export const UserProfile = {
+export const UserProfile: {
+  readonly toString: typeof userProfileToString;
+  readonly clone: typeof userProfileClone;
+  readonly equals: typeof userProfileEquals;
+  readonly hashCode: typeof userProfileHashCode;
+  readonly encode: typeof userProfileEncode;
+  readonly encodeWithContext: typeof userProfileEncodeWithContext;
+  readonly decode: typeof userProfileDecode;
+  readonly decodeWithContext: typeof userProfileDecodeWithContext;
+  readonly validateFields: typeof userProfileValidateFields;
+  readonly hasShape: typeof userProfileHasShape;
+  readonly is: typeof userProfileIs;
+} = {
   toString: userProfileToString,
   clone: userProfileClone,
   equals: userProfileEquals,
@@ -5989,7 +6895,7 @@ export const UserProfile = {
   validateFields: userProfileValidateFields,
   hasShape: userProfileHasShape,
   is: userProfileIs
-} as const;
+};
 
 /** @derive(Debug, Clone, PartialEq, Hash) */
 export type Coordinate3D = {
@@ -6030,12 +6936,17 @@ export function coordinate3DHashCode(value: Coordinate3D): number {
                         return hash;
                     }
 
-export const Coordinate3D = {
+export const Coordinate3D: {
+  readonly toString: typeof coordinate3DToString;
+  readonly clone: typeof coordinate3DClone;
+  readonly equals: typeof coordinate3DEquals;
+  readonly hashCode: typeof coordinate3DHashCode;
+} = {
   toString: coordinate3DToString,
   clone: coordinate3DClone,
   equals: coordinate3DEquals,
   hashCode: coordinate3DHashCode
-} as const;
+};
 
 /** @derive(Debug, PartialEq, Hash) */
 export type ApiStatus = 'loading' | 'success' | 'error';
@@ -6061,11 +6972,15 @@ export function apiStatusHashCode(value: ApiStatus): number {
                         return hash;
                     }
 
-export const ApiStatus = {
+export const ApiStatus: {
+  readonly toString: typeof apiStatusToString;
+  readonly equals: typeof apiStatusEquals;
+  readonly hashCode: typeof apiStatusHashCode;
+} = {
   toString: apiStatusToString,
   equals: apiStatusEquals,
   hashCode: apiStatusHashCode
-} as const;
+};
 
 // ==================== USAGE EXAMPLES ====================
 
@@ -6150,55 +7065,56 @@ demoTypeFunctions();
 
 ## Mapping
 
-original 0..527 -> expanded 0..527
-original 527..675 -> expanded 3708..3856
-original 675..766 -> expanded 7136..7227
-original 766..950 -> expanded 7941..8125
-original 950..1143 -> expanded 16231..16424
-original 1143..1267 -> expanded 27018..27142
-original 1267..1364 -> expanded 28783..28880
-original 1364..3696 -> expanded 29938..32270
-generated 527..861 <- Debug
-generated 861..967 <- Clone
-generated 967..1084 <- PartialEq
-generated 1084..1403 <- Hash
-generated 1403..1939 <- Encode
-generated 1939..3295 <- Decode
-generated 3295..3708 <- __convenience_const
-generated 3856..4202 <- Debug
-generated 4202..4314 <- Clone
-generated 4314..4437 <- PartialEq
-generated 4437..4568 <- Hash
-generated 4568..5116 <- Encode
-generated 5116..6703 <- Decode
-generated 6703..7136 <- __convenience_const
-generated 7227..7555 <- Debug
-generated 7555..7669 <- PartialEq
-generated 7669..7794 <- Hash
-generated 7794..7941 <- __convenience_const
-generated 8125..8422 <- Debug
-generated 8422..8658 <- Clone
-generated 8658..8849 <- PartialEq
-generated 8849..9302 <- Hash
-generated 9302..10865 <- Encode
-generated 10865..15881 <- Decode
-generated 15881..16231 <- __convenience_const
-generated 16424..16872 <- Debug
-generated 16872..17238 <- Clone
-generated 17238..17538 <- PartialEq
-generated 17538..18240 <- Hash
-generated 18240..19942 <- Encode
-generated 19942..26596 <- Decode
-generated 26596..27018 <- __convenience_const
-generated 27142..27489 <- Debug
-generated 27489..27773 <- Clone
-generated 27773..28000 <- PartialEq
-generated 28000..28615 <- Hash
-generated 28615..28783 <- __convenience_const
-generated 28880..29040 <- Debug
-generated 29040..29430 <- PartialEq
-generated 29430..29810 <- Hash
-generated 29810..29938 <- __convenience_const
+original 0..527 -> expanded 385..912
+original 527..675 -> expanded 4303..4451
+original 675..766 -> expanded 7959..8050
+original 766..950 -> expanded 8828..9012
+original 950..1143 -> expanded 18447..18640
+original 1143..1267 -> expanded 31902..32026
+original 1267..1364 -> expanded 33853..33950
+original 1364..3696 -> expanded 35141..37473
+generated 0..385 <- imports
+generated 912..1246 <- Debug
+generated 1246..1352 <- Clone
+generated 1352..1469 <- PartialEq
+generated 1469..1788 <- Hash
+generated 1788..2324 <- Encode
+generated 2324..3680 <- Decode
+generated 3680..4303 <- __convenience_const
+generated 4451..4797 <- Debug
+generated 4797..4909 <- Clone
+generated 4909..5032 <- PartialEq
+generated 5032..5163 <- Hash
+generated 5163..5711 <- Encode
+generated 5711..7298 <- Decode
+generated 7298..7959 <- __convenience_const
+generated 8050..8378 <- Debug
+generated 8378..8492 <- PartialEq
+generated 8492..8617 <- Hash
+generated 8617..8828 <- __convenience_const
+generated 9012..9309 <- Debug
+generated 9309..9545 <- Clone
+generated 9545..9736 <- PartialEq
+generated 9736..10189 <- Hash
+generated 10189..11752 <- Encode
+generated 11752..17610 <- Decode
+generated 17610..18447 <- __convenience_const
+generated 18640..19088 <- Debug
+generated 19088..19454 <- Clone
+generated 19454..19754 <- PartialEq
+generated 19754..20456 <- Hash
+generated 20456..22158 <- Encode
+generated 22158..30927 <- Decode
+generated 30927..31902 <- __convenience_const
+generated 32026..32373 <- Debug
+generated 32373..32657 <- Clone
+generated 32657..32884 <- PartialEq
+generated 32884..33499 <- Hash
+generated 33499..33853 <- __convenience_const
+generated 33950..34110 <- Debug
+generated 34110..34500 <- PartialEq
+generated 34500..34880 <- Hash
+generated 34880..35141 <- __convenience_const
 
 ## Metadata
 

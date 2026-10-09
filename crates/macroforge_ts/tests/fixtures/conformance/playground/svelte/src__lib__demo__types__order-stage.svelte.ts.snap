@@ -124,8 +124,8 @@ export function orderStageDefaultValue(): OrderStage {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function orderStageDecodeWithContext(value: any, ctx: __mf_DecodeContext): OrderStage | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function orderStageDecodeWithContext(value: any, _ctx: __mf_DecodeContext): OrderStage | __mf_PendingRef {
                 switch (value) {
                     case 'Estimate':
                     case 'Active':
@@ -356,7 +356,17 @@ if (variant === "Invoice") { return "Invoice" as OrderStage; }
             return toExit(orderStageDecode(obj));
         }
 
-export const OrderStage = {
+export const OrderStage: {
+  readonly defaultValue: typeof orderStageDefaultValue;
+  readonly encode: typeof orderStageEncode;
+  readonly encodeWithContext: typeof orderStageEncodeWithContext;
+  readonly decode: typeof orderStageDecode;
+  readonly decodeWithContext: typeof orderStageDecodeWithContext;
+  readonly hasShape: typeof orderStageHasShape;
+  readonly is: typeof orderStageIs;
+  readonly createForm: typeof orderStageCreateForm;
+  readonly fromFormData: typeof orderStageFromFormData;
+} = {
   defaultValue: orderStageDefaultValue,
   encode: orderStageEncode,
   encodeWithContext: orderStageEncodeWithContext,
@@ -366,7 +376,7 @@ export const OrderStage = {
   is: orderStageIs,
   createForm: orderStageCreateForm,
   fromFormData: orderStageFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -473,8 +483,8 @@ export function orderStageDefaultValue(): OrderStage {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function orderStageDecodeWithContext(value: any, ctx: __mf_DecodeContext): OrderStage | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function orderStageDecodeWithContext(value: any, _ctx: __mf_DecodeContext): OrderStage | __mf_PendingRef {
                 switch (value) {
                     case 'Estimate':
                     case 'Active':
@@ -705,7 +715,17 @@ if (variant === "Invoice") { return "Invoice" as OrderStage; }
             return toExit(orderStageDecode(obj));
         }
 
-export const OrderStage = {
+export const OrderStage: {
+  readonly defaultValue: typeof orderStageDefaultValue;
+  readonly encode: typeof orderStageEncode;
+  readonly encodeWithContext: typeof orderStageEncodeWithContext;
+  readonly decode: typeof orderStageDecode;
+  readonly decodeWithContext: typeof orderStageDecodeWithContext;
+  readonly hasShape: typeof orderStageHasShape;
+  readonly is: typeof orderStageIs;
+  readonly createForm: typeof orderStageCreateForm;
+  readonly fromFormData: typeof orderStageFromFormData;
+} = {
   defaultValue: orderStageDefaultValue,
   encode: orderStageEncode,
   encodeWithContext: orderStageEncodeWithContext,
@@ -715,7 +735,7 @@ export const OrderStage = {
   is: orderStageIs,
   createForm: orderStageCreateForm,
   fromFormData: orderStageFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -723,14 +743,15 @@ export const OrderStage = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..183 -> expanded 58..134
-original 183..184 -> expanded 10939..10940
-generated 134..263 <- Default
-generated 263..2181 <- Encode
-generated 2181..4348 <- Decode
-generated 4348..10575 <- Gigaform
-generated 10575..10939 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..183 -> expanded 627..703
+original 183..184 -> expanded 12032..12033
+generated 0..569 <- imports
+generated 703..832 <- Default
+generated 832..2750 <- Encode
+generated 2750..4977 <- Decode
+generated 4977..11204 <- Gigaform
+generated 11204..12032 <- __convenience_const
 
 ## Metadata
 

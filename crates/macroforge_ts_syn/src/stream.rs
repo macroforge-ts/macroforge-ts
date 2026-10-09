@@ -737,6 +737,7 @@ mod import_for_tests {
             config: None,
             type_registry: registry,
             resolved_fields: None,
+            expansion_id: 0,
         }
     }
 

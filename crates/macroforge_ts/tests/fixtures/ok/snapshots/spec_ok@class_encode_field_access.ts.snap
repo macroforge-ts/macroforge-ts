@@ -281,11 +281,12 @@ class Point {
 
 ## Mapping
 
-original 22..67 -> expanded 0..45
-original 67..68 -> expanded 751..752
-original 68..69 -> expanded 2241..2242
-generated 45..751 <- Encode
-generated 752..2241 <- Encode
+original 22..67 -> expanded 78..123
+original 67..68 -> expanded 829..830
+original 68..69 -> expanded 2319..2320
+generated 0..78 <- imports
+generated 123..829 <- Encode
+generated 830..2319 <- Encode
 
 ## Metadata
 

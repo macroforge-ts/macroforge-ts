@@ -168,10 +168,26 @@ export function recurrenceEndDefaultValue(): RecurrenceEnd {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as RecurrenceEnd | __mf_PendingRef;
                         }if (typeof value === "number") {
+
+
+
+
+
                                     return value as RecurrenceEnd;
                                 }if (typeof value === "string") {
+
+
+
+
+
                                     return value as RecurrenceEnd;
                                 }
+
+
+
+
+
+
 
 
 
@@ -181,6 +197,18 @@ export function recurrenceEndDefaultValue(): RecurrenceEnd {
                                 field: "_root",
                                 message: "RecurrenceEnd.decodeWithContext: expected number, string, got " + typeof value
                             }]);
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -881,8 +909,11 @@ export function recurrenceEndDefaultValue(): RecurrenceEnd {
 
         }
 
-        export function recurrenceEndIs(value: unknown): value is RecurrenceEnd {
-            return recurrenceEndHasShape(value);
+        export function recurrenceEndIs(value: unknown): value is RecurrenceEnd {return recurrenceEndHasShape(value);
+
+
+
+
         }
 
 /** Per-variant error types  */
@@ -1054,7 +1085,17 @@ if (variant === "string") { return "" as RecurrenceEnd; }
             return toExit(recurrenceEndDecode(obj));
         }
 
-export const RecurrenceEnd = {
+export const RecurrenceEnd: {
+  readonly defaultValue: typeof recurrenceEndDefaultValue;
+  readonly encode: typeof recurrenceEndEncode;
+  readonly encodeWithContext: typeof recurrenceEndEncodeWithContext;
+  readonly decode: typeof recurrenceEndDecode;
+  readonly decodeWithContext: typeof recurrenceEndDecodeWithContext;
+  readonly hasShape: typeof recurrenceEndHasShape;
+  readonly is: typeof recurrenceEndIs;
+  readonly createForm: typeof recurrenceEndCreateForm;
+  readonly fromFormData: typeof recurrenceEndFromFormData;
+} = {
   defaultValue: recurrenceEndDefaultValue,
   encode: recurrenceEndEncode,
   encodeWithContext: recurrenceEndEncodeWithContext,
@@ -1064,7 +1105,7 @@ export const RecurrenceEnd = {
   is: recurrenceEndIs,
   createForm: recurrenceEndCreateForm,
   fromFormData: recurrenceEndFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1215,10 +1256,26 @@ export function recurrenceEndDefaultValue(): RecurrenceEnd {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as RecurrenceEnd | __mf_PendingRef;
                         }if (typeof value === "number") {
+
+
+
+
+
                                     return value as RecurrenceEnd;
                                 }if (typeof value === "string") {
+
+
+
+
+
                                     return value as RecurrenceEnd;
                                 }
+
+
+
+
+
+
 
 
 
@@ -1228,6 +1285,18 @@ export function recurrenceEndDefaultValue(): RecurrenceEnd {
                                 field: "_root",
                                 message: "RecurrenceEnd.decodeWithContext: expected number, string, got " + typeof value
                             }]);
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1928,8 +1997,11 @@ export function recurrenceEndDefaultValue(): RecurrenceEnd {
 
         }
 
-        export function recurrenceEndIs(value: unknown): value is RecurrenceEnd {
-            return recurrenceEndHasShape(value);
+        export function recurrenceEndIs(value: unknown): value is RecurrenceEnd {return recurrenceEndHasShape(value);
+
+
+
+
         }
 
 /** Per-variant error types  */
@@ -2101,7 +2173,17 @@ if (variant === "string") { return "" as RecurrenceEnd; }
             return toExit(recurrenceEndDecode(obj));
         }
 
-export const RecurrenceEnd = {
+export const RecurrenceEnd: {
+  readonly defaultValue: typeof recurrenceEndDefaultValue;
+  readonly encode: typeof recurrenceEndEncode;
+  readonly encodeWithContext: typeof recurrenceEndEncodeWithContext;
+  readonly decode: typeof recurrenceEndDecode;
+  readonly decodeWithContext: typeof recurrenceEndDecodeWithContext;
+  readonly hasShape: typeof recurrenceEndHasShape;
+  readonly is: typeof recurrenceEndIs;
+  readonly createForm: typeof recurrenceEndCreateForm;
+  readonly fromFormData: typeof recurrenceEndFromFormData;
+} = {
   defaultValue: recurrenceEndDefaultValue,
   encode: recurrenceEndEncode,
   encodeWithContext: recurrenceEndEncodeWithContext,
@@ -2111,7 +2193,7 @@ export const RecurrenceEnd = {
   is: recurrenceEndIs,
   createForm: recurrenceEndCreateForm,
   fromFormData: recurrenceEndFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -2119,14 +2201,15 @@ export const RecurrenceEnd = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..171 -> expanded 58..122
-original 171..172 -> expanded 11502..11503
-generated 122..248 <- Default
-generated 248..2181 <- Encode
-generated 2181..5700 <- Decode
-generated 5700..11108 <- Gigaform
-generated 11108..11502 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..171 -> expanded 627..691
+original 171..172 -> expanded 12581..12582
+generated 0..569 <- imports
+generated 691..817 <- Default
+generated 817..2750 <- Encode
+generated 2750..6288 <- Decode
+generated 6288..11696 <- Gigaform
+generated 11696..12581 <- __convenience_const
 
 ## Metadata
 

@@ -123,11 +123,50 @@ interface UserProfile {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_email = obj["email"] as string;
-                                            if (__raw_email == null) { errors.push({ field: "email", message: "UserProfile.email is required" }); } else {
+                                const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                    errors.push({ field: "email", message: __raw_email == null ? "UserProfile.email is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_email == null) { errors.push({ field: "email", message: "UserProfile.email is required" }); } else {
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "email", message: "UserProfile.email must be a valid email" }); }
 }
-instance.email = __raw_email;
+
+
+
+
+                                                    instance.email = __raw_email;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -387,12 +426,51 @@ instance.email = __raw_email;
 
 
                             }{
-                                const __raw_username = obj["username"] as string;
-                                            if (__raw_username == null) { errors.push({ field: "username", message: "UserProfile.username is required" }); } else {
+                                const __raw_username = obj["username"] as string;if (!(typeof __raw_username === "string")) {
+                                                    errors.push({ field: "username", message: __raw_username == null ? "UserProfile.username is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_username == null) { errors.push({ field: "username", message: "UserProfile.username is required" }); } else {
 if (__raw_username.length < 2) { errors.push({ field: "username", message: "UserProfile.username must have at least 2 characters" }); }
 if (__raw_username.length > 50) { errors.push({ field: "username", message: "UserProfile.username must have at most 50 characters" }); }
 }
-instance.username = __raw_username;
+
+
+
+
+                                                    instance.username = __raw_username;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -652,11 +730,50 @@ instance.username = __raw_username;
 
 
                             }if ("age" in obj && obj["age"] !== undefined) {
-                                const __raw_age = obj["age"] as number;
-                                            if (__raw_age != null) {
+                                const __raw_age = obj["age"] as number;if (!(typeof __raw_age === "number")) {
+                                                    errors.push({ field: "age", message: "expected number" });
+                                                } else {
+                                                        if (__raw_age != null) {
 if (__raw_age <= 0) { errors.push({ field: "age", message: "UserProfile.age must be positive" }); }
 }
-instance.age = __raw_age;
+
+
+
+
+                                                    instance.age = __raw_age;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1484,6 +1601,82 @@ instance.age = __raw_age;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as UserProfile;
@@ -1608,13 +1801,19 @@ if (__val <= 0) { errors.push({ field: "age", message: "UserProfile.age must be 
                 return result.success;
             }
 
-const UserProfile = {
+const UserProfile: {
+  readonly decode: typeof userProfileDecode;
+  readonly decodeWithContext: typeof userProfileDecodeWithContext;
+  readonly validateFields: typeof userProfileValidateFields;
+  readonly hasShape: typeof userProfileHasShape;
+  readonly is: typeof userProfileIs;
+} = {
   decode: userProfileDecode,
   decodeWithContext: userProfileDecodeWithContext,
   validateFields: userProfileValidateFields,
   hasShape: userProfileHasShape,
   is: userProfileIs
-} as const;
+};
 
 ## DTS
 
@@ -1713,11 +1912,50 @@ interface UserProfile {
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_email = obj["email"] as string;
-                                            if (__raw_email == null) { errors.push({ field: "email", message: "UserProfile.email is required" }); } else {
+                                const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                    errors.push({ field: "email", message: __raw_email == null ? "UserProfile.email is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_email == null) { errors.push({ field: "email", message: "UserProfile.email is required" }); } else {
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "email", message: "UserProfile.email must be a valid email" }); }
 }
-instance.email = __raw_email;
+
+
+
+
+                                                    instance.email = __raw_email;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1977,12 +2215,51 @@ instance.email = __raw_email;
 
 
                             }{
-                                const __raw_username = obj["username"] as string;
-                                            if (__raw_username == null) { errors.push({ field: "username", message: "UserProfile.username is required" }); } else {
+                                const __raw_username = obj["username"] as string;if (!(typeof __raw_username === "string")) {
+                                                    errors.push({ field: "username", message: __raw_username == null ? "UserProfile.username is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_username == null) { errors.push({ field: "username", message: "UserProfile.username is required" }); } else {
 if (__raw_username.length < 2) { errors.push({ field: "username", message: "UserProfile.username must have at least 2 characters" }); }
 if (__raw_username.length > 50) { errors.push({ field: "username", message: "UserProfile.username must have at most 50 characters" }); }
 }
-instance.username = __raw_username;
+
+
+
+
+                                                    instance.username = __raw_username;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2242,11 +2519,50 @@ instance.username = __raw_username;
 
 
                             }if ("age" in obj && obj["age"] !== undefined) {
-                                const __raw_age = obj["age"] as number;
-                                            if (__raw_age != null) {
+                                const __raw_age = obj["age"] as number;if (!(typeof __raw_age === "number")) {
+                                                    errors.push({ field: "age", message: "expected number" });
+                                                } else {
+                                                        if (__raw_age != null) {
 if (__raw_age <= 0) { errors.push({ field: "age", message: "UserProfile.age must be positive" }); }
 }
-instance.age = __raw_age;
+
+
+
+
+                                                    instance.age = __raw_age;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3074,6 +3390,82 @@ instance.age = __raw_age;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as UserProfile;
@@ -3198,13 +3590,19 @@ if (__val <= 0) { errors.push({ field: "age", message: "UserProfile.age must be 
                 return result.success;
             }
 
-const UserProfile = {
+const UserProfile: {
+  readonly decode: typeof userProfileDecode;
+  readonly decodeWithContext: typeof userProfileDecodeWithContext;
+  readonly validateFields: typeof userProfileValidateFields;
+  readonly hasShape: typeof userProfileHasShape;
+  readonly is: typeof userProfileIs;
+} = {
   decode: userProfileDecode,
   decodeWithContext: userProfileDecodeWithContext,
   validateFields: userProfileValidateFields,
   hasShape: userProfileHasShape,
   is: userProfileIs
-} as const;
+};
 
 ## Diagnostics
 
@@ -3212,13 +3610,14 @@ const UserProfile = {
 
 ## Mapping
 
-original 22..51 -> expanded 0..29
-original 71..96 -> expanded 29..54
-original 138..166 -> expanded 54..82
-original 189..209 -> expanded 82..102
-original 209..210 -> expanded 9845..9846
-generated 102..9632 <- Decode
-generated 9632..9845 <- __convenience_const
+original 22..51 -> expanded 307..336
+original 71..96 -> expanded 336..361
+original 138..166 -> expanded 361..389
+original 189..209 -> expanded 389..409
+original 209..210 -> expanded 11686..11687
+generated 0..307 <- imports
+generated 409..11218 <- Decode
+generated 11218..11686 <- __convenience_const
 
 ## Metadata
 

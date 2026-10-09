@@ -74,8 +74,8 @@ class User {
 
 Built-in macros
 
-Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Encode, Decode) do not
-require an import statement.
+Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Encode, Decode, and the
+type-position `$Newtype`) do not require an import statement.
 
 ### Field Attributes
 
@@ -206,10 +206,10 @@ The derive system works on:
 Macroforge comes with built-in macros that work out of the box. You can also create custom macros in
 Rust and use them via the `import macro` statement.
 
-| Type     | Import Required | Examples                                                                |
-| -------- | --------------- | ----------------------------------------------------------------------- |
-| Built-in | No              | Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Encode, Decode |
-| Custom   | Yes             | Any macro from an external package                                      |
+| Type     | Import Required | Examples                                                                            |
+| -------- | --------------- | ----------------------------------------------------------------------------------- |
+| Built-in | No              | Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Encode, Decode, `$Newtype` |
+| Custom   | Yes             | Any macro from an external package                                                  |
 
 ## Next Steps
 

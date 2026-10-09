@@ -79,7 +79,21 @@ export function collectBuildtimeDemo(): BuildtimeDemoResult {
 
 ## Mapping
 
-original 0..2092 -> expanded 0..2092
+original 0..647 -> expanded 0..647
+original 686..688 -> expanded 665..667
+original 768..770 -> expanded 754..756
+original 854..856 -> expanded 863..865
+original 966..968 -> expanded 943..945
+original 1115..1288 -> expanded 996..1169
+original 1516..1712 -> expanded 1249..1445
+original 1760..2379 -> expanded 1473..2092
+generated 647..665 <- buildtime
+generated 667..754 <- buildtime
+generated 756..863 <- buildtime
+generated 865..943 <- buildtime
+generated 945..996 <- buildtime
+generated 1169..1249 <- buildtime
+generated 1445..1473 <- buildtime
 
 ## Metadata
 

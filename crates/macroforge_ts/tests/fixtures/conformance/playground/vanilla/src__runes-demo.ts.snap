@@ -83,7 +83,20 @@ export const runesDemo = {
 
 ## Mapping
 
-(none)
+original 0..597 -> expanded 0..597
+original 660..1073 -> expanded 597..1010
+original 1082..1097 -> expanded 1025..1040
+original 1112..1191 -> expanded 1061..1140
+original 1216..1235 -> expanded 1176..1195
+original 1292..1340 -> expanded 1263..1311
+original 1398..1400 -> expanded 1385..1387
+original 1456..1976 -> expanded 1459..1979
+generated 1010..1025 <- $state
+generated 1040..1061 <- $state
+generated 1140..1176 <- $derived
+generated 1195..1263 <- $derived
+generated 1311..1385 <- $effect
+generated 1387..1459 <- $effect
 
 ## Metadata
 

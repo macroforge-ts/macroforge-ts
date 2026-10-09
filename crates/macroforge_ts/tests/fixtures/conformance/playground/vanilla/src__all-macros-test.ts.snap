@@ -166,7 +166,46 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_id = obj["id"] as number;instance.id = __raw_id;
+                            const __raw_id = obj["id"] as number;if (!(typeof __raw_id === "number")) {
+                                                errors.push({ field: "id", message: __raw_id == null ? "AllMacrosTestClass.id is required" : "expected number" });
+                                            } else {
+
+
+
+                                                instance.id = __raw_id;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -428,7 +467,46 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
 
 
                         }{
-                            const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                            const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                errors.push({ field: "name", message: __raw_name == null ? "AllMacrosTestClass.name is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.name = __raw_name;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -690,7 +768,46 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
 
 
                         }{
-                            const __raw_email = obj["email"] as string;instance.email = __raw_email;
+                            const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                errors.push({ field: "email", message: __raw_email == null ? "AllMacrosTestClass.email is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.email = __raw_email;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -952,7 +1069,46 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
 
 
                         }{
-                            const __raw_secretToken = obj["secretToken"] as string;instance.secretToken = __raw_secretToken;
+                            const __raw_secretToken = obj["secretToken"] as string;if (!(typeof __raw_secretToken === "string")) {
+                                                errors.push({ field: "secretToken", message: __raw_secretToken == null ? "AllMacrosTestClass.secretToken is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.secretToken = __raw_secretToken;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1214,7 +1370,46 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
 
 
                         }{
-                            const __raw_isActive = obj["isActive"] as boolean;instance.isActive = __raw_isActive;
+                            const __raw_isActive = obj["isActive"] as boolean;if (!(typeof __raw_isActive === "boolean")) {
+                                                errors.push({ field: "isActive", message: __raw_isActive == null ? "AllMacrosTestClass.isActive is required" : "expected boolean" });
+                                            } else {
+
+
+
+                                                instance.isActive = __raw_isActive;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1476,7 +1671,46 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
 
 
                         }{
-                            const __raw_score = obj["score"] as number;instance.score = __raw_score;
+                            const __raw_score = obj["score"] as number;if (!(typeof __raw_score === "number")) {
+                                                errors.push({ field: "score", message: __raw_score == null ? "AllMacrosTestClass.score is required" : "expected number" });
+                                            } else {
+
+
+
+                                                instance.score = __raw_score;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2147,7 +2381,46 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_id = obj["id"] as number;instance.id = __raw_id;
+                            const __raw_id = obj["id"] as number;if (!(typeof __raw_id === "number")) {
+                                                errors.push({ field: "id", message: __raw_id == null ? "AllMacrosTestClass.id is required" : "expected number" });
+                                            } else {
+
+
+
+                                                instance.id = __raw_id;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2409,7 +2682,46 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
 
 
                         }{
-                            const __raw_name = obj["name"] as string;instance.name = __raw_name;
+                            const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                errors.push({ field: "name", message: __raw_name == null ? "AllMacrosTestClass.name is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.name = __raw_name;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2671,7 +2983,46 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
 
 
                         }{
-                            const __raw_email = obj["email"] as string;instance.email = __raw_email;
+                            const __raw_email = obj["email"] as string;if (!(typeof __raw_email === "string")) {
+                                                errors.push({ field: "email", message: __raw_email == null ? "AllMacrosTestClass.email is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.email = __raw_email;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2933,7 +3284,46 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
 
 
                         }{
-                            const __raw_secretToken = obj["secretToken"] as string;instance.secretToken = __raw_secretToken;
+                            const __raw_secretToken = obj["secretToken"] as string;if (!(typeof __raw_secretToken === "string")) {
+                                                errors.push({ field: "secretToken", message: __raw_secretToken == null ? "AllMacrosTestClass.secretToken is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.secretToken = __raw_secretToken;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3195,7 +3585,46 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
 
 
                         }{
-                            const __raw_isActive = obj["isActive"] as boolean;instance.isActive = __raw_isActive;
+                            const __raw_isActive = obj["isActive"] as boolean;if (!(typeof __raw_isActive === "boolean")) {
+                                                errors.push({ field: "isActive", message: __raw_isActive == null ? "AllMacrosTestClass.isActive is required" : "expected boolean" });
+                                            } else {
+
+
+
+                                                instance.isActive = __raw_isActive;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3457,7 +3886,46 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
 
 
                         }{
-                            const __raw_score = obj["score"] as number;instance.score = __raw_score;
+                            const __raw_score = obj["score"] as number;if (!(typeof __raw_score === "number")) {
+                                                errors.push({ field: "score", message: __raw_score == null ? "AllMacrosTestClass.score is required" : "expected number" });
+                                            } else {
+
+
+
+                                                instance.score = __raw_score;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3983,21 +4451,22 @@ export const testInstance = new AllMacrosTestClass({
 
 ## Mapping
 
-original 0..449 -> expanded 0..449
-original 449..450 -> expanded 9216..9217
-original 450..695 -> expanded 14221..14466
-generated 449..582 <- Debug
-generated 582..721 <- Clone
-generated 721..869 <- PartialEq
-generated 869..1002 <- Hash
-generated 1002..1760 <- Encode
-generated 1760..9216 <- Decode
-generated 9217..9670 <- Debug
-generated 9670..10092 <- Clone
-generated 10092..10428 <- PartialEq
-generated 10428..11292 <- Hash
-generated 11292..12993 <- Encode
-generated 12993..14221 <- Decode
+original 0..449 -> expanded 385..834
+original 449..450 -> expanded 11999..12000
+original 450..695 -> expanded 17004..17249
+generated 0..385 <- imports
+generated 834..967 <- Debug
+generated 967..1106 <- Clone
+generated 1106..1254 <- PartialEq
+generated 1254..1387 <- Hash
+generated 1387..2145 <- Encode
+generated 2145..11999 <- Decode
+generated 12000..12453 <- Debug
+generated 12453..12875 <- Clone
+generated 12875..13211 <- PartialEq
+generated 13211..14075 <- Hash
+generated 14075..15776 <- Encode
+generated 15776..17004 <- Decode
 
 ## Metadata
 

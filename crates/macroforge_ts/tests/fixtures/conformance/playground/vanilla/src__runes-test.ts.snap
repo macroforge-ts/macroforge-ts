@@ -149,7 +149,41 @@ export function runRunesTests(): RunesTestResults {
 
 ## Mapping
 
-original 0..4046 -> expanded 0..4046
+original 0..1172 -> expanded 0..1172
+original 1181..1404 -> expanded 1187..1410
+original 1419..1653 -> expanded 1431..1665
+original 1662..1688 -> expanded 1680..1706
+original 1713..1934 -> expanded 1742..1963
+original 1943..1963 -> expanded 1978..1998
+original 1984..2004 -> expanded 2030..2050
+original 2025..2334 -> expanded 2082..2391
+original 2343..2353 -> expanded 2406..2416
+original 2383..2769 -> expanded 2462..2848
+original 2778..2788 -> expanded 2863..2873
+original 2818..3042 -> expanded 2919..3143
+original 3053..3063 -> expanded 3160..3170
+original 3123..3366 -> expanded 3235..3478
+original 3375..3395 -> expanded 3493..3513
+original 3404..3426 -> expanded 3528..3550
+original 3453..3463 -> expanded 3588..3598
+original 3538..3906 -> expanded 3678..4046
+generated 1172..1187 <- $state
+generated 1410..1431 <- $state
+generated 1665..1680 <- $state
+generated 1706..1742 <- $derived
+generated 1963..1978 <- $state
+generated 1998..2030 <- $derived
+generated 2050..2082 <- $derived
+generated 2391..2406 <- $state
+generated 2416..2462 <- $effect
+generated 2848..2863 <- $state
+generated 2873..2919 <- $effect
+generated 3143..3160 <- $state
+generated 3170..3235 <- $effect
+generated 3478..3493 <- $state
+generated 3513..3528 <- $state
+generated 3550..3588 <- $derived
+generated 3598..3678 <- $effect
 
 ## Metadata
 

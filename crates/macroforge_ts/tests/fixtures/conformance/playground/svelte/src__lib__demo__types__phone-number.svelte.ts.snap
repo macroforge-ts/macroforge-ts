@@ -260,7 +260,46 @@ canCall: false,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_main = obj["main"] as boolean;instance.main = __raw_main;
+                                const __raw_main = obj["main"] as boolean;if (!(typeof __raw_main === "boolean")) {
+                                                    errors.push({ field: "main", message: __raw_main == null ? "PhoneNumber.main is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.main = __raw_main;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -520,11 +559,50 @@ canCall: false,
 
 
                             }{
-                                const __raw_phoneType = obj["phoneType"] as string;
-                                            if (__raw_phoneType == null) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType is required" }); } else {
+                                const __raw_phoneType = obj["phoneType"] as string;if (!(typeof __raw_phoneType === "string")) {
+                                                    errors.push({ field: "phoneType", message: __raw_phoneType == null ? "PhoneNumber.phoneType is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_phoneType == null) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType is required" }); } else {
 if (__raw_phoneType.length === 0) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType must not be empty" }); }
 }
-instance.phoneType = __raw_phoneType;
+
+
+
+
+                                                    instance.phoneType = __raw_phoneType;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -784,11 +862,50 @@ instance.phoneType = __raw_phoneType;
 
 
                             }{
-                                const __raw_number = obj["number"] as string;
-                                            if (__raw_number == null) { errors.push({ field: "number", message: "PhoneNumber.number is required" }); } else {
+                                const __raw_number = obj["number"] as string;if (!(typeof __raw_number === "string")) {
+                                                    errors.push({ field: "number", message: __raw_number == null ? "PhoneNumber.number is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_number == null) { errors.push({ field: "number", message: "PhoneNumber.number is required" }); } else {
 if (__raw_number.length === 0) { errors.push({ field: "number", message: "PhoneNumber.number must not be empty" }); }
 }
-instance.number = __raw_number;
+
+
+
+
+                                                    instance.number = __raw_number;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1048,7 +1165,46 @@ instance.number = __raw_number;
 
 
                             }{
-                                const __raw_canText = obj["canText"] as boolean;instance.canText = __raw_canText;
+                                const __raw_canText = obj["canText"] as boolean;if (!(typeof __raw_canText === "boolean")) {
+                                                    errors.push({ field: "canText", message: __raw_canText == null ? "PhoneNumber.canText is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.canText = __raw_canText;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1308,7 +1464,46 @@ instance.number = __raw_number;
 
 
                             }{
-                                const __raw_canCall = obj["canCall"] as boolean;instance.canCall = __raw_canCall;
+                                const __raw_canCall = obj["canCall"] as boolean;if (!(typeof __raw_canCall === "boolean")) {
+                                                    errors.push({ field: "canCall", message: __raw_canCall == null ? "PhoneNumber.canCall is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.canCall = __raw_canCall;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1568,6 +1763,82 @@ instance.number = __raw_number;
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2493,7 +2764,18 @@ if (__val.length === 0) { errors.push({ field: "number", message: "PhoneNumber.n
             return toExit(phoneNumberDecode(obj));
         }
 
-export const PhoneNumber = {
+export const PhoneNumber: {
+  readonly defaultValue: typeof phoneNumberDefaultValue;
+  readonly encode: typeof phoneNumberEncode;
+  readonly encodeWithContext: typeof phoneNumberEncodeWithContext;
+  readonly decode: typeof phoneNumberDecode;
+  readonly decodeWithContext: typeof phoneNumberDecodeWithContext;
+  readonly validateFields: typeof phoneNumberValidateFields;
+  readonly hasShape: typeof phoneNumberHasShape;
+  readonly is: typeof phoneNumberIs;
+  readonly createForm: typeof phoneNumberCreateForm;
+  readonly fromFormData: typeof phoneNumberFromFormData;
+} = {
   defaultValue: phoneNumberDefaultValue,
   encode: phoneNumberEncode,
   encodeWithContext: phoneNumberEncodeWithContext,
@@ -2504,7 +2786,7 @@ export const PhoneNumber = {
   is: phoneNumberIs,
   createForm: phoneNumberCreateForm,
   fromFormData: phoneNumberFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2747,7 +3029,46 @@ canCall: false,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_main = obj["main"] as boolean;instance.main = __raw_main;
+                                const __raw_main = obj["main"] as boolean;if (!(typeof __raw_main === "boolean")) {
+                                                    errors.push({ field: "main", message: __raw_main == null ? "PhoneNumber.main is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.main = __raw_main;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3007,11 +3328,50 @@ canCall: false,
 
 
                             }{
-                                const __raw_phoneType = obj["phoneType"] as string;
-                                            if (__raw_phoneType == null) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType is required" }); } else {
+                                const __raw_phoneType = obj["phoneType"] as string;if (!(typeof __raw_phoneType === "string")) {
+                                                    errors.push({ field: "phoneType", message: __raw_phoneType == null ? "PhoneNumber.phoneType is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_phoneType == null) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType is required" }); } else {
 if (__raw_phoneType.length === 0) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType must not be empty" }); }
 }
-instance.phoneType = __raw_phoneType;
+
+
+
+
+                                                    instance.phoneType = __raw_phoneType;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3271,11 +3631,50 @@ instance.phoneType = __raw_phoneType;
 
 
                             }{
-                                const __raw_number = obj["number"] as string;
-                                            if (__raw_number == null) { errors.push({ field: "number", message: "PhoneNumber.number is required" }); } else {
+                                const __raw_number = obj["number"] as string;if (!(typeof __raw_number === "string")) {
+                                                    errors.push({ field: "number", message: __raw_number == null ? "PhoneNumber.number is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_number == null) { errors.push({ field: "number", message: "PhoneNumber.number is required" }); } else {
 if (__raw_number.length === 0) { errors.push({ field: "number", message: "PhoneNumber.number must not be empty" }); }
 }
-instance.number = __raw_number;
+
+
+
+
+                                                    instance.number = __raw_number;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3535,7 +3934,46 @@ instance.number = __raw_number;
 
 
                             }{
-                                const __raw_canText = obj["canText"] as boolean;instance.canText = __raw_canText;
+                                const __raw_canText = obj["canText"] as boolean;if (!(typeof __raw_canText === "boolean")) {
+                                                    errors.push({ field: "canText", message: __raw_canText == null ? "PhoneNumber.canText is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.canText = __raw_canText;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3795,7 +4233,46 @@ instance.number = __raw_number;
 
 
                             }{
-                                const __raw_canCall = obj["canCall"] as boolean;instance.canCall = __raw_canCall;
+                                const __raw_canCall = obj["canCall"] as boolean;if (!(typeof __raw_canCall === "boolean")) {
+                                                    errors.push({ field: "canCall", message: __raw_canCall == null ? "PhoneNumber.canCall is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.canCall = __raw_canCall;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4055,6 +4532,82 @@ instance.number = __raw_number;
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4980,7 +5533,18 @@ if (__val.length === 0) { errors.push({ field: "number", message: "PhoneNumber.n
             return toExit(phoneNumberDecode(obj));
         }
 
-export const PhoneNumber = {
+export const PhoneNumber: {
+  readonly defaultValue: typeof phoneNumberDefaultValue;
+  readonly encode: typeof phoneNumberEncode;
+  readonly encodeWithContext: typeof phoneNumberEncodeWithContext;
+  readonly decode: typeof phoneNumberDecode;
+  readonly decodeWithContext: typeof phoneNumberDecodeWithContext;
+  readonly validateFields: typeof phoneNumberValidateFields;
+  readonly hasShape: typeof phoneNumberHasShape;
+  readonly is: typeof phoneNumberIs;
+  readonly createForm: typeof phoneNumberCreateForm;
+  readonly fromFormData: typeof phoneNumberFromFormData;
+} = {
   defaultValue: phoneNumberDefaultValue,
   encode: phoneNumberEncode,
   encodeWithContext: phoneNumberEncodeWithContext,
@@ -4991,7 +5555,7 @@ export const PhoneNumber = {
   is: phoneNumberIs,
   createForm: phoneNumberCreateForm,
   fromFormData: phoneNumberFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -4999,21 +5563,22 @@ export const PhoneNumber = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..143 -> expanded 58..94
-original 186..210 -> expanded 94..118
-original 280..285 -> expanded 118..123
-original 326..354 -> expanded 123..151
-original 397..402 -> expanded 151..156
-original 443..468 -> expanded 156..181
-original 515..542 -> expanded 181..208
-original 589..613 -> expanded 208..232
-original 613..614 -> expanded 21285..21286
-generated 232..420 <- Default
-generated 420..2056 <- Encode
-generated 2056..11675 <- Decode
-generated 11675..20866 <- Gigaform
-generated 20866..21285 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..143 -> expanded 627..663
+original 186..210 -> expanded 663..687
+original 280..285 -> expanded 687..692
+original 326..354 -> expanded 692..720
+original 397..402 -> expanded 720..725
+original 443..468 -> expanded 725..750
+original 515..542 -> expanded 750..777
+original 589..613 -> expanded 777..801
+original 613..614 -> expanded 24551..24552
+generated 0..569 <- imports
+generated 801..989 <- Default
+generated 989..2625 <- Encode
+generated 2625..14407 <- Decode
+generated 14407..23598 <- Gigaform
+generated 23598..24551 <- __convenience_const
 
 ## Metadata
 

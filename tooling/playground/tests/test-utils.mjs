@@ -197,3 +197,20 @@ export function withDevServer(rootDir, optionsOrRunner, maybeRunner) {
         return { server, run: () => runner(server, baseUrl) };
     });
 }
+
+/**
+ * Writes `files` (relative path to contents) under `root`, runs `fn`, and
+ * always removes them again, so a failed run leaves the project as it was.
+ */
+export function withProjectFiles(root, files, fn) {
+    try {
+        for (const [relative, contents] of Object.entries(files)) {
+            fs.writeFileSync(path.join(root, relative), contents);
+        }
+        return fn();
+    } finally {
+        for (const relative of Object.keys(files)) {
+            fs.rmSync(path.join(root, relative), { force: true });
+        }
+    }
+}

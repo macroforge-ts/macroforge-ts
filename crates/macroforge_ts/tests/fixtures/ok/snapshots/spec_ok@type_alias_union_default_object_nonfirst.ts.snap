@@ -29,9 +29,11 @@ export function propValueDefaultValue(): PropValue {
 });
                         }
 
-export const PropValue = {
+export const PropValue: {
+  readonly defaultValue: typeof propValueDefaultValue;
+} = {
   defaultValue: propValueDefaultValue
-} as const;
+};
 
 ## DTS
 
@@ -47,9 +49,11 @@ export function propValueDefaultValue(): PropValue {
 });
                         }
 
-export const PropValue = {
+export const PropValue: {
+  readonly defaultValue: typeof propValueDefaultValue;
+} = {
   defaultValue: propValueDefaultValue
-} as const;
+};
 
 ## Diagnostics
 
@@ -58,9 +62,9 @@ export const PropValue = {
 ## Mapping
 
 original 23..143 -> expanded 0..120
-original 143..144 -> expanded 347..348
+original 143..144 -> expanded 398..399
 generated 120..269 <- Default
-generated 269..347 <- __convenience_const
+generated 269..398 <- __convenience_const
 
 ## Metadata
 

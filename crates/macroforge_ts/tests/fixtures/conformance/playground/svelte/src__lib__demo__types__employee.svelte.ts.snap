@@ -334,7 +334,46 @@ settings: settingsDefaultValue(),
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Employee.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -594,8 +633,43 @@ settings: settingsDefaultValue(),
 
 
                             }{
-                                const __raw_imageUrl = obj["imageUrl"] as string | null;
-                                                instance.imageUrl = __raw_imageUrl;
+                                const __raw_imageUrl = obj["imageUrl"] as string | null;if (!(typeof __raw_imageUrl === "string" || __raw_imageUrl === null)) {
+                                                        errors.push({ field: "imageUrl", message: "expected string | null" });
+                                                    } else {
+                                                        instance.imageUrl = __raw_imageUrl;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -855,11 +929,50 @@ settings: settingsDefaultValue(),
 
 
                             }{
-                                const __raw_name = obj["name"] as string;
-                                            if (__raw_name == null) { errors.push({ field: "name", message: "Employee.name is required" }); } else {
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Employee.name is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_name == null) { errors.push({ field: "name", message: "Employee.name is required" }); } else {
 if (__raw_name.length === 0) { errors.push({ field: "name", message: "Employee.name must not be empty" }); }
 }
-instance.name = __raw_name;
+
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1467,12 +1580,83 @@ instance.name = __raw_name;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_role = obj["role"] as string;
-                                            if (__raw_role == null) { errors.push({ field: "role", message: "Employee.role is required" }); } else {
+                                const __raw_role = obj["role"] as string;if (!(typeof __raw_role === "string")) {
+                                                    errors.push({ field: "role", message: __raw_role == null ? "Employee.role is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_role == null) { errors.push({ field: "role", message: "Employee.role is required" }); } else {
 if (__raw_role.length === 0) { errors.push({ field: "role", message: "Employee.role must not be empty" }); }
 }
-instance.role = __raw_role;
+
+
+
+
+                                                    instance.role = __raw_role;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2008,6 +2192,38 @@ instance.role = __raw_role;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_email = obj["email"] as Email;ctx.pushScope("email");
                                             try {
@@ -2285,12 +2501,83 @@ instance.role = __raw_role;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_address = obj["address"] as string;
-                                            if (__raw_address == null) { errors.push({ field: "address", message: "Employee.address is required" }); } else {
+                                const __raw_address = obj["address"] as string;if (!(typeof __raw_address === "string")) {
+                                                    errors.push({ field: "address", message: __raw_address == null ? "Employee.address is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_address == null) { errors.push({ field: "address", message: "Employee.address is required" }); } else {
 if (__raw_address.length === 0) { errors.push({ field: "address", message: "Employee.address must not be empty" }); }
 }
-instance.address = __raw_address;
+
+
+
+
+                                                    instance.address = __raw_address;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2550,11 +2837,50 @@ instance.address = __raw_address;
 
 
                             }{
-                                const __raw_username = obj["username"] as string;
-                                            if (__raw_username == null) { errors.push({ field: "username", message: "Employee.username is required" }); } else {
+                                const __raw_username = obj["username"] as string;if (!(typeof __raw_username === "string")) {
+                                                    errors.push({ field: "username", message: __raw_username == null ? "Employee.username is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_username == null) { errors.push({ field: "username", message: "Employee.username is required" }); } else {
 if (__raw_username.length === 0) { errors.push({ field: "username", message: "Employee.username must not be empty" }); }
 }
-instance.username = __raw_username;
+
+
+
+
+                                                    instance.username = __raw_username;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3097,234 +3423,6 @@ instance.username = __raw_username;
 
 
 
-                            }{
-                                const __raw_ratePerHour = obj["ratePerHour"] as number;instance.ratePerHour = __raw_ratePerHour;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -3358,7 +3456,46 @@ instance.username = __raw_username;
 
 
                             }{
-                                const __raw_active = obj["active"] as boolean;instance.active = __raw_active;
+                                const __raw_ratePerHour = obj["ratePerHour"] as number;if (!(typeof __raw_ratePerHour === "number")) {
+                                                    errors.push({ field: "ratePerHour", message: __raw_ratePerHour == null ? "Employee.ratePerHour is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.ratePerHour = __raw_ratePerHour;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3618,7 +3755,46 @@ instance.username = __raw_username;
 
 
                             }{
-                                const __raw_isTechnician = obj["isTechnician"] as boolean;instance.isTechnician = __raw_isTechnician;
+                                const __raw_active = obj["active"] as boolean;if (!(typeof __raw_active === "boolean")) {
+                                                    errors.push({ field: "active", message: __raw_active == null ? "Employee.active is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.active = __raw_active;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3878,7 +4054,46 @@ instance.username = __raw_username;
 
 
                             }{
-                                const __raw_isSalesRep = obj["isSalesRep"] as boolean;instance.isSalesRep = __raw_isSalesRep;
+                                const __raw_isTechnician = obj["isTechnician"] as boolean;if (!(typeof __raw_isTechnician === "boolean")) {
+                                                    errors.push({ field: "isTechnician", message: __raw_isTechnician == null ? "Employee.isTechnician is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.isTechnician = __raw_isTechnician;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4138,8 +4353,46 @@ instance.username = __raw_username;
 
 
                             }{
-                                const __raw_description = obj["description"] as string | null;
-                                                instance.description = __raw_description;
+                                const __raw_isSalesRep = obj["isSalesRep"] as boolean;if (!(typeof __raw_isSalesRep === "boolean")) {
+                                                    errors.push({ field: "isSalesRep", message: __raw_isSalesRep == null ? "Employee.isSalesRep is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.isSalesRep = __raw_isSalesRep;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4399,8 +4652,339 @@ instance.username = __raw_username;
 
 
                             }{
-                                const __raw_linkedinUrl = obj["linkedinUrl"] as string | null;
-                                                instance.linkedinUrl = __raw_linkedinUrl;
+                                const __raw_description = obj["description"] as string | null;if (!(typeof __raw_description === "string" || __raw_description === null)) {
+                                                        errors.push({ field: "description", message: "expected string | null" });
+                                                    } else {
+                                                        instance.description = __raw_description;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_linkedinUrl = obj["linkedinUrl"] as string | null;if (!(typeof __raw_linkedinUrl === "string" || __raw_linkedinUrl === null)) {
+                                                        errors.push({ field: "linkedinUrl", message: "expected string | null" });
+                                                    } else {
+                                                        instance.linkedinUrl = __raw_linkedinUrl;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4973,6 +5557,38 @@ instance.username = __raw_username;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_settings = obj["settings"] as Settings;ctx.pushScope("settings");
                                             try {
@@ -5250,7 +5866,115 @@ instance.username = __raw_username;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6710,7 +7434,18 @@ if (__val.length === 0) { errors.push({ field: "username", message: "Employee.us
             return toExit(employeeDecode(obj));
         }
 
-export const Employee = {
+export const Employee: {
+  readonly defaultValue: typeof employeeDefaultValue;
+  readonly encode: typeof employeeEncode;
+  readonly encodeWithContext: typeof employeeEncodeWithContext;
+  readonly decode: typeof employeeDecode;
+  readonly decodeWithContext: typeof employeeDecodeWithContext;
+  readonly validateFields: typeof employeeValidateFields;
+  readonly hasShape: typeof employeeHasShape;
+  readonly is: typeof employeeIs;
+  readonly createForm: typeof employeeCreateForm;
+  readonly fromFormData: typeof employeeFromFormData;
+} = {
   defaultValue: employeeDefaultValue,
   encode: employeeEncode,
   encodeWithContext: employeeEncodeWithContext,
@@ -6721,7 +7456,7 @@ export const Employee = {
   is: employeeIs,
   createForm: employeeCreateForm,
   fromFormData: employeeFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -7025,7 +7760,46 @@ settings: settingsDefaultValue(),
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Employee.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7285,8 +8059,43 @@ settings: settingsDefaultValue(),
 
 
                             }{
-                                const __raw_imageUrl = obj["imageUrl"] as string | null;
-                                                instance.imageUrl = __raw_imageUrl;
+                                const __raw_imageUrl = obj["imageUrl"] as string | null;if (!(typeof __raw_imageUrl === "string" || __raw_imageUrl === null)) {
+                                                        errors.push({ field: "imageUrl", message: "expected string | null" });
+                                                    } else {
+                                                        instance.imageUrl = __raw_imageUrl;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7546,11 +8355,50 @@ settings: settingsDefaultValue(),
 
 
                             }{
-                                const __raw_name = obj["name"] as string;
-                                            if (__raw_name == null) { errors.push({ field: "name", message: "Employee.name is required" }); } else {
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Employee.name is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_name == null) { errors.push({ field: "name", message: "Employee.name is required" }); } else {
 if (__raw_name.length === 0) { errors.push({ field: "name", message: "Employee.name must not be empty" }); }
 }
-instance.name = __raw_name;
+
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8158,12 +9006,83 @@ instance.name = __raw_name;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_role = obj["role"] as string;
-                                            if (__raw_role == null) { errors.push({ field: "role", message: "Employee.role is required" }); } else {
+                                const __raw_role = obj["role"] as string;if (!(typeof __raw_role === "string")) {
+                                                    errors.push({ field: "role", message: __raw_role == null ? "Employee.role is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_role == null) { errors.push({ field: "role", message: "Employee.role is required" }); } else {
 if (__raw_role.length === 0) { errors.push({ field: "role", message: "Employee.role must not be empty" }); }
 }
-instance.role = __raw_role;
+
+
+
+
+                                                    instance.role = __raw_role;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8699,6 +9618,38 @@ instance.role = __raw_role;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_email = obj["email"] as Email;ctx.pushScope("email");
                                             try {
@@ -8976,12 +9927,83 @@ instance.role = __raw_role;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
-                                const __raw_address = obj["address"] as string;
-                                            if (__raw_address == null) { errors.push({ field: "address", message: "Employee.address is required" }); } else {
+                                const __raw_address = obj["address"] as string;if (!(typeof __raw_address === "string")) {
+                                                    errors.push({ field: "address", message: __raw_address == null ? "Employee.address is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_address == null) { errors.push({ field: "address", message: "Employee.address is required" }); } else {
 if (__raw_address.length === 0) { errors.push({ field: "address", message: "Employee.address must not be empty" }); }
 }
-instance.address = __raw_address;
+
+
+
+
+                                                    instance.address = __raw_address;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9241,11 +10263,50 @@ instance.address = __raw_address;
 
 
                             }{
-                                const __raw_username = obj["username"] as string;
-                                            if (__raw_username == null) { errors.push({ field: "username", message: "Employee.username is required" }); } else {
+                                const __raw_username = obj["username"] as string;if (!(typeof __raw_username === "string")) {
+                                                    errors.push({ field: "username", message: __raw_username == null ? "Employee.username is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_username == null) { errors.push({ field: "username", message: "Employee.username is required" }); } else {
 if (__raw_username.length === 0) { errors.push({ field: "username", message: "Employee.username must not be empty" }); }
 }
-instance.username = __raw_username;
+
+
+
+
+                                                    instance.username = __raw_username;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9788,234 +10849,6 @@ instance.username = __raw_username;
 
 
 
-                            }{
-                                const __raw_ratePerHour = obj["ratePerHour"] as number;instance.ratePerHour = __raw_ratePerHour;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -10049,7 +10882,46 @@ instance.username = __raw_username;
 
 
                             }{
-                                const __raw_active = obj["active"] as boolean;instance.active = __raw_active;
+                                const __raw_ratePerHour = obj["ratePerHour"] as number;if (!(typeof __raw_ratePerHour === "number")) {
+                                                    errors.push({ field: "ratePerHour", message: __raw_ratePerHour == null ? "Employee.ratePerHour is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.ratePerHour = __raw_ratePerHour;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -10309,7 +11181,46 @@ instance.username = __raw_username;
 
 
                             }{
-                                const __raw_isTechnician = obj["isTechnician"] as boolean;instance.isTechnician = __raw_isTechnician;
+                                const __raw_active = obj["active"] as boolean;if (!(typeof __raw_active === "boolean")) {
+                                                    errors.push({ field: "active", message: __raw_active == null ? "Employee.active is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.active = __raw_active;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -10569,7 +11480,46 @@ instance.username = __raw_username;
 
 
                             }{
-                                const __raw_isSalesRep = obj["isSalesRep"] as boolean;instance.isSalesRep = __raw_isSalesRep;
+                                const __raw_isTechnician = obj["isTechnician"] as boolean;if (!(typeof __raw_isTechnician === "boolean")) {
+                                                    errors.push({ field: "isTechnician", message: __raw_isTechnician == null ? "Employee.isTechnician is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.isTechnician = __raw_isTechnician;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -10829,8 +11779,46 @@ instance.username = __raw_username;
 
 
                             }{
-                                const __raw_description = obj["description"] as string | null;
-                                                instance.description = __raw_description;
+                                const __raw_isSalesRep = obj["isSalesRep"] as boolean;if (!(typeof __raw_isSalesRep === "boolean")) {
+                                                    errors.push({ field: "isSalesRep", message: __raw_isSalesRep == null ? "Employee.isSalesRep is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.isSalesRep = __raw_isSalesRep;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -11090,8 +12078,339 @@ instance.username = __raw_username;
 
 
                             }{
-                                const __raw_linkedinUrl = obj["linkedinUrl"] as string | null;
-                                                instance.linkedinUrl = __raw_linkedinUrl;
+                                const __raw_description = obj["description"] as string | null;if (!(typeof __raw_description === "string" || __raw_description === null)) {
+                                                        errors.push({ field: "description", message: "expected string | null" });
+                                                    } else {
+                                                        instance.description = __raw_description;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_linkedinUrl = obj["linkedinUrl"] as string | null;if (!(typeof __raw_linkedinUrl === "string" || __raw_linkedinUrl === null)) {
+                                                        errors.push({ field: "linkedinUrl", message: "expected string | null" });
+                                                    } else {
+                                                        instance.linkedinUrl = __raw_linkedinUrl;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -11664,6 +12983,38 @@ instance.username = __raw_username;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_settings = obj["settings"] as Settings;ctx.pushScope("settings");
                                             try {
@@ -11941,7 +13292,115 @@ instance.username = __raw_username;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -13401,7 +14860,18 @@ if (__val.length === 0) { errors.push({ field: "username", message: "Employee.us
             return toExit(employeeDecode(obj));
         }
 
-export const Employee = {
+export const Employee: {
+  readonly defaultValue: typeof employeeDefaultValue;
+  readonly encode: typeof employeeEncode;
+  readonly encodeWithContext: typeof employeeEncodeWithContext;
+  readonly decode: typeof employeeDecode;
+  readonly decodeWithContext: typeof employeeDecodeWithContext;
+  readonly validateFields: typeof employeeValidateFields;
+  readonly hasShape: typeof employeeHasShape;
+  readonly is: typeof employeeIs;
+  readonly createForm: typeof employeeCreateForm;
+  readonly fromFormData: typeof employeeFromFormData;
+} = {
   defaultValue: employeeDefaultValue,
   encode: employeeEncode,
   encodeWithContext: employeeEncodeWithContext,
@@ -13412,7 +14882,7 @@ export const Employee = {
   is: employeeIs,
   createForm: employeeCreateForm,
   fromFormData: employeeFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -13420,20 +14890,21 @@ export const Employee = {
 
 ## Mapping
 
-original 0..310 -> expanded 0..310
-original 359..437 -> expanded 310..388
-original 478..533 -> expanded 388..443
-original 574..597 -> expanded 443..466
-original 626..670 -> expanded 466..510
-original 711..737 -> expanded 510..536
-original 778..805 -> expanded 536..563
-original 824..1070 -> expanded 563..809
-original 1070..1071 -> expanded 61465..61466
-generated 809..1221 <- Default
-generated 1221..3699 <- Encode
-generated 3699..30805 <- Decode
-generated 30805..61079 <- Gigaform
-generated 61079..61465 <- __convenience_const
+original 0..310 -> expanded 1362..1672
+original 359..437 -> expanded 1672..1750
+original 478..533 -> expanded 1750..1805
+original 574..597 -> expanded 1805..1828
+original 626..670 -> expanded 1828..1872
+original 711..737 -> expanded 1872..1898
+original 778..805 -> expanded 1898..1925
+original 824..1070 -> expanded 1925..2171
+original 1070..1071 -> expanded 68424..68425
+generated 0..1362 <- imports
+generated 2171..2583 <- Default
+generated 2583..5061 <- Encode
+generated 5061..37260 <- Decode
+generated 37260..67534 <- Gigaform
+generated 67534..68424 <- __convenience_const
 
 ## Metadata
 

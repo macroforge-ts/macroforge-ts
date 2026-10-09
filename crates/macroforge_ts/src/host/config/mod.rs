@@ -13,8 +13,10 @@
 //! 4. `macroforge.config.mjs`
 //! 5. `macroforge.config.cjs`
 //!
-//! The search starts from the current directory and walks up to the nearest
-//! `package.json` (project root).
+//! The search starts from the file being expanded (or the current directory)
+//! and stops at the nearest package manifest: `package.json`, `deno.json` or
+//! `deno.jsonc`. [`find_project_root`] applies the same rule to locate the
+//! directory that owns a project's `.macroforge/` state.
 //!
 //! ## Example Configuration
 //!
@@ -149,6 +151,29 @@ pub(crate) const CONFIG_FILES: &[&str] = &[
     "macroforge.config.mjs",
     "macroforge.config.cjs",
 ];
+
+/// Package manifests that mark a directory as a project root.
+const PROJECT_MANIFESTS: &[&str] = &["package.json", "deno.json", "deno.jsonc"];
+
+/// Whether `dir` holds a package manifest, which bounds the config search.
+fn has_project_manifest(dir: &std::path::Path) -> bool {
+    PROJECT_MANIFESTS.iter().any(|name| dir.join(name).exists())
+}
+
+/// The project that owns `start`: the nearest directory at or above it that
+/// holds a macroforge config or a package manifest. A file starts the search
+/// from its own directory. `None` when nothing above `start` is a project.
+pub fn find_project_root(start: &std::path::Path) -> Option<std::path::PathBuf> {
+    let start_dir = if start.is_file() {
+        start.parent()?
+    } else {
+        start
+    };
+    start_dir.ancestors().find_map(|dir| {
+        (has_project_manifest(dir) || CONFIG_FILES.iter().any(|name| dir.join(name).exists()))
+            .then(|| dir.to_path_buf())
+    })
+}
 
 /// The expansion settings a [`MacroExpander`](crate::host::MacroExpander) reads,
 /// taken from a [`MacroforgeConfig`].

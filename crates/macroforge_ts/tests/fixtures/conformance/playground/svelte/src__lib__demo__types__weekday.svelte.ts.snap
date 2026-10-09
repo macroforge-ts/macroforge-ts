@@ -135,8 +135,8 @@ export function weekdayDefaultValue(): Weekday {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function weekdayDecodeWithContext(value: any, ctx: __mf_DecodeContext): Weekday | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function weekdayDecodeWithContext(value: any, _ctx: __mf_DecodeContext): Weekday | __mf_PendingRef {
                 switch (value) {
                     case 'Monday':
                     case 'Tuesday':
@@ -491,7 +491,17 @@ if (variant === "Sunday") { return "Sunday" as Weekday; }
             return toExit(weekdayDecode(obj));
         }
 
-export const Weekday = {
+export const Weekday: {
+  readonly defaultValue: typeof weekdayDefaultValue;
+  readonly encode: typeof weekdayEncode;
+  readonly encodeWithContext: typeof weekdayEncodeWithContext;
+  readonly decode: typeof weekdayDecode;
+  readonly decodeWithContext: typeof weekdayDecodeWithContext;
+  readonly hasShape: typeof weekdayHasShape;
+  readonly is: typeof weekdayIs;
+  readonly createForm: typeof weekdayCreateForm;
+  readonly fromFormData: typeof weekdayFromFormData;
+} = {
   defaultValue: weekdayDefaultValue,
   encode: weekdayEncode,
   encodeWithContext: weekdayEncodeWithContext,
@@ -501,7 +511,7 @@ export const Weekday = {
   is: weekdayIs,
   createForm: weekdayCreateForm,
   fromFormData: weekdayFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -619,8 +629,8 @@ export function weekdayDefaultValue(): Weekday {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function weekdayDecodeWithContext(value: any, ctx: __mf_DecodeContext): Weekday | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function weekdayDecodeWithContext(value: any, _ctx: __mf_DecodeContext): Weekday | __mf_PendingRef {
                 switch (value) {
                     case 'Monday':
                     case 'Tuesday':
@@ -975,7 +985,17 @@ if (variant === "Sunday") { return "Sunday" as Weekday; }
             return toExit(weekdayDecode(obj));
         }
 
-export const Weekday = {
+export const Weekday: {
+  readonly defaultValue: typeof weekdayDefaultValue;
+  readonly encode: typeof weekdayEncode;
+  readonly encodeWithContext: typeof weekdayEncodeWithContext;
+  readonly decode: typeof weekdayDecode;
+  readonly decodeWithContext: typeof weekdayDecodeWithContext;
+  readonly hasShape: typeof weekdayHasShape;
+  readonly is: typeof weekdayIs;
+  readonly createForm: typeof weekdayCreateForm;
+  readonly fromFormData: typeof weekdayFromFormData;
+} = {
   defaultValue: weekdayDefaultValue,
   encode: weekdayEncode,
   encodeWithContext: weekdayEncodeWithContext,
@@ -985,7 +1005,7 @@ export const Weekday = {
   is: weekdayIs,
   createForm: weekdayCreateForm,
   fromFormData: weekdayFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -993,14 +1013,15 @@ export const Weekday = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..259 -> expanded 58..210
-original 259..260 -> expanded 14647..14648
-generated 210..331 <- Default
-generated 331..2234 <- Encode
-generated 2234..4890 <- Decode
-generated 4890..14313 <- Gigaform
-generated 14313..14647 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..259 -> expanded 627..779
+original 259..260 -> expanded 15713..15714
+generated 0..569 <- imports
+generated 779..900 <- Default
+generated 900..2803 <- Encode
+generated 2803..5519 <- Decode
+generated 5519..14942 <- Gigaform
+generated 14942..15713 <- __convenience_const
 
 ## Metadata
 

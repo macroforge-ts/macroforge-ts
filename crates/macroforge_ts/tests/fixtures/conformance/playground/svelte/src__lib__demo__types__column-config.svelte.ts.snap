@@ -246,11 +246,50 @@ dataPath: dataPathDefaultValue(),
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_heading = obj["heading"] as string;
-                                            if (__raw_heading == null) { errors.push({ field: "heading", message: "ColumnConfig.heading is required" }); } else {
+                                const __raw_heading = obj["heading"] as string;if (!(typeof __raw_heading === "string")) {
+                                                    errors.push({ field: "heading", message: __raw_heading == null ? "ColumnConfig.heading is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_heading == null) { errors.push({ field: "heading", message: "ColumnConfig.heading is required" }); } else {
 if (__raw_heading.length === 0) { errors.push({ field: "heading", message: "ColumnConfig.heading must not be empty" }); }
 }
-instance.heading = __raw_heading;
+
+
+
+
+                                                    instance.heading = __raw_heading;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -786,7 +825,115 @@ instance.heading = __raw_heading;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1617,7 +1764,18 @@ if (__val.length === 0) { errors.push({ field: "heading", message: "ColumnConfig
             return toExit(columnConfigDecode(obj));
         }
 
-export const ColumnConfig = {
+export const ColumnConfig: {
+  readonly defaultValue: typeof columnConfigDefaultValue;
+  readonly encode: typeof columnConfigEncode;
+  readonly encodeWithContext: typeof columnConfigEncodeWithContext;
+  readonly decode: typeof columnConfigDecode;
+  readonly decodeWithContext: typeof columnConfigDecodeWithContext;
+  readonly validateFields: typeof columnConfigValidateFields;
+  readonly hasShape: typeof columnConfigHasShape;
+  readonly is: typeof columnConfigIs;
+  readonly createForm: typeof columnConfigCreateForm;
+  readonly fromFormData: typeof columnConfigFromFormData;
+} = {
   defaultValue: columnConfigDefaultValue,
   encode: columnConfigEncode,
   encodeWithContext: columnConfigEncodeWithContext,
@@ -1628,7 +1786,7 @@ export const ColumnConfig = {
   is: columnConfigIs,
   createForm: columnConfigCreateForm,
   fromFormData: columnConfigFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1854,11 +2012,50 @@ dataPath: dataPathDefaultValue(),
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_heading = obj["heading"] as string;
-                                            if (__raw_heading == null) { errors.push({ field: "heading", message: "ColumnConfig.heading is required" }); } else {
+                                const __raw_heading = obj["heading"] as string;if (!(typeof __raw_heading === "string")) {
+                                                    errors.push({ field: "heading", message: __raw_heading == null ? "ColumnConfig.heading is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_heading == null) { errors.push({ field: "heading", message: "ColumnConfig.heading is required" }); } else {
 if (__raw_heading.length === 0) { errors.push({ field: "heading", message: "ColumnConfig.heading must not be empty" }); }
 }
-instance.heading = __raw_heading;
+
+
+
+
+                                                    instance.heading = __raw_heading;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2394,7 +2591,115 @@ instance.heading = __raw_heading;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3225,7 +3530,18 @@ if (__val.length === 0) { errors.push({ field: "heading", message: "ColumnConfig
             return toExit(columnConfigDecode(obj));
         }
 
-export const ColumnConfig = {
+export const ColumnConfig: {
+  readonly defaultValue: typeof columnConfigDefaultValue;
+  readonly encode: typeof columnConfigEncode;
+  readonly encodeWithContext: typeof columnConfigEncodeWithContext;
+  readonly decode: typeof columnConfigDecode;
+  readonly decodeWithContext: typeof columnConfigDecodeWithContext;
+  readonly validateFields: typeof columnConfigValidateFields;
+  readonly hasShape: typeof columnConfigHasShape;
+  readonly is: typeof columnConfigIs;
+  readonly createForm: typeof columnConfigCreateForm;
+  readonly fromFormData: typeof columnConfigFromFormData;
+} = {
   defaultValue: columnConfigDefaultValue,
   encode: columnConfigEncode,
   encodeWithContext: columnConfigEncodeWithContext,
@@ -3236,7 +3552,7 @@ export const ColumnConfig = {
   is: columnConfigIs,
   createForm: columnConfigCreateForm,
   fromFormData: columnConfigFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3244,15 +3560,16 @@ export const ColumnConfig = {
 
 ## Mapping
 
-original 0..110 -> expanded 0..110
-original 159..196 -> expanded 110..147
-original 237..284 -> expanded 147..194
-original 284..285 -> expanded 16482..16483
-generated 194..359 <- Default
-generated 359..1946 <- Encode
-generated 1946..10053 <- Decode
-generated 10053..16052 <- Gigaform
-generated 16052..16482 <- __convenience_const
+original 0..110 -> expanded 756..866
+original 159..196 -> expanded 866..903
+original 237..284 -> expanded 903..950
+original 284..285 -> expanded 18316..18317
+generated 0..756 <- imports
+generated 950..1115 <- Default
+generated 1115..2702 <- Encode
+generated 2702..11343 <- Decode
+generated 11343..17342 <- Gigaform
+generated 17342..18316 <- __convenience_const
 
 ## Metadata
 

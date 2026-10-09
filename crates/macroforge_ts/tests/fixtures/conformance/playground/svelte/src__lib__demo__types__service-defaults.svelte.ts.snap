@@ -244,7 +244,46 @@ description: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_price = obj["price"] as number;instance.price = __raw_price;
+                                const __raw_price = obj["price"] as number;if (!(typeof __raw_price === "number")) {
+                                                    errors.push({ field: "price", message: __raw_price == null ? "ServiceDefaults.price is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.price = __raw_price;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -504,11 +543,50 @@ description: "",
 
 
                             }{
-                                const __raw_description = obj["description"] as string;
-                                            if (__raw_description == null) { errors.push({ field: "description", message: "ServiceDefaults.description is required" }); } else {
+                                const __raw_description = obj["description"] as string;if (!(typeof __raw_description === "string")) {
+                                                    errors.push({ field: "description", message: __raw_description == null ? "ServiceDefaults.description is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_description == null) { errors.push({ field: "description", message: "ServiceDefaults.description is required" }); } else {
 if (__raw_description.length === 0) { errors.push({ field: "description", message: "ServiceDefaults.description must not be empty" }); }
 }
-instance.description = __raw_description;
+
+
+
+
+                                                    instance.description = __raw_description;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1336,6 +1414,82 @@ instance.description = __raw_description;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as ServiceDefaults;
@@ -1582,7 +1736,18 @@ if (__val.length === 0) { errors.push({ field: "description", message: "ServiceD
             return toExit(serviceDefaultsDecode(obj));
         }
 
-export const ServiceDefaults = {
+export const ServiceDefaults: {
+  readonly defaultValue: typeof serviceDefaultsDefaultValue;
+  readonly encode: typeof serviceDefaultsEncode;
+  readonly encodeWithContext: typeof serviceDefaultsEncodeWithContext;
+  readonly decode: typeof serviceDefaultsDecode;
+  readonly decodeWithContext: typeof serviceDefaultsDecodeWithContext;
+  readonly validateFields: typeof serviceDefaultsValidateFields;
+  readonly hasShape: typeof serviceDefaultsHasShape;
+  readonly is: typeof serviceDefaultsIs;
+  readonly createForm: typeof serviceDefaultsCreateForm;
+  readonly fromFormData: typeof serviceDefaultsFromFormData;
+} = {
   defaultValue: serviceDefaultsDefaultValue,
   encode: serviceDefaultsEncode,
   encodeWithContext: serviceDefaultsEncodeWithContext,
@@ -1593,7 +1758,7 @@ export const ServiceDefaults = {
   is: serviceDefaultsIs,
   createForm: serviceDefaultsCreateForm,
   fromFormData: serviceDefaultsFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1820,7 +1985,46 @@ description: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_price = obj["price"] as number;instance.price = __raw_price;
+                                const __raw_price = obj["price"] as number;if (!(typeof __raw_price === "number")) {
+                                                    errors.push({ field: "price", message: __raw_price == null ? "ServiceDefaults.price is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.price = __raw_price;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2080,11 +2284,50 @@ description: "",
 
 
                             }{
-                                const __raw_description = obj["description"] as string;
-                                            if (__raw_description == null) { errors.push({ field: "description", message: "ServiceDefaults.description is required" }); } else {
+                                const __raw_description = obj["description"] as string;if (!(typeof __raw_description === "string")) {
+                                                    errors.push({ field: "description", message: __raw_description == null ? "ServiceDefaults.description is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_description == null) { errors.push({ field: "description", message: "ServiceDefaults.description is required" }); } else {
 if (__raw_description.length === 0) { errors.push({ field: "description", message: "ServiceDefaults.description must not be empty" }); }
 }
-instance.description = __raw_description;
+
+
+
+
+                                                    instance.description = __raw_description;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2912,6 +3155,82 @@ instance.description = __raw_description;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as ServiceDefaults;
@@ -3158,7 +3477,18 @@ if (__val.length === 0) { errors.push({ field: "description", message: "ServiceD
             return toExit(serviceDefaultsDecode(obj));
         }
 
-export const ServiceDefaults = {
+export const ServiceDefaults: {
+  readonly defaultValue: typeof serviceDefaultsDefaultValue;
+  readonly encode: typeof serviceDefaultsEncode;
+  readonly encodeWithContext: typeof serviceDefaultsEncodeWithContext;
+  readonly decode: typeof serviceDefaultsDecode;
+  readonly decodeWithContext: typeof serviceDefaultsDecodeWithContext;
+  readonly validateFields: typeof serviceDefaultsValidateFields;
+  readonly hasShape: typeof serviceDefaultsHasShape;
+  readonly is: typeof serviceDefaultsIs;
+  readonly createForm: typeof serviceDefaultsCreateForm;
+  readonly fromFormData: typeof serviceDefaultsFromFormData;
+} = {
   defaultValue: serviceDefaultsDefaultValue,
   encode: serviceDefaultsEncode,
   encodeWithContext: serviceDefaultsEncodeWithContext,
@@ -3169,7 +3499,7 @@ export const ServiceDefaults = {
   is: serviceDefaultsIs,
   createForm: serviceDefaultsCreateForm,
   fromFormData: serviceDefaultsFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3177,17 +3507,18 @@ export const ServiceDefaults = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..147 -> expanded 58..98
-original 211..235 -> expanded 98..122
-original 287..292 -> expanded 122..127
-original 333..360 -> expanded 127..154
-original 360..361 -> expanded 14887..14888
-generated 154..305 <- Default
-generated 305..1880 <- Encode
-generated 1880..8914 <- Decode
-generated 8914..14424 <- Gigaform
-generated 14424..14887 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..147 -> expanded 627..667
+original 211..235 -> expanded 667..691
+original 287..292 -> expanded 691..696
+original 333..360 -> expanded 696..723
+original 360..361 -> expanded 16960..16961
+generated 0..569 <- imports
+generated 723..874 <- Default
+generated 874..2449 <- Encode
+generated 2449..10413 <- Decode
+generated 10413..15923 <- Gigaform
+generated 15923..16960 <- __convenience_const
 
 ## Metadata
 

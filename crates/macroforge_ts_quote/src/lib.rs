@@ -163,8 +163,7 @@ fn ts_quote_impl(input: proc_macro2::TokenStream) -> syn::Result<proc_macro2::To
 /// - `{#match expr}{:case pattern}...{/match}` - Match with case arms
 /// - `{#for item in list}...{/for}` - Iteration
 /// - `{#while cond}...{/while}` / `{#while let pattern = expr}...{/while}` - Loops
-/// - `{%let name = expr}` or `{$let name = expr}` - Local constants
-///   (`{$let mut ...}` for mutable bindings)
+/// - `{$let name = expr}` - Local constants (`{$let mut ...}` for mutable bindings)
 /// - `{$do expr}` - Execute a Rust expression for its side effects
 /// - `{$typescript expr}` - Inject a `TsStream` into the output
 /// - `{> comment <}` / `{>> comment <<}` - Line / block comments in the output

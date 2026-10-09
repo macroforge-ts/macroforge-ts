@@ -237,6 +237,14 @@ pub struct MacroContextIR {
     /// Only populated when type_registry is available.
     #[serde(default)]
     pub resolved_fields: Option<HashMap<String, ResolvedTypeRef>>,
+
+    /// Identifies this expansion uniquely within its file, including
+    /// expansions of macro calls found in another macro's output. A macro that
+    /// declares a file-level name (such as `$Newtype`'s brand symbol) derives
+    /// it from this rather than from a source position, which output being
+    /// re-expanded does not have. `0` outside the pre-pass that assigns it.
+    #[serde(default)]
+    pub expansion_id: u32,
 }
 
 impl MacroContextIR {
@@ -265,6 +273,7 @@ impl MacroContextIR {
             config: None,
             type_registry: TypeRegistry::default(),
             resolved_fields: None,
+            expansion_id: 0,
         }
     }
 
@@ -344,6 +353,7 @@ impl MacroContextIR {
             config: None,
             type_registry: TypeRegistry::default(),
             resolved_fields: None,
+            expansion_id: 0,
         }
     }
 
@@ -372,6 +382,7 @@ impl MacroContextIR {
             config: None,
             type_registry: TypeRegistry::default(),
             resolved_fields: None,
+            expansion_id: 0,
         }
     }
 
@@ -400,6 +411,7 @@ impl MacroContextIR {
             config: None,
             type_registry: TypeRegistry::default(),
             resolved_fields: None,
+            expansion_id: 0,
         }
     }
 
@@ -428,6 +440,7 @@ impl MacroContextIR {
             config: None,
             type_registry: TypeRegistry::default(),
             resolved_fields: None,
+            expansion_id: 0,
         }
     }
 
@@ -456,6 +469,7 @@ impl MacroContextIR {
             config: None,
             type_registry: TypeRegistry::default(),
             resolved_fields: None,
+            expansion_id: 0,
         }
     }
 
@@ -484,6 +498,7 @@ impl MacroContextIR {
             config: None,
             type_registry: TypeRegistry::default(),
             resolved_fields: None,
+            expansion_id: 0,
         }
     }
 
@@ -512,6 +527,7 @@ impl MacroContextIR {
             config: None,
             type_registry: TypeRegistry::default(),
             resolved_fields: None,
+            expansion_id: 0,
         }
     }
 
@@ -540,6 +556,7 @@ impl MacroContextIR {
             config: None,
             type_registry: TypeRegistry::default(),
             resolved_fields: None,
+            expansion_id: 0,
         }
     }
 
@@ -630,6 +647,7 @@ mod import_specifier_tests {
             config: None,
             type_registry: TypeRegistry::default(),
             resolved_fields: None,
+            expansion_id: 0,
         }
     }
 

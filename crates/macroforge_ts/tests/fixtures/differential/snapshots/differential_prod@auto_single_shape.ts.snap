@@ -69,7 +69,14 @@ Info: declarative macro analyzer running without a type registry; structural clu
 
 ## Mapping
 
-original 0..498 -> expanded 0..498
+original 0..270 -> expanded 46..316
+original 322..378 -> expanded 316..372
+original 606..618 -> expanded 372..384
+original 629..641 -> expanded 396..408
+original 652..730 -> expanded 420..498
+generated 0..46 <- $wrap
+generated 384..396 <- $wrap
+generated 408..420 <- $wrap
 
 ## Metadata
 

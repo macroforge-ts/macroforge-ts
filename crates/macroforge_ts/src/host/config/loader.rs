@@ -1,5 +1,5 @@
-use super::super::error::Result;
-use super::{CONFIG_CACHE, CONFIG_FILES, CachedConfig, MacroforgeConfig};
+use super::super::error::{MacroError, Result};
+use super::{CONFIG_CACHE, CONFIG_FILES, CachedConfig, MacroforgeConfig, has_project_manifest};
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
 
@@ -147,7 +147,7 @@ impl MacroforgeConfigLoader {
                 }
             }
 
-            if current.join("package.json").exists() {
+            if has_project_manifest(&current) {
                 break;
             }
 
@@ -297,7 +297,10 @@ fn expr_to_json(expr: &oxc::ast::ast::Expression<'_>) -> Option<serde_json::Valu
     }
 }
 
+/// One `foreignTypes` entry of the config at `location`. A key it cannot read
+/// is an error, so an option that would be ignored never goes unnoticed.
 pub(super) fn parse_single_foreign_type(
+    location: &str,
     name: &str,
     obj: &oxc::ast::ast::ObjectExpression<'_>,
     imports: &HashMap<String, ImportInfo>,
@@ -310,13 +313,18 @@ pub(super) fn parse_single_foreign_type(
 
     for prop in &obj.properties {
         let oxc::ast::ast::ObjectPropertyKind::ObjectProperty(prop) = prop else {
-            continue;
+            return Err(MacroError::InvalidConfig(format!(
+                "{location}: the foreign type `{name}` cannot take a spread; write its keys out"
+            )));
         };
+        let key = get_prop_key(&prop.key, source);
         if prop.kind != oxc::ast::ast::PropertyKind::Init {
-            continue;
+            return Err(MacroError::InvalidConfig(format!(
+                "{location}: `{key}` of the foreign type `{name}` must be a plain property, \
+                 not a getter or setter"
+            )));
         }
 
-        let key = get_prop_key(&prop.key, source);
         match key.as_str() {
             "from" => {
                 ft.from = extract_string_or_array(&prop.value);
@@ -344,7 +352,12 @@ pub(super) fn parse_single_foreign_type(
             "aliases" => {
                 ft.aliases = parse_aliases_array(&prop.value, source);
             }
-            _ => {}
+            unknown => {
+                return Err(MacroError::InvalidConfig(format!(
+                    "{location}: the foreign type `{name}` has an unknown key `{unknown}`; \
+                     expected `from`, `aliases`, `encode`, `decode`, `default` or `hasShape`"
+                )));
+            }
         }
     }
 

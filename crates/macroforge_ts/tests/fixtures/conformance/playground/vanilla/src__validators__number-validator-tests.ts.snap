@@ -119,11 +119,50 @@ constructor(props: { positive: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_positive = obj["positive"] as number;
-                                        if (__raw_positive == null) { errors.push({ field: "positive", message: "GreaterThanValidator.positive is required" }); } else {
+                            const __raw_positive = obj["positive"] as number;if (!(typeof __raw_positive === "number")) {
+                                                errors.push({ field: "positive", message: __raw_positive == null ? "GreaterThanValidator.positive is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_positive == null) { errors.push({ field: "positive", message: "GreaterThanValidator.positive is required" }); } else {
 if (__raw_positive <= 0) { errors.push({ field: "positive", message: "GreaterThanValidator.positive must be greater than 0" }); }
 }
-instance.positive = __raw_positive;
+
+
+
+
+                                                instance.positive = __raw_positive;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -613,11 +652,50 @@ constructor(props: { nonNegative: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_nonNegative = obj["nonNegative"] as number;
-                                        if (__raw_nonNegative == null) { errors.push({ field: "nonNegative", message: "GreaterThanOrEqualToValidator.nonNegative is required" }); } else {
+                            const __raw_nonNegative = obj["nonNegative"] as number;if (!(typeof __raw_nonNegative === "number")) {
+                                                errors.push({ field: "nonNegative", message: __raw_nonNegative == null ? "GreaterThanOrEqualToValidator.nonNegative is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_nonNegative == null) { errors.push({ field: "nonNegative", message: "GreaterThanOrEqualToValidator.nonNegative is required" }); } else {
 if (__raw_nonNegative < 0) { errors.push({ field: "nonNegative", message: "GreaterThanOrEqualToValidator.nonNegative must be greater than or equal to 0" }); }
 }
-instance.nonNegative = __raw_nonNegative;
+
+
+
+
+                                                instance.nonNegative = __raw_nonNegative;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1107,11 +1185,50 @@ constructor(props: { capped: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_capped = obj["capped"] as number;
-                                        if (__raw_capped == null) { errors.push({ field: "capped", message: "LessThanValidator.capped is required" }); } else {
+                            const __raw_capped = obj["capped"] as number;if (!(typeof __raw_capped === "number")) {
+                                                errors.push({ field: "capped", message: __raw_capped == null ? "LessThanValidator.capped is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_capped == null) { errors.push({ field: "capped", message: "LessThanValidator.capped is required" }); } else {
 if (__raw_capped >= 100) { errors.push({ field: "capped", message: "LessThanValidator.capped must be less than 100" }); }
 }
-instance.capped = __raw_capped;
+
+
+
+
+                                                instance.capped = __raw_capped;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1601,11 +1718,50 @@ constructor(props: { maxed: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_maxed = obj["maxed"] as number;
-                                        if (__raw_maxed == null) { errors.push({ field: "maxed", message: "LessThanOrEqualToValidator.maxed is required" }); } else {
+                            const __raw_maxed = obj["maxed"] as number;if (!(typeof __raw_maxed === "number")) {
+                                                errors.push({ field: "maxed", message: __raw_maxed == null ? "LessThanOrEqualToValidator.maxed is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_maxed == null) { errors.push({ field: "maxed", message: "LessThanOrEqualToValidator.maxed is required" }); } else {
 if (__raw_maxed > 100) { errors.push({ field: "maxed", message: "LessThanOrEqualToValidator.maxed must be less than or equal to 100" }); }
 }
-instance.maxed = __raw_maxed;
+
+
+
+
+                                                instance.maxed = __raw_maxed;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2095,11 +2251,50 @@ constructor(props: { ranged: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_ranged = obj["ranged"] as number;
-                                        if (__raw_ranged == null) { errors.push({ field: "ranged", message: "BetweenValidator.ranged is required" }); } else {
+                            const __raw_ranged = obj["ranged"] as number;if (!(typeof __raw_ranged === "number")) {
+                                                errors.push({ field: "ranged", message: __raw_ranged == null ? "BetweenValidator.ranged is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_ranged == null) { errors.push({ field: "ranged", message: "BetweenValidator.ranged is required" }); } else {
 if (__raw_ranged < 1 || __raw_ranged > 100) { errors.push({ field: "ranged", message: "BetweenValidator.ranged must be between 1 and 100" }); }
 }
-instance.ranged = __raw_ranged;
+
+
+
+
+                                                instance.ranged = __raw_ranged;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2589,11 +2784,50 @@ constructor(props: { integer: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_integer = obj["integer"] as number;
-                                        if (__raw_integer == null) { errors.push({ field: "integer", message: "IntValidator.integer is required" }); } else {
+                            const __raw_integer = obj["integer"] as number;if (!(typeof __raw_integer === "number")) {
+                                                errors.push({ field: "integer", message: __raw_integer == null ? "IntValidator.integer is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_integer == null) { errors.push({ field: "integer", message: "IntValidator.integer is required" }); } else {
 if (!Number.isInteger(__raw_integer)) { errors.push({ field: "integer", message: "IntValidator.integer must be an integer" }); }
 }
-instance.integer = __raw_integer;
+
+
+
+
+                                                instance.integer = __raw_integer;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3083,11 +3317,50 @@ constructor(props: { valid: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_valid = obj["valid"] as number;
-                                        if (__raw_valid == null) { errors.push({ field: "valid", message: "NonNaNValidator.valid is required" }); } else {
+                            const __raw_valid = obj["valid"] as number;if (!(typeof __raw_valid === "number")) {
+                                                errors.push({ field: "valid", message: __raw_valid == null ? "NonNaNValidator.valid is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_valid == null) { errors.push({ field: "valid", message: "NonNaNValidator.valid is required" }); } else {
 if (Number.isNaN(__raw_valid)) { errors.push({ field: "valid", message: "NonNaNValidator.valid must not be NaN" }); }
 }
-instance.valid = __raw_valid;
+
+
+
+
+                                                instance.valid = __raw_valid;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3577,11 +3850,50 @@ constructor(props: { finite: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_finite = obj["finite"] as number;
-                                        if (__raw_finite == null) { errors.push({ field: "finite", message: "FiniteValidator.finite is required" }); } else {
+                            const __raw_finite = obj["finite"] as number;if (!(typeof __raw_finite === "number")) {
+                                                errors.push({ field: "finite", message: __raw_finite == null ? "FiniteValidator.finite is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_finite == null) { errors.push({ field: "finite", message: "FiniteValidator.finite is required" }); } else {
 if (!Number.isFinite(__raw_finite)) { errors.push({ field: "finite", message: "FiniteValidator.finite must be finite" }); }
 }
-instance.finite = __raw_finite;
+
+
+
+
+                                                instance.finite = __raw_finite;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4071,11 +4383,50 @@ constructor(props: { positive: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_positive = obj["positive"] as number;
-                                        if (__raw_positive == null) { errors.push({ field: "positive", message: "PositiveValidator.positive is required" }); } else {
+                            const __raw_positive = obj["positive"] as number;if (!(typeof __raw_positive === "number")) {
+                                                errors.push({ field: "positive", message: __raw_positive == null ? "PositiveValidator.positive is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_positive == null) { errors.push({ field: "positive", message: "PositiveValidator.positive is required" }); } else {
 if (__raw_positive <= 0) { errors.push({ field: "positive", message: "PositiveValidator.positive must be positive" }); }
 }
-instance.positive = __raw_positive;
+
+
+
+
+                                                instance.positive = __raw_positive;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4565,11 +4916,50 @@ constructor(props: { nonNegative: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_nonNegative = obj["nonNegative"] as number;
-                                        if (__raw_nonNegative == null) { errors.push({ field: "nonNegative", message: "NonNegativeValidator.nonNegative is required" }); } else {
+                            const __raw_nonNegative = obj["nonNegative"] as number;if (!(typeof __raw_nonNegative === "number")) {
+                                                errors.push({ field: "nonNegative", message: __raw_nonNegative == null ? "NonNegativeValidator.nonNegative is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_nonNegative == null) { errors.push({ field: "nonNegative", message: "NonNegativeValidator.nonNegative is required" }); } else {
 if (__raw_nonNegative < 0) { errors.push({ field: "nonNegative", message: "NonNegativeValidator.nonNegative must be non-negative" }); }
 }
-instance.nonNegative = __raw_nonNegative;
+
+
+
+
+                                                instance.nonNegative = __raw_nonNegative;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5059,11 +5449,50 @@ constructor(props: { negative: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_negative = obj["negative"] as number;
-                                        if (__raw_negative == null) { errors.push({ field: "negative", message: "NegativeValidator.negative is required" }); } else {
+                            const __raw_negative = obj["negative"] as number;if (!(typeof __raw_negative === "number")) {
+                                                errors.push({ field: "negative", message: __raw_negative == null ? "NegativeValidator.negative is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_negative == null) { errors.push({ field: "negative", message: "NegativeValidator.negative is required" }); } else {
 if (__raw_negative >= 0) { errors.push({ field: "negative", message: "NegativeValidator.negative must be negative" }); }
 }
-instance.negative = __raw_negative;
+
+
+
+
+                                                instance.negative = __raw_negative;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5553,11 +5982,50 @@ constructor(props: { nonPositive: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_nonPositive = obj["nonPositive"] as number;
-                                        if (__raw_nonPositive == null) { errors.push({ field: "nonPositive", message: "NonPositiveValidator.nonPositive is required" }); } else {
+                            const __raw_nonPositive = obj["nonPositive"] as number;if (!(typeof __raw_nonPositive === "number")) {
+                                                errors.push({ field: "nonPositive", message: __raw_nonPositive == null ? "NonPositiveValidator.nonPositive is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_nonPositive == null) { errors.push({ field: "nonPositive", message: "NonPositiveValidator.nonPositive is required" }); } else {
 if (__raw_nonPositive > 0) { errors.push({ field: "nonPositive", message: "NonPositiveValidator.nonPositive must be non-positive" }); }
 }
-instance.nonPositive = __raw_nonPositive;
+
+
+
+
+                                                instance.nonPositive = __raw_nonPositive;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6047,11 +6515,50 @@ constructor(props: { multiple: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_multiple = obj["multiple"] as number;
-                                        if (__raw_multiple == null) { errors.push({ field: "multiple", message: "MultipleOfValidator.multiple is required" }); } else {
+                            const __raw_multiple = obj["multiple"] as number;if (!(typeof __raw_multiple === "number")) {
+                                                errors.push({ field: "multiple", message: __raw_multiple == null ? "MultipleOfValidator.multiple is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_multiple == null) { errors.push({ field: "multiple", message: "MultipleOfValidator.multiple is required" }); } else {
 if (!__mf_isMultipleOf(__raw_multiple, 5)) { errors.push({ field: "multiple", message: "MultipleOfValidator.multiple must be a multiple of 5" }); }
 }
-instance.multiple = __raw_multiple;
+
+
+
+
+                                                instance.multiple = __raw_multiple;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6541,11 +7048,50 @@ constructor(props: { byte: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_byte = obj["byte"] as number;
-                                        if (__raw_byte == null) { errors.push({ field: "byte", message: "Uint8Validator.byte is required" }); } else {
+                            const __raw_byte = obj["byte"] as number;if (!(typeof __raw_byte === "number")) {
+                                                errors.push({ field: "byte", message: __raw_byte == null ? "Uint8Validator.byte is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_byte == null) { errors.push({ field: "byte", message: "Uint8Validator.byte is required" }); } else {
 if (!Number.isInteger(__raw_byte) || __raw_byte < 0 || __raw_byte > 255) { errors.push({ field: "byte", message: "Uint8Validator.byte must be a uint8" }); }
 }
-instance.byte = __raw_byte;
+
+
+
+
+                                                instance.byte = __raw_byte;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7041,11 +7587,50 @@ constructor(props: { positive: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_positive = obj["positive"] as number;
-                                        if (__raw_positive == null) { errors.push({ field: "positive", message: "GreaterThanValidator.positive is required" }); } else {
+                            const __raw_positive = obj["positive"] as number;if (!(typeof __raw_positive === "number")) {
+                                                errors.push({ field: "positive", message: __raw_positive == null ? "GreaterThanValidator.positive is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_positive == null) { errors.push({ field: "positive", message: "GreaterThanValidator.positive is required" }); } else {
 if (__raw_positive <= 0) { errors.push({ field: "positive", message: "GreaterThanValidator.positive must be greater than 0" }); }
 }
-instance.positive = __raw_positive;
+
+
+
+
+                                                instance.positive = __raw_positive;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7535,11 +8120,50 @@ constructor(props: { nonNegative: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_nonNegative = obj["nonNegative"] as number;
-                                        if (__raw_nonNegative == null) { errors.push({ field: "nonNegative", message: "GreaterThanOrEqualToValidator.nonNegative is required" }); } else {
+                            const __raw_nonNegative = obj["nonNegative"] as number;if (!(typeof __raw_nonNegative === "number")) {
+                                                errors.push({ field: "nonNegative", message: __raw_nonNegative == null ? "GreaterThanOrEqualToValidator.nonNegative is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_nonNegative == null) { errors.push({ field: "nonNegative", message: "GreaterThanOrEqualToValidator.nonNegative is required" }); } else {
 if (__raw_nonNegative < 0) { errors.push({ field: "nonNegative", message: "GreaterThanOrEqualToValidator.nonNegative must be greater than or equal to 0" }); }
 }
-instance.nonNegative = __raw_nonNegative;
+
+
+
+
+                                                instance.nonNegative = __raw_nonNegative;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8029,11 +8653,50 @@ constructor(props: { capped: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_capped = obj["capped"] as number;
-                                        if (__raw_capped == null) { errors.push({ field: "capped", message: "LessThanValidator.capped is required" }); } else {
+                            const __raw_capped = obj["capped"] as number;if (!(typeof __raw_capped === "number")) {
+                                                errors.push({ field: "capped", message: __raw_capped == null ? "LessThanValidator.capped is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_capped == null) { errors.push({ field: "capped", message: "LessThanValidator.capped is required" }); } else {
 if (__raw_capped >= 100) { errors.push({ field: "capped", message: "LessThanValidator.capped must be less than 100" }); }
 }
-instance.capped = __raw_capped;
+
+
+
+
+                                                instance.capped = __raw_capped;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8523,11 +9186,50 @@ constructor(props: { maxed: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_maxed = obj["maxed"] as number;
-                                        if (__raw_maxed == null) { errors.push({ field: "maxed", message: "LessThanOrEqualToValidator.maxed is required" }); } else {
+                            const __raw_maxed = obj["maxed"] as number;if (!(typeof __raw_maxed === "number")) {
+                                                errors.push({ field: "maxed", message: __raw_maxed == null ? "LessThanOrEqualToValidator.maxed is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_maxed == null) { errors.push({ field: "maxed", message: "LessThanOrEqualToValidator.maxed is required" }); } else {
 if (__raw_maxed > 100) { errors.push({ field: "maxed", message: "LessThanOrEqualToValidator.maxed must be less than or equal to 100" }); }
 }
-instance.maxed = __raw_maxed;
+
+
+
+
+                                                instance.maxed = __raw_maxed;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9017,11 +9719,50 @@ constructor(props: { ranged: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_ranged = obj["ranged"] as number;
-                                        if (__raw_ranged == null) { errors.push({ field: "ranged", message: "BetweenValidator.ranged is required" }); } else {
+                            const __raw_ranged = obj["ranged"] as number;if (!(typeof __raw_ranged === "number")) {
+                                                errors.push({ field: "ranged", message: __raw_ranged == null ? "BetweenValidator.ranged is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_ranged == null) { errors.push({ field: "ranged", message: "BetweenValidator.ranged is required" }); } else {
 if (__raw_ranged < 1 || __raw_ranged > 100) { errors.push({ field: "ranged", message: "BetweenValidator.ranged must be between 1 and 100" }); }
 }
-instance.ranged = __raw_ranged;
+
+
+
+
+                                                instance.ranged = __raw_ranged;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9511,11 +10252,50 @@ constructor(props: { integer: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_integer = obj["integer"] as number;
-                                        if (__raw_integer == null) { errors.push({ field: "integer", message: "IntValidator.integer is required" }); } else {
+                            const __raw_integer = obj["integer"] as number;if (!(typeof __raw_integer === "number")) {
+                                                errors.push({ field: "integer", message: __raw_integer == null ? "IntValidator.integer is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_integer == null) { errors.push({ field: "integer", message: "IntValidator.integer is required" }); } else {
 if (!Number.isInteger(__raw_integer)) { errors.push({ field: "integer", message: "IntValidator.integer must be an integer" }); }
 }
-instance.integer = __raw_integer;
+
+
+
+
+                                                instance.integer = __raw_integer;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -10005,11 +10785,50 @@ constructor(props: { valid: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_valid = obj["valid"] as number;
-                                        if (__raw_valid == null) { errors.push({ field: "valid", message: "NonNaNValidator.valid is required" }); } else {
+                            const __raw_valid = obj["valid"] as number;if (!(typeof __raw_valid === "number")) {
+                                                errors.push({ field: "valid", message: __raw_valid == null ? "NonNaNValidator.valid is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_valid == null) { errors.push({ field: "valid", message: "NonNaNValidator.valid is required" }); } else {
 if (Number.isNaN(__raw_valid)) { errors.push({ field: "valid", message: "NonNaNValidator.valid must not be NaN" }); }
 }
-instance.valid = __raw_valid;
+
+
+
+
+                                                instance.valid = __raw_valid;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -10499,11 +11318,50 @@ constructor(props: { finite: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_finite = obj["finite"] as number;
-                                        if (__raw_finite == null) { errors.push({ field: "finite", message: "FiniteValidator.finite is required" }); } else {
+                            const __raw_finite = obj["finite"] as number;if (!(typeof __raw_finite === "number")) {
+                                                errors.push({ field: "finite", message: __raw_finite == null ? "FiniteValidator.finite is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_finite == null) { errors.push({ field: "finite", message: "FiniteValidator.finite is required" }); } else {
 if (!Number.isFinite(__raw_finite)) { errors.push({ field: "finite", message: "FiniteValidator.finite must be finite" }); }
 }
-instance.finite = __raw_finite;
+
+
+
+
+                                                instance.finite = __raw_finite;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -10993,11 +11851,50 @@ constructor(props: { positive: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_positive = obj["positive"] as number;
-                                        if (__raw_positive == null) { errors.push({ field: "positive", message: "PositiveValidator.positive is required" }); } else {
+                            const __raw_positive = obj["positive"] as number;if (!(typeof __raw_positive === "number")) {
+                                                errors.push({ field: "positive", message: __raw_positive == null ? "PositiveValidator.positive is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_positive == null) { errors.push({ field: "positive", message: "PositiveValidator.positive is required" }); } else {
 if (__raw_positive <= 0) { errors.push({ field: "positive", message: "PositiveValidator.positive must be positive" }); }
 }
-instance.positive = __raw_positive;
+
+
+
+
+                                                instance.positive = __raw_positive;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -11487,11 +12384,50 @@ constructor(props: { nonNegative: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_nonNegative = obj["nonNegative"] as number;
-                                        if (__raw_nonNegative == null) { errors.push({ field: "nonNegative", message: "NonNegativeValidator.nonNegative is required" }); } else {
+                            const __raw_nonNegative = obj["nonNegative"] as number;if (!(typeof __raw_nonNegative === "number")) {
+                                                errors.push({ field: "nonNegative", message: __raw_nonNegative == null ? "NonNegativeValidator.nonNegative is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_nonNegative == null) { errors.push({ field: "nonNegative", message: "NonNegativeValidator.nonNegative is required" }); } else {
 if (__raw_nonNegative < 0) { errors.push({ field: "nonNegative", message: "NonNegativeValidator.nonNegative must be non-negative" }); }
 }
-instance.nonNegative = __raw_nonNegative;
+
+
+
+
+                                                instance.nonNegative = __raw_nonNegative;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -11981,11 +12917,50 @@ constructor(props: { negative: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_negative = obj["negative"] as number;
-                                        if (__raw_negative == null) { errors.push({ field: "negative", message: "NegativeValidator.negative is required" }); } else {
+                            const __raw_negative = obj["negative"] as number;if (!(typeof __raw_negative === "number")) {
+                                                errors.push({ field: "negative", message: __raw_negative == null ? "NegativeValidator.negative is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_negative == null) { errors.push({ field: "negative", message: "NegativeValidator.negative is required" }); } else {
 if (__raw_negative >= 0) { errors.push({ field: "negative", message: "NegativeValidator.negative must be negative" }); }
 }
-instance.negative = __raw_negative;
+
+
+
+
+                                                instance.negative = __raw_negative;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12475,11 +13450,50 @@ constructor(props: { nonPositive: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_nonPositive = obj["nonPositive"] as number;
-                                        if (__raw_nonPositive == null) { errors.push({ field: "nonPositive", message: "NonPositiveValidator.nonPositive is required" }); } else {
+                            const __raw_nonPositive = obj["nonPositive"] as number;if (!(typeof __raw_nonPositive === "number")) {
+                                                errors.push({ field: "nonPositive", message: __raw_nonPositive == null ? "NonPositiveValidator.nonPositive is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_nonPositive == null) { errors.push({ field: "nonPositive", message: "NonPositiveValidator.nonPositive is required" }); } else {
 if (__raw_nonPositive > 0) { errors.push({ field: "nonPositive", message: "NonPositiveValidator.nonPositive must be non-positive" }); }
 }
-instance.nonPositive = __raw_nonPositive;
+
+
+
+
+                                                instance.nonPositive = __raw_nonPositive;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12969,11 +13983,50 @@ constructor(props: { multiple: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_multiple = obj["multiple"] as number;
-                                        if (__raw_multiple == null) { errors.push({ field: "multiple", message: "MultipleOfValidator.multiple is required" }); } else {
+                            const __raw_multiple = obj["multiple"] as number;if (!(typeof __raw_multiple === "number")) {
+                                                errors.push({ field: "multiple", message: __raw_multiple == null ? "MultipleOfValidator.multiple is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_multiple == null) { errors.push({ field: "multiple", message: "MultipleOfValidator.multiple is required" }); } else {
 if (!__mf_isMultipleOf(__raw_multiple, 5)) { errors.push({ field: "multiple", message: "MultipleOfValidator.multiple must be a multiple of 5" }); }
 }
-instance.multiple = __raw_multiple;
+
+
+
+
+                                                instance.multiple = __raw_multiple;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -13463,11 +14516,50 @@ constructor(props: { byte: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_byte = obj["byte"] as number;
-                                        if (__raw_byte == null) { errors.push({ field: "byte", message: "Uint8Validator.byte is required" }); } else {
+                            const __raw_byte = obj["byte"] as number;if (!(typeof __raw_byte === "number")) {
+                                                errors.push({ field: "byte", message: __raw_byte == null ? "Uint8Validator.byte is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_byte == null) { errors.push({ field: "byte", message: "Uint8Validator.byte is required" }); } else {
 if (!Number.isInteger(__raw_byte) || __raw_byte < 0 || __raw_byte > 255) { errors.push({ field: "byte", message: "Uint8Validator.byte must be a uint8" }); }
 }
-instance.byte = __raw_byte;
+
+
+
+
+                                                instance.byte = __raw_byte;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -13865,63 +14957,64 @@ if (!Number.isInteger(__val) || __val < 0 || __val > 255) { errors.push({ field:
 
 ## Mapping
 
-original 0..246 -> expanded 0..246
-original 246..247 -> expanded 5980..5981
-original 247..437 -> expanded 7227..7417
-original 437..438 -> expanded 13448..13449
-original 438..589 -> expanded 14776..14927
-original 589..590 -> expanded 20548..20549
-original 590..767 -> expanded 21768..21945
-original 767..768 -> expanded 27751..27752
-original 768..919 -> expanded 29052..29203
-original 919..920 -> expanded 34859..34860
-original 920..1052 -> expanded 36070..36202
-original 1052..1053 -> expanded 41778..41779
-original 1053..1192 -> expanded 42953..43092
-original 1192..1193 -> expanded 48648..48649
-original 1193..1333 -> expanded 49850..49990
-original 1333..1334 -> expanded 55583..55584
-original 1334..1482 -> expanded 56785..56933
-original 1482..1483 -> expanded 62589..62590
-original 1483..1643 -> expanded 63809..63969
-original 1643..1644 -> expanded 69778..69779
-original 1644..1792 -> expanded 71025..71173
-original 1792..1793 -> expanded 76829..76830
-original 1793..1953 -> expanded 78049..78209
-original 1953..1954 -> expanded 84018..84019
-original 1954..2111 -> expanded 85265..85422
-original 2111..2112 -> expanded 91193..91194
-original 2112..2247 -> expanded 92431..92566
-original 2247..2248 -> expanded 98183..98184
-original 2248..2249 -> expanded 99376..99377
-generated 246..5980 <- Decode
-generated 5981..7227 <- Decode
-generated 7417..13448 <- Decode
-generated 13449..14776 <- Decode
-generated 14927..20548 <- Decode
-generated 20549..21768 <- Decode
-generated 21945..27751 <- Decode
-generated 27752..29052 <- Decode
-generated 29203..34859 <- Decode
-generated 34860..36070 <- Decode
-generated 36202..41778 <- Decode
-generated 41779..42953 <- Decode
-generated 43092..48648 <- Decode
-generated 48649..49850 <- Decode
-generated 49990..55583 <- Decode
-generated 55584..56785 <- Decode
-generated 56933..62589 <- Decode
-generated 62590..63809 <- Decode
-generated 63969..69778 <- Decode
-generated 69779..71025 <- Decode
-generated 71173..76829 <- Decode
-generated 76830..78049 <- Decode
-generated 78209..84018 <- Decode
-generated 84019..85265 <- Decode
-generated 85422..91193 <- Decode
-generated 91194..92431 <- Decode
-generated 92566..98183 <- Decode
-generated 98184..99376 <- Decode
+original 0..246 -> expanded 383..629
+original 246..247 -> expanded 6785..6786
+original 247..437 -> expanded 8032..8222
+original 437..438 -> expanded 14696..14697
+original 438..589 -> expanded 16024..16175
+original 589..590 -> expanded 22207..22208
+original 590..767 -> expanded 23427..23604
+original 767..768 -> expanded 29826..29827
+original 768..919 -> expanded 31127..31278
+original 919..920 -> expanded 37344..37345
+original 920..1052 -> expanded 38555..38687
+original 1052..1053 -> expanded 44673..44674
+original 1053..1192 -> expanded 45848..45987
+original 1192..1193 -> expanded 51948..51949
+original 1193..1333 -> expanded 53150..53290
+original 1333..1334 -> expanded 59292..59293
+original 1334..1482 -> expanded 60494..60642
+original 1482..1483 -> expanded 66717..66718
+original 1483..1643 -> expanded 67937..68097
+original 1643..1644 -> expanded 74340..74341
+original 1644..1792 -> expanded 75587..75735
+original 1792..1793 -> expanded 81810..81811
+original 1793..1953 -> expanded 83030..83190
+original 1953..1954 -> expanded 89433..89434
+original 1954..2111 -> expanded 90680..90837
+original 2111..2112 -> expanded 97029..97030
+original 2112..2247 -> expanded 98267..98402
+original 2247..2248 -> expanded 104419..104420
+original 2248..2249 -> expanded 105612..105613
+generated 0..383 <- imports
+generated 629..6785 <- Decode
+generated 6786..8032 <- Decode
+generated 8222..14696 <- Decode
+generated 14697..16024 <- Decode
+generated 16175..22207 <- Decode
+generated 22208..23427 <- Decode
+generated 23604..29826 <- Decode
+generated 29827..31127 <- Decode
+generated 31278..37344 <- Decode
+generated 37345..38555 <- Decode
+generated 38687..44673 <- Decode
+generated 44674..45848 <- Decode
+generated 45987..51948 <- Decode
+generated 51949..53150 <- Decode
+generated 53290..59292 <- Decode
+generated 59293..60494 <- Decode
+generated 60642..66717 <- Decode
+generated 66718..67937 <- Decode
+generated 68097..74340 <- Decode
+generated 74341..75587 <- Decode
+generated 75735..81810 <- Decode
+generated 81811..83030 <- Decode
+generated 83190..89433 <- Decode
+generated 89434..90680 <- Decode
+generated 90837..97029 <- Decode
+generated 97030..98267 <- Decode
+generated 98402..104419 <- Decode
+generated 104420..105612 <- Decode
 
 ## Metadata
 

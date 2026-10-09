@@ -2,6 +2,7 @@ use convert_case::{Case, Casing};
 
 use crate::ast::Expr;
 use crate::macros::{ts_macro_derive, ts_template};
+use crate::ts_syn::abi::ir::{TypeBody, TypeMemberKind, is_primitive_keyword};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input, ts_ident};
 
 use super::clone_generation::generate_clone_expr;
@@ -152,6 +153,22 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                         return result as @{ts_ident!(type_name)};
                     }
                 })
+            } else if crate::builtin::endec::primitive_base(type_alias.body()).is_some()
+                || is_primitive_union(type_alias.body())
+            {
+                // Primitives, branded or not, are immutable.
+                Ok(ts_template! {
+                    export function @{fn_name_ident}(value: @{ts_ident!(type_name)}): @{ts_ident!(type_name)} {
+                        return value;
+                    }
+                })
+            } else if type_alias.body().is_tuple() {
+                // An array spread keeps the tuple type; an object spread would not.
+                Ok(ts_template! {
+                    export function @{fn_name_ident}(value: @{ts_ident!(type_name)}): @{ts_ident!(type_name)} {
+                        return [...value];
+                    }
+                })
             } else {
                 // Union, tuple, or simple alias: use spread for objects, or return as-is
                 Ok(ts_template! {
@@ -165,4 +182,18 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             }
         }
     }
+}
+
+/// Whether every member of a union body is a literal or primitive keyword, so
+/// no value of the alias is an object.
+fn is_primitive_union(body: &TypeBody) -> bool {
+    body.as_union().is_some_and(|members| {
+        members.iter().all(|member| match &member.kind {
+            TypeMemberKind::Literal(_) => true,
+            TypeMemberKind::TypeRef(name) => is_primitive_keyword(name) || name.trim() == "symbol",
+            TypeMemberKind::Object { .. }
+            | TypeMemberKind::Intersection(_)
+            | TypeMemberKind::Brand(_) => false,
+        })
+    })
 }

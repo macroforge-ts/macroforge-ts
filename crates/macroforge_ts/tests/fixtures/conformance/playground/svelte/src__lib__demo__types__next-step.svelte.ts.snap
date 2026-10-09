@@ -129,8 +129,8 @@ export function nextStepDefaultValue(): NextStep {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function nextStepDecodeWithContext(value: any, ctx: __mf_DecodeContext): NextStep | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function nextStepDecodeWithContext(value: any, _ctx: __mf_DecodeContext): NextStep | __mf_PendingRef {
                 switch (value) {
                     case 'InitialContact':
                     case 'Qualified':
@@ -392,7 +392,17 @@ if (variant === "Negotiation") { return "Negotiation" as NextStep; }
             return toExit(nextStepDecode(obj));
         }
 
-export const NextStep = {
+export const NextStep: {
+  readonly defaultValue: typeof nextStepDefaultValue;
+  readonly encode: typeof nextStepEncode;
+  readonly encodeWithContext: typeof nextStepEncodeWithContext;
+  readonly decode: typeof nextStepDecode;
+  readonly decodeWithContext: typeof nextStepDecodeWithContext;
+  readonly hasShape: typeof nextStepHasShape;
+  readonly is: typeof nextStepIs;
+  readonly createForm: typeof nextStepCreateForm;
+  readonly fromFormData: typeof nextStepFromFormData;
+} = {
   defaultValue: nextStepDefaultValue,
   encode: nextStepEncode,
   encodeWithContext: nextStepEncodeWithContext,
@@ -402,7 +412,7 @@ export const NextStep = {
   is: nextStepIs,
   createForm: nextStepCreateForm,
   fromFormData: nextStepFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -514,8 +524,8 @@ export function nextStepDefaultValue(): NextStep {
                 }
             }
 
-            /** Decodes with an existing context (validates against known variants).  */
-            export function nextStepDecodeWithContext(value: any, ctx: __mf_DecodeContext): NextStep | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants). A literal holds no references, so the context goes unread.  */
+            export function nextStepDecodeWithContext(value: any, _ctx: __mf_DecodeContext): NextStep | __mf_PendingRef {
                 switch (value) {
                     case 'InitialContact':
                     case 'Qualified':
@@ -777,7 +787,17 @@ if (variant === "Negotiation") { return "Negotiation" as NextStep; }
             return toExit(nextStepDecode(obj));
         }
 
-export const NextStep = {
+export const NextStep: {
+  readonly defaultValue: typeof nextStepDefaultValue;
+  readonly encode: typeof nextStepEncode;
+  readonly encodeWithContext: typeof nextStepEncodeWithContext;
+  readonly decode: typeof nextStepDecode;
+  readonly decodeWithContext: typeof nextStepDecodeWithContext;
+  readonly hasShape: typeof nextStepHasShape;
+  readonly is: typeof nextStepIs;
+  readonly createForm: typeof nextStepCreateForm;
+  readonly fromFormData: typeof nextStepFromFormData;
+} = {
   defaultValue: nextStepDefaultValue,
   encode: nextStepEncode,
   encodeWithContext: nextStepEncodeWithContext,
@@ -787,7 +807,7 @@ export const NextStep = {
   is: nextStepIs,
   createForm: nextStepCreateForm,
   fromFormData: nextStepFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -795,14 +815,15 @@ export const NextStep = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..225 -> expanded 58..176
-original 225..226 -> expanded 12164..12165
-generated 176..307 <- Default
-generated 307..2215 <- Encode
-generated 2215..4558 <- Decode
-generated 4558..11820 <- Gigaform
-generated 11820..12164 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..225 -> expanded 627..745
+original 225..226 -> expanded 13239..13240
+generated 0..569 <- imports
+generated 745..876 <- Default
+generated 876..2784 <- Encode
+generated 2784..5187 <- Decode
+generated 5187..12449 <- Gigaform
+generated 12449..13239 <- __convenience_const
 
 ## Metadata
 

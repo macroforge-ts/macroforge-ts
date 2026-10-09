@@ -22,7 +22,7 @@ export type UnionType = VariantA | VariantB;
 
 ## Diagnostics
 
-Error [4..20]: @derive(Default) on union type 'UnionType' requires @default on one variant or @default(VariantName.defaultValue()) on the type.
+Error [5..21]: @derive(Default) on union type 'UnionType' requires @default on one variant or @default(VariantName.defaultValue()) on the type.
 
 ## Mapping
 

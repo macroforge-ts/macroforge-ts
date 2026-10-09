@@ -1,0 +1,388 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/ordering-tests.ts
+sha256 c6627a6fb9c9b76024f6ecabda414cb272d51d0f098f8c97fa11b0bc8f6b5c51
+
+## Changed
+
+true
+
+## Output
+
+/**
+ * Ordering derives over array fields and tuple aliases.
+ */
+
+/** @derive(Ord, PartialOrd) */
+export interface Scores {
+    values: number[];
+}
+
+export function scoresCompare(a: Scores, b: Scores): number {
+                        if (a === b) return 0;
+                        const cmp0 = (() => {
+	const __left = a.values ?? [];
+	const __right = b.values ?? [];
+	const minLen = Math.min(__left.length, __right.length);
+	for (let i = 0; i < minLen; i++) {
+		const __l: any = __left[i];
+		const __r: any = __right[i];
+		const cmp = typeof __l?.compareTo === "function" ? __l.compareTo(__r) ?? 0 : __l < __r ? -1 : __l > __r ? 1 : 0;
+		if (cmp !== 0) return cmp;
+	}
+	return __left.length < __right.length ? -1 : __left.length > __right.length ? 1 : 0;
+})();
+                            if (cmp0 !== 0) return cmp0;
+
+
+
+                        return 0;
+                    }
+
+export function scoresPartialCompare(a: Scores, b: Scores): number | null {
+                        if (a === b) return 0;
+                        const cmp0 = (() => { const __left = a.values; const __right = b.values; if (!Array.isArray(__left) || !Array.isArray(__right)) return null; const minLen = Math.min(__left.length, __right.length); for (let i = 0; i < minLen; i++) { const __l: any = __left[i]; const __r: any = __right[i]; let cmp: number | null; if (typeof __l?.compareTo === 'function') { const optResult = __l.compareTo(__r); cmp = optResult; } else { cmp = __l < __r ? -1 : __l > __r ? 1 : 0; } if (cmp === null) return null; if (cmp !== 0) return cmp; } return __left.length < __right.length ? -1 : __left.length > __right.length ? 1 : 0; })();
+if (cmp0 === null) return null;
+if (cmp0 !== 0) return cmp0;
+
+                        return 0;
+                    }
+
+export const Scores: {
+  readonly compare: typeof scoresCompare;
+  readonly partialCompare: typeof scoresPartialCompare;
+} = {
+  compare: scoresCompare,
+  partialCompare: scoresPartialCompare
+};
+
+/** @derive(Ord, PartialOrd) */
+export type Entry = [name: string, rank: number, ...tags: string[]];
+
+export function entryCompare(a: Entry, b: Entry): number {
+                        if (a === b) return 0;
+                        const left0 = a[0];
+const right0 = b[0];
+const cmp0 = ((cmp => cmp < 0 ? -1 : cmp > 0 ? 1 : 0)(left0.localeCompare(right0)));
+if (cmp0 !== 0) return cmp0;
+const left1 = a[1];
+const right1 = b[1];
+const cmp1 = (left1 < right1 ? -1 : left1 > right1 ? 1 : 0);
+if (cmp1 !== 0) return cmp1;
+const left2 = a.slice(2);
+const right2 = b.slice(2);
+const cmp2 = (() => { const __left = left2 ?? []; const __right = right2 ?? []; const minLen = Math.min(__left.length, __right.length); for (let i = 0; i < minLen; i++) { const __l: any = __left[i]; const __r: any = __right[i]; const cmp = typeof __l?.compareTo === 'function' ? __l.compareTo(__r) ?? 0 : (__l < __r ? -1 : __l > __r ? 1 : 0); if (cmp !== 0) return cmp; } return __left.length < __right.length ? -1 : __left.length > __right.length ? 1 : 0; })();
+if (cmp2 !== 0) return cmp2;
+return 0;
+                    }
+
+export function entryPartialCompare(a: Entry, b: Entry): number | null {
+                        if (a === b) return 0;
+                        const left0 = a[0];
+const right0 = b[0];
+const cmp0 = left0.localeCompare(right0);
+if (cmp0 !== 0) return cmp0;
+const left1 = a[1];
+const right1 = b[1];
+const cmp1 = (left1 < right1 ? -1 : left1 > right1 ? 1 : 0);
+if (cmp1 !== 0) return cmp1;
+const left2 = a.slice(2);
+const right2 = b.slice(2);
+const cmp2 = (() => { const __left = left2; const __right = right2; if (!Array.isArray(__left) || !Array.isArray(__right)) return null; const minLen = Math.min(__left.length, __right.length); for (let i = 0; i < minLen; i++) { const __l: any = __left[i]; const __r: any = __right[i]; let cmp: number | null; if (typeof __l?.compareTo === 'function') { const optResult = __l.compareTo(__r); cmp = optResult; } else { cmp = __l < __r ? -1 : __l > __r ? 1 : 0; } if (cmp === null) return null; if (cmp !== 0) return cmp; } return __left.length < __right.length ? -1 : __left.length > __right.length ? 1 : 0; })();
+if (cmp2 !== 0) return cmp2;
+return 0;
+                    }
+
+export const Entry: {
+  readonly compare: typeof entryCompare;
+  readonly partialCompare: typeof entryPartialCompare;
+} = {
+  compare: entryCompare,
+  partialCompare: entryPartialCompare
+};
+
+/** @derive(Ord, PartialOrd) */
+export type Span = [start: number, end?: number];
+
+export function spanCompare(a: Span, b: Span): number {
+                        if (a === b) return 0;
+                        const left0 = a[0];
+const right0 = b[0];
+const cmp0 = (left0 < right0 ? -1 : left0 > right0 ? 1 : 0);
+if (cmp0 !== 0) return cmp0;
+const left1 = a[1];
+const right1 = b[1];
+const cmp1 = left1 === undefined || right1 === undefined ? (left1 === right1 ? 0 : left1 === undefined ? -1 : 1) : (left1 < right1 ? -1 : left1 > right1 ? 1 : 0);
+if (cmp1 !== 0) return cmp1;
+return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
+                    }
+
+export function spanPartialCompare(a: Span, b: Span): number | null {
+                        if (a === b) return 0;
+                        const left0 = a[0];
+const right0 = b[0];
+const cmp0 = (left0 < right0 ? -1 : left0 > right0 ? 1 : 0);
+if (cmp0 !== 0) return cmp0;
+const left1 = a[1];
+const right1 = b[1];
+const cmp1 = left1 === undefined || right1 === undefined ? (left1 === right1 ? 0 : left1 === undefined ? -1 : 1) : (left1 < right1 ? -1 : left1 > right1 ? 1 : 0);
+if (cmp1 !== 0) return cmp1;
+return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
+                    }
+
+export const Span: {
+  readonly compare: typeof spanCompare;
+  readonly partialCompare: typeof spanPartialCompare;
+} = {
+  compare: spanCompare,
+  partialCompare: spanPartialCompare
+};
+
+/** @derive(Ord, PartialOrd) */
+export type Grid = [number[], Date];
+
+export function gridCompare(a: Grid, b: Grid): number {
+                        if (a === b) return 0;
+                        const left0 = a[0];
+const right0 = b[0];
+const cmp0 = (() => { const __left = left0 ?? []; const __right = right0 ?? []; const minLen = Math.min(__left.length, __right.length); for (let i = 0; i < minLen; i++) { const __l: any = __left[i]; const __r: any = __right[i]; const cmp = typeof __l?.compareTo === 'function' ? __l.compareTo(__r) ?? 0 : (__l < __r ? -1 : __l > __r ? 1 : 0); if (cmp !== 0) return cmp; } return __left.length < __right.length ? -1 : __left.length > __right.length ? 1 : 0; })();
+if (cmp0 !== 0) return cmp0;
+const left1 = a[1];
+const right1 = b[1];
+const cmp1 = (() => { const ta = left1?.getTime() ?? 0; const tb = right1?.getTime() ?? 0; return ta < tb ? -1 : ta > tb ? 1 : 0; })();
+if (cmp1 !== 0) return cmp1;
+return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
+                    }
+
+export function gridPartialCompare(a: Grid, b: Grid): number | null {
+                        if (a === b) return 0;
+                        const left0 = a[0];
+const right0 = b[0];
+const cmp0 = (() => { const __left = left0; const __right = right0; if (!Array.isArray(__left) || !Array.isArray(__right)) return null; const minLen = Math.min(__left.length, __right.length); for (let i = 0; i < minLen; i++) { const __l: any = __left[i]; const __r: any = __right[i]; let cmp: number | null; if (typeof __l?.compareTo === 'function') { const optResult = __l.compareTo(__r); cmp = optResult; } else { cmp = __l < __r ? -1 : __l > __r ? 1 : 0; } if (cmp === null) return null; if (cmp !== 0) return cmp; } return __left.length < __right.length ? -1 : __left.length > __right.length ? 1 : 0; })();
+if (cmp0 !== 0) return cmp0;
+const left1 = a[1];
+const right1 = b[1];
+const cmp1 = (() => { const __left = left1; const __right = right1; if (!(__left instanceof Date) || !(__right instanceof Date)) return null; const ta = __left.getTime(); const tb = __right.getTime(); return ta < tb ? -1 : ta > tb ? 1 : 0; })();
+if (cmp1 !== 0) return cmp1;
+return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
+                    }
+
+export const Grid: {
+  readonly compare: typeof gridCompare;
+  readonly partialCompare: typeof gridPartialCompare;
+} = {
+  compare: gridCompare,
+  partialCompare: gridPartialCompare
+};
+
+## DTS
+
+/**
+ * Ordering derives over array fields and tuple aliases.
+ */
+
+/** @derive(Ord, PartialOrd) */
+export interface Scores {
+    values: number[];
+}
+
+export function scoresCompare(a: Scores, b: Scores): number {
+                        if (a === b) return 0;
+                        const cmp0 = (() => {
+	const __left = a.values ?? [];
+	const __right = b.values ?? [];
+	const minLen = Math.min(__left.length, __right.length);
+	for (let i = 0; i < minLen; i++) {
+		const __l: any = __left[i];
+		const __r: any = __right[i];
+		const cmp = typeof __l?.compareTo === "function" ? __l.compareTo(__r) ?? 0 : __l < __r ? -1 : __l > __r ? 1 : 0;
+		if (cmp !== 0) return cmp;
+	}
+	return __left.length < __right.length ? -1 : __left.length > __right.length ? 1 : 0;
+})();
+                            if (cmp0 !== 0) return cmp0;
+
+
+
+                        return 0;
+                    }
+
+export function scoresPartialCompare(a: Scores, b: Scores): number | null {
+                        if (a === b) return 0;
+                        const cmp0 = (() => { const __left = a.values; const __right = b.values; if (!Array.isArray(__left) || !Array.isArray(__right)) return null; const minLen = Math.min(__left.length, __right.length); for (let i = 0; i < minLen; i++) { const __l: any = __left[i]; const __r: any = __right[i]; let cmp: number | null; if (typeof __l?.compareTo === 'function') { const optResult = __l.compareTo(__r); cmp = optResult; } else { cmp = __l < __r ? -1 : __l > __r ? 1 : 0; } if (cmp === null) return null; if (cmp !== 0) return cmp; } return __left.length < __right.length ? -1 : __left.length > __right.length ? 1 : 0; })();
+if (cmp0 === null) return null;
+if (cmp0 !== 0) return cmp0;
+
+                        return 0;
+                    }
+
+export const Scores: {
+  readonly compare: typeof scoresCompare;
+  readonly partialCompare: typeof scoresPartialCompare;
+} = {
+  compare: scoresCompare,
+  partialCompare: scoresPartialCompare
+};
+
+/** @derive(Ord, PartialOrd) */
+export type Entry = [name: string, rank: number, ...tags: string[]];
+
+export function entryCompare(a: Entry, b: Entry): number {
+                        if (a === b) return 0;
+                        const left0 = a[0];
+const right0 = b[0];
+const cmp0 = ((cmp => cmp < 0 ? -1 : cmp > 0 ? 1 : 0)(left0.localeCompare(right0)));
+if (cmp0 !== 0) return cmp0;
+const left1 = a[1];
+const right1 = b[1];
+const cmp1 = (left1 < right1 ? -1 : left1 > right1 ? 1 : 0);
+if (cmp1 !== 0) return cmp1;
+const left2 = a.slice(2);
+const right2 = b.slice(2);
+const cmp2 = (() => { const __left = left2 ?? []; const __right = right2 ?? []; const minLen = Math.min(__left.length, __right.length); for (let i = 0; i < minLen; i++) { const __l: any = __left[i]; const __r: any = __right[i]; const cmp = typeof __l?.compareTo === 'function' ? __l.compareTo(__r) ?? 0 : (__l < __r ? -1 : __l > __r ? 1 : 0); if (cmp !== 0) return cmp; } return __left.length < __right.length ? -1 : __left.length > __right.length ? 1 : 0; })();
+if (cmp2 !== 0) return cmp2;
+return 0;
+                    }
+
+export function entryPartialCompare(a: Entry, b: Entry): number | null {
+                        if (a === b) return 0;
+                        const left0 = a[0];
+const right0 = b[0];
+const cmp0 = left0.localeCompare(right0);
+if (cmp0 !== 0) return cmp0;
+const left1 = a[1];
+const right1 = b[1];
+const cmp1 = (left1 < right1 ? -1 : left1 > right1 ? 1 : 0);
+if (cmp1 !== 0) return cmp1;
+const left2 = a.slice(2);
+const right2 = b.slice(2);
+const cmp2 = (() => { const __left = left2; const __right = right2; if (!Array.isArray(__left) || !Array.isArray(__right)) return null; const minLen = Math.min(__left.length, __right.length); for (let i = 0; i < minLen; i++) { const __l: any = __left[i]; const __r: any = __right[i]; let cmp: number | null; if (typeof __l?.compareTo === 'function') { const optResult = __l.compareTo(__r); cmp = optResult; } else { cmp = __l < __r ? -1 : __l > __r ? 1 : 0; } if (cmp === null) return null; if (cmp !== 0) return cmp; } return __left.length < __right.length ? -1 : __left.length > __right.length ? 1 : 0; })();
+if (cmp2 !== 0) return cmp2;
+return 0;
+                    }
+
+export const Entry: {
+  readonly compare: typeof entryCompare;
+  readonly partialCompare: typeof entryPartialCompare;
+} = {
+  compare: entryCompare,
+  partialCompare: entryPartialCompare
+};
+
+/** @derive(Ord, PartialOrd) */
+export type Span = [start: number, end?: number];
+
+export function spanCompare(a: Span, b: Span): number {
+                        if (a === b) return 0;
+                        const left0 = a[0];
+const right0 = b[0];
+const cmp0 = (left0 < right0 ? -1 : left0 > right0 ? 1 : 0);
+if (cmp0 !== 0) return cmp0;
+const left1 = a[1];
+const right1 = b[1];
+const cmp1 = left1 === undefined || right1 === undefined ? (left1 === right1 ? 0 : left1 === undefined ? -1 : 1) : (left1 < right1 ? -1 : left1 > right1 ? 1 : 0);
+if (cmp1 !== 0) return cmp1;
+return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
+                    }
+
+export function spanPartialCompare(a: Span, b: Span): number | null {
+                        if (a === b) return 0;
+                        const left0 = a[0];
+const right0 = b[0];
+const cmp0 = (left0 < right0 ? -1 : left0 > right0 ? 1 : 0);
+if (cmp0 !== 0) return cmp0;
+const left1 = a[1];
+const right1 = b[1];
+const cmp1 = left1 === undefined || right1 === undefined ? (left1 === right1 ? 0 : left1 === undefined ? -1 : 1) : (left1 < right1 ? -1 : left1 > right1 ? 1 : 0);
+if (cmp1 !== 0) return cmp1;
+return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
+                    }
+
+export const Span: {
+  readonly compare: typeof spanCompare;
+  readonly partialCompare: typeof spanPartialCompare;
+} = {
+  compare: spanCompare,
+  partialCompare: spanPartialCompare
+};
+
+/** @derive(Ord, PartialOrd) */
+export type Grid = [number[], Date];
+
+export function gridCompare(a: Grid, b: Grid): number {
+                        if (a === b) return 0;
+                        const left0 = a[0];
+const right0 = b[0];
+const cmp0 = (() => { const __left = left0 ?? []; const __right = right0 ?? []; const minLen = Math.min(__left.length, __right.length); for (let i = 0; i < minLen; i++) { const __l: any = __left[i]; const __r: any = __right[i]; const cmp = typeof __l?.compareTo === 'function' ? __l.compareTo(__r) ?? 0 : (__l < __r ? -1 : __l > __r ? 1 : 0); if (cmp !== 0) return cmp; } return __left.length < __right.length ? -1 : __left.length > __right.length ? 1 : 0; })();
+if (cmp0 !== 0) return cmp0;
+const left1 = a[1];
+const right1 = b[1];
+const cmp1 = (() => { const ta = left1?.getTime() ?? 0; const tb = right1?.getTime() ?? 0; return ta < tb ? -1 : ta > tb ? 1 : 0; })();
+if (cmp1 !== 0) return cmp1;
+return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
+                    }
+
+export function gridPartialCompare(a: Grid, b: Grid): number | null {
+                        if (a === b) return 0;
+                        const left0 = a[0];
+const right0 = b[0];
+const cmp0 = (() => { const __left = left0; const __right = right0; if (!Array.isArray(__left) || !Array.isArray(__right)) return null; const minLen = Math.min(__left.length, __right.length); for (let i = 0; i < minLen; i++) { const __l: any = __left[i]; const __r: any = __right[i]; let cmp: number | null; if (typeof __l?.compareTo === 'function') { const optResult = __l.compareTo(__r); cmp = optResult; } else { cmp = __l < __r ? -1 : __l > __r ? 1 : 0; } if (cmp === null) return null; if (cmp !== 0) return cmp; } return __left.length < __right.length ? -1 : __left.length > __right.length ? 1 : 0; })();
+if (cmp0 !== 0) return cmp0;
+const left1 = a[1];
+const right1 = b[1];
+const cmp1 = (() => { const __left = left1; const __right = right1; if (!(__left instanceof Date) || !(__right instanceof Date)) return null; const ta = __left.getTime(); const tb = __right.getTime(); return ta < tb ? -1 : ta > tb ? 1 : 0; })();
+if (cmp1 !== 0) return cmp1;
+return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
+                    }
+
+export const Grid: {
+  readonly compare: typeof gridCompare;
+  readonly partialCompare: typeof gridPartialCompare;
+} = {
+  compare: gridCompare,
+  partialCompare: gridPartialCompare
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..147 -> expanded 0..147
+original 147..249 -> expanded 1955..2057
+original 249..332 -> expanded 4355..4438
+original 332..402 -> expanded 5792..5862
+original 402..403 -> expanded 8224..8225
+generated 147..877 <- Ord
+generated 877..1759 <- PartialOrd
+generated 1759..1955 <- __convenience_const
+generated 2057..3051 <- Ord
+generated 3051..4164 <- PartialOrd
+generated 4164..4355 <- __convenience_const
+generated 4438..5015 <- Ord
+generated 5015..5606 <- PartialOrd
+generated 5606..5792 <- __convenience_const
+generated 5862..6814 <- Ord
+generated 6814..8038 <- PartialOrd
+generated 8038..8224 <- __convenience_const
+
+## Metadata
+
+interface Scores: {"body_span":{"end":148,"start":123},"decorators":[{"args_src":"Ord, PartialOrd","name":"Derive","span":{"end":98,"start":67}}],"fields":[{"decorators":[],"name":"values","optional":false,"readonly":false,"span":{"end":146,"start":129},"ts_type":"number[]"}],"heritage":[],"methods":[],"name":"Scores","span":{"end":148,"start":106},"type_params":[]}
+type Entry: {"body":{"Tuple":["name: string","rank: number","...tags: string[]"]},"decorators":[{"args_src":"Ord, PartialOrd","name":"Derive","span":{"end":181,"start":150}}],"name":"Entry","span":{"end":250,"start":189},"type_params":[]}
+type Span: {"body":{"Tuple":["start: number","end?: number"]},"decorators":[{"args_src":"Ord, PartialOrd","name":"Derive","span":{"end":283,"start":252}}],"name":"Span","span":{"end":333,"start":291},"type_params":[]}
+type Grid: {"body":{"Tuple":["number[]","Date"]},"decorators":[{"args_src":"Ord, PartialOrd","name":"Derive","span":{"end":366,"start":335}}],"name":"Grid","span":{"end":403,"start":374},"type_params":[]}
+
+## Registry reads
+
+Name("Entry")
+Name("Grid")
+Name("Span")
+
+## Buildtime dependencies
+
+(none)

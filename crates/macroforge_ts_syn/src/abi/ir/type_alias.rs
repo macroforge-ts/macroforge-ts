@@ -250,6 +250,46 @@ impl TypeBody {
             _ => None,
         }
     }
+
+    /// Returns the primitive keyword this body brands or aliases.
+    ///
+    /// Matches a bare primitive (`number`) and a primitive intersected with one
+    /// or more object literals, which a primitive value can never carry at
+    /// runtime: symbol brands (`number & { readonly [B]: true }`), string-keyed
+    /// brands (`number & { readonly __brand: "Meters" }`) and `number & {}`.
+    pub fn primitive_base(&self) -> Option<&str> {
+        match self {
+            TypeBody::Alias(name) | TypeBody::Other(name) => typeof_primitive(name),
+            TypeBody::Intersection(members) => {
+                let mut base = None;
+                let mut branded = false;
+                for member in members {
+                    match &member.kind {
+                        TypeMemberKind::Brand(_) | TypeMemberKind::Object { .. } => branded = true,
+                        TypeMemberKind::TypeRef(name) if base.is_none() => {
+                            base = Some(typeof_primitive(name)?);
+                        }
+                        _ => return None,
+                    }
+                }
+                base.filter(|_| branded)
+            }
+            _ => None,
+        }
+    }
+}
+
+/// Returns `name` trimmed when it is a primitive keyword whose runtime `typeof`
+/// has the same name, and so can be checked and branded.
+pub fn typeof_primitive(name: &str) -> Option<&str> {
+    let trimmed = name.trim();
+    matches!(trimmed, "string" | "number" | "boolean" | "bigint").then_some(trimmed)
+}
+
+/// Whether `name` is a primitive keyword whose values are never objects: a
+/// [`typeof_primitive`], `null` or `undefined`.
+pub fn is_primitive_keyword(name: &str) -> bool {
+    typeof_primitive(name).is_some() || matches!(name.trim(), "null" | "undefined")
 }
 
 /// A member of a union or intersection type with optional decorators.
@@ -320,6 +360,14 @@ pub enum TypeMemberKind {
     ///
     /// The members are the individual parts of the intersection.
     Intersection(Vec<TypeMember>),
+
+    /// An object type literal whose members are all computed symbol keys.
+    ///
+    /// Example: `{ readonly [MetersBrand]: true }`, the brand half of
+    /// `number & { readonly [MetersBrand]: true }`.
+    ///
+    /// Contains the symbol identifiers in declaration order.
+    Brand(Vec<String>),
 }
 
 impl TypeMember {
@@ -335,7 +383,7 @@ impl TypeMember {
             TypeMemberKind::Intersection(members) => {
                 members.iter_mut().for_each(TypeMember::clear_spans);
             }
-            TypeMemberKind::Literal(_) | TypeMemberKind::TypeRef(_) => {}
+            TypeMemberKind::Literal(_) | TypeMemberKind::TypeRef(_) | TypeMemberKind::Brand(_) => {}
         }
     }
 
@@ -396,8 +444,15 @@ impl TypeMember {
         match &self.kind {
             TypeMemberKind::TypeRef(s) => Some(s),
             TypeMemberKind::Literal(s) => Some(s),
-            TypeMemberKind::Object { .. } | TypeMemberKind::Intersection(_) => None,
+            TypeMemberKind::Object { .. }
+            | TypeMemberKind::Intersection(_)
+            | TypeMemberKind::Brand(_) => None,
         }
+    }
+
+    /// Returns true if this is a symbol brand
+    pub fn is_brand(&self) -> bool {
+        matches!(self.kind, TypeMemberKind::Brand(_))
     }
 
     /// Returns the intersection members if this is an Intersection variant

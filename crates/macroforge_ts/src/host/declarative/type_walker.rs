@@ -1,9 +1,8 @@
-//! Phase 13 — type-position macro helper.
+//! Type-position macro helper.
 //!
 //! Helper function that rewrites a single `TSTypeReference` node when
-//! it resolves to a declarative macro with `kind: "type"`. After the
-//! B-phase walker migration, the traversal itself is owned by
-//! [`super::rewriter::RewriteVisitor`] — it calls
+//! it resolves to a declarative macro with `kind: "type"`. The traversal
+//! itself is owned by [`super::rewriter::RewriteVisitor`], which calls
 //! [`try_rewrite_type_ref`] from its `visit_ts_type_reference`
 //! override. This module keeps the type-specific matcher invocation
 //! and diagnostic shaping so the rewriter stays focused on its value-
@@ -16,11 +15,11 @@ use crate::ts_syn::declarative::MacroKind;
 
 use super::expander::{ExpansionContext, expand_body_with_registry};
 use super::matcher::{MatchError, match_type_invocation_against_arms};
-use super::rewriter::RewriteVisitor;
+use super::rewriter::{OutputPosition, RewriteVisitor};
 
 /// Attempt to rewrite a `TSTypeReference` node as a type-position
 /// macro invocation. Returns `true` if the reference was rewritten
-/// (the caller should then skip its children) — i.e. the caller is
+/// (the caller should then skip its children). The caller is
 /// [`super::rewriter::RewriteVisitor::visit_ts_type_reference`], which
 /// on `false` falls through to the default walker to descend into
 /// type arguments and pick up nested type macros.
@@ -40,10 +39,11 @@ pub(super) fn try_rewrite_type_ref(
     let Some(macro_name) = ident.name.as_str().strip_prefix('$') else {
         return false;
     };
-    // PR 11: scoped lookup so nested type-macro declarations
+    // Scoped lookup so nested type-macro declarations
     // shadow outer ones at their use sites.
-    let Some(def) = visitor.registry().lookup_at(macro_name, tr.span.start + 1) else {
-        // Not a declarative macro — try proc macro dispatch for type position.
+    let lookup_position = visitor.lookup_position(tr.span.start + 1);
+    let Some(def) = visitor.registry().lookup_at(macro_name, lookup_position) else {
+        // Not a declarative macro: try proc macro dispatch for type position.
         return try_dispatch_proc_type_ref(tr, macro_name, visitor);
     };
     if def.kind != MacroKind::Type {
@@ -100,9 +100,16 @@ pub(super) fn try_rewrite_type_ref(
                 None,
             ) {
                 Ok(expanded) => {
+                    let span = SpanIR::new(tr.span.start + 1, tr.span.end + 1);
+                    let code = super::rewriter::expand_macro_output(
+                        visitor,
+                        &expanded,
+                        OutputPosition::Type,
+                        span,
+                    );
                     visitor.output_mut().patches.push(Patch::Replace {
-                        span: SpanIR::new(tr.span.start + 1, tr.span.end + 1),
-                        code: expanded,
+                        span,
+                        code,
                         // Type-position macros never cluster (sharing
                         // modes are rejected for them), so the cluster
                         // component is always empty. Use the helper
@@ -210,16 +217,16 @@ fn try_dispatch_proc_type_ref(
         return false;
     };
 
-    // Extract the type arguments as source text.
+    // Extract the type arguments as source text. Nested macro references stay
+    // unexpanded, as a Rust proc macro sees them.
     let args_source = tr
         .type_arguments
         .as_ref()
         .map(|tp| {
             let sp = tp.span();
             let raw = &visitor.source()[sp.start as usize..sp.end as usize];
-            // Strip < and >
             raw.strip_prefix('<')
-                .and_then(|s| s.strip_suffix('>'))
+                .and_then(|inner| inner.strip_suffix('>'))
                 .unwrap_or(raw)
                 .to_string()
         })
@@ -242,6 +249,7 @@ fn try_dispatch_proc_type_ref(
         config: None,
         type_registry: crate::ts_syn::abi::ir::type_registry::TypeRegistry::default(),
         resolved_fields: None,
+        expansion_id: visitor.next_expansion_id(),
     };
 
     let mut result = dispatcher.dispatch(ctx.clone());
@@ -251,20 +259,30 @@ fn try_dispatch_proc_type_ref(
             && (d.message.contains("not found") || d.message.contains("is not a Macroforge"))
     });
     if is_not_found {
-        if let Some(loader) = visitor.external_loader {
-            match loader.run_macro(&ctx) {
-                Ok(external_result) => result = external_result,
-                Err(_) => return false,
-            }
-        } else {
+        let Some(loader) = visitor.external_loader else {
             return false;
+        };
+        match loader.run_macro(&ctx) {
+            Ok(external_result) => result = external_result,
+            Err(error) => {
+                visitor.output_mut().diagnostics.push(Diagnostic {
+                    level: DiagnosticLevel::Error,
+                    message: format!("failed to run type-position macro `${macro_name}`: {error}"),
+                    span: Some(type_span),
+                    notes: vec![],
+                    help: None,
+                });
+                return false;
+            }
         }
     }
 
     if let Some(tokens) = &result.tokens {
+        let code =
+            super::rewriter::expand_macro_output(visitor, tokens, OutputPosition::Type, type_span);
         visitor.output_mut().patches.push(Patch::Replace {
             span: type_span,
-            code: tokens.clone(),
+            code,
             source_macro: Some(format!("${}", macro_name)),
         });
     }

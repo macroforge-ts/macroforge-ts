@@ -36,10 +36,13 @@ export function pointHashCode(value: Point): number {
                     return hash;
                 }
 
-const Point = {
+const Point: {
+  readonly equals: typeof pointEquals;
+  readonly hashCode: typeof pointHashCode;
+} = {
   equals: pointEquals,
   hashCode: pointHashCode
-} as const;
+};
 
 ## DTS
 
@@ -62,10 +65,13 @@ export function pointHashCode(value: Point): number {
                     return hash;
                 }
 
-const Point = {
+const Point: {
+  readonly equals: typeof pointEquals;
+  readonly hashCode: typeof pointHashCode;
+} = {
   equals: pointEquals,
   hashCode: pointHashCode
-} as const;
+};
 
 ## Diagnostics
 
@@ -74,10 +80,10 @@ const Point = {
 ## Mapping
 
 original 31..81 -> expanded 0..50
-original 81..82 -> expanded 748..749
+original 81..82 -> expanded 826..827
 generated 50..229 <- PartialEq
 generated 229..670 <- Hash
-generated 670..748 <- __convenience_const
+generated 670..826 <- __convenience_const
 
 ## Metadata
 

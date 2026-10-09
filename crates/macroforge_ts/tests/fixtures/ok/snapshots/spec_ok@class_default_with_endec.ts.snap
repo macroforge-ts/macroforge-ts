@@ -1,0 +1,1925 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_default_with_endec.ts
+---
+## Input
+
+/** @derive(Default, Encode, Decode) */
+export class Account {
+    name: string = "";
+    balance: number = 0;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+
+export class Account {
+    name: string = "";
+    balance: number = 0;
+
+static defaultValue(): Account {
+
+
+                    const instance: Account = Object.create(Account.prototype);
+                    instance.name = "";
+                    instance.balance = 0;
+
+
+                    return instance;
+                }
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                static encode(value: Account, keepMetadata?: boolean): string {
+                    return accountEncode(value, keepMetadata);
+                }
+
+                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                static encodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown> {
+                    return accountEncodeWithContext(value, ctx);
+                }
+constructor(props: { name: string; balance: number }) {
+            this.name = props.name;
+            this.balance = props.balance;
+
+
+        }
+
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = Account.decodeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Account.decode: root cannot be a forward reference"
+	}]
+});
+                }
+
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DecodeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): Account | __mf_PendingRef {
+
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref);
+            }
+
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new __mf_DecodeError([{ field: "_root", message: "Account.decodeWithContext: expected an object" }]);
+            }
+
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];if (!("name" in obj)) {
+                        errors.push({ field: "name", message: "missing required field" });
+                    }if (!("balance" in obj)) {
+                        errors.push({ field: "balance", message: "missing required field" });
+                    }
+
+
+
+
+
+
+
+
+            const instance = Object.create(Account.prototype) as Account;
+
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+
+            ctx.trackForFreeze(instance);{
+                            const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                errors.push({ field: "name", message: __raw_name == null ? "Account.name is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.name = __raw_name;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }{
+                            const __raw_balance = obj["balance"] as number;if (!(typeof __raw_balance === "number")) {
+                                                errors.push({ field: "balance", message: __raw_balance == null ? "Account.balance is required" : "expected number" });
+                                            } else {
+
+
+
+                                                instance.balance = __raw_balance;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ctx.pushErrors(errors);
+
+            return instance;
+        }
+
+        static validateField<K extends keyof Account>(
+            _field: K,
+            _value: Account[K]
+        ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static validateFields(
+            _partial: Partial<Account>
+        ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static hasShape(obj: unknown): boolean {
+            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                return false;
+            }
+            const o = obj as Record<string, unknown>;
+            return "name" in o && "balance" in o;
+        }
+
+        static is(obj: unknown): obj is Account {
+            if (obj instanceof Account) {
+                return true;
+            }
+            if (!Account.hasShape(obj)) {
+                return false;
+            }
+            const result = Account.decode(obj);
+            return result.success;
+        }}
+
+export function accountDefaultValue(): Account {
+                    return Account.defaultValue();
+                }
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function accountEncode(value: Account, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = accountEncodeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function accountEncodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Account",
+                        __id,
+                    };result.name = value.name;result.balance = value.balance;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function accountDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return Account.decode(input, opts);
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function accountDecodeWithContext(value: any, ctx: __mf_DecodeContext): Account | __mf_PendingRef {
+            return Account.decodeWithContext(value, ctx);
+        }
+
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+        export function accountIs(value: unknown): value is Account {
+            return Account.is(value);
+        }
+
+## DTS
+
+export class Account {
+    name: string = "";
+    balance: number = 0;
+
+static defaultValue(): Account {
+
+
+                    const instance: Account = Object.create(Account.prototype);
+                    instance.name = "";
+                    instance.balance = 0;
+
+
+                    return instance;
+                }
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                static encode(value: Account, keepMetadata?: boolean): string {
+                    return accountEncode(value, keepMetadata);
+                }
+
+                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                static encodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown> {
+                    return accountEncodeWithContext(value, ctx);
+                }
+constructor(props: { name: string; balance: number }) {
+            this.name = props.name;
+            this.balance = props.balance;
+
+
+        }
+
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = Account.decodeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Account.decode: root cannot be a forward reference"
+	}]
+});
+                }
+
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DecodeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): Account | __mf_PendingRef {
+
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref);
+            }
+
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new __mf_DecodeError([{ field: "_root", message: "Account.decodeWithContext: expected an object" }]);
+            }
+
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];if (!("name" in obj)) {
+                        errors.push({ field: "name", message: "missing required field" });
+                    }if (!("balance" in obj)) {
+                        errors.push({ field: "balance", message: "missing required field" });
+                    }
+
+
+
+
+
+
+
+
+            const instance = Object.create(Account.prototype) as Account;
+
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+
+            ctx.trackForFreeze(instance);{
+                            const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                errors.push({ field: "name", message: __raw_name == null ? "Account.name is required" : "expected string" });
+                                            } else {
+
+
+
+                                                instance.name = __raw_name;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }{
+                            const __raw_balance = obj["balance"] as number;if (!(typeof __raw_balance === "number")) {
+                                                errors.push({ field: "balance", message: __raw_balance == null ? "Account.balance is required" : "expected number" });
+                                            } else {
+
+
+
+                                                instance.balance = __raw_balance;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ctx.pushErrors(errors);
+
+            return instance;
+        }
+
+        static validateField<K extends keyof Account>(
+            _field: K,
+            _value: Account[K]
+        ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static validateFields(
+            _partial: Partial<Account>
+        ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static hasShape(obj: unknown): boolean {
+            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                return false;
+            }
+            const o = obj as Record<string, unknown>;
+            return "name" in o && "balance" in o;
+        }
+
+        static is(obj: unknown): obj is Account {
+            if (obj instanceof Account) {
+                return true;
+            }
+            if (!Account.hasShape(obj)) {
+                return false;
+            }
+            const result = Account.decode(obj);
+            return result.success;
+        }}
+
+export function accountDefaultValue(): Account {
+                    return Account.defaultValue();
+                }
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function accountEncode(value: Account, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = accountEncodeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function accountEncodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Account",
+                        __id,
+                    };result.name = value.name;result.balance = value.balance;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function accountDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return Account.decode(input, opts);
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function accountDecodeWithContext(value: any, ctx: __mf_DecodeContext): Account | __mf_PendingRef {
+            return Account.decodeWithContext(value, ctx);
+        }
+
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+        export function accountIs(value: unknown): value is Account {
+            return Account.is(value);
+        }
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 39..111 -> expanded 385..457
+original 111..112 -> expanded 7079..7080
+original 112..113 -> expanded 9847..9848
+generated 0..385 <- imports
+generated 457..711 <- Default
+generated 711..1425 <- Encode
+generated 1425..7079 <- Decode
+generated 7080..7199 <- Default
+generated 7199..8718 <- Encode
+generated 8718..9847 <- Decode
+
+## Metadata
+
+class Account: {"body_span":{"end":113,"start":62},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":40,"start":1}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":86,"start":68},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"balance","optional":false,"readonly":false,"span":{"end":111,"start":91},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Account","span":{"end":113,"start":48},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

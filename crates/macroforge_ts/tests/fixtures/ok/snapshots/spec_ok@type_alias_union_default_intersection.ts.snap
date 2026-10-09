@@ -42,9 +42,11 @@ export function entityRecordDefaultValue(): EntityRecord {
 });
                         }
 
-export const EntityRecord = {
+export const EntityRecord: {
+  readonly defaultValue: typeof entityRecordDefaultValue;
+} = {
   defaultValue: entityRecordDefaultValue
-} as const;
+};
 
 ## DTS
 
@@ -67,9 +69,11 @@ export function entityRecordDefaultValue(): EntityRecord {
 });
                         }
 
-export const EntityRecord = {
+export const EntityRecord: {
+  readonly defaultValue: typeof entityRecordDefaultValue;
+} = {
   defaultValue: entityRecordDefaultValue
-} as const;
+};
 
 ## Diagnostics
 
@@ -79,9 +83,9 @@ export const EntityRecord = {
 
 original 0..94 -> expanded 0..94
 original 117..253 -> expanded 94..230
-original 253..254 -> expanded 495..496
+original 253..254 -> expanded 549..550
 generated 230..411 <- Default
-generated 411..495 <- __convenience_const
+generated 411..549 <- __convenience_const
 
 ## Metadata
 

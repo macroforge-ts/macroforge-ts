@@ -107,3 +107,122 @@ fn native_position_mapper_matches_js_logic() {
 
     assert!(!mapper.is_empty());
 }
+
+/// The UTF-16 position of `needle` in `text`, as JavaScript would report it.
+fn utf16_position(text: &str, needle: &str) -> u32 {
+    let byte = text.find(needle).expect("needle is in the text");
+    text[..byte].encode_utf16().count() as u32
+}
+
+/// Asserts that `needle`, which appears after macro output in `source`, maps
+/// from its expanded position back to where it was written.
+fn assert_maps_back(source: &str, needle: &str) {
+    let result = crate::expand_core::expand_inner(source, "probe.ts", None).unwrap();
+    let mapping = result.source_mapping.expect("expansion has a mapping");
+    let mapper = NativePositionMapper::new(mapping);
+    assert_eq!(
+        mapper.expanded_to_original(utf16_position(&result.code, needle)),
+        Some(utf16_position(source, needle)),
+        "`{needle}` maps back\nexpanded:\n{}",
+        result.code
+    );
+}
+
+#[test]
+fn mapping_counts_positions_in_utf16_after_non_ascii_text() {
+    assert_maps_back(
+        "const café = \"naïve 🚀\";\n/** @derive(Debug) */\ninterface A { a: number }\nconst trailing = 1;\n",
+        "const trailing",
+    );
+}
+
+#[test]
+fn mapping_reaches_through_the_pre_passes_and_generated_imports() {
+    assert_maps_back(
+        "/** @derive(Encode, Decode) */\nexport type Meters = $Newtype<number>;\n\nexport const trailing = 1;\n",
+        "export const trailing",
+    );
+}
+
+/// Asserts that the diagnostic whose message contains `message` spans exactly
+/// `needle` in `source`, in 0-based UTF-16 positions.
+fn assert_diagnostic_at(source: &str, message: &str, needle: &str) {
+    let result = crate::expand_core::expand_inner(source, "probe.ts", None).unwrap();
+    let diagnostic = result
+        .diagnostics
+        .iter()
+        .find(|diagnostic| diagnostic.message.contains(message))
+        .unwrap_or_else(|| {
+            panic!(
+                "no diagnostic containing {message:?}: {:?}",
+                result.diagnostics
+            )
+        });
+    let start = utf16_position(source, needle);
+    let end = start + needle.encode_utf16().count() as u32;
+    assert_eq!((diagnostic.start, diagnostic.end), (Some(start), Some(end)));
+}
+
+#[test]
+fn derive_diagnostics_point_at_the_derive_as_written() {
+    assert_diagnostic_at(
+        "const café = \"🚀\";\nexport type Id = $Newtype<string>;\n/** @derive(Decode, Default) */\n/** @endec(positive) */\ntype Meters = $Newtype<number>;\n",
+        "requires @default",
+        "@derive(Decode, Default)",
+    );
+}
+
+#[test]
+fn field_diagnostics_point_at_the_field_annotation_as_written() {
+    assert_diagnostic_at(
+        "const café = \"🚀\";\n/** @derive(Decode) */\nexport interface User {\n  /** @endec({ validate: [\"doesNotExist\"] }) */\n  name: string;\n}\n",
+        "unknown validator",
+        "/** @endec({ validate: [\"doesNotExist\"] }) */",
+    );
+}
+
+#[test]
+fn call_macro_diagnostics_point_at_the_call_as_written() {
+    assert_diagnostic_at(
+        "/** @cfg({ feature: 'never' }) */\nexport const gone = \"é\";\ntype Pair = $Newtype<string, number>;\n",
+        "exactly one type argument",
+        "$Newtype<string, number>",
+    );
+}
+
+#[test]
+fn import_warnings_point_at_the_import_as_written() {
+    assert_diagnostic_at(
+        "/** @cfg({ feature: 'never' }) */\nexport const gone = \"é\";\nimport { Debug } from '@macroforge/core';\n/** @derive(Debug) */\nexport class Point {}\n",
+        "doesn't need to be imported",
+        "Debug",
+    );
+}
+
+#[test]
+fn log_comments_keep_the_mapping_to_the_source() {
+    let source = "/** @derive(Decode, Default) */\n/** @endec(positive) */\ntype Meters = $Newtype<number>;\nexport const trailing = 1;\n";
+    let host = crate::host::MacroExpander::new().unwrap();
+    let mut expansion = host.expand_source(source, "probe.ts").unwrap();
+    crate::expand_core::inject_log_comments(&mut expansion, crate::expand_core::LogLevel::Error)
+        .unwrap();
+    assert!(
+        expansion.code.contains("// "),
+        "an error was logged into the code"
+    );
+    let mapping = expansion
+        .source_mapping
+        .expect("the expansion has a mapping");
+    let expanded = expansion.code.find("export const trailing").unwrap() as u32;
+    assert_eq!(
+        mapping.expanded_to_original(expanded),
+        source
+            .find("export const trailing")
+            .map(|offset| offset as u32)
+    );
+    let comment = expansion.code.find("// ").unwrap() as u32;
+    assert!(
+        mapping.is_in_generated(comment),
+        "the log comment is generated code"
+    );
+}

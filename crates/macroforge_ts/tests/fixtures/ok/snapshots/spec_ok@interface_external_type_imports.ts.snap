@@ -518,7 +518,115 @@ metadata: metadataDefaultValue(),
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1145,7 +1253,16 @@ metadata: metadataDefaultValue(),
                 return result.success;
             }
 
-export const User = {
+export const User: {
+  readonly defaultValue: typeof userDefaultValue;
+  readonly encode: typeof userEncode;
+  readonly encodeWithContext: typeof userEncodeWithContext;
+  readonly decode: typeof userDecode;
+  readonly decodeWithContext: typeof userDecodeWithContext;
+  readonly validateFields: typeof userValidateFields;
+  readonly hasShape: typeof userHasShape;
+  readonly is: typeof userIs;
+} = {
   defaultValue: userDefaultValue,
   encode: userEncode,
   encodeWithContext: userEncodeWithContext,
@@ -1154,7 +1271,7 @@ export const User = {
   validateFields: userValidateFields,
   hasShape: userHasShape,
   is: userIs
-} as const;
+};
 
 ## DTS
 
@@ -1650,7 +1767,115 @@ metadata: metadataDefaultValue(),
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2277,7 +2502,16 @@ metadata: metadataDefaultValue(),
                 return result.success;
             }
 
-export const User = {
+export const User: {
+  readonly defaultValue: typeof userDefaultValue;
+  readonly encode: typeof userEncode;
+  readonly encodeWithContext: typeof userEncodeWithContext;
+  readonly decode: typeof userDecode;
+  readonly decodeWithContext: typeof userDecodeWithContext;
+  readonly validateFields: typeof userValidateFields;
+  readonly hasShape: typeof userHasShape;
+  readonly is: typeof userIs;
+} = {
   defaultValue: userDefaultValue,
   encode: userEncode,
   encodeWithContext: userEncodeWithContext,
@@ -2286,7 +2520,7 @@ export const User = {
   validateFields: userValidateFields,
   hasShape: userHasShape,
   is: userIs
-} as const;
+};
 
 ## Diagnostics
 
@@ -2294,13 +2528,14 @@ export const User = {
 
 ## Mapping
 
-original 0..47 -> expanded 0..47
-original 86..136 -> expanded 47..97
-original 136..137 -> expanded 8178..8179
-generated 97..233 <- Default
-generated 233..1741 <- Encode
-generated 1741..7900 <- Decode
-generated 7900..8178 <- __convenience_const
+original 0..47 -> expanded 569..616
+original 86..136 -> expanded 616..666
+original 136..137 -> expanded 9223..9224
+generated 0..569 <- imports
+generated 666..802 <- Default
+generated 802..2310 <- Encode
+generated 2310..8577 <- Decode
+generated 8577..9223 <- __convenience_const
 
 ## Metadata
 

@@ -262,7 +262,7 @@ pub struct FunctionParamIR {
 <h2 id="decorators">Decorators</h2>
 
 <CodeBlock code={`pub struct DecoratorIR {
-    pub name: String,      // e.g. "serde"
+    pub name: String,      // e.g. "endec"
     pub args_src: String,  // the arguments as written, e.g. "skip, rename: \\"id\\""
     pub span: SpanIR,
 }`} lang="rust" />

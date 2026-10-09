@@ -1,6 +1,5 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
-assertion_line: 347
 expression: snapshot
 input_file: crates/macroforge_ts/tests/fixtures/ok/enum_before_interface_endec.ts
 ---
@@ -89,11 +88,11 @@ export enum Stage {
         }
 
 export namespace Stage {
-  export const encode = stageEncode;
-  export const encodeWithContext = stageEncodeWithContext;
-  export const decode = stageDecode;
-  export const decodeWithContext = stageDecodeWithContext;
-  export const is = stageIs;
+  export const encode: typeof stageEncode = stageEncode;
+  export const encodeWithContext: typeof stageEncodeWithContext = stageEncodeWithContext;
+  export const decode: typeof stageDecode = stageDecode;
+  export const decodeWithContext: typeof stageDecodeWithContext = stageDecodeWithContext;
+  export const is: typeof stageIs = stageIs;
 }
 
 
@@ -322,6 +321,38 @@ export interface Job {
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1149,6 +1180,82 @@ export interface Job {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Job;
@@ -1207,7 +1314,15 @@ export interface Job {
                 return result.success;
             }
 
-export const Job = {
+export const Job: {
+  readonly encode: typeof jobEncode;
+  readonly encodeWithContext: typeof jobEncodeWithContext;
+  readonly decode: typeof jobDecode;
+  readonly decodeWithContext: typeof jobDecodeWithContext;
+  readonly validateFields: typeof jobValidateFields;
+  readonly hasShape: typeof jobHasShape;
+  readonly is: typeof jobIs;
+} = {
   encode: jobEncode,
   encodeWithContext: jobEncodeWithContext,
   decode: jobDecode,
@@ -1215,7 +1330,7 @@ export const Job = {
   validateFields: jobValidateFields,
   hasShape: jobHasShape,
   is: jobIs
-} as const;
+};
 
 ## DTS
 
@@ -1278,11 +1393,11 @@ export enum Stage {
         }
 
 export namespace Stage {
-  export const encode = stageEncode;
-  export const encodeWithContext = stageEncodeWithContext;
-  export const decode = stageDecode;
-  export const decodeWithContext = stageDecodeWithContext;
-  export const is = stageIs;
+  export const encode: typeof stageEncode = stageEncode;
+  export const encodeWithContext: typeof stageEncodeWithContext = stageEncodeWithContext;
+  export const decode: typeof stageDecode = stageDecode;
+  export const decodeWithContext: typeof stageDecodeWithContext = stageDecodeWithContext;
+  export const is: typeof stageIs = stageIs;
 }
 
 
@@ -1511,6 +1626,38 @@ export interface Job {
                                             } finally {
                                                 ctx.popScope();
                                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2338,6 +2485,82 @@ export interface Job {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Job;
@@ -2396,7 +2619,15 @@ export interface Job {
                 return result.success;
             }
 
-export const Job = {
+export const Job: {
+  readonly encode: typeof jobEncode;
+  readonly encodeWithContext: typeof jobEncodeWithContext;
+  readonly decode: typeof jobDecode;
+  readonly decodeWithContext: typeof jobDecodeWithContext;
+  readonly validateFields: typeof jobValidateFields;
+  readonly hasShape: typeof jobHasShape;
+  readonly is: typeof jobIs;
+} = {
   encode: jobEncode,
   encodeWithContext: jobEncodeWithContext,
   decode: jobDecode,
@@ -2404,7 +2635,7 @@ export const Job = {
   validateFields: jobValidateFields,
   hasShape: jobHasShape,
   is: jobIs
-} as const;
+};
 
 ## Diagnostics
 
@@ -2412,16 +2643,17 @@ export const Job = {
 
 ## Mapping
 
-original 30..106 -> expanded 0..76
-original 106..108 -> expanded 2198..2200
-original 138..181 -> expanded 2200..2243
-original 181..182 -> expanded 10077..10078
-generated 76..606 <- Encode
-generated 606..1949 <- Decode
-generated 1949..2198 <- __convenience_const
-generated 2243..3736 <- Encode
-generated 3736..9841 <- Decode
-generated 9841..10077 <- __convenience_const
+original 30..106 -> expanded 385..461
+original 106..108 -> expanded 2701..2703
+original 138..181 -> expanded 2703..2746
+original 181..182 -> expanded 10999..11000
+generated 0..385 <- imports
+generated 461..991 <- Encode
+generated 991..2334 <- Decode
+generated 2334..2701 <- __convenience_const
+generated 2746..4239 <- Encode
+generated 4239..10452 <- Decode
+generated 10452..10999 <- __convenience_const
 
 ## Metadata
 

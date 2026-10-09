@@ -18,6 +18,17 @@ fn regex_literal_body(pattern: &str) -> String {
     body
 }
 
+/// What a missing (`null` or `undefined`) value means where validators run.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum Missing {
+    /// The type admits a missing value, which passes unchecked.
+    Allowed,
+    /// The type requires a value, so a missing one fails as missing.
+    Required,
+    /// An earlier check, such as a `typeof` test, already proved a value.
+    Excluded,
+}
+
 /// Generate TypeScript validation code for a field
 ///
 /// This function generates inline validation code that pushes errors to an `errors` array
@@ -28,7 +39,7 @@ fn regex_literal_body(pattern: &str) -> String {
 /// * `value_var` - Variable name containing the value to validate (e.g., "__val", "__raw")
 /// * `field_name` - JSON field name for error reporting
 /// * `context_name` - Context name for error messages (e.g., class name)
-/// * `accepts_missing` - Whether the field's type allows `null` or `undefined`
+/// * `missing` - What a missing value means at this point
 ///
 /// # Returns
 /// A TypeScript expression that runs the validation statements.
@@ -37,7 +48,7 @@ pub(super) fn generate_field_validations(
     value_var: &str,
     field_name: &str,
     context_name: &str,
-    accepts_missing: bool,
+    missing: Missing,
 ) -> TsStream {
     let mut code = String::new();
 
@@ -186,20 +197,25 @@ pub(super) fn generate_field_validations(
 
     // Validators check the declared type's value. Where the type allows a
     // missing value (`T | null`, `T | undefined`, an optional field) it passes
-    // unchecked; anywhere else a missing value fails as missing, rather than
-    // reaching a check that assumes a value. Either way the guard narrows the
+    // unchecked; where it requires one, a missing value fails as missing rather
+    // than reaching a check that assumes a value. Either guard narrows the
     // value's type for the checks inside it.
     if code.is_empty() {
         return TsStream::from_string(code);
     }
-    if accepts_missing {
-        return TsStream::from_string(format!("if ({value_var} != null) {{\n{code}}}\n"));
+    match missing {
+        Missing::Excluded => TsStream::from_string(code),
+        Missing::Allowed => {
+            TsStream::from_string(format!("if ({value_var} != null) {{\n{code}}}\n"))
+        }
+        Missing::Required => {
+            let message = js_string(&format!("{context_name}.{field_name} is required"));
+            let field = js_string(field_name);
+            TsStream::from_string(format!(
+                "if ({value_var} == null) {{ errors.push({{ field: {field}, message: {message} }}); }} else {{\n{code}}}\n"
+            ))
+        }
     }
-    let missing = js_string(&format!("{context_name}.{field_name} is required"));
-    let field = js_string(field_name);
-    TsStream::from_string(format!(
-        "if ({value_var} == null) {{ errors.push({{ field: {field}, message: {missing} }}); }} else {{\n{code}}}\n"
-    ))
 }
 
 /// Generate default error message for a validator
@@ -208,112 +224,117 @@ pub(super) fn get_default_validator_message(
     field_name: &str,
     context_name: &str,
 ) -> String {
+    // `_root` validates the value itself, as for a primitive alias.
+    let subject = if field_name == "_root" {
+        context_name.to_string()
+    } else {
+        format!("{context_name}.{field_name}")
+    };
     match validator {
-        Validator::Email => format!("{context_name}.{field_name} must be a valid email"),
-        Validator::Url => format!("{context_name}.{field_name} must be a valid URL"),
-        Validator::Uuid => format!("{context_name}.{field_name} must be a valid UUID"),
+        Validator::Email => format!("{subject} must be a valid email"),
+        Validator::Url => format!("{subject} must be a valid URL"),
+        Validator::Uuid => format!("{subject} must be a valid UUID"),
         Validator::MaxLength(n) => {
-            format!("{context_name}.{field_name} must have at most {n} characters")
+            format!("{subject} must have at most {n} characters")
         }
         Validator::MinLength(n) => {
-            format!("{context_name}.{field_name} must have at least {n} characters")
+            format!("{subject} must have at least {n} characters")
         }
         Validator::Length(n) => {
-            format!("{context_name}.{field_name} must have exactly {n} characters")
+            format!("{subject} must have exactly {n} characters")
         }
         Validator::LengthRange(min, max) => {
-            format!("{context_name}.{field_name} must have between {min} and {max} characters")
+            format!("{subject} must have between {min} and {max} characters")
         }
         Validator::Pattern(pattern) => {
-            format!("{context_name}.{field_name} must match pattern {pattern}")
+            format!("{subject} must match pattern {pattern}")
         }
-        Validator::NonEmpty => format!("{context_name}.{field_name} must not be empty"),
-        Validator::Trimmed => format!("{context_name}.{field_name} must be trimmed"),
-        Validator::Lowercase => format!("{context_name}.{field_name} must be lowercase"),
-        Validator::Uppercase => format!("{context_name}.{field_name} must be uppercase"),
-        Validator::Capitalized => format!("{context_name}.{field_name} must be capitalized"),
-        Validator::Uncapitalized => format!("{context_name}.{field_name} must be uncapitalized"),
+        Validator::NonEmpty => format!("{subject} must not be empty"),
+        Validator::Trimmed => format!("{subject} must be trimmed"),
+        Validator::Lowercase => format!("{subject} must be lowercase"),
+        Validator::Uppercase => format!("{subject} must be uppercase"),
+        Validator::Capitalized => format!("{subject} must be capitalized"),
+        Validator::Uncapitalized => format!("{subject} must be uncapitalized"),
         Validator::StartsWith(prefix) => {
-            format!("{context_name}.{field_name} must start with '{prefix}'")
+            format!("{subject} must start with '{prefix}'")
         }
         Validator::EndsWith(suffix) => {
-            format!("{context_name}.{field_name} must end with '{suffix}'")
+            format!("{subject} must end with '{suffix}'")
         }
-        Validator::Includes(text) => format!("{context_name}.{field_name} must include '{text}'"),
+        Validator::Includes(text) => format!("{subject} must include '{text}'"),
         Validator::GreaterThan(n) => {
-            format!("{context_name}.{field_name} must be greater than {n}")
+            format!("{subject} must be greater than {n}")
         }
         Validator::GreaterThanOrEqualTo(n) => {
-            format!("{context_name}.{field_name} must be greater than or equal to {n}")
+            format!("{subject} must be greater than or equal to {n}")
         }
-        Validator::LessThan(n) => format!("{context_name}.{field_name} must be less than {n}"),
+        Validator::LessThan(n) => format!("{subject} must be less than {n}"),
         Validator::LessThanOrEqualTo(n) => {
-            format!("{context_name}.{field_name} must be less than or equal to {n}")
+            format!("{subject} must be less than or equal to {n}")
         }
         Validator::Between(min, max) => {
-            format!("{context_name}.{field_name} must be between {min} and {max}")
+            format!("{subject} must be between {min} and {max}")
         }
-        Validator::Int => format!("{context_name}.{field_name} must be an integer"),
-        Validator::NonNaN => format!("{context_name}.{field_name} must not be NaN"),
-        Validator::Finite => format!("{context_name}.{field_name} must be finite"),
-        Validator::Positive => format!("{context_name}.{field_name} must be positive"),
-        Validator::NonNegative => format!("{context_name}.{field_name} must be non-negative"),
-        Validator::Negative => format!("{context_name}.{field_name} must be negative"),
-        Validator::NonPositive => format!("{context_name}.{field_name} must be non-positive"),
+        Validator::Int => format!("{subject} must be an integer"),
+        Validator::NonNaN => format!("{subject} must not be NaN"),
+        Validator::Finite => format!("{subject} must be finite"),
+        Validator::Positive => format!("{subject} must be positive"),
+        Validator::NonNegative => format!("{subject} must be non-negative"),
+        Validator::Negative => format!("{subject} must be negative"),
+        Validator::NonPositive => format!("{subject} must be non-positive"),
         Validator::MultipleOf(n) => {
-            format!("{context_name}.{field_name} must be a multiple of {n}")
+            format!("{subject} must be a multiple of {n}")
         }
-        Validator::Uint8 => format!("{context_name}.{field_name} must be a uint8"),
+        Validator::Uint8 => format!("{subject} must be a uint8"),
         Validator::NonNegativeInt => {
-            format!("{context_name}.{field_name} must be a non-negative integer")
+            format!("{subject} must be a non-negative integer")
         }
         Validator::MaxItems(n) => {
-            format!("{context_name}.{field_name} must have at most {n} items")
+            format!("{subject} must have at most {n} items")
         }
         Validator::MinItems(n) => {
-            format!("{context_name}.{field_name} must have at least {n} items")
+            format!("{subject} must have at least {n} items")
         }
         Validator::ItemsCount(n) => {
-            format!("{context_name}.{field_name} must have exactly {n} items")
+            format!("{subject} must have exactly {n} items")
         }
-        Validator::ValidDate => format!("{context_name}.{field_name} must be a valid date"),
+        Validator::ValidDate => format!("{subject} must be a valid date"),
         Validator::GreaterThanDate(date) => {
-            format!("{context_name}.{field_name} must be after {date}")
+            format!("{subject} must be after {date}")
         }
         Validator::GreaterThanOrEqualToDate(date) => {
-            format!("{context_name}.{field_name} must be on or after {date}")
+            format!("{subject} must be on or after {date}")
         }
         Validator::LessThanDate(date) => {
-            format!("{context_name}.{field_name} must be before {date}")
+            format!("{subject} must be before {date}")
         }
         Validator::LessThanOrEqualToDate(date) => {
-            format!("{context_name}.{field_name} must be on or before {date}")
+            format!("{subject} must be on or before {date}")
         }
         Validator::BetweenDate(min, max) => {
-            format!("{context_name}.{field_name} must be between {min} and {max}")
+            format!("{subject} must be between {min} and {max}")
         }
         Validator::GreaterThanBigInt(n) => {
-            format!("{context_name}.{field_name} must be greater than {n}")
+            format!("{subject} must be greater than {n}")
         }
         Validator::GreaterThanOrEqualToBigInt(n) => {
-            format!("{context_name}.{field_name} must be greater than or equal to {n}")
+            format!("{subject} must be greater than or equal to {n}")
         }
         Validator::LessThanBigInt(n) => {
-            format!("{context_name}.{field_name} must be less than {n}")
+            format!("{subject} must be less than {n}")
         }
         Validator::LessThanOrEqualToBigInt(n) => {
-            format!("{context_name}.{field_name} must be less than or equal to {n}")
+            format!("{subject} must be less than or equal to {n}")
         }
         Validator::BetweenBigInt(min, max) => {
-            format!("{context_name}.{field_name} must be between {min} and {max}")
+            format!("{subject} must be between {min} and {max}")
         }
-        Validator::PositiveBigInt => format!("{context_name}.{field_name} must be positive"),
-        Validator::NonNegativeBigInt => format!("{context_name}.{field_name} must be non-negative"),
-        Validator::NegativeBigInt => format!("{context_name}.{field_name} must be negative"),
-        Validator::NonPositiveBigInt => format!("{context_name}.{field_name} must be non-positive"),
-        Validator::Custom(custom) => format!(
-            "{context_name}.{field_name} failed custom validation ({})",
-            custom.function
-        ),
+        Validator::PositiveBigInt => format!("{subject} must be positive"),
+        Validator::NonNegativeBigInt => format!("{subject} must be non-negative"),
+        Validator::NegativeBigInt => format!("{subject} must be negative"),
+        Validator::NonPositiveBigInt => format!("{subject} must be non-positive"),
+        Validator::Custom(custom) => {
+            format!("{subject} failed custom validation ({})", custom.function)
+        }
     }
 }

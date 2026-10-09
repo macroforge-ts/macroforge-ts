@@ -244,7 +244,46 @@ emailString: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_canEmail = obj["canEmail"] as boolean;instance.canEmail = __raw_canEmail;
+                                const __raw_canEmail = obj["canEmail"] as boolean;if (!(typeof __raw_canEmail === "boolean")) {
+                                                    errors.push({ field: "canEmail", message: __raw_canEmail == null ? "Email.canEmail is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.canEmail = __raw_canEmail;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -504,12 +543,51 @@ emailString: "",
 
 
                             }{
-                                const __raw_emailString = obj["emailString"] as string;
-                                            if (__raw_emailString == null) { errors.push({ field: "emailString", message: "Email.emailString is required" }); } else {
+                                const __raw_emailString = obj["emailString"] as string;if (!(typeof __raw_emailString === "string")) {
+                                                    errors.push({ field: "emailString", message: __raw_emailString == null ? "Email.emailString is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_emailString == null) { errors.push({ field: "emailString", message: "Email.emailString is required" }); } else {
 if (__raw_emailString.length === 0) { errors.push({ field: "emailString", message: "Email.emailString must not be empty" }); }
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_emailString)) { errors.push({ field: "emailString", message: "Email.emailString must be a valid email" }); }
 }
-instance.emailString = __raw_emailString;
+
+
+
+
+                                                    instance.emailString = __raw_emailString;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1337,6 +1415,82 @@ instance.emailString = __raw_emailString;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Email;
@@ -1584,7 +1738,18 @@ if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "emailStri
             return toExit(emailDecode(obj));
         }
 
-export const Email = {
+export const Email: {
+  readonly defaultValue: typeof emailDefaultValue;
+  readonly encode: typeof emailEncode;
+  readonly encodeWithContext: typeof emailEncodeWithContext;
+  readonly decode: typeof emailDecode;
+  readonly decodeWithContext: typeof emailDecodeWithContext;
+  readonly validateFields: typeof emailValidateFields;
+  readonly hasShape: typeof emailHasShape;
+  readonly is: typeof emailIs;
+  readonly createForm: typeof emailCreateForm;
+  readonly fromFormData: typeof emailFromFormData;
+} = {
   defaultValue: emailDefaultValue,
   encode: emailEncode,
   encodeWithContext: emailEncodeWithContext,
@@ -1595,7 +1760,7 @@ export const Email = {
   is: emailIs,
   createForm: emailCreateForm,
   fromFormData: emailFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1822,7 +1987,46 @@ emailString: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_canEmail = obj["canEmail"] as boolean;instance.canEmail = __raw_canEmail;
+                                const __raw_canEmail = obj["canEmail"] as boolean;if (!(typeof __raw_canEmail === "boolean")) {
+                                                    errors.push({ field: "canEmail", message: __raw_canEmail == null ? "Email.canEmail is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.canEmail = __raw_canEmail;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2082,12 +2286,51 @@ emailString: "",
 
 
                             }{
-                                const __raw_emailString = obj["emailString"] as string;
-                                            if (__raw_emailString == null) { errors.push({ field: "emailString", message: "Email.emailString is required" }); } else {
+                                const __raw_emailString = obj["emailString"] as string;if (!(typeof __raw_emailString === "string")) {
+                                                    errors.push({ field: "emailString", message: __raw_emailString == null ? "Email.emailString is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_emailString == null) { errors.push({ field: "emailString", message: "Email.emailString is required" }); } else {
 if (__raw_emailString.length === 0) { errors.push({ field: "emailString", message: "Email.emailString must not be empty" }); }
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_emailString)) { errors.push({ field: "emailString", message: "Email.emailString must be a valid email" }); }
 }
-instance.emailString = __raw_emailString;
+
+
+
+
+                                                    instance.emailString = __raw_emailString;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2915,6 +3158,82 @@ instance.emailString = __raw_emailString;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Email;
@@ -3162,7 +3481,18 @@ if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "emailStri
             return toExit(emailDecode(obj));
         }
 
-export const Email = {
+export const Email: {
+  readonly defaultValue: typeof emailDefaultValue;
+  readonly encode: typeof emailEncode;
+  readonly encodeWithContext: typeof emailEncodeWithContext;
+  readonly decode: typeof emailDecode;
+  readonly decodeWithContext: typeof emailDecodeWithContext;
+  readonly validateFields: typeof emailValidateFields;
+  readonly hasShape: typeof emailHasShape;
+  readonly is: typeof emailIs;
+  readonly createForm: typeof emailCreateForm;
+  readonly fromFormData: typeof emailFromFormData;
+} = {
   defaultValue: emailDefaultValue,
   encode: emailEncode,
   encodeWithContext: emailEncodeWithContext,
@@ -3173,7 +3503,7 @@ export const Email = {
   is: emailIs,
   createForm: emailCreateForm,
   fromFormData: emailFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3181,17 +3511,18 @@ export const Email = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..137 -> expanded 58..88
-original 185..213 -> expanded 88..116
-original 255..260 -> expanded 116..121
-original 310..337 -> expanded 121..148
-original 337..338 -> expanded 14674..14675
-generated 148..286 <- Default
-generated 286..1807 <- Encode
-generated 1807..9061 <- Decode
-generated 9061..14321 <- Gigaform
-generated 14321..14674 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..137 -> expanded 627..657
+original 185..213 -> expanded 657..685
+original 255..260 -> expanded 685..690
+original 310..337 -> expanded 690..717
+original 337..338 -> expanded 16641..16642
+generated 0..569 <- imports
+generated 717..855 <- Default
+generated 855..2376 <- Encode
+generated 2376..10554 <- Decode
+generated 10554..15814 <- Gigaform
+generated 15814..16641 <- __convenience_const
 
 ## Metadata
 

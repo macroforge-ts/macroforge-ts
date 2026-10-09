@@ -235,7 +235,46 @@ quantity: 0,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Order.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -495,7 +534,46 @@ quantity: 0,
 
 
                             }{
-                                const __raw_quantity = obj["quantity"] as number;instance.quantity = __raw_quantity;
+                                const __raw_quantity = obj["quantity"] as number;if (!(typeof __raw_quantity === "number")) {
+                                                    errors.push({ field: "quantity", message: __raw_quantity == null ? "Order.quantity is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.quantity = __raw_quantity;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1323,6 +1401,82 @@ quantity: 0,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Order;
@@ -1381,7 +1535,16 @@ quantity: 0,
                 return result.success;
             }
 
-export const Order = {
+export const Order: {
+  readonly defaultValue: typeof orderDefaultValue;
+  readonly encode: typeof orderEncode;
+  readonly encodeWithContext: typeof orderEncodeWithContext;
+  readonly decode: typeof orderDecode;
+  readonly decodeWithContext: typeof orderDecodeWithContext;
+  readonly validateFields: typeof orderValidateFields;
+  readonly hasShape: typeof orderHasShape;
+  readonly is: typeof orderIs;
+} = {
   defaultValue: orderDefaultValue,
   encode: orderEncode,
   encodeWithContext: orderEncodeWithContext,
@@ -1390,7 +1553,7 @@ export const Order = {
   validateFields: orderValidateFields,
   hasShape: orderHasShape,
   is: orderIs
-} as const;
+};
 
 ## DTS
 
@@ -1611,7 +1774,46 @@ quantity: 0,
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Order.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1871,7 +2073,46 @@ quantity: 0,
 
 
                             }{
-                                const __raw_quantity = obj["quantity"] as number;instance.quantity = __raw_quantity;
+                                const __raw_quantity = obj["quantity"] as number;if (!(typeof __raw_quantity === "number")) {
+                                                    errors.push({ field: "quantity", message: __raw_quantity == null ? "Order.quantity is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.quantity = __raw_quantity;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2699,6 +2940,82 @@ quantity: 0,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Order;
@@ -2757,7 +3074,16 @@ quantity: 0,
                 return result.success;
             }
 
-export const Order = {
+export const Order: {
+  readonly defaultValue: typeof orderDefaultValue;
+  readonly encode: typeof orderEncode;
+  readonly encodeWithContext: typeof orderEncodeWithContext;
+  readonly decode: typeof orderDecode;
+  readonly decodeWithContext: typeof orderDecodeWithContext;
+  readonly validateFields: typeof orderValidateFields;
+  readonly hasShape: typeof orderHasShape;
+  readonly is: typeof orderIs;
+} = {
   defaultValue: orderDefaultValue,
   encode: orderEncode,
   encodeWithContext: orderEncodeWithContext,
@@ -2766,7 +3092,7 @@ export const Order = {
   validateFields: orderValidateFields,
   hasShape: orderHasShape,
   is: orderIs
-} as const;
+};
 
 ## Diagnostics
 
@@ -2774,12 +3100,13 @@ export const Order = {
 
 ## Mapping
 
-original 39..104 -> expanded 0..65
-original 104..105 -> expanded 7468..7469
-generated 65..190 <- Default
-generated 190..1693 <- Encode
-generated 1693..7181 <- Decode
-generated 7181..7468 <- __convenience_const
+original 39..104 -> expanded 385..450
+original 104..105 -> expanded 9103..9104
+generated 0..385 <- imports
+generated 450..575 <- Default
+generated 575..2078 <- Encode
+generated 2078..8440 <- Decode
+generated 8440..9103 <- __convenience_const
 
 ## Metadata
 

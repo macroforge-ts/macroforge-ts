@@ -1,13 +1,13 @@
 use convert_case::{Case, Casing};
 
 use crate::ast::Expr;
-use crate::builtin::derive_common::CompareFieldOptions;
+use crate::builtin::derive_common::{CompareFieldOptions, tuple_compare_statements};
 use crate::builtin::return_types::partial_ord_return_type;
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::ts_syn::ts_ident;
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
-use super::comparison::generate_field_compare_for_interface;
+use super::comparison::{generate_field_compare_for_interface, generate_value_compare};
 use super::types::OrdField;
 
 #[ts_macro_derive(
@@ -253,19 +253,41 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 };
 
                 Ok(result)
+            } else if let Some(base) = crate::builtin::endec::primitive_base(type_alias.body()) {
+                let fn_name_ident = ts_ident!("{}PartialCompare", type_name.to_case(Case::Camel));
+                let compare_body =
+                    crate::builtin::derive_common::primitive_compare_statements(base, true);
+                Ok(ts_template! {
+                    export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): @{return_type_ident} {
+                        {$typescript TsStream::from_string(compare_body)}
+                    }
+                })
+            } else if let Some(elements) = type_alias.body().as_tuple() {
+                let fn_name_ident = ts_ident!("{}PartialCompare", type_name.to_case(Case::Camel));
+                let compare_body = tuple_compare_statements(elements, |ts_type, left, right| {
+                    generate_value_compare(ts_type, left, right, true, None, type_registry)
+                });
+                Ok(ts_template! {
+                    export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): @{return_type_ident} {
+                        if (a === b) return 0;
+                        {$typescript TsStream::from_string(compare_body)}
+                    }
+                })
             } else {
-                // Union, tuple, or simple alias: limited comparison
+                // Union or simple alias: limited comparison
                 let fn_name_ident = ts_ident!("{}PartialCompare", type_name.to_case(Case::Camel));
 
                 let result = ts_template! {
                     export function @{fn_name_ident}(a: @{type_ident}, b: @{type_ident}): @{return_type_ident} {
                         if (a === b) return 0;
-                        // For unions/tuples, try primitive comparison
-                        if (typeof a === "number" && typeof b === "number") {
-                            return a < b ? -1 : a > b ? 1 : 0;
+                        // Widened so a member kind the alias lacks narrows to that kind, not `never`.
+                        const left: unknown = a;
+                        const right: unknown = b;
+                        if (typeof left === "number" && typeof right === "number") {
+                            return left < right ? -1 : left > right ? 1 : 0;
                         }
-                        if (typeof a === "string" && typeof b === "string") {
-                            return a.localeCompare(b);
+                        if (typeof left === "string" && typeof right === "string") {
+                            return left.localeCompare(right);
                         }
                         return null;
                     }

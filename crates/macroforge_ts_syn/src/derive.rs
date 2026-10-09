@@ -986,6 +986,7 @@ mod tests {
             config: None,
             type_registry: crate::abi::ir::type_registry::TypeRegistry::default(),
             resolved_fields: None,
+            expansion_id: 0,
         }
     }
 
@@ -1045,6 +1046,7 @@ mod tests {
             config: None,
             type_registry: crate::abi::ir::type_registry::TypeRegistry::default(),
             resolved_fields: None,
+            expansion_id: 0,
         };
 
         let input = DeriveInput::from_context(ctx).expect("should parse");

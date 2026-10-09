@@ -248,11 +248,50 @@ localNumber: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_countryCode = obj["countryCode"] as string;
-                                            if (__raw_countryCode == null) { errors.push({ field: "countryCode", message: "Number.countryCode is required" }); } else {
+                                const __raw_countryCode = obj["countryCode"] as string;if (!(typeof __raw_countryCode === "string")) {
+                                                    errors.push({ field: "countryCode", message: __raw_countryCode == null ? "Number.countryCode is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_countryCode == null) { errors.push({ field: "countryCode", message: "Number.countryCode is required" }); } else {
 if (__raw_countryCode.length === 0) { errors.push({ field: "countryCode", message: "Number.countryCode must not be empty" }); }
 }
-instance.countryCode = __raw_countryCode;
+
+
+
+
+                                                    instance.countryCode = __raw_countryCode;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -512,11 +551,50 @@ instance.countryCode = __raw_countryCode;
 
 
                             }{
-                                const __raw_areaCode = obj["areaCode"] as string;
-                                            if (__raw_areaCode == null) { errors.push({ field: "areaCode", message: "Number.areaCode is required" }); } else {
+                                const __raw_areaCode = obj["areaCode"] as string;if (!(typeof __raw_areaCode === "string")) {
+                                                    errors.push({ field: "areaCode", message: __raw_areaCode == null ? "Number.areaCode is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_areaCode == null) { errors.push({ field: "areaCode", message: "Number.areaCode is required" }); } else {
 if (__raw_areaCode.length === 0) { errors.push({ field: "areaCode", message: "Number.areaCode must not be empty" }); }
 }
-instance.areaCode = __raw_areaCode;
+
+
+
+
+                                                    instance.areaCode = __raw_areaCode;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -776,11 +854,50 @@ instance.areaCode = __raw_areaCode;
 
 
                             }{
-                                const __raw_localNumber = obj["localNumber"] as string;
-                                            if (__raw_localNumber == null) { errors.push({ field: "localNumber", message: "Number.localNumber is required" }); } else {
+                                const __raw_localNumber = obj["localNumber"] as string;if (!(typeof __raw_localNumber === "string")) {
+                                                    errors.push({ field: "localNumber", message: __raw_localNumber == null ? "Number.localNumber is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_localNumber == null) { errors.push({ field: "localNumber", message: "Number.localNumber is required" }); } else {
 if (__raw_localNumber.length === 0) { errors.push({ field: "localNumber", message: "Number.localNumber must not be empty" }); }
 }
-instance.localNumber = __raw_localNumber;
+
+
+
+
+                                                    instance.localNumber = __raw_localNumber;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1040,6 +1157,82 @@ instance.localNumber = __raw_localNumber;
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1912,7 +2105,18 @@ if (__val.length === 0) { errors.push({ field: "localNumber", message: "Number.l
             return toExit(numberDecode(obj));
         }
 
-export const Number = {
+export const Number: {
+  readonly defaultValue: typeof numberDefaultValue;
+  readonly encode: typeof numberEncode;
+  readonly encodeWithContext: typeof numberEncodeWithContext;
+  readonly decode: typeof numberDecode;
+  readonly decodeWithContext: typeof numberDecodeWithContext;
+  readonly validateFields: typeof numberValidateFields;
+  readonly hasShape: typeof numberHasShape;
+  readonly is: typeof numberIs;
+  readonly createForm: typeof numberCreateForm;
+  readonly fromFormData: typeof numberFromFormData;
+} = {
   defaultValue: numberDefaultValue,
   encode: numberEncode,
   encodeWithContext: numberEncodeWithContext,
@@ -1923,7 +2127,7 @@ export const Number = {
   is: numberIs,
   createForm: numberCreateForm,
   fromFormData: numberFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -2154,11 +2358,50 @@ localNumber: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_countryCode = obj["countryCode"] as string;
-                                            if (__raw_countryCode == null) { errors.push({ field: "countryCode", message: "Number.countryCode is required" }); } else {
+                                const __raw_countryCode = obj["countryCode"] as string;if (!(typeof __raw_countryCode === "string")) {
+                                                    errors.push({ field: "countryCode", message: __raw_countryCode == null ? "Number.countryCode is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_countryCode == null) { errors.push({ field: "countryCode", message: "Number.countryCode is required" }); } else {
 if (__raw_countryCode.length === 0) { errors.push({ field: "countryCode", message: "Number.countryCode must not be empty" }); }
 }
-instance.countryCode = __raw_countryCode;
+
+
+
+
+                                                    instance.countryCode = __raw_countryCode;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2418,11 +2661,50 @@ instance.countryCode = __raw_countryCode;
 
 
                             }{
-                                const __raw_areaCode = obj["areaCode"] as string;
-                                            if (__raw_areaCode == null) { errors.push({ field: "areaCode", message: "Number.areaCode is required" }); } else {
+                                const __raw_areaCode = obj["areaCode"] as string;if (!(typeof __raw_areaCode === "string")) {
+                                                    errors.push({ field: "areaCode", message: __raw_areaCode == null ? "Number.areaCode is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_areaCode == null) { errors.push({ field: "areaCode", message: "Number.areaCode is required" }); } else {
 if (__raw_areaCode.length === 0) { errors.push({ field: "areaCode", message: "Number.areaCode must not be empty" }); }
 }
-instance.areaCode = __raw_areaCode;
+
+
+
+
+                                                    instance.areaCode = __raw_areaCode;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2682,11 +2964,50 @@ instance.areaCode = __raw_areaCode;
 
 
                             }{
-                                const __raw_localNumber = obj["localNumber"] as string;
-                                            if (__raw_localNumber == null) { errors.push({ field: "localNumber", message: "Number.localNumber is required" }); } else {
+                                const __raw_localNumber = obj["localNumber"] as string;if (!(typeof __raw_localNumber === "string")) {
+                                                    errors.push({ field: "localNumber", message: __raw_localNumber == null ? "Number.localNumber is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_localNumber == null) { errors.push({ field: "localNumber", message: "Number.localNumber is required" }); } else {
 if (__raw_localNumber.length === 0) { errors.push({ field: "localNumber", message: "Number.localNumber must not be empty" }); }
 }
-instance.localNumber = __raw_localNumber;
+
+
+
+
+                                                    instance.localNumber = __raw_localNumber;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2946,6 +3267,82 @@ instance.localNumber = __raw_localNumber;
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3818,7 +4215,18 @@ if (__val.length === 0) { errors.push({ field: "localNumber", message: "Number.l
             return toExit(numberDecode(obj));
         }
 
-export const Number = {
+export const Number: {
+  readonly defaultValue: typeof numberDefaultValue;
+  readonly encode: typeof numberEncode;
+  readonly encodeWithContext: typeof numberEncodeWithContext;
+  readonly decode: typeof numberDecode;
+  readonly decodeWithContext: typeof numberDecodeWithContext;
+  readonly validateFields: typeof numberValidateFields;
+  readonly hasShape: typeof numberHasShape;
+  readonly is: typeof numberIs;
+  readonly createForm: typeof numberCreateForm;
+  readonly fromFormData: typeof numberFromFormData;
+} = {
   defaultValue: numberDefaultValue,
   encode: numberEncode,
   encodeWithContext: numberEncodeWithContext,
@@ -3829,7 +4237,7 @@ export const Number = {
   is: numberIs,
   createForm: numberCreateForm,
   fromFormData: numberFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3837,17 +4245,18 @@ export const Number = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..138 -> expanded 58..89
-original 179..209 -> expanded 89..119
-original 250..277 -> expanded 119..146
-original 318..345 -> expanded 146..173
-original 345..346 -> expanded 18245..18246
-generated 173..327 <- Default
-generated 327..1893 <- Encode
-generated 1893..11460 <- Decode
-generated 11460..17881 <- Gigaform
-generated 17881..18245 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..138 -> expanded 627..658
+original 179..209 -> expanded 658..688
+original 250..277 -> expanded 688..715
+original 318..345 -> expanded 715..742
+original 345..346 -> expanded 20670..20671
+generated 0..569 <- imports
+generated 742..896 <- Default
+generated 896..2462 <- Encode
+generated 2462..13401 <- Decode
+generated 13401..19822 <- Gigaform
+generated 19822..20670 <- __convenience_const
 
 ## Metadata
 

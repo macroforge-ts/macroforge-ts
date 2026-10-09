@@ -1,0 +1,272 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/default_validated_newtype.ts
+---
+## Input
+
+/** @derive(Decode, Default) */
+/** @endec(positive) */
+type Meters = $Newtype<number>;
+
+## Changed
+
+true
+
+## Output
+
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+declare const __mf_newtype_1: unique symbol;
+
+type Meters = number & { readonly [__mf_newtype_1]: true };
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DecodeContext.create();
+                const result = metersDecodeWithContext(data, ctx);
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: result
+});
+            } catch (e) {
+                if (e instanceof __mf_DecodeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters {const __decoded: unknown = value;
+
+
+
+
+
+
+
+
+
+
+
+            if (typeof __decoded !== "number") {
+                throw new __mf_DecodeError([{ field: "_root", message: "Meters.decodeWithContext: expected number" }]);
+            }const errors: Array<{ field: string; message: string }> = [];
+                if (__decoded <= 0) { errors.push({ field: "_root", message: "Meters must be positive" }); }
+
+                ctx.pushErrors(errors);
+
+
+
+
+            return __decoded as Meters;
+        }
+
+        export function metersValidateField<K extends keyof Meters>(
+            _field: K,
+            _value: Meters[K]
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function metersValidateFields(
+            _partial: Partial<Meters>
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function metersHasShape(value: unknown): boolean {return typeof value === "number";
+
+
+
+
+        }
+
+        export function metersIs(value: unknown): value is Meters {return typeof value === "number" && metersDecode(value).success;
+
+
+
+
+        }
+
+const Meters: {
+  readonly decode: typeof metersDecode;
+  readonly decodeWithContext: typeof metersDecodeWithContext;
+  readonly validateFields: typeof metersValidateFields;
+  readonly hasShape: typeof metersHasShape;
+  readonly is: typeof metersIs;
+} = {
+  decode: metersDecode,
+  decodeWithContext: metersDecodeWithContext,
+  validateFields: metersValidateFields,
+  hasShape: metersHasShape,
+  is: metersIs
+};
+
+## DTS
+
+declare const __mf_newtype_1: unique symbol;
+
+type Meters = number & { readonly [__mf_newtype_1]: true };
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DecodeContext.create();
+                const result = metersDecodeWithContext(data, ctx);
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: result
+});
+            } catch (e) {
+                if (e instanceof __mf_DecodeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters {const __decoded: unknown = value;
+
+
+
+
+
+
+
+
+
+
+
+            if (typeof __decoded !== "number") {
+                throw new __mf_DecodeError([{ field: "_root", message: "Meters.decodeWithContext: expected number" }]);
+            }const errors: Array<{ field: string; message: string }> = [];
+                if (__decoded <= 0) { errors.push({ field: "_root", message: "Meters must be positive" }); }
+
+                ctx.pushErrors(errors);
+
+
+
+
+            return __decoded as Meters;
+        }
+
+        export function metersValidateField<K extends keyof Meters>(
+            _field: K,
+            _value: Meters[K]
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function metersValidateFields(
+            _partial: Partial<Meters>
+        ): Array<{ field: string; message: string }> {
+            return [];
+        }
+
+        export function metersHasShape(value: unknown): boolean {return typeof value === "number";
+
+
+
+
+        }
+
+        export function metersIs(value: unknown): value is Meters {return typeof value === "number" && metersDecode(value).success;
+
+
+
+
+        }
+
+const Meters: {
+  readonly decode: typeof metersDecode;
+  readonly decodeWithContext: typeof metersDecodeWithContext;
+  readonly validateFields: typeof metersValidateFields;
+  readonly hasShape: typeof metersHasShape;
+  readonly is: typeof metersIs;
+} = {
+  decode: metersDecode,
+  decodeWithContext: metersDecodeWithContext,
+  validateFields: metersValidateFields,
+  hasShape: metersHasShape,
+  is: metersIs
+};
+
+## Diagnostics
+
+Error [5..29]: @derive(Default) on 'Meters' requires @default(value): its validators may reject the default of its base type
+
+## Mapping
+
+original 55..70 -> expanded 280..295
+original 86..87 -> expanded 339..340
+original 87..88 -> expanded 3425..3426
+generated 0..235 <- imports
+generated 235..280 <- $Newtype
+generated 295..339 <- $Newtype
+generated 340..3012 <- Decode
+generated 3012..3425 <- __convenience_const
+
+## Metadata
+
+type Meters: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"Brand":["__mf_newtype_1"]}}]},"decorators":[{"args_src":"positive","name":"endec","span":{"end":101,"start":78}},{"args_src":"Decode, Default","name":"Derive","span":{"end":77,"start":46}}],"name":"Meters","span":{"end":161,"start":102},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

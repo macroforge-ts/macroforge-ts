@@ -241,7 +241,46 @@ date: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Promotion.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -501,7 +540,46 @@ date: "",
 
 
                             }{
-                                const __raw_date = obj["date"] as string;instance.date = __raw_date;
+                                const __raw_date = obj["date"] as string;if (!(typeof __raw_date === "string")) {
+                                                    errors.push({ field: "date", message: __raw_date == null ? "Promotion.date is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.date = __raw_date;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1329,6 +1407,82 @@ date: "",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Promotion;
@@ -1539,7 +1693,18 @@ date: "",
             return toExit(promotionDecode(obj));
         }
 
-export const Promotion = {
+export const Promotion: {
+  readonly defaultValue: typeof promotionDefaultValue;
+  readonly encode: typeof promotionEncode;
+  readonly encodeWithContext: typeof promotionEncodeWithContext;
+  readonly decode: typeof promotionDecode;
+  readonly decodeWithContext: typeof promotionDecodeWithContext;
+  readonly validateFields: typeof promotionValidateFields;
+  readonly hasShape: typeof promotionHasShape;
+  readonly is: typeof promotionIs;
+  readonly createForm: typeof promotionCreateForm;
+  readonly fromFormData: typeof promotionFromFormData;
+} = {
   defaultValue: promotionDefaultValue,
   encode: promotionEncode,
   encodeWithContext: promotionEncodeWithContext,
@@ -1550,7 +1715,7 @@ export const Promotion = {
   is: promotionIs,
   createForm: promotionCreateForm,
   fromFormData: promotionFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1774,7 +1939,46 @@ date: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Promotion.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2034,7 +2238,46 @@ date: "",
 
 
                             }{
-                                const __raw_date = obj["date"] as string;instance.date = __raw_date;
+                                const __raw_date = obj["date"] as string;if (!(typeof __raw_date === "string")) {
+                                                    errors.push({ field: "date", message: __raw_date == null ? "Promotion.date is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.date = __raw_date;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2862,6 +3105,82 @@ date: "",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Promotion;
@@ -3072,7 +3391,18 @@ date: "",
             return toExit(promotionDecode(obj));
         }
 
-export const Promotion = {
+export const Promotion: {
+  readonly defaultValue: typeof promotionDefaultValue;
+  readonly encode: typeof promotionEncode;
+  readonly encodeWithContext: typeof promotionEncodeWithContext;
+  readonly decode: typeof promotionDecode;
+  readonly decodeWithContext: typeof promotionDecodeWithContext;
+  readonly validateFields: typeof promotionValidateFields;
+  readonly hasShape: typeof promotionHasShape;
+  readonly is: typeof promotionIs;
+  readonly createForm: typeof promotionCreateForm;
+  readonly fromFormData: typeof promotionFromFormData;
+} = {
   defaultValue: promotionDefaultValue,
   encode: promotionEncode,
   encodeWithContext: promotionEncodeWithContext,
@@ -3083,7 +3413,7 @@ export const Promotion = {
   is: promotionIs,
   createForm: promotionCreateForm,
   fromFormData: promotionFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3091,14 +3421,15 @@ export const Promotion = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..172 -> expanded 58..123
-original 172..173 -> expanded 12631..12632
-generated 123..253 <- Default
-generated 253..1772 <- Encode
-generated 1772..7304 <- Decode
-generated 7304..12234 <- Gigaform
-generated 12234..12631 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..172 -> expanded 627..692
+original 172..173 -> expanded 14580..14581
+generated 0..569 <- imports
+generated 692..822 <- Default
+generated 822..2341 <- Encode
+generated 2341..8739 <- Decode
+generated 8739..13669 <- Gigaform
+generated 13669..14580 <- __convenience_const
 
 ## Metadata
 

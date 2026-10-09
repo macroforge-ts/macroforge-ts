@@ -274,7 +274,46 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "SvelteAllMacrosTest.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -534,7 +573,46 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
 
 
                             }{
-                                const __raw_title = obj["title"] as string;instance.title = __raw_title;
+                                const __raw_title = obj["title"] as string;if (!(typeof __raw_title === "string")) {
+                                                    errors.push({ field: "title", message: __raw_title == null ? "SvelteAllMacrosTest.title is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.title = __raw_title;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -794,7 +872,46 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
 
 
                             }{
-                                const __raw_content = obj["content"] as string;instance.content = __raw_content;
+                                const __raw_content = obj["content"] as string;if (!(typeof __raw_content === "string")) {
+                                                    errors.push({ field: "content", message: __raw_content == null ? "SvelteAllMacrosTest.content is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.content = __raw_content;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1054,7 +1171,46 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
 
 
                             }{
-                                const __raw_apiKey = obj["apiKey"] as string;instance.apiKey = __raw_apiKey;
+                                const __raw_apiKey = obj["apiKey"] as string;if (!(typeof __raw_apiKey === "string")) {
+                                                    errors.push({ field: "apiKey", message: __raw_apiKey == null ? "SvelteAllMacrosTest.apiKey is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.apiKey = __raw_apiKey;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1314,7 +1470,46 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
 
 
                             }{
-                                const __raw_count = obj["count"] as number;instance.count = __raw_count;
+                                const __raw_count = obj["count"] as number;if (!(typeof __raw_count === "number")) {
+                                                    errors.push({ field: "count", message: __raw_count == null ? "SvelteAllMacrosTest.count is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.count = __raw_count;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1574,7 +1769,46 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
 
 
                             }{
-                                const __raw_enabled = obj["enabled"] as boolean;instance.enabled = __raw_enabled;
+                                const __raw_enabled = obj["enabled"] as boolean;if (!(typeof __raw_enabled === "boolean")) {
+                                                    errors.push({ field: "enabled", message: __raw_enabled == null ? "SvelteAllMacrosTest.enabled is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.enabled = __raw_enabled;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1834,6 +2068,82 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2751,7 +3061,46 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "SvelteAllMacrosTest.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3011,7 +3360,46 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
 
 
                             }{
-                                const __raw_title = obj["title"] as string;instance.title = __raw_title;
+                                const __raw_title = obj["title"] as string;if (!(typeof __raw_title === "string")) {
+                                                    errors.push({ field: "title", message: __raw_title == null ? "SvelteAllMacrosTest.title is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.title = __raw_title;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3271,7 +3659,46 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
 
 
                             }{
-                                const __raw_content = obj["content"] as string;instance.content = __raw_content;
+                                const __raw_content = obj["content"] as string;if (!(typeof __raw_content === "string")) {
+                                                    errors.push({ field: "content", message: __raw_content == null ? "SvelteAllMacrosTest.content is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.content = __raw_content;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3531,7 +3958,46 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
 
 
                             }{
-                                const __raw_apiKey = obj["apiKey"] as string;instance.apiKey = __raw_apiKey;
+                                const __raw_apiKey = obj["apiKey"] as string;if (!(typeof __raw_apiKey === "string")) {
+                                                    errors.push({ field: "apiKey", message: __raw_apiKey == null ? "SvelteAllMacrosTest.apiKey is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.apiKey = __raw_apiKey;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3791,7 +4257,46 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
 
 
                             }{
-                                const __raw_count = obj["count"] as number;instance.count = __raw_count;
+                                const __raw_count = obj["count"] as number;if (!(typeof __raw_count === "number")) {
+                                                    errors.push({ field: "count", message: __raw_count == null ? "SvelteAllMacrosTest.count is required" : "expected number" });
+                                                } else {
+
+
+
+                                                    instance.count = __raw_count;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4051,7 +4556,46 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
 
 
                             }{
-                                const __raw_enabled = obj["enabled"] as boolean;instance.enabled = __raw_enabled;
+                                const __raw_enabled = obj["enabled"] as boolean;if (!(typeof __raw_enabled === "boolean")) {
+                                                    errors.push({ field: "enabled", message: __raw_enabled == null ? "SvelteAllMacrosTest.enabled is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.enabled = __raw_enabled;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4879,6 +5423,82 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as SvelteAllMacrosTest;
@@ -4975,17 +5595,18 @@ export const svelteTestInstance = SvelteAllMacrosTest.make(
 
 ## Mapping
 
-original 0..60 -> expanded 0..60
-original 121..165 -> expanded 60..104
-original 200..261 -> expanded 104..165
-original 290..353 -> expanded 165..228
-original 353..886 -> expanded 11919..12452
-generated 228..684 <- Debug
-generated 684..1092 <- Clone
-generated 1092..1425 <- PartialEq
-generated 1425..3124 <- Encode
-generated 3124..11103 <- Decode
-generated 11103..11919 <- Hash
+original 0..60 -> expanded 385..445
+original 121..165 -> expanded 445..489
+original 200..261 -> expanded 489..550
+original 290..353 -> expanded 550..613
+original 353..886 -> expanded 14868..15401
+generated 0..385 <- imports
+generated 613..1069 <- Debug
+generated 1069..1477 <- Clone
+generated 1477..1810 <- PartialEq
+generated 1810..3509 <- Encode
+generated 3509..14052 <- Decode
+generated 14052..14868 <- Hash
 
 ## Metadata
 

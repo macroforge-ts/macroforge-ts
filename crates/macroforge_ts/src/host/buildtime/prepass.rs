@@ -16,16 +16,17 @@ use crate::host::buildtime::sandbox::{
     BuildtimeSandbox, SandboxError, SandboxOptions, SandboxValue,
 };
 use crate::host::buildtime::serialize::{SerializeError, value_to_ts_source};
-use crate::host::patch_applicator::PatchApplicator;
+use crate::host::patch_applicator::{ApplyResult, PatchApplicator};
 use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, Patch};
 
 /// Output of the buildtime pre-pass.
 #[derive(Debug, Clone, Default)]
 pub struct PrepassOutput {
-    /// Rewritten source, or `None` if no `@buildtime` declarations were
-    /// found (or all of them produced errors that meant no patch was
-    /// emitted). Callers feed this into the next pre-pass stage.
-    pub rewritten: Option<String>,
+    /// Rewritten source and its mapping back to the input, or `None` if no
+    /// `@buildtime` declarations were found (or all of them produced errors
+    /// that meant no patch was emitted). Callers feed this into the next
+    /// pre-pass stage.
+    pub rewritten: Option<ApplyResult>,
     /// Absolute paths of every file the sandbox read during evaluation.
     /// Used by the host to wire up HMR watchers and invalidate the
     /// on-disk cache when any of them change.
@@ -166,8 +167,8 @@ pub fn run_prepass(
     let rewritten = if patches.is_empty() {
         None
     } else {
-        match PatchApplicator::new(source, patches).apply() {
-            Ok(code) => Some(code),
+        match PatchApplicator::new(source, patches).apply_with_mapping(Some("buildtime")) {
+            Ok(rewritten) => Some(rewritten),
             Err(err) => {
                 diagnostics.push(Diagnostic {
                     level: DiagnosticLevel::Error,
@@ -382,9 +383,7 @@ fn build_same_file_prelude(
                     continue;
                 }
                 if let Some(reason) = impure_init_reason(var) {
-                    impure_diag.get_or_insert_with(|| {
-                        prelude_warning(reason, var.span.start, var.span.end)
-                    });
+                    impure_diag.get_or_insert_with(|| prelude_warning(reason, var.span));
                 }
             }
             Statement::FunctionDeclaration(_)
@@ -406,19 +405,15 @@ fn build_same_file_prelude(
                 if let Declaration::VariableDeclaration(var) = &export.declaration
                     && let Some(reason) = impure_init_reason(var)
                 {
-                    impure_diag.get_or_insert_with(|| {
-                        prelude_warning(reason, var.span.start, var.span.end)
-                    });
+                    impure_diag.get_or_insert_with(|| prelude_warning(reason, var.span));
                 }
             }
             other => {
                 if impure_diag.is_none() {
                     use oxc::span::GetSpan;
-                    let sp = other.span();
                     impure_diag = Some(prelude_warning(
                         "unsupported top-level statement",
-                        sp.start,
-                        sp.end,
+                        other.span(),
                     ));
                 }
             }
@@ -590,7 +585,7 @@ fn impure_init_reason(var: &oxc::ast::ast::VariableDeclaration<'_>) -> Option<&'
     })
 }
 
-fn prelude_warning(reason: &str, start: u32, end: u32) -> Diagnostic {
+fn prelude_warning(reason: &str, span: oxc::span::Span) -> Diagnostic {
     use crate::ts_syn::abi::SpanIR;
     Diagnostic {
         level: DiagnosticLevel::Warning,
@@ -598,7 +593,7 @@ fn prelude_warning(reason: &str, start: u32, end: u32) -> Diagnostic {
             "@buildtime same-file prelude disabled: {}",
             reason
         ),
-        span: Some(SpanIR { start, end }),
+        span: Some(SpanIR::new(span.start + 1, span.end + 1)),
         notes: vec![
             "only pure top-level code (const/function/class, with pure initializers) can be referenced from @buildtime bodies".to_string(),
         ],

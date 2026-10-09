@@ -144,7 +144,44 @@ export const declarativeComplexErased = true;
 
 ## Mapping
 
-original 0..6107 -> expanded 0..6107
+original 0..394 -> expanded 0..394
+original 446..1015 -> expanded 394..963
+original 1104..1128 -> expanded 963..987
+original 1136..1160 -> expanded 989..1013
+original 1170..1461 -> expanded 1028..1319
+original 1471..1500 -> expanded 1334..1363
+original 1514..2037 -> expanded 1386..1909
+original 2132..2165 -> expanded 1909..1942
+original 2177..2271 -> expanded 1945..2039
+original 2296..2894 -> expanded 2059..2657
+original 2949..2951 -> expanded 2657..2659
+original 3015..3044 -> expanded 2659..2688
+original 3054..3079 -> expanded 2695..2720
+original 3087..3734 -> expanded 2739..3386
+original 3821..3848 -> expanded 3386..3413
+original 3864..3889 -> expanded 3447..3472
+original 3916..4565 -> expanded 3515..4164
+original 4688..5023 -> expanded 4164..4499
+original 5040..5155 -> expanded 4577..4692
+original 5172..5933 -> expanded 4770..5531
+original 6071..6073 -> expanded 5531..5533
+original 6206..6320 -> expanded 5533..5647
+original 6344..6377 -> expanded 5684..5717
+original 6412..6750 -> expanded 5769..6107
+generated 987..989 <- $min
+generated 1013..1028 <- $min
+generated 1319..1334 <- $min
+generated 1363..1386 <- $min
+generated 1942..1945 <- $orElse
+generated 2039..2059 <- $orElse
+generated 2688..2695 <- $square
+generated 2720..2739 <- $pow4
+generated 3413..3447 <- $sumAll
+generated 3472..3515 <- $sumAll
+generated 4499..4577 <- $squarePlusOne
+generated 4692..4770 <- $squarePlusOne
+generated 5647..5684 <- $PartialShallow
+generated 5717..5769 <- $NonNull
 
 ## Metadata
 

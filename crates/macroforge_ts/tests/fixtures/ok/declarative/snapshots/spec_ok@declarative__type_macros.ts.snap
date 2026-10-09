@@ -63,7 +63,15 @@ type Triple = [string,number,boolean];
 
 ## Mapping
 
-original 0..314 -> expanded 0..314
+original 52..117 -> expanded 0..65
+original 250..316 -> expanded 65..131
+original 425..499 -> expanded 131..205
+original 514..528 -> expanded 244..258
+original 550..566 -> expanded 273..289
+original 597..599 -> expanded 312..314
+generated 205..244 <- $ReadOnly
+generated 258..273 <- $Tuple
+generated 289..312 <- $Tuple
 
 ## Metadata
 

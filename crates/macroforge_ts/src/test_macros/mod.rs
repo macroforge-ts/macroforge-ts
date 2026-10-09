@@ -21,6 +21,10 @@
 //!   by the macro. `$now()` → `currentTime()`, plus its import.
 //! - `@derive(Placed)`, derive macro: one stream per insert position,
 //!   combined into one, so each part's placement can be checked.
+//! - `$twice`, call macro whose output is another macro call, so it exercises
+//!   expansion of macro output. `$twice(foo)` → `$concat_names(foo, foo)`.
+//! - `$forever`, call macro that emits a call to itself, which must stop at
+//!   the expansion depth limit with an error.
 
 use crate::macros::{ts_macro, ts_macro_attribute, ts_macro_derive, ts_template};
 use crate::ts_syn::{
@@ -155,4 +159,25 @@ pub fn placed_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
         {$typescript top}
         {$typescript body}
     })
+}
+
+/// `$twice(x)` → `$concat_names(x, x)`, expanded in turn to `"x_x"`.
+#[ts_macro(
+    twice,
+    description = "Emit a $concat_names call joining the argument with itself"
+)]
+pub fn twice_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
+    let argument = input.source().trim();
+    Ok(TsStream::from_string(format!(
+        "$concat_names({argument}, {argument})"
+    )))
+}
+
+/// `$forever(x)` → `$forever(x)`, which never finishes expanding.
+#[ts_macro(forever, description = "Emit a call to itself")]
+pub fn forever_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
+    Ok(TsStream::from_string(format!(
+        "$forever({})",
+        input.source().trim()
+    )))
 }

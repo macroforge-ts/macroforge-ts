@@ -112,6 +112,19 @@ Imports the macro adds with `add_import` and its siblings are written at the top
 derive's; see [Output and Imports](../../docs/custom-macros/output#imports). Its warnings and errors
 are reported at the call.
 
+## Nested Macro Calls
+
+Expansion runs outside-in, as in Rust. A macro receives its arguments unexpanded, so
+`$stringify($concat_names(a, b))` sees the text `$concat_names(a, b)`. Macro calls in a macro's
+output are expanded afterwards, resolved where the original call was written, so a macro can emit
+another macro's call and have it expand. Output that keeps emitting calls stops with an error after
+64 levels.
+
+A macro that declares a name at file level, such as a type its output refers to, should derive that
+name from `input.context().expansion_id` rather than from a source position. The id is unique within
+the file, including expansions of calls found in another macro's output, which have no position of
+their own.
+
 ## No-op Exports
 
 Each `#[ts_macro]` auto-generates a no-op identity function in the WASM build so consumers can

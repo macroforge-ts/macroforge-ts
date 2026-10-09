@@ -56,7 +56,15 @@ console.log(JSON.stringify({ empty, nums, exprs }));
 
 ## Mapping
 
-(none)
+original 0..246 -> expanded 0..246
+original 298..300 -> expanded 246..248
+original 368..384 -> expanded 248..264
+original 390..405 -> expanded 266..281
+original 418..434 -> expanded 288..304
+original 461..517 -> expanded 325..381
+generated 264..266 <- $vec
+generated 281..288 <- $vec
+generated 304..325 <- $vec
 
 ## Metadata
 

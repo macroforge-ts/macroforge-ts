@@ -243,7 +243,46 @@ date: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Package.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -503,7 +542,46 @@ date: "",
 
 
                             }{
-                                const __raw_date = obj["date"] as string;instance.date = __raw_date;
+                                const __raw_date = obj["date"] as string;if (!(typeof __raw_date === "string")) {
+                                                    errors.push({ field: "date", message: __raw_date == null ? "Package.date is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.date = __raw_date;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1331,6 +1409,82 @@ date: "",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Package;
@@ -1541,7 +1695,18 @@ date: "",
             return toExit(packageDecode(obj));
         }
 
-export const Package = {
+export const Package: {
+  readonly defaultValue: typeof packageDefaultValue;
+  readonly encode: typeof packageEncode;
+  readonly encodeWithContext: typeof packageEncodeWithContext;
+  readonly decode: typeof packageDecode;
+  readonly decodeWithContext: typeof packageDecodeWithContext;
+  readonly validateFields: typeof packageValidateFields;
+  readonly hasShape: typeof packageHasShape;
+  readonly is: typeof packageIs;
+  readonly createForm: typeof packageCreateForm;
+  readonly fromFormData: typeof packageFromFormData;
+} = {
   defaultValue: packageDefaultValue,
   encode: packageEncode,
   encodeWithContext: packageEncodeWithContext,
@@ -1552,7 +1717,7 @@ export const Package = {
   is: packageIs,
   createForm: packageCreateForm,
   fromFormData: packageFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -1778,7 +1943,46 @@ date: "",
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Package.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2038,7 +2242,46 @@ date: "",
 
 
                             }{
-                                const __raw_date = obj["date"] as string;instance.date = __raw_date;
+                                const __raw_date = obj["date"] as string;if (!(typeof __raw_date === "string")) {
+                                                    errors.push({ field: "date", message: __raw_date == null ? "Package.date is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.date = __raw_date;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2866,6 +3109,82 @@ date: "",
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 ctx.pushErrors(errors);
 
                 return instance as Package;
@@ -3076,7 +3395,18 @@ date: "",
             return toExit(packageDecode(obj));
         }
 
-export const Package = {
+export const Package: {
+  readonly defaultValue: typeof packageDefaultValue;
+  readonly encode: typeof packageEncode;
+  readonly encodeWithContext: typeof packageEncodeWithContext;
+  readonly decode: typeof packageDecode;
+  readonly decodeWithContext: typeof packageDecodeWithContext;
+  readonly validateFields: typeof packageValidateFields;
+  readonly hasShape: typeof packageHasShape;
+  readonly is: typeof packageIs;
+  readonly createForm: typeof packageCreateForm;
+  readonly fromFormData: typeof packageFromFormData;
+} = {
   defaultValue: packageDefaultValue,
   encode: packageEncode,
   encodeWithContext: packageEncodeWithContext,
@@ -3087,7 +3417,7 @@ export const Package = {
   is: packageIs,
   createForm: packageCreateForm,
   fromFormData: packageFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -3095,16 +3425,17 @@ export const Package = {
 
 ## Mapping
 
-original 0..58 -> expanded 0..58
-original 107..139 -> expanded 58..90
-original 167..188 -> expanded 90..111
-original 233..253 -> expanded 111..131
-original 253..254 -> expanded 12513..12514
-generated 131..257 <- Default
-generated 257..1764 <- Encode
-generated 1764..7260 <- Decode
-generated 7260..12138 <- Gigaform
-generated 12138..12513 <- __convenience_const
+original 0..58 -> expanded 569..627
+original 107..139 -> expanded 627..659
+original 167..188 -> expanded 659..680
+original 233..253 -> expanded 680..700
+original 253..254 -> expanded 14438..14439
+generated 0..569 <- imports
+generated 700..826 <- Default
+generated 826..2333 <- Encode
+generated 2333..8691 <- Decode
+generated 8691..13569 <- Gigaform
+generated 13569..14438 <- __convenience_const
 
 ## Metadata
 

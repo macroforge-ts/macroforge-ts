@@ -129,11 +129,50 @@ constructor(props: { evenNumber: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_evenNumber = obj["evenNumber"] as number;
-                                        if (__raw_evenNumber == null) { errors.push({ field: "evenNumber", message: "CustomNumberValidator.evenNumber is required" }); } else {
+                            const __raw_evenNumber = obj["evenNumber"] as number;if (!(typeof __raw_evenNumber === "number")) {
+                                                errors.push({ field: "evenNumber", message: __raw_evenNumber == null ? "CustomNumberValidator.evenNumber is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_evenNumber == null) { errors.push({ field: "evenNumber", message: "CustomNumberValidator.evenNumber is required" }); } else {
 if (!isEven(__raw_evenNumber)) { errors.push({ field: "evenNumber", message: "CustomNumberValidator.evenNumber failed custom validation (isEven)" }); }
 }
-instance.evenNumber = __raw_evenNumber;
+
+
+
+
+                                                instance.evenNumber = __raw_evenNumber;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -623,11 +662,50 @@ constructor(props: { username: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_username = obj["username"] as string;
-                                        if (__raw_username == null) { errors.push({ field: "username", message: "CustomStringValidator.username is required" }); } else {
+                            const __raw_username = obj["username"] as string;if (!(typeof __raw_username === "string")) {
+                                                errors.push({ field: "username", message: __raw_username == null ? "CustomStringValidator.username is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_username == null) { errors.push({ field: "username", message: "CustomStringValidator.username is required" }); } else {
 if (!isValidUsername(__raw_username)) { errors.push({ field: "username", message: "CustomStringValidator.username failed custom validation (isValidUsername)" }); }
 }
-instance.username = __raw_username;
+
+
+
+
+                                                instance.username = __raw_username;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1118,11 +1196,50 @@ constructor(props: { count: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_count = obj["count"] as number;
-                                        if (__raw_count == null) { errors.push({ field: "count", message: "ImportedCustomValidator.count is required" }); } else {
+                            const __raw_count = obj["count"] as number;if (!(typeof __raw_count === "number")) {
+                                                errors.push({ field: "count", message: __raw_count == null ? "ImportedCustomValidator.count is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_count == null) { errors.push({ field: "count", message: "ImportedCustomValidator.count is required" }); } else {
 if (!__mf_isMultipleOfThree__shared_validators(__raw_count)) { errors.push({ field: "count", message: "ImportedCustomValidator.count failed custom validation (isMultipleOfThree)" }); }
 }
-instance.count = __raw_count;
+
+
+
+
+                                                instance.count = __raw_count;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1611,11 +1728,50 @@ constructor(props: { evenNumber: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_evenNumber = obj["evenNumber"] as number;
-                                        if (__raw_evenNumber == null) { errors.push({ field: "evenNumber", message: "CustomWithMessageValidator.evenNumber is required" }); } else {
+                            const __raw_evenNumber = obj["evenNumber"] as number;if (!(typeof __raw_evenNumber === "number")) {
+                                                errors.push({ field: "evenNumber", message: __raw_evenNumber == null ? "CustomWithMessageValidator.evenNumber is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_evenNumber == null) { errors.push({ field: "evenNumber", message: "CustomWithMessageValidator.evenNumber is required" }); } else {
 if (!isEven(__raw_evenNumber)) { errors.push({ field: "evenNumber", message: "Number must be even" }); }
 }
-instance.evenNumber = __raw_evenNumber;
+
+
+
+
+                                                instance.evenNumber = __raw_evenNumber;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2121,11 +2277,50 @@ constructor(props: { evenNumber: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_evenNumber = obj["evenNumber"] as number;
-                                        if (__raw_evenNumber == null) { errors.push({ field: "evenNumber", message: "CustomNumberValidator.evenNumber is required" }); } else {
+                            const __raw_evenNumber = obj["evenNumber"] as number;if (!(typeof __raw_evenNumber === "number")) {
+                                                errors.push({ field: "evenNumber", message: __raw_evenNumber == null ? "CustomNumberValidator.evenNumber is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_evenNumber == null) { errors.push({ field: "evenNumber", message: "CustomNumberValidator.evenNumber is required" }); } else {
 if (!isEven(__raw_evenNumber)) { errors.push({ field: "evenNumber", message: "CustomNumberValidator.evenNumber failed custom validation (isEven)" }); }
 }
-instance.evenNumber = __raw_evenNumber;
+
+
+
+
+                                                instance.evenNumber = __raw_evenNumber;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2615,11 +2810,50 @@ constructor(props: { username: string }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_username = obj["username"] as string;
-                                        if (__raw_username == null) { errors.push({ field: "username", message: "CustomStringValidator.username is required" }); } else {
+                            const __raw_username = obj["username"] as string;if (!(typeof __raw_username === "string")) {
+                                                errors.push({ field: "username", message: __raw_username == null ? "CustomStringValidator.username is required" : "expected string" });
+                                            } else {
+                                                    if (__raw_username == null) { errors.push({ field: "username", message: "CustomStringValidator.username is required" }); } else {
 if (!isValidUsername(__raw_username)) { errors.push({ field: "username", message: "CustomStringValidator.username failed custom validation (isValidUsername)" }); }
 }
-instance.username = __raw_username;
+
+
+
+
+                                                instance.username = __raw_username;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3110,11 +3344,50 @@ constructor(props: { count: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_count = obj["count"] as number;
-                                        if (__raw_count == null) { errors.push({ field: "count", message: "ImportedCustomValidator.count is required" }); } else {
+                            const __raw_count = obj["count"] as number;if (!(typeof __raw_count === "number")) {
+                                                errors.push({ field: "count", message: __raw_count == null ? "ImportedCustomValidator.count is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_count == null) { errors.push({ field: "count", message: "ImportedCustomValidator.count is required" }); } else {
 if (!__mf_isMultipleOfThree__shared_validators(__raw_count)) { errors.push({ field: "count", message: "ImportedCustomValidator.count failed custom validation (isMultipleOfThree)" }); }
 }
-instance.count = __raw_count;
+
+
+
+
+                                                instance.count = __raw_count;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3603,11 +3876,50 @@ constructor(props: { evenNumber: number }) {
 
 
             ctx.trackForFreeze(instance);{
-                            const __raw_evenNumber = obj["evenNumber"] as number;
-                                        if (__raw_evenNumber == null) { errors.push({ field: "evenNumber", message: "CustomWithMessageValidator.evenNumber is required" }); } else {
+                            const __raw_evenNumber = obj["evenNumber"] as number;if (!(typeof __raw_evenNumber === "number")) {
+                                                errors.push({ field: "evenNumber", message: __raw_evenNumber == null ? "CustomWithMessageValidator.evenNumber is required" : "expected number" });
+                                            } else {
+                                                    if (__raw_evenNumber == null) { errors.push({ field: "evenNumber", message: "CustomWithMessageValidator.evenNumber is required" }); } else {
 if (!isEven(__raw_evenNumber)) { errors.push({ field: "evenNumber", message: "Number must be even" }); }
 }
-instance.evenNumber = __raw_evenNumber;
+
+
+
+
+                                                instance.evenNumber = __raw_evenNumber;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4005,23 +4317,24 @@ if (!isEven(__val)) { errors.push({ field: "evenNumber", message: "Number must b
 
 ## Mapping
 
-original 0..536 -> expanded 0..536
-original 536..537 -> expanded 6391..6392
-original 537..709 -> expanded 7647..7819
-original 709..710 -> expanded 13672..13673
-original 710..1016 -> expanded 14928..15234
-original 1016..1017 -> expanded 21127..21128
-original 1017..1206 -> expanded 22401..22590
-original 1206..1207 -> expanded 28389..28390
-original 1207..1208 -> expanded 29690..29691
-generated 536..6391 <- Decode
-generated 6392..7647 <- Decode
-generated 7819..13672 <- Decode
-generated 13673..14928 <- Decode
-generated 15234..21127 <- Decode
-generated 21128..22401 <- Decode
-generated 22590..28389 <- Decode
-generated 28390..29690 <- Decode
+original 0..536 -> expanded 409..945
+original 536..537 -> expanded 7231..7232
+original 537..709 -> expanded 8487..8659
+original 709..710 -> expanded 14935..14936
+original 710..1016 -> expanded 16191..16497
+original 1016..1017 -> expanded 22803..22804
+original 1017..1206 -> expanded 24077..24266
+original 1206..1207 -> expanded 30501..30502
+original 1207..1208 -> expanded 31802..31803
+generated 0..409 <- imports
+generated 945..7231 <- Decode
+generated 7232..8487 <- Decode
+generated 8659..14935 <- Decode
+generated 14936..16191 <- Decode
+generated 16497..22803 <- Decode
+generated 22804..24077 <- Decode
+generated 24266..30501 <- Decode
+generated 30502..31802 <- Decode
 
 ## Metadata
 

@@ -289,7 +289,46 @@ defaults: productDefaultsDefaultValue(),
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Product.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -549,11 +588,50 @@ defaults: productDefaultsDefaultValue(),
 
 
                             }{
-                                const __raw_name = obj["name"] as string;
-                                            if (__raw_name == null) { errors.push({ field: "name", message: "Product.name is required" }); } else {
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Product.name is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_name == null) { errors.push({ field: "name", message: "Product.name is required" }); } else {
 if (__raw_name.length === 0) { errors.push({ field: "name", message: "Product.name must not be empty" }); }
 }
-instance.name = __raw_name;
+
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -813,11 +891,50 @@ instance.name = __raw_name;
 
 
                             }{
-                                const __raw_quickCode = obj["quickCode"] as string;
-                                            if (__raw_quickCode == null) { errors.push({ field: "quickCode", message: "Product.quickCode is required" }); } else {
+                                const __raw_quickCode = obj["quickCode"] as string;if (!(typeof __raw_quickCode === "string")) {
+                                                    errors.push({ field: "quickCode", message: __raw_quickCode == null ? "Product.quickCode is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_quickCode == null) { errors.push({ field: "quickCode", message: "Product.quickCode is required" }); } else {
 if (__raw_quickCode.length === 0) { errors.push({ field: "quickCode", message: "Product.quickCode must not be empty" }); }
 }
-instance.quickCode = __raw_quickCode;
+
+
+
+
+                                                    instance.quickCode = __raw_quickCode;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1077,8 +1194,43 @@ instance.quickCode = __raw_quickCode;
 
 
                             }{
-                                const __raw_group = obj["group"] as string | null;
-                                                instance.group = __raw_group;
+                                const __raw_group = obj["group"] as string | null;if (!(typeof __raw_group === "string" || __raw_group === null)) {
+                                                        errors.push({ field: "group", message: "expected string | null" });
+                                                    } else {
+                                                        instance.group = __raw_group;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1338,8 +1490,43 @@ instance.quickCode = __raw_quickCode;
 
 
                             }{
-                                const __raw_subgroup = obj["subgroup"] as string | null;
-                                                instance.subgroup = __raw_subgroup;
+                                const __raw_subgroup = obj["subgroup"] as string | null;if (!(typeof __raw_subgroup === "string" || __raw_subgroup === null)) {
+                                                        errors.push({ field: "subgroup", message: "expected string | null" });
+                                                    } else {
+                                                        instance.subgroup = __raw_subgroup;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1599,8 +1786,43 @@ instance.quickCode = __raw_quickCode;
 
 
                             }{
-                                const __raw_unit = obj["unit"] as string | null;
-                                                instance.unit = __raw_unit;
+                                const __raw_unit = obj["unit"] as string | null;if (!(typeof __raw_unit === "string" || __raw_unit === null)) {
+                                                        errors.push({ field: "unit", message: "expected string | null" });
+                                                    } else {
+                                                        instance.unit = __raw_unit;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1860,7 +2082,46 @@ instance.quickCode = __raw_quickCode;
 
 
                             }{
-                                const __raw_active = obj["active"] as boolean;instance.active = __raw_active;
+                                const __raw_active = obj["active"] as boolean;if (!(typeof __raw_active === "boolean")) {
+                                                    errors.push({ field: "active", message: __raw_active == null ? "Product.active is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.active = __raw_active;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2120,7 +2381,46 @@ instance.quickCode = __raw_quickCode;
 
 
                             }{
-                                const __raw_commission = obj["commission"] as boolean;instance.commission = __raw_commission;
+                                const __raw_commission = obj["commission"] as boolean;if (!(typeof __raw_commission === "boolean")) {
+                                                    errors.push({ field: "commission", message: __raw_commission == null ? "Product.commission is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.commission = __raw_commission;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2380,7 +2680,46 @@ instance.quickCode = __raw_quickCode;
 
 
                             }{
-                                const __raw_favorite = obj["favorite"] as boolean;instance.favorite = __raw_favorite;
+                                const __raw_favorite = obj["favorite"] as boolean;if (!(typeof __raw_favorite === "boolean")) {
+                                                    errors.push({ field: "favorite", message: __raw_favorite == null ? "Product.favorite is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.favorite = __raw_favorite;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2916,7 +3255,115 @@ instance.quickCode = __raw_quickCode;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4012,7 +4459,18 @@ if (__val.length === 0) { errors.push({ field: "quickCode", message: "Product.qu
             return toExit(productDecode(obj));
         }
 
-export const Product = {
+export const Product: {
+  readonly defaultValue: typeof productDefaultValue;
+  readonly encode: typeof productEncode;
+  readonly encodeWithContext: typeof productEncodeWithContext;
+  readonly decode: typeof productDecode;
+  readonly decodeWithContext: typeof productDecodeWithContext;
+  readonly validateFields: typeof productValidateFields;
+  readonly hasShape: typeof productHasShape;
+  readonly is: typeof productIs;
+  readonly createForm: typeof productCreateForm;
+  readonly fromFormData: typeof productFromFormData;
+} = {
   defaultValue: productDefaultValue,
   encode: productEncode,
   encodeWithContext: productEncodeWithContext,
@@ -4023,7 +4481,7 @@ export const Product = {
   is: productIs,
   createForm: productCreateForm,
   fromFormData: productFromFormData
-} as const;
+};
 
 ## DTS
 
@@ -4292,7 +4750,46 @@ defaults: productDefaultsDefaultValue(),
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+                                const __raw_id = obj["id"] as string;if (!(typeof __raw_id === "string")) {
+                                                    errors.push({ field: "id", message: __raw_id == null ? "Product.id is required" : "expected string" });
+                                                } else {
+
+
+
+                                                    instance.id = __raw_id;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4552,11 +5049,50 @@ defaults: productDefaultsDefaultValue(),
 
 
                             }{
-                                const __raw_name = obj["name"] as string;
-                                            if (__raw_name == null) { errors.push({ field: "name", message: "Product.name is required" }); } else {
+                                const __raw_name = obj["name"] as string;if (!(typeof __raw_name === "string")) {
+                                                    errors.push({ field: "name", message: __raw_name == null ? "Product.name is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_name == null) { errors.push({ field: "name", message: "Product.name is required" }); } else {
 if (__raw_name.length === 0) { errors.push({ field: "name", message: "Product.name must not be empty" }); }
 }
-instance.name = __raw_name;
+
+
+
+
+                                                    instance.name = __raw_name;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4816,11 +5352,50 @@ instance.name = __raw_name;
 
 
                             }{
-                                const __raw_quickCode = obj["quickCode"] as string;
-                                            if (__raw_quickCode == null) { errors.push({ field: "quickCode", message: "Product.quickCode is required" }); } else {
+                                const __raw_quickCode = obj["quickCode"] as string;if (!(typeof __raw_quickCode === "string")) {
+                                                    errors.push({ field: "quickCode", message: __raw_quickCode == null ? "Product.quickCode is required" : "expected string" });
+                                                } else {
+                                                        if (__raw_quickCode == null) { errors.push({ field: "quickCode", message: "Product.quickCode is required" }); } else {
 if (__raw_quickCode.length === 0) { errors.push({ field: "quickCode", message: "Product.quickCode must not be empty" }); }
 }
-instance.quickCode = __raw_quickCode;
+
+
+
+
+                                                    instance.quickCode = __raw_quickCode;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5080,8 +5655,43 @@ instance.quickCode = __raw_quickCode;
 
 
                             }{
-                                const __raw_group = obj["group"] as string | null;
-                                                instance.group = __raw_group;
+                                const __raw_group = obj["group"] as string | null;if (!(typeof __raw_group === "string" || __raw_group === null)) {
+                                                        errors.push({ field: "group", message: "expected string | null" });
+                                                    } else {
+                                                        instance.group = __raw_group;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5341,8 +5951,43 @@ instance.quickCode = __raw_quickCode;
 
 
                             }{
-                                const __raw_subgroup = obj["subgroup"] as string | null;
-                                                instance.subgroup = __raw_subgroup;
+                                const __raw_subgroup = obj["subgroup"] as string | null;if (!(typeof __raw_subgroup === "string" || __raw_subgroup === null)) {
+                                                        errors.push({ field: "subgroup", message: "expected string | null" });
+                                                    } else {
+                                                        instance.subgroup = __raw_subgroup;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5602,8 +6247,43 @@ instance.quickCode = __raw_quickCode;
 
 
                             }{
-                                const __raw_unit = obj["unit"] as string | null;
-                                                instance.unit = __raw_unit;
+                                const __raw_unit = obj["unit"] as string | null;if (!(typeof __raw_unit === "string" || __raw_unit === null)) {
+                                                        errors.push({ field: "unit", message: "expected string | null" });
+                                                    } else {
+                                                        instance.unit = __raw_unit;
+                                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5863,7 +6543,46 @@ instance.quickCode = __raw_quickCode;
 
 
                             }{
-                                const __raw_active = obj["active"] as boolean;instance.active = __raw_active;
+                                const __raw_active = obj["active"] as boolean;if (!(typeof __raw_active === "boolean")) {
+                                                    errors.push({ field: "active", message: __raw_active == null ? "Product.active is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.active = __raw_active;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6123,7 +6842,46 @@ instance.quickCode = __raw_quickCode;
 
 
                             }{
-                                const __raw_commission = obj["commission"] as boolean;instance.commission = __raw_commission;
+                                const __raw_commission = obj["commission"] as boolean;if (!(typeof __raw_commission === "boolean")) {
+                                                    errors.push({ field: "commission", message: __raw_commission == null ? "Product.commission is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.commission = __raw_commission;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6383,7 +7141,46 @@ instance.quickCode = __raw_quickCode;
 
 
                             }{
-                                const __raw_favorite = obj["favorite"] as boolean;instance.favorite = __raw_favorite;
+                                const __raw_favorite = obj["favorite"] as boolean;if (!(typeof __raw_favorite === "boolean")) {
+                                                    errors.push({ field: "favorite", message: __raw_favorite == null ? "Product.favorite is required" : "expected boolean" });
+                                                } else {
+
+
+
+                                                    instance.favorite = __raw_favorite;
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6919,7 +7716,115 @@ instance.quickCode = __raw_quickCode;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8015,7 +8920,18 @@ if (__val.length === 0) { errors.push({ field: "quickCode", message: "Product.qu
             return toExit(productDecode(obj));
         }
 
-export const Product = {
+export const Product: {
+  readonly defaultValue: typeof productDefaultValue;
+  readonly encode: typeof productEncode;
+  readonly encodeWithContext: typeof productEncodeWithContext;
+  readonly decode: typeof productDecode;
+  readonly decodeWithContext: typeof productDecodeWithContext;
+  readonly validateFields: typeof productValidateFields;
+  readonly hasShape: typeof productHasShape;
+  readonly is: typeof productIs;
+  readonly createForm: typeof productCreateForm;
+  readonly fromFormData: typeof productFromFormData;
+} = {
   defaultValue: productDefaultValue,
   encode: productEncode,
   encodeWithContext: productEncodeWithContext,
@@ -8026,7 +8942,7 @@ export const Product = {
   is: productIs,
   createForm: productCreateForm,
   fromFormData: productFromFormData
-} as const;
+};
 
 ## Diagnostics
 
@@ -8034,25 +8950,26 @@ export const Product = {
 
 ## Mapping
 
-original 0..125 -> expanded 0..125
-original 174..206 -> expanded 125..157
-original 234..255 -> expanded 157..178
-original 296..301 -> expanded 178..183
-original 342..365 -> expanded 183..206
-original 412..417 -> expanded 206..211
-original 458..486 -> expanded 211..239
-original 551..582 -> expanded 239..270
-original 650..684 -> expanded 270..304
-original 748..778 -> expanded 304..334
-original 823..849 -> expanded 334..360
-original 898..928 -> expanded 360..390
-original 975..1031 -> expanded 390..446
-original 1031..1032 -> expanded 32520..32521
-generated 446..720 <- Default
-generated 720..2518 <- Encode
-generated 2518..16209 <- Decode
-generated 16209..32145 <- Gigaform
-generated 32145..32520 <- __convenience_const
+original 0..125 -> expanded 798..923
+original 174..206 -> expanded 923..955
+original 234..255 -> expanded 955..976
+original 296..301 -> expanded 976..981
+original 342..365 -> expanded 981..1004
+original 412..417 -> expanded 1004..1009
+original 458..486 -> expanded 1009..1037
+original 551..582 -> expanded 1037..1068
+original 650..684 -> expanded 1068..1102
+original 748..778 -> expanded 1102..1132
+original 823..849 -> expanded 1132..1158
+original 898..928 -> expanded 1158..1188
+original 975..1031 -> expanded 1188..1244
+original 1031..1032 -> expanded 37430..37431
+generated 0..798 <- imports
+generated 1244..1518 <- Default
+generated 1518..3316 <- Encode
+generated 3316..20625 <- Decode
+generated 20625..36561 <- Gigaform
+generated 36561..37430 <- __convenience_const
 
 ## Metadata
 

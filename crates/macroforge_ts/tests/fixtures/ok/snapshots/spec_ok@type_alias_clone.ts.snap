@@ -30,9 +30,11 @@ result.port = value.port;
                         return result as Config;
                     }
 
-const Config = {
+const Config: {
+  readonly clone: typeof configClone;
+} = {
   clone: configClone
-} as const;
+};
 
 ## DTS
 
@@ -49,9 +51,11 @@ result.port = value.port;
                         return result as Config;
                     }
 
-const Config = {
+const Config: {
+  readonly clone: typeof configClone;
+} = {
   clone: configClone
-} as const;
+};
 
 ## Diagnostics
 
@@ -60,9 +64,9 @@ const Config = {
 ## Mapping
 
 original 21..76 -> expanded 0..55
-original 76..77 -> expanded 358..359
+original 76..77 -> expanded 392..393
 generated 55..307 <- Clone
-generated 307..358 <- __convenience_const
+generated 307..392 <- __convenience_const
 
 ## Metadata
 

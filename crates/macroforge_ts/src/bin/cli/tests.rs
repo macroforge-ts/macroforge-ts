@@ -5,7 +5,7 @@ use crate::cache::{
     CacheEntry, CacheManifest, compute_external_macro_hash, content_hash, normalized_content_hash,
     warm_cache,
 };
-use crate::expand::{get_expanded_path, type_surface_rel_path};
+use crate::expand::{format_diagnostic, get_expanded_path, type_surface_rel_path};
 use crate::hash_cache::HashCache;
 use crate::lock::{ProjectLock, resolve_project_root};
 use crate::package_expand::is_expandable;
@@ -110,6 +110,31 @@ fn test_type_surface_rel_path_nested() {
 fn test_type_surface_rel_path_root_file() {
     let rel = Path::new("index.ts");
     assert_eq!(type_surface_rel_path(rel), PathBuf::from("index.d.ts"));
+}
+
+// =========================================================================
+// format_diagnostic tests
+// =========================================================================
+
+#[test]
+fn diagnostics_print_the_position_as_written() {
+    let source = "/** @cfg({ feature: 'never' }) */\nexport const gone = 1;\ntype Pair = $Newtype<string, number>;\n";
+    let expansion = macroforge_ts::host::MacroExpander::new()
+        .unwrap()
+        .expand_source(source, "probe.ts")
+        .unwrap();
+    let lines = macroforge_ts::line_index::LineIndex::new(source);
+    let printed: Vec<String> = expansion
+        .diagnostics
+        .iter()
+        .map(|diagnostic| format_diagnostic(diagnostic, source, &lines, Path::new("probe.ts")))
+        .collect();
+    assert!(
+        printed
+            .iter()
+            .any(|line| line.starts_with("[macroforge] error at probe.ts:3:13: ")),
+        "{printed:?}"
+    );
 }
 
 // =========================================================================
@@ -620,8 +645,8 @@ fn test_resolve_project_root_canonicalizes_equivalent_paths() {
     let root = tmp.path();
     std::fs::create_dir_all(root.join("src")).unwrap();
 
-    let direct = resolve_project_root(Some(root));
-    let indirect = resolve_project_root(Some(&root.join("src").join("..")));
+    let direct = resolve_project_root(Some(root), root);
+    let indirect = resolve_project_root(Some(&root.join("src").join("..")), root);
 
     assert_eq!(direct, indirect);
 }
@@ -631,7 +656,39 @@ fn test_resolve_project_root_keeps_a_path_that_does_not_exist_yet() {
     let tmp = tempfile::tempdir().unwrap();
     let missing = tmp.path().join("not-created-yet");
 
-    assert_eq!(resolve_project_root(Some(&missing)), missing);
+    assert_eq!(
+        resolve_project_root(Some(&missing), tmp.path()),
+        Some(missing)
+    );
+}
+
+#[test]
+fn test_resolve_project_root_walks_up_to_the_nearest_manifest() {
+    let tmp = tempfile::tempdir().unwrap();
+    let app = tmp.path().join("app");
+    std::fs::create_dir_all(app.join("src")).unwrap();
+    std::fs::write(app.join("deno.json"), "{}").unwrap();
+    let file = app.join("src").join("user.ts");
+    std::fs::write(&file, "export {};\n").unwrap();
+
+    assert_eq!(
+        resolve_project_root(None, &file),
+        Some(app.canonicalize().unwrap())
+    );
+}
+
+#[test]
+fn test_resolve_project_root_prefers_a_nested_project_over_its_parent() {
+    let tmp = tempfile::tempdir().unwrap();
+    std::fs::write(tmp.path().join("package.json"), "{}").unwrap();
+    let nested = tmp.path().join("packages").join("lib");
+    std::fs::create_dir_all(&nested).unwrap();
+    std::fs::write(nested.join("macroforge.config.ts"), "export default {};\n").unwrap();
+
+    assert_eq!(
+        resolve_project_root(None, &nested),
+        Some(nested.canonicalize().unwrap())
+    );
 }
 
 // =========================================================================

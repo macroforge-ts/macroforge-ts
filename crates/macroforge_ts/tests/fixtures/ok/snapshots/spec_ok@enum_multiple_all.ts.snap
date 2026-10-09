@@ -103,15 +103,15 @@ export function statusHashCode(value: Status): number {
         }
 
 namespace Status {
-  export const toString = statusToString;
-  export const clone = statusClone;
-  export const equals = statusEquals;
-  export const hashCode = statusHashCode;
-  export const encode = statusEncode;
-  export const encodeWithContext = statusEncodeWithContext;
-  export const decode = statusDecode;
-  export const decodeWithContext = statusDecodeWithContext;
-  export const is = statusIs;
+  export const toString: typeof statusToString = statusToString;
+  export const clone: typeof statusClone = statusClone;
+  export const equals: typeof statusEquals = statusEquals;
+  export const hashCode: typeof statusHashCode = statusHashCode;
+  export const encode: typeof statusEncode = statusEncode;
+  export const encodeWithContext: typeof statusEncodeWithContext = statusEncodeWithContext;
+  export const decode: typeof statusDecode = statusDecode;
+  export const decodeWithContext: typeof statusDecodeWithContext = statusDecodeWithContext;
+  export const is: typeof statusIs = statusIs;
 }
 
 ## DTS
@@ -199,15 +199,15 @@ export function statusHashCode(value: Status): number {
         }
 
 namespace Status {
-  export const toString = statusToString;
-  export const clone = statusClone;
-  export const equals = statusEquals;
-  export const hashCode = statusHashCode;
-  export const encode = statusEncode;
-  export const encodeWithContext = statusEncodeWithContext;
-  export const decode = statusDecode;
-  export const decodeWithContext = statusDecodeWithContext;
-  export const is = statusIs;
+  export const toString: typeof statusToString = statusToString;
+  export const clone: typeof statusClone = statusClone;
+  export const equals: typeof statusEquals = statusEquals;
+  export const hashCode: typeof statusHashCode = statusHashCode;
+  export const encode: typeof statusEncode = statusEncode;
+  export const encodeWithContext: typeof statusEncodeWithContext = statusEncodeWithContext;
+  export const decode: typeof statusDecode = statusDecode;
+  export const decodeWithContext: typeof statusDecodeWithContext = statusDecodeWithContext;
+  export const is: typeof statusIs = statusIs;
 }
 
 ## Diagnostics
@@ -216,15 +216,16 @@ namespace Status {
 
 ## Mapping
 
-original 61..126 -> expanded 0..65
-original 126..127 -> expanded 3031..3032
-generated 65..399 <- Debug
-generated 399..505 <- Clone
-generated 505..622 <- PartialEq
-generated 622..941 <- Hash
-generated 941..1477 <- Encode
-generated 1477..2625 <- Decode
-generated 2625..3031 <- __convenience_const
+original 61..126 -> expanded 161..226
+original 126..127 -> expanded 3402..3403
+generated 0..161 <- imports
+generated 226..560 <- Debug
+generated 560..666 <- Clone
+generated 666..783 <- PartialEq
+generated 783..1102 <- Hash
+generated 1102..1638 <- Encode
+generated 1638..2786 <- Decode
+generated 2786..3402 <- __convenience_const
 
 ## Metadata
 
