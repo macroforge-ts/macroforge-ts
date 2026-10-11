@@ -12,6 +12,7 @@ true
 
 ## Output
 
+import { employeeDecode, employeeEncodeWithContext } from "./employee.svelte";
 import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
@@ -81,7 +82,12 @@ export function routeEncodeWithContext(value: Route, ctx: __mf_EncodeContext): R
     
     result.id = value.id;
     if (value.techs !== null) {
-        result.techs = value.techs;
+
+        result.techs = value.techs.map(
+            (item) => typeof item === "string"
+                ? item
+                : employeeEncodeWithContext(item, ctx)
+        );
     } else {
         result.techs = null;
     }
@@ -223,7 +229,41 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
         if (__raw_techs === null) {
             instance.techs = null;
         } else {
-            instance.techs = __raw_techs;
+
+            if (Array.isArray(__raw_techs)) {
+                const __arr = __raw_techs.map((item: string | Employee | { __ref: number }, idx) => {
+                    if (typeof item === "string") {
+                        return item;
+                    }
+                    if (typeof item === "object" && item !== null && "__ref" in item) {
+                        const result = ctx.getOrDefer(item.__ref);
+                        if (__mf_PendingRef.is(result)) {
+                            return { __pendingIdx: idx, __refId: result.id };
+                        }
+                        return result;
+                    }
+                    const __elemResult = employeeDecode(item);
+                    if (!__elemResult.success) {
+                        for (const __err of __elemResult.errors) {
+                            errors.push({
+                                field: __err.field === "_root"
+                                    ? "techs[" + idx + "]"
+                                    : "techs[" + idx + "]." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    }
+                    return __elemResult.success ? __elemResult.value : item;
+                });
+                instance.techs = __arr;
+                __arr.forEach((item, idx) => {
+                    if (item && typeof item === "object" && "__pendingIdx" in item) {
+                        ctx.addPatch(instance.techs, idx, (item as any).__refId);
+                    }
+                });
+            } else {
+                errors.push({ field: "techs", message: __raw_techs == null ? "Route.techs is required" : "expected Array<string | Employee>" });
+            }
         }
     }
     {
@@ -294,6 +334,8 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
 
         if (Array.isArray(__raw_tags)) {
             instance.tags = __raw_tags as string[];
+        } else {
+            errors.push({ field: "tags", message: __raw_tags == null ? "Route.tags is required" : "expected Array<string>" });
         }
     }
     {
@@ -937,18 +979,18 @@ export declare const Route: {
 
 ## Mapping
 
-original 0..110 -> expanded 443..553
-original 159..270 -> expanded 553..664
-original 311..334 -> expanded 664..687
-original 375..399 -> expanded 687..711
-original 440..601 -> expanded 711..872
-original 601..602 -> expanded 29963..29964
-generated 0..443 <- imports
-generated 872..1180 <- Default
-generated 1180..2712 <- Encode
-generated 2712..13562 <- Decode
-generated 13562..29046 <- Gigaform
-generated 29046..29963 <- __convenience_const
+original 0..110 -> expanded 522..632
+original 159..270 -> expanded 632..743
+original 311..334 -> expanded 743..766
+original 375..399 -> expanded 766..790
+original 440..601 -> expanded 790..951
+original 601..602 -> expanded 32050..32051
+generated 0..522 <- imports
+generated 951..1259 <- Default
+generated 1259..2932 <- Encode
+generated 2932..15649 <- Decode
+generated 15649..31133 <- Gigaform
+generated 31133..32050 <- __convenience_const
 
 ## Metadata
 

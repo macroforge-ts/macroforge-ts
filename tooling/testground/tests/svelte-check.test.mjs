@@ -158,3 +158,23 @@ Deno.test('svelte-check: reports errors at their source position in every format
         rmSync(probe, { force: true });
     }
 });
+
+Deno.test('svelte-check: a type error exits non-zero in every format', () => {
+    const probe = join(svelteRoot, 'src', 'lib', 'exit-code-probe.ts');
+    writeFileSync(probe, 'export const wrong: string = 42;\n');
+    try {
+        for (const output of ['human', 'machine', 'machine-verbose']) {
+            const result = runCli(
+                ['svelte-check', '--tsconfig', './tsconfig.json', '--output', output],
+                { cwd: svelteRoot }
+            );
+            assertEquals(
+                result.status,
+                1,
+                `--output ${output} should exit 1 on a type error.\nstdout: ${result.stdout}\nstderr: ${result.stderr}`
+            );
+        }
+    } finally {
+        rmSync(probe, { force: true });
+    }
+});

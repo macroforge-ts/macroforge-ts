@@ -175,6 +175,8 @@ export function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
                     ctx.addPatch(instance.mappings, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "mappings", message: __raw_mappings == null ? "Custom.mappings is required" : "expected Array<DirectionHue>" });
         }
     }
 
@@ -448,13 +450,13 @@ export declare const Custom: {
 
 original 0..119 -> expanded 535..654
 original 168..231 -> expanded 654..717
-original 231..232 -> expanded 12721..12722
+original 231..232 -> expanded 12884..12885
 generated 0..535 <- imports
 generated 717..809 <- Default
 generated 809..1979 <- Encode
-generated 1979..6947 <- Decode
-generated 6947..11781 <- Gigaform
-generated 11781..12721 <- __convenience_const
+generated 1979..7110 <- Decode
+generated 7110..11944 <- Gigaform
+generated 11944..12884 <- __convenience_const
 
 ## Metadata
 

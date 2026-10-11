@@ -416,3 +416,266 @@ export type Stage = 'Active' | { Invoice: Ref };
         "the Invoice branch should pass the payload through. Got:\n{invoice_branch}"
     );
 }
+
+#[test]
+fn test_adjacently_tagged_union_encodes_each_variant_content() {
+    // An adjacently tagged object member, `{ variant: 'Move'; value: Point }`,
+    // carries no `__type`, so without per-variant dispatch the union encoder
+    // passed it through and its content reached `JSON.stringify` unencoded.
+    let source = r#"
+/** @derive(Encode, Decode) */
+interface Point { x: number; at: Date; }
+
+/** @derive(Encode, Decode) */
+/** @endec({ tag: "variant", content: "value" }) */
+export type Op =
+    | { variant: 'Move'; value: Point }
+    | { variant: 'Remove'; value: string };
+"#;
+
+    let result = expand_test(source);
+    let error_count = result
+        .diagnostics
+        .iter()
+        .filter(|d| d.level == DiagnosticLevel::Error)
+        .count();
+    assert_eq!(
+        error_count, 0,
+        "adjacently tagged union should expand without errors. Got: {:?}",
+        result.diagnostics
+    );
+    let union_encoder = result
+        .code
+        .split("export function opEncodeWithContext")
+        .nth(1)
+        .unwrap_or_default();
+    assert!(
+        union_encoder.contains(r#"=== "Move""#),
+        "the union encoder should dispatch on the variant tag. Got:\n{}",
+        result.code
+    );
+    assert!(
+        union_encoder.contains("pointEncodeWithContext("),
+        "a variant's content should go through its own encoder. Got:\n{}",
+        result.code
+    );
+}
+
+#[test]
+fn test_nullable_collection_goes_through_its_element_coders() {
+    // `Array<Member> | null` is the array once null is ruled out. Passed
+    // through whole instead, its elements reached the caller as raw JSON on
+    // decode and reached `JSON.stringify` unencoded on encode.
+    let source = r#"
+/** @derive(Encode, Decode) */
+interface Member { id: string; joined: Date; }
+
+/** @derive(Encode, Decode) */
+export interface Crew {
+    members: Array<Member> | null;
+    byName: Record<string, Member> | null;
+    stamps: Date[] | null;
+}
+"#;
+
+    let result = expand_test(source);
+    let error_count = result
+        .diagnostics
+        .iter()
+        .filter(|d| d.level == DiagnosticLevel::Error)
+        .count();
+    assert_eq!(
+        error_count, 0,
+        "nullable collections should expand without errors. Got: {:?}",
+        result.diagnostics
+    );
+
+    let crew_encoder = result
+        .code
+        .split("export function crewEncodeWithContext")
+        .nth(1)
+        .and_then(|rest| rest.split("export function").next())
+        .unwrap_or_default();
+    assert_eq!(
+        crew_encoder.matches("memberEncodeWithContext(").count(),
+        2,
+        "the array's and the record's members should each be encoded. Got:\n{}",
+        result.code
+    );
+    assert!(
+        crew_encoder.contains("toISOString()"),
+        "a nullable array of dates should encode each date. Got:\n{}",
+        result.code
+    );
+    for field in ["members", "byName", "stamps"] {
+        assert!(
+            crew_encoder.contains(&format!("result.{field} = null;")),
+            "a null {field} should still encode as null. Got:\n{}",
+            result.code
+        );
+        assert!(
+            !crew_encoder.contains(&format!("result.{field} = value.{field};")),
+            "{field} should not be passed through unencoded. Got:\n{}",
+            result.code
+        );
+    }
+
+    let crew_decoder = result
+        .code
+        .split("export function crewDecodeWithContext")
+        .nth(1)
+        .and_then(|rest| rest.split("export function").next())
+        .unwrap_or_default();
+    assert!(
+        crew_decoder.contains("memberDecode"),
+        "a member should go through its own decoder. Got:\n{}",
+        result.code
+    );
+    assert!(
+        crew_decoder.contains("new Date("),
+        "a nullable array of dates should decode each date. Got:\n{}",
+        result.code
+    );
+    for field in ["members", "byName", "stamps"] {
+        assert!(
+            crew_decoder.contains(&format!("instance.{field} = null;")),
+            "a null {field} should still decode as null. Got:\n{}",
+            result.code
+        );
+        assert!(
+            !crew_decoder.contains(&format!("instance.{field} = __raw_{field};")),
+            "{field} should not be passed through undecoded. Got:\n{}",
+            result.code
+        );
+    }
+}
+
+#[test]
+fn test_collection_decoder_reports_a_value_of_the_wrong_type() {
+    // A value that is not the collection used to be skipped: the field stayed
+    // unset and the decode succeeded, so the caller held an object missing a
+    // field its type requires.
+    let source = r#"
+/** @derive(Decode) */
+export interface Crew {
+    tags: string[];
+    seen: Set<string>;
+    index: Map<string, number>;
+    byName: Record<string, number>;
+    extras: string[] | null;
+}
+"#;
+
+    let result = expand_test(source);
+    let error_count = result
+        .diagnostics
+        .iter()
+        .filter(|d| d.level == DiagnosticLevel::Error)
+        .count();
+    assert_eq!(
+        error_count, 0,
+        "collections should expand without errors. Got: {:?}",
+        result.diagnostics
+    );
+
+    // Null is the nullable field's own value, so only another type is wrong.
+    for (field, ts_type) in [
+        ("tags", "string[]"),
+        ("seen", "Set<string>"),
+        ("index", "Map<string, number>"),
+        ("byName", "Record<string, number>"),
+        ("extras", "string[]"),
+    ] {
+        let reported = format!(
+            r#"errors.push({{ field: "{field}", message: __raw_{field} == null ? "Crew.{field} is required" : "expected {ts_type}" }});"#
+        );
+        assert!(
+            result.code.contains(&reported),
+            "a {field} that is not a {ts_type} should be reported. Got:\n{}",
+            result.code
+        );
+    }
+}
+
+#[test]
+fn test_undefined_union_goes_through_its_member_coders() {
+    // `T | undefined` had no decode case, so any member that is not a
+    // primitive was assigned as raw JSON, and a collection or wrapper member
+    // was encoded whole. A nullable wrapper passed through the same way.
+    let source = r#"
+/** @derive(Encode, Decode) */
+interface Member { id: string; joined: Date; }
+
+/** @derive(Encode, Decode) */
+export interface Crew {
+    lead: Member | undefined;
+    since: Date | undefined;
+    members: Member[] | undefined;
+    draft: Partial<Member> | null;
+    label: string | undefined;
+}
+"#;
+
+    let result = expand_test(source);
+    let error_count = result
+        .diagnostics
+        .iter()
+        .filter(|d| d.level == DiagnosticLevel::Error)
+        .count();
+    assert_eq!(
+        error_count, 0,
+        "undefined unions should expand without errors. Got: {:?}",
+        result.diagnostics
+    );
+
+    let crew_encoder = result
+        .code
+        .split("export function crewEncodeWithContext")
+        .nth(1)
+        .and_then(|rest| rest.split("export function").next())
+        .unwrap_or_default();
+    assert_eq!(
+        crew_encoder.matches("memberEncodeWithContext(").count(),
+        3,
+        "the lead, each member and the draft should be encoded. Got:\n{}",
+        result.code
+    );
+    for field in ["members", "draft"] {
+        assert!(
+            !crew_encoder.contains(&format!("result.{field} = value.{field};")),
+            "{field} should not be passed through unencoded. Got:\n{}",
+            result.code
+        );
+    }
+
+    let crew_decoder = result
+        .code
+        .split("export function crewDecodeWithContext")
+        .nth(1)
+        .and_then(|rest| rest.split("export function").next())
+        .unwrap_or_default();
+    for field in ["lead", "since", "members"] {
+        assert!(
+            crew_decoder.contains(&format!("instance.{field} = undefined;")),
+            "an undefined {field} should still decode as undefined. Got:\n{}",
+            result.code
+        );
+    }
+    for field in ["lead", "since", "members", "draft"] {
+        assert!(
+            !crew_decoder.contains(&format!("instance.{field} = __raw_{field};")),
+            "{field} should not be passed through undecoded. Got:\n{}",
+            result.code
+        );
+    }
+    assert!(
+        crew_decoder.contains("new Date("),
+        "a date in an undefined union should be decoded. Got:\n{}",
+        result.code
+    );
+    assert!(
+        crew_decoder.contains(r#"typeof __raw_label === "string""#),
+        "a primitive in an undefined union keeps its own check. Got:\n{}",
+        result.code
+    );
+}

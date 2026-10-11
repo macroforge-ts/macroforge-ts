@@ -1798,6 +1798,8 @@ export function projectDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
                     ctx.addPatch(instance.milestones, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "milestones", message: __raw_milestones == null ? "Project.milestones is required" : "expected Milestone[]" });
         }
     }
     {
@@ -1820,6 +1822,8 @@ export function projectDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
                     return [k as string, __vResult.success ? __vResult.value : v as MetadataValue];
                 })
             );
+        } else {
+            errors.push({ field: "metadata", message: __raw_metadata == null ? "Project.metadata is required" : "expected Map<string, MetadataValue>" });
         }
     }
     {
@@ -2100,6 +2104,8 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
                     return __elemResult.success ? __elemResult.value : item;
                 })
             );
+        } else {
+            errors.push({ field: "skills", message: __raw_skills == null ? "Employee.skills is required" : "expected Set<Skill>" });
         }
     }
     {
@@ -2133,6 +2139,8 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
                     ctx.addPatch(instance.projects, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "projects", message: __raw_projects == null ? "Employee.projects is required" : "expected Project[]" });
         }
     }
     {
@@ -2344,6 +2352,8 @@ export function orgConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
                     return __elemResult.success ? __elemResult.value : item;
                 })
             );
+        } else {
+            errors.push({ field: "features", message: __raw_features == null ? "OrgConfig.features is required" : "expected Set<Feature>" });
         }
     }
     {
@@ -2366,6 +2376,8 @@ export function orgConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
                     return [k as string, __vResult.success ? __vResult.value : v as Limit];
                 })
             );
+        } else {
+            errors.push({ field: "limits", message: __raw_limits == null ? "OrgConfig.limits is required" : "expected Map<string, Limit>" });
         }
     }
 
@@ -2628,6 +2640,8 @@ export function departmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                     ctx.addPatch(instance.employees, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "employees", message: __raw_employees == null ? "Department.employees is required" : "expected Employee[]" });
         }
     }
     {
@@ -2898,6 +2912,8 @@ export function organizationDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                     ctx.addPatch(instance.departments, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "departments", message: __raw_departments == null ? "Organization.departments is required" : "expected Department[]" });
         }
     }
     {
@@ -2931,6 +2947,8 @@ export function organizationDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                     ctx.addPatch(instance.tags, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "tags", message: __raw_tags == null ? "Organization.tags is required" : "expected Tag[]" });
         }
     }
     {
@@ -4812,25 +4830,25 @@ original 2176..2178 -> expanded 47770..47772
 original 2208..2300 -> expanded 47772..47864
 original 2300..2330 -> expanded 54425..54455
 original 2360..2515 -> expanded 54455..54610
-original 2515..2517 -> expanded 64102..64104
-original 2547..2752 -> expanded 64104..64309
-original 2752..2754 -> expanded 75691..75693
-original 2784..2875 -> expanded 75693..75784
-original 2875..2904 -> expanded 83401..83430
-original 2934..3088 -> expanded 83430..83584
-original 3088..3090 -> expanded 93710..93712
-original 3120..3280 -> expanded 93712..93872
-original 3280..3313 -> expanded 104871..104904
-original 3343..3452 -> expanded 104904..105013
-original 3452..3454 -> expanded 112187..112189
-original 3484..3583 -> expanded 112189..112288
-original 3583..3585 -> expanded 120670..120672
-original 3615..3718 -> expanded 120672..120775
-original 3718..3760 -> expanded 129235..129277
-original 3790..3837 -> expanded 129277..129324
-original 3837..3892 -> expanded 134929..134984
-original 3914..3964 -> expanded 134984..135034
-original 3964..3965 -> expanded 140290..140291
+original 2515..2517 -> expanded 64435..64437
+original 2547..2752 -> expanded 64437..64642
+original 2752..2754 -> expanded 76329..76331
+original 2784..2875 -> expanded 76331..76422
+original 2875..2904 -> expanded 84357..84386
+original 2934..3088 -> expanded 84386..84540
+original 3088..3090 -> expanded 94827..94829
+original 3120..3280 -> expanded 94829..94989
+original 3280..3313 -> expanded 106302..106335
+original 3343..3452 -> expanded 106335..106444
+original 3452..3454 -> expanded 113618..113620
+original 3484..3583 -> expanded 113620..113719
+original 3583..3585 -> expanded 122101..122103
+original 3615..3718 -> expanded 122103..122206
+original 3718..3760 -> expanded 130666..130708
+original 3790..3837 -> expanded 130708..130755
+original 3837..3892 -> expanded 136360..136415
+original 3914..3964 -> expanded 136415..136465
+original 3964..3965 -> expanded 141721..141722
 generated 0..371 <- imports
 generated 1849..3077 <- Encode
 generated 3077..8638 <- Decode
@@ -4857,34 +4875,34 @@ generated 47864..49054 <- Encode
 generated 49054..53741 <- Decode
 generated 53741..54425 <- __convenience_const
 generated 54610..56074 <- Encode
-generated 56074..63401 <- Decode
-generated 63401..64102 <- __convenience_const
-generated 64309..65925 <- Encode
-generated 65925..74973 <- Decode
-generated 74973..75691 <- __convenience_const
-generated 75784..77144 <- Encode
-generated 77144..82666 <- Decode
-generated 82666..83401 <- __convenience_const
-generated 83584..85012 <- Encode
-generated 85012..92958 <- Decode
-generated 92958..93710 <- __convenience_const
-generated 93872..95350 <- Encode
-generated 95350..104085 <- Decode
-generated 104085..104871 <- __convenience_const
-generated 105013..106251 <- Encode
-generated 106251..111418 <- Decode
-generated 111418..112187 <- __convenience_const
-generated 112288..113626 <- Encode
-generated 113626..119850 <- Decode
-generated 119850..120670 <- __convenience_const
-generated 120775..122123 <- Encode
-generated 122123..128398 <- Decode
-generated 128398..129235 <- __convenience_const
-generated 129324..130422 <- Encode
-generated 130422..134228 <- Decode
-generated 134228..134929 <- __convenience_const
-generated 135034..139966 <- Decode
-generated 139966..140290 <- __convenience_const
+generated 56074..63734 <- Decode
+generated 63734..64435 <- __convenience_const
+generated 64642..66258 <- Encode
+generated 66258..75611 <- Decode
+generated 75611..76329 <- __convenience_const
+generated 76422..77782 <- Encode
+generated 77782..83622 <- Decode
+generated 83622..84357 <- __convenience_const
+generated 84540..85968 <- Encode
+generated 85968..94075 <- Decode
+generated 94075..94827 <- __convenience_const
+generated 94989..96467 <- Encode
+generated 96467..105516 <- Decode
+generated 105516..106302 <- __convenience_const
+generated 106444..107682 <- Encode
+generated 107682..112849 <- Decode
+generated 112849..113618 <- __convenience_const
+generated 113719..115057 <- Encode
+generated 115057..121281 <- Decode
+generated 121281..122101 <- __convenience_const
+generated 122206..123554 <- Encode
+generated 123554..129829 <- Decode
+generated 129829..130666 <- __convenience_const
+generated 130755..131853 <- Encode
+generated 131853..135659 <- Decode
+generated 135659..136360 <- __convenience_const
+generated 136465..141397 <- Decode
+generated 141397..141721 <- __convenience_const
 
 ## Metadata
 

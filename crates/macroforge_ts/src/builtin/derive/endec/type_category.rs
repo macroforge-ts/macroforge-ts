@@ -55,6 +55,15 @@ thread_local! {
 }
 
 impl TypeCategory {
+    /// Whether this is a collection or a wrapper: a type whose values are
+    /// encoded and decoded through the types it is built from.
+    pub fn is_composite(&self) -> bool {
+        matches!(
+            self,
+            Self::Array(_) | Self::Map(_, _) | Self::Set(_) | Self::Record(_, _) | Self::Wrapper(_)
+        )
+    }
+
     /// The category of `ts_type`. Depends on the text alone, so each distinct
     /// type is classified once per thread however many derives ask.
     pub fn from_ts_type(ts_type: &str) -> Self {

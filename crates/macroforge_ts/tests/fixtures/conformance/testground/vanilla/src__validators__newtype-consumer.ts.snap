@@ -196,6 +196,8 @@ export function tripDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
                     ctx.addPatch(instance.legs, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "legs", message: __raw_legs == null ? "Trip.legs is required" : "expected Meters[]" });
         }
     }
 
@@ -313,11 +315,11 @@ export declare function greet(name: string): string;
 ## Mapping
 
 original 0..324 -> expanded 373..697
-original 324..674 -> expanded 8217..8567
+original 324..674 -> expanded 8355..8705
 generated 0..373 <- imports
 generated 697..1899 <- Encode
-generated 1899..7567 <- Decode
-generated 7567..8217 <- __convenience_const
+generated 1899..7705 <- Decode
+generated 7705..8355 <- __convenience_const
 
 ## Metadata
 

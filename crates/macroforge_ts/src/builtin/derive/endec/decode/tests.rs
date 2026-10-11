@@ -24,6 +24,7 @@ fn test_decode_field_has_validators() {
         nullable_inner_kind: None,
         array_elem_kind: None,
         nullable_encodable_type: None,
+        present_inner: None,
         decode_with: None,
         decimal_format: false,
         array_elem_encodable_type: None,

@@ -11,7 +11,7 @@ use crate::builtin::derive::endec::encode::types::EncodeField;
 use crate::builtin::derive::endec::source_field::SourceField;
 use crate::builtin::derive::endec::union_guard::{Direction, union_guard};
 use crate::builtin::derive::endec::value_kind::{
-    classify_endec_value_kind, get_encodable_type_name,
+    EndecValueKind, classify_endec_value_kind, get_encodable_type_name,
 };
 use crate::builtin::derive::endec::{
     EndecContainerOptions, EndecFieldOptions, EndecFormat, TypeCategory, get_foreign_types,
@@ -184,6 +184,53 @@ pub(in crate::builtin::derive::endec::encode) fn to_encode_field(
             }
         });
 
+    // A union with `null` or `undefined` is its other member once the value is
+    // known to be present. A member the union's own cases do not encode is
+    // prepared as a field of its own, so its category encodes it. Its
+    // decorators stay with this field: only the type differs. One an
+    // `encodeWith` already covers is left to that function.
+    let member_of_its_own = match &type_cat {
+        TypeCategory::Nullable(inner) if TypeCategory::from_ts_type(inner).is_composite() => {
+            Some(inner)
+        }
+        TypeCategory::Optional(inner)
+            if optional_encodable_type.is_none()
+                && !matches!(
+                    optional_inner_kind,
+                    Some(EndecValueKind::PrimitiveLike | EndecValueKind::Date)
+                ) =>
+        {
+            Some(inner)
+        }
+        _ => None,
+    };
+    let present_inner = member_of_its_own
+        .filter(|_| encode_with.is_none())
+        .and_then(|inner| {
+            to_encode_field(
+                SourceField {
+                    name: field.name,
+                    ts_type: inner,
+                    decorators: &[],
+                    optional: false,
+                    span: field.span,
+                },
+                container_opts,
+                diagnostics,
+                type_registry,
+                caller_file_path,
+                file_imports,
+                type_params,
+            )
+        })
+        .filter(|member| member.encode_with.is_none())
+        .map(|member| {
+            Box::new(EncodeField {
+                json_key_ident: ts_ident!(&json_key),
+                ..member
+            })
+        });
+
     Some(EncodeField {
         json_key_ident: ts_ident!(&json_key),
         field_ident: ts_ident!(field.name),
@@ -199,6 +246,7 @@ pub(in crate::builtin::derive::endec::encode) fn to_encode_field(
         wrapper_inner_kind,
         optional_encodable_type,
         nullable_encodable_type,
+        present_inner,
         array_elem_encodable_type,
         set_elem_encodable_type,
         map_value_encodable_type,

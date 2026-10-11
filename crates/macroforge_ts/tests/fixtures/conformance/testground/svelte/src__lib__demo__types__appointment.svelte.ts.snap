@@ -389,6 +389,8 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
                     ctx.addPatch(instance.employees, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "employees", message: __raw_employees == null ? "Appointment.employees is required" : "expected Array<string | Employee>" });
         }
     }
     {
@@ -1297,13 +1299,13 @@ original 1581..1626 -> expanded 1890..1935
 original 1654..1659 -> expanded 1935..1940
 original 1732..1757 -> expanded 1940..1965
 original 1785..1830 -> expanded 1965..2010
-original 1830..1831 -> expanded 42682..42683
+original 1830..1831 -> expanded 42858..42859
 generated 0..1159 <- imports
 generated 2010..2562 <- Default
 generated 2562..4660 <- Encode
-generated 4660..18567 <- Decode
-generated 18567..41627 <- Gigaform
-generated 41627..42682 <- __convenience_const
+generated 4660..18743 <- Decode
+generated 18743..41803 <- Gigaform
+generated 41803..42858 <- __convenience_const
 
 ## Metadata
 

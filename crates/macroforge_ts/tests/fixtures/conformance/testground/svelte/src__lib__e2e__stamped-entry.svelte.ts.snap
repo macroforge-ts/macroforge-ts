@@ -650,6 +650,8 @@ export function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                     ctx.addPatch(instance.history, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "history", message: __raw_history == null ? "StampedEntry.history is required" : "expected Array<DateTime.DateTime | Note>" });
         }
     }
     {
@@ -926,7 +928,7 @@ original 549..680 -> expanded 12826..12957
 original 703..724 -> expanded 12957..12978
 original 759..782 -> expanded 12978..13001
 original 825..853 -> expanded 13001..13029
-original 853..854 -> expanded 26698..26699
+original 853..854 -> expanded 26876..26877
 generated 0..633 <- imports
 generated 1018..1102 <- Default
 generated 1102..2182 <- Encode
@@ -938,8 +940,8 @@ generated 7917..12071 <- Decode
 generated 12071..12824 <- __convenience_const
 generated 13029..13415 <- Default
 generated 13415..15466 <- Encode
-generated 15466..25812 <- Decode
-generated 25812..26698 <- __convenience_const
+generated 15466..25990 <- Decode
+generated 25990..26876 <- __convenience_const
 
 ## Metadata
 

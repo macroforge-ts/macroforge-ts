@@ -131,7 +131,9 @@ function rewriteStream(stream) {
     pending += typeof chunk === "string" ? chunk : Buffer.from(chunk).toString("utf8");
     const lines = pending.split("\n");
     pending = lines.pop() ?? "";
-    if (lines.length === 0) return true;
+    // Still written, empty, so a flush callback fires: svelte-check exits only
+    // from the callback of an empty write, and dropping it exits 0 on errors.
+    if (lines.length === 0) return write("", ...rest);
     return write(lines.map((line) => `${rewriteLine(line)}\n`).join(""), ...rest);
   };
   process.on("exit", () => {

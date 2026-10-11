@@ -8279,6 +8279,8 @@ export class DocMinItems {
                     if (__raw_value.length < 2) { errors.push({ field: "value", message: "DocMinItems.value must have at least 2 items" }); }
                 }
                 instance.value = __raw_value as number[];
+            } else {
+                errors.push({ field: "value", message: __raw_value == null ? "DocMinItems.value is required" : "expected number[]" });
             }
         }
 
@@ -8441,6 +8443,8 @@ export class DocMaxItems {
                     if (__raw_value.length > 2) { errors.push({ field: "value", message: "DocMaxItems.value must have at most 2 items" }); }
                 }
                 instance.value = __raw_value as number[];
+            } else {
+                errors.push({ field: "value", message: __raw_value == null ? "DocMaxItems.value is required" : "expected number[]" });
             }
         }
 
@@ -8603,6 +8607,8 @@ export class DocItemsCount {
                     if (__raw_value.length !== 2) { errors.push({ field: "value", message: "DocItemsCount.value must have exactly 2 items" }); }
                 }
                 instance.value = __raw_value as number[];
+            } else {
+                errors.push({ field: "value", message: __raw_value == null ? "DocItemsCount.value is required" : "expected number[]" });
             }
         }
 
@@ -11849,18 +11855,18 @@ original 6479..6480 -> expanded 331281..331282
 original 6480..6629 -> expanded 332480..332629
 original 6629..6630 -> expanded 338360..338361
 original 6630..6752 -> expanded 339469..339591
-original 6752..6753 -> expanded 344907..344908
-original 6753..6875 -> expanded 345989..346111
-original 6875..6876 -> expanded 351424..351425
-original 6876..7002 -> expanded 352506..352632
-original 7002..7003 -> expanded 357993..357994
-original 7003..7140 -> expanded 359093..359230
-original 7140..7141 -> expanded 364588..364589
-original 7141..7290 -> expanded 365751..365900
-original 7290..7291 -> expanded 371280..371281
-original 7291..7463 -> expanded 372398..372570
-original 7463..7464 -> expanded 378098..378099
-original 7464..7465 -> expanded 379243..379244
+original 6752..6753 -> expanded 345063..345064
+original 6753..6875 -> expanded 346145..346267
+original 6875..6876 -> expanded 351736..351737
+original 6876..7002 -> expanded 352818..352944
+original 7002..7003 -> expanded 358463..358464
+original 7003..7140 -> expanded 359563..359700
+original 7140..7141 -> expanded 365058..365059
+original 7141..7290 -> expanded 366221..366370
+original 7290..7291 -> expanded 371750..371751
+original 7291..7463 -> expanded 372868..373040
+original 7463..7464 -> expanded 378568..378569
+original 7464..7465 -> expanded 379713..379714
 generated 0..260 <- imports
 generated 580..6032 <- Decode
 generated 6033..7087 <- Decode
@@ -11962,18 +11968,18 @@ generated 325536..331281 <- Decode
 generated 331282..332480 <- Decode
 generated 332629..338360 <- Decode
 generated 338361..339469 <- Decode
-generated 339591..344907 <- Decode
-generated 344908..345989 <- Decode
-generated 346111..351424 <- Decode
-generated 351425..352506 <- Decode
-generated 352632..357993 <- Decode
-generated 357994..359093 <- Decode
-generated 359230..364588 <- Decode
-generated 364589..365751 <- Decode
-generated 365900..371280 <- Decode
-generated 371281..372398 <- Decode
-generated 372570..378098 <- Decode
-generated 378099..379243 <- Decode
+generated 339591..345063 <- Decode
+generated 345064..346145 <- Decode
+generated 346267..351736 <- Decode
+generated 351737..352818 <- Decode
+generated 352944..358463 <- Decode
+generated 358464..359563 <- Decode
+generated 359700..365058 <- Decode
+generated 365059..366221 <- Decode
+generated 366370..371750 <- Decode
+generated 371751..372868 <- Decode
+generated 373040..378568 <- Decode
+generated 378569..379713 <- Decode
 
 ## Metadata
 

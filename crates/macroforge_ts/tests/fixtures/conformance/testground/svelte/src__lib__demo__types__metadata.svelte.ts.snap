@@ -189,6 +189,8 @@ export function metadataDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
         if (Array.isArray(__raw_roles)) {
             instance.roles = __raw_roles as string[];
+        } else {
+            errors.push({ field: "roles", message: __raw_roles == null ? "Metadata.roles is required" : "expected Array<string>" });
         }
     }
 
@@ -541,13 +543,13 @@ export declare const Metadata: {
 
 original 0..58 -> expanded 443..501
 original 107..239 -> expanded 501..633
-original 239..240 -> expanded 15630..15631
+original 239..240 -> expanded 15780..15781
 generated 0..443 <- imports
 generated 633..799 <- Default
 generated 799..2023 <- Encode
-generated 2023..7146 <- Decode
-generated 7146..14644 <- Gigaform
-generated 14644..15630 <- __convenience_const
+generated 2023..7296 <- Decode
+generated 7296..14794 <- Gigaform
+generated 14794..15780 <- __convenience_const
 
 ## Metadata
 

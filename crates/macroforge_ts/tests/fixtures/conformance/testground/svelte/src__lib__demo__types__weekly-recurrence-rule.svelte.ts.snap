@@ -190,6 +190,8 @@ export function weeklyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_
                     ctx.addPatch(instance.weekdays, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "weekdays", message: __raw_weekdays == null ? "WeeklyRecurrenceRule.weekdays is required" : "expected Array<Weekday>" });
         }
     }
 
@@ -500,13 +502,13 @@ export declare const WeeklyRecurrenceRule: {
 
 original 0..108 -> expanded 519..627
 original 157..258 -> expanded 627..728
-original 258..259 -> expanded 15920..15921
+original 258..259 -> expanded 16092..16093
 generated 0..519 <- imports
 generated 728..876 <- Default
 generated 876..2177 <- Encode
-generated 2177..7983 <- Decode
-generated 7983..14658 <- Gigaform
-generated 14658..15920 <- __convenience_const
+generated 2177..8155 <- Decode
+generated 8155..14830 <- Gigaform
+generated 14830..16092 <- __convenience_const
 
 ## Metadata
 

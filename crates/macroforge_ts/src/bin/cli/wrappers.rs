@@ -10,7 +10,8 @@ use crate::atomic_fs::{
     discard_dir, remove_dir_if_present, sibling_with_suffix, swap_dir, write_atomic,
 };
 use crate::cache::{
-    cached_type_registry, compute_config_hash, compute_external_macro_hash, content_hash,
+    cached_type_registry, compute_cli_engine_hash, compute_config_hash,
+    compute_external_macro_hash, content_hash,
 };
 use crate::hash_cache::HashCache;
 use crate::lock::ProjectLock;
@@ -507,6 +508,7 @@ pub fn run_svelte_package_wrapper(
     let mut hashes = HashCache::load(root);
     let current = PackageInputs {
         version: env!("CARGO_PKG_VERSION").to_string(),
+        engine_hash: compute_cli_engine_hash(),
         config_hash: compute_config_hash(root),
         external_macro_hash: compute_external_macro_hash(root, &mut hashes),
         resolver_hash,

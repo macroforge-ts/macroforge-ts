@@ -367,8 +367,14 @@ fn object_variant_dispatch(
     tag_field: &str,
 ) -> Result<(TsStream, Vec<Diagnostic>), MacroforgeError> {
     let container_opts = EndecContainerOptions::from_decorators(&alias.type_alias.inner.decorators);
+    // An adjacently tagged member, `{ tag: 'X'; content: T }`, is an object
+    // variant like an internally tagged one: encoding each of its fields
+    // sends the content through its own encoder, and the tag is copied.
     let members = match (&container_opts.tagging, alias.type_alias.as_union()) {
-        (TaggingMode::InternallyTagged { .. }, Some(members)) => members,
+        (
+            TaggingMode::InternallyTagged { .. } | TaggingMode::AdjacentlyTagged { .. },
+            Some(members),
+        ) => members,
         _ => return Ok((TsStream::merge_all([]), Vec::new())),
     };
     let param_names: Vec<String> = alias

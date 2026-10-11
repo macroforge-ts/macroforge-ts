@@ -117,6 +117,10 @@ impl StatStamp {
 pub(crate) struct PackageInputs {
     /// Macroforge crate version.
     pub(crate) version: String,
+    /// Fingerprint of the CLI binary (`cache::compute_cli_engine_hash`). The
+    /// built-in derives are linked into it, so a build from a checkout
+    /// generates different code under an unchanged version.
+    pub(crate) engine_hash: String,
     /// SHA-256 of the macroforge config file (`cache::compute_config_hash`).
     pub(crate) config_hash: String,
     /// Metadata hash of external macro binaries
@@ -213,6 +217,9 @@ impl PackageState {
         if previous.version != current.version {
             return Some("macroforge version changed".into());
         }
+        if previous.engine_hash != current.engine_hash {
+            return Some("the macroforge CLI was rebuilt".into());
+        }
         if previous.config_hash != current.config_hash {
             return Some("macroforge config changed".into());
         }
@@ -277,6 +284,9 @@ impl PackageState {
 
         if previous.version != current.version {
             return Some("the macroforge version changed");
+        }
+        if previous.engine_hash != current.engine_hash {
+            return Some("the macroforge CLI was rebuilt");
         }
         if previous.config_hash != current.config_hash {
             return Some("the macroforge config changed");

@@ -216,7 +216,12 @@ pub(super) fn encode_field(field: &EncodeField) -> TsStream {
                                 {$let encode_with_context_fn: Expr = ts_ident!(nested_encode_fn_name(inner_type)).into()}
                                 result.@{field.json_key_ident} = @{encode_with_context_fn}(value.@{field.field_ident}, ctx);
                             {:else}
-                                result.@{field.json_key_ident} = value.@{field.field_ident};
+                                {#if let Some(member) = &field.present_inner}
+                                    {$let member_value = encode_field(member)}
+                                    {$typescript member_value}
+                                {:else}
+                                    result.@{field.json_key_ident} = value.@{field.field_ident};
+                                {/if}
                             {/if}
                     {/match}
                 }
@@ -231,6 +236,10 @@ pub(super) fn encode_field(field: &EncodeField) -> TsStream {
                             : (value.@{field.field_ident} as Date).toISOString();
                     {:case _}
                         if (value.@{field.field_ident} !== null) {
+                            {#if let Some(member) = &field.present_inner}
+                                {$let member_value = encode_field(member)}
+                                {$typescript member_value}
+                            {:else}
                             {#if let Some(inner_type) = &field.nullable_encodable_type}
                                 {$let encode_with_context_fn: Expr = ts_ident!(nested_encode_fn_name(inner_type)).into()}
                                 {$let field_value: Expr = rendered(ts_template! { value.@{field.field_ident} }).into()}
@@ -238,6 +247,7 @@ pub(super) fn encode_field(field: &EncodeField) -> TsStream {
                                 result.@{field.json_key_ident} = {$typescript encoded};
                             {:else}
                                 result.@{field.json_key_ident} = value.@{field.field_ident};
+                            {/if}
                             {/if}
                         } else {
                             result.@{field.json_key_ident} = null;

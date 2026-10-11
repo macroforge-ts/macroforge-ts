@@ -199,7 +199,19 @@ pub(super) fn primitive_check(
             }
         })
         .collect::<Option<Vec<_>>>()?;
-    let wrong_type = js_string(&format!("expected {ts_type}"));
+    let accepts = accepts.join(" || ");
+    Some(PrimitiveCheck {
+        mismatch: Expr::parse(&rendered(ts_template! { !(@{accepts}) }))
+            .expect("primitive check should parse"),
+        message: wrong_type_message(field, raw, context_name),
+    })
+}
+
+/// The error for a raw value that is not of the field's type. A missing value
+/// where the type requires one is reported as required rather than as the
+/// wrong type.
+pub(super) fn wrong_type_message(field: &DecodeField, raw: &str, context_name: &str) -> Expr {
+    let wrong_type = js_string(&format!("expected {}", field.ts_type.trim()));
     let message = match field.missing() {
         Missing::Required => {
             let required = js_string(&format!("{context_name}.{} is required", field.json_key));
@@ -207,12 +219,7 @@ pub(super) fn primitive_check(
         }
         Missing::Allowed | Missing::Excluded => wrong_type,
     };
-    let accepts = accepts.join(" || ");
-    Some(PrimitiveCheck {
-        mismatch: Expr::parse(&rendered(ts_template! { !(@{accepts}) }))
-            .expect("primitive check should parse"),
-        message: Expr::parse(&message).expect("primitive check message should parse"),
-    })
+    Expr::parse(&message).expect("wrong type message should parse")
 }
 
 /// The primitive under a brand (`number & { readonly [B]: true }` or

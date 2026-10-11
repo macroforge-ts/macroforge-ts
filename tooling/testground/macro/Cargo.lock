@@ -1604,6 +1604,7 @@ dependencies = [
  "indexmap",
  "oxc",
  "pathdiff",
+ "proc-macro2",
  "serde",
  "serde_json",
  "thiserror 2.0.21",

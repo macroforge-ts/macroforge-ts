@@ -75,11 +75,13 @@ export function recurrenceRuleEncodeWithContext(value: RecurrenceRule, ctx: __mf
         result.recurrenceEnds = null;
     }
     if (value.cancelledInstances !== null) {
+
         result.cancelledInstances = value.cancelledInstances;
     } else {
         result.cancelledInstances = null;
     }
     if (value.additionalInstances !== null) {
+
         result.additionalInstances = value.additionalInstances;
     } else {
         result.additionalInstances = null;
@@ -243,7 +245,12 @@ export function recurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_Decode
         if (__raw_cancelledInstances === null) {
             instance.cancelledInstances = null;
         } else {
-            instance.cancelledInstances = __raw_cancelledInstances;
+
+            if (Array.isArray(__raw_cancelledInstances)) {
+                instance.cancelledInstances = __raw_cancelledInstances as string[];
+            } else {
+                errors.push({ field: "cancelledInstances", message: __raw_cancelledInstances == null ? "RecurrenceRule.cancelledInstances is required" : "expected Array<string>" });
+            }
         }
     }
     {
@@ -252,7 +259,12 @@ export function recurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_Decode
         if (__raw_additionalInstances === null) {
             instance.additionalInstances = null;
         } else {
-            instance.additionalInstances = __raw_additionalInstances;
+
+            if (Array.isArray(__raw_additionalInstances)) {
+                instance.additionalInstances = __raw_additionalInstances as string[];
+            } else {
+                errors.push({ field: "additionalInstances", message: __raw_additionalInstances == null ? "RecurrenceRule.additionalInstances is required" : "expected Array<string>" });
+            }
         }
     }
 
@@ -645,13 +657,13 @@ export declare const RecurrenceRule: {
 
 original 0..172 -> expanded 639..811
 original 221..446 -> expanded 811..1036
-original 446..447 -> expanded 20774..20775
+original 446..447 -> expanded 21366..21367
 generated 0..639 <- imports
 generated 1036..1293 <- Default
-generated 1293..3056 <- Encode
-generated 3056..10074 <- Decode
-generated 10074..19650 <- Gigaform
-generated 19650..20774 <- __convenience_const
+generated 1293..3058 <- Encode
+generated 3058..10666 <- Decode
+generated 10666..20242 <- Gigaform
+generated 20242..21366 <- __convenience_const
 
 ## Metadata
 

@@ -490,6 +490,8 @@ export class ProductForm {
                     if (__raw_tags.length > 5) { errors.push({ field: "tags", message: "ProductForm.tags must have at most 5 items" }); }
                 }
                 instance.tags = __raw_tags as string[];
+            } else {
+                errors.push({ field: "tags", message: __raw_tags == null ? "ProductForm.tags is required" : "expected Array<string>" });
             }
         }
         {
@@ -1120,22 +1122,22 @@ original 896..921 -> expanded 16631..16656
 original 972..1000 -> expanded 16656..16684
 original 1059..1090 -> expanded 16684..16715
 original 1127..1145 -> expanded 16715..16733
-original 1145..1146 -> expanded 29981..29982
-original 1146..1148 -> expanded 31063..31065
-original 1170..1200 -> expanded 31065..31095
-original 1252..1277 -> expanded 31095..31120
-original 1354..1381 -> expanded 31120..31147
-original 1423..1448 -> expanded 31147..31172
-original 1504..1531 -> expanded 31172..31199
-original 1531..1532 -> expanded 42875..42876
-original 1532..2731 -> expanded 43939..45138
+original 1145..1146 -> expanded 30139..30140
+original 1146..1148 -> expanded 31221..31223
+original 1170..1200 -> expanded 31223..31253
+original 1252..1277 -> expanded 31253..31278
+original 1354..1381 -> expanded 31278..31305
+original 1423..1448 -> expanded 31305..31330
+original 1504..1531 -> expanded 31330..31357
+original 1531..1532 -> expanded 43033..43034
+original 1532..2731 -> expanded 44097..45296
 generated 0..225 <- imports
 generated 596..15410 <- Decode
 generated 15411..16573 <- Decode
-generated 16733..29981 <- Decode
-generated 29982..31063 <- Decode
-generated 31199..42875 <- Decode
-generated 42876..43939 <- Decode
+generated 16733..30139 <- Decode
+generated 30140..31221 <- Decode
+generated 31357..43033 <- Decode
+generated 43034..44097 <- Decode
 
 ## Metadata
 

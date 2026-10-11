@@ -13,7 +13,7 @@ use crate::builtin::derive::endec::decode::types::{DecodeField, raw_cast_type};
 use crate::builtin::derive::endec::source_field::SourceField;
 use crate::builtin::derive::endec::union_guard::{Direction, UnionGuard, union_guard};
 use crate::builtin::derive::endec::value_kind::{
-    classify_endec_value_kind, get_encodable_type_name,
+    EndecValueKind, classify_endec_value_kind, get_encodable_type_name,
 };
 use crate::builtin::derive::endec::{
     EndecContainerOptions, EndecFieldOptions, EndecFormat, TypeCategory, get_foreign_types,
@@ -195,6 +195,50 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
                 }
             });
 
+    // A union with `null` or `undefined` is its other member once the value is
+    // known to be present. A member the union's own cases do not decode is
+    // prepared as a field of its own, so its category decodes it. Its
+    // decorators stay with this field: only the type differs. One a
+    // `decodeWith` already covers is left to that function.
+    let member_of_its_own = match &type_cat {
+        TypeCategory::Nullable(inner) if TypeCategory::from_ts_type(inner).is_composite() => {
+            Some(inner)
+        }
+        TypeCategory::Optional(inner)
+            if classify_endec_value_kind(inner) != EndecValueKind::PrimitiveLike =>
+        {
+            Some(inner)
+        }
+        _ => None,
+    };
+    let present_inner = member_of_its_own
+        .filter(|_| decode_with.is_none())
+        .and_then(|inner| {
+            to_decode_field(
+                SourceField {
+                    name: field.name,
+                    ts_type: inner,
+                    decorators: &[],
+                    optional: false,
+                    span: field.span,
+                },
+                container_opts,
+                diagnostics,
+                type_registry,
+                caller_file_path,
+                file_imports,
+                type_params,
+            )
+        })
+        .filter(|member| member.decode_with.is_none())
+        .map(|member| {
+            Box::new(DecodeField {
+                json_key: json_key.clone(),
+                validators: opts.validators.clone(),
+                ..member
+            })
+        });
+
     Some(DecodeField {
         json_key,
         field_name: field.name.to_string(),
@@ -209,6 +253,7 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         nullable_inner_kind,
         array_elem_kind,
         nullable_encodable_type,
+        present_inner,
         decode_with,
         decimal_format: opts.format == Some(EndecFormat::Decimal),
         array_elem_encodable_type,
