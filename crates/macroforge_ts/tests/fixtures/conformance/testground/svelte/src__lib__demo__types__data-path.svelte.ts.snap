@@ -150,6 +150,8 @@ export function dataPathDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
         if (Array.isArray(__raw_path)) {
             instance.path = __raw_path as string[];
+        } else {
+            errors.push({ field: "path", message: __raw_path == null ? "DataPath.path is required" : "expected Array<string>" });
         }
     }
     {
@@ -442,13 +444,13 @@ export declare const DataPath: {
 
 original 0..58 -> expanded 443..501
 original 107..192 -> expanded 501..586
-original 192..193 -> expanded 12065..12066
+original 192..193 -> expanded 12212..12213
 generated 0..443 <- imports
 generated 586..703 <- Default
 generated 703..1847 <- Encode
-generated 1847..6008 <- Decode
-generated 6008..11079 <- Gigaform
-generated 11079..12065 <- __convenience_const
+generated 1847..6155 <- Decode
+generated 6155..11226 <- Gigaform
+generated 11226..12212 <- __convenience_const
 
 ## Metadata
 

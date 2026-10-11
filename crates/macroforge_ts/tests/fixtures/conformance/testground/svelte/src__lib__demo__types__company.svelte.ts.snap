@@ -413,6 +413,8 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
                     ctx.addPatch(instance.phones, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "phones", message: __raw_phones == null ? "Company.phones is required" : "expected Array<PhoneNumber>" });
         }
     }
     {
@@ -2099,13 +2101,13 @@ original 1118..1155 -> expanded 1530..1567
 original 1196..1231 -> expanded 1567..1602
 original 1272..1352 -> expanded 1602..1682
 original 1393..1783 -> expanded 1682..2072
-original 1783..1784 -> expanded 83471..83472
+original 1783..1784 -> expanded 83628..83629
 generated 0..827 <- imports
 generated 2072..3022 <- Default
 generated 3022..5894 <- Encode
-generated 5894..39170 <- Decode
-generated 39170..82508 <- Gigaform
-generated 82508..83471 <- __convenience_const
+generated 5894..39327 <- Decode
+generated 39327..82665 <- Gigaform
+generated 82665..83628 <- __convenience_const
 
 ## Metadata
 

@@ -118,7 +118,7 @@ pub(crate) const CLI_ENGINE_KEY: &str = "cli";
 /// Fingerprints the running CLI, so expansions it cached are dropped once it
 /// is rebuilt. The engine is linked into this binary, which is why the plugin's
 /// wasm fingerprint cannot stand in for it.
-fn compute_cli_engine_hash() -> String {
+pub(crate) fn compute_cli_engine_hash() -> String {
     let Ok(exe) = std::env::current_exe() else {
         return "none".to_string();
     };

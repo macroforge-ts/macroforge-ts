@@ -974,6 +974,7 @@ fn recorded_state(files: &[&str]) -> PackageState {
     PackageState {
         inputs: PackageInputs {
             version: "1.0.0".to_string(),
+            engine_hash: "engine-a".to_string(),
             config_hash: "config-a".to_string(),
             external_macro_hash: "macros-a".to_string(),
             resolver_hash: "resolver-a".to_string(),
@@ -1004,6 +1005,27 @@ fn recorded_state(files: &[&str]) -> PackageState {
         module_reads: Default::default(),
         expanded_entries: files.iter().map(|rel| (*rel).to_string()).collect(),
     }
+}
+
+#[test]
+fn test_a_rebuilt_cli_re_expands_every_artifact() {
+    // The built-in derives are linked into the CLI, so one built from a
+    // checkout generates different code at the version the tree was expanded
+    // by. No source file moves, and neither does the version.
+    let state = recorded_state(&["types/person-name.ts"]);
+    let mut current = state.inputs.clone();
+    current.engine_hash = "engine-b".to_string();
+
+    assert_eq!(
+        state.stale_reason(&current).as_deref(),
+        Some("the macroforge CLI was rebuilt"),
+        "a rebuilt CLI must trigger a run at all"
+    );
+    assert_eq!(
+        state.expansion_stale_reason(&current, &state.declarative_hash),
+        Some("the macroforge CLI was rebuilt"),
+        "and that run must produce every expansion again, not reuse the tree"
+    );
 }
 
 #[test]

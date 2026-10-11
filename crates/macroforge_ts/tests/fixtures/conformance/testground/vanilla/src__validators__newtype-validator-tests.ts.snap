@@ -648,6 +648,8 @@ export function runDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): R
                     ctx.addPatch(instance.splits, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "splits", message: __raw_splits == null ? "Run.splits is required" : "expected Meters[]" });
         }
     }
     if ("best" in obj && obj["best"] !== undefined) {
@@ -927,7 +929,7 @@ original 437..496 -> expanded 8872..8931
 original 496..582 -> expanded 11854..11940
 original 598..599 -> expanded 11984..11985
 original 599..741 -> expanded 15472..15614
-original 741..742 -> expanded 24934..24935
+original 741..742 -> expanded 25077..25078
 generated 0..262 <- imports
 generated 262..307 <- $Newtype
 generated 307..352 <- $Newtype
@@ -955,8 +957,8 @@ generated 11985..12723 <- Encode
 generated 12723..14989 <- Decode
 generated 14989..15472 <- __convenience_const
 generated 15614..16996 <- Encode
-generated 16996..24301 <- Decode
-generated 24301..24934 <- __convenience_const
+generated 16996..24444 <- Decode
+generated 24444..25077 <- __convenience_const
 
 ## Metadata
 

@@ -362,6 +362,8 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
                     ctx.addPatch(instance.stops, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "stops", message: __raw_stops == null ? "Route.stops is required" : "expected Point[]" });
         }
     }
     {
@@ -384,6 +386,8 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
                     return [k, __vResult.success ? __vResult.value : v];
                 })
             ) as Record<string, Point>;
+        } else {
+            errors.push({ field: "named", message: __raw_named == null ? "Route.named is required" : "expected Record<string, Point>" });
         }
     }
     if ("visits" in obj && obj["visits"] !== undefined) {
@@ -393,6 +397,8 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
             instance.visits = new Map(
                 Object.entries(__raw_visits).map(([k, v]) => [k as string, v as number])
             );
+        } else {
+            errors.push({ field: "visits", message: "expected Map<string, number>" });
         }
     }
 
@@ -1440,30 +1446,30 @@ export declare const Outcome: {
 
 original 0..255 -> expanded 301..556
 original 255..400 -> expanded 6827..6972
-original 400..526 -> expanded 15344..15470
-original 526..619 -> expanded 21627..21720
-original 619..710 -> expanded 27484..27575
-original 710..784 -> expanded 33243..33317
-original 784..785 -> expanded 39327..39328
+original 400..526 -> expanded 15744..15870
+original 526..619 -> expanded 22027..22120
+original 619..710 -> expanded 27884..27975
+original 710..784 -> expanded 33643..33717
+original 784..785 -> expanded 39727..39728
 generated 0..301 <- imports
 generated 556..1636 <- Encode
 generated 1636..6160 <- Decode
 generated 6160..6827 <- __convenience_const
 generated 6972..8370 <- Encode
-generated 8370..14677 <- Decode
-generated 14677..15344 <- __convenience_const
-generated 15470..16764 <- Encode
-generated 16764..20926 <- Decode
-generated 20926..21627 <- __convenience_const
-generated 21720..22843 <- Encode
-generated 22843..26851 <- Decode
-generated 26851..27484 <- __convenience_const
-generated 27575..28721 <- Encode
-generated 28721..32593 <- Decode
-generated 32593..33243 <- __convenience_const
-generated 33317..34632 <- Encode
-generated 34632..38818 <- Decode
-generated 38818..39327 <- __convenience_const
+generated 8370..15077 <- Decode
+generated 15077..15744 <- __convenience_const
+generated 15870..17164 <- Encode
+generated 17164..21326 <- Decode
+generated 21326..22027 <- __convenience_const
+generated 22120..23243 <- Encode
+generated 23243..27251 <- Decode
+generated 27251..27884 <- __convenience_const
+generated 27975..29121 <- Encode
+generated 29121..32993 <- Decode
+generated 32993..33643 <- __convenience_const
+generated 33717..35032 <- Encode
+generated 35032..39218 <- Decode
+generated 39218..39727 <- __convenience_const
 
 ## Metadata
 

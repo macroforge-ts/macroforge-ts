@@ -323,6 +323,8 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
                     ctx.addPatch(instance.phones, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "phones", message: __raw_phones == null ? "Employee.phones is required" : "expected Array<PhoneNumber>" });
         }
     }
     {
@@ -490,6 +492,8 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
         if (Array.isArray(__raw_attendance)) {
             instance.attendance = __raw_attendance as string[];
+        } else {
+            errors.push({ field: "attendance", message: __raw_attendance == null ? "Employee.attendance is required" : "expected Array<string>" });
         }
     }
     {
@@ -1489,13 +1493,13 @@ original 626..670 -> expanded 1382..1426
 original 711..737 -> expanded 1426..1452
 original 778..805 -> expanded 1452..1479
 original 824..1070 -> expanded 1479..1725
-original 1070..1071 -> expanded 50712..50713
+original 1070..1071 -> expanded 51035..51036
 generated 0..916 <- imports
 generated 1725..2245 <- Default
 generated 2245..4236 <- Encode
-generated 4236..22409 <- Decode
-generated 22409..49726 <- Gigaform
-generated 49726..50712 <- __convenience_const
+generated 4236..22732 <- Decode
+generated 22732..50049 <- Gigaform
+generated 50049..51035 <- __convenience_const
 
 ## Metadata
 

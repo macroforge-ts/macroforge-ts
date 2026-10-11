@@ -58,7 +58,62 @@ export function propValueEncodeWithContext(value: PropValue, ctx: __mf_EncodeCon
         __variant = __encoder(value, ctx);
         __matched = true;
     }
-    
+    if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "String") {
+        const result: Record<string, unknown> = {};
+
+        result.type = value.type;
+        result.value = value.value;
+        __variant = result;
+        __matched = true;
+    }
+    if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "Number") {
+        const result: Record<string, unknown> = {};
+
+        result.type = value.type;
+        result.value = value.value;
+        __variant = result;
+        __matched = true;
+    }
+    if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "Boolean") {
+        const result: Record<string, unknown> = {};
+
+        result.type = value.type;
+        result.value = value.value;
+        __variant = result;
+        __matched = true;
+    }
+    if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "Json") {
+        const result: Record<string, unknown> = {};
+
+        result.type = value.type;
+        result.value = value.value;
+        __variant = result;
+        __matched = true;
+    }
+    if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "Asset") {
+        const result: Record<string, unknown> = {};
+
+        result.type = value.type;
+        result.value = value.value;
+        __variant = result;
+        __matched = true;
+    }
+    if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "Page") {
+        const result: Record<string, unknown> = {};
+
+        result.type = value.type;
+        result.value = value.value;
+        __variant = result;
+        __matched = true;
+    }
+    if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "Expression") {
+        const result: Record<string, unknown> = {};
+
+        result.type = value.type;
+        result.value = value.value;
+        __variant = result;
+        __matched = true;
+    }
     if (!__matched) {
         __variant = value;
     }
@@ -348,12 +403,12 @@ export declare const PropValue: {
 ## Mapping
 
 original 88..410 -> expanded 301..623
-original 410..411 -> expanded 9419..9420
+original 410..411 -> expanded 11521..11522
 generated 0..301 <- imports
 generated 623..725 <- Default
-generated 725..2143 <- Encode
-generated 2143..8244 <- Decode
-generated 8244..9419 <- __convenience_const
+generated 725..4245 <- Encode
+generated 4245..10346 <- Decode
+generated 10346..11521 <- __convenience_const
 
 ## Metadata
 

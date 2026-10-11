@@ -18,6 +18,7 @@ import { didDecode, didEncodeWithContext } from "./did.svelte";
 import { emailDecodeWithContext, emailEncodeWithContext, emailDefaultValue } from "./email.svelte";
 import { orderedDecode, orderedEncodeWithContext } from "./ordered.svelte";
 import { phoneNumberDecode, phoneNumberEncodeWithContext } from "./phone-number.svelte";
+import { representsDecode, representsEncodeWithContext } from "./represents.svelte";
 import { sectorDecodeWithContext, sectorEncodeWithContext } from "./sector.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { taxRateDecodeWithContext, taxRateEncodeWithContext } from "./tax-rate.svelte";
@@ -152,7 +153,10 @@ export function accountEncodeWithContext(value: Account, ctx: __mf_EncodeContext
         ? value.site
         : siteEncodeWithContext(value.site, ctx);
     if (value.salesRep !== null) {
-        result.salesRep = value.salesRep;
+
+        result.salesRep = value.salesRep.map(
+            (item) => representsEncodeWithContext(item, ctx)
+        );
     } else {
         result.salesRep = null;
     }
@@ -394,7 +398,38 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         if (__raw_salesRep === null) {
             instance.salesRep = null;
         } else {
-            instance.salesRep = __raw_salesRep;
+
+            if (Array.isArray(__raw_salesRep)) {
+                const __arr = __raw_salesRep.map((item: Represents | { __ref: number }, idx) => {
+                    if (typeof item === "object" && item !== null && "__ref" in item) {
+                        const result = ctx.getOrDefer(item.__ref);
+                        if (__mf_PendingRef.is(result)) {
+                            return { __pendingIdx: idx, __refId: result.id };
+                        }
+                        return result;
+                    }
+                    const __elemResult = representsDecode(item);
+                    if (!__elemResult.success) {
+                        for (const __err of __elemResult.errors) {
+                            errors.push({
+                                field: __err.field === "_root"
+                                    ? "salesRep[" + idx + "]"
+                                    : "salesRep[" + idx + "]." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    }
+                    return __elemResult.success ? __elemResult.value : item;
+                });
+                instance.salesRep = __arr;
+                __arr.forEach((item, idx) => {
+                    if (item && typeof item === "object" && "__pendingIdx" in item) {
+                        ctx.addPatch(instance.salesRep, idx, (item as any).__refId);
+                    }
+                });
+            } else {
+                errors.push({ field: "salesRep", message: __raw_salesRep == null ? "Account.salesRep is required" : "expected Array<Represents>" });
+            }
         }
     }
     {
@@ -428,6 +463,8 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
                     ctx.addPatch(instance.orders, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "orders", message: __raw_orders == null ? "Account.orders is required" : "expected Array<Ordered>" });
         }
     }
     {
@@ -461,6 +498,8 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
                     ctx.addPatch(instance.activity, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "activity", message: __raw_activity == null ? "Account.activity is required" : "expected Array<Did>" });
         }
     }
     {
@@ -483,6 +522,8 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
                     ctx.addPatch(instance.customFields, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "customFields", message: __raw_customFields == null ? "Account.customFields is required" : "expected Array<[string, string]>" });
         }
     }
     {
@@ -569,6 +610,8 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
                     ctx.addPatch(instance.phones, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "phones", message: __raw_phones == null ? "Account.phones is required" : "expected Array<PhoneNumber>" });
         }
     }
     {
@@ -695,6 +738,8 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
         if (Array.isArray(__raw_tags)) {
             instance.tags = __raw_tags as string[];
+        } else {
+            errors.push({ field: "tags", message: __raw_tags == null ? "Account.tags is required" : "expected Array<string>" });
         }
     }
     {
@@ -1948,44 +1993,44 @@ export declare const Account: {
 
 ## Mapping
 
-original 0..551 -> expanded 1251..1802
-original 600..632 -> expanded 1802..1834
-original 660..681 -> expanded 1834..1855
-original 781..786 -> expanded 1855..1860
-original 805..841 -> expanded 1860..1896
-original 890..895 -> expanded 1896..1901
-original 914..944 -> expanded 1901..1931
-original 1033..1078 -> expanded 1931..1976
-original 1106..1139 -> expanded 1976..2009
-original 1167..1198 -> expanded 2009..2040
-original 1258..1306 -> expanded 2040..2088
-original 1438..1473 -> expanded 2088..2123
-original 1654..1659 -> expanded 2123..2128
-original 1689..1714 -> expanded 2128..2153
-original 1759..1789 -> expanded 2153..2183
-original 1842..1879 -> expanded 2183..2220
-original 1927..1950 -> expanded 2220..2243
-original 2021..2026 -> expanded 2243..2248
-original 2067..2096 -> expanded 2248..2277
-original 2124..2149 -> expanded 2277..2302
-original 2200..2231 -> expanded 2302..2333
-original 2279..2307 -> expanded 2333..2361
-original 2379..2384 -> expanded 2361..2366
-original 2425..2455 -> expanded 2366..2396
-original 2522..2527 -> expanded 2396..2401
-original 2568..2594 -> expanded 2401..2427
-original 2643..2674 -> expanded 2427..2458
-original 2747..2752 -> expanded 2458..2463
-original 2793..2824 -> expanded 2463..2494
-original 2865..2895 -> expanded 2494..2524
-original 2923..2948 -> expanded 2524..2549
-original 2948..2949 -> expanded 68467..68468
-generated 0..1251 <- imports
-generated 2549..3179 <- Default
-generated 3179..5665 <- Encode
-generated 5665..29785 <- Decode
-generated 29785..67504 <- Gigaform
-generated 67504..68467 <- __convenience_const
+original 0..551 -> expanded 1336..1887
+original 600..632 -> expanded 1887..1919
+original 660..681 -> expanded 1919..1940
+original 781..786 -> expanded 1940..1945
+original 805..841 -> expanded 1945..1981
+original 890..895 -> expanded 1981..1986
+original 914..944 -> expanded 1986..2016
+original 1033..1078 -> expanded 2016..2061
+original 1106..1139 -> expanded 2061..2094
+original 1167..1198 -> expanded 2094..2125
+original 1258..1306 -> expanded 2125..2173
+original 1438..1473 -> expanded 2173..2208
+original 1654..1659 -> expanded 2208..2213
+original 1689..1714 -> expanded 2213..2238
+original 1759..1789 -> expanded 2238..2268
+original 1842..1879 -> expanded 2268..2305
+original 1927..1950 -> expanded 2305..2328
+original 2021..2026 -> expanded 2328..2333
+original 2067..2096 -> expanded 2333..2362
+original 2124..2149 -> expanded 2362..2387
+original 2200..2231 -> expanded 2387..2418
+original 2279..2307 -> expanded 2418..2446
+original 2379..2384 -> expanded 2446..2451
+original 2425..2455 -> expanded 2451..2481
+original 2522..2527 -> expanded 2481..2486
+original 2568..2594 -> expanded 2486..2512
+original 2643..2674 -> expanded 2512..2543
+original 2747..2752 -> expanded 2543..2548
+original 2793..2824 -> expanded 2548..2579
+original 2865..2895 -> expanded 2579..2609
+original 2923..2948 -> expanded 2609..2634
+original 2948..2949 -> expanded 71043..71044
+generated 0..1336 <- imports
+generated 2634..3264 <- Default
+generated 3264..5827 <- Encode
+generated 5827..32361 <- Decode
+generated 32361..70080 <- Gigaform
+generated 70080..71043 <- __convenience_const
 
 ## Metadata
 

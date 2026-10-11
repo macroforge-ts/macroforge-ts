@@ -10,7 +10,7 @@ use crate::ts_syn::{TsStream, ts_ident};
 
 use crate::builtin::derive::endec::TypeCategory;
 use crate::builtin::derive::endec::decode::helpers::{
-    nested_decode_fn_name, nested_decode_result_fn_name, primitive_check,
+    nested_decode_fn_name, nested_decode_result_fn_name, primitive_check, wrong_type_message,
 };
 use crate::builtin::derive::endec::decode::types::DecodeField;
 use crate::builtin::derive::endec::decode::validation::{Missing, generate_field_validations};
@@ -24,6 +24,17 @@ pub(super) fn decode_raw_value(field: &DecodeField, owner: &str) -> TsStream {
     let raw_var_ident: Ident = ts_ident!(raw_var_name);
     let has_validators = field.has_validators();
     let pending_ref_expr: Expr = ts_ident!(PENDING_REF).into();
+    let wrong_type = wrong_type_message(field, &raw_var_name, owner);
+    if let (TypeCategory::Optional(_), Some(member)) = (&field.type_cat, &field.present_inner) {
+        let member_value = decode_raw_value(member, owner);
+        return ts_template! {
+            if (@{raw_var_ident} === undefined) {
+                instance.@{field.field_ident} = undefined;
+            } else {
+                {$typescript member_value}
+            }
+        };
+    }
     ts_template! {
         {#match &field.type_cat}
             {:case TypeCategory::Primitive}
@@ -145,6 +156,8 @@ pub(super) fn decode_raw_value(field: &DecodeField, owner: &str) -> TsStream {
                                 });
                             {/if}
                     {/match}
+                } else {
+                    errors.push({ field: "@{field.json_key}", message: @{wrong_type} });
                 }
 
             {:case TypeCategory::Map(key_type, value_type)}
@@ -183,6 +196,8 @@ pub(super) fn decode_raw_value(field: &DecodeField, owner: &str) -> TsStream {
                                 );
                             {/if}
                     {/match}
+                } else {
+                    errors.push({ field: "@{field.json_key}", message: @{wrong_type} });
                 }
 
             {:case TypeCategory::Set(inner)}
@@ -217,6 +232,8 @@ pub(super) fn decode_raw_value(field: &DecodeField, owner: &str) -> TsStream {
                                 instance.@{field.field_ident} = new Set(@{raw_var_ident} as @{inner}[]);
                             {/if}
                     {/match}
+                } else {
+                    errors.push({ field: "@{field.json_key}", message: @{wrong_type} });
                 }
 
             {:case TypeCategory::Record(_key_type, _value_type)}
@@ -242,6 +259,8 @@ pub(super) fn decode_raw_value(field: &DecodeField, owner: &str) -> TsStream {
                     {:else}
                         instance.@{field.field_ident} = @{raw_var_ident};
                     {/if}
+                } else {
+                    errors.push({ field: "@{field.json_key}", message: @{wrong_type} });
                 }
 
             {:case TypeCategory::Wrapper(_)}
@@ -299,6 +318,10 @@ pub(super) fn decode_raw_value(field: &DecodeField, owner: &str) -> TsStream {
                         if (@{raw_var_ident} === null) {
                             instance.@{field.field_ident} = null;
                         } else {
+                            {#if let Some(member) = &field.present_inner}
+                                {$let member_value = decode_raw_value(member, owner)}
+                                {$typescript member_value}
+                            {:else}
                             {#if let Some(inner_type) = &field.nullable_encodable_type}
                                 {$let inner_type_expr: Expr = ts_ident!(nested_decode_fn_name(inner_type)).into()}
                                 {$let nested = decode_nested(field, &inner_type_expr, &raw_var_ident)}
@@ -316,6 +339,7 @@ pub(super) fn decode_raw_value(field: &DecodeField, owner: &str) -> TsStream {
                                 {/if}
                             {:else}
                                 instance.@{field.field_ident} = @{raw_var_ident};
+                            {/if}
                             {/if}
                         }
                 {/match}

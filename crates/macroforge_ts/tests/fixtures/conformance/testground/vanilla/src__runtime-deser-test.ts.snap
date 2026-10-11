@@ -291,6 +291,8 @@ export function containerDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
                     ctx.addPatch(instance.items, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "items", message: __raw_items == null ? "Container.items is required" : "expected Inner[]" });
         }
     }
 
@@ -506,12 +508,12 @@ export {};
 
 original 0..107 -> expanded 225..332
 original 107..182 -> expanded 5431..5506
-original 182..2159 -> expanded 11029..13006
+original 182..2159 -> expanded 11174..13151
 generated 0..225 <- imports
 generated 332..4932 <- Decode
 generated 4932..5431 <- __convenience_const
-generated 5506..10478 <- Decode
-generated 10478..11029 <- __convenience_const
+generated 5506..10623 <- Decode
+generated 10623..11174 <- __convenience_const
 
 ## Metadata
 

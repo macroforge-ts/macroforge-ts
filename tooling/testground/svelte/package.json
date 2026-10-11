@@ -38,7 +38,7 @@
         "jsdom": "^26.1.0",
         "json-schema": "^0.4.0",
         "svelte": "^5.43.8",
-        "svelte-check": "^4.3.4",
+        "svelte-check": "^4.7.6",
         "tailwind-merge": "^3.4.0",
         "tailwindcss": "^4.1.10",
         "typescript": "^5.9.3",

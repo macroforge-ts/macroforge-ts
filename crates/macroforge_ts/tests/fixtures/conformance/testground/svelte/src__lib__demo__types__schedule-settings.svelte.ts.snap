@@ -197,6 +197,8 @@ export function scheduleSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
 
         if (Array.isArray(__raw_visibleRoutes)) {
             instance.visibleRoutes = __raw_visibleRoutes as string[];
+        } else {
+            errors.push({ field: "visibleRoutes", message: __raw_visibleRoutes == null ? "ScheduleSettings.visibleRoutes is required" : "expected Array<string>" });
         }
     }
     {
@@ -584,13 +586,13 @@ export declare const ScheduleSettings: {
 original 0..113 -> expanded 537..650
 original 162..228 -> expanded 650..716
 original 253..343 -> expanded 716..806
-original 343..344 -> expanded 18429..18430
+original 343..344 -> expanded 18611..18612
 generated 0..537 <- imports
 generated 806..1006 <- Default
 generated 1006..2341 <- Encode
-generated 2341..8202 <- Decode
-generated 8202..17259 <- Gigaform
-generated 17259..18429 <- __convenience_const
+generated 2341..8384 <- Decode
+generated 8384..17441 <- Gigaform
+generated 17441..18611 <- __convenience_const
 
 ## Metadata
 

@@ -170,6 +170,8 @@ export class Settings {
 
             if (Array.isArray(__raw_tags)) {
                 instance.tags = __raw_tags as string[];
+            } else {
+                errors.push({ field: "tags", message: __raw_tags == null ? "Settings.tags is required" : "expected string[]" });
             }
         }
         {
@@ -671,37 +673,37 @@ export declare function counterDefaultValue(): Counter;
 ## Mapping
 
 original 0..396 -> expanded 262..658
-original 396..397 -> expanded 7640..7641
-original 397..579 -> expanded 8785..8967
-original 579..580 -> expanded 9208..9209
-original 580..752 -> expanded 9296..9468
-original 752..753 -> expanded 15215..15216
-original 753..754 -> expanded 18720..18721
+original 396..397 -> expanded 7790..7791
+original 397..579 -> expanded 8935..9117
+original 579..580 -> expanded 9358..9359
+original 580..752 -> expanded 9446..9618
+original 752..753 -> expanded 15365..15366
+original 753..754 -> expanded 18870..18871
 generated 0..262 <- imports
 generated 658..968 <- Default
-generated 968..7640 <- Decode
-generated 7641..7731 <- Default
-generated 7731..8785 <- Decode
-generated 8967..9208 <- Default
-generated 9209..9296 <- Default
-generated 9468..9560 <- Debug
-generated 9560..9647 <- Clone
-generated 9647..9743 <- PartialEq
-generated 9743..9835 <- Hash
-generated 9835..9953 <- PartialOrd
-generated 9953..10050 <- Ord
-generated 10050..10685 <- Encode
-generated 10685..15049 <- Decode
-generated 15049..15215 <- Default
-generated 15216..15409 <- Debug
-generated 15409..15583 <- Clone
-generated 15583..15713 <- PartialEq
-generated 15713..15975 <- Hash
-generated 15975..16267 <- PartialOrd
-generated 16267..16478 <- Ord
-generated 16478..17588 <- Encode
-generated 17588..18633 <- Decode
-generated 18633..18720 <- Default
+generated 968..7790 <- Decode
+generated 7791..7881 <- Default
+generated 7881..8935 <- Decode
+generated 9117..9358 <- Default
+generated 9359..9446 <- Default
+generated 9618..9710 <- Debug
+generated 9710..9797 <- Clone
+generated 9797..9893 <- PartialEq
+generated 9893..9985 <- Hash
+generated 9985..10103 <- PartialOrd
+generated 10103..10200 <- Ord
+generated 10200..10835 <- Encode
+generated 10835..15199 <- Decode
+generated 15199..15365 <- Default
+generated 15366..15559 <- Debug
+generated 15559..15733 <- Clone
+generated 15733..15863 <- PartialEq
+generated 15863..16125 <- Hash
+generated 16125..16417 <- PartialOrd
+generated 16417..16628 <- Ord
+generated 16628..17738 <- Encode
+generated 17738..18783 <- Decode
+generated 18783..18870 <- Default
 
 ## Metadata
 

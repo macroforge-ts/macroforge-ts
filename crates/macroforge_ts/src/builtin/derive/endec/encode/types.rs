@@ -67,6 +67,10 @@ pub(crate) struct EncodeField {
     pub(crate) optional_encodable_type: Option<String>,
     /// For `T | null` where T is Encodable: the type name.
     pub(crate) nullable_encodable_type: Option<String>,
+    /// For `T | null` and `T | undefined` where the union's own cases do not
+    /// encode `T`: `T` as a field of its own, encoded by its own category once
+    /// the value is known to be present.
+    pub(crate) present_inner: Option<Box<EncodeField>>,
     /// For `Array<T>` where T is Encodable: the type name.
     pub(crate) array_elem_encodable_type: Option<String>,
     /// For `Set<T>` where T is Encodable: the type name.

@@ -401,6 +401,8 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
                     ctx.addPatch(instance.stops, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "stops", message: __raw_stops == null ? "Route.stops is required" : "expected Point[]" });
         }
     }
     {
@@ -423,6 +425,8 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
                     return [k, __vResult.success ? __vResult.value : v];
                 })
             ) as Record<string, Point>;
+        } else {
+            errors.push({ field: "named", message: __raw_named == null ? "Route.named is required" : "expected Record<string, Point>" });
         }
     }
     if ("visits" in obj && obj["visits"] !== undefined) {
@@ -432,6 +436,8 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
             instance.visits = new Map(
                 Object.entries(__raw_visits).map(([k, v]) => [k as string, v as number])
             );
+        } else {
+            errors.push({ field: "visits", message: "expected Map<string, number>" });
         }
     }
 
@@ -1474,35 +1480,35 @@ original 182..212 -> expanded 453..483
 original 238..255 -> expanded 483..500
 original 255..257 -> expanded 6771..6773
 original 287..400 -> expanded 6773..6886
-original 400..402 -> expanded 15258..15260
-original 432..483 -> expanded 15260..15311
-original 505..526 -> expanded 15311..15332
-original 526..528 -> expanded 21489..21491
-original 558..619 -> expanded 21491..21552
-original 619..621 -> expanded 27316..27318
-original 651..710 -> expanded 27318..27377
-original 710..712 -> expanded 33045..33047
-original 742..784 -> expanded 33047..33089
-original 784..785 -> expanded 39099..39100
+original 400..402 -> expanded 15658..15660
+original 432..483 -> expanded 15660..15711
+original 505..526 -> expanded 15711..15732
+original 526..528 -> expanded 21889..21891
+original 558..619 -> expanded 21891..21952
+original 619..621 -> expanded 27716..27718
+original 651..710 -> expanded 27718..27777
+original 710..712 -> expanded 33445..33447
+original 742..784 -> expanded 33447..33489
+original 784..785 -> expanded 39499..39500
 generated 0..301 <- imports
 generated 500..1580 <- Encode
 generated 1580..6104 <- Decode
 generated 6104..6771 <- __convenience_const
 generated 6886..8284 <- Encode
-generated 8284..14591 <- Decode
-generated 14591..15258 <- __convenience_const
-generated 15332..16626 <- Encode
-generated 16626..20788 <- Decode
-generated 20788..21489 <- __convenience_const
-generated 21552..22675 <- Encode
-generated 22675..26683 <- Decode
-generated 26683..27316 <- __convenience_const
-generated 27377..28523 <- Encode
-generated 28523..32395 <- Decode
-generated 32395..33045 <- __convenience_const
-generated 33089..34404 <- Encode
-generated 34404..38590 <- Decode
-generated 38590..39099 <- __convenience_const
+generated 8284..14991 <- Decode
+generated 14991..15658 <- __convenience_const
+generated 15732..17026 <- Encode
+generated 17026..21188 <- Decode
+generated 21188..21889 <- __convenience_const
+generated 21952..23075 <- Encode
+generated 23075..27083 <- Decode
+generated 27083..27716 <- __convenience_const
+generated 27777..28923 <- Encode
+generated 28923..32795 <- Decode
+generated 32795..33445 <- __convenience_const
+generated 33489..34804 <- Encode
+generated 34804..38990 <- Decode
+generated 38990..39499 <- __convenience_const
 
 ## Metadata
 

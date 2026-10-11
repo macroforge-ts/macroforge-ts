@@ -195,6 +195,8 @@ export function appPermissionsDecodeWithContext(value: unknown, ctx: __mf_Decode
                     ctx.addPatch(instance.applications, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "applications", message: __raw_applications == null ? "AppPermissions.applications is required" : "expected Array<Applications>" });
         }
     }
     {
@@ -228,6 +230,8 @@ export function appPermissionsDecodeWithContext(value: unknown, ctx: __mf_Decode
                     ctx.addPatch(instance.pages, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "pages", message: __raw_pages == null ? "AppPermissions.pages is required" : "expected Array<Page>" });
         }
     }
     {
@@ -261,6 +265,8 @@ export function appPermissionsDecodeWithContext(value: unknown, ctx: __mf_Decode
                     ctx.addPatch(instance.data, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "data", message: __raw_data == null ? "AppPermissions.data is required" : "expected Array<Table>" });
         }
     }
 
@@ -670,13 +676,13 @@ export declare const AppPermissions: {
 
 original 0..206 -> expanded 671..877
 original 255..378 -> expanded 877..1000
-original 378..379 -> expanded 22177..22178
+original 378..379 -> expanded 22666..22667
 generated 0..671 <- imports
 generated 1000..1149 <- Default
 generated 1149..2562 <- Encode
-generated 2562..10836 <- Decode
-generated 10836..21053 <- Gigaform
-generated 21053..22177 <- __convenience_const
+generated 2562..11325 <- Decode
+generated 11325..21542 <- Gigaform
+generated 21542..22666 <- __convenience_const
 
 ## Metadata
 

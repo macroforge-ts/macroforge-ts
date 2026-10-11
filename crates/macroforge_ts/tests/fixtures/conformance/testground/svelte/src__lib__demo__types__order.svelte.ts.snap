@@ -17,7 +17,9 @@ import { appointmentDecodeWithContext, appointmentEncodeWithContext } from "./ap
 import { billedItemDecode, billedItemEncodeWithContext } from "./billed-item.svelte";
 import { employeeDecode, employeeDecodeWithContext, employeeEncodeWithContext } from "./employee.svelte";
 import { orderStageDecodeWithContext, orderStageEncodeWithContext } from "./order-stage.svelte";
+import { packageDecode, packageEncodeWithContext } from "./package.svelte";
 import { paymentDecode, paymentEncodeWithContext } from "./payment.svelte";
+import { promotionDecode, promotionEncodeWithContext } from "./promotion.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { __foreign__dateTimeDateTimeDefault, __foreign__optionOptionDefault, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeDecode, __foreign__optionOptionDecode } from "#macroforge/config";
 import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
@@ -202,12 +204,22 @@ export function orderEncodeWithContext(value: Order, ctx: __mf_EncodeContext): R
             : employeeEncodeWithContext(item, ctx)
     );
     if (value.package !== null) {
-        result.package = value.package;
+
+        result.package = value.package.map(
+            (item) => typeof item === "string"
+                ? item
+                : packageEncodeWithContext(item, ctx)
+        );
     } else {
         result.package = null;
     }
     if (value.promotion !== null) {
-        result.promotion = value.promotion;
+
+        result.promotion = value.promotion.map(
+            (item) => typeof item === "string"
+                ? item
+                : promotionEncodeWithContext(item, ctx)
+        );
     } else {
         result.promotion = null;
     }
@@ -492,6 +504,8 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
                     ctx.addPatch(instance.payments, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "payments", message: __raw_payments == null ? "Order.payments is required" : "expected Array<string | Payment>" });
         }
     }
     {
@@ -684,6 +698,8 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
                     ctx.addPatch(instance.lastTechs, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "lastTechs", message: __raw_lastTechs == null ? "Order.lastTechs is required" : "expected Array<string | Employee>" });
         }
     }
     {
@@ -692,7 +708,41 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
         if (__raw_package === null) {
             instance.package = null;
         } else {
-            instance.package = __raw_package;
+
+            if (Array.isArray(__raw_package)) {
+                const __arr = __raw_package.map((item: string | Package | { __ref: number }, idx) => {
+                    if (typeof item === "string") {
+                        return item;
+                    }
+                    if (typeof item === "object" && item !== null && "__ref" in item) {
+                        const result = ctx.getOrDefer(item.__ref);
+                        if (__mf_PendingRef.is(result)) {
+                            return { __pendingIdx: idx, __refId: result.id };
+                        }
+                        return result;
+                    }
+                    const __elemResult = packageDecode(item);
+                    if (!__elemResult.success) {
+                        for (const __err of __elemResult.errors) {
+                            errors.push({
+                                field: __err.field === "_root"
+                                    ? "package[" + idx + "]"
+                                    : "package[" + idx + "]." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    }
+                    return __elemResult.success ? __elemResult.value : item;
+                });
+                instance.package = __arr;
+                __arr.forEach((item, idx) => {
+                    if (item && typeof item === "object" && "__pendingIdx" in item) {
+                        ctx.addPatch(instance.package, idx, (item as any).__refId);
+                    }
+                });
+            } else {
+                errors.push({ field: "package", message: __raw_package == null ? "Order.package is required" : "expected Array<string | Package>" });
+            }
         }
     }
     {
@@ -701,7 +751,41 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
         if (__raw_promotion === null) {
             instance.promotion = null;
         } else {
-            instance.promotion = __raw_promotion;
+
+            if (Array.isArray(__raw_promotion)) {
+                const __arr = __raw_promotion.map((item: string | Promotion | { __ref: number }, idx) => {
+                    if (typeof item === "string") {
+                        return item;
+                    }
+                    if (typeof item === "object" && item !== null && "__ref" in item) {
+                        const result = ctx.getOrDefer(item.__ref);
+                        if (__mf_PendingRef.is(result)) {
+                            return { __pendingIdx: idx, __refId: result.id };
+                        }
+                        return result;
+                    }
+                    const __elemResult = promotionDecode(item);
+                    if (!__elemResult.success) {
+                        for (const __err of __elemResult.errors) {
+                            errors.push({
+                                field: __err.field === "_root"
+                                    ? "promotion[" + idx + "]"
+                                    : "promotion[" + idx + "]." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    }
+                    return __elemResult.success ? __elemResult.value : item;
+                });
+                instance.promotion = __arr;
+                __arr.forEach((item, idx) => {
+                    if (item && typeof item === "object" && "__pendingIdx" in item) {
+                        ctx.addPatch(instance.promotion, idx, (item as any).__refId);
+                    }
+                });
+            } else {
+                errors.push({ field: "promotion", message: __raw_promotion == null ? "Order.promotion is required" : "expected Array<string | Promotion>" });
+            }
         }
     }
     {
@@ -784,6 +868,8 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
                     ctx.addPatch(instance.billedItems, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "billedItems", message: __raw_billedItems == null ? "Order.billedItems is required" : "expected Array<BilledItem>" });
         }
     }
     try {
@@ -814,6 +900,8 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
 
         if (Array.isArray(__raw_commissions)) {
             instance.commissions = __raw_commissions as number[];
+        } else {
+            errors.push({ field: "commissions", message: __raw_commissions == null ? "Order.commissions is required" : "expected Array<number>" });
         }
     }
 
@@ -2236,55 +2324,55 @@ export declare const Order: {
 
 ## Mapping
 
-original 0..570 -> expanded 1301..1871
-original 619..649 -> expanded 1871..1901
-original 677..698 -> expanded 1901..1922
-original 796..801 -> expanded 1922..1927
-original 820..856 -> expanded 1927..1963
-original 1031..1036 -> expanded 1963..1968
-original 1063..1091 -> expanded 1968..1996
-original 1119..1144 -> expanded 1996..2021
-original 1172..1216 -> expanded 2021..2065
-original 1264..1269 -> expanded 2065..2070
-original 1310..1340 -> expanded 2070..2100
-original 1386..1391 -> expanded 2100..2105
-original 1432..1460 -> expanded 2105..2133
-original 1531..1536 -> expanded 2133..2138
-original 1577..1606 -> expanded 2138..2167
-original 1707..1712 -> expanded 2167..2172
-original 1731..1769 -> expanded 2172..2210
-original 1834..1839 -> expanded 2210..2215
-original 1880..1904 -> expanded 2215..2239
-original 1972..1977 -> expanded 2239..2244
-original 2018..2045 -> expanded 2244..2271
-original 2090..2118 -> expanded 2271..2299
-original 2169..2200 -> expanded 2299..2330
-original 2248..2253 -> expanded 2330..2335
-original 2294..2323 -> expanded 2335..2364
-original 2351..2376 -> expanded 2364..2389
-original 2404..2445 -> expanded 2389..2430
-original 2551..2556 -> expanded 2430..2435
-original 2575..2619 -> expanded 2435..2479
-original 2710..2756 -> expanded 2479..2525
-original 2784..2834 -> expanded 2525..2575
-original 2862..2916 -> expanded 2575..2629
-original 2944..2970 -> expanded 2629..2655
-original 3014..3047 -> expanded 2655..2688
-original 3075..3099 -> expanded 2688..2712
-original 3148..3153 -> expanded 2712..2717
-original 3172..3202 -> expanded 2717..2747
-original 3261..3302 -> expanded 2747..2788
-original 3347..3385 -> expanded 2788..2826
-original 3413..3440 -> expanded 2826..2853
-original 3468..3490 -> expanded 2853..2875
-original 3518..3552 -> expanded 2875..2909
-original 3552..3553 -> expanded 78924..78925
-generated 0..1301 <- imports
-generated 2909..3710 <- Default
-generated 3710..6870 <- Encode
-generated 6870..35284 <- Decode
-generated 35284..78007 <- Gigaform
-generated 78007..78924 <- __convenience_const
+original 0..570 -> expanded 1459..2029
+original 619..649 -> expanded 2029..2059
+original 677..698 -> expanded 2059..2080
+original 796..801 -> expanded 2080..2085
+original 820..856 -> expanded 2085..2121
+original 1031..1036 -> expanded 2121..2126
+original 1063..1091 -> expanded 2126..2154
+original 1119..1144 -> expanded 2154..2179
+original 1172..1216 -> expanded 2179..2223
+original 1264..1269 -> expanded 2223..2228
+original 1310..1340 -> expanded 2228..2258
+original 1386..1391 -> expanded 2258..2263
+original 1432..1460 -> expanded 2263..2291
+original 1531..1536 -> expanded 2291..2296
+original 1577..1606 -> expanded 2296..2325
+original 1707..1712 -> expanded 2325..2330
+original 1731..1769 -> expanded 2330..2368
+original 1834..1839 -> expanded 2368..2373
+original 1880..1904 -> expanded 2373..2397
+original 1972..1977 -> expanded 2397..2402
+original 2018..2045 -> expanded 2402..2429
+original 2090..2118 -> expanded 2429..2457
+original 2169..2200 -> expanded 2457..2488
+original 2248..2253 -> expanded 2488..2493
+original 2294..2323 -> expanded 2493..2522
+original 2351..2376 -> expanded 2522..2547
+original 2404..2445 -> expanded 2547..2588
+original 2551..2556 -> expanded 2588..2593
+original 2575..2619 -> expanded 2593..2637
+original 2710..2756 -> expanded 2637..2683
+original 2784..2834 -> expanded 2683..2733
+original 2862..2916 -> expanded 2733..2787
+original 2944..2970 -> expanded 2787..2813
+original 3014..3047 -> expanded 2813..2846
+original 3075..3099 -> expanded 2846..2870
+original 3148..3153 -> expanded 2870..2875
+original 3172..3202 -> expanded 2875..2905
+original 3261..3302 -> expanded 2905..2946
+original 3347..3385 -> expanded 2946..2984
+original 3413..3440 -> expanded 2984..3011
+original 3468..3490 -> expanded 3011..3033
+original 3518..3552 -> expanded 3033..3067
+original 3552..3553 -> expanded 83522..83523
+generated 0..1459 <- imports
+generated 3067..3868 <- Default
+generated 3868..7310 <- Encode
+generated 7310..39882 <- Decode
+generated 39882..82605 <- Gigaform
+generated 82605..83522 <- __convenience_const
 
 ## Metadata
 

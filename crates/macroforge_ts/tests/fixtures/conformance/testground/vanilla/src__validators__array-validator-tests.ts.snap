@@ -117,6 +117,8 @@ export class MaxItemsValidator {
                     if (__raw_items.length > 5) { errors.push({ field: "items", message: "MaxItemsValidator.items must have at most 5 items" }); }
                 }
                 instance.items = __raw_items as string[];
+            } else {
+                errors.push({ field: "items", message: __raw_items == null ? "MaxItemsValidator.items is required" : "expected Array<string>" });
             }
         }
 
@@ -280,6 +282,8 @@ export class MinItemsValidator {
                     if (__raw_items.length < 2) { errors.push({ field: "items", message: "MinItemsValidator.items must have at least 2 items" }); }
                 }
                 instance.items = __raw_items as string[];
+            } else {
+                errors.push({ field: "items", message: __raw_items == null ? "MinItemsValidator.items is required" : "expected Array<string>" });
             }
         }
 
@@ -443,6 +447,8 @@ export class ItemsCountValidator {
                     if (__raw_items.length !== 3) { errors.push({ field: "items", message: "ItemsCountValidator.items must have exactly 3 items" }); }
                 }
                 instance.items = __raw_items as string[];
+            } else {
+                errors.push({ field: "items", message: __raw_items == null ? "ItemsCountValidator.items is required" : "expected Array<string>" });
             }
         }
 
@@ -658,19 +664,19 @@ export declare function itemsCountValidatorIs(value: unknown): value is ItemsCou
 ## Mapping
 
 original 0..240 -> expanded 225..465
-original 240..241 -> expanded 5924..5925
-original 241..396 -> expanded 7060..7215
-original 396..397 -> expanded 12677..12678
-original 397..558 -> expanded 13813..13974
-original 558..559 -> expanded 19481..19482
-original 559..560 -> expanded 20635..20636
+original 240..241 -> expanded 6091..6092
+original 241..396 -> expanded 7227..7382
+original 396..397 -> expanded 13011..13012
+original 397..558 -> expanded 14147..14308
+original 558..559 -> expanded 19984..19985
+original 559..560 -> expanded 21138..21139
 generated 0..225 <- imports
-generated 465..5924 <- Decode
-generated 5925..7060 <- Decode
-generated 7215..12677 <- Decode
-generated 12678..13813 <- Decode
-generated 13974..19481 <- Decode
-generated 19482..20635 <- Decode
+generated 465..6091 <- Decode
+generated 6092..7227 <- Decode
+generated 7382..13011 <- Decode
+generated 13012..14147 <- Decode
+generated 14308..19984 <- Decode
+generated 19985..21138 <- Decode
 
 ## Metadata
 

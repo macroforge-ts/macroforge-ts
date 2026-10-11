@@ -62,6 +62,10 @@ pub(super) struct DecodeField {
     // --- Encodable type tracking for direct function calls ---
     /// For `T | null` where T is Encodable: the type name.
     pub nullable_encodable_type: Option<String>,
+    /// For `T | null` and `T | undefined` where the union's own cases do not
+    /// decode `T`: `T` as a field of its own, decoded by its own category once
+    /// the value is known to be present.
+    pub present_inner: Option<Box<DecodeField>>,
 
     /// Custom decoding function expression (from `@endec({decodeWith: "fn"})`)
     /// When set, this function is called instead of type-based decoding.

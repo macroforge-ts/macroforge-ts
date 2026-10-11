@@ -18,6 +18,7 @@ import { leadStageDecodeWithContext, leadStageEncodeWithContext } from "./lead-s
 import { nextStepDecodeWithContext, nextStepEncodeWithContext } from "./next-step.svelte";
 import { phoneNumberDecode, phoneNumberEncodeWithContext } from "./phone-number.svelte";
 import { priorityDecodeWithContext, priorityEncodeWithContext } from "./priority.svelte";
+import { representsDecode, representsEncodeWithContext } from "./represents.svelte";
 import { sectorDecodeWithContext, sectorEncodeWithContext } from "./sector.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
@@ -210,7 +211,10 @@ export function leadEncodeWithContext(value: Lead, ctx: __mf_EncodeContext): Rec
     result.needsReview = value.needsReview;
     result.hasAlert = value.hasAlert;
     if (value.salesRep !== null) {
-        result.salesRep = value.salesRep;
+
+        result.salesRep = value.salesRep.map(
+            (item) => representsEncodeWithContext(item, ctx)
+        );
     } else {
         result.salesRep = null;
     }
@@ -650,6 +654,8 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
                     ctx.addPatch(instance.phones, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "phones", message: __raw_phones == null ? "Lead.phones is required" : "expected Array<PhoneNumber>" });
         }
     }
     {
@@ -745,7 +751,38 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
         if (__raw_salesRep === null) {
             instance.salesRep = null;
         } else {
-            instance.salesRep = __raw_salesRep;
+
+            if (Array.isArray(__raw_salesRep)) {
+                const __arr = __raw_salesRep.map((item: Represents | { __ref: number }, idx) => {
+                    if (typeof item === "object" && item !== null && "__ref" in item) {
+                        const result = ctx.getOrDefer(item.__ref);
+                        if (__mf_PendingRef.is(result)) {
+                            return { __pendingIdx: idx, __refId: result.id };
+                        }
+                        return result;
+                    }
+                    const __elemResult = representsDecode(item);
+                    if (!__elemResult.success) {
+                        for (const __err of __elemResult.errors) {
+                            errors.push({
+                                field: __err.field === "_root"
+                                    ? "salesRep[" + idx + "]"
+                                    : "salesRep[" + idx + "]." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    }
+                    return __elemResult.success ? __elemResult.value : item;
+                });
+                instance.salesRep = __arr;
+                __arr.forEach((item, idx) => {
+                    if (item && typeof item === "object" && "__pendingIdx" in item) {
+                        ctx.addPatch(instance.salesRep, idx, (item as any).__refId);
+                    }
+                });
+            } else {
+                errors.push({ field: "salesRep", message: __raw_salesRep == null ? "Lead.salesRep is required" : "expected Array<Represents>" });
+            }
         }
     }
     {
@@ -807,6 +844,8 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
 
         if (Array.isArray(__raw_tags)) {
             instance.tags = __raw_tags as string[];
+        } else {
+            errors.push({ field: "tags", message: __raw_tags == null ? "Lead.tags is required" : "expected Array<string>" });
         }
     }
     {
@@ -829,6 +868,8 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
                     ctx.addPatch(instance.customFields, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "customFields", message: __raw_customFields == null ? "Lead.customFields is required" : "expected Array<[string, string]>" });
         }
     }
 
@@ -2405,57 +2446,57 @@ export declare const Lead: {
 
 ## Mapping
 
-original 0..572 -> expanded 1194..1766
-original 621..650 -> expanded 1766..1795
-original 678..699 -> expanded 1795..1816
-original 727..759 -> expanded 1816..1848
-original 787..815 -> expanded 1848..1876
-original 883..913 -> expanded 1876..1906
-original 1106..1111 -> expanded 1906..1911
-original 1136..1165 -> expanded 1911..1940
-original 1214..1247 -> expanded 1940..1973
-original 1298..1333 -> expanded 1973..2008
-original 1397..1421 -> expanded 2008..2032
-original 1718..1723 -> expanded 2032..2037
-original 1746..1773 -> expanded 2037..2064
-original 1816..1821 -> expanded 2064..2069
-original 1862..1887 -> expanded 2069..2094
-original 1939..1976 -> expanded 2094..2131
-original 2004..2009 -> expanded 2131..2136
-original 2042..2071 -> expanded 2136..2165
-original 2118..2146 -> expanded 2165..2193
-original 2174..2209 -> expanded 2193..2228
-original 2309..2354 -> expanded 2228..2273
-original 2535..2540 -> expanded 2273..2278
-original 2570..2595 -> expanded 2278..2303
-original 2727..2759 -> expanded 2303..2335
-original 2812..2849 -> expanded 2335..2372
-original 2897..2920 -> expanded 2372..2395
-original 2991..3027 -> expanded 2395..2431
-original 3076..3081 -> expanded 2431..2436
-original 3100..3130 -> expanded 2436..2466
-original 3175..3180 -> expanded 2466..2471
-original 3221..3244 -> expanded 2471..2494
-original 3295..3326 -> expanded 2494..2525
-original 3374..3402 -> expanded 2525..2553
-original 3491..3536 -> expanded 2553..2598
-original 3564..3595 -> expanded 2598..2629
-original 3667..3672 -> expanded 2629..2634
-original 3713..3743 -> expanded 2634..2664
-original 3810..3815 -> expanded 2664..2669
-original 3856..3882 -> expanded 2669..2695
-original 3931..3962 -> expanded 2695..2726
-original 4035..4040 -> expanded 2726..2731
-original 4081..4112 -> expanded 2731..2762
-original 4153..4183 -> expanded 2762..2792
-original 4243..4288 -> expanded 2792..2837
-original 4288..4289 -> expanded 82544..82545
-generated 0..1194 <- imports
-generated 2837..3699 <- Default
-generated 3699..6465 <- Encode
-generated 6465..33629 <- Decode
-generated 33629..81650 <- Gigaform
-generated 81650..82544 <- __convenience_const
+original 0..572 -> expanded 1279..1851
+original 621..650 -> expanded 1851..1880
+original 678..699 -> expanded 1880..1901
+original 727..759 -> expanded 1901..1933
+original 787..815 -> expanded 1933..1961
+original 883..913 -> expanded 1961..1991
+original 1106..1111 -> expanded 1991..1996
+original 1136..1165 -> expanded 1996..2025
+original 1214..1247 -> expanded 2025..2058
+original 1298..1333 -> expanded 2058..2093
+original 1397..1421 -> expanded 2093..2117
+original 1718..1723 -> expanded 2117..2122
+original 1746..1773 -> expanded 2122..2149
+original 1816..1821 -> expanded 2149..2154
+original 1862..1887 -> expanded 2154..2179
+original 1939..1976 -> expanded 2179..2216
+original 2004..2009 -> expanded 2216..2221
+original 2042..2071 -> expanded 2221..2250
+original 2118..2146 -> expanded 2250..2278
+original 2174..2209 -> expanded 2278..2313
+original 2309..2354 -> expanded 2313..2358
+original 2535..2540 -> expanded 2358..2363
+original 2570..2595 -> expanded 2363..2388
+original 2727..2759 -> expanded 2388..2420
+original 2812..2849 -> expanded 2420..2457
+original 2897..2920 -> expanded 2457..2480
+original 2991..3027 -> expanded 2480..2516
+original 3076..3081 -> expanded 2516..2521
+original 3100..3130 -> expanded 2521..2551
+original 3175..3180 -> expanded 2551..2556
+original 3221..3244 -> expanded 2556..2579
+original 3295..3326 -> expanded 2579..2610
+original 3374..3402 -> expanded 2610..2638
+original 3491..3536 -> expanded 2638..2683
+original 3564..3595 -> expanded 2683..2714
+original 3667..3672 -> expanded 2714..2719
+original 3713..3743 -> expanded 2719..2749
+original 3810..3815 -> expanded 2749..2754
+original 3856..3882 -> expanded 2754..2780
+original 3931..3962 -> expanded 2780..2811
+original 4035..4040 -> expanded 2811..2816
+original 4081..4112 -> expanded 2816..2847
+original 4153..4183 -> expanded 2847..2877
+original 4243..4288 -> expanded 2877..2922
+original 4288..4289 -> expanded 84800..84801
+generated 0..1279 <- imports
+generated 2922..3784 <- Default
+generated 3784..6627 <- Encode
+generated 6627..35885 <- Decode
+generated 35885..83906 <- Gigaform
+generated 83906..84800 <- __convenience_const
 
 ## Metadata
 

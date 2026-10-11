@@ -51,3 +51,23 @@
 - Workspace Rust uses the pinned toolchain in `rust-toolchain.toml`; its WASM targets are
   `wasm32-unknown-unknown` and `wasm32-wasip1`. The Zed extensions must build for `wasm32-wasip1`,
   which `verify` checks.
+
+## Changesets
+
+Every working branch records its changes under `.changeset/<branch>/`, the branch name used as the
+path (`.changeset/fix/svelte-check-exit-code/`). Add an entry in the same commit as the change it
+describes, or right after, so the record never trails the branch.
+
+- One file per change, named `YYYY-MM-DD-HHMM-<slug>.md` from the commit's date.
+- Each file opens with the commit subject as its heading, then **Date**, **Commit** and **Area**,
+  then `## Problem`, `## Cause`, `## Introduced`, `## Fix` and `## Verified`. Verified says what
+  actually ran and its result, never what should pass.
+- Introduced names the commit that caused the problem, with its date and subject, and says what it
+  changed. Trace the cause, not only the blamed lines: when a line was correct until another change
+  broke it, name that change and the line's origin. A change that fixes nothing, such as a feature,
+  leaves it out.
+- A `fixup!` commit is listed on the entry of the change it amends, not as its own entry.
+- `index.md` lists every entry in a table of date, commit, linked title and the introducing commit,
+  in commit order.
+- A change made in another repository is recorded in that repository's own `.changeset/<branch>/`,
+  never here.

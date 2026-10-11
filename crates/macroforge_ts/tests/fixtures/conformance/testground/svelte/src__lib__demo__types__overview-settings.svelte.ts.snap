@@ -252,6 +252,8 @@ export function overviewSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
                     ctx.addPatch(instance.columnConfigs, idx, (item as any).__refId);
                 }
             });
+        } else {
+            errors.push({ field: "columnConfigs", message: __raw_columnConfigs == null ? "OverviewSettings.columnConfigs is required" : "expected Array<ColumnConfig>" });
         }
     }
 
@@ -672,13 +674,13 @@ original 0..239 -> expanded 741..980
 original 288..329 -> expanded 980..1021
 original 354..385 -> expanded 1021..1052
 original 409..504 -> expanded 1052..1147
-original 504..505 -> expanded 21759..21760
+original 504..505 -> expanded 21947..21948
 generated 0..741 <- imports
 generated 1147..1341 <- Default
 generated 1341..2769 <- Encode
-generated 2769..10231 <- Decode
-generated 10231..20589 <- Gigaform
-generated 20589..21759 <- __convenience_const
+generated 2769..10419 <- Decode
+generated 10419..20777 <- Gigaform
+generated 20777..21947 <- __convenience_const
 
 ## Metadata
 
