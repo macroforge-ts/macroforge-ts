@@ -21,15 +21,22 @@
 //!   then a full `decode`
 //! - `static validateField(field, value)` / `static validateFields(partial)` - Run the
 //!   field validators on input that has not been decoded, typed `unknown`
-//! - A synthesized `constructor(props)` that assigns all decoded fields
+//! - A synthesized `constructor(props)` that assigns the fields, when the class
+//!   has no constructor of its own. A subclass's hands them to its superclass's
+//!   when that derives `Decode`
+//!
+//! Decoding builds an instance without running its constructor, so a class
+//! keeps whatever constructor it has. Its `private`, `protected` and `readonly`
+//! fields, its constructor parameter properties and the fields of its
+//! superclasses are decoded like any other.
 //!
 //! **Interfaces** and **type aliases** get the standalone-function forms of the same
 //! surface (there is no class to attach statics to), except that only an object-shaped
 //! alias has fields to validate, so no other alias gets `validateField`/`validateFields`.
 //! **Enums** (`enum_handler`) get
 //! `{name}Decode`/`{name}DecodeWithContext`/`{name}Is`; unlike the other
-//! shapes, the enum `decode` function **throws** an `Error` on invalid values
-//! rather than returning a result union.
+//! shapes, the enum `decode` function **throws** a `DecodeError` on invalid
+//! values rather than returning a result union.
 //!
 //! A **type alias of a primitive**, plain (`type Port = number`) or branded
 //! (`type Meters = $Newtype<number>`), decodes to that primitive: `decode` rejects
@@ -57,6 +64,37 @@
 //! under `Partial`, where none is. Such a value is not registered for
 //! references and may not be one, since a reference stands for a whole `T`.
 //! The keys of a `Pick` or `Omit` have to be string literals.
+//!
+//! ## Field Types
+//!
+//! A field is decoded by the whole structure of its type, to any depth, and
+//! every member is checked on the way:
+//!
+//! | Type | Decoding |
+//! |------|----------|
+//! | `string`, `number`, `boolean`, `bigint`, literals and their unions | The value, when it is one of the type's |
+//! | `Date` | A `Date` from its ISO string |
+//! | Arrays, `Set<T>` | From an array, each element decoded by the element type |
+//! | `Map<K,V>` | From an object, each value decoded by `V` and each key read back as `K`: a number, bigint, boolean, `Date`, enum or newtype from its text |
+//! | `Record<K,V>` | From an object, each value decoded by `V` |
+//! | Tuples | From an array of the tuple's length, each element decoded by its own type |
+//! | An object type written in place | An object of exactly its members, each decoded by its own type |
+//! | `Partial<T>`, `Pick<T,K>`, `Omit<T,K>` | `{name}DecodePartialWithContext` |
+//! | A type deriving `Decode` | Its `{name}DecodeWithContext` function |
+//! | A configured foreign type | Its `decode` handler |
+//! | A type parameter, `unknown`, any other type | The value as it is, unchecked |
+//!
+//! A member that fails is reported under its path: `grid[0][1]`,
+//! `byName.key.id`. Members share the context of the value that holds them, so
+//! a value held in several places, or a child pointing back at its parent
+//! through a collection, decodes to one object.
+//!
+//! ## References
+//!
+//! A `{ "__ref": n }` stands for the object registered as `n`, and has to be
+//! read as the type that object was decoded as: input cannot stand an object
+//! of one type in for another. A value decoded by `{name}DecodePartialWithContext`
+//! or flattened into its parent is not registered at all.
 //!
 //! Validation (see `validation`) runs during decoding and reports failures
 //! through the `errors` array of the result union. Field-level options are parsed by

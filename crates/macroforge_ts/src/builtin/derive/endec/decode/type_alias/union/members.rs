@@ -14,6 +14,7 @@ use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, TypeRegistry};
 use crate::ts_syn::{MacroforgeError, MacroforgeErrors, ts_ident};
 
 use super::super::AliasDecode;
+use crate::builtin::derive::endec::coder::{TypeScope, decode_members};
 use crate::builtin::derive::endec::decode::helpers::{extract_base_type, nested_decode_fn_name};
 use crate::builtin::derive::endec::decode::types::EncodableTypeRef;
 use crate::builtin::derive::endec::validators::ValidatorSpec;
@@ -25,7 +26,8 @@ use crate::builtin::derive::endec::{
 // These are tagged by a discriminant field (typically the endec tag field).
 pub(super) struct ObjectVariant {
     pub(super) tag_value: String,
-    pub(super) fields: Vec<InterfaceFieldIR>,
+    /// The call decoding `value` into the variant's fields other than its tag.
+    pub(super) decoded: String,
 }
 
 // Collect intersection variants (e.g., { variant: 'AppRoles' } & AppRoles)
@@ -132,6 +134,18 @@ impl<'a> Union<'a> {
         let is_untagged = matches!(container_opts.tagging, TaggingMode::Untagged);
         let content_field = container_opts.content_field().unwrap_or("").to_string();
 
+        let type_param_names: Vec<String> = type_alias
+            .type_params()
+            .iter()
+            .map(|param| param.name.clone())
+            .collect();
+        let scope = TypeScope {
+            registry: alias.type_registry,
+            file_path: alias.caller_file_path,
+            file_imports: alias.file_imports,
+            type_params: &type_param_names,
+        };
+
         // Create a set of type parameter names for filtering
         let type_param_set: std::collections::HashSet<&str> = type_alias
             .type_params()
@@ -183,6 +197,28 @@ impl<'a> Union<'a> {
                         "@endec validators on arm '{arm}' of type '{type_name}' only apply to primitive arms; put them on the variant's fields instead"
                     ),
                 ),
+            }
+        }
+        // A member is decoded by its own decoder, which only a named type has.
+        for member in &type_refs {
+            if type_param_set.contains(member.as_str()) {
+                continue;
+            }
+            if matches!(
+                TypeCategory::from_ts_type(member),
+                TypeCategory::Array(_)
+                    | TypeCategory::Map(_, _)
+                    | TypeCategory::Set(_)
+                    | TypeCategory::Record(_, _)
+                    | TypeCategory::Wrapper(_)
+            ) || member.starts_with(['[', '('])
+            {
+                arm_diagnostics.error(
+                    type_alias.inner.span,
+                    format!(
+                        "@derive(Decode): member `{member}` of union '{type_name}' has no decoder of its own; give it a name, as in `type Items = {member}`, and derive Decode on that"
+                    ),
+                );
             }
         }
         if arm_diagnostics.has_errors() {
@@ -293,10 +329,22 @@ impl<'a> Union<'a> {
                             None
                         }
                     }) {
-                        object_variants.push(ObjectVariant {
-                            tag_value,
-                            fields: fields.clone(),
-                        });
+                        let payload: Vec<InterfaceFieldIR> = fields
+                            .iter()
+                            .filter(|field| field.name != tag_field)
+                            .cloned()
+                            .collect();
+                        match decode_members(&payload, "value", &scope, 0) {
+                            Ok(decoded) => {
+                                object_variants.push(ObjectVariant { tag_value, decoded })
+                            }
+                            Err(message) => {
+                                return Err(MacroforgeError::new(
+                                    type_alias.inner.span,
+                                    format!("@derive(Decode): {message}"),
+                                ));
+                            }
+                        }
                     } else {
                         let (optional, required): (Vec<_>, Vec<_>) =
                             fields.iter().partition(|f| f.optional);

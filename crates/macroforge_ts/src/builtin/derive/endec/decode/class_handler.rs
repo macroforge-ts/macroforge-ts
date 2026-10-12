@@ -5,11 +5,13 @@ use crate::ts_syn::{DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, ts
 
 use super::super::EndecContainerOptions;
 use super::field::prepare::to_decode_field;
-use super::field::statements::{Required, decode_fields, requires};
+use super::field::statements::{Required, decode_fields, read_keys, requires};
 use super::reference::decode_selectable_reference;
 use super::types::DecodeField;
 use super::validation::generate_field_validations;
-use crate::builtin::derive::common::{TypeNames, js_string, rendered};
+use crate::builtin::derive::common::{
+    ClassUse, TypeNames, derive_class_fields, js_string, property_key, rendered, type_has_derive,
+};
 use crate::builtin::return_types::{
     DECODE_CONTEXT, DECODE_ERROR, DECODE_OPTIONS, FIELD_REQUIREMENT, FIELD_REQUIREMENT_TYPE,
     FIELD_SELECTION, PENDING_REF, decode_return_type, is_ok_check, root_forward_reference_error,
@@ -23,11 +25,6 @@ pub(super) fn handle_class(
     let class_name = input.name();
     let class_names = TypeNames::new(class_name, class.type_params());
     let class_ident = class_names.full_type_ident();
-    let writable_instance_ident = class
-        .fields()
-        .iter()
-        .any(|field| field.readonly)
-        .then(|| class_names.fillable_type_ident(true));
     let class_expr: Expr = ts_ident!(class_name).into();
     let generic_args = class_names.generic_args.as_str();
     let key_param = class_names.key_param();
@@ -50,29 +47,15 @@ pub(super) fn handle_class(
     let field_requirement_ident = ts_ident!(FIELD_REQUIREMENT_TYPE);
     let field_requirement_expr: Expr = ts_ident!(FIELD_REQUIREMENT).into();
 
-    // Check for user-defined constructor with parameters
-    if let Some(ctor) = class.method("constructor")
-        && !ctor.params_src.trim().is_empty()
-    {
-        return Err(MacroforgeError::new(
-            ctor.span,
-            format!(
-                "@Derive(Decode) cannot be used on class '{}' with a custom constructor. \
-                    Remove the constructor or use @Derive(Decode) on a class without a constructor.",
-                class_name
-            ),
-        ));
-    }
-
     // Collect decodable fields with diagnostic collection
     let type_registry = &input.context.type_registry;
     let caller_file_path = input.context.file_name.as_str();
     let file_imports = input.context.import_registry.file_import_entries();
     let file_imports = file_imports.as_slice();
     let type_params = class_names.params.clone();
+    let class_fields = derive_class_fields(input, class, "Decode", ClassUse::Builds)?;
     let mut all_diagnostics = DiagnosticCollector::new();
-    let fields: Vec<DecodeField> = class
-        .fields()
+    let fields: Vec<DecodeField> = class_fields
         .iter()
         .filter_map(|field| {
             to_decode_field(
@@ -100,11 +83,7 @@ pub(super) fn handle_class(
         .collect();
 
     // Build known keys for deny_unknown_fields
-    let known_keys: Vec<String> = fields
-        .iter()
-        .filter(|f| !f.flatten)
-        .map(|f| f.json_key.clone())
-        .collect();
+    let known_keys: Vec<String> = read_keys(&fields).collect();
 
     // All non-flatten fields for assignments
     let all_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
@@ -156,10 +135,11 @@ pub(super) fn handle_class(
     let props_type_parts: Vec<String> = all_fields
         .iter()
         .map(|f| {
+            let key = property_key(&f.field_name);
             if f.optional {
-                rendered(ts_template! { @{&f.field_name}?: @{&f.ts_type} })
+                rendered(ts_template! { @{key}?: @{&f.ts_type} })
             } else {
-                rendered(ts_template! { @{&f.field_name}: @{&f.ts_type} })
+                rendered(ts_template! { @{key}: @{&f.ts_type} })
             }
         })
         .collect();
@@ -167,18 +147,56 @@ pub(super) fn handle_class(
     let props_type = rendered(ts_template! { { @{props_type_parts} } });
     let props_type_ident = ts_ident!(props_type.as_str());
 
-    let field_statements = decode_fields(&fields, class_name, Required::Selected);
+    let field_statements = decode_fields(&fields, class_name, tag_field, Required::Selected);
     let reference = decode_selectable_reference(
         class_name,
         &rendered(ts_template! { @{&class_names.full_type} | @{PENDING_REF} }),
     );
 
+    // A class with a constructor of its own keeps it: decoding builds
+    // instances without one. Otherwise the class gets one taking its fields.
+    // A subclass hands them to its superclass's, when that derives `Decode`
+    // and so takes them, and else sets the inherited ones itself.
+    let has_constructor = class
+        .methods()
+        .iter()
+        .any(|method| method.name == "constructor");
+    let superclass_takes_fields = class
+        .inner
+        .superclass
+        .as_deref()
+        .is_some_and(|superclass| type_has_derive(type_registry, superclass, "Decode"));
+    let is_own = |field: &DecodeField| {
+        class
+            .fields()
+            .iter()
+            .any(|own| own.name == field.field_name)
+    };
+    let constructed_fields: Vec<&DecodeField> = all_fields
+        .iter()
+        .filter(|field| !superclass_takes_fields || is_own(field))
+        .collect();
+    let super_call = match (&class.inner.superclass, superclass_takes_fields) {
+        (Some(_), true) => "super(props);",
+        (Some(_), false) => "super();",
+        (None, _) => "",
+    };
+
     let mut result = ts_template!(Within {
-        constructor(props: @{props_type_ident}) {
-            {#for field in &all_fields}
-                this.@{field.field_ident} = props.@{field.field_ident};
-            {/for}
-        }
+        {#if !has_constructor}
+            constructor(props: @{props_type_ident}) {
+                @{super_call}
+                {#for field in &constructed_fields}
+                    {#if field.optional}
+                        if (props@{field.member} !== undefined) {
+                            this@{field.member} = props@{field.member};
+                        }
+                    {:else}
+                        this@{field.member} = props@{field.member};
+                    {/if}
+                {/for}
+            }
+        {/if}
 
         /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors */
         static @{class_names.generic_method("decode")}(input: unknown, opts?: @{decode_options_ident}): @{return_type_ident} {
@@ -239,23 +257,21 @@ pub(super) fn handle_class(
             {#if !required_fields.is_empty()}
                 {#for field in &required_fields}
                     {$let is_required: Expr = requires(field)}
-                    if (@{is_required} && !("@{field.json_key}" in obj)) {
-                        errors.push({ field: "@{field.json_key}", message: "missing required field" });
+                    if (@{is_required} && !("@{field.json_key_text()}" in obj)) {
+                        errors.push({ field: "@{field.json_key_text()}", message: "missing required field" });
                     }
                 {/for}
             {/if}
 
-            // Create instance using Object.create to avoid constructor
-            {#if let Some(writable_ident) = &writable_instance_ident}
-                const instance: @{writable_ident} = Object.create(@{&class_expr}.prototype);
-            {:else}
-                const instance = Object.create(@{&class_expr}.prototype) as @{class_ident};
-            {/if}
+            // The instance is made without its constructor and filled in
+            // field by field, as no type over it allows: assignment to a
+            // `readonly` field, and a `private` field by name.
+            const instance: any = Object.create(@{&class_expr}.prototype);
 
             // Register with context if __id is present. Only a whole value
             // can be referred to.
             if (__fields === undefined && obj.__id !== undefined) {
-                ctx.register(obj.__id as number, instance);
+                ctx.register(obj.__id as number, instance, "@{class_name}");
             }
 
             // Track for optional freezing
@@ -282,7 +298,7 @@ pub(super) fn handle_class(
             static @{ts_ident!(format!("validateField{}", key_param.decl))}(field: @{key_param.name.clone()}, value: unknown): Array<{ field: string; message: string }> {
                 const errors: Array<{ field: string; message: string }> = [];
                 {#for field in &fields_with_validators}
-                    if (field === "@{field.field_name}") {
+                    if (field === "@{field.field_name_text()}") {
                         const __val = value as @{field.ts_type};
                         {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, class_name, field.missing())}
                         {$typescript validation_code}
@@ -294,8 +310,8 @@ pub(super) fn handle_class(
             static @{class_names.generic_method("validateFields")}(partial: { readonly [@{key_param.name.clone()} in keyof @{class_ident.clone()}]?: unknown }): Array<{ field: string; message: string }> {
                 const errors: Array<{ field: string; message: string }> = [];
                 {#for field in &fields_with_validators}
-                    if ("@{field.field_name}" in partial && partial.@{field.field_ident} !== undefined) {
-                        const __val = partial.@{field.field_ident} as @{field.ts_type};
+                    if ("@{field.field_name_text()}" in partial && partial@{field.member} !== undefined) {
+                        const __val = partial@{field.member} as @{field.ts_type};
                         {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, class_name, field.missing())}
                         {$typescript validation_code}
                     }

@@ -3,7 +3,7 @@ use crate::macros::ts_template;
 use crate::ts_syn::{DeriveInput, MacroforgeError, TsStream, ts_ident};
 
 use crate::builtin::derive::common::rendered;
-use crate::builtin::return_types::DECODE_CONTEXT;
+use crate::builtin::return_types::{DECODE_CONTEXT, DECODE_ERROR};
 use convert_case::{Case, Casing};
 
 pub(super) fn handle_enum(
@@ -44,7 +44,7 @@ pub(super) fn handle_enum(
                     return @{variant_expression};
                 }
             {/for}
-            throw new Error("Invalid @{enum_name} value: " + JSON.stringify(data));
+            throw new @{ts_ident!(DECODE_ERROR)}([{ field: "_root", message: "Invalid @{enum_name} value: " + JSON.stringify(data) }]);
         }
 
         export function @{fn_is_ident}(value: unknown): value is @{&enum_ident} {
@@ -58,5 +58,6 @@ pub(super) fn handle_enum(
     };
 
     result.add_aliased_import("DecodeContext", crate::package::ENDEC);
+    result.add_aliased_import("DecodeError", crate::package::ENDEC);
     Ok(result)
 }

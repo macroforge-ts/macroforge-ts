@@ -2,7 +2,7 @@
 
 use super::helpers::extract_named_value;
 use super::validators::{ValidatorSpec, extract_validators};
-use crate::builtin::derive::common::has_flag;
+use crate::builtin::derive::common::{find_named_value, has_flag};
 use crate::ts_syn::abi::{DecoratorIR, DiagnosticCollector};
 
 /// Naming convention for JSON field renaming
@@ -243,8 +243,25 @@ impl EndecFieldOptions {
                 opts.flatten = true;
             }
 
-            // Check for default (both boolean flag and expression)
-            if let Some(default_expr) = extract_named_value(args, "default") {
+            // `default` and `default: true` ask for the type's own default,
+            // as `skip: true` asks to skip, and `default: false` for none. Any
+            // other value is the default's expression, a default of `true`
+            // or `false` itself being written as a string.
+            let written = find_named_value(args, "default");
+            let is_bare = |word: &str| {
+                written.is_some_and(|written| {
+                    written.strip_prefix(word).is_some_and(|rest| {
+                        !rest.starts_with(|next: char| {
+                            next.is_alphanumeric() || matches!(next, '_' | '$')
+                        })
+                    })
+                })
+            };
+            if is_bare("true") {
+                opts.default = true;
+            } else if is_bare("false") {
+                opts.default = false;
+            } else if let Some(default_expr) = extract_named_value(args, "default") {
                 opts.default = true;
                 opts.default_expr = Some(default_expr);
             } else if has_flag(args, "default") {

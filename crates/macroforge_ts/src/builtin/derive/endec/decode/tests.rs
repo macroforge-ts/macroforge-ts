@@ -1,7 +1,7 @@
 use super::types::DecodeField;
 use super::validation::{Missing, generate_field_validations};
 
-use crate::ts_syn::ts_ident;
+use crate::builtin::derive::common::Member;
 
 use super::super::{TypeCategory, Validator, ValidatorSpec};
 
@@ -10,7 +10,7 @@ fn test_decode_field_has_validators() {
     let field = DecodeField {
         json_key: "email".into(),
         field_name: "email".into(),
-        field_ident: ts_ident!("email"),
+        member: Member::of("email"),
         raw_cast_type: "string".into(),
         ts_type: "string".into(),
         type_cat: TypeCategory::Primitive,
@@ -22,22 +22,16 @@ fn test_decode_field_has_validators() {
             custom_message: None,
         }],
         nullable_inner_kind: None,
-        array_elem_kind: None,
         nullable_encodable_type: None,
         present_inner: None,
         decode_with: None,
         decimal_format: false,
-        array_elem_encodable_type: None,
-        set_elem_kind: None,
-        set_elem_encodable_type: None,
-        map_value_kind: None,
-        map_value_encodable_type: None,
-        record_value_encodable_type: None,
-        wrapper_encodable_type: None,
-        wrapper_fields: None,
+        never_read: false,
+        flattened_keys: None,
+        composite: None,
+        wrapped: None,
         union_guard: None,
         nullable_union_guard: None,
-        array_elem_union_guard: None,
         union_string_validators: vec![],
     };
     assert!(field.has_validators());

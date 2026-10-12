@@ -7,7 +7,7 @@ use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use super::super::EndecContainerOptions;
-use super::field::statements::{Required, decode_fields, requires};
+use super::field::statements::{Required, decode_fields, read_keys, requires};
 use super::reference::decode_selectable_reference;
 use super::types::DecodeField;
 use super::validation::generate_field_validations;
@@ -105,14 +105,12 @@ fn decode_with_context(
     let full_type_ident = names.full_type_ident();
     let type_name = names.type_name.as_str();
     let tag_field = container_opts.tag_field_or_default();
-    let known_keys: Vec<String> = fields
-        .iter()
-        .filter(|field| !field.flatten)
-        .map(|field| js_string(&field.json_key))
+    let known_keys: Vec<String> = read_keys(fields)
+        .map(|key: String| js_string(&key))
         .collect();
     let required_fields: Vec<&DecodeField> =
         fields.iter().filter(|field| field.key_required()).collect();
-    let field_statements = decode_fields(fields, type_name, Required::Selected);
+    let field_statements = decode_fields(fields, type_name, tag_field, Required::Selected);
     let returns = rendered(ts_template! { @{&names.full_type} | @{PENDING_REF} });
     let reference = decode_selectable_reference(type_name, &returns);
     let fn_decode_internal_expr: Expr = names.generic_call("DecodeWithContext").into();
@@ -146,8 +144,8 @@ fn decode_with_context(
 
             {#for field in &required_fields}
                 {$let is_required: Expr = requires(field)}
-                if (@{is_required} && !("@{field.json_key}" in obj)) {
-                    errors.push({ field: "@{field.json_key}", message: "missing required field" });
+                if (@{is_required} && !("@{field.json_key_text()}" in obj)) {
+                    errors.push({ field: "@{field.json_key_text()}", message: "missing required field" });
                 }
             {/for}
 
@@ -155,7 +153,7 @@ fn decode_with_context(
 
             // Only a whole value can be referred to.
             if (__fields === undefined && obj.__id !== undefined) {
-                ctx.register(obj.__id as number, instance);
+                ctx.register(obj.__id as number, instance, "@{type_name}");
             }
 
             ctx.trackForFreeze(instance);
@@ -212,7 +210,7 @@ fn field_validators(names: &TypeNames, fields: &[DecodeField]) -> TsStream {
             export function @{fn_validate_field_ident}(field: @{key.clone()}, value: unknown): Array<{ field: string; message: string }> {
                 const errors: Array<{ field: string; message: string }> = [];
                 {#for field in &validated}
-                    if (field === "@{field.field_name}") {
+                    if (field === "@{field.field_name_text()}") {
                         const __val = value as @{field.ts_type};
                         {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name, field.missing())}
                         {$typescript validation_code}
@@ -224,8 +222,8 @@ fn field_validators(names: &TypeNames, fields: &[DecodeField]) -> TsStream {
             export function @{fn_validate_fields_ident}(partial: { readonly [@{key.clone()} in keyof @{full_type_ident.clone()}]?: unknown }): Array<{ field: string; message: string }> {
                 const errors: Array<{ field: string; message: string }> = [];
                 {#for field in &validated}
-                    if ("@{field.field_name}" in partial && partial.@{field.field_ident} !== undefined) {
-                        const __val = partial.@{field.field_ident} as @{field.ts_type};
+                    if ("@{field.field_name_text()}" in partial && partial@{field.member} !== undefined) {
+                        const __val = partial@{field.member} as @{field.ts_type};
                         {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name, field.missing())}
                         {$typescript validation_code}
                     }

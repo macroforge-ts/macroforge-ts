@@ -9,7 +9,7 @@
 
 ## Generated API
 
-For a **class**, the macros emit static methods plus standalone functions that the statics delegate to:
+For a **class**, the macros emit static methods plus standalone functions that run them:
 
 ```typescript
 /** @derive(Encode, Decode) */
@@ -57,7 +57,7 @@ A type alias of a primitive, plain (`type Port = number`) or branded with [`$New
 
 ### Enums differ
 
-Enum `decode` **throws** on invalid input rather than returning the success/errors union. Enum `encode` takes no `keepMetadata` parameter.
+Enum `decode` **throws** a `DecodeError` on invalid input rather than returning the success/errors union. Enum `encode` takes no `keepMetadata` parameter.
 
 ## Metadata and `keepMetadata`
 

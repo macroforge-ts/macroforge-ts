@@ -138,15 +138,21 @@ export interface DecodeContext {
    * Registers an object with a known ID.
    * @param id - The object's ID from the `__id` field
    * @param instance - The decoded object instance
+   * @param kind - The type the object was decoded as, which a reference to
+   *   it has to expect
    */
-  register(id: number, instance: any): void;
+  register(id: number, instance: any, kind?: string): void;
 
   /**
    * Gets an object by ID, or returns a `PendingRef` if not yet available.
    * @param refId - The ID from the `__ref` field
+   * @param kind - The type the reference stands for
    * @returns The object if already registered, or a `PendingRef` marker
+   * @throws DecodeError if the object was registered as another type: a
+   *   reference is input, and may not stand an object in for one of a type
+   *   it was never checked against
    */
-  getOrDefer(refId: number): any;
+  getOrDefer(refId: number, kind?: string): any;
 
   /**
    * Assigns a value to a property, deferring if it's a `PendingRef`.
@@ -165,6 +171,15 @@ export interface DecodeContext {
    * @param refId - The ID of the referenced object
    */
   addPatch(target: any, prop: string | number, refId: number): void;
+
+  /**
+   * Hands the object a reference names to `settle` once it is known, for a
+   * place a property assignment cannot reach, such as a `Set` or a `Map`.
+   * @param refId - The ID of the referenced object
+   * @param settle - Receives the object when patches are applied
+   * @param kind - The type the reference stands for
+   */
+  defer(refId: number, settle: (value: any) => void, kind?: string): void;
 
   /**
    * Tracks an object for optional freezing after decoding.
@@ -245,37 +260,68 @@ export namespace DecodeContext {
    * ```
    */
   export function create(): DecodeContext {
-    const registry = new Map<number, any>();
+    const registry = new Map<number, { instance: any; kind: string | undefined }>();
     const patches: Array<
-      { target: any; prop: string | number; refId: number }
+      { refId: number; settle: (value: any) => void; kind: string | undefined }
     > = [];
+    // The object a reference of `kind` to `refId` stands for, once it is
+    // registered. The two kinds have to agree where both are known.
+    const referenced = (refId: number, kind: string | undefined): any => {
+      const entry = registry.get(refId);
+      if (entry === undefined) {
+        throw new Error(`Unresolved reference: __ref ${refId}`);
+      }
+      if (kind !== undefined && entry.kind !== undefined && entry.kind !== kind) {
+        throw new DecodeError([{
+          field: "_root",
+          message: `__ref ${refId} refers to a ${entry.kind}, where a ${kind} is expected`,
+        }]);
+      }
+      return entry.instance;
+    };
     const toFreeze: object[] = [];
     const errors: FieldError[] = [];
     const scopes: string[] = [];
 
     return {
-      register: (id, instance) => {
-        registry.set(id, instance);
+      register: (id, instance, kind) => {
+        registry.set(id, { instance, kind });
       },
 
-      getOrDefer: (refId) => {
+      getOrDefer: (refId, kind) => {
         if (registry.has(refId)) {
-          return registry.get(refId);
+          return referenced(refId, kind);
         }
-        return PendingRef.create(refId);
+        return PendingRef.create(refId, kind);
       },
 
       assignOrDefer: (target, prop, value) => {
         if (PendingRef.is(value)) {
           target[prop] = null;
-          patches.push({ target, prop, refId: value.id });
+          patches.push({
+            refId: value.id,
+            settle: (resolved) => {
+              target[prop] = resolved;
+            },
+            kind: value.kind,
+          });
         } else {
           target[prop] = value;
         }
       },
 
       addPatch: (target, prop, refId) => {
-        patches.push({ target, prop, refId });
+        patches.push({
+          refId,
+          settle: (resolved) => {
+            target[prop] = resolved;
+          },
+          kind: undefined,
+        });
+      },
+
+      defer: (refId, settle, kind) => {
+        patches.push({ refId, settle, kind });
       },
 
       trackForFreeze: (obj) => {
@@ -283,11 +329,8 @@ export namespace DecodeContext {
       },
 
       applyPatches: () => {
-        for (const { target, prop, refId } of patches) {
-          if (!registry.has(refId)) {
-            throw new Error(`Unresolved reference: __ref ${refId}`);
-          }
-          target[prop] = registry.get(refId);
+        for (const { refId, settle, kind } of patches) {
+          settle(referenced(refId, kind));
         }
       },
 
@@ -306,7 +349,17 @@ export namespace DecodeContext {
       },
 
       pushErrors: (errs) => {
-        const prefix = scopes.length > 0 ? scopes.join(".") : "";
+        // An index follows its collection directly: `tags[0]`, not `tags.[0]`.
+        // A value decoded as the root of its own type is `_root` there, and
+        // has no name of its own inside another value.
+        const prefix = scopes.reduce(
+          (path, scope) => {
+            if (path === "") return scope;
+            if (scope === "_root") return path;
+            return scope.startsWith("[") ? path + scope : `${path}.${scope}`;
+          },
+          "",
+        );
         for (const e of errs) {
           const field = e.field === "_root"
             ? (prefix || "_root")
@@ -336,7 +389,13 @@ export interface PendingRef {
   readonly __pendingRef: true;
   /** The ID of the referenced object */
   readonly id: number;
+  /** The type the reference stands for, when its decoder says */
+  readonly kind?: string | undefined;
 }
+
+// The markers `PendingRef.create` made. A decoded value is input: one that
+// merely has a marker's shape must not pass for one.
+const pendingRefs = new WeakSet<object>();
 
 /**
  * Factory and type guard functions for `PendingRef`.
@@ -345,24 +404,23 @@ export namespace PendingRef {
   /**
    * Creates a new pending reference marker.
    * @param id - The ID of the referenced object
+   * @param kind - The type the reference stands for
    * @returns A `PendingRef` marker
    */
-  export function create(id: number): PendingRef {
-    return { __pendingRef: true, id };
+  export function create(id: number, kind?: string): PendingRef {
+    const marker: PendingRef = { __pendingRef: true, id, kind };
+    pendingRefs.add(marker);
+    return marker;
   }
 
   /**
-   * Type guard to check if a value is a `PendingRef`.
+   * Type guard to check if a value is a `PendingRef`: a marker `create`
+   * made, not a value that looks like one.
    * @param value - The value to check
    * @returns `true` if the value is a `PendingRef`
    */
-  export function is(value: any): value is PendingRef {
-    return (
-      value !== null &&
-      typeof value === "object" &&
-      value.__pendingRef === true &&
-      typeof value.id === "number"
-    );
+  export function is(value: unknown): value is PendingRef {
+    return typeof value === "object" && value !== null && pendingRefs.has(value);
   }
 }
 
@@ -456,6 +514,297 @@ export function decodedLiteral<T>(
   if (decoded.success) return decoded.value;
   throw new DecodeError(decoded.errors);
 }
+
+/**
+ * Decodes one raw value with a context. A reference to an object not read
+ * yet comes back pending.
+ */
+export type Decoder<Value> = (raw: unknown, ctx: DecodeContext) => Value | PendingRef;
+
+function mismatch(expected: string): DecodeError {
+  return new DecodeError([{ field: "_root", message: `expected ${expected}` }]);
+}
+
+/** Decodes a string held in a collection. */
+export function decodeString(raw: unknown): string {
+  if (typeof raw !== "string") throw mismatch("string");
+  return raw;
+}
+
+/** Decodes a number held in a collection. */
+export function decodeNumber(raw: unknown): number {
+  if (typeof raw !== "number") throw mismatch("number");
+  return raw;
+}
+
+/** Decodes a boolean held in a collection. */
+export function decodeBoolean(raw: unknown): boolean {
+  if (typeof raw !== "boolean") throw mismatch("boolean");
+  return raw;
+}
+
+/** Decodes a bigint held in a collection. JSON has none, so only a parsed value carries one. */
+export function decodeBigInt(raw: unknown): bigint {
+  if (typeof raw !== "bigint") throw mismatch("bigint");
+  return raw;
+}
+
+/** Decodes a date held in a collection: a `Date`, or the ISO text of one. */
+export function decodeDate(raw: unknown): Date {
+  if (raw instanceof Date) return raw;
+  if (typeof raw !== "string") throw mismatch("an ISO date string");
+  return new Date(raw);
+}
+
+/**
+ * The number a `Map`'s JSON key spells. Only the spelling a number is
+ * written out as counts, so no two keys of one object spell one number.
+ */
+export function decodeNumberKey(key: string): number {
+  const decoded = Number(key);
+  if (Number.isNaN(decoded) || String(decoded) !== key) throw mismatch("a number key");
+  return decoded;
+}
+
+/**
+ * A value held in a collection whose type is a literal, a primitive or a
+ * union of those, checked by `accepted`, which the caller works out from the
+ * type. `expected` names the type in the error.
+ */
+export function decodeChecked(raw: unknown, accepted: boolean, expected: string): unknown {
+  if (!accepted) throw mismatch(expected);
+  return raw;
+}
+
+/** The bigint a `Map`'s JSON key spells. */
+export function decodeBigIntKey(key: string): bigint {
+  if (!/^-?\d+$/.test(key)) throw mismatch("a bigint key");
+  return BigInt(key);
+}
+
+/** The boolean a `Map`'s JSON key spells. */
+export function decodeBooleanKey(key: string): boolean {
+  if (key === "true") return true;
+  if (key === "false") return false;
+  throw mismatch("a boolean key");
+}
+
+/**
+ * Runs `decode` for one member of a collection under `scope`. A member that
+ * fails to decode reports its errors and is left out. Whatever a decoder
+ * throws is the member's failure, as the top-level `decode` takes it.
+ */
+function inScope(ctx: DecodeContext, scope: string, decode: () => void): void {
+  ctx.pushScope(scope);
+  try {
+    decode();
+  } catch (error) {
+    ctx.pushErrors(
+      error instanceof DecodeError
+        ? error.errors
+        : [{ field: "_root", message: error instanceof Error ? error.message : String(error) }],
+    );
+  } finally {
+    ctx.popScope();
+  }
+}
+
+/**
+ * Hands a decoded member to `place`: at once, or when the object it refers
+ * to has been read.
+ */
+function settle<Value>(
+  ctx: DecodeContext,
+  decoded: Value | PendingRef,
+  place: (value: Value) => void,
+): void {
+  if (PendingRef.is(decoded)) ctx.defer(decoded.id, place, decoded.kind);
+  else place(decoded);
+}
+
+function isRawObject(raw: unknown): raw is Record<string, unknown> {
+  return typeof raw === "object" && raw !== null && !Array.isArray(raw);
+}
+
+/** Decodes an array, each element with `item`. */
+export function decodeArray<Item>(
+  raw: unknown,
+  ctx: DecodeContext,
+  item: Decoder<Item>,
+): Item[] {
+  if (!Array.isArray(raw)) throw mismatch("an array");
+  const items: Item[] = [];
+  items.length = raw.length;
+  raw.forEach((element: unknown, index) => {
+    inScope(ctx, `[${index}]`, () => {
+      settle(ctx, item(element, ctx), (value) => {
+        items[index] = value;
+      });
+    });
+  });
+  return items;
+}
+
+/** Decodes a `Set` from the array it is encoded as, each element with `item`. */
+export function decodeSet<Item>(
+  raw: unknown,
+  ctx: DecodeContext,
+  item: Decoder<Item>,
+): Set<Item> {
+  if (!Array.isArray(raw)) throw mismatch("an array");
+  const items = new Set<Item>();
+  raw.forEach((element: unknown, index) => {
+    inScope(ctx, `[${index}]`, () => {
+      settle(ctx, item(element, ctx), (value) => {
+        items.add(value);
+      });
+    });
+  });
+  return items;
+}
+
+/**
+ * Decodes a `Map` from the object it is encoded as: each key with `key`,
+ * each value with `value`. An entry whose value is a reference ahead of its
+ * object is added once that object has been read.
+ */
+export function decodeMap<Key, Value>(
+  raw: unknown,
+  ctx: DecodeContext,
+  key: (text: string) => Key,
+  value: Decoder<Value>,
+): Map<Key, Value> {
+  if (!isRawObject(raw)) throw mismatch("an object");
+  const entries = new Map<Key, Value>();
+  for (const [text, member] of Object.entries(raw)) {
+    inScope(ctx, text, () => {
+      const decodedKey = key(text);
+      settle(ctx, value(member, ctx), (decoded) => {
+        entries.set(decodedKey, decoded);
+      });
+    });
+  }
+  return entries;
+}
+
+/** Sets `key` on `target` by defining it, so a `__proto__` key stays a key. */
+function defineMember<Value>(target: Record<string, Value>, key: string, value: Value): void {
+  Object.defineProperty(target, key, {
+    value,
+    writable: true,
+    enumerable: true,
+    configurable: true,
+  });
+}
+
+/** Decodes a `Record`, each value with `value`. */
+export function decodeRecord<Value>(
+  raw: unknown,
+  ctx: DecodeContext,
+  value: Decoder<Value>,
+): Record<string, Value> {
+  if (!isRawObject(raw)) throw mismatch("an object");
+  const members: Record<string, Value> = {};
+  for (const [key, member] of Object.entries(raw)) {
+    inScope(ctx, key, () => {
+      settle(ctx, value(member, ctx), (decoded) => {
+        defineMember(members, key, decoded);
+      });
+    });
+  }
+  return members;
+}
+
+/**
+ * Decodes an object whose type is written out member by member: each with
+ * its decoder in `members`, those named in `optional` only when they are
+ * there. A member the type does not declare is left behind.
+ */
+export function decodeObject(
+  raw: unknown,
+  ctx: DecodeContext,
+  members: Readonly<Record<string, Decoder<unknown>>>,
+  optional: ReadonlyArray<string> = [],
+): Record<string, unknown> {
+  if (!isRawObject(raw)) throw mismatch("an object");
+  const decoded: Record<string, unknown> = {};
+  for (const [key, decode] of Object.entries(members)) {
+    const member = raw[key];
+    inScope(ctx, key, () => {
+      if (member === undefined) {
+        if (optional.includes(key)) return;
+        throw new DecodeError([{ field: "_root", message: "missing required field" }]);
+      }
+      settle(ctx, decode(member, ctx), (value) => {
+        defineMember(decoded, key, value);
+      });
+    });
+  }
+  return decoded;
+}
+
+/**
+ * Decodes a tuple: its leading elements with `items`, of which the first
+ * `required` have to be there, and any beyond them with `rest`. The caller
+ * knows which tuple type its decoders build.
+ */
+export function decodeTuple(
+  raw: unknown,
+  ctx: DecodeContext,
+  items: ReadonlyArray<Decoder<unknown>>,
+  required: number,
+  rest?: Decoder<unknown>,
+): unknown[] {
+  if (!Array.isArray(raw)) throw mismatch("an array");
+  if (raw.length < required || (rest === undefined && raw.length > items.length)) {
+    throw mismatch(`a tuple of ${tupleLength(items.length, required, rest !== undefined)} elements`);
+  }
+  const elements: unknown[] = [];
+  elements.length = raw.length;
+  raw.forEach((element: unknown, index) => {
+    const decode = items[index] ?? rest;
+    if (decode === undefined) return;
+    inScope(ctx, `[${index}]`, () => {
+      settle(ctx, decode(element, ctx), (value) => {
+        elements[index] = value;
+      });
+    });
+  });
+  return elements;
+}
+
+function tupleLength(declared: number, required: number, open: boolean): string {
+  if (open) return `at least ${required}`;
+  return required === declared ? `${required}` : `${required} to ${declared}`;
+}
+
+/**
+ * Runs `encode` for `value`, a value holding only some of its type's fields.
+ * Such a value is written out wherever it is held, so one that holds itself
+ * has no end.
+ * @throws {TypeError} If `value` is already being encoded.
+ */
+export function encodeSelection<Encoded>(
+  ctx: EncodeContext,
+  value: object,
+  encode: () => Encoded,
+): Encoded {
+  const encoding = selectionsBeingEncoded.get(ctx) ?? new Set<object>();
+  selectionsBeingEncoded.set(ctx, encoding);
+  if (encoding.has(value)) {
+    throw new TypeError(
+      "a Partial, Pick or Omit of a value that holds itself has no encoding",
+    );
+  }
+  encoding.add(value);
+  try {
+    return encode();
+  } finally {
+    encoding.delete(value);
+  }
+}
+
+const selectionsBeingEncoded = new WeakMap<EncodeContext, Set<object>>();
 
 /**
  * The static `encodeWithContext` of the class `value` is an instance of, when

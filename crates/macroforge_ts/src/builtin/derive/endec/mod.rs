@@ -6,7 +6,7 @@
 //! ## Generated Methods
 //!
 //! For classes, methods are generated as `static` members plus standalone functions
-//! (`{name}Encode`, `{name}Decode`, ...) that delegate to them; interfaces and
+//! (`{name}Encode`, `{name}Decode`, ...) that run them; interfaces and
 //! type aliases get the standalone functions only.
 //!
 //! ### Encode
@@ -24,9 +24,11 @@
 //! - `static hasShape(obj): boolean` - Structural check that all required JSON keys are present
 //! - `static is(value): value is T` - Type guard (instanceof, shape check, then a full decode)
 //! - `static validateField(field, value)` / `static validateFields(partial)` - Run field validators standalone
-//! - Classes also get a synthesized `constructor(props)` that assigns all decoded fields
+//! - Classes without a constructor also get a synthesized `constructor(props)`
+//!   that assigns the fields
 //! - **Enums** get standalone functions only (`{name}Decode`, `{name}Is`); the enum
-//!   `decode` function **throws** on invalid values instead of returning a result union
+//!   `decode` function **throws** a `DecodeError` on invalid values instead of
+//!   returning a result union
 //!
 //! ## Cycle Detection
 //!
@@ -51,7 +53,7 @@
 //! | `skipEncoding` | Skip only during encoding |
 //! | `skipDecoding` | Skip only during decoding |
 //! | `rename = "name"` | Use a different JSON key |
-//! | `default` | Use type's default if missing |
+//! | `default`, `default: true` | Use type's default if missing |
 //! | `default = "expr"` | Use specific expression if missing |
 //! | `flatten` | Flatten nested object fields into parent |
 //! | `encodeWith = "fn"` | Use custom function for encoding |
@@ -219,8 +221,10 @@ pub mod decode;
 /// Encode macro implementation.
 pub mod encode;
 
+mod coder;
 mod foreign_types;
 mod helpers;
+mod nested;
 mod options;
 mod source_field;
 mod type_category;
@@ -238,7 +242,6 @@ pub use crate::host::import_registry::{
 
 // Re-export submodule items so existing consumers (`super::*`, `crate::builtin::derive::endec::*`) keep working.
 pub use foreign_types::{ForeignTypeMatch, get_foreign_types};
-pub(crate) use helpers::find_top_level_comma;
 pub use options::{
     EndecContainerOptions, EndecFieldOptions, EndecFieldParseResult, EndecFormat, RenameAll,
     TaggingMode, decorator_validators,

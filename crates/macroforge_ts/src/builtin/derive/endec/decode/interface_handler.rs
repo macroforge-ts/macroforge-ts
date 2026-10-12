@@ -5,7 +5,7 @@ use super::super::EndecContainerOptions;
 use super::field::prepare::to_decode_field;
 use super::object_decoder::object_decode_functions;
 use super::types::DecodeField;
-use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::{TypeNames, derive_interface_fields};
 
 pub(super) fn handle_interface(
     input: &DeriveInput,
@@ -14,9 +14,9 @@ pub(super) fn handle_interface(
     let container_opts = EndecContainerOptions::from_decorators(&interface.inner.decorators);
     let file_imports = input.context.import_registry.file_import_entries();
     let names = TypeNames::new(input.name(), interface.type_params());
+    let interface_fields = derive_interface_fields(input, interface, "Decode")?;
     let mut diagnostics = DiagnosticCollector::new();
-    let fields: Vec<DecodeField> = interface
-        .fields()
+    let fields: Vec<DecodeField> = interface_fields
         .iter()
         .filter_map(|field| {
             to_decode_field(

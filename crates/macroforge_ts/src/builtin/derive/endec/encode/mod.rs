@@ -8,7 +8,7 @@
 //!
 //! | Type | Generated Code | Description |
 //! |------|----------------|-------------|
-//! | Class | `classNameEncode(value, keepMetadata?)` + `static encode(value, keepMetadata?)` | Standalone function + static wrapper method |
+//! | Class | `static encode(value, keepMetadata?)`, `static encodeWithContext`, `static encodePartialWithContext` + `classNameEncode(value, keepMetadata?)` etc. | Static methods + standalone functions |
 //! | Enum | `enumNameEncode(value)`, `enumNameEncodeWithContext` | Standalone functions |
 //! | Interface | `interfaceNameEncode(value)`, etc. | Standalone functions |
 //! | Type Alias | `typeNameEncode(value)`, etc. | Standalone functions |
@@ -33,21 +33,29 @@
 //!
 //! ## Type-Specific Encoding
 //!
+//! A field is encoded by the whole structure of its type, to any depth:
+//!
 //! | Type | Encoding Strategy |
 //! |------|------------------------|
-//! | Primitives | Direct value |
+//! | Primitives, literals and their unions | The value as it is |
 //! | `Date` | `toISOString()` |
-//! | Arrays, readonly or not | For primitive-like element types, pass through; for `Date`/`Date | null`, map to ISO strings; for encodable element types, map through the element's `{name}EncodeWithContext` function |
-//! | `Map<K,V>`, `ReadonlyMap<K,V>` | For primitive-like values, `Object.fromEntries(map.entries())`; for `Date`/`Date | null`, convert to ISO strings; for encodable values, call `{name}EncodeWithContext` per value |
-//! | `Set<T>`, `ReadonlySet<T>` | Convert to array; element handling matches `Array<T>` |
-//! | `Record<K,V>` | For primitive-like values, pass through; for `Date`/`Date | null`, convert values to ISO strings; for encodable values, rebuild via `Object.fromEntries` calling `{name}EncodeWithContext` per value |
-//! | `Required<T>`, `Readonly<T>`, `NonNullable<T>` | Encode as the inner type `T` |
-//! | `Partial<T>`, `Pick<T,K>`, `Omit<T,K>` | Call `{name}EncodePartialWithContext`, which encodes the fields the value has and, for a `Pick` or `Omit`, only those the type keeps |
-//! | Nullable | Include `null` explicitly; non-null values follow the inner type's strategy |
-//! | Objects | Call the type's `{name}EncodeWithContext` function |
+//! | Arrays, readonly or not | An array of its elements, each encoded by the element type; left as it is when the elements are |
+//! | `Set<T>`, `ReadonlySet<T>` | An array of its elements, each encoded by `T` |
+//! | `Map<K,V>`, `ReadonlyMap<K,V>` | An object of its entries, each value encoded by `V`. A key is its text: a string, number, bigint, boolean, an enum or newtype of one, or a `Date`, written as its ISO string. Any other key type is an expansion error |
+//! | `Record<K,V>` | An object of its members, each value encoded by `V` |
+//! | Tuples | An array of its elements, each encoded by its own type, optional and rest elements included |
+//! | An object type written in place, `{ at: Date }` | The object, each member encoded by its own type |
+//! | `T \| null`, `T \| undefined` | `null` and `undefined` as they are, anything else as `T` |
+//! | `Required<T>`, `Readonly<T>`, `NonNullable<T>` | As the inner type `T` |
+//! | `Partial<T>`, `Pick<T,K>`, `Omit<T,K>` | `{name}EncodePartialWithContext`, which encodes the fields the value has and, for a `Pick` or `Omit`, only those the type keeps. Such a value is written out wherever it is held and never becomes a `__ref`; one that holds itself throws a `TypeError` |
+//! | A type deriving `Encode` | Its `{name}EncodeWithContext` function |
+//! | A configured foreign type | Its `encode` handler |
+//! | A type parameter, `unknown`, any other type | The value as it is |
 //!
 //! Note: which strategy applies is resolved **statically** from the field's declared
-//! TypeScript type at expansion time: there is no runtime feature detection.
+//! TypeScript type at expansion time: there is no runtime feature detection. A
+//! value of a type parameter is carried as it is: `Box<Date>` does not encode the
+//! date its `T` holds.
 //!
 //! ## Field-Level Options
 //!
@@ -55,7 +63,8 @@
 //!
 //! - `skip` / `skipEncoding` - Exclude field from encoding
 //! - `rename = "jsonKey"` - Use different JSON property name
-//! - `flatten` - Merge nested object's fields into parent
+//! - `flatten` - Merge nested object's fields into parent. The flattened
+//!   value is written out by its fields, with no `__id` of its own
 //!
 //! ## Example
 //!
@@ -81,65 +90,80 @@
 //! import {
 //!     EncodeContext as __mf_EncodeContext,
 //!     encodedText as __mf_encodedText,
-//!     encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata
+//!     encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata,
+//!     encodeSelection as __mf_encodeSelection,
+//!     fieldRequirement as __mf_fieldRequirement
 //! } from '@macroforge/core/endec';
 //!
 //! class User {
 //!     id: number;
-//!
 //!     name: string;
-//!
 //!     password: string;
-//!
 //!     metadata: UserMetadata;
-//!     /** Encodes a value to a JSON string.
-//! @param value - The value to encode
-//! @returns JSON string representation with cycle detection metadata  */
 //!
 //!     static encode(value: User, keepMetadata?: boolean): string {
 //!         return userEncode(value, keepMetadata);
 //!     }
-//!     /** @internal Encodes with an existing context for nested/cyclic object graphs.
-//! @param value - The value to encode
-//! @param ctx - The encoding context  */
 //!
 //!     static encodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
-//!         return userEncodeWithContext(value, ctx);
+//!         const existingId = ctx.getId(value);
+//!         if (existingId !== undefined) {
+//!             return { __ref: existingId };
+//!         }
+//!         const result: Record<string, unknown> = { __type: 'User', __id: ctx.register(value) };
+//!         User.#encodeFields(value, ctx, result, undefined);
+//!         return result;
+//!     }
+//!
+//!     static encodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, fields?): Record<string, unknown> {
+//!         return __mf_encodeSelection(ctx, value, () => {
+//!             const result: Record<string, unknown> = { __type: 'User' };
+//!             User.#encodeFields(value as User, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+//!             return result;
+//!         });
+//!     }
+//!
+//!     // Writes each field the value has and the selection keeps.
+//!     static #encodeFields(value: User, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields): void {
+//!         if (__fields === undefined || __fields.keeps('id')) {
+//!             if (value.id !== undefined) {
+//!                 result.id = value.id;
+//!             }
+//!         }
+//!         if (__fields === undefined || __fields.keeps('name')) {
+//!             if (value.name !== undefined) {
+//!                 result.userName = value.name;
+//!             }
+//!         }
+//!         if (__fields === undefined || __fields.keeps('metadata')) {
+//!             if (value.metadata !== undefined) {
+//!                 const __flattened = userMetadataEncodePartialWithContext(value.metadata, ctx);
+//!                 const { ['__type']: _, __id: __, ...rest } = __flattened as any;
+//!                 Object.assign(result, rest);
+//!             }
+//!         }
 //!     }
 //! }
 //!
-//! /** Encodes a value to a JSON string.
-//! @param value - The value to encode
-//! @returns JSON string representation with cycle detection metadata */ export function userEncode(
-//!     value: User,
-//!     keepMetadata?: boolean
-//! ): string {
+//! export function userEncode(value: User, keepMetadata?: boolean): string {
 //!     const ctx = __mf_EncodeContext.create();
 //!     const __raw = userEncodeWithContext(value, ctx);
 //!     return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
-//! } /** @internal Encodes with an existing context for nested/cyclic object graphs.
-//! @param value - The value to encode
-//! @param ctx - The encoding context */
-//! export function userEncodeWithContext(
-//!     value: User,
-//!     ctx: EncodeContext
-//! ): Record<string, unknown> {
-//!     const existingId = ctx.getId(value);
-//!     if (existingId !== undefined) {
-//!         return { __ref: existingId };
-//!     }
-//!     const __id = ctx.register(value);
-//!     const result: Record<string, unknown> = { __type: 'User', __id };
-//!     result['id'] = value.id;
-//!     result['userName'] = value.name;
-//!     {
-//!         const __flattened = userMetadataEncodeWithContext(value.metadata, ctx);
-//!         const { __type: _, __id: __, ...rest } = __flattened as any; // tag field name is configurable via `tag` option
-//!         Object.assign(result, rest);
-//!     }
-//!     return result;
+//! }
+//!
+//! export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
+//!     return User.encodeWithContext(value, ctx);
+//! }
+//!
+//! export function userEncodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, fields?): Record<string, unknown> {
+//!     return User.encodePartialWithContext(value, ctx, fields);
 //! }
 //! ```
+//!
+//! A class's encoders are static methods, where they reach its `private` and
+//! `protected` fields, and the standalone functions run them. An interface or a
+//! type alias has the same three functions beside it, with a module-level
+//! `{name}EncodeFields`. A subclass encodes the fields of its superclasses too.
 //!
 //! ## Required Imports
 //!
@@ -151,12 +175,11 @@
 mod class_handler;
 mod enum_handler;
 mod field;
-mod foreign_types;
 mod interface_handler;
 mod object_encoder;
 mod text;
 mod type_alias;
-mod types;
+pub(crate) mod types;
 
 use crate::macros::ts_macro_derive;
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};

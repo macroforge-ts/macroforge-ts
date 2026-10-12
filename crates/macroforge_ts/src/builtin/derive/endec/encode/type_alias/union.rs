@@ -55,6 +55,16 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
         has_shape_fn: crate::ast::Ident,
     }
     let mut ser_variants: Vec<SerVariant> = Vec::new();
+    // A member that is a user type is told by its tag when the value
+    // carries one, as a decoded value does, and otherwise by its shape: a
+    // plain object says no other way which member it is.
+    let mut ref_variants: Vec<SerVariant> = Vec::new();
+    let is_type_param = |name: &str| {
+        type_alias
+            .type_params()
+            .iter()
+            .any(|param| param.name == name)
+    };
     // Externally-tagged single-key object variants (`{ Name: Payload }`)
     // whose payload is a configured foreign type (BigDecimal, DateTime):
     // without the inline encode expression, the runtime instance
@@ -108,20 +118,20 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                         });
                     }
                 }
-                // Untagged encodable type-ref variant: `TypeRef`
-                TypeMemberKind::TypeRef(t)
-                    if is_untagged
-                        && !matches!(
-                            TypeCategory::from_ts_type(t),
-                            TypeCategory::Primitive | TypeCategory::Date
-                        ) =>
-                {
-                    let camel = t.to_case(Case::Camel);
-                    ser_variants.push(SerVariant {
-                        tag_value: t.clone(),
-                        ser_fn: ts_ident!("{}EncodeWithContext", camel),
-                        has_shape_fn: ts_ident!("{}HasShape", camel),
-                    });
+                TypeMemberKind::TypeRef(t) => {
+                    if let TypeCategory::Encodable(name) = TypeCategory::from_ts_type(t)
+                        && !is_type_param(&name)
+                        && TypeCategory::match_foreign_type(t, &get_foreign_types())
+                            .config
+                            .is_none()
+                    {
+                        let camel = name.to_case(Case::Camel);
+                        ref_variants.push(SerVariant {
+                            tag_value: name,
+                            ser_fn: ts_ident!("{}EncodeWithContext", camel),
+                            has_shape_fn: ts_ident!("{}HasShape", camel),
+                        });
+                    }
                 }
                 TypeMemberKind::Object { fields } if is_externally_tagged && !fields.is_empty() => {
                     let foreign_types = get_foreign_types();
@@ -152,6 +162,7 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
         }
     }
     let has_ser_variants = !ser_variants.is_empty();
+    let has_ref_variants = !ref_variants.is_empty();
     let has_external_ser_variants = !external_ser_variants.is_empty();
     let dispatch_by_tag = !is_untagged;
 
@@ -186,6 +197,17 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                     if (!__matched && @{v.has_shape_fn}(value)) { __variant = @{v.ser_fn}(value as any, ctx); __matched = true; }
                     {/for}
                     {/if}
+                }
+                {/if}
+                {#if has_ref_variants}
+                if (!__matched && value !== null && typeof value === "object") {
+                    const __refTag = (value as any)["@{tag_field}"];
+                    {#for v in &ref_variants}
+                    if (!__matched && __refTag === "@{v.tag_value}") { __variant = @{v.ser_fn}(value as any, ctx); __matched = true; }
+                    {/for}
+                    {#for v in &ref_variants}
+                    if (!__matched && @{v.has_shape_fn}(value)) { __variant = @{v.ser_fn}(value as any, ctx); __matched = true; }
+                    {/for}
                 }
                 {/if}
                 {$typescript object_dispatch}
@@ -280,6 +302,17 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                     if (!__matched && @{v.has_shape_fn}(value)) { __variant = @{v.ser_fn}(value as any, ctx); __matched = true; }
                     {/for}
                     {/if}
+                }
+                {/if}
+                {#if has_ref_variants}
+                if (!__matched && value !== null && typeof value === "object") {
+                    const __refTag = (value as any)["@{tag_field}"];
+                    {#for v in &ref_variants}
+                    if (!__matched && __refTag === "@{v.tag_value}") { __variant = @{v.ser_fn}(value as any, ctx); __matched = true; }
+                    {/for}
+                    {#for v in &ref_variants}
+                    if (!__matched && @{v.has_shape_fn}(value)) { __variant = @{v.ser_fn}(value as any, ctx); __matched = true; }
+                    {/for}
                 }
                 {/if}
                 {$typescript object_dispatch}

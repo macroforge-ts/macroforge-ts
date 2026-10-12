@@ -10,10 +10,11 @@ use crate::ts_syn::{TsStream, ts_ident};
 
 use super::value::decode_raw_value;
 use crate::builtin::derive::common::{js_string, rendered};
-use crate::builtin::derive::endec::TypeCategory;
-use crate::builtin::derive::endec::decode::helpers::nested_decode_fn_name;
+use crate::builtin::derive::endec::decode::helpers::nested_has_shape_fn_name;
 use crate::builtin::derive::endec::decode::types::DecodeField;
 use crate::builtin::derive::endec::decode::validation::generate_field_validations;
+use crate::builtin::derive::endec::nested::NestedType;
+use crate::builtin::derive::endec::{TypeCategory, WrapperFields};
 use crate::builtin::return_types::DECODE_ERROR;
 
 /// Which of a type's fields the decoder being generated reads.
@@ -39,21 +40,46 @@ fn keeps(field: &DecodeField) -> Expr {
 }
 
 /// Decodes each regular field from its JSON key, then each flattened field
-/// from the whole object. `owner` names the decoded type in messages.
+/// from the whole object. `owner` names the decoded type in messages, and
+/// `tag_field` the key its tag is written under.
 pub(in crate::builtin::derive::endec::decode) fn decode_fields(
     fields: &[DecodeField],
     owner: &str,
+    tag_field: &str,
     required: Required,
 ) -> TsStream {
     let regular = fields
         .iter()
         .filter(|field| !field.flatten)
         .map(|field| decode_field(field, owner, required));
-    let flattened = fields
-        .iter()
-        .filter(|field| field.flatten)
-        .map(|field| when_kept(field, required, decode_flattened_field(field)));
+    // What a flattened record leaves to the fields beside it.
+    let sibling_keys: Vec<String> = [tag_field, "__id", "__ref"]
+        .into_iter()
+        .map(str::to_string)
+        .chain(read_keys(fields))
+        .collect();
+    let flattened = fields.iter().filter(|field| field.flatten).map(|field| {
+        when_kept(
+            field,
+            required,
+            decode_flattened_field(field, owner, required, &sibling_keys),
+        )
+    });
     TsStream::merge_all(regular.chain(flattened))
+}
+
+/// The JSON keys `fields` read: each regular field's own, and those a
+/// flattened type is known to read.
+pub(in crate::builtin::derive::endec::decode) fn read_keys(
+    fields: &[DecodeField],
+) -> impl Iterator<Item = String> + '_ {
+    fields.iter().flat_map(|field| {
+        if field.flatten {
+            field.flattened_keys.clone().unwrap_or_default()
+        } else {
+            vec![field.json_key.clone()]
+        }
+    })
 }
 
 /// One regular field: its `decodeWith` function, or its raw value decoded by
@@ -62,17 +88,29 @@ pub(in crate::builtin::derive::endec::decode) fn decode_fields(
 /// field its shape lacks, and one it keeps without requiring is decoded only
 /// when present and gets no default.
 fn decode_field(field: &DecodeField, owner: &str, required: Required) -> TsStream {
+    if field.never_read {
+        let default_expr = field.default_expr.as_ref();
+        return when_kept(
+            field,
+            required,
+            ts_template! {
+                {#if let Some(default_expr) = default_expr}
+                    instance@{field.member} = @{default_expr};
+                {/if}
+            },
+        );
+    }
     let present: Expr = rendered(ts_template! {
-        ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined)
+        ("@{field.json_key_text()}" in obj && obj["@{field.json_key_text()}"] !== undefined)
     })
     .into();
     let decoded = match &field.decode_with {
         Some(fn_expr) => decode_with(field, fn_expr, owner),
         None => {
-            let raw_var_ident: Ident = ts_ident!(format!("__raw_{}", field.field_name));
+            let raw_var_ident: Ident = ts_ident!(field.raw_var_name());
             let value = decode_raw_value(field, owner);
             ts_template! {
-                const @{raw_var_ident} = obj["@{field.json_key}"] as @{field.raw_cast_type};
+                const @{raw_var_ident} = obj["@{field.json_key_text()}"] as @{field.raw_cast_type};
                 {$typescript value}
             }
         }
@@ -99,7 +137,7 @@ fn decode_field(field: &DecodeField, owner: &str, required: Required) -> TsStrea
                 }
                 {#if let Some(default_expr) = default_expr}
                     if (@{defaulted}) {
-                        instance.@{field.field_ident} = @{default_expr};
+                        instance@{field.member} = @{default_expr};
                     }
                 {/if}
             },
@@ -115,7 +153,7 @@ fn decode_field(field: &DecodeField, owner: &str, required: Required) -> TsStrea
             let is_required = requires(field);
             let name = js_string(&field.field_name);
             ts_template! {
-                if (@{is_required} || (__fields.keeps(@{name}) && obj["@{field.json_key}"] !== undefined)) {
+                if (@{is_required} || (__fields.keeps(@{name}) && obj["@{field.json_key_text()}"] !== undefined)) {
                     {$typescript decoded}
                 }
             }
@@ -151,34 +189,56 @@ fn decode_with(field: &DecodeField, fn_expr: &Expr, owner: &str) -> TsStream {
         );
         ts_template! {
             try {
-                const __convertedVal = @{fn_expr}(obj["@{field.json_key}"]);
+                const __convertedVal = @{fn_expr}(obj["@{field.json_key_text()}"]);
                 {$typescript validation_code}
-                instance.@{field.field_ident} = __convertedVal;
+                instance@{field.member} = __convertedVal;
             } catch (__error) {
-                errors.push({ field: "@{field.json_key}", message: __error instanceof Error ? __error.message : String(__error) });
+                errors.push({ field: "@{field.json_key_text()}", message: __error instanceof Error ? __error.message : String(__error) });
             }
         }
     } else {
         ts_template! {
             try {
-                instance.@{field.field_ident} = @{fn_expr}(obj["@{field.json_key}"]);
+                instance@{field.member} = @{fn_expr}(obj["@{field.json_key_text()}"]);
             } catch (__error) {
-                errors.push({ field: "@{field.json_key}", message: __error instanceof Error ? __error.message : String(__error) });
+                errors.push({ field: "@{field.json_key_text()}", message: __error instanceof Error ? __error.message : String(__error) });
             }
         }
     }
 }
 
 /// An `@endec(flatten)` field, decoded from the enclosing object itself.
-fn decode_flattened_field(field: &DecodeField) -> TsStream {
+///
+/// A flattened type is decoded by the fields it has, without being registered:
+/// the enclosing object's `__id` names the enclosing value, not this one. One
+/// that may be absent is decoded when the object has its shape. A flattened
+/// record takes the members no other field reads, `sibling_keys` being the
+/// keys those fields read.
+fn decode_flattened_field(
+    field: &DecodeField,
+    owner: &str,
+    required: Required,
+    sibling_keys: &[String],
+) -> TsStream {
     let decode_error_expr: Expr = ts_ident!(DECODE_ERROR).into();
-    match &field.type_cat {
+    let (present_type, absent_allowed) = match &field.type_cat {
+        TypeCategory::Optional(inner) | TypeCategory::Nullable(inner) => {
+            (TypeCategory::from_ts_type(inner), true)
+        }
+        present => (present.clone(), field.optional),
+    };
+    match present_type {
         TypeCategory::Encodable(type_name) => {
-            let decode_fn: Expr = ts_ident!(nested_decode_fn_name(type_name)).into();
-            ts_template! {
+            let has_shape: Expr = ts_ident!(nested_has_shape_fn_name(&type_name)).into();
+            let unregistered = NestedType {
+                name: type_name,
+                fields: WrapperFields::Except(Vec::new()),
+            };
+            let decoded = unregistered.decode_call("obj");
+            let decode = ts_template! {
                 try {
-                    const __result = @{decode_fn}(obj, ctx);
-                    ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                    const __result = @{decoded};
+                    ctx.assignOrDefer(instance, "@{field.field_name_text()}", __result);
                 } catch (__e) {
                     if (__e instanceof @{decode_error_expr}) {
                         for (const __err of __e.errors) {
@@ -188,10 +248,39 @@ fn decode_flattened_field(field: &DecodeField) -> TsStream {
                         throw __e;
                     }
                 }
+            };
+            let is_required = requires(field);
+            match (absent_allowed, required) {
+                (false, Required::All) => decode,
+                (false, Required::Selected) => ts_template! {
+                    if (@{is_required} || @{has_shape}(obj)) {
+                        {$typescript decode}
+                    }
+                },
+                (true, Required::All | Required::Selected) => ts_template! {
+                    if (@{has_shape}(obj)) {
+                        {$typescript decode}
+                    }
+                },
+            }
+        }
+        TypeCategory::Record(_, _) => {
+            let raw_var_ident: Ident = ts_ident!(field.raw_var_name());
+            let sibling_keys: Vec<String> = sibling_keys.iter().map(|key| js_string(key)).collect();
+            let sibling_keys = sibling_keys.join(", ");
+            let value = decode_raw_value(field, owner);
+            ts_template! {
+                {
+                    const __siblingKeys = new Set<string>([@{sibling_keys}]);
+                    const @{raw_var_ident} = Object.fromEntries(
+                        Object.entries(obj).filter(([__key]) => !__siblingKeys.has(__key))
+                    ) as @{field.raw_cast_type};
+                    {$typescript value}
+                }
             }
         }
         _ => ts_template! {
-            instance.@{field.field_ident} = obj as any;
+            instance@{field.member} = obj as any;
         },
     }
 }

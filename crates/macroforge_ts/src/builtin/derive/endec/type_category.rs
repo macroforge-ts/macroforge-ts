@@ -105,6 +105,21 @@ impl WrapperFields {
     }
 }
 
+/// Whether `ts_type` names a type, with or without type arguments: `User`,
+/// `ns.User` or `Box<User>`. An indexed access such as `User['id']`, a
+/// `keyof` or a template literal builds a type out of one and names none.
+fn is_type_reference(ts_type: &str) -> bool {
+    let name = match ts_type.find('<') {
+        Some(arguments) if ts_type.ends_with('>') => &ts_type[..arguments],
+        Some(_) => return false,
+        None => ts_type,
+    };
+    !name.is_empty()
+        && name
+            .chars()
+            .all(|letter| letter.is_alphanumeric() || matches!(letter, '_' | '$' | '.'))
+}
+
 /// How many classified types a thread keeps. A project's field types repeat
 /// across every derive that reads them; the bound keeps a long session from
 /// holding every type it ever saw.
@@ -210,6 +225,7 @@ impl TypeCategory {
         // Exclude built-in types and utility types
         if let Some(first_char) = trimmed.chars().next()
             && first_char.is_uppercase()
+            && is_type_reference(trimmed)
             && !matches!(
                 trimmed,
                 "String"

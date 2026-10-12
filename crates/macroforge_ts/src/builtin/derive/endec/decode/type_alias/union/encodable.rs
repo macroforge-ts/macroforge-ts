@@ -190,13 +190,7 @@ pub(super) fn encodable_dispatch(u: &Union) -> TsStream {
                                         {#for ov in object_variants}
                                             if (__typeName === "@{ov.tag_value}") {
                                                 // Inline object variant: decode fields in place
-                                                const __result: Record<string, unknown> = { "@{tag_field}": "@{ov.tag_value}" };
-                                                {#for field in &ov.fields}
-                                                    {#if field.name != *tag_field}
-                                                        __result["@{field.name}"] = (value as any)["@{field.name}"] ?? null;
-                                                    {/if}
-                                                {/for}
-                                                return __result as @{full_type_ident};
+                                                return { "@{tag_field}": "@{ov.tag_value}", ...@{ov.decoded} } as @{full_type_ident};
                                             }
                                         {/for}
                                         {#for iv in intersection_variants}

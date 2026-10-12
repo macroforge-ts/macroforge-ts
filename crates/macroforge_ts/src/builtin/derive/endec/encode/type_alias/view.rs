@@ -11,7 +11,7 @@ use super::super::field::prepare::to_encode_field;
 use super::super::field::statements::encode_fields;
 use super::super::types::EncodeField;
 use super::AliasEncode;
-use crate::builtin::derive::common::{TypeNames, rendered, tuple_element};
+use crate::builtin::derive::common::{Member, TypeNames, rendered, tuple_element};
 use crate::builtin::derive::endec::EndecContainerOptions;
 use crate::builtin::derive::endec::source_field::SourceField;
 
@@ -142,7 +142,7 @@ fn view_field(
         alias.file_imports,
         &names.params,
     )?;
-    field.json_key_ident = ts_ident!(name);
+    field.json_member = Member::of(name);
     Some(field)
 }
 

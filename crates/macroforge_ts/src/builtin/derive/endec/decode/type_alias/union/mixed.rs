@@ -246,13 +246,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                     if (typeof __typeName === "string") {
                                         {#for ov in object_variants}
                                             if (__typeName === "@{ov.tag_value}") {
-                                                const __result: Record<string, unknown> = { "@{tag_field}": "@{ov.tag_value}" };
-                                                {#for field in &ov.fields}
-                                                    {#if field.name != *tag_field}
-                                                        __result["@{field.name}"] = (value as any)["@{field.name}"] ?? null;
-                                                    {/if}
-                                                {/for}
-                                                return __result as @{full_type_ident};
+                                                return { "@{tag_field}": "@{ov.tag_value}", ...@{ov.decoded} } as @{full_type_ident};
                                             }
                                         {/for}
                                         {#for iv in intersection_variants}

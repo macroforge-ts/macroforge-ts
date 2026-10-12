@@ -1,3 +1,4 @@
+mod coder;
 mod options;
 mod type_category;
 mod validator_errors;

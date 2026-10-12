@@ -1,11 +1,10 @@
 use crate::ast::Expr;
 use crate::ts_syn::TsSynError;
-use crate::ts_syn::config::ForeignHandler;
 
 use convert_case::{Case, Casing};
 
 use super::super::value_kind::is_ts_literal;
-use super::super::{EndecFieldOptions, TypeCategory, ValidatorSpec, get_foreign_types};
+use super::super::{EndecFieldOptions, ValidatorSpec};
 use super::types::DecodeField;
 use super::validation::Missing;
 use crate::builtin::derive::common::{js_string, rendered};
@@ -51,8 +50,8 @@ fn accepts_string_visiting(
     foreign_types: &[ForeignTypeConfig],
     visiting: &mut Vec<String>,
 ) -> bool {
-    // Primitive string keyword
-    if type_name == "string" {
+    // A string is a `string`'s value, and a `Date`'s as its ISO text.
+    if matches!(type_name, "string" | "Date") {
         return true;
     }
 
@@ -183,7 +182,20 @@ pub(super) fn primitive_check(
     raw: &str,
     context_name: &str,
 ) -> Option<PrimitiveCheck> {
-    let ts_type = field.ts_type.trim();
+    let accepts = primitive_accepts(&field.ts_type, raw)?;
+    Some(PrimitiveCheck {
+        mismatch: Expr::parse(&rendered(ts_template! { !(@{accepts}) }))
+            .expect("primitive check should parse"),
+        message: wrong_type_message(field, raw, context_name),
+    })
+}
+
+/// The condition under which `raw` is a value of `ts_type`, when that is
+/// primitive-like: a primitive keyword, a literal, `null`, `undefined`, or a
+/// union of those. `None` for any other type, which has no single runtime
+/// test.
+pub(crate) fn primitive_accepts(ts_type: &str, raw: &str) -> Option<String> {
+    let ts_type = ts_type.trim();
     let parts = split_top_level_union(ts_type).unwrap_or_else(|| vec![ts_type]);
     let accepts = parts
         .iter()
@@ -199,12 +211,7 @@ pub(super) fn primitive_check(
             }
         })
         .collect::<Option<Vec<_>>>()?;
-    let accepts = accepts.join(" || ");
-    Some(PrimitiveCheck {
-        mismatch: Expr::parse(&rendered(ts_template! { !(@{accepts}) }))
-            .expect("primitive check should parse"),
-        message: wrong_type_message(field, raw, context_name),
-    })
+    Some(accepts.join(" || "))
 }
 
 /// The error for a raw value that is not of the field's type. A missing value
@@ -245,105 +252,6 @@ pub(super) fn parse_default_expr(expr_src: &str) -> Result<Expr, TsSynError> {
     Ok(expr)
 }
 
-/// Tries to generate a composite decode expression for types where a foreign
-/// type is nested inside nullable or array wrappers (e.g., `Utc[] | null`, `Utc | null`).
-///
-/// Splits the type by `|`, strips `null`/`undefined`, detects `[]` arrays,
-/// and matches the element type against configured foreign types.
-pub(super) fn try_composite_foreign_decode(ts_type: &str) -> Option<String> {
-    let foreign_types = get_foreign_types();
-
-    // Split by | and classify parts
-    let parts: Vec<&str> = ts_type
-        .split('|')
-        .map(|s| s.trim())
-        .filter(|s| !s.is_empty())
-        .collect();
-
-    let is_nullable = parts.iter().any(|s| *s == "null" || *s == "undefined");
-    let non_null: Vec<&str> = parts
-        .iter()
-        .filter(|s| **s != "null" && **s != "undefined")
-        .copied()
-        .collect();
-
-    // Only handle single non-null type for now
-    if non_null.len() != 1 {
-        return None;
-    }
-
-    let core = non_null[0];
-
-    // Check for container types
-    let (container, elem_type) = if let Some(inner) = core.strip_suffix("[]") {
-        ("array", inner.trim())
-    } else if let Some(rest) = core.strip_prefix("Array<") {
-        if let Some(inner) = rest.strip_suffix('>') {
-            ("array", inner.trim())
-        } else {
-            ("none", core)
-        }
-    } else if let Some(rest) = core.strip_prefix("Set<") {
-        if let Some(inner) = rest.strip_suffix('>') {
-            ("set", inner.trim())
-        } else {
-            ("none", core)
-        }
-    } else if let Some(rest) = core.strip_prefix("Map<") {
-        if let Some(inner) = rest.strip_suffix('>') {
-            if let Some(comma_pos) = super::super::find_top_level_comma(inner) {
-                ("map", inner[comma_pos + 1..].trim())
-            } else {
-                ("none", core)
-            }
-        } else {
-            ("none", core)
-        }
-    } else if let Some(rest) = core.strip_prefix("Record<") {
-        if let Some(inner) = rest.strip_suffix('>') {
-            if let Some(comma_pos) = super::super::find_top_level_comma(inner) {
-                ("record", inner[comma_pos + 1..].trim())
-            } else {
-                ("none", core)
-            }
-        } else {
-            ("none", core)
-        }
-    } else if let Some((_, value)) = crate::ts_syn::type_normalize::parse_index_signature(core) {
-        // Inline TS index-signature `{ [k: K]: V }` is the structural
-        // equivalent of `Record<K, V>`; recognise it so the per-value
-        // foreign-type decoder runs the same way for both spellings.
-        ("record", value)
-    } else {
-        ("none", core)
-    };
-
-    // Try matching the element type against foreign types
-    let ft_match = TypeCategory::match_foreign_type(elem_type, &foreign_types);
-    let rewritten = ft_match
-        .config
-        .and_then(|ft| ft.handler_callee(ForeignHandler::Decode))?;
-
-    let decoded = match container {
-        "array" => ts_template! { (raw as any[]).map(item => @{&rewritten}(item)) },
-        "set" => ts_template! { new Set((raw as any[]).map(item => @{&rewritten}(item))) },
-        "map" => ts_template! {
-            new Map(Object.entries(raw as Record<string, unknown>).map(([k, v]) => [k, @{&rewritten}(v)]))
-        },
-        "record" => ts_template! {
-            Object.fromEntries(Object.entries(raw as Record<string, unknown>).map(([k, v]) => [k, @{&rewritten}(v)])) as any
-        },
-        // A bare foreign type decodes directly, unless it is nullable.
-        "none" if is_nullable => ts_template! { @{&rewritten}(raw) },
-        _ => return None,
-    };
-    Some(rendered(if is_nullable {
-        ts_template! { (raw) => raw === null ? null : @{decoded} }
-    } else {
-        ts_template! { (raw) => @{decoded} }
-    }))
-}
-
 /// Extracts the base type name from a potentially generic type.
 /// For example: "User<T>" -> "User", "Map<string, number>" -> "Map"
 pub(super) fn extract_base_type(ts_type: &str) -> String {
@@ -356,7 +264,7 @@ pub(super) fn extract_base_type(ts_type: &str) -> String {
 
 /// Generates the DecodeWithContext function name for a nested decodable type.
 /// For example: "User" -> "userDecodeWithContext"
-pub(super) fn nested_decode_fn_name(type_name: &str) -> String {
+pub(crate) fn nested_decode_fn_name(type_name: &str) -> String {
     // Strip generic parameters before camelCase conversion (see nested_encode_fn_name)
     let base = if let Some(idx) = type_name.find('<') {
         &type_name[..idx]
@@ -369,27 +277,16 @@ pub(super) fn nested_decode_fn_name(type_name: &str) -> String {
 /// Generates the DecodePartialWithContext function name for a nested
 /// decodable type, which decodes a value lacking some of its fields.
 /// For example: "User" -> "userDecodePartialWithContext"
-pub(super) fn nested_decode_partial_fn_name(type_name: &str) -> String {
+pub(crate) fn nested_decode_partial_fn_name(type_name: &str) -> String {
     let base = type_name
         .find('<')
         .map_or(type_name, |generics| &type_name[..generics]);
     format!("{}DecodePartialWithContext", base.to_case(Case::Camel))
 }
 
-/// Generates the public Decode function name (result-returning) for a nested decodable type.
-/// For example: "User" -> "userDecode"
-pub(super) fn nested_decode_result_fn_name(type_name: &str) -> String {
-    let base = if let Some(idx) = type_name.find('<') {
-        &type_name[..idx]
-    } else {
-        type_name
-    };
-    format!("{}Decode", base.to_case(Case::Camel))
-}
-
 /// Generates the HasShape function name for a type.
 /// For example: "DailyRecurrenceRule" -> "dailyRecurrenceRuleHasShape"
-pub(super) fn nested_has_shape_fn_name(type_name: &str) -> String {
+pub(crate) fn nested_has_shape_fn_name(type_name: &str) -> String {
     let base = if let Some(idx) = type_name.find('<') {
         &type_name[..idx]
     } else {

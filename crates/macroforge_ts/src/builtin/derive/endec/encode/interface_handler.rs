@@ -6,7 +6,7 @@ use crate::ts_syn::{DataInterface, DeriveInput, MacroforgeError, MacroforgeError
 use super::field::prepare::to_encode_field;
 use super::object_encoder::object_encode_functions;
 use super::types::EncodeField;
-use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::{TypeNames, derive_interface_fields};
 use crate::builtin::derive::endec::EndecContainerOptions;
 
 pub(super) fn handle_interface(
@@ -16,9 +16,9 @@ pub(super) fn handle_interface(
     let container_opts = EndecContainerOptions::from_decorators(&interface.inner.decorators);
     let file_imports = input.context.import_registry.file_import_entries();
     let names = TypeNames::new(input.name(), interface.type_params());
+    let interface_fields = derive_interface_fields(input, interface, "Encode")?;
     let mut diagnostics = DiagnosticCollector::new();
-    let fields: Vec<EncodeField> = interface
-        .fields()
+    let fields: Vec<EncodeField> = interface_fields
         .iter()
         .filter_map(|field| {
             to_encode_field(

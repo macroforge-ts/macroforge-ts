@@ -1,11 +1,29 @@
-use crate::ast::{Expr, Ident};
+use crate::ast::Expr;
 
+use super::super::nested::NestedType;
 use super::super::union_guard::UnionGuard;
 use super::super::value_kind::EndecValueKind;
-use super::super::{TypeCategory, ValidatorSpec, WrapperFields};
+use super::super::{TypeCategory, ValidatorSpec};
 use super::validation::Missing;
-use crate::builtin::derive::common::rendered;
+use crate::builtin::derive::common::{Member, js_string_text, local_name_part, rendered};
 use crate::macros::ts_template;
+
+/// What a collection's or a tuple's raw value has to be before its members
+/// are decoded.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum RawShape {
+    Array,
+    Object,
+}
+
+/// How the raw value of a collection or a tuple decodes.
+#[derive(Clone, Debug)]
+pub(super) struct CompositeDecode {
+    pub shape: RawShape,
+    /// The expression decoding the raw value, or `None` for a value that is
+    /// its own decoding.
+    pub decoded: Option<String>,
+}
 
 /// Contains field information needed for JSON decoding code generation.
 ///
@@ -21,8 +39,8 @@ pub(super) struct DecodeField {
     /// The TypeScript field name as it appears in the source class.
     /// Used for generating property assignments like `instance.fieldName = value`.
     pub field_name: String,
-    /// The field name as an AST identifier for property access.
-    pub field_ident: Ident,
+    /// The field as reached off the decoded instance.
+    pub member: Member,
 
     /// The TypeScript type annotation string (e.g., "string", "number[]").
     /// Used for type casting in generated code.
@@ -46,6 +64,14 @@ pub(super) struct DecodeField {
     /// Example: expression for `@endec(default = "guest")`.
     pub default_expr: Option<Expr>,
 
+    /// Whether the field is never read from the input, under
+    /// `@endec({ skipDecoding })`, and is always set to its default.
+    pub never_read: bool,
+
+    /// For a flattened field of a type the registry holds: the JSON keys
+    /// that type reads, which are not the enclosing object's other fields'.
+    pub flattened_keys: Option<Vec<String>>,
+
     /// Whether the field should be read from the parent object level.
     /// Flattened fields look for their properties directly in the parent JSON.
     pub flatten: bool,
@@ -56,8 +82,6 @@ pub(super) struct DecodeField {
 
     /// For `T | null` unions: classification of `T`.
     pub nullable_inner_kind: Option<EndecValueKind>,
-    /// For `Array<T>` and `T[]`: classification of `T`.
-    pub array_elem_kind: Option<EndecValueKind>,
 
     // --- Encodable type tracking for direct function calls ---
     /// For `T | null` where T is Encodable: the type name.
@@ -73,23 +97,11 @@ pub(super) struct DecodeField {
     /// Whether this field uses decimal format (decode string to number).
     pub decimal_format: bool,
 
-    // --- Collection element type tracking for recursive decoding ---
-    /// For `Array<T>` where T is Encodable: the type name for direct function calls.
-    pub array_elem_encodable_type: Option<String>,
-    /// For `Set<T>`: classification of T.
-    pub set_elem_kind: Option<EndecValueKind>,
-    /// For `Set<T>` where T is Encodable: the type name.
-    pub set_elem_encodable_type: Option<String>,
-    /// For `Map<K, V>`: classification of V.
-    pub map_value_kind: Option<EndecValueKind>,
-    /// For `Map<K, V>` where V is Encodable: the type name.
-    pub map_value_encodable_type: Option<String>,
-    /// For `Record<K, V>` where V is Encodable: the type name.
-    pub record_value_encodable_type: Option<String>,
-    /// For wrapper types where T is Encodable: the type name.
-    pub wrapper_encodable_type: Option<String>,
-    /// For wrapper types: which of T's fields a value has.
-    pub wrapper_fields: Option<WrapperFields>,
+    /// For a collection or a tuple: how its raw value decodes.
+    pub composite: Option<CompositeDecode>,
+    /// For a utility type over a user type, such as `Partial<T>`: that type
+    /// and the fields of it a value has.
+    pub wrapped: Option<NestedType>,
 
     /// Set when the field's resolved type is a two-member union of a
     /// primitive or foreign type with the `Encodable` type: the shape an
@@ -100,9 +112,6 @@ pub(super) struct DecodeField {
 
     /// The same guard for the non-null member of a `T | null` field.
     pub nullable_union_guard: Option<UnionGuard>,
-
-    /// The same guard for each element of an `Array<T>` field.
-    pub array_elem_union_guard: Option<UnionGuard>,
 
     /// Validators declared on the *primitive arm* of the resolved
     /// `primitive | Encodable` union: e.g. the `nonEmpty` on the `string`
@@ -117,6 +126,21 @@ pub(super) struct DecodeField {
 }
 
 impl DecodeField {
+    /// The JSON key as it reads inside a double-quoted string literal.
+    pub fn json_key_text(&self) -> String {
+        js_string_text(&self.json_key)
+    }
+
+    /// The field's name as it reads inside a double-quoted string literal.
+    pub fn field_name_text(&self) -> String {
+        js_string_text(&self.field_name)
+    }
+
+    /// The local holding the field's raw value while it is decoded.
+    pub fn raw_var_name(&self) -> String {
+        raw_var_name(&self.field_name)
+    }
+
     /// Returns true if this field has any validators that need to be applied.
     pub fn has_validators(&self) -> bool {
         !self.validators.is_empty()
@@ -151,11 +175,17 @@ impl DecodeField {
     }
 }
 
+/// The local holding the raw value of the field `field_name` while it is
+/// decoded.
+pub(super) fn raw_var_name(field_name: &str) -> String {
+    format!("__raw_{}", local_name_part(field_name))
+}
+
 /// Returns the encoded (JSON-compatible) type string for a given TS type.
 ///
 /// JSON.parse() produces plain objects, arrays, strings, numbers, booleans, and null.
 /// This function maps TypeScript types to what they actually look like in JSON:
-/// - `Map<K, V>` -> `Record<K, raw(V)>` (JSON objects, not Maps)
+/// - `Map<K, V>` -> `Record<string, raw(V)>` (JSON objects, whose keys are text)
 /// - `Set<T>` -> `Array<raw(T)>` (JSON arrays, not Sets)
 /// - `Date` -> `string | Date` (ISO strings from JSON, or already-parsed Dates)
 /// - `T | null` -> `raw(T) | null` (recursive)
@@ -164,10 +194,10 @@ impl DecodeField {
 /// - Everything else -> the original type unchanged
 pub(super) fn raw_cast_type(ts_type: &str, type_cat: &TypeCategory) -> String {
     match type_cat {
-        TypeCategory::Map(k, v) => {
+        TypeCategory::Map(_, v) => {
             let inner_cat = TypeCategory::from_ts_type(v);
             let raw = raw_cast_type(v, &inner_cat);
-            rendered(ts_template! { Record<@{k}, @{raw}> })
+            rendered(ts_template! { Record<string, @{raw}> })
         }
         TypeCategory::Set(t) => {
             let inner_cat = TypeCategory::from_ts_type(t);

@@ -7,14 +7,9 @@ use crate::ts_syn::{TsStream, ts_ident};
 
 use crate::builtin::return_types::ENCODE_CONTEXT;
 
-/// The local name of a `@macroforge/core/endec` helper, requesting its
-/// import for the file being expanded.
+/// A `@macroforge/core/endec` helper as a callee.
 fn endec_helper(name: &str) -> Expr {
-    let alias = format!("__mf_{name}");
-    crate::host::import_registry::with_registry_mut(|registry| {
-        registry.request_import(&alias, Some(name), crate::package::ENDEC, false);
-    });
-    ts_ident!(alias).into()
+    ts_ident!(crate::builtin::derive::endec::coder::endec_helper(name)).into()
 }
 
 /// The statements of a top-level `encode(value, keepMetadata)`: the JSON text
