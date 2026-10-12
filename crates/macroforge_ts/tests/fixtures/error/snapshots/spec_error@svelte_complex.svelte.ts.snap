@@ -52,7 +52,7 @@ original 0..434 -> expanded 0..434
 
 ## Metadata
 
-interface Props: {"body_span":{"end":64,"start":17},"decorators":[],"fields":[{"decorators":[],"name":"items","optional":false,"readonly":false,"span":{"end":39,"start":23},"ts_type":"string[]"},{"decorators":[],"name":"selected","optional":true,"readonly":false,"span":{"end":62,"start":44},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Props","span":{"end":64,"start":1},"type_params":[]}
+interface Props: {"body_span":{"end":64,"start":17},"decorators":[],"fields":[{"decorators":[],"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":39,"start":23},"ts_type":"string[]"},{"decorators":[],"key":"Named","name":"selected","optional":true,"readonly":false,"span":{"end":62,"start":44},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Props","span":{"end":64,"start":1},"type_params":[]}
 
 ## Registry reads
 

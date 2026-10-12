@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 
 enum Role {
     Admin = 'admin',
@@ -28,7 +28,8 @@ enum Role {
 
 /** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function roleDecode(input: unknown): Role {
-    return roleDecodeWithContext(input);
+
+    return roleDecodeWithContext(__mf_textOrValue(input, roleIs));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -90,11 +91,11 @@ export {};
 
 ## Mapping
 
-original 22..96 -> expanded 111..185
-original 96..97 -> expanded 1442..1443
-generated 0..111 <- imports
-generated 185..1236 <- Decode
-generated 1236..1442 <- __convenience_const
+original 22..96 -> expanded 144..218
+original 96..97 -> expanded 1502..1503
+generated 0..144 <- imports
+generated 218..1296 <- Decode
+generated 1296..1502 <- __convenience_const
 
 ## Metadata
 

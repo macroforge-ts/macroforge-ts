@@ -13,7 +13,7 @@ true
 ## Output
 
 import { coordinatesDecodeWithContext, coordinatesEncodeWithContext, coordinatesDefaultValue } from "./coordinates.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -71,12 +71,9 @@ export function siteEncode(value: Site, keepMetadata?: boolean): string {
 export function siteEncodeWithContext(value: Site, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Site",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Site" });
     siteEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -272,7 +269,7 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -281,7 +278,7 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("addressLine1")) || (__fields.keeps("addressLine1") && obj["addressLine1"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("addressLine1")) ? "addressLine1" in obj : (__fields.keeps("addressLine1") && obj["addressLine1"] !== undefined)) {
         const __raw_addressLine1 = obj["addressLine1"] as string;
 
         if (!(typeof __raw_addressLine1 === "string")) {
@@ -293,7 +290,7 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.addressLine1 = __raw_addressLine1;
         }
     }
-    if ((__fields === undefined || __fields.requires("addressLine2")) || (__fields.keeps("addressLine2") && obj["addressLine2"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("addressLine2")) ? "addressLine2" in obj : (__fields.keeps("addressLine2") && obj["addressLine2"] !== undefined)) {
         const __raw_addressLine2 = obj["addressLine2"] as string | null;
 
         if (!(typeof __raw_addressLine2 === "string" || __raw_addressLine2 === null)) {
@@ -302,7 +299,7 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.addressLine2 = __raw_addressLine2;
         }
     }
-    if ((__fields === undefined || __fields.requires("sublocalityLevel1")) || (__fields.keeps("sublocalityLevel1") && obj["sublocalityLevel1"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("sublocalityLevel1")) ? "sublocalityLevel1" in obj : (__fields.keeps("sublocalityLevel1") && obj["sublocalityLevel1"] !== undefined)) {
         const __raw_sublocalityLevel1 = obj["sublocalityLevel1"] as string | null;
 
         if (!(typeof __raw_sublocalityLevel1 === "string" || __raw_sublocalityLevel1 === null)) {
@@ -311,7 +308,7 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.sublocalityLevel1 = __raw_sublocalityLevel1;
         }
     }
-    if ((__fields === undefined || __fields.requires("locality")) || (__fields.keeps("locality") && obj["locality"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("locality")) ? "locality" in obj : (__fields.keeps("locality") && obj["locality"] !== undefined)) {
         const __raw_locality = obj["locality"] as string;
 
         if (!(typeof __raw_locality === "string")) {
@@ -323,7 +320,7 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.locality = __raw_locality;
         }
     }
-    if ((__fields === undefined || __fields.requires("administrativeAreaLevel3")) || (__fields.keeps("administrativeAreaLevel3") && obj["administrativeAreaLevel3"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("administrativeAreaLevel3")) ? "administrativeAreaLevel3" in obj : (__fields.keeps("administrativeAreaLevel3") && obj["administrativeAreaLevel3"] !== undefined)) {
         const __raw_administrativeAreaLevel3 = obj["administrativeAreaLevel3"] as string | null;
 
         if (!(typeof __raw_administrativeAreaLevel3 === "string" || __raw_administrativeAreaLevel3 === null)) {
@@ -332,7 +329,7 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.administrativeAreaLevel3 = __raw_administrativeAreaLevel3;
         }
     }
-    if ((__fields === undefined || __fields.requires("administrativeAreaLevel2")) || (__fields.keeps("administrativeAreaLevel2") && obj["administrativeAreaLevel2"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("administrativeAreaLevel2")) ? "administrativeAreaLevel2" in obj : (__fields.keeps("administrativeAreaLevel2") && obj["administrativeAreaLevel2"] !== undefined)) {
         const __raw_administrativeAreaLevel2 = obj["administrativeAreaLevel2"] as string | null;
 
         if (!(typeof __raw_administrativeAreaLevel2 === "string" || __raw_administrativeAreaLevel2 === null)) {
@@ -341,7 +338,7 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.administrativeAreaLevel2 = __raw_administrativeAreaLevel2;
         }
     }
-    if ((__fields === undefined || __fields.requires("administrativeAreaLevel1")) || (__fields.keeps("administrativeAreaLevel1") && obj["administrativeAreaLevel1"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("administrativeAreaLevel1")) ? "administrativeAreaLevel1" in obj : (__fields.keeps("administrativeAreaLevel1") && obj["administrativeAreaLevel1"] !== undefined)) {
         const __raw_administrativeAreaLevel1 = obj["administrativeAreaLevel1"] as string;
 
         if (!(typeof __raw_administrativeAreaLevel1 === "string")) {
@@ -353,7 +350,7 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.administrativeAreaLevel1 = __raw_administrativeAreaLevel1;
         }
     }
-    if ((__fields === undefined || __fields.requires("country")) || (__fields.keeps("country") && obj["country"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("country")) ? "country" in obj : (__fields.keeps("country") && obj["country"] !== undefined)) {
         const __raw_country = obj["country"] as string;
 
         if (!(typeof __raw_country === "string")) {
@@ -365,7 +362,7 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.country = __raw_country;
         }
     }
-    if ((__fields === undefined || __fields.requires("postalCode")) || (__fields.keeps("postalCode") && obj["postalCode"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("postalCode")) ? "postalCode" in obj : (__fields.keeps("postalCode") && obj["postalCode"] !== undefined)) {
         const __raw_postalCode = obj["postalCode"] as string;
 
         if (!(typeof __raw_postalCode === "string")) {
@@ -377,7 +374,7 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.postalCode = __raw_postalCode;
         }
     }
-    if ((__fields === undefined || __fields.requires("postalCodeSuffix")) || (__fields.keeps("postalCodeSuffix") && obj["postalCodeSuffix"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("postalCodeSuffix")) ? "postalCodeSuffix" in obj : (__fields.keeps("postalCodeSuffix") && obj["postalCodeSuffix"] !== undefined)) {
         const __raw_postalCodeSuffix = obj["postalCodeSuffix"] as string | null;
 
         if (!(typeof __raw_postalCodeSuffix === "string" || __raw_postalCodeSuffix === null)) {
@@ -386,7 +383,7 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.postalCodeSuffix = __raw_postalCodeSuffix;
         }
     }
-    if ((__fields === undefined || __fields.requires("coordinates")) || (__fields.keeps("coordinates") && obj["coordinates"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("coordinates")) ? "coordinates" in obj : (__fields.keeps("coordinates") && obj["coordinates"] !== undefined)) {
         const __raw_coordinates = obj["coordinates"] as Coordinates;
 
         ctx.pushScope("coordinates");
@@ -402,7 +399,8 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "coordinates", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
@@ -1103,24 +1101,24 @@ export declare const Site: {
 
 ## Mapping
 
-original 0..116 -> expanded 807..923
-original 165..210 -> expanded 923..968
-original 251..353 -> expanded 968..1070
-original 394..511 -> expanded 1070..1187
-original 552..595 -> expanded 1187..1230
-original 636..662 -> expanded 1230..1256
-original 703..796 -> expanded 1256..1349
-original 796..797 -> expanded 44067..44068
-generated 0..807 <- imports
-generated 1349..1783 <- Default
-generated 1783..6067 <- Encode
-generated 6067..24977 <- Decode
-generated 24977..42909 <- Gigaform
-generated 42909..44067 <- __convenience_const
+original 0..116 -> expanded 879..995
+original 165..210 -> expanded 995..1040
+original 251..353 -> expanded 1040..1142
+original 394..511 -> expanded 1142..1259
+original 552..595 -> expanded 1259..1302
+original 636..662 -> expanded 1302..1328
+original 703..796 -> expanded 1328..1421
+original 796..797 -> expanded 44512..44513
+generated 0..879 <- imports
+generated 1421..1855 <- Default
+generated 1855..6125 <- Encode
+generated 6125..25422 <- Decode
+generated 25422..43354 <- Gigaform
+generated 43354..44512 <- __convenience_const
 
 ## Metadata
 
-interface Site: {"body_span":{"end":797,"start":189},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":166,"start":117}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":206,"start":195},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":252,"start":211}}],"name":"addressLine1","optional":false,"readonly":false,"span":{"end":278,"start":257},"ts_type":"string"},{"decorators":[],"name":"addressLine2","optional":false,"readonly":false,"span":{"end":311,"start":283},"ts_type":"string | null"},{"decorators":[],"name":"sublocalityLevel1","optional":false,"readonly":false,"span":{"end":349,"start":316},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":395,"start":354}}],"name":"locality","optional":false,"readonly":false,"span":{"end":417,"start":400},"ts_type":"string"},{"decorators":[],"name":"administrativeAreaLevel3","optional":false,"readonly":false,"span":{"end":462,"start":422},"ts_type":"string | null"},{"decorators":[],"name":"administrativeAreaLevel2","optional":false,"readonly":false,"span":{"end":507,"start":467},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":553,"start":512}}],"name":"administrativeAreaLevel1","optional":false,"readonly":false,"span":{"end":591,"start":558},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":637,"start":596}}],"name":"country","optional":false,"readonly":false,"span":{"end":658,"start":642},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":704,"start":663}}],"name":"postalCode","optional":false,"readonly":false,"span":{"end":728,"start":709},"ts_type":"string"},{"decorators":[],"name":"postalCodeSuffix","optional":false,"readonly":false,"span":{"end":765,"start":733},"ts_type":"string | null"},{"decorators":[],"name":"coordinates","optional":false,"readonly":false,"span":{"end":795,"start":770},"ts_type":"Coordinates"}],"heritage":[],"methods":[],"name":"Site","span":{"end":797,"start":174},"type_params":[]}
+interface Site: {"body_span":{"end":797,"start":189},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":166,"start":117}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":206,"start":195},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":252,"start":211}}],"key":"Named","name":"addressLine1","optional":false,"readonly":false,"span":{"end":278,"start":257},"ts_type":"string"},{"decorators":[],"key":"Named","name":"addressLine2","optional":false,"readonly":false,"span":{"end":311,"start":283},"ts_type":"string | null"},{"decorators":[],"key":"Named","name":"sublocalityLevel1","optional":false,"readonly":false,"span":{"end":349,"start":316},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":395,"start":354}}],"key":"Named","name":"locality","optional":false,"readonly":false,"span":{"end":417,"start":400},"ts_type":"string"},{"decorators":[],"key":"Named","name":"administrativeAreaLevel3","optional":false,"readonly":false,"span":{"end":462,"start":422},"ts_type":"string | null"},{"decorators":[],"key":"Named","name":"administrativeAreaLevel2","optional":false,"readonly":false,"span":{"end":507,"start":467},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":553,"start":512}}],"key":"Named","name":"administrativeAreaLevel1","optional":false,"readonly":false,"span":{"end":591,"start":558},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":637,"start":596}}],"key":"Named","name":"country","optional":false,"readonly":false,"span":{"end":658,"start":642},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":704,"start":663}}],"key":"Named","name":"postalCode","optional":false,"readonly":false,"span":{"end":728,"start":709},"ts_type":"string"},{"decorators":[],"key":"Named","name":"postalCodeSuffix","optional":false,"readonly":false,"span":{"end":765,"start":733},"ts_type":"string | null"},{"decorators":[],"key":"Named","name":"coordinates","optional":false,"readonly":false,"span":{"end":795,"start":770},"ts_type":"Coordinates"}],"heritage":[],"methods":[],"name":"Site","span":{"end":797,"start":174},"type_params":[]}
 
 ## Registry reads
 

@@ -22,7 +22,7 @@ import { representsDecodeWithContext, representsEncodeWithContext } from "./repr
 import { sectorDecodeWithContext, sectorEncodeWithContext } from "./sector.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { taxRateDecodeWithContext, taxRateEncodeWithContext } from "./tax-rate.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -132,12 +132,9 @@ export function accountEncode(value: Account, keepMetadata?: boolean): string {
 export function accountEncodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Account",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Account" });
     accountEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -413,7 +410,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -422,7 +419,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("taxRate")) || (__fields.keeps("taxRate") && obj["taxRate"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("taxRate")) ? "taxRate" in obj : (__fields.keeps("taxRate") && obj["taxRate"] !== undefined)) {
         const __raw_taxRate = obj["taxRate"] as string | TaxRate;
 
         if (typeof __raw_taxRate === "string") {
@@ -441,14 +438,15 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "taxRate", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("site")) || (__fields.keeps("site") && obj["site"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("site")) ? "site" in obj : (__fields.keeps("site") && obj["site"] !== undefined)) {
         const __raw_site = obj["site"] as string | Site;
 
         if (typeof __raw_site === "string") {
@@ -467,14 +465,15 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "site", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("salesRep")) || (__fields.keeps("salesRep") && obj["salesRep"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("salesRep")) ? "salesRep" in obj : (__fields.keeps("salesRep") && obj["salesRep"] !== undefined)) {
         const __raw_salesRep = obj["salesRep"] as Array<Represents> | null;
 
         if (__raw_salesRep === null) {
@@ -503,7 +502,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("orders")) || (__fields.keeps("orders") && obj["orders"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("orders")) ? "orders" in obj : (__fields.keeps("orders") && obj["orders"] !== undefined)) {
         const __raw_orders = obj["orders"] as Array<Ordered>;
         if (Array.isArray(__raw_orders)) {
             ctx.pushScope("orders");
@@ -527,7 +526,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             errors.push({ field: "orders", message: __raw_orders == null ? "Account.orders is required" : "expected Array<Ordered>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("activity")) || (__fields.keeps("activity") && obj["activity"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("activity")) ? "activity" in obj : (__fields.keeps("activity") && obj["activity"] !== undefined)) {
         const __raw_activity = obj["activity"] as Array<Did>;
         if (Array.isArray(__raw_activity)) {
             ctx.pushScope("activity");
@@ -551,7 +550,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             errors.push({ field: "activity", message: __raw_activity == null ? "Account.activity is required" : "expected Array<Did>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("customFields")) || (__fields.keeps("customFields") && obj["customFields"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("customFields")) ? "customFields" in obj : (__fields.keeps("customFields") && obj["customFields"] !== undefined)) {
         const __raw_customFields = obj["customFields"] as Array<[string, string]>;
         if (Array.isArray(__raw_customFields)) {
             ctx.pushScope("customFields");
@@ -575,7 +574,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             errors.push({ field: "customFields", message: __raw_customFields == null ? "Account.customFields is required" : "expected Array<[string, string]>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("accountName")) || (__fields.keeps("accountName") && obj["accountName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("accountName")) ? "accountName" in obj : (__fields.keeps("accountName") && obj["accountName"] !== undefined)) {
         const __raw_accountName = obj["accountName"] as AccountName;
 
         ctx.pushScope("accountName");
@@ -591,13 +590,14 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "accountName", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("sector")) || (__fields.keeps("sector") && obj["sector"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("sector")) ? "sector" in obj : (__fields.keeps("sector") && obj["sector"] !== undefined)) {
         const __raw_sector = obj["sector"] as Sector;
 
         ctx.pushScope("sector");
@@ -613,13 +613,14 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "sector", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("memo")) || (__fields.keeps("memo") && obj["memo"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("memo")) ? "memo" in obj : (__fields.keeps("memo") && obj["memo"] !== undefined)) {
         const __raw_memo = obj["memo"] as string | null;
 
         if (!(typeof __raw_memo === "string" || __raw_memo === null)) {
@@ -628,7 +629,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.memo = __raw_memo;
         }
     }
-    if ((__fields === undefined || __fields.requires("phones")) || (__fields.keeps("phones") && obj["phones"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("phones")) ? "phones" in obj : (__fields.keeps("phones") && obj["phones"] !== undefined)) {
         const __raw_phones = obj["phones"] as Array<PhoneNumber>;
         if (Array.isArray(__raw_phones)) {
             ctx.pushScope("phones");
@@ -652,7 +653,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             errors.push({ field: "phones", message: __raw_phones == null ? "Account.phones is required" : "expected Array<PhoneNumber>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
         const __raw_email = obj["email"] as Email;
 
         ctx.pushScope("email");
@@ -668,13 +669,14 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "email", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("leadSource")) || (__fields.keeps("leadSource") && obj["leadSource"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("leadSource")) ? "leadSource" in obj : (__fields.keeps("leadSource") && obj["leadSource"] !== undefined)) {
         const __raw_leadSource = obj["leadSource"] as string;
 
         if (!(typeof __raw_leadSource === "string")) {
@@ -686,7 +688,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.leadSource = __raw_leadSource;
         }
     }
-    if ((__fields === undefined || __fields.requires("colors")) || (__fields.keeps("colors") && obj["colors"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("colors")) ? "colors" in obj : (__fields.keeps("colors") && obj["colors"] !== undefined)) {
         const __raw_colors = obj["colors"] as Colors;
 
         ctx.pushScope("colors");
@@ -702,13 +704,14 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "colors", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("needsReview")) || (__fields.keeps("needsReview") && obj["needsReview"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("needsReview")) ? "needsReview" in obj : (__fields.keeps("needsReview") && obj["needsReview"] !== undefined)) {
         const __raw_needsReview = obj["needsReview"] as boolean;
 
         if (!(typeof __raw_needsReview === "boolean")) {
@@ -717,7 +720,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.needsReview = __raw_needsReview;
         }
     }
-    if ((__fields === undefined || __fields.requires("hasAlert")) || (__fields.keeps("hasAlert") && obj["hasAlert"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("hasAlert")) ? "hasAlert" in obj : (__fields.keeps("hasAlert") && obj["hasAlert"] !== undefined)) {
         const __raw_hasAlert = obj["hasAlert"] as boolean;
 
         if (!(typeof __raw_hasAlert === "boolean")) {
@@ -726,7 +729,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.hasAlert = __raw_hasAlert;
         }
     }
-    if ((__fields === undefined || __fields.requires("accountType")) || (__fields.keeps("accountType") && obj["accountType"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("accountType")) ? "accountType" in obj : (__fields.keeps("accountType") && obj["accountType"] !== undefined)) {
         const __raw_accountType = obj["accountType"] as string;
 
         if (!(typeof __raw_accountType === "string")) {
@@ -738,7 +741,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.accountType = __raw_accountType;
         }
     }
-    if ((__fields === undefined || __fields.requires("subtype")) || (__fields.keeps("subtype") && obj["subtype"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("subtype")) ? "subtype" in obj : (__fields.keeps("subtype") && obj["subtype"] !== undefined)) {
         const __raw_subtype = obj["subtype"] as string;
 
         if (!(typeof __raw_subtype === "string")) {
@@ -750,7 +753,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.subtype = __raw_subtype;
         }
     }
-    if ((__fields === undefined || __fields.requires("isTaxExempt")) || (__fields.keeps("isTaxExempt") && obj["isTaxExempt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("isTaxExempt")) ? "isTaxExempt" in obj : (__fields.keeps("isTaxExempt") && obj["isTaxExempt"] !== undefined)) {
         const __raw_isTaxExempt = obj["isTaxExempt"] as boolean;
 
         if (!(typeof __raw_isTaxExempt === "boolean")) {
@@ -759,7 +762,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.isTaxExempt = __raw_isTaxExempt;
         }
     }
-    if ((__fields === undefined || __fields.requires("paymentTerms")) || (__fields.keeps("paymentTerms") && obj["paymentTerms"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("paymentTerms")) ? "paymentTerms" in obj : (__fields.keeps("paymentTerms") && obj["paymentTerms"] !== undefined)) {
         const __raw_paymentTerms = obj["paymentTerms"] as string;
 
         if (!(typeof __raw_paymentTerms === "string")) {
@@ -771,7 +774,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.paymentTerms = __raw_paymentTerms;
         }
     }
-    if ((__fields === undefined || __fields.requires("tags")) || (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
         const __raw_tags = obj["tags"] as Array<string>;
         if (Array.isArray(__raw_tags)) {
             ctx.pushScope("tags");
@@ -795,7 +798,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             errors.push({ field: "tags", message: __raw_tags == null ? "Account.tags is required" : "expected Array<string>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("dateAdded")) || (__fields.keeps("dateAdded") && obj["dateAdded"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("dateAdded")) ? "dateAdded" in obj : (__fields.keeps("dateAdded") && obj["dateAdded"] !== undefined)) {
         const __raw_dateAdded = obj["dateAdded"] as string;
 
         if (!(typeof __raw_dateAdded === "string")) {
@@ -2063,48 +2066,48 @@ export declare const Account: {
 
 ## Mapping
 
-original 0..551 -> expanded 1743..2294
-original 600..632 -> expanded 2294..2326
-original 660..681 -> expanded 2326..2347
-original 781..786 -> expanded 2347..2352
-original 805..841 -> expanded 2352..2388
-original 890..895 -> expanded 2388..2393
-original 914..944 -> expanded 2393..2423
-original 1033..1078 -> expanded 2423..2468
-original 1106..1139 -> expanded 2468..2501
-original 1167..1198 -> expanded 2501..2532
-original 1258..1306 -> expanded 2532..2580
-original 1438..1473 -> expanded 2580..2615
-original 1654..1659 -> expanded 2615..2620
-original 1689..1714 -> expanded 2620..2645
-original 1759..1789 -> expanded 2645..2675
-original 1842..1879 -> expanded 2675..2712
-original 1927..1950 -> expanded 2712..2735
-original 2021..2026 -> expanded 2735..2740
-original 2067..2096 -> expanded 2740..2769
-original 2124..2149 -> expanded 2769..2794
-original 2200..2231 -> expanded 2794..2825
-original 2279..2307 -> expanded 2825..2853
-original 2379..2384 -> expanded 2853..2858
-original 2425..2455 -> expanded 2858..2888
-original 2522..2527 -> expanded 2888..2893
-original 2568..2594 -> expanded 2893..2919
-original 2643..2674 -> expanded 2919..2950
-original 2747..2752 -> expanded 2950..2955
-original 2793..2824 -> expanded 2955..2986
-original 2865..2895 -> expanded 2986..3016
-original 2923..2948 -> expanded 3016..3041
-original 2948..2949 -> expanded 78852..78853
-generated 0..1743 <- imports
-generated 3041..3671 <- Default
-generated 3671..9898 <- Encode
-generated 9898..39894 <- Decode
-generated 39894..77613 <- Gigaform
-generated 77613..78852 <- __convenience_const
+original 0..551 -> expanded 1815..2366
+original 600..632 -> expanded 2366..2398
+original 660..681 -> expanded 2398..2419
+original 781..786 -> expanded 2419..2424
+original 805..841 -> expanded 2424..2460
+original 890..895 -> expanded 2460..2465
+original 914..944 -> expanded 2465..2495
+original 1033..1078 -> expanded 2495..2540
+original 1106..1139 -> expanded 2540..2573
+original 1167..1198 -> expanded 2573..2604
+original 1258..1306 -> expanded 2604..2652
+original 1438..1473 -> expanded 2652..2687
+original 1654..1659 -> expanded 2687..2692
+original 1689..1714 -> expanded 2692..2717
+original 1759..1789 -> expanded 2717..2747
+original 1842..1879 -> expanded 2747..2784
+original 1927..1950 -> expanded 2784..2807
+original 2021..2026 -> expanded 2807..2812
+original 2067..2096 -> expanded 2812..2841
+original 2124..2149 -> expanded 2841..2866
+original 2200..2231 -> expanded 2866..2897
+original 2279..2307 -> expanded 2897..2925
+original 2379..2384 -> expanded 2925..2930
+original 2425..2455 -> expanded 2930..2960
+original 2522..2527 -> expanded 2960..2965
+original 2568..2594 -> expanded 2965..2991
+original 2643..2674 -> expanded 2991..3022
+original 2747..2752 -> expanded 3022..3027
+original 2793..2824 -> expanded 3027..3058
+original 2865..2895 -> expanded 3058..3088
+original 2923..2948 -> expanded 3088..3113
+original 2948..2949 -> expanded 79821..79822
+generated 0..1815 <- imports
+generated 3113..3743 <- Default
+generated 3743..9956 <- Encode
+generated 9956..40863 <- Decode
+generated 40863..78582 <- Gigaform
+generated 78582..79821 <- __convenience_const
 
 ## Metadata
 
-interface Account: {"body_span":{"end":2949,"start":627},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":601,"start":552}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":661,"start":633}}],"name":"id","optional":false,"readonly":false,"span":{"end":677,"start":666},"ts_type":"string"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":806,"start":787}},{"args_src":"{ label: \"Tax Rate\", allowCustom: false, fetchUrls: [\"/api/tax_rates\"] }","name":"comboboxController","span":{"end":782,"start":682}}],"name":"taxRate","optional":false,"readonly":false,"span":{"end":837,"start":811},"ts_type":"string | TaxRate"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":915,"start":896}},{"args_src":"{ label: \"Site\" }","name":"siteFieldsetController","span":{"end":891,"start":842}}],"name":"site","optional":false,"readonly":false,"span":{"end":940,"start":920},"ts_type":"string | Site"},{"decorators":[{"args_src":"{ label: \"Sales Rep\", fetchUrls: [\"/api/employees\"] }","name":"comboboxMultipleController","span":{"end":1034,"start":945}}],"name":"salesRep","optional":false,"readonly":false,"span":{"end":1074,"start":1039},"ts_type":"Array<Represents> | null"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1107,"start":1079}}],"name":"orders","optional":false,"readonly":false,"span":{"end":1135,"start":1112},"ts_type":"Array<Ordered>"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1168,"start":1140}}],"name":"activity","optional":false,"readonly":false,"span":{"end":1194,"start":1173},"ts_type":"Array<Did>"},{"decorators":[{"args_src":"{ legend: \"Custom Fields\" }","name":"arrayFieldsetController","span":{"end":1259,"start":1199}}],"name":"customFields","optional":false,"readonly":false,"span":{"end":1302,"start":1264},"ts_type":"Array<[string, string]>"},{"decorators":[{"args_src":"{ legend: \"Name\", variants: { CompanyName: { label: \"Company\" }, PersonName: { label: \"Person\" } } }","name":"enumFieldsetController","span":{"end":1439,"start":1307}}],"name":"accountName","optional":false,"readonly":false,"span":{"end":1469,"start":1444},"ts_type":"AccountName"},{"decorators":[{"args_src":"\"Residential\"","name":"default","span":{"end":1690,"start":1660}},{"args_src":"{ label: \"Sector\", options: [{ label: \"Residential\", value: \"Residential\" }, { label: \"Commercial\", value: \"Commercial\" }], orientation: \"horizontal\" }","name":"radioGroupController","span":{"end":1655,"start":1474}}],"name":"sector","optional":false,"readonly":false,"span":{"end":1710,"start":1695},"ts_type":"Sector"},{"decorators":[{"args_src":"{ label: \"Memo\" }","name":"textAreaController","span":{"end":1760,"start":1715}}],"name":"memo","optional":false,"readonly":false,"span":{"end":1785,"start":1765},"ts_type":"string | null"},{"decorators":[{"args_src":"{ legend: \"Phones\" }","name":"arrayFieldsetController","span":{"end":1843,"start":1790}}],"name":"phones","optional":false,"readonly":false,"span":{"end":1875,"start":1848},"ts_type":"Array<PhoneNumber>"},{"decorators":[{"args_src":"{ label: \"Email\" }","name":"emailFieldController","span":{"end":1928,"start":1880}}],"name":"email","optional":false,"readonly":false,"span":{"end":1946,"start":1933},"ts_type":"Email"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":2068,"start":2027}},{"args_src":"{ label: \"Lead Source\", allowCustom: true }","name":"comboboxController","span":{"end":2022,"start":1951}}],"name":"leadSource","optional":false,"readonly":false,"span":{"end":2092,"start":2073},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":2125,"start":2097}}],"name":"colors","optional":false,"readonly":false,"span":{"end":2145,"start":2130},"ts_type":"Colors"},{"decorators":[{"args_src":"{ label: \"Needs Review\" }","name":"toggleController","span":{"end":2201,"start":2150}}],"name":"needsReview","optional":false,"readonly":false,"span":{"end":2227,"start":2206},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Has Alert\" }","name":"toggleController","span":{"end":2280,"start":2232}}],"name":"hasAlert","optional":false,"readonly":false,"span":{"end":2303,"start":2285},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":2426,"start":2385}},{"args_src":"{ label: \"Account Type\", allowCustom: true }","name":"comboboxController","span":{"end":2380,"start":2308}}],"name":"accountType","optional":false,"readonly":false,"span":{"end":2451,"start":2431},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":2569,"start":2528}},{"args_src":"{ label: \"Subtype\", allowCustom: true }","name":"comboboxController","span":{"end":2523,"start":2456}}],"name":"subtype","optional":false,"readonly":false,"span":{"end":2590,"start":2574},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Tax Exempt\" }","name":"toggleController","span":{"end":2644,"start":2595}}],"name":"isTaxExempt","optional":false,"readonly":false,"span":{"end":2670,"start":2649},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":2794,"start":2753}},{"args_src":"{ label: \"Payment Terms\", allowCustom: true }","name":"comboboxController","span":{"end":2748,"start":2675}}],"name":"paymentTerms","optional":false,"readonly":false,"span":{"end":2820,"start":2799},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Tags\" }","name":"tagsController","span":{"end":2866,"start":2825}}],"name":"tags","optional":false,"readonly":false,"span":{"end":2891,"start":2871},"ts_type":"Array<string>"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":2924,"start":2896}}],"name":"dateAdded","optional":false,"readonly":false,"span":{"end":2947,"start":2929},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Account","span":{"end":2949,"start":609},"type_params":[]}
+interface Account: {"body_span":{"end":2949,"start":627},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":601,"start":552}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":661,"start":633}}],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":677,"start":666},"ts_type":"string"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":806,"start":787}},{"args_src":"{ label: \"Tax Rate\", allowCustom: false, fetchUrls: [\"/api/tax_rates\"] }","name":"comboboxController","span":{"end":782,"start":682}}],"key":"Named","name":"taxRate","optional":false,"readonly":false,"span":{"end":837,"start":811},"ts_type":"string | TaxRate"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":915,"start":896}},{"args_src":"{ label: \"Site\" }","name":"siteFieldsetController","span":{"end":891,"start":842}}],"key":"Named","name":"site","optional":false,"readonly":false,"span":{"end":940,"start":920},"ts_type":"string | Site"},{"decorators":[{"args_src":"{ label: \"Sales Rep\", fetchUrls: [\"/api/employees\"] }","name":"comboboxMultipleController","span":{"end":1034,"start":945}}],"key":"Named","name":"salesRep","optional":false,"readonly":false,"span":{"end":1074,"start":1039},"ts_type":"Array<Represents> | null"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1107,"start":1079}}],"key":"Named","name":"orders","optional":false,"readonly":false,"span":{"end":1135,"start":1112},"ts_type":"Array<Ordered>"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1168,"start":1140}}],"key":"Named","name":"activity","optional":false,"readonly":false,"span":{"end":1194,"start":1173},"ts_type":"Array<Did>"},{"decorators":[{"args_src":"{ legend: \"Custom Fields\" }","name":"arrayFieldsetController","span":{"end":1259,"start":1199}}],"key":"Named","name":"customFields","optional":false,"readonly":false,"span":{"end":1302,"start":1264},"ts_type":"Array<[string, string]>"},{"decorators":[{"args_src":"{ legend: \"Name\", variants: { CompanyName: { label: \"Company\" }, PersonName: { label: \"Person\" } } }","name":"enumFieldsetController","span":{"end":1439,"start":1307}}],"key":"Named","name":"accountName","optional":false,"readonly":false,"span":{"end":1469,"start":1444},"ts_type":"AccountName"},{"decorators":[{"args_src":"\"Residential\"","name":"default","span":{"end":1690,"start":1660}},{"args_src":"{ label: \"Sector\", options: [{ label: \"Residential\", value: \"Residential\" }, { label: \"Commercial\", value: \"Commercial\" }], orientation: \"horizontal\" }","name":"radioGroupController","span":{"end":1655,"start":1474}}],"key":"Named","name":"sector","optional":false,"readonly":false,"span":{"end":1710,"start":1695},"ts_type":"Sector"},{"decorators":[{"args_src":"{ label: \"Memo\" }","name":"textAreaController","span":{"end":1760,"start":1715}}],"key":"Named","name":"memo","optional":false,"readonly":false,"span":{"end":1785,"start":1765},"ts_type":"string | null"},{"decorators":[{"args_src":"{ legend: \"Phones\" }","name":"arrayFieldsetController","span":{"end":1843,"start":1790}}],"key":"Named","name":"phones","optional":false,"readonly":false,"span":{"end":1875,"start":1848},"ts_type":"Array<PhoneNumber>"},{"decorators":[{"args_src":"{ label: \"Email\" }","name":"emailFieldController","span":{"end":1928,"start":1880}}],"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":1946,"start":1933},"ts_type":"Email"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":2068,"start":2027}},{"args_src":"{ label: \"Lead Source\", allowCustom: true }","name":"comboboxController","span":{"end":2022,"start":1951}}],"key":"Named","name":"leadSource","optional":false,"readonly":false,"span":{"end":2092,"start":2073},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":2125,"start":2097}}],"key":"Named","name":"colors","optional":false,"readonly":false,"span":{"end":2145,"start":2130},"ts_type":"Colors"},{"decorators":[{"args_src":"{ label: \"Needs Review\" }","name":"toggleController","span":{"end":2201,"start":2150}}],"key":"Named","name":"needsReview","optional":false,"readonly":false,"span":{"end":2227,"start":2206},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Has Alert\" }","name":"toggleController","span":{"end":2280,"start":2232}}],"key":"Named","name":"hasAlert","optional":false,"readonly":false,"span":{"end":2303,"start":2285},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":2426,"start":2385}},{"args_src":"{ label: \"Account Type\", allowCustom: true }","name":"comboboxController","span":{"end":2380,"start":2308}}],"key":"Named","name":"accountType","optional":false,"readonly":false,"span":{"end":2451,"start":2431},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":2569,"start":2528}},{"args_src":"{ label: \"Subtype\", allowCustom: true }","name":"comboboxController","span":{"end":2523,"start":2456}}],"key":"Named","name":"subtype","optional":false,"readonly":false,"span":{"end":2590,"start":2574},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Tax Exempt\" }","name":"toggleController","span":{"end":2644,"start":2595}}],"key":"Named","name":"isTaxExempt","optional":false,"readonly":false,"span":{"end":2670,"start":2649},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":2794,"start":2753}},{"args_src":"{ label: \"Payment Terms\", allowCustom: true }","name":"comboboxController","span":{"end":2748,"start":2675}}],"key":"Named","name":"paymentTerms","optional":false,"readonly":false,"span":{"end":2820,"start":2799},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Tags\" }","name":"tagsController","span":{"end":2866,"start":2825}}],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":2891,"start":2871},"ts_type":"Array<string>"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":2924,"start":2896}}],"key":"Named","name":"dateAdded","optional":false,"readonly":false,"span":{"end":2947,"start":2929},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Account","span":{"end":2949,"start":609},"type_params":[]}
 
 ## Registry reads
 

@@ -76,7 +76,7 @@ export function pairDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
     const errors: Array<{ field: string; message: string }> = [];
     const instance: any = {};
 
-    {
+    if ("_root" in obj) {
         const __raw__root = obj["_root"] as $Newtype<number, string>;
 
         instance._root = __raw__root;
@@ -129,10 +129,10 @@ Error [36..60]: $Newtype takes exactly one type argument, got 2
 ## Mapping
 
 original 22..60 -> expanded 194..232
-original 60..61 -> expanded 2729..2730
+original 60..61 -> expanded 2749..2750
 generated 0..194 <- imports
-generated 232..2430 <- Decode
-generated 2430..2729 <- __convenience_const
+generated 232..2450 <- Decode
+generated 2450..2749 <- __convenience_const
 
 ## Metadata
 

@@ -14,7 +14,7 @@ true
 
 import { intervalDecodeWithContext, intervalEncodeWithContext, intervalDefaultValue } from "./interval.svelte";
 import { recurrenceEndDecodeWithContext, recurrenceEndEncodeWithContext } from "./recurrence-end.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -54,12 +54,9 @@ export function recurrenceRuleEncode(value: RecurrenceRule, keepMetadata?: boole
 export function recurrenceRuleEncodeWithContext(value: RecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "RecurrenceRule",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "RecurrenceRule" });
     recurrenceRuleEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -199,7 +196,7 @@ export function recurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("interval")) || (__fields.keeps("interval") && obj["interval"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("interval")) ? "interval" in obj : (__fields.keeps("interval") && obj["interval"] !== undefined)) {
         const __raw_interval = obj["interval"] as Interval;
 
         ctx.pushScope("interval");
@@ -215,13 +212,14 @@ export function recurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_Decode
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "interval", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("recurrenceBegins")) || (__fields.keeps("recurrenceBegins") && obj["recurrenceBegins"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("recurrenceBegins")) ? "recurrenceBegins" in obj : (__fields.keeps("recurrenceBegins") && obj["recurrenceBegins"] !== undefined)) {
         const __raw_recurrenceBegins = obj["recurrenceBegins"] as string;
 
         if (!(typeof __raw_recurrenceBegins === "string")) {
@@ -230,7 +228,7 @@ export function recurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_Decode
             instance.recurrenceBegins = __raw_recurrenceBegins;
         }
     }
-    if ((__fields === undefined || __fields.requires("recurrenceEnds")) || (__fields.keeps("recurrenceEnds") && obj["recurrenceEnds"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("recurrenceEnds")) ? "recurrenceEnds" in obj : (__fields.keeps("recurrenceEnds") && obj["recurrenceEnds"] !== undefined)) {
         const __raw_recurrenceEnds = obj["recurrenceEnds"] as RecurrenceEnd | null;
 
         if (__raw_recurrenceEnds === null) {
@@ -249,14 +247,15 @@ export function recurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_Decode
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "recurrenceEnds", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("cancelledInstances")) || (__fields.keeps("cancelledInstances") && obj["cancelledInstances"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("cancelledInstances")) ? "cancelledInstances" in obj : (__fields.keeps("cancelledInstances") && obj["cancelledInstances"] !== undefined)) {
         const __raw_cancelledInstances = obj["cancelledInstances"] as Array<string> | null;
 
         if (__raw_cancelledInstances === null) {
@@ -285,7 +284,7 @@ export function recurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_Decode
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("additionalInstances")) || (__fields.keeps("additionalInstances") && obj["additionalInstances"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("additionalInstances")) ? "additionalInstances" in obj : (__fields.keeps("additionalInstances") && obj["additionalInstances"] !== undefined)) {
         const __raw_additionalInstances = obj["additionalInstances"] as Array<string> | null;
 
         if (__raw_additionalInstances === null) {
@@ -719,19 +718,19 @@ export declare const RecurrenceRule: {
 
 ## Mapping
 
-original 0..172 -> expanded 969..1141
-original 221..446 -> expanded 1141..1366
-original 446..447 -> expanded 27269..27270
-generated 0..969 <- imports
-generated 1366..1623 <- Default
-generated 1623..4796 <- Encode
-generated 4796..16265 <- Decode
-generated 16265..25841 <- Gigaform
-generated 25841..27269 <- __convenience_const
+original 0..172 -> expanded 1041..1213
+original 221..446 -> expanded 1213..1438
+original 446..447 -> expanded 27633..27634
+generated 0..1041 <- imports
+generated 1438..1695 <- Default
+generated 1695..4854 <- Encode
+generated 4854..16629 <- Decode
+generated 16629..26205 <- Gigaform
+generated 26205..27633 <- __convenience_const
 
 ## Metadata
 
-interface RecurrenceRule: {"body_span":{"end":447,"start":255},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":222,"start":173}}],"fields":[{"decorators":[],"name":"interval","optional":false,"readonly":false,"span":{"end":280,"start":261},"ts_type":"Interval"},{"decorators":[],"name":"recurrenceBegins","optional":false,"readonly":false,"span":{"end":310,"start":285},"ts_type":"string"},{"decorators":[],"name":"recurrenceEnds","optional":false,"readonly":false,"span":{"end":352,"start":315},"ts_type":"RecurrenceEnd | null"},{"decorators":[],"name":"cancelledInstances","optional":false,"readonly":false,"span":{"end":398,"start":357},"ts_type":"Array<string> | null"},{"decorators":[],"name":"additionalInstances","optional":false,"readonly":false,"span":{"end":445,"start":403},"ts_type":"Array<string> | null"}],"heritage":[],"methods":[],"name":"RecurrenceRule","span":{"end":447,"start":230},"type_params":[]}
+interface RecurrenceRule: {"body_span":{"end":447,"start":255},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":222,"start":173}}],"fields":[{"decorators":[],"key":"Named","name":"interval","optional":false,"readonly":false,"span":{"end":280,"start":261},"ts_type":"Interval"},{"decorators":[],"key":"Named","name":"recurrenceBegins","optional":false,"readonly":false,"span":{"end":310,"start":285},"ts_type":"string"},{"decorators":[],"key":"Named","name":"recurrenceEnds","optional":false,"readonly":false,"span":{"end":352,"start":315},"ts_type":"RecurrenceEnd | null"},{"decorators":[],"key":"Named","name":"cancelledInstances","optional":false,"readonly":false,"span":{"end":398,"start":357},"ts_type":"Array<string> | null"},{"decorators":[],"key":"Named","name":"additionalInstances","optional":false,"readonly":false,"span":{"end":445,"start":403},"ts_type":"Array<string> | null"}],"heritage":[],"methods":[],"name":"RecurrenceRule","span":{"end":447,"start":230},"type_params":[]}
 
 ## Registry reads
 

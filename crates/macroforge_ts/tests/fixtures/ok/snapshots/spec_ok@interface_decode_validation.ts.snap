@@ -126,7 +126,7 @@ export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
         const __raw_email = obj["email"] as string;
 
         if (!(typeof __raw_email === "string")) {
@@ -138,7 +138,7 @@ export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.email = __raw_email;
         }
     }
-    if ((__fields === undefined || __fields.requires("username")) || (__fields.keeps("username") && obj["username"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("username")) ? "username" in obj : (__fields.keeps("username") && obj["username"] !== undefined)) {
         const __raw_username = obj["username"] as string;
 
         if (!(typeof __raw_username === "string")) {
@@ -298,14 +298,14 @@ original 22..51 -> expanded 350..379
 original 71..96 -> expanded 379..404
 original 138..166 -> expanded 404..432
 original 189..209 -> expanded 432..452
-original 209..210 -> expanded 10744..10745
+original 209..210 -> expanded 10779..10780
 generated 0..350 <- imports
-generated 452..10028 <- Decode
-generated 10028..10744 <- __convenience_const
+generated 452..10063 <- Decode
+generated 10063..10779 <- __convenience_const
 
 ## Metadata
 
-interface UserProfile: {"body_span":{"end":210,"start":46},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[{"args_src":"email","name":"endec","span":{"end":72,"start":52}}],"name":"email","optional":false,"readonly":false,"span":{"end":91,"start":77},"ts_type":"string"},{"decorators":[{"args_src":"minLength(2), maxLength(50)","name":"endec","span":{"end":139,"start":97}}],"name":"username","optional":false,"readonly":false,"span":{"end":161,"start":144},"ts_type":"string"},{"decorators":[{"args_src":"positive","name":"endec","span":{"end":190,"start":167}}],"name":"age","optional":true,"readonly":false,"span":{"end":208,"start":195},"ts_type":"number"}],"heritage":[],"methods":[],"name":"UserProfile","span":{"end":210,"start":24},"type_params":[]}
+interface UserProfile: {"body_span":{"end":210,"start":46},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[{"args_src":"email","name":"endec","span":{"end":72,"start":52}}],"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":91,"start":77},"ts_type":"string"},{"decorators":[{"args_src":"minLength(2), maxLength(50)","name":"endec","span":{"end":139,"start":97}}],"key":"Named","name":"username","optional":false,"readonly":false,"span":{"end":161,"start":144},"ts_type":"string"},{"decorators":[{"args_src":"positive","name":"endec","span":{"end":190,"start":167}}],"key":"Named","name":"age","optional":true,"readonly":false,"span":{"end":208,"start":195},"ts_type":"number"}],"heritage":[],"methods":[],"name":"UserProfile","span":{"end":210,"start":24},"type_params":[]}
 
 ## Registry reads
 

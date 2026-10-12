@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -47,12 +47,9 @@ export function metadataEncode(value: Metadata, keepMetadata?: boolean): string 
 export function metadataEncodeWithContext(value: Metadata, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Metadata",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Metadata" });
     metadataEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -184,7 +181,7 @@ export function metadataDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("createdAt")) || (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
         const __raw_createdAt = obj["createdAt"] as string;
 
         if (!(typeof __raw_createdAt === "string")) {
@@ -193,7 +190,7 @@ export function metadataDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             instance.createdAt = __raw_createdAt;
         }
     }
-    if ((__fields === undefined || __fields.requires("lastLogin")) || (__fields.keeps("lastLogin") && obj["lastLogin"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("lastLogin")) ? "lastLogin" in obj : (__fields.keeps("lastLogin") && obj["lastLogin"] !== undefined)) {
         const __raw_lastLogin = obj["lastLogin"] as string | null;
 
         if (!(typeof __raw_lastLogin === "string" || __raw_lastLogin === null)) {
@@ -202,7 +199,7 @@ export function metadataDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             instance.lastLogin = __raw_lastLogin;
         }
     }
-    if ((__fields === undefined || __fields.requires("isActive")) || (__fields.keeps("isActive") && obj["isActive"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("isActive")) ? "isActive" in obj : (__fields.keeps("isActive") && obj["isActive"] !== undefined)) {
         const __raw_isActive = obj["isActive"] as boolean;
 
         if (!(typeof __raw_isActive === "boolean")) {
@@ -211,7 +208,7 @@ export function metadataDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             instance.isActive = __raw_isActive;
         }
     }
-    if ((__fields === undefined || __fields.requires("roles")) || (__fields.keeps("roles") && obj["roles"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("roles")) ? "roles" in obj : (__fields.keeps("roles") && obj["roles"] !== undefined)) {
         const __raw_roles = obj["roles"] as Array<string>;
         if (Array.isArray(__raw_roles)) {
             ctx.pushScope("roles");
@@ -600,19 +597,19 @@ export declare const Metadata: {
 
 ## Mapping
 
-original 0..58 -> expanded 773..831
-original 107..239 -> expanded 831..963
-original 239..240 -> expanded 20479..20480
-generated 0..773 <- imports
-generated 963..1129 <- Default
-generated 1129..3791 <- Encode
-generated 3791..11715 <- Decode
-generated 11715..19213 <- Gigaform
-generated 19213..20479 <- __convenience_const
+original 0..58 -> expanded 845..903
+original 107..239 -> expanded 903..1035
+original 239..240 -> expanded 20612..20613
+generated 0..845 <- imports
+generated 1035..1201 <- Default
+generated 1201..3849 <- Encode
+generated 3849..11848 <- Decode
+generated 11848..19346 <- Gigaform
+generated 19346..20612 <- __convenience_const
 
 ## Metadata
 
-interface Metadata: {"body_span":{"end":240,"start":135},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":159,"start":141},"ts_type":"string"},{"decorators":[],"name":"lastLogin","optional":false,"readonly":false,"span":{"end":189,"start":164},"ts_type":"string | null"},{"decorators":[],"name":"isActive","optional":false,"readonly":false,"span":{"end":212,"start":194},"ts_type":"boolean"},{"decorators":[],"name":"roles","optional":false,"readonly":false,"span":{"end":238,"start":217},"ts_type":"Array<string>"}],"heritage":[],"methods":[],"name":"Metadata","span":{"end":240,"start":116},"type_params":[]}
+interface Metadata: {"body_span":{"end":240,"start":135},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"key":"Named","name":"createdAt","optional":false,"readonly":false,"span":{"end":159,"start":141},"ts_type":"string"},{"decorators":[],"key":"Named","name":"lastLogin","optional":false,"readonly":false,"span":{"end":189,"start":164},"ts_type":"string | null"},{"decorators":[],"key":"Named","name":"isActive","optional":false,"readonly":false,"span":{"end":212,"start":194},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"roles","optional":false,"readonly":false,"span":{"end":238,"start":217},"ts_type":"Array<string>"}],"heritage":[],"methods":[],"name":"Metadata","span":{"end":240,"start":116},"type_params":[]}
 
 ## Registry reads
 

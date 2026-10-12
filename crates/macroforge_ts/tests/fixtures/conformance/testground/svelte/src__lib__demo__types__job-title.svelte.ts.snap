@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -53,19 +53,23 @@ export function jobTitleEncodeWithContext(value: JobTitle, ctx: __mf_EncodeConte
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
 
 /** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
 export function jobTitleDecode(input: unknown): { success: true; value: JobTitle } | { success: false; errors: Array<{ field: string; message: string }> } {
-    switch (input) {
+
+    const data = __mf_textOrValue(input, jobTitleHasShape);
+    switch (data) {
         case 'Technician':
         case 'SalesRepresentative':
         case 'HumanResources':
         case 'InformationTechnology':
-            return { success: true, value: input as JobTitle };
+            return { success: true, value: data as JobTitle };
         default:
             return { success: false, errors: [{ field: "_root", message: "Invalid value for JobTitle: expected one of " + ['Technician', 'SalesRepresentative', 'HumanResources', 'InformationTechnology'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
     }
@@ -404,15 +408,15 @@ export declare const JobTitle: {
 
 ## Mapping
 
-original 0..58 -> expanded 556..614
-original 107..247 -> expanded 614..754
-original 247..248 -> expanded 11241..11242
-generated 0..556 <- imports
-generated 754..833 <- Default
-generated 833..2089 <- Encode
-generated 2089..4120 <- Decode
-generated 4120..10451 <- Gigaform
-generated 10451..11241 <- __convenience_const
+original 0..58 -> expanded 618..676
+original 107..247 -> expanded 676..816
+original 247..248 -> expanded 11477..11478
+generated 0..618 <- imports
+generated 816..895 <- Default
+generated 895..2266 <- Encode
+generated 2266..4356 <- Decode
+generated 4356..10687 <- Gigaform
+generated 10687..11477 <- __convenience_const
 
 ## Metadata
 

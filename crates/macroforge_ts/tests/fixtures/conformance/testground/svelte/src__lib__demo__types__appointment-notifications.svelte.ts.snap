@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -45,12 +45,9 @@ export function appointmentNotificationsEncode(value: AppointmentNotifications, 
 export function appointmentNotificationsEncodeWithContext(value: AppointmentNotifications, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "AppointmentNotifications",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "AppointmentNotifications" });
     appointmentNotificationsEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -166,7 +163,7 @@ export function appointmentNotificationsDecodeWithContext(value: unknown, ctx: _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("personalScheduleChangeNotifications")) || (__fields.keeps("personalScheduleChangeNotifications") && obj["personalScheduleChangeNotifications"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("personalScheduleChangeNotifications")) ? "personalScheduleChangeNotifications" in obj : (__fields.keeps("personalScheduleChangeNotifications") && obj["personalScheduleChangeNotifications"] !== undefined)) {
         const __raw_personalScheduleChangeNotifications = obj["personalScheduleChangeNotifications"] as string;
 
         if (!(typeof __raw_personalScheduleChangeNotifications === "string")) {
@@ -178,7 +175,7 @@ export function appointmentNotificationsDecodeWithContext(value: unknown, ctx: _
             instance.personalScheduleChangeNotifications = __raw_personalScheduleChangeNotifications;
         }
     }
-    if ((__fields === undefined || __fields.requires("allScheduleChangeNotifications")) || (__fields.keeps("allScheduleChangeNotifications") && obj["allScheduleChangeNotifications"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("allScheduleChangeNotifications")) ? "allScheduleChangeNotifications" in obj : (__fields.keeps("allScheduleChangeNotifications") && obj["allScheduleChangeNotifications"] !== undefined)) {
         const __raw_allScheduleChangeNotifications = obj["allScheduleChangeNotifications"] as string;
 
         if (!(typeof __raw_allScheduleChangeNotifications === "string")) {
@@ -498,21 +495,21 @@ export declare const AppointmentNotifications: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..156 -> expanded 741..790
-original 197..251 -> expanded 790..844
-original 292..338 -> expanded 844..890
-original 338..339 -> expanded 21730..21731
-generated 0..683 <- imports
-generated 890..1089 <- Default
-generated 1089..3851 <- Encode
-generated 3851..14120 <- Decode
-generated 14120..20032 <- Gigaform
-generated 20032..21730 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..156 -> expanded 813..862
+original 197..251 -> expanded 862..916
+original 292..338 -> expanded 916..962
+original 338..339 -> expanded 21875..21876
+generated 0..755 <- imports
+generated 962..1161 <- Default
+generated 1161..3909 <- Encode
+generated 3909..14265 <- Decode
+generated 14265..20177 <- Gigaform
+generated 20177..21875 <- __convenience_const
 
 ## Metadata
 
-interface AppointmentNotifications: {"body_span":{"end":339,"start":151},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":198,"start":157}}],"name":"personalScheduleChangeNotifications","optional":false,"readonly":false,"span":{"end":247,"start":203},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":293,"start":252}}],"name":"allScheduleChangeNotifications","optional":false,"readonly":false,"span":{"end":337,"start":298},"ts_type":"string"}],"heritage":[],"methods":[],"name":"AppointmentNotifications","span":{"end":339,"start":116},"type_params":[]}
+interface AppointmentNotifications: {"body_span":{"end":339,"start":151},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":198,"start":157}}],"key":"Named","name":"personalScheduleChangeNotifications","optional":false,"readonly":false,"span":{"end":247,"start":203},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":293,"start":252}}],"key":"Named","name":"allScheduleChangeNotifications","optional":false,"readonly":false,"span":{"end":337,"start":298},"ts_type":"string"}],"heritage":[],"methods":[],"name":"AppointmentNotifications","span":{"end":339,"start":116},"type_params":[]}
 
 ## Registry reads
 

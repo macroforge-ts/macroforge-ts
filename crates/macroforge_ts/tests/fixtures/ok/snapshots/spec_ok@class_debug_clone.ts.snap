@@ -24,7 +24,7 @@ true
 
 ## Output
 
-import { instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith } from "@macroforge/core/structural";
 import { Derive } from '@macro/derive';
 
 
@@ -38,14 +38,16 @@ class User {
     }
 
     static toString(value: User): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("id: " + String(value.id));
         parts.push("name: " + String(value.name));
-        return "User { " + parts.join(", ") + " }";
+            return "User { " + parts.join(", ") + " }";
+        });
     }
 
     static clone(value: User): User {
-        return __mf_instanceWith(value, ({
+        return __mf_clonedWith(value, () => ({
         	id: value.id,
         	name: value.name
         }));
@@ -79,19 +81,19 @@ export {};
 
 ## Mapping
 
-original 0..41 -> expanded 81..122
-original 69..216 -> expanded 122..269
-original 216..217 -> expanded 655..656
-original 217..218 -> expanded 824..825
-generated 0..81 <- imports
-generated 269..505 <- Debug
-generated 505..655 <- Clone
-generated 656..744 <- Debug
-generated 744..824 <- Clone
+original 0..41 -> expanded 116..157
+original 69..216 -> expanded 157..304
+original 216..217 -> expanded 764..765
+original 217..218 -> expanded 933..934
+generated 0..116 <- imports
+generated 304..610 <- Debug
+generated 610..764 <- Clone
+generated 765..853 <- Debug
+generated 853..933 <- Clone
 
 ## Metadata
 
-class User: {"body_span":{"end":218,"start":82},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":70,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":99,"start":88},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":117,"start":104},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":216,"start":161},"body_src":"\n        this.id = id;\n        this.name = name;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: number, name: string","return_type_src":"","span":{"end":216,"start":123},"type_params":[],"visibility":"Public"}],"name":"User","span":{"end":218,"start":71},"superclass":null,"type_params":[]}
+class User: {"body_span":{"end":218,"start":82},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":70,"start":42}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":99,"start":88},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":117,"start":104},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":216,"start":161},"body_src":"\n        this.id = id;\n        this.name = name;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: number, name: string","return_type_src":"","span":{"end":216,"start":123},"type_params":[],"visibility":"Public"}],"name":"User","span":{"end":218,"start":71},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

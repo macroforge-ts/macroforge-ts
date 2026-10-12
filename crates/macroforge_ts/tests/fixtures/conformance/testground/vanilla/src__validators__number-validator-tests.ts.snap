@@ -116,7 +116,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("positive")) || (__fields.keeps("positive") && obj["positive"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("positive")) ? "positive" in obj : (__fields.keeps("positive") && obj["positive"] !== undefined)) {
         const __raw_positive = obj["positive"] as number;
 
         if (!(typeof __raw_positive === "number")) {
@@ -298,7 +298,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("nonNegative")) || (__fields.keeps("nonNegative") && obj["nonNegative"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("nonNegative")) ? "nonNegative" in obj : (__fields.keeps("nonNegative") && obj["nonNegative"] !== undefined)) {
         const __raw_nonNegative = obj["nonNegative"] as number;
 
         if (!(typeof __raw_nonNegative === "number")) {
@@ -480,7 +480,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("capped")) || (__fields.keeps("capped") && obj["capped"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("capped")) ? "capped" in obj : (__fields.keeps("capped") && obj["capped"] !== undefined)) {
         const __raw_capped = obj["capped"] as number;
 
         if (!(typeof __raw_capped === "number")) {
@@ -662,7 +662,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("maxed")) || (__fields.keeps("maxed") && obj["maxed"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("maxed")) ? "maxed" in obj : (__fields.keeps("maxed") && obj["maxed"] !== undefined)) {
         const __raw_maxed = obj["maxed"] as number;
 
         if (!(typeof __raw_maxed === "number")) {
@@ -844,7 +844,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("ranged")) || (__fields.keeps("ranged") && obj["ranged"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("ranged")) ? "ranged" in obj : (__fields.keeps("ranged") && obj["ranged"] !== undefined)) {
         const __raw_ranged = obj["ranged"] as number;
 
         if (!(typeof __raw_ranged === "number")) {
@@ -1026,7 +1026,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("integer")) || (__fields.keeps("integer") && obj["integer"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("integer")) ? "integer" in obj : (__fields.keeps("integer") && obj["integer"] !== undefined)) {
         const __raw_integer = obj["integer"] as number;
 
         if (!(typeof __raw_integer === "number")) {
@@ -1208,7 +1208,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("valid")) || (__fields.keeps("valid") && obj["valid"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("valid")) ? "valid" in obj : (__fields.keeps("valid") && obj["valid"] !== undefined)) {
         const __raw_valid = obj["valid"] as number;
 
         if (!(typeof __raw_valid === "number")) {
@@ -1390,7 +1390,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("finite")) || (__fields.keeps("finite") && obj["finite"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("finite")) ? "finite" in obj : (__fields.keeps("finite") && obj["finite"] !== undefined)) {
         const __raw_finite = obj["finite"] as number;
 
         if (!(typeof __raw_finite === "number")) {
@@ -1572,7 +1572,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("positive")) || (__fields.keeps("positive") && obj["positive"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("positive")) ? "positive" in obj : (__fields.keeps("positive") && obj["positive"] !== undefined)) {
         const __raw_positive = obj["positive"] as number;
 
         if (!(typeof __raw_positive === "number")) {
@@ -1754,7 +1754,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("nonNegative")) || (__fields.keeps("nonNegative") && obj["nonNegative"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("nonNegative")) ? "nonNegative" in obj : (__fields.keeps("nonNegative") && obj["nonNegative"] !== undefined)) {
         const __raw_nonNegative = obj["nonNegative"] as number;
 
         if (!(typeof __raw_nonNegative === "number")) {
@@ -1936,7 +1936,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("negative")) || (__fields.keeps("negative") && obj["negative"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("negative")) ? "negative" in obj : (__fields.keeps("negative") && obj["negative"] !== undefined)) {
         const __raw_negative = obj["negative"] as number;
 
         if (!(typeof __raw_negative === "number")) {
@@ -2118,7 +2118,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("nonPositive")) || (__fields.keeps("nonPositive") && obj["nonPositive"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("nonPositive")) ? "nonPositive" in obj : (__fields.keeps("nonPositive") && obj["nonPositive"] !== undefined)) {
         const __raw_nonPositive = obj["nonPositive"] as number;
 
         if (!(typeof __raw_nonPositive === "number")) {
@@ -2300,7 +2300,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("multiple")) || (__fields.keeps("multiple") && obj["multiple"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("multiple")) ? "multiple" in obj : (__fields.keeps("multiple") && obj["multiple"] !== undefined)) {
         const __raw_multiple = obj["multiple"] as number;
 
         if (!(typeof __raw_multiple === "number")) {
@@ -2482,7 +2482,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("byte")) || (__fields.keeps("byte") && obj["byte"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("byte")) ? "byte" in obj : (__fields.keeps("byte") && obj["byte"] !== undefined)) {
         const __raw_byte = obj["byte"] as number;
 
         if (!(typeof __raw_byte === "number")) {
@@ -3307,80 +3307,80 @@ export declare function uint8ValidatorIs(value: unknown): value is Uint8Validato
 ## Mapping
 
 original 0..246 -> expanded 385..631
-original 246..247 -> expanded 6873..6874
-original 247..437 -> expanded 8836..9026
-original 437..438 -> expanded 15643..15644
-original 438..589 -> expanded 17741..17892
-original 589..590 -> expanded 23987..23988
-original 590..767 -> expanded 25905..26082
-original 767..768 -> expanded 32408..32409
-original 768..919 -> expanded 34461..34612
-original 919..920 -> expanded 40736..40737
-original 920..1052 -> expanded 42639..42771
-original 1052..1053 -> expanded 48799..48800
-original 1053..1192 -> expanded 50642..50781
-original 1192..1193 -> expanded 56791..56792
-original 1193..1333 -> expanded 58679..58819
-original 1333..1334 -> expanded 64874..64875
-original 1334..1482 -> expanded 66762..66910
-original 1482..1483 -> expanded 73056..73057
-original 1483..1643 -> expanded 74974..75134
-original 1643..1644 -> expanded 81475..81476
-original 1644..1792 -> expanded 83438..83586
-original 1792..1793 -> expanded 89732..89733
-original 1793..1953 -> expanded 91650..91810
-original 1953..1954 -> expanded 98151..98152
-original 1954..2111 -> expanded 100114..100271
-original 2111..2112 -> expanded 106544..106545
-original 2112..2247 -> expanded 108492..108627
-original 2247..2248 -> expanded 114684..114685
-original 2248..2249 -> expanded 116557..116558
+original 246..247 -> expanded 6892..6893
+original 247..437 -> expanded 8855..9045
+original 437..438 -> expanded 15684..15685
+original 438..589 -> expanded 17782..17933
+original 589..590 -> expanded 24045..24046
+original 590..767 -> expanded 25963..26140
+original 767..768 -> expanded 32482..32483
+original 768..919 -> expanded 34535..34686
+original 919..920 -> expanded 40827..40828
+original 920..1052 -> expanded 42730..42862
+original 1052..1053 -> expanded 48908..48909
+original 1053..1192 -> expanded 50751..50890
+original 1192..1193 -> expanded 56916..56917
+original 1193..1333 -> expanded 58804..58944
+original 1333..1334 -> expanded 65016..65017
+original 1334..1482 -> expanded 66904..67052
+original 1482..1483 -> expanded 73217..73218
+original 1483..1643 -> expanded 75135..75295
+original 1643..1644 -> expanded 81658..81659
+original 1644..1792 -> expanded 83621..83769
+original 1792..1793 -> expanded 89934..89935
+original 1793..1953 -> expanded 91852..92012
+original 1953..1954 -> expanded 98375..98376
+original 1954..2111 -> expanded 100338..100495
+original 2111..2112 -> expanded 106787..106788
+original 2112..2247 -> expanded 108735..108870
+original 2247..2248 -> expanded 114942..114943
+original 2248..2249 -> expanded 116815..116816
 generated 0..385 <- imports
-generated 631..6873 <- Decode
-generated 6874..8836 <- Decode
-generated 9026..15643 <- Decode
-generated 15644..17741 <- Decode
-generated 17892..23987 <- Decode
-generated 23988..25905 <- Decode
-generated 26082..32408 <- Decode
-generated 32409..34461 <- Decode
-generated 34612..40736 <- Decode
-generated 40737..42639 <- Decode
-generated 42771..48799 <- Decode
-generated 48800..50642 <- Decode
-generated 50781..56791 <- Decode
-generated 56792..58679 <- Decode
-generated 58819..64874 <- Decode
-generated 64875..66762 <- Decode
-generated 66910..73056 <- Decode
-generated 73057..74974 <- Decode
-generated 75134..81475 <- Decode
-generated 81476..83438 <- Decode
-generated 83586..89732 <- Decode
-generated 89733..91650 <- Decode
-generated 91810..98151 <- Decode
-generated 98152..100114 <- Decode
-generated 100271..106544 <- Decode
-generated 106545..108492 <- Decode
-generated 108627..114684 <- Decode
-generated 114685..116557 <- Decode
+generated 631..6892 <- Decode
+generated 6893..8855 <- Decode
+generated 9045..15684 <- Decode
+generated 15685..17782 <- Decode
+generated 17933..24045 <- Decode
+generated 24046..25963 <- Decode
+generated 26140..32482 <- Decode
+generated 32483..34535 <- Decode
+generated 34686..40827 <- Decode
+generated 40828..42730 <- Decode
+generated 42862..48908 <- Decode
+generated 48909..50751 <- Decode
+generated 50890..56916 <- Decode
+generated 56917..58804 <- Decode
+generated 58944..65016 <- Decode
+generated 65017..66904 <- Decode
+generated 67052..73217 <- Decode
+generated 73218..75135 <- Decode
+generated 75295..81658 <- Decode
+generated 81659..83621 <- Decode
+generated 83769..89934 <- Decode
+generated 89935..91852 <- Decode
+generated 92012..98375 <- Decode
+generated 98376..100338 <- Decode
+generated 100495..106787 <- Decode
+generated 106788..108735 <- Decode
+generated 108870..114942 <- Decode
+generated 114943..116815 <- Decode
 
 ## Metadata
 
-class GreaterThanValidator: {"body_span":{"end":248,"start":171},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":136,"start":114}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThan(0)\"] }","name":"endec","span":{"end":224,"start":177}}],"initializer":null,"name":"positive","optional":false,"readonly":false,"span":{"end":246,"start":229},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanValidator","span":{"end":248,"start":144},"superclass":null,"type_params":[]}
-class GreaterThanOrEqualToValidator: {"body_span":{"end":439,"start":350},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":306,"start":284}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanOrEqualTo(0)\"] }","name":"endec","span":{"end":412,"start":356}}],"initializer":null,"name":"nonNegative","optional":false,"readonly":false,"span":{"end":437,"start":417},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanOrEqualToValidator","span":{"end":439,"start":314},"superclass":null,"type_params":[]}
-class LessThanValidator: {"body_span":{"end":591,"start":517},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":485,"start":463}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThan(100)\"] }","name":"endec","span":{"end":569,"start":523}}],"initializer":null,"name":"capped","optional":false,"readonly":false,"span":{"end":589,"start":574},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanValidator","span":{"end":591,"start":493},"superclass":null,"type_params":[]}
-class LessThanOrEqualToValidator: {"body_span":{"end":769,"start":687},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":646,"start":624}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanOrEqualTo(100)\"] }","name":"endec","span":{"end":748,"start":693}}],"initializer":null,"name":"maxed","optional":false,"readonly":false,"span":{"end":767,"start":753},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanOrEqualToValidator","span":{"end":769,"start":654},"superclass":null,"type_params":[]}
-class BetweenValidator: {"body_span":{"end":921,"start":845},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":814,"start":792}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"between(1, 100)\"] }","name":"endec","span":{"end":899,"start":851}}],"initializer":null,"name":"ranged","optional":false,"readonly":false,"span":{"end":919,"start":904},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"BetweenValidator","span":{"end":921,"start":822},"superclass":null,"type_params":[]}
-class IntValidator: {"body_span":{"end":1054,"start":989},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":962,"start":940}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"int\"] }","name":"endec","span":{"end":1031,"start":995}}],"initializer":null,"name":"integer","optional":false,"readonly":false,"span":{"end":1052,"start":1036},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"IntValidator","span":{"end":1054,"start":970},"superclass":null,"type_params":[]}
-class NonNaNValidator: {"body_span":{"end":1194,"start":1128},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1098,"start":1076}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNaN\"] }","name":"endec","span":{"end":1173,"start":1134}}],"initializer":null,"name":"valid","optional":false,"readonly":false,"span":{"end":1192,"start":1178},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonNaNValidator","span":{"end":1194,"start":1106},"superclass":null,"type_params":[]}
-class FiniteValidator: {"body_span":{"end":1335,"start":1268},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1238,"start":1216}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"finite\"] }","name":"endec","span":{"end":1313,"start":1274}}],"initializer":null,"name":"finite","optional":false,"readonly":false,"span":{"end":1333,"start":1318},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"FiniteValidator","span":{"end":1335,"start":1246},"superclass":null,"type_params":[]}
-class PositiveValidator: {"body_span":{"end":1484,"start":1413},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1381,"start":1359}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"positive\"] }","name":"endec","span":{"end":1460,"start":1419}}],"initializer":null,"name":"positive","optional":false,"readonly":false,"span":{"end":1482,"start":1465},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"PositiveValidator","span":{"end":1484,"start":1389},"superclass":null,"type_params":[]}
-class NonNegativeValidator: {"body_span":{"end":1645,"start":1568},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1533,"start":1511}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNegative\"] }","name":"endec","span":{"end":1618,"start":1574}}],"initializer":null,"name":"nonNegative","optional":false,"readonly":false,"span":{"end":1643,"start":1623},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonNegativeValidator","span":{"end":1645,"start":1541},"superclass":null,"type_params":[]}
-class NegativeValidator: {"body_span":{"end":1794,"start":1723},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1691,"start":1669}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"negative\"] }","name":"endec","span":{"end":1770,"start":1729}}],"initializer":null,"name":"negative","optional":false,"readonly":false,"span":{"end":1792,"start":1775},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NegativeValidator","span":{"end":1794,"start":1699},"superclass":null,"type_params":[]}
-class NonPositiveValidator: {"body_span":{"end":1955,"start":1878},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1843,"start":1821}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonPositive\"] }","name":"endec","span":{"end":1928,"start":1884}}],"initializer":null,"name":"nonPositive","optional":false,"readonly":false,"span":{"end":1953,"start":1933},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonPositiveValidator","span":{"end":1955,"start":1851},"superclass":null,"type_params":[]}
-class MultipleOfValidator: {"body_span":{"end":2113,"start":2037},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2003,"start":1981}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"multipleOf(5)\"] }","name":"endec","span":{"end":2089,"start":2043}}],"initializer":null,"name":"multiple","optional":false,"readonly":false,"span":{"end":2111,"start":2094},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MultipleOfValidator","span":{"end":2113,"start":2011},"superclass":null,"type_params":[]}
-class Uint8Validator: {"body_span":{"end":2249,"start":2185},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2156,"start":2134}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uint8\"] }","name":"endec","span":{"end":2229,"start":2191}}],"initializer":null,"name":"byte","optional":false,"readonly":false,"span":{"end":2247,"start":2234},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Uint8Validator","span":{"end":2249,"start":2164},"superclass":null,"type_params":[]}
+class GreaterThanValidator: {"body_span":{"end":248,"start":171},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":136,"start":114}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThan(0)\"] }","name":"endec","span":{"end":224,"start":177}}],"initializer":null,"key":"Named","name":"positive","optional":false,"readonly":false,"span":{"end":246,"start":229},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanValidator","span":{"end":248,"start":144},"superclass":null,"type_params":[]}
+class GreaterThanOrEqualToValidator: {"body_span":{"end":439,"start":350},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":306,"start":284}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanOrEqualTo(0)\"] }","name":"endec","span":{"end":412,"start":356}}],"initializer":null,"key":"Named","name":"nonNegative","optional":false,"readonly":false,"span":{"end":437,"start":417},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanOrEqualToValidator","span":{"end":439,"start":314},"superclass":null,"type_params":[]}
+class LessThanValidator: {"body_span":{"end":591,"start":517},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":485,"start":463}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThan(100)\"] }","name":"endec","span":{"end":569,"start":523}}],"initializer":null,"key":"Named","name":"capped","optional":false,"readonly":false,"span":{"end":589,"start":574},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanValidator","span":{"end":591,"start":493},"superclass":null,"type_params":[]}
+class LessThanOrEqualToValidator: {"body_span":{"end":769,"start":687},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":646,"start":624}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanOrEqualTo(100)\"] }","name":"endec","span":{"end":748,"start":693}}],"initializer":null,"key":"Named","name":"maxed","optional":false,"readonly":false,"span":{"end":767,"start":753},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanOrEqualToValidator","span":{"end":769,"start":654},"superclass":null,"type_params":[]}
+class BetweenValidator: {"body_span":{"end":921,"start":845},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":814,"start":792}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"between(1, 100)\"] }","name":"endec","span":{"end":899,"start":851}}],"initializer":null,"key":"Named","name":"ranged","optional":false,"readonly":false,"span":{"end":919,"start":904},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"BetweenValidator","span":{"end":921,"start":822},"superclass":null,"type_params":[]}
+class IntValidator: {"body_span":{"end":1054,"start":989},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":962,"start":940}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"int\"] }","name":"endec","span":{"end":1031,"start":995}}],"initializer":null,"key":"Named","name":"integer","optional":false,"readonly":false,"span":{"end":1052,"start":1036},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"IntValidator","span":{"end":1054,"start":970},"superclass":null,"type_params":[]}
+class NonNaNValidator: {"body_span":{"end":1194,"start":1128},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1098,"start":1076}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNaN\"] }","name":"endec","span":{"end":1173,"start":1134}}],"initializer":null,"key":"Named","name":"valid","optional":false,"readonly":false,"span":{"end":1192,"start":1178},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonNaNValidator","span":{"end":1194,"start":1106},"superclass":null,"type_params":[]}
+class FiniteValidator: {"body_span":{"end":1335,"start":1268},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1238,"start":1216}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"finite\"] }","name":"endec","span":{"end":1313,"start":1274}}],"initializer":null,"key":"Named","name":"finite","optional":false,"readonly":false,"span":{"end":1333,"start":1318},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"FiniteValidator","span":{"end":1335,"start":1246},"superclass":null,"type_params":[]}
+class PositiveValidator: {"body_span":{"end":1484,"start":1413},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1381,"start":1359}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"positive\"] }","name":"endec","span":{"end":1460,"start":1419}}],"initializer":null,"key":"Named","name":"positive","optional":false,"readonly":false,"span":{"end":1482,"start":1465},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"PositiveValidator","span":{"end":1484,"start":1389},"superclass":null,"type_params":[]}
+class NonNegativeValidator: {"body_span":{"end":1645,"start":1568},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1533,"start":1511}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNegative\"] }","name":"endec","span":{"end":1618,"start":1574}}],"initializer":null,"key":"Named","name":"nonNegative","optional":false,"readonly":false,"span":{"end":1643,"start":1623},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonNegativeValidator","span":{"end":1645,"start":1541},"superclass":null,"type_params":[]}
+class NegativeValidator: {"body_span":{"end":1794,"start":1723},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1691,"start":1669}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"negative\"] }","name":"endec","span":{"end":1770,"start":1729}}],"initializer":null,"key":"Named","name":"negative","optional":false,"readonly":false,"span":{"end":1792,"start":1775},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NegativeValidator","span":{"end":1794,"start":1699},"superclass":null,"type_params":[]}
+class NonPositiveValidator: {"body_span":{"end":1955,"start":1878},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1843,"start":1821}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonPositive\"] }","name":"endec","span":{"end":1928,"start":1884}}],"initializer":null,"key":"Named","name":"nonPositive","optional":false,"readonly":false,"span":{"end":1953,"start":1933},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonPositiveValidator","span":{"end":1955,"start":1851},"superclass":null,"type_params":[]}
+class MultipleOfValidator: {"body_span":{"end":2113,"start":2037},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2003,"start":1981}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"multipleOf(5)\"] }","name":"endec","span":{"end":2089,"start":2043}}],"initializer":null,"key":"Named","name":"multiple","optional":false,"readonly":false,"span":{"end":2111,"start":2094},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MultipleOfValidator","span":{"end":2113,"start":2011},"superclass":null,"type_params":[]}
+class Uint8Validator: {"body_span":{"end":2249,"start":2185},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2156,"start":2134}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uint8\"] }","name":"endec","span":{"end":2229,"start":2191}}],"initializer":null,"key":"Named","name":"byte","optional":false,"readonly":false,"span":{"end":2247,"start":2234},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Uint8Validator","span":{"end":2249,"start":2164},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

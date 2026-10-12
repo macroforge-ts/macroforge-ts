@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -45,12 +45,9 @@ export function commissionsEncode(value: Commissions, keepMetadata?: boolean): s
 export function commissionsEncodeWithContext(value: Commissions, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Commissions",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Commissions" });
     commissionsEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -166,7 +163,7 @@ export function commissionsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("technician")) || (__fields.keeps("technician") && obj["technician"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("technician")) ? "technician" in obj : (__fields.keeps("technician") && obj["technician"] !== undefined)) {
         const __raw_technician = obj["technician"] as string;
 
         if (!(typeof __raw_technician === "string")) {
@@ -178,7 +175,7 @@ export function commissionsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.technician = __raw_technician;
         }
     }
-    if ((__fields === undefined || __fields.requires("salesRep")) || (__fields.keeps("salesRep") && obj["salesRep"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("salesRep")) ? "salesRep" in obj : (__fields.keeps("salesRep") && obj["salesRep"] !== undefined)) {
         const __raw_salesRep = obj["salesRep"] as string;
 
         if (!(typeof __raw_salesRep === "string")) {
@@ -498,21 +495,21 @@ export declare const Commissions: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..143 -> expanded 741..777
-original 184..213 -> expanded 777..806
-original 254..278 -> expanded 806..830
-original 278..279 -> expanded 17415..17416
-generated 0..683 <- imports
-generated 830..956 <- Default
-generated 956..3335 <- Encode
-generated 3335..11481 <- Decode
-generated 11481..16068 <- Gigaform
-generated 16068..17415 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..143 -> expanded 813..849
+original 184..213 -> expanded 849..878
+original 254..278 -> expanded 878..902
+original 278..279 -> expanded 17513..17514
+generated 0..755 <- imports
+generated 902..1028 <- Default
+generated 1028..3393 <- Encode
+generated 3393..11579 <- Decode
+generated 11579..16166 <- Gigaform
+generated 16166..17513 <- __convenience_const
 
 ## Metadata
 
-interface Commissions: {"body_span":{"end":279,"start":138},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":185,"start":144}}],"name":"technician","optional":false,"readonly":false,"span":{"end":209,"start":190},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":255,"start":214}}],"name":"salesRep","optional":false,"readonly":false,"span":{"end":277,"start":260},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Commissions","span":{"end":279,"start":116},"type_params":[]}
+interface Commissions: {"body_span":{"end":279,"start":138},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":185,"start":144}}],"key":"Named","name":"technician","optional":false,"readonly":false,"span":{"end":209,"start":190},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":255,"start":214}}],"key":"Named","name":"salesRep","optional":false,"readonly":false,"span":{"end":277,"start":260},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Commissions","span":{"end":279,"start":116},"type_params":[]}
 
 ## Registry reads
 

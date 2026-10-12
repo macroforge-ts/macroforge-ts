@@ -120,7 +120,7 @@ export function contactInfoDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("primaryEmail")) || (__fields.keeps("primaryEmail") && obj["primaryEmail"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("primaryEmail")) ? "primaryEmail" in obj : (__fields.keeps("primaryEmail") && obj["primaryEmail"] !== undefined)) {
         const __raw_primaryEmail = obj["primaryEmail"] as string;
 
         if (!(typeof __raw_primaryEmail === "string")) {
@@ -132,7 +132,7 @@ export function contactInfoDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.primaryEmail = __raw_primaryEmail;
         }
     }
-    if ((__fields === undefined || __fields.requires("address")) || (__fields.keeps("address") && obj["address"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("address")) ? "address" in obj : (__fields.keeps("address") && obj["address"] !== undefined)) {
         const __raw_address = obj["address"] as string;
 
         if (!(typeof __raw_address === "string")) {
@@ -264,14 +264,14 @@ export {};
 ## Mapping
 
 original 22..167 -> expanded 350..495
-original 167..168 -> expanded 9939..9940
+original 167..168 -> expanded 9980..9981
 generated 0..350 <- imports
-generated 495..9223 <- Decode
-generated 9223..9939 <- __convenience_const
+generated 495..9264 <- Decode
+generated 9264..9980 <- __convenience_const
 
 ## Metadata
 
-type ContactInfo: {"body":{"Object":{"fields":[{"decorators":[{"args_src":"email","name":"endec","span":{"end":69,"start":49}}],"name":"primaryEmail","optional":false,"readonly":false,"span":{"end":95,"start":74},"ts_type":"string"},{"decorators":[{"args_src":"minLength(1), maxLength(100)","name":"endec","span":{"end":144,"start":101}}],"name":"address","optional":false,"readonly":false,"span":{"end":165,"start":149},"ts_type":"string"}]}},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"name":"ContactInfo","span":{"end":168,"start":24},"type_params":[]}
+type ContactInfo: {"body":{"Object":{"fields":[{"decorators":[{"args_src":"email","name":"endec","span":{"end":69,"start":49}}],"key":"Named","name":"primaryEmail","optional":false,"readonly":false,"span":{"end":95,"start":74},"ts_type":"string"},{"decorators":[{"args_src":"minLength(1), maxLength(100)","name":"endec","span":{"end":144,"start":101}}],"key":"Named","name":"address","optional":false,"readonly":false,"span":{"end":165,"start":149},"ts_type":"string"}]}},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"name":"ContactInfo","span":{"end":168,"start":24},"type_params":[]}
 
 ## Registry reads
 

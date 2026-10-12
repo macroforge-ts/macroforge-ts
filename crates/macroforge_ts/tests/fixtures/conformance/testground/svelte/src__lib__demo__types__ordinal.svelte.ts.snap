@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -55,12 +55,9 @@ export function ordinalEncode(value: Ordinal, keepMetadata?: boolean): string {
 export function ordinalEncodeWithContext(value: Ordinal, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Ordinal",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Ordinal" });
     ordinalEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -224,7 +221,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("north")) || (__fields.keeps("north") && obj["north"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("north")) ? "north" in obj : (__fields.keeps("north") && obj["north"] !== undefined)) {
         const __raw_north = obj["north"] as number;
 
         if (!(typeof __raw_north === "number")) {
@@ -233,7 +230,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.north = __raw_north;
         }
     }
-    if ((__fields === undefined || __fields.requires("northeast")) || (__fields.keeps("northeast") && obj["northeast"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("northeast")) ? "northeast" in obj : (__fields.keeps("northeast") && obj["northeast"] !== undefined)) {
         const __raw_northeast = obj["northeast"] as number;
 
         if (!(typeof __raw_northeast === "number")) {
@@ -242,7 +239,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.northeast = __raw_northeast;
         }
     }
-    if ((__fields === undefined || __fields.requires("east")) || (__fields.keeps("east") && obj["east"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("east")) ? "east" in obj : (__fields.keeps("east") && obj["east"] !== undefined)) {
         const __raw_east = obj["east"] as number;
 
         if (!(typeof __raw_east === "number")) {
@@ -251,7 +248,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.east = __raw_east;
         }
     }
-    if ((__fields === undefined || __fields.requires("southeast")) || (__fields.keeps("southeast") && obj["southeast"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("southeast")) ? "southeast" in obj : (__fields.keeps("southeast") && obj["southeast"] !== undefined)) {
         const __raw_southeast = obj["southeast"] as number;
 
         if (!(typeof __raw_southeast === "number")) {
@@ -260,7 +257,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.southeast = __raw_southeast;
         }
     }
-    if ((__fields === undefined || __fields.requires("south")) || (__fields.keeps("south") && obj["south"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("south")) ? "south" in obj : (__fields.keeps("south") && obj["south"] !== undefined)) {
         const __raw_south = obj["south"] as number;
 
         if (!(typeof __raw_south === "number")) {
@@ -269,7 +266,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.south = __raw_south;
         }
     }
-    if ((__fields === undefined || __fields.requires("southwest")) || (__fields.keeps("southwest") && obj["southwest"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("southwest")) ? "southwest" in obj : (__fields.keeps("southwest") && obj["southwest"] !== undefined)) {
         const __raw_southwest = obj["southwest"] as number;
 
         if (!(typeof __raw_southwest === "number")) {
@@ -278,7 +275,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.southwest = __raw_southwest;
         }
     }
-    if ((__fields === undefined || __fields.requires("west")) || (__fields.keeps("west") && obj["west"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("west")) ? "west" in obj : (__fields.keeps("west") && obj["west"] !== undefined)) {
         const __raw_west = obj["west"] as number;
 
         if (!(typeof __raw_west === "number")) {
@@ -287,7 +284,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.west = __raw_west;
         }
     }
-    if ((__fields === undefined || __fields.requires("northwest")) || (__fields.keeps("northwest") && obj["northwest"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("northwest")) ? "northwest" in obj : (__fields.keeps("northwest") && obj["northwest"] !== undefined)) {
         const __raw_northwest = obj["northwest"] as number;
 
         if (!(typeof __raw_northwest === "number")) {
@@ -810,19 +807,19 @@ export declare const Ordinal: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..302 -> expanded 741..936
-original 302..303 -> expanded 27894..27895
-generated 0..683 <- imports
-generated 936..1166 <- Default
-generated 1166..4457 <- Encode
-generated 4457..14238 <- Decode
-generated 14238..26655 <- Gigaform
-generated 26655..27894 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..302 -> expanded 813..1008
+original 302..303 -> expanded 28094..28095
+generated 0..755 <- imports
+generated 1008..1238 <- Default
+generated 1238..4515 <- Encode
+generated 4515..14438 <- Decode
+generated 14438..26855 <- Gigaform
+generated 26855..28094 <- __convenience_const
 
 ## Metadata
 
-interface Ordinal: {"body_span":{"end":303,"start":134},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"north","optional":false,"readonly":false,"span":{"end":154,"start":140},"ts_type":"number"},{"decorators":[],"name":"northeast","optional":false,"readonly":false,"span":{"end":177,"start":159},"ts_type":"number"},{"decorators":[],"name":"east","optional":false,"readonly":false,"span":{"end":195,"start":182},"ts_type":"number"},{"decorators":[],"name":"southeast","optional":false,"readonly":false,"span":{"end":218,"start":200},"ts_type":"number"},{"decorators":[],"name":"south","optional":false,"readonly":false,"span":{"end":237,"start":223},"ts_type":"number"},{"decorators":[],"name":"southwest","optional":false,"readonly":false,"span":{"end":260,"start":242},"ts_type":"number"},{"decorators":[],"name":"west","optional":false,"readonly":false,"span":{"end":278,"start":265},"ts_type":"number"},{"decorators":[],"name":"northwest","optional":false,"readonly":false,"span":{"end":301,"start":283},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Ordinal","span":{"end":303,"start":116},"type_params":[]}
+interface Ordinal: {"body_span":{"end":303,"start":134},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"key":"Named","name":"north","optional":false,"readonly":false,"span":{"end":154,"start":140},"ts_type":"number"},{"decorators":[],"key":"Named","name":"northeast","optional":false,"readonly":false,"span":{"end":177,"start":159},"ts_type":"number"},{"decorators":[],"key":"Named","name":"east","optional":false,"readonly":false,"span":{"end":195,"start":182},"ts_type":"number"},{"decorators":[],"key":"Named","name":"southeast","optional":false,"readonly":false,"span":{"end":218,"start":200},"ts_type":"number"},{"decorators":[],"key":"Named","name":"south","optional":false,"readonly":false,"span":{"end":237,"start":223},"ts_type":"number"},{"decorators":[],"key":"Named","name":"southwest","optional":false,"readonly":false,"span":{"end":260,"start":242},"ts_type":"number"},{"decorators":[],"key":"Named","name":"west","optional":false,"readonly":false,"span":{"end":278,"start":265},"ts_type":"number"},{"decorators":[],"key":"Named","name":"northwest","optional":false,"readonly":false,"span":{"end":301,"start":283},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Ordinal","span":{"end":303,"start":116},"type_params":[]}
 
 ## Registry reads
 

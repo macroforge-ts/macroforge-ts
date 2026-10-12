@@ -18,6 +18,7 @@ true
 
 ## Output
 
+import { equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
 import { Derive } from '@macro/derive';
 
 
@@ -26,13 +27,15 @@ class User {
 
     static equals(a: User, b: User): boolean {
         if (a === b) return true;
-        return a.name === b.name;
+        return __mf_equalWithin(a, b, () => a.name === b.name);
     }
 
     static hashCode(value: User): number {
-        let hash = 17;
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
         hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-        return hash;
+            return hash;
+        });
     }
 }
 
@@ -61,18 +64,19 @@ export {};
 
 ## Mapping
 
-original 0..41 -> expanded 0..41
-original 72..104 -> expanded 41..73
-original 104..105 -> expanded 412..413
-original 105..106 -> expanded 590..591
-generated 73..195 <- PartialEq
-generated 195..412 <- Hash
-generated 413..502 <- PartialEq
-generated 502..590 <- Hash
+original 0..41 -> expanded 114..155
+original 72..104 -> expanded 155..187
+original 104..105 -> expanded 624..625
+original 105..106 -> expanded 802..803
+generated 0..114 <- imports
+generated 187..339 <- PartialEq
+generated 339..624 <- Hash
+generated 625..714 <- PartialEq
+generated 714..802 <- Hash
 
 ## Metadata
 
-class User: {"body_span":{"end":106,"start":85},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":73,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":104,"start":91},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":106,"start":74},"superclass":null,"type_params":[]}
+class User: {"body_span":{"end":106,"start":85},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":73,"start":42}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":104,"start":91},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":106,"start":74},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

@@ -17,6 +17,8 @@ true
 
 ## Output
 
+import { equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
+
 interface Point {
     x: number;
     y: number;
@@ -24,14 +26,16 @@ interface Point {
 
 export function pointEquals(a: Point, b: Point): boolean {
     if (a === b) return true;
-    return a.x === b.x && a.y === b.y;
+    return __mf_equalWithin(a, b, () => a.x === b.x && a.y === b.y);
 }
 
 export function pointHashCode(value: Point): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 const Point: {
@@ -58,15 +62,16 @@ export {};
 
 ## Mapping
 
-original 31..81 -> expanded 0..50
-original 81..82 -> expanded 752..753
-generated 50..181 <- PartialEq
-generated 181..596 <- Hash
-generated 596..752 <- __convenience_const
+original 31..81 -> expanded 114..164
+original 81..82 -> expanded 956..957
+generated 0..114 <- imports
+generated 164..325 <- PartialEq
+generated 325..800 <- Hash
+generated 800..956 <- __convenience_const
 
 ## Metadata
 
-interface Point: {"body_span":{"end":82,"start":49},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":32,"start":1}}],"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":65,"start":55},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":80,"start":70},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Point","span":{"end":82,"start":33},"type_params":[]}
+interface Point: {"body_span":{"end":82,"start":49},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":32,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":65,"start":55},"ts_type":"number"},{"decorators":[],"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":80,"start":70},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Point","span":{"end":82,"start":33},"type_params":[]}
 
 ## Registry reads
 

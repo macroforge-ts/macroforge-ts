@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import { structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Enums by how their values come about: counted, negative, fractional,
@@ -80,7 +80,8 @@ export function enumCountedEncodeWithContext(value: EnumCounted): string | numbe
 
 /** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function enumCountedDecode(input: unknown): EnumCounted {
-    return enumCountedDecodeWithContext(input);
+
+    return enumCountedDecodeWithContext(__mf_textOrValue(input, enumCountedIs));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -186,7 +187,8 @@ export function enumSignedEncodeWithContext(value: EnumSigned): string | number 
 
 /** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function enumSignedDecode(input: unknown): EnumSigned {
-    return enumSignedDecodeWithContext(input);
+
+    return enumSignedDecodeWithContext(__mf_textOrValue(input, enumSignedIs));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -298,7 +300,8 @@ export function enumFlagsEncodeWithContext(value: EnumFlags): string | number {
 
 /** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function enumFlagsDecode(input: unknown): EnumFlags {
-    return enumFlagsDecodeWithContext(input);
+
+    return enumFlagsDecodeWithContext(__mf_textOrValue(input, enumFlagsIs));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -418,7 +421,8 @@ export function enumMixedEncodeWithContext(value: EnumMixed): string | number {
 
 /** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function enumMixedDecode(input: unknown): EnumMixed {
-    return enumMixedDecodeWithContext(input);
+
+    return enumMixedDecodeWithContext(__mf_textOrValue(input, enumMixedIs));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -529,7 +533,8 @@ export function enumRepeatedEncodeWithContext(value: EnumRepeated): string | num
 
 /** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function enumRepeatedDecode(input: unknown): EnumRepeated {
-    return enumRepeatedDecodeWithContext(input);
+
+    return enumRepeatedDecodeWithContext(__mf_textOrValue(input, enumRepeatedIs));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -632,7 +637,8 @@ export function enumLoneEncodeWithContext(value: EnumLone): string | number {
 
 /** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function enumLoneDecode(input: unknown): EnumLone {
-    return enumLoneDecodeWithContext(input);
+
+    return enumLoneDecodeWithContext(__mf_textOrValue(input, enumLoneIs));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -726,7 +732,8 @@ export function enumTextEncodeWithContext(value: EnumText): string | number {
 
 /** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function enumTextDecode(input: unknown): EnumText {
-    return enumTextDecodeWithContext(input);
+
+    return enumTextDecodeWithContext(__mf_textOrValue(input, enumTextIs));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -795,7 +802,8 @@ export interface EnumHolder {
 }
 
 export function enumHolderToString(value: EnumHolder): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("counted: " + enumCountedToString(value.counted));
     parts.push("mixed: " + enumMixedToString(value.mixed));
     parts.push("flags: " + enumFlagsToString(value.flags));
@@ -808,11 +816,12 @@ export function enumHolderToString(value: EnumHolder): string {
     parts.push("byKind: " + __mf_structuralDebug(value.byKind));
     parts.push("labels: " + __mf_structuralDebug(value.labels));
     parts.push("pair: " + __mf_structuralDebug(value.pair));
-    return "EnumHolder { " + parts.join(", ") + " }";
+        return "EnumHolder { " + parts.join(", ") + " }";
+    });
 }
 
 export function enumHolderClone(value: EnumHolder): EnumHolder {
-    return ({
+    return __mf_clonedWith(value, (): EnumHolder => ({
 	counted: enumCountedClone(value.counted),
 	mixed: enumMixedClone(value.mixed),
 	flags: enumFlagsClone(value.flags),
@@ -829,12 +838,12 @@ export function enumHolderClone(value: EnumHolder): EnumHolder {
 	byKind: new Map(value.byKind),
 	labels: __mf_structuralClone(value.labels),
 	pair: __mf_structuralClone(value.pair)
-});
+}));
 }
 
 export function enumHolderEquals(a: EnumHolder, b: EnumHolder): boolean {
     if (a === b) return true;
-    return enumCountedEquals(a.counted, b.counted) && enumMixedEquals(a.mixed, b.mixed) && enumFlagsEquals(a.flags, b.flags) && (a.maybe == null || b.maybe == null ? a.maybe === b.maybe : enumCountedEquals(a.maybe, b.maybe)) && (a.later == null || b.later == null ? a.later === b.later : enumTextEquals(a.later, b.later)) && (a.optional == null || b.optional == null ? a.optional === b.optional : enumSignedEquals(a.optional, b.optional)) && a.list.length === b.list.length && a.list.every((__item0, __index0) => {
+    return __mf_equalWithin(a, b, () => enumCountedEquals(a.counted, b.counted) && enumMixedEquals(a.mixed, b.mixed) && enumFlagsEquals(a.flags, b.flags) && (a.maybe == null || b.maybe == null ? a.maybe === b.maybe : enumCountedEquals(a.maybe, b.maybe)) && (a.later == null || b.later == null ? a.later === b.later : enumTextEquals(a.later, b.later)) && (a.optional == null || b.optional == null ? a.optional === b.optional : enumSignedEquals(a.optional, b.optional)) && a.list.length === b.list.length && a.list.every((__item0, __index0) => {
 	const __other0 = b.list[__index0];
 	return __other0 === undefined ? __item0 === undefined : enumMixedEquals(__item0, __other0);
 }) && a.set.size === b.set.size && Array.from(a.set).every((__item0) => b.set.has(__item0) || Array.from(b.set).some((__other0) => enumCountedEquals(__item0, __other0))) && a.byName.size === b.byName.size && Array.from(a.byName).every(([__key0, __item0]) => {
@@ -843,11 +852,12 @@ export function enumHolderEquals(a: EnumHolder, b: EnumHolder): boolean {
 }) && a.byKind.size === b.byKind.size && Array.from(a.byKind).every(([__key0, __item0]) => {
 	const __other0 = b.byKind.get(__key0);
 	return b.byKind.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
-}) && __mf_structuralEquals(a.labels, b.labels) && __mf_structuralEquals(a.pair, b.pair);
+}) && __mf_structuralEquals(a.labels, b.labels) && __mf_structuralEquals(a.pair, b.pair));
 }
 
 export function enumHolderHashCode(value: EnumHolder): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (enumCountedHashCode(value.counted))) | 0;
     hash = (hash * 31 + (enumMixedHashCode(value.mixed))) | 0;
     hash = (hash * 31 + (enumFlagsHashCode(value.flags))) | 0;
@@ -860,7 +870,8 @@ export function enumHolderHashCode(value: EnumHolder): number {
     hash = (hash * 31 + (Array.from(value.byKind).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + (__mf_structuralHash(__key0) * 31 + (Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0) | 0, 0))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.labels))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.pair))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function enumHolderDefaultValue(): EnumHolder {
@@ -890,12 +901,9 @@ export function enumHolderEncode(value: EnumHolder, keepMetadata?: boolean): str
 export function enumHolderEncodeWithContext(value: EnumHolder, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "EnumHolder",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "EnumHolder" });
     enumHolderEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1085,7 +1093,7 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("counted")) || (__fields.keeps("counted") && obj["counted"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("counted")) ? "counted" in obj : (__fields.keeps("counted") && obj["counted"] !== undefined)) {
         const __raw_counted = obj["counted"] as EnumCounted;
 
         ctx.pushScope("counted");
@@ -1101,13 +1109,14 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "counted", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("mixed")) || (__fields.keeps("mixed") && obj["mixed"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("mixed")) ? "mixed" in obj : (__fields.keeps("mixed") && obj["mixed"] !== undefined)) {
         const __raw_mixed = obj["mixed"] as EnumMixed;
 
         ctx.pushScope("mixed");
@@ -1123,13 +1132,14 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "mixed", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("flags")) || (__fields.keeps("flags") && obj["flags"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("flags")) ? "flags" in obj : (__fields.keeps("flags") && obj["flags"] !== undefined)) {
         const __raw_flags = obj["flags"] as EnumFlags;
 
         ctx.pushScope("flags");
@@ -1145,13 +1155,14 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "flags", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("maybe")) || (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
         const __raw_maybe = obj["maybe"] as EnumCounted | null;
 
         if (__raw_maybe === null) {
@@ -1170,7 +1181,8 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
@@ -1196,7 +1208,8 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "later", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
@@ -1220,14 +1233,15 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "optional", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("list")) || (__fields.keeps("list") && obj["list"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
         const __raw_list = obj["list"] as EnumMixed[];
         if (Array.isArray(__raw_list)) {
             ctx.pushScope("list");
@@ -1251,7 +1265,7 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             errors.push({ field: "list", message: __raw_list == null ? "EnumHolder.list is required" : "expected EnumMixed[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("set")) || (__fields.keeps("set") && obj["set"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("set")) ? "set" in obj : (__fields.keeps("set") && obj["set"] !== undefined)) {
         const __raw_set = obj["set"] as Array<EnumCounted>;
         if (Array.isArray(__raw_set)) {
             ctx.pushScope("set");
@@ -1275,7 +1289,7 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             errors.push({ field: "set", message: __raw_set == null ? "EnumHolder.set is required" : "expected Set<EnumCounted>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("byName")) || (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
         const __raw_byName = obj["byName"] as Record<string, EnumText>;
         if (typeof __raw_byName === "object" && __raw_byName !== null) {
             ctx.pushScope("byName");
@@ -1299,7 +1313,7 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             errors.push({ field: "byName", message: __raw_byName == null ? "EnumHolder.byName is required" : "expected Map<string, EnumText>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("byKind")) || (__fields.keeps("byKind") && obj["byKind"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("byKind")) ? "byKind" in obj : (__fields.keeps("byKind") && obj["byKind"] !== undefined)) {
         const __raw_byKind = obj["byKind"] as Record<string, number>;
         if (typeof __raw_byKind === "object" && __raw_byKind !== null) {
             ctx.pushScope("byKind");
@@ -1323,7 +1337,7 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             errors.push({ field: "byKind", message: __raw_byKind == null ? "EnumHolder.byKind is required" : "expected Map<EnumText, number>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("labels")) || (__fields.keeps("labels") && obj["labels"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("labels")) ? "labels" in obj : (__fields.keeps("labels") && obj["labels"] !== undefined)) {
         const __raw_labels = obj["labels"] as Record<string, EnumSigned>;
         if (typeof __raw_labels === "object" && __raw_labels !== null) {
             ctx.pushScope("labels");
@@ -1347,7 +1361,7 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             errors.push({ field: "labels", message: __raw_labels == null ? "EnumHolder.labels is required" : "expected Record<string, EnumSigned>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("pair")) || (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
         const __raw_pair = obj["pair"] as [EnumCounted, EnumText];
         if (Array.isArray(__raw_pair)) {
             ctx.pushScope("pair");
@@ -1444,28 +1458,31 @@ export interface EnumOrdered {
 }
 
 export function enumOrderedToString(value: EnumOrdered): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("counted: " + enumCountedToString(value.counted));
     parts.push("mixed: " + enumMixedToString(value.mixed));
     parts.push("text: " + enumTextToString(value.text));
-    return "EnumOrdered { " + parts.join(", ") + " }";
+        return "EnumOrdered { " + parts.join(", ") + " }";
+    });
 }
 
 export function enumOrderedClone(value: EnumOrdered): EnumOrdered {
-    return ({
+    return __mf_clonedWith(value, (): EnumOrdered => ({
 	counted: enumCountedClone(value.counted),
 	mixed: enumMixedClone(value.mixed),
 	text: enumTextClone(value.text)
-});
+}));
 }
 
 export function enumOrderedEquals(a: EnumOrdered, b: EnumOrdered): boolean {
     if (a === b) return true;
-    return enumCountedEquals(a.counted, b.counted) && enumMixedEquals(a.mixed, b.mixed) && enumTextEquals(a.text, b.text);
+    return __mf_equalWithin(a, b, () => enumCountedEquals(a.counted, b.counted) && enumMixedEquals(a.mixed, b.mixed) && enumTextEquals(a.text, b.text));
 }
 
 export function enumOrderedPartialCompare(a: EnumOrdered, b: EnumOrdered): number | null {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = enumCountedPartialCompare(a.counted, b.counted);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
@@ -1475,18 +1492,21 @@ export function enumOrderedPartialCompare(a: EnumOrdered, b: EnumOrdered): numbe
     const cmp2 = enumTextPartialCompare(a.text, b.text);
     if (cmp2 === null) return null;
     if (cmp2 !== 0) return cmp2;
-    return 0;
+        return 0;
+    });
 }
 
 export function enumOrderedCompare(a: EnumOrdered, b: EnumOrdered): number {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = enumCountedCompare(a.counted, b.counted);
     if (cmp0 !== 0) return cmp0;
     const cmp1 = enumMixedCompare(a.mixed, b.mixed);
     if (cmp1 !== 0) return cmp1;
     const cmp2 = enumTextCompare(a.text, b.text);
     if (cmp2 !== 0) return cmp2;
-    return 0;
+        return 0;
+    });
 }
 
 export const EnumOrdered: {
@@ -1866,106 +1886,106 @@ export declare const EnumOrdered: {
 
 ## Mapping
 
-original 0..389 -> expanded 928..1317
-original 389..590 -> expanded 5085..5286
-original 590..805 -> expanded 9125..9340
-original 805..1011 -> expanded 13093..13299
-original 1011..1191 -> expanded 17443..17623
-original 1191..1347 -> expanded 21441..21597
-original 1347..1586 -> expanded 24808..25047
-original 1586..2046 -> expanded 28706..29166
-original 2046..2209 -> expanded 59559..59722
-original 2209..2210 -> expanded 61850..61851
-generated 0..928 <- imports
-generated 1317..1582 <- Debug
-generated 1582..1671 <- Clone
-generated 1671..1771 <- PartialEq
-generated 1771..1979 <- Hash
-generated 1979..2194 <- PartialOrd
-generated 2194..2395 <- Ord
-generated 2395..2485 <- Default
-generated 2485..2925 <- Encode
-generated 2925..4115 <- Decode
-generated 4115..5085 <- __convenience_const
-generated 5286..5545 <- Debug
-generated 5545..5631 <- Clone
-generated 5631..5728 <- PartialEq
-generated 5728..5934 <- Hash
-generated 5934..6146 <- PartialOrd
-generated 6146..6344 <- Ord
-generated 6344..6431 <- Default
-generated 6431..6865 <- Encode
-generated 6865..8180 <- Decode
-generated 8180..9125 <- __convenience_const
-generated 9340..9593 <- Debug
-generated 9593..9676 <- Clone
-generated 9676..9770 <- PartialEq
-generated 9770..9974 <- Hash
-generated 9974..10183 <- PartialOrd
-generated 10183..10378 <- Ord
-generated 10378..10461 <- Default
-generated 10461..10889 <- Encode
-generated 10889..12173 <- Decode
-generated 12173..13093 <- __convenience_const
-generated 13299..13552 <- Debug
-generated 13552..13635 <- Clone
-generated 13635..13729 <- PartialEq
-generated 13729..14047 <- Hash
-generated 14047..14393 <- PartialOrd
-generated 14393..14725 <- Ord
-generated 14725..14808 <- Default
-generated 14808..15236 <- Encode
-generated 15236..16523 <- Decode
-generated 16523..17443 <- __convenience_const
-generated 17623..17894 <- Debug
-generated 17894..17986 <- Clone
-generated 17986..18089 <- PartialEq
-generated 18089..18299 <- Hash
-generated 18299..18517 <- PartialOrd
-generated 18517..18721 <- Ord
-generated 18721..18812 <- Default
-generated 18812..19258 <- Encode
-generated 19258..20446 <- Decode
-generated 20446..21441 <- __convenience_const
-generated 21597..21844 <- Debug
-generated 21844..21924 <- Clone
-generated 21924..22015 <- PartialEq
-generated 22015..22174 <- Hash
-generated 22174..22380 <- PartialOrd
-generated 22380..22572 <- Ord
-generated 22572..22652 <- Default
-generated 22652..23074 <- Encode
-generated 23074..23913 <- Decode
-generated 23913..24808 <- __convenience_const
-generated 25047..25294 <- Debug
-generated 25294..25374 <- Clone
-generated 25374..25465 <- PartialEq
-generated 25465..25624 <- Hash
-generated 25624..25830 <- PartialOrd
-generated 25830..26022 <- Ord
-generated 26022..26103 <- Default
-generated 26103..26525 <- Encode
-generated 26525..27811 <- Decode
-generated 27811..28706 <- __convenience_const
-generated 29166..30237 <- Debug
-generated 30237..31140 <- Clone
-generated 31140..32637 <- PartialEq
-generated 32637..34144 <- Hash
-generated 34144..34578 <- Default
-generated 34578..39204 <- Encode
-generated 39204..58123 <- Decode
-generated 58123..59559 <- __convenience_const
-generated 59722..60061 <- Debug
-generated 60061..60263 <- Clone
-generated 60263..60496 <- PartialEq
-generated 60496..61021 <- PartialOrd
-generated 61021..61403 <- Ord
-generated 61403..61850 <- __convenience_const
+original 0..389 -> expanded 1210..1599
+original 389..590 -> expanded 5401..5602
+original 590..805 -> expanded 9474..9689
+original 805..1011 -> expanded 13474..13680
+original 1011..1191 -> expanded 17856..18036
+original 1191..1347 -> expanded 21889..22045
+original 1347..1586 -> expanded 25287..25526
+original 1586..2046 -> expanded 29216..29676
+original 2046..2209 -> expanded 60907..61070
+original 2209..2210 -> expanded 63447..63448
+generated 0..1210 <- imports
+generated 1599..1864 <- Debug
+generated 1864..1953 <- Clone
+generated 1953..2053 <- PartialEq
+generated 2053..2261 <- Hash
+generated 2261..2476 <- PartialOrd
+generated 2476..2677 <- Ord
+generated 2677..2767 <- Default
+generated 2767..3207 <- Encode
+generated 3207..4431 <- Decode
+generated 4431..5401 <- __convenience_const
+generated 5602..5861 <- Debug
+generated 5861..5947 <- Clone
+generated 5947..6044 <- PartialEq
+generated 6044..6250 <- Hash
+generated 6250..6462 <- PartialOrd
+generated 6462..6660 <- Ord
+generated 6660..6747 <- Default
+generated 6747..7181 <- Encode
+generated 7181..8529 <- Decode
+generated 8529..9474 <- __convenience_const
+generated 9689..9942 <- Debug
+generated 9942..10025 <- Clone
+generated 10025..10119 <- PartialEq
+generated 10119..10323 <- Hash
+generated 10323..10532 <- PartialOrd
+generated 10532..10727 <- Ord
+generated 10727..10810 <- Default
+generated 10810..11238 <- Encode
+generated 11238..12554 <- Decode
+generated 12554..13474 <- __convenience_const
+generated 13680..13933 <- Debug
+generated 13933..14016 <- Clone
+generated 14016..14110 <- PartialEq
+generated 14110..14428 <- Hash
+generated 14428..14774 <- PartialOrd
+generated 14774..15106 <- Ord
+generated 15106..15189 <- Default
+generated 15189..15617 <- Encode
+generated 15617..16936 <- Decode
+generated 16936..17856 <- __convenience_const
+generated 18036..18307 <- Debug
+generated 18307..18399 <- Clone
+generated 18399..18502 <- PartialEq
+generated 18502..18712 <- Hash
+generated 18712..18930 <- PartialOrd
+generated 18930..19134 <- Ord
+generated 19134..19225 <- Default
+generated 19225..19671 <- Encode
+generated 19671..20894 <- Decode
+generated 20894..21889 <- __convenience_const
+generated 22045..22292 <- Debug
+generated 22292..22372 <- Clone
+generated 22372..22463 <- PartialEq
+generated 22463..22622 <- Hash
+generated 22622..22828 <- PartialOrd
+generated 22828..23020 <- Ord
+generated 23020..23100 <- Default
+generated 23100..23522 <- Encode
+generated 23522..24392 <- Decode
+generated 24392..25287 <- __convenience_const
+generated 25526..25773 <- Debug
+generated 25773..25853 <- Clone
+generated 25853..25944 <- PartialEq
+generated 25944..26103 <- Hash
+generated 26103..26309 <- PartialOrd
+generated 26309..26501 <- Ord
+generated 26501..26582 <- Default
+generated 26582..27004 <- Encode
+generated 27004..28321 <- Decode
+generated 28321..29216 <- __convenience_const
+generated 29676..30809 <- Debug
+generated 30809..31754 <- Clone
+generated 31754..33281 <- PartialEq
+generated 33281..34848 <- Hash
+generated 34848..35282 <- Default
+generated 35282..39894 <- Encode
+generated 39894..59471 <- Decode
+generated 59471..60907 <- __convenience_const
+generated 61070..61471 <- Debug
+generated 61471..61716 <- Clone
+generated 61716..61979 <- PartialEq
+generated 61979..62561 <- PartialOrd
+generated 62561..63000 <- Ord
+generated 63000..63447 <- __convenience_const
 
 ## Metadata
 
-interface EnumHolder: {"body_span":{"end":2047,"start":1688},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1659,"start":1589}}],"fields":[{"decorators":[],"name":"counted","optional":false,"readonly":false,"span":{"end":1715,"start":1694},"ts_type":"EnumCounted"},{"decorators":[],"name":"mixed","optional":false,"readonly":false,"span":{"end":1737,"start":1720},"ts_type":"EnumMixed"},{"decorators":[],"name":"flags","optional":false,"readonly":false,"span":{"end":1759,"start":1742},"ts_type":"EnumFlags"},{"decorators":[],"name":"maybe","optional":false,"readonly":false,"span":{"end":1790,"start":1764},"ts_type":"EnumCounted | null"},{"decorators":[],"name":"later","optional":false,"readonly":false,"span":{"end":1823,"start":1795},"ts_type":"EnumText | undefined"},{"decorators":[],"name":"optional","optional":true,"readonly":false,"span":{"end":1850,"start":1828},"ts_type":"EnumSigned"},{"decorators":[],"name":"list","optional":false,"readonly":false,"span":{"end":1873,"start":1855},"ts_type":"EnumMixed[]"},{"decorators":[],"name":"set","optional":false,"readonly":false,"span":{"end":1900,"start":1878},"ts_type":"Set<EnumCounted>"},{"decorators":[],"name":"byName","optional":false,"readonly":false,"span":{"end":1935,"start":1905},"ts_type":"Map<string, EnumText>"},{"decorators":[],"name":"byKind","optional":false,"readonly":false,"span":{"end":1970,"start":1940},"ts_type":"Map<EnumText, number>"},{"decorators":[],"name":"labels","optional":false,"readonly":false,"span":{"end":2010,"start":1975},"ts_type":"Record<string, EnumSigned>"},{"decorators":[],"name":"pair","optional":false,"readonly":false,"span":{"end":2045,"start":2015},"ts_type":"[EnumCounted, EnumText]"}],"heritage":[],"methods":[],"name":"EnumHolder","span":{"end":2047,"start":1667},"type_params":[]}
-interface EnumOrdered: {"body_span":{"end":2210,"start":2139},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":2109,"start":2049}}],"fields":[{"decorators":[],"name":"counted","optional":false,"readonly":false,"span":{"end":2166,"start":2145},"ts_type":"EnumCounted"},{"decorators":[],"name":"mixed","optional":false,"readonly":false,"span":{"end":2188,"start":2171},"ts_type":"EnumMixed"},{"decorators":[],"name":"text","optional":false,"readonly":false,"span":{"end":2208,"start":2193},"ts_type":"EnumText"}],"heritage":[],"methods":[],"name":"EnumOrdered","span":{"end":2210,"start":2117},"type_params":[]}
+interface EnumHolder: {"body_span":{"end":2047,"start":1688},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1659,"start":1589}}],"fields":[{"decorators":[],"key":"Named","name":"counted","optional":false,"readonly":false,"span":{"end":1715,"start":1694},"ts_type":"EnumCounted"},{"decorators":[],"key":"Named","name":"mixed","optional":false,"readonly":false,"span":{"end":1737,"start":1720},"ts_type":"EnumMixed"},{"decorators":[],"key":"Named","name":"flags","optional":false,"readonly":false,"span":{"end":1759,"start":1742},"ts_type":"EnumFlags"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":1790,"start":1764},"ts_type":"EnumCounted | null"},{"decorators":[],"key":"Named","name":"later","optional":false,"readonly":false,"span":{"end":1823,"start":1795},"ts_type":"EnumText | undefined"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":1850,"start":1828},"ts_type":"EnumSigned"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":1873,"start":1855},"ts_type":"EnumMixed[]"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":1900,"start":1878},"ts_type":"Set<EnumCounted>"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":1935,"start":1905},"ts_type":"Map<string, EnumText>"},{"decorators":[],"key":"Named","name":"byKind","optional":false,"readonly":false,"span":{"end":1970,"start":1940},"ts_type":"Map<EnumText, number>"},{"decorators":[],"key":"Named","name":"labels","optional":false,"readonly":false,"span":{"end":2010,"start":1975},"ts_type":"Record<string, EnumSigned>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":2045,"start":2015},"ts_type":"[EnumCounted, EnumText]"}],"heritage":[],"methods":[],"name":"EnumHolder","span":{"end":2047,"start":1667},"type_params":[]}
+interface EnumOrdered: {"body_span":{"end":2210,"start":2139},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":2109,"start":2049}}],"fields":[{"decorators":[],"key":"Named","name":"counted","optional":false,"readonly":false,"span":{"end":2166,"start":2145},"ts_type":"EnumCounted"},{"decorators":[],"key":"Named","name":"mixed","optional":false,"readonly":false,"span":{"end":2188,"start":2171},"ts_type":"EnumMixed"},{"decorators":[],"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":2208,"start":2193},"ts_type":"EnumText"}],"heritage":[],"methods":[],"name":"EnumOrdered","span":{"end":2210,"start":2117},"type_params":[]}
 enum EnumCounted: {"body_span":{"end":390,"start":334},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":309,"start":218}}],"is_const":false,"name":"EnumCounted","span":{"end":390,"start":317},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":355,"start":340}}],"name":"First","span":{"end":365,"start":360},"value":{"Number":0.0}},{"decorators":[],"name":"Second","span":{"end":377,"start":371},"value":{"Number":1.0}},{"decorators":[],"name":"Third","span":{"end":388,"start":383},"value":{"Number":2.0}}]}
 enum EnumSigned: {"body_span":{"end":591,"start":507},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":483,"start":392}}],"is_const":false,"name":"EnumSigned","span":{"end":591,"start":491},"variants":[{"decorators":[],"name":"Below","span":{"end":523,"start":513},"value":{"Number":-1.0}},{"decorators":[{"args_src":"","name":"default","span":{"end":544,"start":529}}],"name":"Level","span":{"end":558,"start":549},"value":{"Number":0.0}},{"decorators":[],"name":"Above","span":{"end":573,"start":564},"value":{"Number":1.0}},{"decorators":[],"name":"Half","span":{"end":589,"start":579},"value":{"Number":0.5}}]}
 enum EnumFlags: {"body_span":{"end":806,"start":707},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":684,"start":593}}],"is_const":false,"name":"EnumFlags","span":{"end":806,"start":692},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":728,"start":713}}],"name":"None","span":{"end":741,"start":733},"value":{"Number":0.0}},{"decorators":[],"name":"Read","span":{"end":760,"start":747},"value":{"Expr":"1 << 0"}},{"decorators":[],"name":"Write","span":{"end":780,"start":766},"value":{"Expr":"1 << 1"}},{"decorators":[],"name":"All","span":{"end":804,"start":786},"value":{"Expr":"Read | Write"}}]}
@@ -1983,7 +2003,6 @@ Name("EnumSigned")
 Name("EnumText")
 Name("Map")
 Name("Record")
-Name("Record<string, EnumSigned>")
 Name("Set")
 Name("[EnumCounted, EnumText]")
 Name("string")

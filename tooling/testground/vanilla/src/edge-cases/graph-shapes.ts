@@ -6,14 +6,14 @@
 
 import type { EdgeItem } from './edge-types';
 
-/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode) */
 export interface GraphTree {
     name: string;
     parent: GraphTree | null;
     children: GraphTree[];
 }
 
-/** @derive(Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export class GraphPerson {
     name: string = '';
     best: GraphPerson | null = null;

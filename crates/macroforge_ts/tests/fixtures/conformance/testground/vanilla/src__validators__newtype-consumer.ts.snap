@@ -13,7 +13,7 @@ true
 ## Output
 
 import { metersDecodeWithContext, metersEncodeWithContext } from "./newtype-validator-tests.ts";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Consumes newtypes from another module, so the type-check covers exported
@@ -39,12 +39,9 @@ export function tripEncode(value: Trip, keepMetadata?: boolean): string {
 export function tripEncodeWithContext(value: Trip, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Trip",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Trip" });
     tripEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -160,7 +157,7 @@ export function tripDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("leg")) || (__fields.keeps("leg") && obj["leg"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("leg")) ? "leg" in obj : (__fields.keeps("leg") && obj["leg"] !== undefined)) {
         const __raw_leg = obj["leg"] as Meters;
 
         ctx.pushScope("leg");
@@ -176,13 +173,14 @@ export function tripDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "leg", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("legs")) || (__fields.keeps("legs") && obj["legs"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("legs")) ? "legs" in obj : (__fields.keeps("legs") && obj["legs"] !== undefined)) {
         const __raw_legs = obj["legs"] as Meters[];
         if (Array.isArray(__raw_legs)) {
             ctx.pushScope("legs");
@@ -337,16 +335,16 @@ export declare function greet(name: string): string;
 
 ## Mapping
 
-original 0..324 -> expanded 654..978
-original 324..674 -> expanded 10989..11339
-generated 0..654 <- imports
-generated 978..3293 <- Encode
-generated 3293..10075 <- Decode
-generated 10075..10989 <- __convenience_const
+original 0..324 -> expanded 726..1050
+original 324..674 -> expanded 11156..11506
+generated 0..726 <- imports
+generated 1050..3351 <- Encode
+generated 3351..10242 <- Decode
+generated 10242..11156 <- __convenience_const
 
 ## Metadata
 
-interface Trip: {"body_span":{"end":325,"start":285},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":262,"start":232}}],"fields":[{"decorators":[],"name":"leg","optional":false,"readonly":false,"span":{"end":303,"start":291},"ts_type":"Meters"},{"decorators":[],"name":"legs","optional":false,"readonly":false,"span":{"end":323,"start":308},"ts_type":"Meters[]"}],"heritage":[],"methods":[],"name":"Trip","span":{"end":325,"start":270},"type_params":[]}
+interface Trip: {"body_span":{"end":325,"start":285},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":262,"start":232}}],"fields":[{"decorators":[],"key":"Named","name":"leg","optional":false,"readonly":false,"span":{"end":303,"start":291},"ts_type":"Meters"},{"decorators":[],"key":"Named","name":"legs","optional":false,"readonly":false,"span":{"end":323,"start":308},"ts_type":"Meters[]"}],"heritage":[],"methods":[],"name":"Trip","span":{"end":325,"start":270},"type_params":[]}
 
 ## Registry reads
 

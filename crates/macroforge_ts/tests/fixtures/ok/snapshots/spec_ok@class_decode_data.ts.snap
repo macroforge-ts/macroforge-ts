@@ -118,7 +118,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("val")) || (__fields.keeps("val") && obj["val"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("val")) ? "val" in obj : (__fields.keeps("val") && obj["val"] !== undefined)) {
         const __raw_val = obj["val"] as number;
 
         if (!(typeof __raw_val === "number")) {
@@ -249,15 +249,15 @@ export {};
 
 original 0..41 -> expanded 350..391
 original 63..94 -> expanded 391..422
-original 94..95 -> expanded 5206..5207
-original 95..96 -> expanded 6929..6930
+original 94..95 -> expanded 5220..5221
+original 95..96 -> expanded 6943..6944
 generated 0..350 <- imports
-generated 422..5206 <- Decode
-generated 5207..6929 <- Decode
+generated 422..5220 <- Decode
+generated 5221..6943 <- Decode
 
 ## Metadata
 
-class Data: {"body_span":{"end":96,"start":76},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"val","optional":false,"readonly":false,"span":{"end":94,"start":82},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Data","span":{"end":96,"start":65},"superclass":null,"type_params":[]}
+class Data: {"body_span":{"end":96,"start":76},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"val","optional":false,"readonly":false,"span":{"end":94,"start":82},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Data","span":{"end":96,"start":65},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

@@ -116,9 +116,15 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
+            const __convertedVal = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw === "bigint") return raw;
+        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+        	return BigInt(raw);
+        })(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "GreaterThanBigIntValidator.value is required" }); } else {
                 if (__convertedVal <= 0n) { errors.push({ field: "value", message: "GreaterThanBigIntValidator.value must be greater than 0" }); }
             }
@@ -297,9 +303,15 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
+            const __convertedVal = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw === "bigint") return raw;
+        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+        	return BigInt(raw);
+        })(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "GreaterThanOrEqualToBigIntValidator.value is required" }); } else {
                 if (__convertedVal < 0n) { errors.push({ field: "value", message: "GreaterThanOrEqualToBigIntValidator.value must be greater than or equal to 0" }); }
             }
@@ -478,9 +490,15 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
+            const __convertedVal = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw === "bigint") return raw;
+        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+        	return BigInt(raw);
+        })(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "LessThanBigIntValidator.value is required" }); } else {
                 if (__convertedVal >= 1000n) { errors.push({ field: "value", message: "LessThanBigIntValidator.value must be less than 1000" }); }
             }
@@ -659,9 +677,15 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
+            const __convertedVal = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw === "bigint") return raw;
+        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+        	return BigInt(raw);
+        })(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "LessThanOrEqualToBigIntValidator.value is required" }); } else {
                 if (__convertedVal > 1000n) { errors.push({ field: "value", message: "LessThanOrEqualToBigIntValidator.value must be less than or equal to 1000" }); }
             }
@@ -840,9 +864,15 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
+            const __convertedVal = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw === "bigint") return raw;
+        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+        	return BigInt(raw);
+        })(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "BetweenBigIntValidator.value is required" }); } else {
                 if (__convertedVal < 0n || __convertedVal > 1000n) { errors.push({ field: "value", message: "BetweenBigIntValidator.value must be between 0 and 1000" }); }
             }
@@ -1021,9 +1051,15 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
+            const __convertedVal = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw === "bigint") return raw;
+        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+        	return BigInt(raw);
+        })(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "PositiveBigIntValidator.value is required" }); } else {
                 if (__convertedVal <= 0n) { errors.push({ field: "value", message: "PositiveBigIntValidator.value must be positive" }); }
             }
@@ -1202,9 +1238,15 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
+            const __convertedVal = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw === "bigint") return raw;
+        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+        	return BigInt(raw);
+        })(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "NonNegativeBigIntValidator.value is required" }); } else {
                 if (__convertedVal < 0n) { errors.push({ field: "value", message: "NonNegativeBigIntValidator.value must be non-negative" }); }
             }
@@ -1383,9 +1425,15 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
+            const __convertedVal = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw === "bigint") return raw;
+        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+        	return BigInt(raw);
+        })(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "NegativeBigIntValidator.value is required" }); } else {
                 if (__convertedVal >= 0n) { errors.push({ field: "value", message: "NegativeBigIntValidator.value must be negative" }); }
             }
@@ -1564,9 +1612,15 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         try {
-            const __convertedVal = ((v) => BigInt(v as string))(obj["value"]);
+            const __convertedVal = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw === "bigint") return raw;
+        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+        	return BigInt(raw);
+        })(obj["value"]);
             if (__convertedVal == null) { errors.push({ field: "value", message: "NonPositiveBigIntValidator.value is required" }); } else {
                 if (__convertedVal > 0n) { errors.push({ field: "value", message: "NonPositiveBigIntValidator.value must be non-positive" }); }
             }
@@ -2128,55 +2182,55 @@ export declare function nonPositiveBigIntValidatorIs(value: unknown): value is N
 ## Mapping
 
 original 0..261 -> expanded 350..611
-original 261..262 -> expanded 6886..6887
-original 262..464 -> expanded 8939..9141
-original 464..465 -> expanded 15674..15675
-original 465..634 -> expanded 17862..18031
-original 634..635 -> expanded 24240..24241
-original 635..831 -> expanded 26248..26444
-original 831..832 -> expanded 32911..32912
-original 832..1001 -> expanded 35054..35223
-original 1001..1002 -> expanded 41467..41468
-original 1002..1165 -> expanded 43460..43623
-original 1165..1166 -> expanded 49805..49806
-original 1166..1338 -> expanded 51813..51985
-original 1338..1339 -> expanded 58251..58252
-original 1339..1502 -> expanded 60304..60467
-original 1502..1503 -> expanded 66649..66650
-original 1503..1675 -> expanded 68657..68829
-original 1675..1676 -> expanded 75095..75096
-original 1676..1677 -> expanded 77148..77149
+original 261..262 -> expanded 7207..7208
+original 262..464 -> expanded 9260..9462
+original 464..465 -> expanded 16316..16317
+original 465..634 -> expanded 18504..18673
+original 634..635 -> expanded 25203..25204
+original 635..831 -> expanded 27211..27407
+original 831..832 -> expanded 34195..34196
+original 832..1001 -> expanded 36338..36507
+original 1001..1002 -> expanded 43072..43073
+original 1002..1165 -> expanded 45065..45228
+original 1165..1166 -> expanded 51731..51732
+original 1166..1338 -> expanded 53739..53911
+original 1338..1339 -> expanded 60498..60499
+original 1339..1502 -> expanded 62551..62714
+original 1502..1503 -> expanded 69217..69218
+original 1503..1675 -> expanded 71225..71397
+original 1675..1676 -> expanded 77984..77985
+original 1676..1677 -> expanded 80037..80038
 generated 0..350 <- imports
-generated 611..6886 <- Decode
-generated 6887..8939 <- Decode
-generated 9141..15674 <- Decode
-generated 15675..17862 <- Decode
-generated 18031..24240 <- Decode
-generated 24241..26248 <- Decode
-generated 26444..32911 <- Decode
-generated 32912..35054 <- Decode
-generated 35223..41467 <- Decode
-generated 41468..43460 <- Decode
-generated 43623..49805 <- Decode
-generated 49806..51813 <- Decode
-generated 51985..58251 <- Decode
-generated 58252..60304 <- Decode
-generated 60467..66649 <- Decode
-generated 66650..68657 <- Decode
-generated 68829..75095 <- Decode
-generated 75096..77148 <- Decode
+generated 611..7207 <- Decode
+generated 7208..9260 <- Decode
+generated 9462..16316 <- Decode
+generated 16317..18504 <- Decode
+generated 18673..25203 <- Decode
+generated 25204..27211 <- Decode
+generated 27407..34195 <- Decode
+generated 34196..36338 <- Decode
+generated 36507..43072 <- Decode
+generated 43073..45065 <- Decode
+generated 45228..51731 <- Decode
+generated 51732..53739 <- Decode
+generated 53911..60498 <- Decode
+generated 60499..62551 <- Decode
+generated 62714..69217 <- Decode
+generated 69218..71225 <- Decode
+generated 71397..77984 <- Decode
+generated 77985..80037 <- Decode
 
 ## Metadata
 
-class GreaterThanBigIntValidator: {"body_span":{"end":263,"start":183},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":142,"start":120}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanBigInt(0)\"] }","name":"endec","span":{"end":242,"start":189}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":261,"start":247},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanBigIntValidator","span":{"end":263,"start":150},"superclass":null,"type_params":[]}
-class GreaterThanOrEqualToBigIntValidator: {"body_span":{"end":466,"start":377},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":327,"start":305}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanOrEqualToBigInt(0)\"] }","name":"endec","span":{"end":445,"start":383}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":464,"start":450},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanOrEqualToBigIntValidator","span":{"end":466,"start":335},"superclass":null,"type_params":[]}
-class LessThanBigIntValidator: {"body_span":{"end":636,"start":556},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":518,"start":496}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanBigInt(1000)\"] }","name":"endec","span":{"end":615,"start":562}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":634,"start":620},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanBigIntValidator","span":{"end":636,"start":526},"superclass":null,"type_params":[]}
-class LessThanOrEqualToBigIntValidator: {"body_span":{"end":833,"start":744},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":697,"start":675}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanOrEqualToBigInt(1000)\"] }","name":"endec","span":{"end":812,"start":750}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":831,"start":817},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanOrEqualToBigIntValidator","span":{"end":833,"start":705},"superclass":null,"type_params":[]}
-class BetweenBigIntValidator: {"body_span":{"end":1003,"start":921},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":884,"start":862}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"betweenBigInt(0, 1000)\"] }","name":"endec","span":{"end":982,"start":927}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1001,"start":987},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"BetweenBigIntValidator","span":{"end":1003,"start":892},"superclass":null,"type_params":[]}
-class PositiveBigIntValidator: {"body_span":{"end":1167,"start":1093},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1055,"start":1033}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"positiveBigInt\"] }","name":"endec","span":{"end":1146,"start":1099}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1165,"start":1151},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"PositiveBigIntValidator","span":{"end":1167,"start":1063},"superclass":null,"type_params":[]}
-class NonNegativeBigIntValidator: {"body_span":{"end":1340,"start":1263},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1222,"start":1200}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNegativeBigInt\"] }","name":"endec","span":{"end":1319,"start":1269}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1338,"start":1324},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonNegativeBigIntValidator","span":{"end":1340,"start":1230},"superclass":null,"type_params":[]}
-class NegativeBigIntValidator: {"body_span":{"end":1504,"start":1430},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1392,"start":1370}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"negativeBigInt\"] }","name":"endec","span":{"end":1483,"start":1436}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1502,"start":1488},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NegativeBigIntValidator","span":{"end":1504,"start":1400},"superclass":null,"type_params":[]}
-class NonPositiveBigIntValidator: {"body_span":{"end":1677,"start":1600},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1559,"start":1537}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonPositiveBigInt\"] }","name":"endec","span":{"end":1656,"start":1606}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1675,"start":1661},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonPositiveBigIntValidator","span":{"end":1677,"start":1567},"superclass":null,"type_params":[]}
+class GreaterThanBigIntValidator: {"body_span":{"end":263,"start":183},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":142,"start":120}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanBigInt(0)\"] }","name":"endec","span":{"end":242,"start":189}}],"initializer":null,"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":261,"start":247},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanBigIntValidator","span":{"end":263,"start":150},"superclass":null,"type_params":[]}
+class GreaterThanOrEqualToBigIntValidator: {"body_span":{"end":466,"start":377},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":327,"start":305}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanOrEqualToBigInt(0)\"] }","name":"endec","span":{"end":445,"start":383}}],"initializer":null,"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":464,"start":450},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanOrEqualToBigIntValidator","span":{"end":466,"start":335},"superclass":null,"type_params":[]}
+class LessThanBigIntValidator: {"body_span":{"end":636,"start":556},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":518,"start":496}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanBigInt(1000)\"] }","name":"endec","span":{"end":615,"start":562}}],"initializer":null,"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":634,"start":620},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanBigIntValidator","span":{"end":636,"start":526},"superclass":null,"type_params":[]}
+class LessThanOrEqualToBigIntValidator: {"body_span":{"end":833,"start":744},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":697,"start":675}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanOrEqualToBigInt(1000)\"] }","name":"endec","span":{"end":812,"start":750}}],"initializer":null,"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":831,"start":817},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanOrEqualToBigIntValidator","span":{"end":833,"start":705},"superclass":null,"type_params":[]}
+class BetweenBigIntValidator: {"body_span":{"end":1003,"start":921},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":884,"start":862}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"betweenBigInt(0, 1000)\"] }","name":"endec","span":{"end":982,"start":927}}],"initializer":null,"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":1001,"start":987},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"BetweenBigIntValidator","span":{"end":1003,"start":892},"superclass":null,"type_params":[]}
+class PositiveBigIntValidator: {"body_span":{"end":1167,"start":1093},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1055,"start":1033}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"positiveBigInt\"] }","name":"endec","span":{"end":1146,"start":1099}}],"initializer":null,"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":1165,"start":1151},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"PositiveBigIntValidator","span":{"end":1167,"start":1063},"superclass":null,"type_params":[]}
+class NonNegativeBigIntValidator: {"body_span":{"end":1340,"start":1263},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1222,"start":1200}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNegativeBigInt\"] }","name":"endec","span":{"end":1319,"start":1269}}],"initializer":null,"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":1338,"start":1324},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonNegativeBigIntValidator","span":{"end":1340,"start":1230},"superclass":null,"type_params":[]}
+class NegativeBigIntValidator: {"body_span":{"end":1504,"start":1430},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1392,"start":1370}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"negativeBigInt\"] }","name":"endec","span":{"end":1483,"start":1436}}],"initializer":null,"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":1502,"start":1488},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NegativeBigIntValidator","span":{"end":1504,"start":1400},"superclass":null,"type_params":[]}
+class NonPositiveBigIntValidator: {"body_span":{"end":1677,"start":1600},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1559,"start":1537}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonPositiveBigInt\"] }","name":"endec","span":{"end":1656,"start":1606}}],"initializer":null,"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":1675,"start":1661},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonPositiveBigIntValidator","span":{"end":1677,"start":1567},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

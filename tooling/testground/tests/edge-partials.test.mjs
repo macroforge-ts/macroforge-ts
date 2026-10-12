@@ -262,3 +262,87 @@ Deno.test('a Partial of a type with a flattened field codes that field when it h
     const picked = JSON.parse(mod.edgeRenamedPartialsEncode({ ...renamed(), labelOnly: whole }));
     assertEquals(picked.labelOnly, { label: 'kept' });
 });
+
+const optional = (extra) => ({ id: 'o', ...extra });
+
+const required = () => ({
+    plain: { id: 'p', level: 1 },
+    whole: { id: 'w', nick: 'n', age: 3, level: 2 },
+    picked: { nick: 'p' },
+    again: { id: 'a', nick: 'n', age: 4, level: 1 },
+    loose: { nick: 'l' },
+    wholes: [{ id: 'x', nick: 'n', age: 5, level: 3 }]
+});
+
+Deno.test('a field a type leaves optional may be left out, and is reported once when required', () => {
+    const result = mod.edgeOptionalDecode(mod.edgeOptionalEncode(optional()));
+    assert(result.success, JSON.stringify(result.errors));
+    assertEquals(result.value, { id: 'o', level: 1 });
+
+    const missing = mod.edgeOptionalDecode({});
+    assert(!missing.success);
+    assertEquals(missing.errors, [{ field: 'id', message: 'missing required field' }]);
+});
+
+Deno.test('a Required of a type has to have the fields the type leaves optional', () => {
+    const encoded = JSON.parse(mod.edgeRequiredEncode(required()));
+    assertEquals(encoded.whole, { id: 'w', nick: 'n', years: 3, level: 2 });
+
+    const result = mod.edgeRequiredDecode(encoded);
+    assert(result.success, JSON.stringify(result.errors));
+    assertEquals(result.value, required());
+
+    const fieldsOf = (change) => errorFields(mod.edgeRequiredDecode({ ...encoded, ...change }));
+    assertEquals(fieldsOf({ whole: { id: 'w' } }), ['whole.nick', 'whole.years']);
+    assertEquals(fieldsOf({ whole: { nick: 'n', years: 3 } }), ['whole.id']);
+    assertEquals(fieldsOf({ picked: {} }), ['picked.nick']);
+    assertEquals(fieldsOf({ again: { id: 'a', nick: 'n' } }), ['again.years']);
+    assertEquals(fieldsOf({ wholes: [encoded.wholes[0], { id: 'y', years: 1 }] }), [
+        'wholes[1].nick'
+    ]);
+
+    // A default fills the field a `Required` would otherwise miss, and a
+    // `Partial` around a `Required` asks for none.
+    const filled = mod.edgeRequiredDecode({
+        ...encoded,
+        whole: { id: 'w', nick: 'n', years: 3 },
+        loose: {}
+    });
+    assert(filled.success, JSON.stringify(filled.errors));
+    assertStrictEquals(filled.value.whole.level, 1);
+    assertEquals(filled.value.loose, {});
+});
+
+Deno.test('a reference standing for a Required has to name a value with every field', () => {
+    const encoded = JSON.parse(mod.edgeRequiredEncode(required()));
+    const complete = { __id: 40, id: 'c', nick: 'n', years: 2 };
+    const sparse = { __id: 41, id: 's' };
+
+    const shared = mod.edgeRequiredDecode({ ...encoded, plain: complete, whole: { __ref: 40 } });
+    assert(shared.success, JSON.stringify(shared.errors));
+    assertStrictEquals(shared.value.whole, shared.value.plain);
+
+    const lacking = mod.edgeRequiredDecode({ ...encoded, plain: sparse, whole: { __ref: 41 } });
+    assertEquals(errorFields(lacking), ['whole.nick', 'whole.years']);
+});
+
+Deno.test('a date field takes a date or the text of one, and nothing else', () => {
+    const base = {
+        display_name: 'Ada',
+        mail: 'ada@example.com',
+        joined_at: '2024-01-02T03:04:05.000Z',
+        tags: []
+    };
+    const fieldsOf = (change) => errorFields(types.edgeProfileDecode({ ...base, ...change }));
+    for (const bad of ['garbage', '', 5, true, { a: 1 }, [], null, new Date('nope')]) {
+        assertEquals(fieldsOf({ joined_at: bad }), ['joined_at'], JSON.stringify(bad));
+    }
+    const given = types.edgeProfileDecode({ ...base, joined_at: new Date(0) });
+    assert(given.success, JSON.stringify(given.errors));
+    assertStrictEquals(given.value.joinedAt.getTime(), 0);
+
+    // A hole in an array is an element that is not there.
+    const sparse = ['a'];
+    sparse[2] = 'c';
+    assertEquals(fieldsOf({ tags: sparse }), ['tags[1]']);
+});

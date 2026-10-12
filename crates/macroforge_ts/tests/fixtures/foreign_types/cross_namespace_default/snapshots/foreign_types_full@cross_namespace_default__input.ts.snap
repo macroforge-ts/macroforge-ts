@@ -21,7 +21,7 @@ true
 ## Output
 
 import { __foreign__dateTimeUtcDefault, __foreign__dateTimeUtcEncode, __foreign__dateTimeUtcDecode } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { DateTime } from 'effect';
 
@@ -50,12 +50,9 @@ export function fooEncode(value: Foo, keepMetadata?: boolean): string {
 export function fooEncodeWithContext(value: Foo, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Foo",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Foo" });
     fooEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -171,7 +168,7 @@ export function fooDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -180,7 +177,7 @@ export function fooDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("createdAt")) || (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
         try {
             instance.createdAt = __foreign__dateTimeUtcDecode(obj["createdAt"]);
         } catch (__error) {
@@ -305,19 +302,19 @@ export declare const Foo: {
 
 ## Mapping
 
-original 0..36 -> expanded 652..688
-original 75..103 -> expanded 688..716
-original 134..181 -> expanded 716..763
-original 181..182 -> expanded 9843..9844
-generated 0..652 <- imports
-generated 763..907 <- Default
-generated 907..3168 <- Encode
-generated 3168..8868 <- Decode
-generated 8868..9843 <- __convenience_const
+original 0..36 -> expanded 724..760
+original 75..103 -> expanded 760..788
+original 134..181 -> expanded 788..835
+original 181..182 -> expanded 9934..9935
+generated 0..724 <- imports
+generated 835..979 <- Default
+generated 979..3226 <- Encode
+generated 3226..8959 <- Decode
+generated 8959..9934 <- __convenience_const
 
 ## Metadata
 
-interface Foo: {"body_span":{"end":182,"start":98},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":76,"start":37}}],"fields":[{"decorators":[{"args_src":"\"place:holder\"","name":"default","span":{"end":135,"start":104}}],"name":"id","optional":false,"readonly":false,"span":{"end":151,"start":140},"ts_type":"string"},{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":180,"start":156},"ts_type":"DateTime.Utc"}],"heritage":[],"methods":[],"name":"Foo","span":{"end":182,"start":84},"type_params":[]}
+interface Foo: {"body_span":{"end":182,"start":98},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":76,"start":37}}],"fields":[{"decorators":[{"args_src":"\"place:holder\"","name":"default","span":{"end":135,"start":104}}],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":151,"start":140},"ts_type":"string"},{"decorators":[],"key":"Named","name":"createdAt","optional":false,"readonly":false,"span":{"end":180,"start":156},"ts_type":"DateTime.Utc"}],"heritage":[],"methods":[],"name":"Foo","span":{"end":182,"start":84},"type_params":[]}
 
 ## Registry reads
 

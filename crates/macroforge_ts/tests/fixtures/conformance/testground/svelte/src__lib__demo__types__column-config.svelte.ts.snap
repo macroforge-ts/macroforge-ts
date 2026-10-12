@@ -13,7 +13,7 @@ true
 ## Output
 
 import { dataPathDecodeWithContext, dataPathEncodeWithContext, dataPathDefaultValue } from "./data-path.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -46,12 +46,9 @@ export function columnConfigEncode(value: ColumnConfig, keepMetadata?: boolean):
 export function columnConfigEncodeWithContext(value: ColumnConfig, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "ColumnConfig",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ColumnConfig" });
     columnConfigEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -167,7 +164,7 @@ export function columnConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("heading")) || (__fields.keeps("heading") && obj["heading"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("heading")) ? "heading" in obj : (__fields.keeps("heading") && obj["heading"] !== undefined)) {
         const __raw_heading = obj["heading"] as string;
 
         if (!(typeof __raw_heading === "string")) {
@@ -179,7 +176,7 @@ export function columnConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             instance.heading = __raw_heading;
         }
     }
-    if ((__fields === undefined || __fields.requires("dataPath")) || (__fields.keeps("dataPath") && obj["dataPath"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("dataPath")) ? "dataPath" in obj : (__fields.keeps("dataPath") && obj["dataPath"] !== undefined)) {
         const __raw_dataPath = obj["dataPath"] as DataPath;
 
         ctx.pushScope("dataPath");
@@ -195,7 +192,8 @@ export function columnConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "dataPath", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
@@ -518,20 +516,20 @@ export declare const ColumnConfig: {
 
 ## Mapping
 
-original 0..110 -> expanded 796..906
-original 159..196 -> expanded 906..943
-original 237..284 -> expanded 943..990
-original 284..285 -> expanded 17678..17679
-generated 0..796 <- imports
-generated 990..1135 <- Default
-generated 1135..3548 <- Encode
-generated 3548..11024 <- Decode
-generated 11024..16304 <- Gigaform
-generated 16304..17678 <- __convenience_const
+original 0..110 -> expanded 868..978
+original 159..196 -> expanded 978..1015
+original 237..284 -> expanded 1015..1062
+original 284..285 -> expanded 17858..17859
+generated 0..868 <- imports
+generated 1062..1207 <- Default
+generated 1207..3606 <- Encode
+generated 3606..11204 <- Decode
+generated 11204..16484 <- Gigaform
+generated 16484..17858 <- __convenience_const
 
 ## Metadata
 
-interface ColumnConfig: {"body_span":{"end":285,"start":191},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":160,"start":111}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":238,"start":197}}],"name":"heading","optional":false,"readonly":false,"span":{"end":259,"start":243},"ts_type":"string"},{"decorators":[],"name":"dataPath","optional":false,"readonly":false,"span":{"end":283,"start":264},"ts_type":"DataPath"}],"heritage":[],"methods":[],"name":"ColumnConfig","span":{"end":285,"start":168},"type_params":[]}
+interface ColumnConfig: {"body_span":{"end":285,"start":191},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":160,"start":111}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":238,"start":197}}],"key":"Named","name":"heading","optional":false,"readonly":false,"span":{"end":259,"start":243},"ts_type":"string"},{"decorators":[],"key":"Named","name":"dataPath","optional":false,"readonly":false,"span":{"end":283,"start":264},"ts_type":"DataPath"}],"heritage":[],"methods":[],"name":"ColumnConfig","span":{"end":285,"start":168},"type_params":[]}
 
 ## Registry reads
 

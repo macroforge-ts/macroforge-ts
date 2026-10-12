@@ -22,7 +22,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 
@@ -135,12 +135,9 @@ export function runEncode(value: Run, keepMetadata?: boolean): string {
 export function runEncodeWithContext(value: Run, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Run",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Run" });
     runEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -261,7 +258,7 @@ export function runDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("distance")) || (__fields.keeps("distance") && obj["distance"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("distance")) ? "distance" in obj : (__fields.keeps("distance") && obj["distance"] !== undefined)) {
         const __raw_distance = obj["distance"] as Meters;
 
         ctx.pushScope("distance");
@@ -277,13 +274,14 @@ export function runDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "distance", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("splits")) || (__fields.keeps("splits") && obj["splits"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("splits")) ? "splits" in obj : (__fields.keeps("splits") && obj["splits"] !== undefined)) {
         const __raw_splits = obj["splits"] as Meters[];
         if (Array.isArray(__raw_splits)) {
             ctx.pushScope("splits");
@@ -324,7 +322,8 @@ export function runDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "best", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
@@ -457,24 +456,24 @@ export {};
 
 ## Mapping
 
-original 57..72 -> expanded 602..617
-original 88..89 -> expanded 661..662
-original 89..91 -> expanded 3866..3868
-original 121..196 -> expanded 3868..3943
-original 196..197 -> expanded 15093..15094
-generated 0..557 <- imports
-generated 557..602 <- $Newtype
-generated 617..661 <- $Newtype
-generated 662..1370 <- Encode
-generated 1370..3377 <- Decode
-generated 3377..3866 <- __convenience_const
-generated 3943..6455 <- Encode
-generated 6455..14207 <- Decode
-generated 14207..15093 <- __convenience_const
+original 57..72 -> expanded 674..689
+original 88..89 -> expanded 733..734
+original 89..91 -> expanded 3938..3940
+original 121..196 -> expanded 3940..4015
+original 196..197 -> expanded 15353..15354
+generated 0..629 <- imports
+generated 629..674 <- $Newtype
+generated 689..733 <- $Newtype
+generated 734..1442 <- Encode
+generated 1442..3449 <- Decode
+generated 3449..3938 <- __convenience_const
+generated 4015..6513 <- Encode
+generated 6513..14467 <- Decode
+generated 14467..15353 <- __convenience_const
 
 ## Metadata
 
-interface Run: {"body_span":{"end":270,"start":210},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":195,"start":165}}],"fields":[{"decorators":[],"name":"distance","optional":false,"readonly":false,"span":{"end":231,"start":214},"ts_type":"Meters"},{"decorators":[],"name":"splits","optional":false,"readonly":false,"span":{"end":251,"start":234},"ts_type":"Meters[]"},{"decorators":[],"name":"best","optional":true,"readonly":false,"span":{"end":268,"start":254},"ts_type":"Meters"}],"heritage":[],"methods":[],"name":"Run","span":{"end":270,"start":196},"type_params":[]}
+interface Run: {"body_span":{"end":270,"start":210},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":195,"start":165}}],"fields":[{"decorators":[],"key":"Named","name":"distance","optional":false,"readonly":false,"span":{"end":231,"start":214},"ts_type":"Meters"},{"decorators":[],"key":"Named","name":"splits","optional":false,"readonly":false,"span":{"end":251,"start":234},"ts_type":"Meters[]"},{"decorators":[],"key":"Named","name":"best","optional":true,"readonly":false,"span":{"end":268,"start":254},"ts_type":"Meters"}],"heritage":[],"methods":[],"name":"Run","span":{"end":270,"start":196},"type_params":[]}
 type Meters: {"body":{"Newtype":{"Alias":"number"}},"decorators":[{"args_src":"nonNegative","name":"endec","span":{"end":103,"start":77}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":76,"start":46}}],"name":"Meters","span":{"end":163,"start":104},"type_params":[]}
 
 ## Registry reads

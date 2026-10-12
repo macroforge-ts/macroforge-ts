@@ -16,7 +16,7 @@ import { appPermissionsDecodeWithContext, appPermissionsEncodeWithContext, appPe
 import { settingsDecodeWithContext, settingsEncodeWithContext, settingsDefaultValue } from "./settings.svelte";
 import { userRoleDecodeWithContext, userRoleEncodeWithContext } from "./user-role.svelte";
 import { __foreign__optionOptionDefault, __foreign__dateTimeDateTimeDefault, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionDecode, __foreign__dateTimeDateTimeDecode } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -84,12 +84,9 @@ export function userEncode(value: User, keepMetadata?: boolean): string {
 export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "User",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "User" });
     userEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -317,7 +314,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -326,14 +323,14 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
         try {
             instance.email = __foreign__optionOptionDecode(obj["email"]);
         } catch (__error) {
             errors.push({ field: "email", message: __error instanceof Error ? __error.message : String(__error) });
         }
     }
-    if ((__fields === undefined || __fields.requires("firstName")) || (__fields.keeps("firstName") && obj["firstName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("firstName")) ? "firstName" in obj : (__fields.keeps("firstName") && obj["firstName"] !== undefined)) {
         const __raw_firstName = obj["firstName"] as string;
 
         if (!(typeof __raw_firstName === "string")) {
@@ -345,7 +342,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.firstName = __raw_firstName;
         }
     }
-    if ((__fields === undefined || __fields.requires("lastName")) || (__fields.keeps("lastName") && obj["lastName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("lastName")) ? "lastName" in obj : (__fields.keeps("lastName") && obj["lastName"] !== undefined)) {
         const __raw_lastName = obj["lastName"] as string;
 
         if (!(typeof __raw_lastName === "string")) {
@@ -357,21 +354,21 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.lastName = __raw_lastName;
         }
     }
-    if ((__fields === undefined || __fields.requires("password")) || (__fields.keeps("password") && obj["password"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("password")) ? "password" in obj : (__fields.keeps("password") && obj["password"] !== undefined)) {
         try {
             instance.password = __foreign__optionOptionDecode(obj["password"]);
         } catch (__error) {
             errors.push({ field: "password", message: __error instanceof Error ? __error.message : String(__error) });
         }
     }
-    if ((__fields === undefined || __fields.requires("metadata")) || (__fields.keeps("metadata") && obj["metadata"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("metadata")) ? "metadata" in obj : (__fields.keeps("metadata") && obj["metadata"] !== undefined)) {
         try {
             instance.metadata = __foreign__optionOptionDecode(obj["metadata"]);
         } catch (__error) {
             errors.push({ field: "metadata", message: __error instanceof Error ? __error.message : String(__error) });
         }
     }
-    if ((__fields === undefined || __fields.requires("settings")) || (__fields.keeps("settings") && obj["settings"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("settings")) ? "settings" in obj : (__fields.keeps("settings") && obj["settings"] !== undefined)) {
         const __raw_settings = obj["settings"] as Settings;
 
         ctx.pushScope("settings");
@@ -387,13 +384,14 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "settings", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("role")) || (__fields.keeps("role") && obj["role"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("role")) ? "role" in obj : (__fields.keeps("role") && obj["role"] !== undefined)) {
         const __raw_role = obj["role"] as UserRole;
 
         ctx.pushScope("role");
@@ -409,13 +407,14 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "role", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("emailVerified")) || (__fields.keeps("emailVerified") && obj["emailVerified"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("emailVerified")) ? "emailVerified" in obj : (__fields.keeps("emailVerified") && obj["emailVerified"] !== undefined)) {
         const __raw_emailVerified = obj["emailVerified"] as boolean;
 
         if (!(typeof __raw_emailVerified === "boolean")) {
@@ -424,35 +423,35 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.emailVerified = __raw_emailVerified;
         }
     }
-    if ((__fields === undefined || __fields.requires("verificationToken")) || (__fields.keeps("verificationToken") && obj["verificationToken"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("verificationToken")) ? "verificationToken" in obj : (__fields.keeps("verificationToken") && obj["verificationToken"] !== undefined)) {
         try {
             instance.verificationToken = __foreign__optionOptionDecode(obj["verificationToken"]);
         } catch (__error) {
             errors.push({ field: "verificationToken", message: __error instanceof Error ? __error.message : String(__error) });
         }
     }
-    if ((__fields === undefined || __fields.requires("verificationExpires")) || (__fields.keeps("verificationExpires") && obj["verificationExpires"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("verificationExpires")) ? "verificationExpires" in obj : (__fields.keeps("verificationExpires") && obj["verificationExpires"] !== undefined)) {
         try {
             instance.verificationExpires = __foreign__optionOptionDecode(obj["verificationExpires"]);
         } catch (__error) {
             errors.push({ field: "verificationExpires", message: __error instanceof Error ? __error.message : String(__error) });
         }
     }
-    if ((__fields === undefined || __fields.requires("passwordResetToken")) || (__fields.keeps("passwordResetToken") && obj["passwordResetToken"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("passwordResetToken")) ? "passwordResetToken" in obj : (__fields.keeps("passwordResetToken") && obj["passwordResetToken"] !== undefined)) {
         try {
             instance.passwordResetToken = __foreign__optionOptionDecode(obj["passwordResetToken"]);
         } catch (__error) {
             errors.push({ field: "passwordResetToken", message: __error instanceof Error ? __error.message : String(__error) });
         }
     }
-    if ((__fields === undefined || __fields.requires("passwordResetExpires")) || (__fields.keeps("passwordResetExpires") && obj["passwordResetExpires"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("passwordResetExpires")) ? "passwordResetExpires" in obj : (__fields.keeps("passwordResetExpires") && obj["passwordResetExpires"] !== undefined)) {
         try {
             instance.passwordResetExpires = __foreign__optionOptionDecode(obj["passwordResetExpires"]);
         } catch (__error) {
             errors.push({ field: "passwordResetExpires", message: __error instanceof Error ? __error.message : String(__error) });
         }
     }
-    if ((__fields === undefined || __fields.requires("permissions")) || (__fields.keeps("permissions") && obj["permissions"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("permissions")) ? "permissions" in obj : (__fields.keeps("permissions") && obj["permissions"] !== undefined)) {
         const __raw_permissions = obj["permissions"] as AppPermissions;
 
         ctx.pushScope("permissions");
@@ -468,20 +467,21 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "permissions", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("createdAt")) || (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
         try {
             instance.createdAt = __foreign__dateTimeDateTimeDecode(obj["createdAt"]);
         } catch (__error) {
             errors.push({ field: "createdAt", message: __error instanceof Error ? __error.message : String(__error) });
         }
     }
-    if ((__fields === undefined || __fields.requires("lastLoginAt")) || (__fields.keeps("lastLoginAt") && obj["lastLoginAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("lastLoginAt")) ? "lastLoginAt" in obj : (__fields.keeps("lastLoginAt") && obj["lastLoginAt"] !== undefined)) {
         try {
             instance.lastLoginAt = __foreign__optionOptionDecode(obj["lastLoginAt"]);
         } catch (__error) {
@@ -1506,22 +1506,22 @@ export declare const User: {
 
 ## Mapping
 
-original 0..325 -> expanded 1252..1577
-original 374..453 -> expanded 1577..1656
-original 494..522 -> expanded 1656..1684
-original 563..690 -> expanded 1684..1811
-original 722..1102 -> expanded 1811..2191
-original 1102..1103 -> expanded 57666..57667
-generated 0..1252 <- imports
-generated 2191..2987 <- Default
-generated 2987..8185 <- Encode
-generated 8185..26168 <- Decode
-generated 26168..56508 <- Gigaform
-generated 56508..57666 <- __convenience_const
+original 0..325 -> expanded 1324..1649
+original 374..453 -> expanded 1649..1728
+original 494..522 -> expanded 1728..1756
+original 563..690 -> expanded 1756..1883
+original 722..1102 -> expanded 1883..2263
+original 1102..1103 -> expanded 58324..58325
+generated 0..1324 <- imports
+generated 2263..3059 <- Default
+generated 3059..8243 <- Encode
+generated 8243..26826 <- Decode
+generated 26826..57166 <- Gigaform
+generated 57166..58324 <- __convenience_const
 
 ## Metadata
 
-interface User: {"body_span":{"end":1103,"start":398},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":375,"start":326}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":415,"start":404},"ts_type":"string"},{"decorators":[],"name":"email","optional":false,"readonly":false,"span":{"end":449,"start":420},"ts_type":"Option.Option<string>"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":495,"start":454}}],"name":"firstName","optional":false,"readonly":false,"span":{"end":518,"start":500},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":564,"start":523}}],"name":"lastName","optional":false,"readonly":false,"span":{"end":586,"start":569},"ts_type":"string"},{"decorators":[],"name":"password","optional":false,"readonly":false,"span":{"end":623,"start":591},"ts_type":"Option.Option<string>"},{"decorators":[],"name":"metadata","optional":false,"readonly":false,"span":{"end":662,"start":628},"ts_type":"Option.Option<Metadata>"},{"decorators":[],"name":"settings","optional":false,"readonly":false,"span":{"end":686,"start":667},"ts_type":"Settings"},{"decorators":[{"args_src":"\"Administrator\"","name":"default","span":{"end":723,"start":691}}],"name":"role","optional":false,"readonly":false,"span":{"end":743,"start":728},"ts_type":"UserRole"},{"decorators":[],"name":"emailVerified","optional":false,"readonly":false,"span":{"end":771,"start":748},"ts_type":"boolean"},{"decorators":[],"name":"verificationToken","optional":false,"readonly":false,"span":{"end":817,"start":776},"ts_type":"Option.Option<string>"},{"decorators":[],"name":"verificationExpires","optional":false,"readonly":false,"span":{"end":876,"start":822},"ts_type":"Option.Option<DateTime.DateTime>"},{"decorators":[],"name":"passwordResetToken","optional":false,"readonly":false,"span":{"end":923,"start":881},"ts_type":"Option.Option<string>"},{"decorators":[],"name":"passwordResetExpires","optional":false,"readonly":false,"span":{"end":983,"start":928},"ts_type":"Option.Option<DateTime.DateTime>"},{"decorators":[],"name":"permissions","optional":false,"readonly":false,"span":{"end":1016,"start":988},"ts_type":"AppPermissions"},{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":1050,"start":1021},"ts_type":"DateTime.DateTime"},{"decorators":[],"name":"lastLoginAt","optional":false,"readonly":false,"span":{"end":1101,"start":1055},"ts_type":"Option.Option<DateTime.DateTime>"}],"heritage":[],"methods":[],"name":"User","span":{"end":1103,"start":383},"type_params":[]}
+interface User: {"body_span":{"end":1103,"start":398},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":375,"start":326}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":415,"start":404},"ts_type":"string"},{"decorators":[],"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":449,"start":420},"ts_type":"Option.Option<string>"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":495,"start":454}}],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":518,"start":500},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":564,"start":523}}],"key":"Named","name":"lastName","optional":false,"readonly":false,"span":{"end":586,"start":569},"ts_type":"string"},{"decorators":[],"key":"Named","name":"password","optional":false,"readonly":false,"span":{"end":623,"start":591},"ts_type":"Option.Option<string>"},{"decorators":[],"key":"Named","name":"metadata","optional":false,"readonly":false,"span":{"end":662,"start":628},"ts_type":"Option.Option<Metadata>"},{"decorators":[],"key":"Named","name":"settings","optional":false,"readonly":false,"span":{"end":686,"start":667},"ts_type":"Settings"},{"decorators":[{"args_src":"\"Administrator\"","name":"default","span":{"end":723,"start":691}}],"key":"Named","name":"role","optional":false,"readonly":false,"span":{"end":743,"start":728},"ts_type":"UserRole"},{"decorators":[],"key":"Named","name":"emailVerified","optional":false,"readonly":false,"span":{"end":771,"start":748},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"verificationToken","optional":false,"readonly":false,"span":{"end":817,"start":776},"ts_type":"Option.Option<string>"},{"decorators":[],"key":"Named","name":"verificationExpires","optional":false,"readonly":false,"span":{"end":876,"start":822},"ts_type":"Option.Option<DateTime.DateTime>"},{"decorators":[],"key":"Named","name":"passwordResetToken","optional":false,"readonly":false,"span":{"end":923,"start":881},"ts_type":"Option.Option<string>"},{"decorators":[],"key":"Named","name":"passwordResetExpires","optional":false,"readonly":false,"span":{"end":983,"start":928},"ts_type":"Option.Option<DateTime.DateTime>"},{"decorators":[],"key":"Named","name":"permissions","optional":false,"readonly":false,"span":{"end":1016,"start":988},"ts_type":"AppPermissions"},{"decorators":[],"key":"Named","name":"createdAt","optional":false,"readonly":false,"span":{"end":1050,"start":1021},"ts_type":"DateTime.DateTime"},{"decorators":[],"key":"Named","name":"lastLoginAt","optional":false,"readonly":false,"span":{"end":1101,"start":1055},"ts_type":"Option.Option<DateTime.DateTime>"}],"heritage":[],"methods":[],"name":"User","span":{"end":1103,"start":383},"type_params":[]}
 
 ## Registry reads
 

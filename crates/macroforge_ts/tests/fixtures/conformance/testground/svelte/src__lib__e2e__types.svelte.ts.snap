@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { __foreign__dateTimeDateTimeDecode, __foreign__dateTimeDateTimeHasShape } from "#macroforge/config";
 /**
@@ -69,12 +69,9 @@ export function addressEncode(value: Address, keepMetadata?: boolean): string {
 export function addressEncodeWithContext(value: Address, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Address",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Address" });
     addressEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -214,7 +211,7 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("street")) || (__fields.keeps("street") && obj["street"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("street")) ? "street" in obj : (__fields.keeps("street") && obj["street"] !== undefined)) {
         const __raw_street = obj["street"] as string;
 
         if (!(typeof __raw_street === "string")) {
@@ -223,7 +220,7 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.street = __raw_street;
         }
     }
-    if ((__fields === undefined || __fields.requires("city")) || (__fields.keeps("city") && obj["city"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("city")) ? "city" in obj : (__fields.keeps("city") && obj["city"] !== undefined)) {
         const __raw_city = obj["city"] as string;
 
         if (!(typeof __raw_city === "string")) {
@@ -232,7 +229,7 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.city = __raw_city;
         }
     }
-    if ((__fields === undefined || __fields.requires("state")) || (__fields.keeps("state") && obj["state"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("state")) ? "state" in obj : (__fields.keeps("state") && obj["state"] !== undefined)) {
         const __raw_state = obj["state"] as string;
 
         if (!(typeof __raw_state === "string")) {
@@ -241,7 +238,7 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.state = __raw_state;
         }
     }
-    if ((__fields === undefined || __fields.requires("zip")) || (__fields.keeps("zip") && obj["zip"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("zip")) ? "zip" in obj : (__fields.keeps("zip") && obj["zip"] !== undefined)) {
         const __raw_zip = obj["zip"] as string;
 
         if (!(typeof __raw_zip === "string")) {
@@ -250,7 +247,7 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.zip = __raw_zip;
         }
     }
-    if ((__fields === undefined || __fields.requires("country")) || (__fields.keeps("country") && obj["country"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("country")) ? "country" in obj : (__fields.keeps("country") && obj["country"] !== undefined)) {
         const __raw_country = obj["country"] as string;
 
         if (!(typeof __raw_country === "string")) {
@@ -332,12 +329,9 @@ export function skillEncode(value: Skill, keepMetadata?: boolean): string {
 export function skillEncodeWithContext(value: Skill, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Skill",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Skill" });
     skillEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -461,7 +455,7 @@ export function skillDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -470,7 +464,7 @@ export function skillDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("level")) || (__fields.keeps("level") && obj["level"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("level")) ? "level" in obj : (__fields.keeps("level") && obj["level"] !== undefined)) {
         const __raw_level = obj["level"] as number;
 
         if (!(typeof __raw_level === "number")) {
@@ -479,12 +473,16 @@ export function skillDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             instance.level = __raw_level;
         }
     }
-    if ((__fields === undefined || __fields.requires("certifiedAt")) || (__fields.keeps("certifiedAt") && obj["certifiedAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("certifiedAt")) ? "certifiedAt" in obj : (__fields.keeps("certifiedAt") && obj["certifiedAt"] !== undefined)) {
         const __raw_certifiedAt = obj["certifiedAt"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_certifiedAt === "string" ? new Date(__raw_certifiedAt) : __raw_certifiedAt as Date;
-            instance.certifiedAt = __dateVal;
+            const __dateVal = (__raw_certifiedAt instanceof Date ? __raw_certifiedAt : typeof __raw_certifiedAt === "string" ? new Date(__raw_certifiedAt) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "certifiedAt", message: __raw_certifiedAt == null ? "Skill.certifiedAt is required" : "expected Date" });
+            } else {
+                instance.certifiedAt = __dateVal;
+            }
         }
     }
 
@@ -560,12 +558,9 @@ export function milestoneEncode(value: Milestone, keepMetadata?: boolean): strin
 export function milestoneEncodeWithContext(value: Milestone, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Milestone",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Milestone" });
     milestoneEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -689,7 +684,7 @@ export function milestoneDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("title")) || (__fields.keeps("title") && obj["title"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
         const __raw_title = obj["title"] as string;
 
         if (!(typeof __raw_title === "string")) {
@@ -698,22 +693,30 @@ export function milestoneDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
             instance.title = __raw_title;
         }
     }
-    if ((__fields === undefined || __fields.requires("dueDate")) || (__fields.keeps("dueDate") && obj["dueDate"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("dueDate")) ? "dueDate" in obj : (__fields.keeps("dueDate") && obj["dueDate"] !== undefined)) {
         const __raw_dueDate = obj["dueDate"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_dueDate === "string" ? new Date(__raw_dueDate) : __raw_dueDate as Date;
-            instance.dueDate = __dateVal;
+            const __dateVal = (__raw_dueDate instanceof Date ? __raw_dueDate : typeof __raw_dueDate === "string" ? new Date(__raw_dueDate) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "dueDate", message: __raw_dueDate == null ? "Milestone.dueDate is required" : "expected Date" });
+            } else {
+                instance.dueDate = __dateVal;
+            }
         }
     }
-    if ((__fields === undefined || __fields.requires("completedAt")) || (__fields.keeps("completedAt") && obj["completedAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("completedAt")) ? "completedAt" in obj : (__fields.keeps("completedAt") && obj["completedAt"] !== undefined)) {
         const __raw_completedAt = obj["completedAt"] as string | Date | null;
 
         if (__raw_completedAt === null) {
             instance.completedAt = null;
         } else {
-            const __dateVal = typeof __raw_completedAt === "string" ? new Date(__raw_completedAt) : __raw_completedAt;
-            instance.completedAt = __dateVal;
+            const __dateVal = (__raw_completedAt instanceof Date ? __raw_completedAt : typeof __raw_completedAt === "string" ? new Date(__raw_completedAt) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "completedAt", message: "expected Date | null" });
+            } else {
+                instance.completedAt = __dateVal;
+            }
         }
     }
 
@@ -788,12 +791,9 @@ export function metadataValueEncode(value: MetadataValue, keepMetadata?: boolean
 export function metadataValueEncodeWithContext(value: MetadataValue, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "MetadataValue",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "MetadataValue" });
     metadataValueEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -909,7 +909,7 @@ export function metadataValueDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as string;
 
         if (!(typeof __raw_value === "string")) {
@@ -918,12 +918,16 @@ export function metadataValueDecodeWithContext(value: unknown, ctx: __mf_DecodeC
             instance.value = __raw_value;
         }
     }
-    if ((__fields === undefined || __fields.requires("updatedAt")) || (__fields.keeps("updatedAt") && obj["updatedAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("updatedAt")) ? "updatedAt" in obj : (__fields.keeps("updatedAt") && obj["updatedAt"] !== undefined)) {
         const __raw_updatedAt = obj["updatedAt"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_updatedAt === "string" ? new Date(__raw_updatedAt) : __raw_updatedAt as Date;
-            instance.updatedAt = __dateVal;
+            const __dateVal = (__raw_updatedAt instanceof Date ? __raw_updatedAt : typeof __raw_updatedAt === "string" ? new Date(__raw_updatedAt) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "updatedAt", message: __raw_updatedAt == null ? "MetadataValue.updatedAt is required" : "expected Date" });
+            } else {
+                instance.updatedAt = __dateVal;
+            }
         }
     }
 
@@ -999,12 +1003,9 @@ export function tagEncode(value: Tag, keepMetadata?: boolean): string {
 export function tagEncodeWithContext(value: Tag, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Tag",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Tag" });
     tagEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1128,7 +1129,7 @@ export function tagDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("label")) || (__fields.keeps("label") && obj["label"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
         const __raw_label = obj["label"] as string;
 
         if (!(typeof __raw_label === "string")) {
@@ -1137,7 +1138,7 @@ export function tagDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
             instance.label = __raw_label;
         }
     }
-    if ((__fields === undefined || __fields.requires("color")) || (__fields.keeps("color") && obj["color"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("color")) ? "color" in obj : (__fields.keeps("color") && obj["color"] !== undefined)) {
         const __raw_color = obj["color"] as string;
 
         if (!(typeof __raw_color === "string")) {
@@ -1146,12 +1147,16 @@ export function tagDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
             instance.color = __raw_color;
         }
     }
-    if ((__fields === undefined || __fields.requires("createdAt")) || (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
         const __raw_createdAt = obj["createdAt"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_createdAt === "string" ? new Date(__raw_createdAt) : __raw_createdAt as Date;
-            instance.createdAt = __dateVal;
+            const __dateVal = (__raw_createdAt instanceof Date ? __raw_createdAt : typeof __raw_createdAt === "string" ? new Date(__raw_createdAt) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Tag.createdAt is required" : "expected Date" });
+            } else {
+                instance.createdAt = __dateVal;
+            }
         }
     }
 
@@ -1226,12 +1231,9 @@ export function featureEncode(value: Feature, keepMetadata?: boolean): string {
 export function featureEncodeWithContext(value: Feature, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Feature",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Feature" });
     featureEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1347,7 +1349,7 @@ export function featureDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -1356,12 +1358,16 @@ export function featureDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("enabledAt")) || (__fields.keeps("enabledAt") && obj["enabledAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("enabledAt")) ? "enabledAt" in obj : (__fields.keeps("enabledAt") && obj["enabledAt"] !== undefined)) {
         const __raw_enabledAt = obj["enabledAt"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_enabledAt === "string" ? new Date(__raw_enabledAt) : __raw_enabledAt as Date;
-            instance.enabledAt = __dateVal;
+            const __dateVal = (__raw_enabledAt instanceof Date ? __raw_enabledAt : typeof __raw_enabledAt === "string" ? new Date(__raw_enabledAt) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "enabledAt", message: __raw_enabledAt == null ? "Feature.enabledAt is required" : "expected Date" });
+            } else {
+                instance.enabledAt = __dateVal;
+            }
         }
     }
 
@@ -1436,12 +1442,9 @@ export function limitEncode(value: Limit, keepMetadata?: boolean): string {
 export function limitEncodeWithContext(value: Limit, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Limit",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Limit" });
     limitEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1557,7 +1560,7 @@ export function limitDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("max")) || (__fields.keeps("max") && obj["max"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("max")) ? "max" in obj : (__fields.keeps("max") && obj["max"] !== undefined)) {
         const __raw_max = obj["max"] as number;
 
         if (!(typeof __raw_max === "number")) {
@@ -1566,12 +1569,16 @@ export function limitDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             instance.max = __raw_max;
         }
     }
-    if ((__fields === undefined || __fields.requires("resetAt")) || (__fields.keeps("resetAt") && obj["resetAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("resetAt")) ? "resetAt" in obj : (__fields.keeps("resetAt") && obj["resetAt"] !== undefined)) {
         const __raw_resetAt = obj["resetAt"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_resetAt === "string" ? new Date(__raw_resetAt) : __raw_resetAt as Date;
-            instance.resetAt = __dateVal;
+            const __dateVal = (__raw_resetAt instanceof Date ? __raw_resetAt : typeof __raw_resetAt === "string" ? new Date(__raw_resetAt) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "resetAt", message: __raw_resetAt == null ? "Limit.resetAt is required" : "expected Date" });
+            } else {
+                instance.resetAt = __dateVal;
+            }
         }
     }
 
@@ -1647,12 +1654,9 @@ export function budgetEncode(value: Budget, keepMetadata?: boolean): string {
 export function budgetEncodeWithContext(value: Budget, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Budget",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Budget" });
     budgetEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1776,7 +1780,7 @@ export function budgetDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("amount")) || (__fields.keeps("amount") && obj["amount"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("amount")) ? "amount" in obj : (__fields.keeps("amount") && obj["amount"] !== undefined)) {
         const __raw_amount = obj["amount"] as number;
 
         if (!(typeof __raw_amount === "number")) {
@@ -1785,7 +1789,7 @@ export function budgetDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
             instance.amount = __raw_amount;
         }
     }
-    if ((__fields === undefined || __fields.requires("currency")) || (__fields.keeps("currency") && obj["currency"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("currency")) ? "currency" in obj : (__fields.keeps("currency") && obj["currency"] !== undefined)) {
         const __raw_currency = obj["currency"] as string;
 
         if (!(typeof __raw_currency === "string")) {
@@ -1794,12 +1798,16 @@ export function budgetDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
             instance.currency = __raw_currency;
         }
     }
-    if ((__fields === undefined || __fields.requires("approvedAt")) || (__fields.keeps("approvedAt") && obj["approvedAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("approvedAt")) ? "approvedAt" in obj : (__fields.keeps("approvedAt") && obj["approvedAt"] !== undefined)) {
         const __raw_approvedAt = obj["approvedAt"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_approvedAt === "string" ? new Date(__raw_approvedAt) : __raw_approvedAt as Date;
-            instance.approvedAt = __dateVal;
+            const __dateVal = (__raw_approvedAt instanceof Date ? __raw_approvedAt : typeof __raw_approvedAt === "string" ? new Date(__raw_approvedAt) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "approvedAt", message: __raw_approvedAt == null ? "Budget.approvedAt is required" : "expected Date" });
+            } else {
+                instance.approvedAt = __dateVal;
+            }
         }
     }
 
@@ -1879,12 +1887,9 @@ export function projectEncode(value: Project, keepMetadata?: boolean): string {
 export function projectEncodeWithContext(value: Project, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Project",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Project" });
     projectEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -2024,7 +2029,7 @@ export function projectDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -2033,7 +2038,7 @@ export function projectDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -2042,7 +2047,7 @@ export function projectDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("milestones")) || (__fields.keeps("milestones") && obj["milestones"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("milestones")) ? "milestones" in obj : (__fields.keeps("milestones") && obj["milestones"] !== undefined)) {
         const __raw_milestones = obj["milestones"] as Milestone[];
         if (Array.isArray(__raw_milestones)) {
             ctx.pushScope("milestones");
@@ -2066,7 +2071,7 @@ export function projectDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             errors.push({ field: "milestones", message: __raw_milestones == null ? "Project.milestones is required" : "expected Milestone[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("metadata")) || (__fields.keeps("metadata") && obj["metadata"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("metadata")) ? "metadata" in obj : (__fields.keeps("metadata") && obj["metadata"] !== undefined)) {
         const __raw_metadata = obj["metadata"] as Record<string, MetadataValue>;
         if (typeof __raw_metadata === "object" && __raw_metadata !== null) {
             ctx.pushScope("metadata");
@@ -2090,12 +2095,16 @@ export function projectDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             errors.push({ field: "metadata", message: __raw_metadata == null ? "Project.metadata is required" : "expected Map<string, MetadataValue>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("startedAt")) || (__fields.keeps("startedAt") && obj["startedAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("startedAt")) ? "startedAt" in obj : (__fields.keeps("startedAt") && obj["startedAt"] !== undefined)) {
         const __raw_startedAt = obj["startedAt"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_startedAt === "string" ? new Date(__raw_startedAt) : __raw_startedAt as Date;
-            instance.startedAt = __dateVal;
+            const __dateVal = (__raw_startedAt instanceof Date ? __raw_startedAt : typeof __raw_startedAt === "string" ? new Date(__raw_startedAt) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "startedAt", message: __raw_startedAt == null ? "Project.startedAt is required" : "expected Date" });
+            } else {
+                instance.startedAt = __dateVal;
+            }
         }
     }
 
@@ -2176,12 +2185,9 @@ export function employeeEncode(value: Employee, keepMetadata?: boolean): string 
 export function employeeEncodeWithContext(value: Employee, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Employee",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Employee" });
     employeeEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -2345,7 +2351,7 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -2354,7 +2360,7 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -2363,7 +2369,7 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
         const __raw_email = obj["email"] as string;
 
         if (!(typeof __raw_email === "string")) {
@@ -2372,7 +2378,7 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             instance.email = __raw_email;
         }
     }
-    if ((__fields === undefined || __fields.requires("address")) || (__fields.keeps("address") && obj["address"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("address")) ? "address" in obj : (__fields.keeps("address") && obj["address"] !== undefined)) {
         const __raw_address = obj["address"] as Address;
 
         ctx.pushScope("address");
@@ -2388,13 +2394,14 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "address", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("skills")) || (__fields.keeps("skills") && obj["skills"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("skills")) ? "skills" in obj : (__fields.keeps("skills") && obj["skills"] !== undefined)) {
         const __raw_skills = obj["skills"] as Array<Skill>;
         if (Array.isArray(__raw_skills)) {
             ctx.pushScope("skills");
@@ -2418,7 +2425,7 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             errors.push({ field: "skills", message: __raw_skills == null ? "Employee.skills is required" : "expected Set<Skill>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("projects")) || (__fields.keeps("projects") && obj["projects"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("projects")) ? "projects" in obj : (__fields.keeps("projects") && obj["projects"] !== undefined)) {
         const __raw_projects = obj["projects"] as Project[];
         if (Array.isArray(__raw_projects)) {
             ctx.pushScope("projects");
@@ -2442,22 +2449,30 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             errors.push({ field: "projects", message: __raw_projects == null ? "Employee.projects is required" : "expected Project[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("hireDate")) || (__fields.keeps("hireDate") && obj["hireDate"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("hireDate")) ? "hireDate" in obj : (__fields.keeps("hireDate") && obj["hireDate"] !== undefined)) {
         const __raw_hireDate = obj["hireDate"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_hireDate === "string" ? new Date(__raw_hireDate) : __raw_hireDate as Date;
-            instance.hireDate = __dateVal;
+            const __dateVal = (__raw_hireDate instanceof Date ? __raw_hireDate : typeof __raw_hireDate === "string" ? new Date(__raw_hireDate) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "hireDate", message: __raw_hireDate == null ? "Employee.hireDate is required" : "expected Date" });
+            } else {
+                instance.hireDate = __dateVal;
+            }
         }
     }
-    if ((__fields === undefined || __fields.requires("terminatedAt")) || (__fields.keeps("terminatedAt") && obj["terminatedAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("terminatedAt")) ? "terminatedAt" in obj : (__fields.keeps("terminatedAt") && obj["terminatedAt"] !== undefined)) {
         const __raw_terminatedAt = obj["terminatedAt"] as string | Date | null;
 
         if (__raw_terminatedAt === null) {
             instance.terminatedAt = null;
         } else {
-            const __dateVal = typeof __raw_terminatedAt === "string" ? new Date(__raw_terminatedAt) : __raw_terminatedAt;
-            instance.terminatedAt = __dateVal;
+            const __dateVal = (__raw_terminatedAt instanceof Date ? __raw_terminatedAt : typeof __raw_terminatedAt === "string" ? new Date(__raw_terminatedAt) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "terminatedAt", message: "expected Date | null" });
+            } else {
+                instance.terminatedAt = __dateVal;
+            }
         }
     }
 
@@ -2532,12 +2547,9 @@ export function orgConfigEncode(value: OrgConfig, keepMetadata?: boolean): strin
 export function orgConfigEncodeWithContext(value: OrgConfig, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "OrgConfig",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "OrgConfig" });
     orgConfigEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -2653,7 +2665,7 @@ export function orgConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("features")) || (__fields.keeps("features") && obj["features"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("features")) ? "features" in obj : (__fields.keeps("features") && obj["features"] !== undefined)) {
         const __raw_features = obj["features"] as Array<Feature>;
         if (Array.isArray(__raw_features)) {
             ctx.pushScope("features");
@@ -2677,7 +2689,7 @@ export function orgConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
             errors.push({ field: "features", message: __raw_features == null ? "OrgConfig.features is required" : "expected Set<Feature>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("limits")) || (__fields.keeps("limits") && obj["limits"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("limits")) ? "limits" in obj : (__fields.keeps("limits") && obj["limits"] !== undefined)) {
         const __raw_limits = obj["limits"] as Record<string, Limit>;
         if (typeof __raw_limits === "object" && __raw_limits !== null) {
             ctx.pushScope("limits");
@@ -2779,12 +2791,9 @@ export function departmentEncode(value: Department, keepMetadata?: boolean): str
 export function departmentEncodeWithContext(value: Department, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Department",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Department" });
     departmentEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -2932,7 +2941,7 @@ export function departmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -2941,7 +2950,7 @@ export function departmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -2950,7 +2959,7 @@ export function departmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("lead")) || (__fields.keeps("lead") && obj["lead"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("lead")) ? "lead" in obj : (__fields.keeps("lead") && obj["lead"] !== undefined)) {
         const __raw_lead = obj["lead"] as Employee;
 
         ctx.pushScope("lead");
@@ -2966,13 +2975,14 @@ export function departmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "lead", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("employees")) || (__fields.keeps("employees") && obj["employees"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("employees")) ? "employees" in obj : (__fields.keeps("employees") && obj["employees"] !== undefined)) {
         const __raw_employees = obj["employees"] as Employee[];
         if (Array.isArray(__raw_employees)) {
             ctx.pushScope("employees");
@@ -2996,7 +3006,7 @@ export function departmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             errors.push({ field: "employees", message: __raw_employees == null ? "Department.employees is required" : "expected Employee[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("budget")) || (__fields.keeps("budget") && obj["budget"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("budget")) ? "budget" in obj : (__fields.keeps("budget") && obj["budget"] !== undefined)) {
         const __raw_budget = obj["budget"] as Budget;
 
         ctx.pushScope("budget");
@@ -3012,18 +3022,23 @@ export function departmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "budget", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("createdAt")) || (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
         const __raw_createdAt = obj["createdAt"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_createdAt === "string" ? new Date(__raw_createdAt) : __raw_createdAt as Date;
-            instance.createdAt = __dateVal;
+            const __dateVal = (__raw_createdAt instanceof Date ? __raw_createdAt : typeof __raw_createdAt === "string" ? new Date(__raw_createdAt) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Department.createdAt is required" : "expected Date" });
+            } else {
+                instance.createdAt = __dateVal;
+            }
         }
     }
 
@@ -3102,12 +3117,9 @@ export function organizationEncode(value: Organization, keepMetadata?: boolean):
 export function organizationEncodeWithContext(value: Organization, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Organization",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Organization" });
     organizationEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -3255,7 +3267,7 @@ export function organizationDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -3264,7 +3276,7 @@ export function organizationDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -3273,7 +3285,7 @@ export function organizationDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("departments")) || (__fields.keeps("departments") && obj["departments"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("departments")) ? "departments" in obj : (__fields.keeps("departments") && obj["departments"] !== undefined)) {
         const __raw_departments = obj["departments"] as Department[];
         if (Array.isArray(__raw_departments)) {
             ctx.pushScope("departments");
@@ -3297,7 +3309,7 @@ export function organizationDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             errors.push({ field: "departments", message: __raw_departments == null ? "Organization.departments is required" : "expected Department[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("tags")) || (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
         const __raw_tags = obj["tags"] as Tag[];
         if (Array.isArray(__raw_tags)) {
             ctx.pushScope("tags");
@@ -3321,7 +3333,7 @@ export function organizationDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             errors.push({ field: "tags", message: __raw_tags == null ? "Organization.tags is required" : "expected Tag[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("config")) || (__fields.keeps("config") && obj["config"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("config")) ? "config" in obj : (__fields.keeps("config") && obj["config"] !== undefined)) {
         const __raw_config = obj["config"] as OrgConfig;
 
         ctx.pushScope("config");
@@ -3337,18 +3349,23 @@ export function organizationDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "config", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("foundedAt")) || (__fields.keeps("foundedAt") && obj["foundedAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("foundedAt")) ? "foundedAt" in obj : (__fields.keeps("foundedAt") && obj["foundedAt"] !== undefined)) {
         const __raw_foundedAt = obj["foundedAt"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_foundedAt === "string" ? new Date(__raw_foundedAt) : __raw_foundedAt as Date;
-            instance.foundedAt = __dateVal;
+            const __dateVal = (__raw_foundedAt instanceof Date ? __raw_foundedAt : typeof __raw_foundedAt === "string" ? new Date(__raw_foundedAt) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "foundedAt", message: __raw_foundedAt == null ? "Organization.foundedAt is required" : "expected Date" });
+            } else {
+                instance.foundedAt = __dateVal;
+            }
         }
     }
 
@@ -3427,12 +3444,9 @@ export function accountBaseEncode(value: AccountBase, keepMetadata?: boolean): s
 export function accountBaseEncodeWithContext(value: AccountBase, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "AccountBase",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "AccountBase" });
     accountBaseEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -3564,7 +3578,7 @@ export function accountBaseDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -3573,7 +3587,7 @@ export function accountBaseDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -3582,7 +3596,7 @@ export function accountBaseDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("balance")) || (__fields.keeps("balance") && obj["balance"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
         const __raw_balance = obj["balance"] as number;
 
         if (!(typeof __raw_balance === "number")) {
@@ -3591,12 +3605,16 @@ export function accountBaseDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.balance = __raw_balance;
         }
     }
-    if ((__fields === undefined || __fields.requires("createdAt")) || (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
         const __raw_createdAt = obj["createdAt"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_createdAt === "string" ? new Date(__raw_createdAt) : __raw_createdAt as Date;
-            instance.createdAt = __dateVal;
+            const __dateVal = (__raw_createdAt instanceof Date ? __raw_createdAt : typeof __raw_createdAt === "string" ? new Date(__raw_createdAt) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "createdAt", message: __raw_createdAt == null ? "AccountBase.createdAt is required" : "expected Date" });
+            } else {
+                instance.createdAt = __dateVal;
+            }
         }
     }
 
@@ -3670,12 +3688,9 @@ export function savingsAccountEncode(value: SavingsAccount, keepMetadata?: boole
 export function savingsAccountEncodeWithContext(value: SavingsAccount, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "SavingsAccount",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "SavingsAccount" });
     savingsAccountEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -3823,7 +3838,7 @@ export function savingsAccountDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("variant")) || (__fields.keeps("variant") && obj["variant"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("variant")) ? "variant" in obj : (__fields.keeps("variant") && obj["variant"] !== undefined)) {
         const __raw_variant = obj["variant"] as 'savings';
 
         if (!(__raw_variant === "savings")) {
@@ -3832,7 +3847,7 @@ export function savingsAccountDecodeWithContext(value: unknown, ctx: __mf_Decode
             instance.variant = __raw_variant;
         }
     }
-    if ((__fields === undefined || __fields.requires("interestRate")) || (__fields.keeps("interestRate") && obj["interestRate"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("interestRate")) ? "interestRate" in obj : (__fields.keeps("interestRate") && obj["interestRate"] !== undefined)) {
         const __raw_interestRate = obj["interestRate"] as number;
 
         if (!(typeof __raw_interestRate === "number")) {
@@ -3841,7 +3856,7 @@ export function savingsAccountDecodeWithContext(value: unknown, ctx: __mf_Decode
             instance.interestRate = __raw_interestRate;
         }
     }
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -3850,7 +3865,7 @@ export function savingsAccountDecodeWithContext(value: unknown, ctx: __mf_Decode
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -3859,7 +3874,7 @@ export function savingsAccountDecodeWithContext(value: unknown, ctx: __mf_Decode
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("balance")) || (__fields.keeps("balance") && obj["balance"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
         const __raw_balance = obj["balance"] as number;
 
         if (!(typeof __raw_balance === "number")) {
@@ -3868,12 +3883,16 @@ export function savingsAccountDecodeWithContext(value: unknown, ctx: __mf_Decode
             instance.balance = __raw_balance;
         }
     }
-    if ((__fields === undefined || __fields.requires("createdAt")) || (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
         const __raw_createdAt = obj["createdAt"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_createdAt === "string" ? new Date(__raw_createdAt) : __raw_createdAt as Date;
-            instance.createdAt = __dateVal;
+            const __dateVal = (__raw_createdAt instanceof Date ? __raw_createdAt : typeof __raw_createdAt === "string" ? new Date(__raw_createdAt) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "createdAt", message: __raw_createdAt == null ? "SavingsAccount.createdAt is required" : "expected Date" });
+            } else {
+                instance.createdAt = __dateVal;
+            }
         }
     }
 
@@ -3947,12 +3966,9 @@ export function checkingAccountEncode(value: CheckingAccount, keepMetadata?: boo
 export function checkingAccountEncodeWithContext(value: CheckingAccount, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "CheckingAccount",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "CheckingAccount" });
     checkingAccountEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -4100,7 +4116,7 @@ export function checkingAccountDecodeWithContext(value: unknown, ctx: __mf_Decod
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("variant")) || (__fields.keeps("variant") && obj["variant"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("variant")) ? "variant" in obj : (__fields.keeps("variant") && obj["variant"] !== undefined)) {
         const __raw_variant = obj["variant"] as 'checking';
 
         if (!(__raw_variant === "checking")) {
@@ -4109,7 +4125,7 @@ export function checkingAccountDecodeWithContext(value: unknown, ctx: __mf_Decod
             instance.variant = __raw_variant;
         }
     }
-    if ((__fields === undefined || __fields.requires("overdraftLimit")) || (__fields.keeps("overdraftLimit") && obj["overdraftLimit"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("overdraftLimit")) ? "overdraftLimit" in obj : (__fields.keeps("overdraftLimit") && obj["overdraftLimit"] !== undefined)) {
         const __raw_overdraftLimit = obj["overdraftLimit"] as number;
 
         if (!(typeof __raw_overdraftLimit === "number")) {
@@ -4118,7 +4134,7 @@ export function checkingAccountDecodeWithContext(value: unknown, ctx: __mf_Decod
             instance.overdraftLimit = __raw_overdraftLimit;
         }
     }
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -4127,7 +4143,7 @@ export function checkingAccountDecodeWithContext(value: unknown, ctx: __mf_Decod
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -4136,7 +4152,7 @@ export function checkingAccountDecodeWithContext(value: unknown, ctx: __mf_Decod
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("balance")) || (__fields.keeps("balance") && obj["balance"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
         const __raw_balance = obj["balance"] as number;
 
         if (!(typeof __raw_balance === "number")) {
@@ -4145,12 +4161,16 @@ export function checkingAccountDecodeWithContext(value: unknown, ctx: __mf_Decod
             instance.balance = __raw_balance;
         }
     }
-    if ((__fields === undefined || __fields.requires("createdAt")) || (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
         const __raw_createdAt = obj["createdAt"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_createdAt === "string" ? new Date(__raw_createdAt) : __raw_createdAt as Date;
-            instance.createdAt = __dateVal;
+            const __dateVal = (__raw_createdAt instanceof Date ? __raw_createdAt : typeof __raw_createdAt === "string" ? new Date(__raw_createdAt) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "createdAt", message: __raw_createdAt == null ? "CheckingAccount.createdAt is required" : "expected Date" });
+            } else {
+                instance.createdAt = __dateVal;
+            }
         }
     }
 
@@ -4226,12 +4246,9 @@ export function holidayEncode(value: Holiday, keepMetadata?: boolean): string {
 export function holidayEncodeWithContext(value: Holiday, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Holiday",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Holiday" });
     holidayEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -4339,7 +4356,7 @@ export function holidayDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -5475,117 +5492,117 @@ export declare const Moment: {
 
 ## Mapping
 
-original 0..1354 -> expanded 724..2078
-original 1384..1508 -> expanded 2078..2202
-original 1508..1510 -> expanded 13672..13674
-original 1540..1627 -> expanded 13674..13761
-original 1627..1629 -> expanded 23578..23580
-original 1659..1758 -> expanded 23580..23679
-original 1758..1760 -> expanded 33898..33900
-original 1790..1865 -> expanded 33900..33975
-original 1865..1867 -> expanded 43560..43562
-original 1897..1981 -> expanded 43562..43646
-original 1981..1983 -> expanded 53308..53310
-original 2013..2081 -> expanded 53310..53378
-original 2081..2083 -> expanded 62530..62532
-original 2113..2176 -> expanded 62532..62595
-original 2176..2178 -> expanded 71556..71558
-original 2208..2300 -> expanded 71558..71650
-original 2300..2330 -> expanded 81615..81645
-original 2360..2515 -> expanded 81645..81800
-original 2515..2517 -> expanded 94940..94942
-original 2547..2752 -> expanded 94942..95147
-original 2752..2754 -> expanded 111074..111076
-original 2784..2875 -> expanded 111076..111167
-original 2875..2904 -> expanded 122080..122109
-original 2934..3088 -> expanded 122109..122263
-original 3088..3090 -> expanded 136299..136301
-original 3120..3280 -> expanded 136301..136461
-original 3280..3313 -> expanded 150957..150990
-original 3343..3452 -> expanded 150990..151099
-original 3452..3454 -> expanded 162058..162060
-original 3484..3583 -> expanded 162060..162159
-original 3583..3585 -> expanded 175058..175060
-original 3615..3718 -> expanded 175060..175163
-original 3718..3760 -> expanded 188176..188218
-original 3790..3837 -> expanded 188218..188265
-original 3837..3892 -> expanded 196632..196687
-original 3914..3964 -> expanded 196687..196737
-original 3964..3965 -> expanded 201993..201994
-generated 0..724 <- imports
-generated 2202..4963 <- Encode
-generated 4963..12695 <- Decode
-generated 12695..13672 <- __convenience_const
-generated 13761..16210 <- Encode
-generated 16210..22643 <- Decode
-generated 22643..23578 <- __convenience_const
-generated 23679..26250 <- Encode
-generated 26250..32879 <- Decode
-generated 32879..33898 <- __convenience_const
-generated 33975..36382 <- Encode
-generated 36382..42457 <- Decode
-generated 42457..43560 <- __convenience_const
-generated 43646..46061 <- Encode
-generated 46061..52415 <- Decode
-generated 52415..53308 <- __convenience_const
-generated 53378..55691 <- Encode
-generated 55691..61553 <- Decode
-generated 61553..62530 <- __convenience_const
-generated 62595..64866 <- Encode
-generated 64866..70621 <- Decode
-generated 70621..71556 <- __convenience_const
-generated 71650..74130 <- Encode
-generated 74130..80659 <- Decode
-generated 80659..81615 <- __convenience_const
-generated 81800..84776 <- Encode
-generated 84776..93963 <- Decode
-generated 93963..94940 <- __convenience_const
-generated 95147..98660 <- Encode
-generated 98660..110076 <- Decode
-generated 110076..111074 <- __convenience_const
-generated 111167..113667 <- Encode
-generated 113667..121061 <- Decode
-generated 121061..122080 <- __convenience_const
-generated 122263..125376 <- Encode
-generated 125376..135259 <- Decode
-generated 135259..136299 <- __convenience_const
-generated 136461..139638 <- Encode
-generated 139638..149875 <- Decode
-generated 149875..150957 <- __convenience_const
-generated 151099..153784 <- Encode
-generated 153784..160997 <- Decode
-generated 160997..162058 <- __convenience_const
-generated 162159..165241 <- Encode
-generated 165241..173934 <- Decode
-generated 173934..175058 <- __convenience_const
-generated 175163..178268 <- Encode
-generated 178268..187031 <- Decode
-generated 187031..188176 <- __convenience_const
-generated 188265..190390 <- Encode
-generated 190390..195655 <- Decode
-generated 195655..196632 <- __convenience_const
-generated 196737..201669 <- Decode
-generated 201669..201993 <- __convenience_const
+original 0..1354 -> expanded 796..2150
+original 1384..1508 -> expanded 2150..2274
+original 1508..1510 -> expanded 13810..13812
+original 1540..1627 -> expanded 13812..13899
+original 1627..1629 -> expanded 24070..24072
+original 1659..1758 -> expanded 24072..24171
+original 1758..1760 -> expanded 35003..35005
+original 1790..1865 -> expanded 35005..35080
+original 1865..1867 -> expanded 45002..45004
+original 1897..1981 -> expanded 45004..45088
+original 1981..1983 -> expanded 55093..55095
+original 2013..2081 -> expanded 55095..55163
+original 2081..2083 -> expanded 64645..64647
+original 2113..2176 -> expanded 64647..64710
+original 2176..2178 -> expanded 73988..73990
+original 2208..2300 -> expanded 73990..74082
+original 2300..2330 -> expanded 84402..84432
+original 2360..2515 -> expanded 84432..84587
+original 2515..2517 -> expanded 98110..98112
+original 2547..2752 -> expanded 98112..98317
+original 2752..2754 -> expanded 115030..115032
+original 2784..2875 -> expanded 115032..115123
+original 2875..2904 -> expanded 126058..126087
+original 2934..3088 -> expanded 126087..126241
+original 3088..3090 -> expanded 140839..140841
+original 3120..3280 -> expanded 140841..141001
+original 3280..3313 -> expanded 155982..156015
+original 3343..3452 -> expanded 156015..156124
+original 3452..3454 -> expanded 167448..167450
+original 3484..3583 -> expanded 167450..167549
+original 3583..3585 -> expanded 180857..180859
+original 3615..3718 -> expanded 180859..180962
+original 3718..3760 -> expanded 194387..194429
+original 3790..3837 -> expanded 194429..194476
+original 3837..3892 -> expanded 202844..202899
+original 3914..3964 -> expanded 202899..202949
+original 3964..3965 -> expanded 208205..208206
+generated 0..796 <- imports
+generated 2274..5021 <- Encode
+generated 5021..12833 <- Decode
+generated 12833..13810 <- __convenience_const
+generated 13899..16334 <- Encode
+generated 16334..23135 <- Decode
+generated 23135..24070 <- __convenience_const
+generated 24171..26728 <- Encode
+generated 26728..33984 <- Decode
+generated 33984..35003 <- __convenience_const
+generated 35080..37473 <- Encode
+generated 37473..43899 <- Decode
+generated 43899..45002 <- __convenience_const
+generated 45088..47489 <- Encode
+generated 47489..54200 <- Decode
+generated 54200..55093 <- __convenience_const
+generated 55163..57462 <- Encode
+generated 57462..63668 <- Decode
+generated 63668..64645 <- __convenience_const
+generated 64710..66967 <- Encode
+generated 66967..73053 <- Decode
+generated 73053..73988 <- __convenience_const
+generated 74082..76548 <- Encode
+generated 76548..83446 <- Decode
+generated 83446..84402 <- __convenience_const
+generated 84587..87549 <- Encode
+generated 87549..97133 <- Decode
+generated 97133..98110 <- __convenience_const
+generated 98317..101816 <- Encode
+generated 101816..114032 <- Decode
+generated 114032..115030 <- __convenience_const
+generated 115123..117609 <- Encode
+generated 117609..125039 <- Decode
+generated 125039..126058 <- __convenience_const
+generated 126241..129340 <- Encode
+generated 129340..139799 <- Decode
+generated 139799..140839 <- __convenience_const
+generated 141001..144164 <- Encode
+generated 144164..154900 <- Decode
+generated 154900..155982 <- __convenience_const
+generated 156124..158795 <- Encode
+generated 158795..166387 <- Decode
+generated 166387..167448 <- __convenience_const
+generated 167549..170617 <- Encode
+generated 170617..179733 <- Decode
+generated 179733..180857 <- __convenience_const
+generated 180962..184053 <- Encode
+generated 184053..193242 <- Decode
+generated 193242..194387 <- __convenience_const
+generated 194476..196587 <- Encode
+generated 196587..201867 <- Decode
+generated 201867..202844 <- __convenience_const
+generated 202949..207881 <- Decode
+generated 207881..208205 <- __convenience_const
 
 ## Metadata
 
-interface Address: {"body_span":{"end":1509,"start":1411},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1385,"start":1355}}],"fields":[{"decorators":[],"name":"street","optional":false,"readonly":false,"span":{"end":1432,"start":1417},"ts_type":"string"},{"decorators":[],"name":"city","optional":false,"readonly":false,"span":{"end":1450,"start":1437},"ts_type":"string"},{"decorators":[],"name":"state","optional":false,"readonly":false,"span":{"end":1469,"start":1455},"ts_type":"string"},{"decorators":[],"name":"zip","optional":false,"readonly":false,"span":{"end":1486,"start":1474},"ts_type":"string"},{"decorators":[],"name":"country","optional":false,"readonly":false,"span":{"end":1507,"start":1491},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Address","span":{"end":1509,"start":1393},"type_params":[]}
-interface Skill: {"body_span":{"end":1628,"start":1565},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1541,"start":1511}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":1584,"start":1571},"ts_type":"string"},{"decorators":[],"name":"level","optional":false,"readonly":false,"span":{"end":1603,"start":1589},"ts_type":"number"},{"decorators":[],"name":"certifiedAt","optional":false,"readonly":false,"span":{"end":1626,"start":1608},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Skill","span":{"end":1628,"start":1549},"type_params":[]}
-interface Milestone: {"body_span":{"end":1759,"start":1688},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1660,"start":1630}}],"fields":[{"decorators":[],"name":"title","optional":false,"readonly":false,"span":{"end":1708,"start":1694},"ts_type":"string"},{"decorators":[],"name":"dueDate","optional":false,"readonly":false,"span":{"end":1727,"start":1713},"ts_type":"Date"},{"decorators":[],"name":"completedAt","optional":false,"readonly":false,"span":{"end":1757,"start":1732},"ts_type":"Date | null"}],"heritage":[],"methods":[],"name":"Milestone","span":{"end":1759,"start":1668},"type_params":[]}
-interface MetadataValue: {"body_span":{"end":1866,"start":1823},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1791,"start":1761}}],"fields":[{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":1843,"start":1829},"ts_type":"string"},{"decorators":[],"name":"updatedAt","optional":false,"readonly":false,"span":{"end":1864,"start":1848},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"MetadataValue","span":{"end":1866,"start":1799},"type_params":[]}
-interface Tag: {"body_span":{"end":1982,"start":1920},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1898,"start":1868}}],"fields":[{"decorators":[],"name":"label","optional":false,"readonly":false,"span":{"end":1940,"start":1926},"ts_type":"string"},{"decorators":[],"name":"color","optional":false,"readonly":false,"span":{"end":1959,"start":1945},"ts_type":"string"},{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":1980,"start":1964},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Tag","span":{"end":1982,"start":1906},"type_params":[]}
-interface Feature: {"body_span":{"end":2082,"start":2040},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2014,"start":1984}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":2059,"start":2046},"ts_type":"string"},{"decorators":[],"name":"enabledAt","optional":false,"readonly":false,"span":{"end":2080,"start":2064},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Feature","span":{"end":2082,"start":2022},"type_params":[]}
-interface Limit: {"body_span":{"end":2177,"start":2138},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2114,"start":2084}}],"fields":[{"decorators":[],"name":"max","optional":false,"readonly":false,"span":{"end":2156,"start":2144},"ts_type":"number"},{"decorators":[],"name":"resetAt","optional":false,"readonly":false,"span":{"end":2175,"start":2161},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Limit","span":{"end":2177,"start":2122},"type_params":[]}
-interface Budget: {"body_span":{"end":2301,"start":2234},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2209,"start":2179}}],"fields":[{"decorators":[],"name":"amount","optional":false,"readonly":false,"span":{"end":2255,"start":2240},"ts_type":"number"},{"decorators":[],"name":"currency","optional":false,"readonly":false,"span":{"end":2277,"start":2260},"ts_type":"string"},{"decorators":[],"name":"approvedAt","optional":false,"readonly":false,"span":{"end":2299,"start":2282},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Budget","span":{"end":2301,"start":2217},"type_params":[]}
-interface Project: {"body_span":{"end":2516,"start":2387},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2361,"start":2331}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":2404,"start":2393},"ts_type":"string"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":2422,"start":2409},"ts_type":"string"},{"decorators":[],"name":"milestones","optional":false,"readonly":false,"span":{"end":2451,"start":2427},"ts_type":"Milestone[]"},{"decorators":[],"name":"metadata","optional":false,"readonly":false,"span":{"end":2493,"start":2456},"ts_type":"Map<string, MetadataValue>"},{"decorators":[],"name":"startedAt","optional":false,"readonly":false,"span":{"end":2514,"start":2498},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Project","span":{"end":2516,"start":2369},"type_params":[]}
-interface Employee: {"body_span":{"end":2753,"start":2575},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2548,"start":2518}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":2592,"start":2581},"ts_type":"string"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":2610,"start":2597},"ts_type":"string"},{"decorators":[],"name":"email","optional":false,"readonly":false,"span":{"end":2629,"start":2615},"ts_type":"string"},{"decorators":[],"name":"address","optional":false,"readonly":false,"span":{"end":2651,"start":2634},"ts_type":"Address"},{"decorators":[],"name":"skills","optional":false,"readonly":false,"span":{"end":2675,"start":2656},"ts_type":"Set<Skill>"},{"decorators":[],"name":"projects","optional":false,"readonly":false,"span":{"end":2700,"start":2680},"ts_type":"Project[]"},{"decorators":[],"name":"hireDate","optional":false,"readonly":false,"span":{"end":2720,"start":2705},"ts_type":"Date"},{"decorators":[],"name":"terminatedAt","optional":false,"readonly":false,"span":{"end":2751,"start":2725},"ts_type":"Date | null"}],"heritage":[],"methods":[],"name":"Employee","span":{"end":2753,"start":2556},"type_params":[]}
-interface OrgConfig: {"body_span":{"end":2876,"start":2813},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2785,"start":2755}}],"fields":[{"decorators":[],"name":"features","optional":false,"readonly":false,"span":{"end":2842,"start":2819},"ts_type":"Set<Feature>"},{"decorators":[],"name":"limits","optional":false,"readonly":false,"span":{"end":2874,"start":2847},"ts_type":"Map<string, Limit>"}],"heritage":[],"methods":[],"name":"OrgConfig","span":{"end":2876,"start":2793},"type_params":[]}
-interface Department: {"body_span":{"end":3089,"start":2964},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2935,"start":2905}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":2981,"start":2970},"ts_type":"string"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":2999,"start":2986},"ts_type":"string"},{"decorators":[],"name":"lead","optional":false,"readonly":false,"span":{"end":3019,"start":3004},"ts_type":"Employee"},{"decorators":[],"name":"employees","optional":false,"readonly":false,"span":{"end":3046,"start":3024},"ts_type":"Employee[]"},{"decorators":[],"name":"budget","optional":false,"readonly":false,"span":{"end":3066,"start":3051},"ts_type":"Budget"},{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":3087,"start":3071},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Department","span":{"end":3089,"start":2943},"type_params":[]}
-interface Organization: {"body_span":{"end":3281,"start":3152},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":3121,"start":3091}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":3169,"start":3158},"ts_type":"string"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":3187,"start":3174},"ts_type":"string"},{"decorators":[],"name":"departments","optional":false,"readonly":false,"span":{"end":3218,"start":3192},"ts_type":"Department[]"},{"decorators":[],"name":"tags","optional":false,"readonly":false,"span":{"end":3235,"start":3223},"ts_type":"Tag[]"},{"decorators":[],"name":"config","optional":false,"readonly":false,"span":{"end":3258,"start":3240},"ts_type":"OrgConfig"},{"decorators":[],"name":"foundedAt","optional":false,"readonly":false,"span":{"end":3279,"start":3263},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Organization","span":{"end":3281,"start":3129},"type_params":[]}
-interface AccountBase: {"body_span":{"end":3453,"start":3374},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":3344,"start":3314}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":3391,"start":3380},"ts_type":"string"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":3409,"start":3396},"ts_type":"string"},{"decorators":[],"name":"balance","optional":false,"readonly":false,"span":{"end":3430,"start":3414},"ts_type":"number"},{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":3451,"start":3435},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"AccountBase","span":{"end":3453,"start":3352},"type_params":[]}
-interface Holiday: {"body_span":{"end":3838,"start":3817},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":3791,"start":3761}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":3836,"start":3823},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Holiday","span":{"end":3838,"start":3799},"type_params":[]}
-type SavingsAccount: {"body":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"variant","optional":false,"readonly":false,"span":{"end":3542,"start":3523},"ts_type":"'savings'"},{"decorators":[],"name":"interestRate","optional":false,"readonly":false,"span":{"end":3563,"start":3543},"ts_type":"number"}]}}},{"decorators":[],"kind":{"TypeRef":"AccountBase"}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":3485,"start":3455}}],"name":"SavingsAccount","span":{"end":3584,"start":3493},"type_params":[]}
-type CheckingAccount: {"body":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"variant","optional":false,"readonly":false,"span":{"end":3675,"start":3655},"ts_type":"'checking'"},{"decorators":[],"name":"overdraftLimit","optional":false,"readonly":false,"span":{"end":3698,"start":3676},"ts_type":"number"}]}}},{"decorators":[],"kind":{"TypeRef":"AccountBase"}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":3616,"start":3586}}],"name":"CheckingAccount","span":{"end":3719,"start":3624},"type_params":[]}
+interface Address: {"body_span":{"end":1509,"start":1411},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1385,"start":1355}}],"fields":[{"decorators":[],"key":"Named","name":"street","optional":false,"readonly":false,"span":{"end":1432,"start":1417},"ts_type":"string"},{"decorators":[],"key":"Named","name":"city","optional":false,"readonly":false,"span":{"end":1450,"start":1437},"ts_type":"string"},{"decorators":[],"key":"Named","name":"state","optional":false,"readonly":false,"span":{"end":1469,"start":1455},"ts_type":"string"},{"decorators":[],"key":"Named","name":"zip","optional":false,"readonly":false,"span":{"end":1486,"start":1474},"ts_type":"string"},{"decorators":[],"key":"Named","name":"country","optional":false,"readonly":false,"span":{"end":1507,"start":1491},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Address","span":{"end":1509,"start":1393},"type_params":[]}
+interface Skill: {"body_span":{"end":1628,"start":1565},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1541,"start":1511}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1584,"start":1571},"ts_type":"string"},{"decorators":[],"key":"Named","name":"level","optional":false,"readonly":false,"span":{"end":1603,"start":1589},"ts_type":"number"},{"decorators":[],"key":"Named","name":"certifiedAt","optional":false,"readonly":false,"span":{"end":1626,"start":1608},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Skill","span":{"end":1628,"start":1549},"type_params":[]}
+interface Milestone: {"body_span":{"end":1759,"start":1688},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1660,"start":1630}}],"fields":[{"decorators":[],"key":"Named","name":"title","optional":false,"readonly":false,"span":{"end":1708,"start":1694},"ts_type":"string"},{"decorators":[],"key":"Named","name":"dueDate","optional":false,"readonly":false,"span":{"end":1727,"start":1713},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"completedAt","optional":false,"readonly":false,"span":{"end":1757,"start":1732},"ts_type":"Date | null"}],"heritage":[],"methods":[],"name":"Milestone","span":{"end":1759,"start":1668},"type_params":[]}
+interface MetadataValue: {"body_span":{"end":1866,"start":1823},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1791,"start":1761}}],"fields":[{"decorators":[],"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":1843,"start":1829},"ts_type":"string"},{"decorators":[],"key":"Named","name":"updatedAt","optional":false,"readonly":false,"span":{"end":1864,"start":1848},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"MetadataValue","span":{"end":1866,"start":1799},"type_params":[]}
+interface Tag: {"body_span":{"end":1982,"start":1920},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1898,"start":1868}}],"fields":[{"decorators":[],"key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":1940,"start":1926},"ts_type":"string"},{"decorators":[],"key":"Named","name":"color","optional":false,"readonly":false,"span":{"end":1959,"start":1945},"ts_type":"string"},{"decorators":[],"key":"Named","name":"createdAt","optional":false,"readonly":false,"span":{"end":1980,"start":1964},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Tag","span":{"end":1982,"start":1906},"type_params":[]}
+interface Feature: {"body_span":{"end":2082,"start":2040},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2014,"start":1984}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":2059,"start":2046},"ts_type":"string"},{"decorators":[],"key":"Named","name":"enabledAt","optional":false,"readonly":false,"span":{"end":2080,"start":2064},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Feature","span":{"end":2082,"start":2022},"type_params":[]}
+interface Limit: {"body_span":{"end":2177,"start":2138},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2114,"start":2084}}],"fields":[{"decorators":[],"key":"Named","name":"max","optional":false,"readonly":false,"span":{"end":2156,"start":2144},"ts_type":"number"},{"decorators":[],"key":"Named","name":"resetAt","optional":false,"readonly":false,"span":{"end":2175,"start":2161},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Limit","span":{"end":2177,"start":2122},"type_params":[]}
+interface Budget: {"body_span":{"end":2301,"start":2234},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2209,"start":2179}}],"fields":[{"decorators":[],"key":"Named","name":"amount","optional":false,"readonly":false,"span":{"end":2255,"start":2240},"ts_type":"number"},{"decorators":[],"key":"Named","name":"currency","optional":false,"readonly":false,"span":{"end":2277,"start":2260},"ts_type":"string"},{"decorators":[],"key":"Named","name":"approvedAt","optional":false,"readonly":false,"span":{"end":2299,"start":2282},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Budget","span":{"end":2301,"start":2217},"type_params":[]}
+interface Project: {"body_span":{"end":2516,"start":2387},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2361,"start":2331}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":2404,"start":2393},"ts_type":"string"},{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":2422,"start":2409},"ts_type":"string"},{"decorators":[],"key":"Named","name":"milestones","optional":false,"readonly":false,"span":{"end":2451,"start":2427},"ts_type":"Milestone[]"},{"decorators":[],"key":"Named","name":"metadata","optional":false,"readonly":false,"span":{"end":2493,"start":2456},"ts_type":"Map<string, MetadataValue>"},{"decorators":[],"key":"Named","name":"startedAt","optional":false,"readonly":false,"span":{"end":2514,"start":2498},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Project","span":{"end":2516,"start":2369},"type_params":[]}
+interface Employee: {"body_span":{"end":2753,"start":2575},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2548,"start":2518}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":2592,"start":2581},"ts_type":"string"},{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":2610,"start":2597},"ts_type":"string"},{"decorators":[],"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":2629,"start":2615},"ts_type":"string"},{"decorators":[],"key":"Named","name":"address","optional":false,"readonly":false,"span":{"end":2651,"start":2634},"ts_type":"Address"},{"decorators":[],"key":"Named","name":"skills","optional":false,"readonly":false,"span":{"end":2675,"start":2656},"ts_type":"Set<Skill>"},{"decorators":[],"key":"Named","name":"projects","optional":false,"readonly":false,"span":{"end":2700,"start":2680},"ts_type":"Project[]"},{"decorators":[],"key":"Named","name":"hireDate","optional":false,"readonly":false,"span":{"end":2720,"start":2705},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"terminatedAt","optional":false,"readonly":false,"span":{"end":2751,"start":2725},"ts_type":"Date | null"}],"heritage":[],"methods":[],"name":"Employee","span":{"end":2753,"start":2556},"type_params":[]}
+interface OrgConfig: {"body_span":{"end":2876,"start":2813},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2785,"start":2755}}],"fields":[{"decorators":[],"key":"Named","name":"features","optional":false,"readonly":false,"span":{"end":2842,"start":2819},"ts_type":"Set<Feature>"},{"decorators":[],"key":"Named","name":"limits","optional":false,"readonly":false,"span":{"end":2874,"start":2847},"ts_type":"Map<string, Limit>"}],"heritage":[],"methods":[],"name":"OrgConfig","span":{"end":2876,"start":2793},"type_params":[]}
+interface Department: {"body_span":{"end":3089,"start":2964},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2935,"start":2905}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":2981,"start":2970},"ts_type":"string"},{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":2999,"start":2986},"ts_type":"string"},{"decorators":[],"key":"Named","name":"lead","optional":false,"readonly":false,"span":{"end":3019,"start":3004},"ts_type":"Employee"},{"decorators":[],"key":"Named","name":"employees","optional":false,"readonly":false,"span":{"end":3046,"start":3024},"ts_type":"Employee[]"},{"decorators":[],"key":"Named","name":"budget","optional":false,"readonly":false,"span":{"end":3066,"start":3051},"ts_type":"Budget"},{"decorators":[],"key":"Named","name":"createdAt","optional":false,"readonly":false,"span":{"end":3087,"start":3071},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Department","span":{"end":3089,"start":2943},"type_params":[]}
+interface Organization: {"body_span":{"end":3281,"start":3152},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":3121,"start":3091}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":3169,"start":3158},"ts_type":"string"},{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":3187,"start":3174},"ts_type":"string"},{"decorators":[],"key":"Named","name":"departments","optional":false,"readonly":false,"span":{"end":3218,"start":3192},"ts_type":"Department[]"},{"decorators":[],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":3235,"start":3223},"ts_type":"Tag[]"},{"decorators":[],"key":"Named","name":"config","optional":false,"readonly":false,"span":{"end":3258,"start":3240},"ts_type":"OrgConfig"},{"decorators":[],"key":"Named","name":"foundedAt","optional":false,"readonly":false,"span":{"end":3279,"start":3263},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"Organization","span":{"end":3281,"start":3129},"type_params":[]}
+interface AccountBase: {"body_span":{"end":3453,"start":3374},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":3344,"start":3314}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":3391,"start":3380},"ts_type":"string"},{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":3409,"start":3396},"ts_type":"string"},{"decorators":[],"key":"Named","name":"balance","optional":false,"readonly":false,"span":{"end":3430,"start":3414},"ts_type":"number"},{"decorators":[],"key":"Named","name":"createdAt","optional":false,"readonly":false,"span":{"end":3451,"start":3435},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"AccountBase","span":{"end":3453,"start":3352},"type_params":[]}
+interface Holiday: {"body_span":{"end":3838,"start":3817},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":3791,"start":3761}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":3836,"start":3823},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Holiday","span":{"end":3838,"start":3799},"type_params":[]}
+type SavingsAccount: {"body":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"variant","optional":false,"readonly":false,"span":{"end":3542,"start":3523},"ts_type":"'savings'"},{"decorators":[],"key":"Named","name":"interestRate","optional":false,"readonly":false,"span":{"end":3563,"start":3543},"ts_type":"number"}]}}},{"decorators":[],"kind":{"TypeRef":"AccountBase"}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":3485,"start":3455}}],"name":"SavingsAccount","span":{"end":3584,"start":3493},"type_params":[]}
+type CheckingAccount: {"body":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"variant","optional":false,"readonly":false,"span":{"end":3675,"start":3655},"ts_type":"'checking'"},{"decorators":[],"key":"Named","name":"overdraftLimit","optional":false,"readonly":false,"span":{"end":3698,"start":3676},"ts_type":"number"}]}}},{"decorators":[],"kind":{"TypeRef":"AccountBase"}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":3616,"start":3586}}],"name":"CheckingAccount","span":{"end":3719,"start":3624},"type_params":[]}
 type Moment: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"DateTime.DateTime"}},{"decorators":[],"kind":{"TypeRef":"Holiday"}}]},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":3915,"start":3893}}],"name":"Moment","span":{"end":3965,"start":3923},"type_params":[]}
 
 ## Registry reads
@@ -5596,6 +5613,7 @@ Name("AccountBase")
 Name("Address")
 Name("Budget")
 Name("CheckingAccount")
+Name("Date")
 Name("DateTime.DateTime")
 Name("Department")
 Name("Employee")

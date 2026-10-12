@@ -12,7 +12,8 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Comprehensive test class for Svelte testground.
@@ -31,29 +32,31 @@ export interface SvelteAllMacrosTest {
 }
 
 export function svelteAllMacrosTestToString(value: SvelteAllMacrosTest): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("testId: " + String(value.id));
     parts.push("title: " + String(value.title));
     parts.push("content: " + String(value.content));
     parts.push("count: " + String(value.count));
     parts.push("enabled: " + String(value.enabled));
-    return "SvelteAllMacrosTest { " + parts.join(", ") + " }";
+        return "SvelteAllMacrosTest { " + parts.join(", ") + " }";
+    });
 }
 
 export function svelteAllMacrosTestClone(value: SvelteAllMacrosTest): SvelteAllMacrosTest {
-    return ({
+    return __mf_clonedWith(value, (): SvelteAllMacrosTest => ({
 	id: value.id,
 	title: value.title,
 	content: value.content,
 	apiKey: value.apiKey,
 	count: value.count,
 	enabled: value.enabled
-});
+}));
 }
 
 export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMacrosTest): boolean {
     if (a === b) return true;
-    return a.id === b.id && a.title === b.title && a.content === b.content && a.apiKey === b.apiKey && a.count === b.count && a.enabled === b.enabled;
+    return __mf_equalWithin(a, b, () => a.id === b.id && a.title === b.title && a.content === b.content && a.apiKey === b.apiKey && a.count === b.count && a.enabled === b.enabled);
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -67,12 +70,9 @@ export function svelteAllMacrosTestEncode(value: SvelteAllMacrosTest, keepMetada
 export function svelteAllMacrosTestEncodeWithContext(value: SvelteAllMacrosTest, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "SvelteAllMacrosTest",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "SvelteAllMacrosTest" });
     svelteAllMacrosTestEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -220,7 +220,7 @@ export function svelteAllMacrosTestDecodeWithContext(value: unknown, ctx: __mf_D
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -229,7 +229,7 @@ export function svelteAllMacrosTestDecodeWithContext(value: unknown, ctx: __mf_D
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("title")) || (__fields.keeps("title") && obj["title"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
         const __raw_title = obj["title"] as string;
 
         if (!(typeof __raw_title === "string")) {
@@ -238,7 +238,7 @@ export function svelteAllMacrosTestDecodeWithContext(value: unknown, ctx: __mf_D
             instance.title = __raw_title;
         }
     }
-    if ((__fields === undefined || __fields.requires("content")) || (__fields.keeps("content") && obj["content"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("content")) ? "content" in obj : (__fields.keeps("content") && obj["content"] !== undefined)) {
         const __raw_content = obj["content"] as string;
 
         if (!(typeof __raw_content === "string")) {
@@ -247,7 +247,7 @@ export function svelteAllMacrosTestDecodeWithContext(value: unknown, ctx: __mf_D
             instance.content = __raw_content;
         }
     }
-    if ((__fields === undefined || __fields.requires("apiKey")) || (__fields.keeps("apiKey") && obj["apiKey"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("apiKey")) ? "apiKey" in obj : (__fields.keeps("apiKey") && obj["apiKey"] !== undefined)) {
         const __raw_apiKey = obj["apiKey"] as string;
 
         if (!(typeof __raw_apiKey === "string")) {
@@ -256,7 +256,7 @@ export function svelteAllMacrosTestDecodeWithContext(value: unknown, ctx: __mf_D
             instance.apiKey = __raw_apiKey;
         }
     }
-    if ((__fields === undefined || __fields.requires("count")) || (__fields.keeps("count") && obj["count"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
         const __raw_count = obj["count"] as number;
 
         if (!(typeof __raw_count === "number")) {
@@ -265,7 +265,7 @@ export function svelteAllMacrosTestDecodeWithContext(value: unknown, ctx: __mf_D
             instance.count = __raw_count;
         }
     }
-    if ((__fields === undefined || __fields.requires("enabled")) || (__fields.keeps("enabled") && obj["enabled"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("enabled")) ? "enabled" in obj : (__fields.keeps("enabled") && obj["enabled"] !== undefined)) {
         const __raw_enabled = obj["enabled"] as boolean;
 
         if (!(typeof __raw_enabled === "boolean")) {
@@ -306,14 +306,16 @@ export function svelteAllMacrosTestIs(obj: unknown): obj is SvelteAllMacrosTest 
 }
 
 export function svelteAllMacrosTestHashCode(value: SvelteAllMacrosTest): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + ((value.title ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + ((value.content ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + ((value.apiKey ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (Number.isInteger(value.count) ? value.count | 0 : value.count.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (value.enabled ? 1231 : 1237)) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export namespace SvelteAllMacrosTest {
@@ -400,22 +402,22 @@ export declare const svelteTestInstance: unknown;
 
 ## Mapping
 
-original 0..60 -> expanded 524..584
-original 121..165 -> expanded 584..628
-original 200..261 -> expanded 628..689
-original 290..353 -> expanded 689..752
-original 353..886 -> expanded 14485..15018
-generated 0..524 <- imports
-generated 752..1183 <- Debug
-generated 1183..1425 <- Clone
-generated 1425..1710 <- PartialEq
-generated 1710..4817 <- Encode
-generated 4817..13651 <- Decode
-generated 13651..14485 <- Hash
+original 0..60 -> expanded 780..840
+original 121..165 -> expanded 840..884
+original 200..261 -> expanded 884..945
+original 290..353 -> expanded 945..1008
+original 353..886 -> expanded 15028..15561
+generated 0..780 <- imports
+generated 1008..1501 <- Debug
+generated 1501..1794 <- Clone
+generated 1794..2109 <- PartialEq
+generated 2109..5202 <- Encode
+generated 5202..14134 <- Decode
+generated 14134..15028 <- Hash
 
 ## Metadata
 
-interface SvelteAllMacrosTest: {"body_span":{"end":354,"start":160},"decorators":[{"args_src":"Debug, Clone, PartialEq, Encode, Decode, Hash","name":"Derive","span":{"end":122,"start":61}}],"fields":[{"decorators":[{"args_src":"{ rename: \"testId\" }","name":"debug","span":{"end":201,"start":166}}],"name":"id","optional":false,"readonly":false,"span":{"end":217,"start":206},"ts_type":"string"},{"decorators":[],"name":"title","optional":false,"readonly":false,"span":{"end":236,"start":222},"ts_type":"string"},{"decorators":[],"name":"content","optional":false,"readonly":false,"span":{"end":257,"start":241},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":291,"start":262}}],"name":"apiKey","optional":false,"readonly":false,"span":{"end":311,"start":296},"ts_type":"string"},{"decorators":[],"name":"count","optional":false,"readonly":false,"span":{"end":330,"start":316},"ts_type":"number"},{"decorators":[],"name":"enabled","optional":false,"readonly":false,"span":{"end":352,"start":335},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"SvelteAllMacrosTest","span":{"end":354,"start":130},"type_params":[]}
+interface SvelteAllMacrosTest: {"body_span":{"end":354,"start":160},"decorators":[{"args_src":"Debug, Clone, PartialEq, Encode, Decode, Hash","name":"Derive","span":{"end":122,"start":61}}],"fields":[{"decorators":[{"args_src":"{ rename: \"testId\" }","name":"debug","span":{"end":201,"start":166}}],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":217,"start":206},"ts_type":"string"},{"decorators":[],"key":"Named","name":"title","optional":false,"readonly":false,"span":{"end":236,"start":222},"ts_type":"string"},{"decorators":[],"key":"Named","name":"content","optional":false,"readonly":false,"span":{"end":257,"start":241},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":291,"start":262}}],"key":"Named","name":"apiKey","optional":false,"readonly":false,"span":{"end":311,"start":296},"ts_type":"string"},{"decorators":[],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":330,"start":316},"ts_type":"number"},{"decorators":[],"key":"Named","name":"enabled","optional":false,"readonly":false,"span":{"end":352,"start":335},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"SvelteAllMacrosTest","span":{"end":354,"start":130},"type_params":[]}
 
 ## Registry reads
 

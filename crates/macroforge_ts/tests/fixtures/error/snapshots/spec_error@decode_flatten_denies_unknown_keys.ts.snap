@@ -48,7 +48,7 @@ generated 0..111 <- imports
 
 ## Metadata
 
-interface Settings: {"body_span":{"end":169,"start":86},"decorators":[{"args_src":"{ denyUnknownFields: true }","name":"endec","span":{"end":66,"start":24}},{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":105,"start":92},"ts_type":"string"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":132,"start":110}}],"name":"extra","optional":false,"readonly":false,"span":{"end":167,"start":137},"ts_type":"Record<string, number>"}],"heritage":[],"methods":[],"name":"Settings","span":{"end":169,"start":67},"type_params":[]}
+interface Settings: {"body_span":{"end":169,"start":86},"decorators":[{"args_src":"{ denyUnknownFields: true }","name":"endec","span":{"end":66,"start":24}},{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":105,"start":92},"ts_type":"string"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":132,"start":110}}],"key":"Named","name":"extra","optional":false,"readonly":false,"span":{"end":167,"start":137},"ts_type":"Record<string, number>"}],"heritage":[],"methods":[],"name":"Settings","span":{"end":169,"start":67},"type_params":[]}
 
 ## Registry reads
 

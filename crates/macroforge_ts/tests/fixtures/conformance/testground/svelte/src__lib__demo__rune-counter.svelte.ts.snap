@@ -1,0 +1,193 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/rune-counter.svelte.ts
+sha256 634be0b0b434b35ee88249f6601ab988e0ebb5b4989fd749e050f2bbd76f68fe
+
+## Changed
+
+true
+
+## Output
+
+import { debuggedWithin as __mf_debuggedWithin, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
+/**
+ * A class whose fields are runes. The derives that only read an instance
+ * work over it, and read through the runes like any other code does.
+ */
+
+
+export class RuneCounter {
+    label: string = $state('clicks');
+    count: number = $state(0);
+    doubled: number = $derived(this.count * 2);
+
+    increment(): void {
+        this.count += 1;
+    }
+
+    static toString(value: RuneCounter): string {
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("label: " + String(value.label));
+        parts.push("count: " + String(value.count));
+        parts.push("doubled: " + String(value.doubled));
+            return "RuneCounter { " + parts.join(", ") + " }";
+        });
+    }
+
+    static equals(a: RuneCounter, b: RuneCounter): boolean {
+        if (a === b) return true;
+        return __mf_equalWithin(a, b, () => a.label === b.label && a.count === b.count && a.doubled === b.doubled);
+    }
+
+    static hashCode(value: RuneCounter): number {
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
+        hash = (hash * 31 + ((value.label ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.count) ? value.count | 0 : value.count.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.doubled) ? value.doubled | 0 : value.doubled.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+            return hash;
+        });
+    }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: RuneCounter, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "RuneCounter" });
+    RuneCounter.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<RuneCounter>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof RuneCounter>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "RuneCounter" };
+        RuneCounter.#encodeFields(value as RuneCounter, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: RuneCounter, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("label")) {
+        if (value.label !== undefined) {
+            result.label = value.label;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("count")) {
+        if (value.count !== undefined) {
+            result.count = value.count;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("doubled")) {
+        if (value.doubled !== undefined) {
+            result.doubled = value.doubled;
+        }
+    }
+}
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: RuneCounter, keepMetadata?: boolean): string {
+        return runeCounterEncode(value, keepMetadata);
+    }
+}
+
+export function runeCounterToString(value: RuneCounter): string {
+    return RuneCounter.toString(value);
+}
+
+export function runeCounterEquals(a: RuneCounter, b: RuneCounter): boolean {
+    return RuneCounter.equals(a, b);
+}
+
+export function runeCounterHashCode(value: RuneCounter): number {
+    return RuneCounter.hashCode(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function runeCounterEncode(value: RuneCounter, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = runeCounterEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function runeCounterEncodeWithContext(value: RuneCounter, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return RuneCounter.encodeWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function runeCounterEncodePartialWithContext(value: Partial<RuneCounter>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof RuneCounter>): Record<string, unknown> {
+    return RuneCounter.encodePartialWithContext(value, ctx, fields);
+}
+
+## DTS
+
+/**
+* A class whose fields are runes. The derives that only read an instance
+* work over it, and read through the runes like any other code does.
+*/
+export declare class RuneCounter {
+	#private;
+	label: string;
+	count: number;
+	doubled: number;
+	increment(): void;
+	static toString(value: RuneCounter): string;
+	static equals(a: RuneCounter, b: RuneCounter): boolean;
+	static hashCode(value: RuneCounter): number;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: RuneCounter, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext(value: Partial<RuneCounter>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof RuneCounter>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: RuneCounter, keepMetadata?: boolean): string;
+}
+export declare function runeCounterToString(value: RuneCounter): string;
+export declare function runeCounterEquals(a: RuneCounter, b: RuneCounter): boolean;
+export declare function runeCounterHashCode(value: RuneCounter): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function runeCounterEncode(value: RuneCounter, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function runeCounterEncodeWithContext(value: RuneCounter, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function runeCounterEncodePartialWithContext(value: Partial<RuneCounter>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof RuneCounter>): Record<string, unknown>;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..153 -> expanded 611..764
+original 199..400 -> expanded 764..965
+original 400..401 -> expanded 4443..4444
+original 401..402 -> expanded 6149..6150
+generated 0..611 <- imports
+generated 965..1350 <- Debug
+generated 1350..1568 <- PartialEq
+generated 1568..2221 <- Hash
+generated 2221..4114 <- Encode
+generated 4114..4443 <- Encode
+generated 4444..4553 <- Debug
+generated 4553..4670 <- PartialEq
+generated 4670..4779 <- Hash
+generated 4779..6149 <- Encode
+
+## Metadata
+
+class RuneCounter: {"body_span":{"end":402,"start":226},"decorators":[{"args_src":"Debug, PartialEq, Hash, Encode","name":"Derive","span":{"end":200,"start":154}}],"fields":[{"decorators":[],"initializer":"$state('clicks')","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":265,"start":232},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"$state(0)","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":296,"start":270},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"$derived(this.count * 2)","key":"Named","name":"doubled","optional":false,"readonly":false,"span":{"end":344,"start":301},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":400,"start":368},"body_src":"\n        this.count += 1;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"increment","params_src":"","return_type_src":"void","span":{"end":400,"start":350},"type_params":[],"visibility":"Public"}],"name":"RuneCounter","span":{"end":402,"start":208},"superclass":null,"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

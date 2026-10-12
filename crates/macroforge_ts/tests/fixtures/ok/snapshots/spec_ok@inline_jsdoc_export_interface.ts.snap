@@ -112,7 +112,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -121,7 +121,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("age")) || (__fields.keeps("age") && obj["age"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
         const __raw_age = obj["age"] as number;
 
         if (!(typeof __raw_age === "number")) {
@@ -229,14 +229,14 @@ export declare const User: {
 ## Mapping
 
 original 22..83 -> expanded 350..411
-original 83..84 -> expanded 6775..6776
+original 83..84 -> expanded 6804..6805
 generated 0..350 <- imports
-generated 411..6157 <- Decode
-generated 6157..6775 <- __convenience_const
+generated 411..6186 <- Decode
+generated 6186..6804 <- __convenience_const
 
 ## Metadata
 
-interface User: {"body_span":{"end":84,"start":46},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":65,"start":52},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":82,"start":70},"ts_type":"number"}],"heritage":[],"methods":[],"name":"User","span":{"end":84,"start":31},"type_params":[]}
+interface User: {"body_span":{"end":84,"start":46},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":65,"start":52},"ts_type":"string"},{"decorators":[],"key":"Named","name":"age","optional":false,"readonly":false,"span":{"end":82,"start":70},"ts_type":"number"}],"heritage":[],"methods":[],"name":"User","span":{"end":84,"start":31},"type_params":[]}
 
 ## Registry reads
 

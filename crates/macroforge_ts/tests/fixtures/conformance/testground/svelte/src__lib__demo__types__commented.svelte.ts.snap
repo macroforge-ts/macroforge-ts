@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -44,12 +44,9 @@ export function commentedEncode(value: Commented, keepMetadata?: boolean): strin
 export function commentedEncodeWithContext(value: Commented, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Commented",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Commented" });
     commentedEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -165,7 +162,7 @@ export function commentedDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("comment")) || (__fields.keeps("comment") && obj["comment"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("comment")) ? "comment" in obj : (__fields.keeps("comment") && obj["comment"] !== undefined)) {
         const __raw_comment = obj["comment"] as string;
 
         if (!(typeof __raw_comment === "string")) {
@@ -177,7 +174,7 @@ export function commentedDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
             instance.comment = __raw_comment;
         }
     }
-    if ((__fields === undefined || __fields.requires("replyTo")) || (__fields.keeps("replyTo") && obj["replyTo"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("replyTo")) ? "replyTo" in obj : (__fields.keeps("replyTo") && obj["replyTo"] !== undefined)) {
         const __raw_replyTo = obj["replyTo"] as string | null;
 
         if (!(typeof __raw_replyTo === "string" || __raw_replyTo === null)) {
@@ -482,20 +479,20 @@ export declare const Commented: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..141 -> expanded 741..775
-original 182..233 -> expanded 775..826
-original 233..234 -> expanded 15977..15978
-generated 0..683 <- imports
-generated 826..946 <- Default
-generated 946..3279 <- Encode
-generated 3279..10219 <- Decode
-generated 10219..14684 <- Gigaform
-generated 14684..15977 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..141 -> expanded 813..847
+original 182..233 -> expanded 847..898
+original 233..234 -> expanded 16071..16072
+generated 0..755 <- imports
+generated 898..1018 <- Default
+generated 1018..3337 <- Encode
+generated 3337..10313 <- Decode
+generated 10313..14778 <- Gigaform
+generated 14778..16071 <- __convenience_const
 
 ## Metadata
 
-interface Commented: {"body_span":{"end":234,"start":136},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":183,"start":142}}],"name":"comment","optional":false,"readonly":false,"span":{"end":204,"start":188},"ts_type":"string"},{"decorators":[],"name":"replyTo","optional":false,"readonly":false,"span":{"end":232,"start":209},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Commented","span":{"end":234,"start":116},"type_params":[]}
+interface Commented: {"body_span":{"end":234,"start":136},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":183,"start":142}}],"key":"Named","name":"comment","optional":false,"readonly":false,"span":{"end":204,"start":188},"ts_type":"string"},{"decorators":[],"key":"Named","name":"replyTo","optional":false,"readonly":false,"span":{"end":232,"start":209},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Commented","span":{"end":234,"start":116},"type_params":[]}
 
 ## Registry reads
 

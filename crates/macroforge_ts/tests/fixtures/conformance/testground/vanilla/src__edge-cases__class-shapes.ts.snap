@@ -13,8 +13,8 @@ true
 ## Output
 
 import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemHashCode, edgeItemEquals, edgeItemClone, edgeItemToString } from "./edge-types";
-import { instanceWith as __mf_instanceWith, instanceOf as __mf_instanceOf, structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeMap as __mf_decodeMap } from "@macroforge/core/endec";
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeMap as __mf_decodeMap } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Class members a derive has to tell from plain fields: visibility
@@ -47,17 +47,19 @@ export class ClassMembers {
     }
 
     static toString(value: ClassMembers): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("open: " + String(value.open));
         parts.push("fixed: " + String(value.fixed));
         parts.push("optional: " + String(value.optional));
         parts.push("definite: " + String(value.definite));
         parts.push("items: " + "[" + value.items.map(edgeItemToString).join(", ") + "]");
-        return "ClassMembers { " + parts.join(", ") + " }";
+            return "ClassMembers { " + parts.join(", ") + " }";
+        });
     }
 
     static clone(value: ClassMembers): ClassMembers {
-        return __mf_instanceWith(value, ({
+        return __mf_clonedWith(value, () => ({
         	open: value.open,
         	fixed: value.fixed,
         	..."optional" in value ? { optional: value.optional } : {},
@@ -68,20 +70,22 @@ export class ClassMembers {
 
     static equals(a: ClassMembers, b: ClassMembers): boolean {
         if (a === b) return true;
-        return a.open === b.open && a.fixed === b.fixed && a.optional === b.optional && a.definite === b.definite && a.items.length === b.items.length && a.items.every((__item0, __index0) => {
+        return __mf_equalWithin(a, b, () => a.open === b.open && a.fixed === b.fixed && a.optional === b.optional && a.definite === b.definite && a.items.length === b.items.length && a.items.every((__item0, __index0) => {
         	const __other0 = b.items[__index0];
         	return __other0 === undefined ? __item0 === undefined : edgeItemEquals(__item0, __other0);
-        });
+        }));
     }
 
     static hashCode(value: ClassMembers): number {
-        let hash = 17;
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
         hash = (hash * 31 + ((value.open ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         hash = (hash * 31 + ((value.fixed ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         hash = (hash * 31 + (value.optional == null ? 0 : (value.optional ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         hash = (hash * 31 + (Number.isInteger(value.definite) ? value.definite | 0 : value.definite.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         hash = (hash * 31 + (value.items.reduce<number>((__hash0, __item0) => __hash0 * 31 + edgeItemHashCode(__item0) | 0, 1))) | 0;
-        return hash;
+            return hash;
+        });
     }
 
     static defaultValue(): ClassMembers {
@@ -98,12 +102,9 @@ export class ClassMembers {
 static encodeWithContext(value: ClassMembers, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "ClassMembers",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ClassMembers" });
     ClassMembers.#encodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -257,7 +258,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("open")) || (__fields.keeps("open") && obj["open"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("open")) ? "open" in obj : (__fields.keeps("open") && obj["open"] !== undefined)) {
         const __raw_open = obj["open"] as string;
 
         if (!(typeof __raw_open === "string")) {
@@ -266,7 +267,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.open = __raw_open;
         }
     }
-    if ((__fields === undefined || __fields.requires("fixed")) || (__fields.keeps("fixed") && obj["fixed"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("fixed")) ? "fixed" in obj : (__fields.keeps("fixed") && obj["fixed"] !== undefined)) {
         const __raw_fixed = obj["fixed"] as string;
 
         if (!(typeof __raw_fixed === "string")) {
@@ -286,7 +287,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("definite")) || (__fields.keeps("definite") && obj["definite"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("definite")) ? "definite" in obj : (__fields.keeps("definite") && obj["definite"] !== undefined)) {
         const __raw_definite = obj["definite"] as number;
 
         if (!(typeof __raw_definite === "number")) {
@@ -295,7 +296,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.definite = __raw_definite;
         }
     }
-    if ((__fields === undefined || __fields.requires("items")) || (__fields.keeps("items") && obj["items"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
         const __raw_items = obj["items"] as EdgeItem[];
         if (Array.isArray(__raw_items)) {
             ctx.pushScope("items");
@@ -427,16 +428,18 @@ export class ClassGuarded {
     }
 
     static toString(value: ClassGuarded): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("name: " + String(value.name));
         parts.push("guarded: " + String(value.guarded));
         parts.push("hidden: " + String(value.hidden));
         parts.push("sealed: " + String(value.sealed));
-        return "ClassGuarded { " + parts.join(", ") + " }";
+            return "ClassGuarded { " + parts.join(", ") + " }";
+        });
     }
 
     static clone(value: ClassGuarded): ClassGuarded {
-        return __mf_instanceWith(value, ({
+        return __mf_clonedWith(value, () => ({
         	name: value.name,
         	guarded: value.guarded,
         	hidden: value.hidden,
@@ -446,20 +449,23 @@ export class ClassGuarded {
 
     static equals(a: ClassGuarded, b: ClassGuarded): boolean {
         if (a === b) return true;
-        return a.name === b.name && a.guarded === b.guarded && a.hidden === b.hidden && a.sealed === b.sealed;
+        return __mf_equalWithin(a, b, () => a.name === b.name && a.guarded === b.guarded && a.hidden === b.hidden && a.sealed === b.sealed);
     }
 
     static hashCode(value: ClassGuarded): number {
-        let hash = 17;
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
         hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         hash = (hash * 31 + (Number.isInteger(value.guarded) ? value.guarded | 0 : value.guarded.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         hash = (hash * 31 + (value.hidden ? 1231 : 1237)) | 0;
         hash = (hash * 31 + ((value.sealed ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-        return hash;
+            return hash;
+        });
     }
 
     static partialCompare(a: ClassGuarded, b: ClassGuarded): number | null {
         if (a === b) return 0;
+        return __mf_comparedWithin(a, b, () => {
         const cmp0 = (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
         if (cmp0 === null) return null;
         if (cmp0 !== 0) return cmp0;
@@ -472,11 +478,13 @@ export class ClassGuarded {
         const cmp3 = (a.sealed < b.sealed ? -1 : a.sealed > b.sealed ? 1 : 0);
         if (cmp3 === null) return null;
         if (cmp3 !== 0) return cmp3;
-        return 0;
+            return 0;
+        });
     }
 
     static compare(a: ClassGuarded, b: ClassGuarded): number {
         if (a === b) return 0;
+        return __mf_comparedWithin(a, b, () => {
         const cmp0 = a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
         if (cmp0 !== 0) return cmp0;
         const cmp1 = a.guarded < b.guarded ? -1 : a.guarded > b.guarded ? 1 : 0;
@@ -485,7 +493,8 @@ export class ClassGuarded {
         if (cmp2 !== 0) return cmp2;
         const cmp3 = a.sealed < b.sealed ? -1 : a.sealed > b.sealed ? 1 : 0;
         if (cmp3 !== 0) return cmp3;
-        return 0;
+            return 0;
+        });
     }
 
     static defaultValue(): ClassGuarded {
@@ -502,12 +511,9 @@ export class ClassGuarded {
 static encodeWithContext(value: ClassGuarded, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "ClassGuarded",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ClassGuarded" });
     ClassGuarded.#encodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -653,7 +659,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -662,7 +668,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("guarded")) || (__fields.keeps("guarded") && obj["guarded"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("guarded")) ? "guarded" in obj : (__fields.keeps("guarded") && obj["guarded"] !== undefined)) {
         const __raw_guarded = obj["guarded"] as number;
 
         if (!(typeof __raw_guarded === "number")) {
@@ -671,7 +677,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.guarded = __raw_guarded;
         }
     }
-    if ((__fields === undefined || __fields.requires("hidden")) || (__fields.keeps("hidden") && obj["hidden"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("hidden")) ? "hidden" in obj : (__fields.keeps("hidden") && obj["hidden"] !== undefined)) {
         const __raw_hidden = obj["hidden"] as boolean;
 
         if (!(typeof __raw_hidden === "boolean")) {
@@ -680,7 +686,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.hidden = __raw_hidden;
         }
     }
-    if ((__fields === undefined || __fields.requires("sealed")) || (__fields.keeps("sealed") && obj["sealed"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("sealed")) ? "sealed" in obj : (__fields.keeps("sealed") && obj["sealed"] !== undefined)) {
         const __raw_sealed = obj["sealed"] as string;
 
         if (!(typeof __raw_sealed === "string")) {
@@ -804,14 +810,16 @@ export class ClassConstructed {
     }
 
     static toString(value: ClassConstructed): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("label: " + String(value.label));
         parts.push("weight: " + String(value.weight));
-        return "ClassConstructed { " + parts.join(", ") + " }";
+            return "ClassConstructed { " + parts.join(", ") + " }";
+        });
     }
 
     static clone(value: ClassConstructed): ClassConstructed {
-        return __mf_instanceWith(value, ({
+        return __mf_clonedWith(value, () => ({
         	label: value.label,
         	weight: value.weight
         }));
@@ -819,34 +827,40 @@ export class ClassConstructed {
 
     static equals(a: ClassConstructed, b: ClassConstructed): boolean {
         if (a === b) return true;
-        return a.label === b.label && a.weight === b.weight;
+        return __mf_equalWithin(a, b, () => a.label === b.label && a.weight === b.weight);
     }
 
     static hashCode(value: ClassConstructed): number {
-        let hash = 17;
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
         hash = (hash * 31 + ((value.label ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         hash = (hash * 31 + (Number.isInteger(value.weight) ? value.weight | 0 : value.weight.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-        return hash;
+            return hash;
+        });
     }
 
     static partialCompare(a: ClassConstructed, b: ClassConstructed): number | null {
         if (a === b) return 0;
+        return __mf_comparedWithin(a, b, () => {
         const cmp0 = (a.label < b.label ? -1 : a.label > b.label ? 1 : 0);
         if (cmp0 === null) return null;
         if (cmp0 !== 0) return cmp0;
         const cmp1 = (a.weight < b.weight ? -1 : a.weight > b.weight ? 1 : a.weight === b.weight ? 0 : null);
         if (cmp1 === null) return null;
         if (cmp1 !== 0) return cmp1;
-        return 0;
+            return 0;
+        });
     }
 
     static compare(a: ClassConstructed, b: ClassConstructed): number {
         if (a === b) return 0;
+        return __mf_comparedWithin(a, b, () => {
         const cmp0 = a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
         if (cmp0 !== 0) return cmp0;
         const cmp1 = a.weight < b.weight ? -1 : a.weight > b.weight ? 1 : 0;
         if (cmp1 !== 0) return cmp1;
-        return 0;
+            return 0;
+        });
     }
 
     static defaultValue(): ClassConstructed {
@@ -861,12 +875,9 @@ export class ClassConstructed {
 static encodeWithContext(value: ClassConstructed, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "ClassConstructed",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ClassConstructed" });
     ClassConstructed.#encodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -988,7 +999,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("label")) || (__fields.keeps("label") && obj["label"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
         const __raw_label = obj["label"] as string;
 
         if (!(typeof __raw_label === "string")) {
@@ -997,7 +1008,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.label = __raw_label;
         }
     }
-    if ((__fields === undefined || __fields.requires("weight")) || (__fields.keeps("weight") && obj["weight"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
         const __raw_weight = obj["weight"] as number;
 
         if (!(typeof __raw_weight === "number")) {
@@ -1123,15 +1134,17 @@ export class ClassParameters {
     }
 
     static toString(value: ClassParameters): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("name: " + String(value.name));
         parts.push("rank: " + String(value.rank));
         parts.push("secret: " + String(value.secret));
-        return "ClassParameters { " + parts.join(", ") + " }";
+            return "ClassParameters { " + parts.join(", ") + " }";
+        });
     }
 
     static clone(value: ClassParameters): ClassParameters {
-        return __mf_instanceWith(value, ({
+        return __mf_clonedWith(value, () => ({
         	name: value.name,
         	rank: value.rank,
         	secret: value.secret
@@ -1140,15 +1153,17 @@ export class ClassParameters {
 
     static equals(a: ClassParameters, b: ClassParameters): boolean {
         if (a === b) return true;
-        return a.name === b.name && a.rank === b.rank && a.secret === b.secret;
+        return __mf_equalWithin(a, b, () => a.name === b.name && a.rank === b.rank && a.secret === b.secret);
     }
 
     static hashCode(value: ClassParameters): number {
-        let hash = 17;
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
         hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         hash = (hash * 31 + (Number.isInteger(value.rank) ? value.rank | 0 : value.rank.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         hash = (hash * 31 + ((value.secret ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-        return hash;
+            return hash;
+        });
     }
 
     static defaultValue(): ClassParameters {
@@ -1164,12 +1179,9 @@ export class ClassParameters {
 static encodeWithContext(value: ClassParameters, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "ClassParameters",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ClassParameters" });
     ClassParameters.#encodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1299,7 +1311,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -1308,7 +1320,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("rank")) || (__fields.keeps("rank") && obj["rank"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("rank")) ? "rank" in obj : (__fields.keeps("rank") && obj["rank"] !== undefined)) {
         const __raw_rank = obj["rank"] as number;
 
         if (!(typeof __raw_rank === "number")) {
@@ -1317,7 +1329,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.rank = __raw_rank;
         }
     }
-    if ((__fields === undefined || __fields.requires("secret")) || (__fields.keeps("secret") && obj["secret"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("secret")) ? "secret" in obj : (__fields.keeps("secret") && obj["secret"] !== undefined)) {
         const __raw_secret = obj["secret"] as string;
 
         if (!(typeof __raw_secret === "string")) {
@@ -1427,24 +1439,28 @@ export class ClassBase {
     id: string = '';
 
     static toString(value: ClassBase): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("id: " + String(value.id));
-        return "ClassBase { " + parts.join(", ") + " }";
+            return "ClassBase { " + parts.join(", ") + " }";
+        });
     }
 
     static clone(value: ClassBase): ClassBase {
-        return __mf_instanceWith(value, ({ id: value.id }));
+        return __mf_clonedWith(value, () => ({ id: value.id }));
     }
 
     static equals(a: ClassBase, b: ClassBase): boolean {
         if (a === b) return true;
-        return a.id === b.id;
+        return __mf_equalWithin(a, b, () => a.id === b.id);
     }
 
     static hashCode(value: ClassBase): number {
-        let hash = 17;
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
         hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-        return hash;
+            return hash;
+        });
     }
 
     static defaultValue(): ClassBase {
@@ -1458,12 +1474,9 @@ export class ClassBase {
 static encodeWithContext(value: ClassBase, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "ClassBase",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ClassBase" });
     ClassBase.#encodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1582,7 +1595,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -1692,14 +1705,16 @@ export class ClassDerived extends ClassBase {
     extra: number = 0;
 
     static toString(value: ClassDerived): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("id: " + String(value.id));
         parts.push("extra: " + String(value.extra));
-        return "ClassDerived { " + parts.join(", ") + " }";
+            return "ClassDerived { " + parts.join(", ") + " }";
+        });
     }
 
     static clone(value: ClassDerived): ClassDerived {
-        return __mf_instanceWith(value, ({
+        return __mf_clonedWith(value, () => ({
         	id: value.id,
         	extra: value.extra
         }));
@@ -1707,14 +1722,16 @@ export class ClassDerived extends ClassBase {
 
     static equals(a: ClassDerived, b: ClassDerived): boolean {
         if (a === b) return true;
-        return a.id === b.id && a.extra === b.extra;
+        return __mf_equalWithin(a, b, () => a.id === b.id && a.extra === b.extra);
     }
 
     static hashCode(value: ClassDerived): number {
-        let hash = 17;
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
         hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         hash = (hash * 31 + (Number.isInteger(value.extra) ? value.extra | 0 : value.extra.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-        return hash;
+            return hash;
+        });
     }
 
     static defaultValue(): ClassDerived {
@@ -1729,12 +1746,9 @@ export class ClassDerived extends ClassBase {
 static encodeWithContext(value: ClassDerived, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "ClassDerived",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ClassDerived" });
     ClassDerived.#encodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1861,7 +1875,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -1870,7 +1884,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("extra")) || (__fields.keeps("extra") && obj["extra"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("extra")) ? "extra" in obj : (__fields.keeps("extra") && obj["extra"] !== undefined)) {
         const __raw_extra = obj["extra"] as number;
 
         if (!(typeof __raw_extra === "number")) {
@@ -1981,24 +1995,28 @@ export abstract class ClassAbstract {
     abstract area(): number;
 
     static toString(value: ClassAbstract): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("kind: " + String(value.kind));
-        return "ClassAbstract { " + parts.join(", ") + " }";
+            return "ClassAbstract { " + parts.join(", ") + " }";
+        });
     }
 
     static clone(value: ClassAbstract): ClassAbstract {
-        return __mf_instanceWith(value, ({ kind: value.kind }));
+        return __mf_clonedWith(value, () => ({ kind: value.kind }));
     }
 
     static equals(a: ClassAbstract, b: ClassAbstract): boolean {
         if (a === b) return true;
-        return a.kind === b.kind;
+        return __mf_equalWithin(a, b, () => a.kind === b.kind);
     }
 
     static hashCode(value: ClassAbstract): number {
-        let hash = 17;
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
         hash = (hash * 31 + ((value.kind ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-        return hash;
+            return hash;
+        });
     }
 
     static defaultValue(): ClassAbstract {
@@ -2037,16 +2055,18 @@ export class ClassHolder {
     maybe: ClassBase | null = null;
 
     static toString(value: ClassHolder): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("card: " + classMembersToString(value.card));
         parts.push("cards: " + "[" + value.cards.map(classMembersToString).join(", ") + "]");
         parts.push("byName: " + __mf_structuralDebug(value.byName));
         parts.push("maybe: " + (value.maybe == null ? String(value.maybe) : classBaseToString(value.maybe)));
-        return "ClassHolder { " + parts.join(", ") + " }";
+            return "ClassHolder { " + parts.join(", ") + " }";
+        });
     }
 
     static clone(value: ClassHolder): ClassHolder {
-        return __mf_instanceWith(value, ({
+        return __mf_clonedWith(value, () => ({
         	card: classMembersClone(value.card),
         	cards: value.cards.map((__item0) => classMembersClone(__item0)),
         	byName: (() => {
@@ -2060,22 +2080,24 @@ export class ClassHolder {
 
     static equals(a: ClassHolder, b: ClassHolder): boolean {
         if (a === b) return true;
-        return classMembersEquals(a.card, b.card) && a.cards.length === b.cards.length && a.cards.every((__item0, __index0) => {
+        return __mf_equalWithin(a, b, () => classMembersEquals(a.card, b.card) && a.cards.length === b.cards.length && a.cards.every((__item0, __index0) => {
         	const __other0 = b.cards[__index0];
         	return __other0 === undefined ? __item0 === undefined : classMembersEquals(__item0, __other0);
         }) && a.byName.size === b.byName.size && Array.from(a.byName).every(([__key0, __item0]) => {
         	const __other0 = b.byName.get(__key0);
         	return b.byName.has(__key0) && (__other0 === undefined ? __item0 === undefined : classBaseEquals(__item0, __other0));
-        }) && (a.maybe == null || b.maybe == null ? a.maybe === b.maybe : classBaseEquals(a.maybe, b.maybe));
+        }) && (a.maybe == null || b.maybe == null ? a.maybe === b.maybe : classBaseEquals(a.maybe, b.maybe)));
     }
 
     static hashCode(value: ClassHolder): number {
-        let hash = 17;
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
         hash = (hash * 31 + (classMembersHashCode(value.card))) | 0;
         hash = (hash * 31 + (value.cards.reduce<number>((__hash0, __item0) => __hash0 * 31 + classMembersHashCode(__item0) | 0, 1))) | 0;
         hash = (hash * 31 + (Array.from(value.byName).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + classBaseHashCode(__item0) | 0) | 0, 0))) | 0;
         hash = (hash * 31 + (value.maybe == null ? 0 : classBaseHashCode(value.maybe))) | 0;
-        return hash;
+            return hash;
+        });
     }
 
     static defaultValue(): ClassHolder {
@@ -2092,12 +2114,9 @@ export class ClassHolder {
 static encodeWithContext(value: ClassHolder, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "ClassHolder",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ClassHolder" });
     ClassHolder.#encodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -2243,7 +2262,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("card")) || (__fields.keeps("card") && obj["card"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("card")) ? "card" in obj : (__fields.keeps("card") && obj["card"] !== undefined)) {
         const __raw_card = obj["card"] as ClassMembers;
 
         ctx.pushScope("card");
@@ -2259,13 +2278,14 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "card", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("cards")) || (__fields.keeps("cards") && obj["cards"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("cards")) ? "cards" in obj : (__fields.keeps("cards") && obj["cards"] !== undefined)) {
         const __raw_cards = obj["cards"] as ClassMembers[];
         if (Array.isArray(__raw_cards)) {
             ctx.pushScope("cards");
@@ -2289,7 +2309,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             errors.push({ field: "cards", message: __raw_cards == null ? "ClassHolder.cards is required" : "expected ClassMembers[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("byName")) || (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
         const __raw_byName = obj["byName"] as Record<string, ClassBase>;
         if (typeof __raw_byName === "object" && __raw_byName !== null) {
             ctx.pushScope("byName");
@@ -2313,7 +2333,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             errors.push({ field: "byName", message: __raw_byName == null ? "ClassHolder.byName is required" : "expected Map<string, ClassBase>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("maybe")) || (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
         const __raw_maybe = obj["maybe"] as ClassBase | null;
 
         if (__raw_maybe === null) {
@@ -2332,7 +2352,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
@@ -2441,14 +2462,16 @@ export class ClassCallback {
     onChange: (name: string) => void = () => {};
 
     static toString(value: ClassCallback): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("name: " + String(value.name));
         parts.push("onChange: " + String(value.onChange));
-        return "ClassCallback { " + parts.join(", ") + " }";
+            return "ClassCallback { " + parts.join(", ") + " }";
+        });
     }
 
     static clone(value: ClassCallback): ClassCallback {
-        return __mf_instanceWith(value, ({
+        return __mf_clonedWith(value, () => ({
         	name: value.name,
         	onChange: value.onChange
         }));
@@ -2456,14 +2479,16 @@ export class ClassCallback {
 
     static equals(a: ClassCallback, b: ClassCallback): boolean {
         if (a === b) return true;
-        return a.name === b.name && a.onChange === b.onChange;
+        return __mf_equalWithin(a, b, () => a.name === b.name && a.onChange === b.onChange);
     }
 
     static hashCode(value: ClassCallback): number {
-        let hash = 17;
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
         hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         hash = (hash * 31 + (0)) | 0;
-        return hash;
+            return hash;
+        });
     }
 
     static defaultValue(): ClassCallback {
@@ -2502,29 +2527,33 @@ export interface ClassEntity {
 }
 
 export function classEntityToString(value: ClassEntity): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("id: " + String(value.id));
     parts.push("kind: " + String(value.kind));
-    return "ClassEntity { " + parts.join(", ") + " }";
+        return "ClassEntity { " + parts.join(", ") + " }";
+    });
 }
 
 export function classEntityClone(value: ClassEntity): ClassEntity {
-    return ({
+    return __mf_clonedWith(value, (): ClassEntity => ({
 	id: value.id,
 	kind: value.kind
-});
+}));
 }
 
 export function classEntityEquals(a: ClassEntity, b: ClassEntity): boolean {
     if (a === b) return true;
-    return a.id === b.id && a.kind === b.kind;
+    return __mf_equalWithin(a, b, () => a.id === b.id && a.kind === b.kind);
 }
 
 export function classEntityHashCode(value: ClassEntity): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + ((value.kind ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function classEntityDefaultValue(): ClassEntity {
@@ -2545,12 +2574,9 @@ export function classEntityEncode(value: ClassEntity, keepMetadata?: boolean): s
 export function classEntityEncodeWithContext(value: ClassEntity, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "ClassEntity",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ClassEntity" });
     classEntityEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -2666,7 +2692,7 @@ export function classEntityDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -2675,7 +2701,7 @@ export function classEntityDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("kind")) || (__fields.keeps("kind") && obj["kind"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
         const __raw_kind = obj["kind"] as string;
 
         if (!(typeof __raw_kind === "string")) {
@@ -2755,24 +2781,28 @@ export interface ClassDated {
 }
 
 export function classDatedToString(value: ClassDated): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("at: " + String(value.at));
-    return "ClassDated { " + parts.join(", ") + " }";
+        return "ClassDated { " + parts.join(", ") + " }";
+    });
 }
 
 export function classDatedClone(value: ClassDated): ClassDated {
-    return ({ at: new Date(value.at.getTime()) });
+    return __mf_clonedWith(value, (): ClassDated => ({ at: new Date(value.at.getTime()) }));
 }
 
 export function classDatedEquals(a: ClassDated, b: ClassDated): boolean {
     if (a === b) return true;
-    return a.at.getTime() === b.at.getTime();
+    return __mf_equalWithin(a, b, () => a.at.getTime() === b.at.getTime());
 }
 
 export function classDatedHashCode(value: ClassDated): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (value.at.getTime() | 0)) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function classDatedDefaultValue(): ClassDated {
@@ -2792,12 +2822,9 @@ export function classDatedEncode(value: ClassDated, keepMetadata?: boolean): str
 export function classDatedEncodeWithContext(value: ClassDated, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "ClassDated",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ClassDated" });
     classDatedEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -2905,12 +2932,16 @@ export function classDatedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("at")) || (__fields.keeps("at") && obj["at"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
         const __raw_at = obj["at"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_at === "string" ? new Date(__raw_at) : __raw_at as Date;
-            instance.at = __dateVal;
+            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "at", message: __raw_at == null ? "ClassDated.at is required" : "expected Date" });
+            } else {
+                instance.at = __dateVal;
+            }
         }
     }
 
@@ -2985,35 +3016,39 @@ export interface ClassAccount extends ClassEntity, ClassDated {
 }
 
 export function classAccountToString(value: ClassAccount): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("id: " + String(value.id));
     parts.push("kind: " + String(value.kind));
     parts.push("at: " + String(value.at));
     parts.push("balance: " + String(value.balance));
-    return "ClassAccount { " + parts.join(", ") + " }";
+        return "ClassAccount { " + parts.join(", ") + " }";
+    });
 }
 
 export function classAccountClone(value: ClassAccount): ClassAccount {
-    return ({
+    return __mf_clonedWith(value, (): ClassAccount => ({
 	id: value.id,
 	kind: value.kind,
 	at: new Date(value.at.getTime()),
 	balance: value.balance
-});
+}));
 }
 
 export function classAccountEquals(a: ClassAccount, b: ClassAccount): boolean {
     if (a === b) return true;
-    return a.id === b.id && a.kind === b.kind && a.at.getTime() === b.at.getTime() && a.balance === b.balance;
+    return __mf_equalWithin(a, b, () => a.id === b.id && a.kind === b.kind && a.at.getTime() === b.at.getTime() && a.balance === b.balance);
 }
 
 export function classAccountHashCode(value: ClassAccount): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + ((value.kind ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (value.at.getTime() | 0)) | 0;
     hash = (hash * 31 + (Number.isInteger(value.balance) ? value.balance | 0 : value.balance.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function classAccountDefaultValue(): ClassAccount {
@@ -3036,12 +3071,9 @@ export function classAccountEncode(value: ClassAccount, keepMetadata?: boolean):
 export function classAccountEncodeWithContext(value: ClassAccount, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "ClassAccount",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ClassAccount" });
     classAccountEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -3173,7 +3205,7 @@ export function classAccountDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -3182,7 +3214,7 @@ export function classAccountDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("kind")) || (__fields.keeps("kind") && obj["kind"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
         const __raw_kind = obj["kind"] as 'account';
 
         if (!(__raw_kind === "account")) {
@@ -3191,15 +3223,19 @@ export function classAccountDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             instance.kind = __raw_kind;
         }
     }
-    if ((__fields === undefined || __fields.requires("at")) || (__fields.keeps("at") && obj["at"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
         const __raw_at = obj["at"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_at === "string" ? new Date(__raw_at) : __raw_at as Date;
-            instance.at = __dateVal;
+            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "at", message: __raw_at == null ? "ClassAccount.at is required" : "expected Date" });
+            } else {
+                instance.at = __dateVal;
+            }
         }
     }
-    if ((__fields === undefined || __fields.requires("balance")) || (__fields.keeps("balance") && obj["balance"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
         const __raw_balance = obj["balance"] as number;
 
         if (!(typeof __raw_balance === "number")) {
@@ -4050,201 +4086,201 @@ export declare const ClassAccount: {
 
 ## Mapping
 
-original 0..839 -> expanded 891..1730
-original 839..840 -> expanded 14972..14973
-original 840..1210 -> expanded 18754..19124
-original 1210..1211 -> expanded 31639..31640
-original 1211..1490 -> expanded 35686..35965
-original 1490..1491 -> expanded 45823..45824
-original 1491..1781 -> expanded 50070..50360
-original 1781..1782 -> expanded 60338..60339
-original 1782..1901 -> expanded 64246..64365
-original 1901..1902 -> expanded 71947..71948
-original 1902..2044 -> expanded 75603..75745
-original 2044..2045 -> expanded 84597..84598
-original 2045..2200 -> expanded 88379..88534
-original 2200..2201 -> expanded 89434..89435
-original 2201..2471 -> expanded 90011..90281
-original 2471..2472 -> expanded 105095..105096
-original 2472..2630 -> expanded 108835..108993
-original 2630..2631 -> expanded 110129..110130
-original 2631..2770 -> expanded 110706..110845
-original 2770..2888 -> expanded 121592..121710
-original 2888..3068 -> expanded 131319..131499
-original 3068..3069 -> expanded 144324..144325
-generated 0..891 <- imports
-generated 1730..2196 <- Debug
-generated 2196..2542 <- Clone
-generated 2542..2996 <- PartialEq
-generated 2996..3821 <- Hash
-generated 3821..4142 <- Default
-generated 4142..6443 <- Encode
-generated 6443..6774 <- Encode
-generated 6774..14972 <- Decode
-generated 14973..15085 <- Debug
-generated 15085..15197 <- Clone
-generated 15197..15318 <- PartialEq
-generated 15318..15430 <- Hash
-generated 15430..15532 <- Default
-generated 15532..16912 <- Encode
-generated 16912..18754 <- Decode
-generated 19124..19496 <- Debug
-generated 19496..19734 <- Clone
-generated 19734..19949 <- PartialEq
-generated 19949..20545 <- Hash
-generated 20545..21322 <- PartialOrd
-generated 21322..21884 <- Ord
-generated 21884..22203 <- Default
-generated 22203..24281 <- Encode
-generated 24281..24612 <- Encode
-generated 24612..31639 <- Decode
-generated 31640..31752 <- Debug
-generated 31752..31864 <- Clone
-generated 31864..31985 <- PartialEq
-generated 31985..32097 <- Hash
-generated 32097..32240 <- PartialOrd
-generated 32240..32362 <- Ord
-generated 32362..32464 <- Default
-generated 32464..33844 <- Encode
-generated 33844..35686 <- Decode
-generated 35965..36235 <- Debug
-generated 36235..36419 <- Clone
-generated 36419..36592 <- PartialEq
-generated 36592..37002 <- Hash
-generated 37002..37482 <- PartialOrd
-generated 37482..37833 <- Ord
-generated 37833..38071 <- Default
-generated 38071..39861 <- Encode
-generated 39861..40200 <- Encode
-generated 40200..45823 <- Decode
-generated 45824..45948 <- Debug
-generated 45948..46076 <- Clone
-generated 46076..46213 <- PartialEq
-generated 46213..46337 <- Hash
-generated 46337..46496 <- PartialOrd
-generated 46496..46634 <- Ord
-generated 46634..46748 <- Default
-generated 46748..48168 <- Encode
-generated 48168..50070 <- Decode
-generated 50360..50677 <- Debug
-generated 50677..50884 <- Clone
-generated 50884..51074 <- PartialEq
-generated 51074..51601 <- Hash
-generated 51601..51877 <- Default
-generated 51877..53808 <- Encode
-generated 53808..54145 <- Encode
-generated 54145..60338 <- Decode
-generated 60339..60460 <- Debug
-generated 60460..60584 <- Clone
-generated 60584..60717 <- PartialEq
-generated 60717..60838 <- Hash
-generated 60838..60949 <- Default
-generated 60949..62359 <- Encode
-generated 62359..64246 <- Decode
-generated 64365..64560 <- Debug
-generated 64560..64676 <- Clone
-generated 64676..64804 <- PartialEq
-generated 64804..65024 <- Hash
-generated 65024..65203 <- Default
-generated 65203..66756 <- Encode
-generated 66756..67081 <- Encode
-generated 67081..71947 <- Decode
-generated 71948..72051 <- Debug
-generated 72051..72151 <- Clone
-generated 72151..72260 <- PartialEq
-generated 72260..72363 <- Hash
-generated 72363..72456 <- Default
-generated 72456..73806 <- Encode
-generated 73806..75603 <- Decode
-generated 75745..75999 <- Debug
-generated 75999..76167 <- Clone
-generated 76167..76324 <- PartialEq
-generated 76324..76724 <- Hash
-generated 76724..76946 <- Default
-generated 76946..78684 <- Encode
-generated 78684..79015 <- Encode
-generated 79015..84597 <- Decode
-generated 84598..84710 <- Debug
-generated 84710..84822 <- Clone
-generated 84822..84943 <- PartialEq
-generated 84943..85055 <- Hash
-generated 85055..85157 <- Default
-generated 85157..86537 <- Encode
-generated 86537..88379 <- Decode
-generated 88534..88741 <- Debug
-generated 88741..88869 <- Clone
-generated 88869..89009 <- PartialEq
-generated 89009..89235 <- Hash
-generated 89235..89434 <- Default
-generated 89435..89550 <- Debug
-generated 89550..89666 <- Clone
-generated 89666..89791 <- PartialEq
-generated 89791..89906 <- Hash
-generated 89906..90011 <- Default
-generated 90281..90771 <- Debug
-generated 90771..91304 <- Clone
-generated 91304..92070 <- PartialEq
-generated 92070..92720 <- Hash
-generated 92720..93097 <- Default
-generated 93097..95421 <- Encode
-generated 95421..95750 <- Encode
-generated 95750..105095 <- Decode
-generated 105096..105205 <- Debug
-generated 105205..105313 <- Clone
-generated 105313..105430 <- PartialEq
-generated 105430..105539 <- Hash
-generated 105539..105638 <- Default
-generated 105638..107008 <- Encode
-generated 107008..108835 <- Decode
-generated 108993..109259 <- Debug
-generated 109259..109439 <- Clone
-generated 109439..109608 <- PartialEq
-generated 109608..109872 <- Hash
-generated 109872..110129 <- Default
-generated 110130..110245 <- Debug
-generated 110245..110361 <- Clone
-generated 110361..110486 <- PartialEq
-generated 110486..110601 <- Hash
-generated 110601..110706 <- Default
-generated 110845..111091 <- Debug
-generated 111091..111213 <- Clone
-generated 111213..111370 <- PartialEq
-generated 111370..111711 <- Hash
-generated 111711..111825 <- Default
-generated 111825..114156 <- Encode
-generated 114156..120125 <- Decode
-generated 120125..121592 <- __convenience_const
-generated 121710..121906 <- Debug
-generated 121906..122025 <- Clone
-generated 122025..122178 <- PartialEq
-generated 122178..122336 <- Hash
-generated 122336..122438 <- Default
-generated 122438..124614 <- Encode
-generated 124614..129883 <- Decode
-generated 129883..131319 <- __convenience_const
-generated 131499..131844 <- Debug
-generated 131844..132029 <- Clone
-generated 132029..132253 <- PartialEq
-generated 132253..132830 <- Hash
-generated 132830..132997 <- Default
-generated 132997..135669 <- Encode
-generated 135669..142826 <- Decode
-generated 142826..144324 <- __convenience_const
+original 0..839 -> expanded 1105..1944
+original 839..840 -> expanded 15410..15411
+original 840..1210 -> expanded 19192..19562
+original 1210..1211 -> expanded 32432..32433
+original 1211..1490 -> expanded 36479..36758
+original 1490..1491 -> expanded 46937..46938
+original 1491..1781 -> expanded 51184..51474
+original 1781..1782 -> expanded 61657..61658
+original 1782..1901 -> expanded 65565..65684
+original 1901..1902 -> expanded 73437..73438
+original 1902..2044 -> expanded 77093..77235
+original 2044..2045 -> expanded 86274..86275
+original 2045..2200 -> expanded 90056..90211
+original 2200..2201 -> expanded 91283..91284
+original 2201..2471 -> expanded 91860..92130
+original 2471..2472 -> expanded 107329..107330
+original 2472..2630 -> expanded 111069..111227
+original 2630..2631 -> expanded 112535..112536
+original 2631..2770 -> expanded 113112..113251
+original 2770..2888 -> expanded 124207..124325
+original 2888..3068 -> expanded 134411..134591
+original 3068..3069 -> expanded 147943..147944
+generated 0..1105 <- imports
+generated 1944..2480 <- Debug
+generated 2480..2830 <- Clone
+generated 2830..3314 <- PartialEq
+generated 3314..4207 <- Hash
+generated 4207..4528 <- Default
+generated 4528..6815 <- Encode
+generated 6815..7146 <- Encode
+generated 7146..15410 <- Decode
+generated 15411..15523 <- Debug
+generated 15523..15635 <- Clone
+generated 15635..15756 <- PartialEq
+generated 15756..15868 <- Hash
+generated 15868..15970 <- Default
+generated 15970..17350 <- Encode
+generated 17350..19192 <- Decode
+generated 19562..20004 <- Debug
+generated 20004..20246 <- Clone
+generated 20246..20491 <- PartialEq
+generated 20491..21155 <- Hash
+generated 21155..21997 <- PartialOrd
+generated 21997..22624 <- Ord
+generated 22624..22943 <- Default
+generated 22943..25007 <- Encode
+generated 25007..25338 <- Encode
+generated 25338..32432 <- Decode
+generated 32433..32545 <- Debug
+generated 32545..32657 <- Clone
+generated 32657..32778 <- PartialEq
+generated 32778..32890 <- Hash
+generated 32890..33033 <- PartialOrd
+generated 33033..33155 <- Ord
+generated 33155..33257 <- Default
+generated 33257..34637 <- Encode
+generated 34637..36479 <- Decode
+generated 36758..37098 <- Debug
+generated 37098..37286 <- Clone
+generated 37286..37489 <- PartialEq
+generated 37489..37967 <- Hash
+generated 37967..38512 <- PartialOrd
+generated 38512..38928 <- Ord
+generated 38928..39166 <- Default
+generated 39166..40942 <- Encode
+generated 40942..41281 <- Encode
+generated 41281..46937 <- Decode
+generated 46938..47062 <- Debug
+generated 47062..47190 <- Clone
+generated 47190..47327 <- PartialEq
+generated 47327..47451 <- Hash
+generated 47451..47610 <- PartialOrd
+generated 47610..47748 <- Ord
+generated 47748..47862 <- Default
+generated 47862..49282 <- Encode
+generated 49282..51184 <- Decode
+generated 51474..51861 <- Debug
+generated 51861..52072 <- Clone
+generated 52072..52292 <- PartialEq
+generated 52292..52887 <- Hash
+generated 52887..53163 <- Default
+generated 53163..55080 <- Encode
+generated 55080..55417 <- Encode
+generated 55417..61657 <- Decode
+generated 61658..61779 <- Debug
+generated 61779..61903 <- Clone
+generated 61903..62036 <- PartialEq
+generated 62036..62157 <- Hash
+generated 62157..62268 <- Default
+generated 62268..63678 <- Encode
+generated 63678..65565 <- Decode
+generated 65684..65949 <- Debug
+generated 65949..66069 <- Clone
+generated 66069..66227 <- PartialEq
+generated 66227..66515 <- Hash
+generated 66515..66694 <- Default
+generated 66694..68233 <- Encode
+generated 68233..68558 <- Encode
+generated 68558..73437 <- Decode
+generated 73438..73541 <- Debug
+generated 73541..73641 <- Clone
+generated 73641..73750 <- PartialEq
+generated 73750..73853 <- Hash
+generated 73853..73946 <- Default
+generated 73946..75296 <- Encode
+generated 75296..77093 <- Decode
+generated 77235..77559 <- Debug
+generated 77559..77731 <- Clone
+generated 77731..77918 <- PartialEq
+generated 77918..78386 <- Hash
+generated 78386..78608 <- Default
+generated 78608..80332 <- Encode
+generated 80332..80663 <- Encode
+generated 80663..86274 <- Decode
+generated 86275..86387 <- Debug
+generated 86387..86499 <- Clone
+generated 86499..86620 <- PartialEq
+generated 86620..86732 <- Hash
+generated 86732..86834 <- Default
+generated 86834..88214 <- Encode
+generated 88214..90056 <- Decode
+generated 90211..90488 <- Debug
+generated 90488..90620 <- Clone
+generated 90620..90790 <- PartialEq
+generated 90790..91084 <- Hash
+generated 91084..91283 <- Default
+generated 91284..91399 <- Debug
+generated 91399..91515 <- Clone
+generated 91515..91640 <- PartialEq
+generated 91640..91755 <- Hash
+generated 91755..91860 <- Default
+generated 92130..92690 <- Debug
+generated 92690..93227 <- Clone
+generated 93227..94023 <- PartialEq
+generated 94023..94741 <- Hash
+generated 94741..95118 <- Default
+generated 95118..97428 <- Encode
+generated 97428..97757 <- Encode
+generated 97757..107329 <- Decode
+generated 107330..107439 <- Debug
+generated 107439..107547 <- Clone
+generated 107547..107664 <- PartialEq
+generated 107664..107773 <- Hash
+generated 107773..107872 <- Default
+generated 107872..109242 <- Encode
+generated 109242..111069 <- Decode
+generated 111227..111563 <- Debug
+generated 111563..111747 <- Clone
+generated 111747..111946 <- PartialEq
+generated 111946..112278 <- Hash
+generated 112278..112535 <- Default
+generated 112536..112651 <- Debug
+generated 112651..112767 <- Clone
+generated 112767..112892 <- PartialEq
+generated 112892..113007 <- Hash
+generated 113007..113112 <- Default
+generated 113251..113559 <- Debug
+generated 113559..113724 <- Clone
+generated 113724..113911 <- PartialEq
+generated 113911..114312 <- Hash
+generated 114312..114426 <- Default
+generated 114426..116743 <- Encode
+generated 116743..122740 <- Decode
+generated 122740..124207 <- __convenience_const
+generated 124325..124583 <- Debug
+generated 124583..124744 <- Clone
+generated 124744..124927 <- PartialEq
+generated 124927..125145 <- Hash
+generated 125145..125247 <- Default
+generated 125247..127409 <- Encode
+generated 127409..132975 <- Decode
+generated 132975..134411 <- __convenience_const
+generated 134591..134998 <- Debug
+generated 134998..135227 <- Clone
+generated 135227..135481 <- PartialEq
+generated 135481..136118 <- Hash
+generated 136118..136285 <- Default
+generated 136285..138943 <- Encode
+generated 138943..146445 <- Decode
+generated 146445..147943 <- __convenience_const
 
 ## Metadata
 
-class ClassMembers: {"body_span":{"end":841,"start":433},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":406,"start":336}}],"fields":[{"decorators":[],"initializer":"'open'","name":"open","optional":false,"readonly":false,"span":{"end":500,"start":471},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"'fixed'","name":"fixed","optional":false,"readonly":true,"span":{"end":538,"start":505},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"optional","optional":true,"readonly":false,"span":{"end":561,"start":543},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"definite","optional":false,"readonly":false,"span":{"end":584,"start":566},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"[]","name":"items","optional":false,"readonly":false,"span":{"end":612,"start":589},"ts_type":"EdgeItem[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":690,"start":638},"body_src":"\n        return `${this.open}:${this.fixed}`;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"label","params_src":"","return_type_src":"string","span":{"end":690,"start":618},"type_params":[],"visibility":"Public"},{"body_span":{"end":753,"start":720},"body_src":"\n        this.open = text;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"label","params_src":"text: string","return_type_src":"","span":{"end":753,"start":696},"type_params":[],"visibility":"Public"},{"body_span":{"end":839,"start":778},"body_src":"\n        return `${this.open} (${this.items.length})`;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"describe","params_src":"","return_type_src":"string","span":{"end":839,"start":759},"type_params":[],"visibility":"Public"}],"name":"ClassMembers","span":{"end":841,"start":414},"superclass":null,"type_params":[]}
-class ClassGuarded: {"body_span":{"end":1212,"start":961},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":934,"start":843}}],"fields":[{"decorators":[],"initializer":"''","name":"name","optional":false,"readonly":false,"span":{"end":985,"start":967},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"1","name":"guarded","optional":false,"readonly":false,"span":{"end":1020,"start":990},"ts_type":"number","visibility":"Protected"},{"decorators":[],"initializer":"true","name":"hidden","optional":false,"readonly":false,"span":{"end":1056,"start":1025},"ts_type":"boolean","visibility":"Private"},{"decorators":[],"initializer":"'sealed'","name":"sealed","optional":false,"readonly":true,"span":{"end":1104,"start":1061},"ts_type":"string","visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1210,"start":1146},"body_src":"\n        return [this.guarded, this.hidden, this.sealed];\n    ","decorators":[],"is_async":false,"is_static":false,"name":"reveal","params_src":"","return_type_src":"[number, boolean, string]","span":{"end":1210,"start":1110},"type_params":[],"visibility":"Public"}],"name":"ClassGuarded","span":{"end":1212,"start":942},"superclass":null,"type_params":[]}
-class ClassConstructed: {"body_span":{"end":1492,"start":1336},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1305,"start":1214}}],"fields":[{"decorators":[],"initializer":null,"name":"label","optional":false,"readonly":false,"span":{"end":1356,"start":1342},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"weight","optional":false,"readonly":false,"span":{"end":1376,"start":1361},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1490,"start":1425},"body_src":"\n        this.label = label;\n        this.weight = weight;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"label: string, weight: number","return_type_src":"","span":{"end":1490,"start":1382},"type_params":[],"visibility":"Public"}],"name":"ClassConstructed","span":{"end":1492,"start":1313},"superclass":null,"type_params":[]}
-class ClassParameters: {"body_span":{"end":1783,"start":1594},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1564,"start":1494}}],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":1640,"start":1621},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"rank","optional":false,"readonly":true,"span":{"end":1671,"start":1650},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"'secret'","name":"secret","optional":false,"readonly":false,"span":{"end":1714,"start":1681},"ts_type":"string","visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1723,"start":1721},"body_src":"","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"public name: string,\n        readonly rank: number,\n        private secret: string = 'secret'","return_type_src":"","span":{"end":1723,"start":1600},"type_params":[],"visibility":"Public"},{"body_span":{"end":1781,"start":1746},"body_src":"\n        return this.secret;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"reveal","params_src":"","return_type_src":"string","span":{"end":1781,"start":1729},"type_params":[],"visibility":"Public"}],"name":"ClassParameters","span":{"end":1783,"start":1572},"superclass":null,"type_params":[]}
-class ClassBase: {"body_span":{"end":1903,"start":1879},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1855,"start":1785}}],"fields":[{"decorators":[],"initializer":"''","name":"id","optional":false,"readonly":false,"span":{"end":1901,"start":1885},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassBase","span":{"end":1903,"start":1863},"superclass":null,"type_params":[]}
-class ClassDerived: {"body_span":{"end":2046,"start":2020},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1975,"start":1905}}],"fields":[{"decorators":[],"initializer":"0","name":"extra","optional":false,"readonly":false,"span":{"end":2044,"start":2026},"ts_type":"number","visibility":"Public"}],"heritage":["ClassBase"],"is_abstract":false,"methods":[],"name":"ClassDerived","span":{"end":2046,"start":1983},"superclass":"ClassBase","type_params":[]}
-class ClassAbstract: {"body_span":{"end":2202,"start":2139},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default","name":"Derive","span":{"end":2102,"start":2048}}],"fields":[{"decorators":[],"initializer":"'abstract'","name":"kind","optional":false,"readonly":false,"span":{"end":2171,"start":2145},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":true,"methods":[{"body_span":null,"body_src":null,"decorators":[],"is_async":false,"is_static":false,"name":"area","params_src":"","return_type_src":"number","span":{"end":2200,"start":2176},"type_params":[],"visibility":"Public"}],"name":"ClassAbstract","span":{"end":2202,"start":2110},"superclass":null,"type_params":[]}
-class ClassHolder: {"body_span":{"end":2473,"start":2300},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2274,"start":2204}}],"fields":[{"decorators":[],"initializer":"ClassMembers.defaultValue()","name":"card","optional":false,"readonly":false,"span":{"end":2355,"start":2306},"ts_type":"ClassMembers","visibility":"Public"},{"decorators":[],"initializer":"[]","name":"cards","optional":false,"readonly":false,"span":{"end":2387,"start":2360},"ts_type":"ClassMembers[]","visibility":"Public"},{"decorators":[],"initializer":"new Map()","name":"byName","optional":false,"readonly":false,"span":{"end":2435,"start":2392},"ts_type":"Map<string, ClassBase>","visibility":"Public"},{"decorators":[],"initializer":"null","name":"maybe","optional":false,"readonly":false,"span":{"end":2471,"start":2440},"ts_type":"ClassBase | null","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassHolder","span":{"end":2473,"start":2282},"superclass":null,"type_params":[]}
-class ClassCallback: {"body_span":{"end":2632,"start":2557},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default","name":"Derive","span":{"end":2529,"start":2475}}],"fields":[{"decorators":[],"initializer":"''","name":"name","optional":false,"readonly":false,"span":{"end":2581,"start":2563},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"() => {}","name":"onChange","optional":false,"readonly":false,"span":{"end":2630,"start":2586},"ts_type":"(name: string) => void","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassCallback","span":{"end":2632,"start":2537},"superclass":null,"type_params":[]}
-interface ClassEntity: {"body_span":{"end":2771,"start":2734},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2704,"start":2634}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":2751,"start":2740},"ts_type":"string"},{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":2769,"start":2756},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ClassEntity","span":{"end":2771,"start":2712},"type_params":[]}
-interface ClassDated: {"body_span":{"end":2889,"start":2872},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2843,"start":2773}}],"fields":[{"decorators":[],"name":"at","optional":false,"readonly":false,"span":{"end":2887,"start":2878},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"ClassDated","span":{"end":2889,"start":2851},"type_params":[]}
-interface ClassAccount: {"body_span":{"end":3069,"start":3024},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2961,"start":2891}}],"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":3046,"start":3030},"ts_type":"'account'"},{"decorators":[],"name":"balance","optional":false,"readonly":false,"span":{"end":3067,"start":3051},"ts_type":"number"}],"heritage":["ClassEntity","ClassDated"],"methods":[],"name":"ClassAccount","span":{"end":3069,"start":2969},"type_params":[]}
+class ClassMembers: {"body_span":{"end":841,"start":433},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":406,"start":336}}],"fields":[{"decorators":[],"initializer":"'open'","key":"Named","name":"open","optional":false,"readonly":false,"span":{"end":500,"start":471},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"'fixed'","key":"Named","name":"fixed","optional":false,"readonly":true,"span":{"end":538,"start":505},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":561,"start":543},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"definite","optional":false,"readonly":false,"span":{"end":584,"start":566},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":612,"start":589},"ts_type":"EdgeItem[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":690,"start":638},"body_src":"\n        return `${this.open}:${this.fixed}`;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"label","params_src":"","return_type_src":"string","span":{"end":690,"start":618},"type_params":[],"visibility":"Public"},{"body_span":{"end":753,"start":720},"body_src":"\n        this.open = text;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"label","params_src":"text: string","return_type_src":"","span":{"end":753,"start":696},"type_params":[],"visibility":"Public"},{"body_span":{"end":839,"start":778},"body_src":"\n        return `${this.open} (${this.items.length})`;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"describe","params_src":"","return_type_src":"string","span":{"end":839,"start":759},"type_params":[],"visibility":"Public"}],"name":"ClassMembers","span":{"end":841,"start":414},"superclass":null,"type_params":[]}
+class ClassGuarded: {"body_span":{"end":1212,"start":961},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":934,"start":843}}],"fields":[{"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":985,"start":967},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"1","key":"Named","name":"guarded","optional":false,"readonly":false,"span":{"end":1020,"start":990},"ts_type":"number","visibility":"Protected"},{"decorators":[],"initializer":"true","key":"Named","name":"hidden","optional":false,"readonly":false,"span":{"end":1056,"start":1025},"ts_type":"boolean","visibility":"Private"},{"decorators":[],"initializer":"'sealed'","key":"Named","name":"sealed","optional":false,"readonly":true,"span":{"end":1104,"start":1061},"ts_type":"string","visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1210,"start":1146},"body_src":"\n        return [this.guarded, this.hidden, this.sealed];\n    ","decorators":[],"is_async":false,"is_static":false,"name":"reveal","params_src":"","return_type_src":"[number, boolean, string]","span":{"end":1210,"start":1110},"type_params":[],"visibility":"Public"}],"name":"ClassGuarded","span":{"end":1212,"start":942},"superclass":null,"type_params":[]}
+class ClassConstructed: {"body_span":{"end":1492,"start":1336},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1305,"start":1214}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":1356,"start":1342},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"weight","optional":false,"readonly":false,"span":{"end":1376,"start":1361},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1490,"start":1425},"body_src":"\n        this.label = label;\n        this.weight = weight;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"label: string, weight: number","return_type_src":"","span":{"end":1490,"start":1382},"type_params":[],"visibility":"Public"}],"name":"ClassConstructed","span":{"end":1492,"start":1313},"superclass":null,"type_params":[]}
+class ClassParameters: {"body_span":{"end":1783,"start":1594},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1564,"start":1494}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1640,"start":1621},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"rank","optional":false,"readonly":true,"span":{"end":1671,"start":1650},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"'secret'","key":"Named","name":"secret","optional":false,"readonly":false,"span":{"end":1714,"start":1681},"ts_type":"string","visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1723,"start":1721},"body_src":"","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"public name: string,\n        readonly rank: number,\n        private secret: string = 'secret'","return_type_src":"","span":{"end":1723,"start":1600},"type_params":[],"visibility":"Public"},{"body_span":{"end":1781,"start":1746},"body_src":"\n        return this.secret;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"reveal","params_src":"","return_type_src":"string","span":{"end":1781,"start":1729},"type_params":[],"visibility":"Public"}],"name":"ClassParameters","span":{"end":1783,"start":1572},"superclass":null,"type_params":[]}
+class ClassBase: {"body_span":{"end":1903,"start":1879},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1855,"start":1785}}],"fields":[{"decorators":[],"initializer":"''","key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1901,"start":1885},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassBase","span":{"end":1903,"start":1863},"superclass":null,"type_params":[]}
+class ClassDerived: {"body_span":{"end":2046,"start":2020},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1975,"start":1905}}],"fields":[{"decorators":[],"initializer":"0","key":"Named","name":"extra","optional":false,"readonly":false,"span":{"end":2044,"start":2026},"ts_type":"number","visibility":"Public"}],"heritage":["ClassBase"],"is_abstract":false,"methods":[],"name":"ClassDerived","span":{"end":2046,"start":1983},"superclass":"ClassBase","type_params":[]}
+class ClassAbstract: {"body_span":{"end":2202,"start":2139},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default","name":"Derive","span":{"end":2102,"start":2048}}],"fields":[{"decorators":[],"initializer":"'abstract'","key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2171,"start":2145},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":true,"methods":[{"body_span":null,"body_src":null,"decorators":[],"is_async":false,"is_static":false,"name":"area","params_src":"","return_type_src":"number","span":{"end":2200,"start":2176},"type_params":[],"visibility":"Public"}],"name":"ClassAbstract","span":{"end":2202,"start":2110},"superclass":null,"type_params":[]}
+class ClassHolder: {"body_span":{"end":2473,"start":2300},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2274,"start":2204}}],"fields":[{"decorators":[],"initializer":"ClassMembers.defaultValue()","key":"Named","name":"card","optional":false,"readonly":false,"span":{"end":2355,"start":2306},"ts_type":"ClassMembers","visibility":"Public"},{"decorators":[],"initializer":"[]","key":"Named","name":"cards","optional":false,"readonly":false,"span":{"end":2387,"start":2360},"ts_type":"ClassMembers[]","visibility":"Public"},{"decorators":[],"initializer":"new Map()","key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":2435,"start":2392},"ts_type":"Map<string, ClassBase>","visibility":"Public"},{"decorators":[],"initializer":"null","key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":2471,"start":2440},"ts_type":"ClassBase | null","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassHolder","span":{"end":2473,"start":2282},"superclass":null,"type_params":[]}
+class ClassCallback: {"body_span":{"end":2632,"start":2557},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default","name":"Derive","span":{"end":2529,"start":2475}}],"fields":[{"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":2581,"start":2563},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"() => {}","key":"Named","name":"onChange","optional":false,"readonly":false,"span":{"end":2630,"start":2586},"ts_type":"(name: string) => void","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassCallback","span":{"end":2632,"start":2537},"superclass":null,"type_params":[]}
+interface ClassEntity: {"body_span":{"end":2771,"start":2734},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2704,"start":2634}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":2751,"start":2740},"ts_type":"string"},{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2769,"start":2756},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ClassEntity","span":{"end":2771,"start":2712},"type_params":[]}
+interface ClassDated: {"body_span":{"end":2889,"start":2872},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2843,"start":2773}}],"fields":[{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":2887,"start":2878},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"ClassDated","span":{"end":2889,"start":2851},"type_params":[]}
+interface ClassAccount: {"body_span":{"end":3069,"start":3024},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2961,"start":2891}}],"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":3046,"start":3030},"ts_type":"'account'"},{"decorators":[],"key":"Named","name":"balance","optional":false,"readonly":false,"span":{"end":3067,"start":3051},"ts_type":"number"}],"heritage":["ClassEntity","ClassDated"],"methods":[],"name":"ClassAccount","span":{"end":3069,"start":2969},"type_params":[]}
 
 ## Registry reads
 

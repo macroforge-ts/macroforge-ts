@@ -13,7 +13,7 @@ true
 ## Output
 
 import { personNameDecodeWithContext, personNameEncodeWithContext, personNameDefaultValue } from "./person-name.js";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import type { PersonName } from './person-name.js';
 
@@ -41,12 +41,9 @@ export function customerEncode(value: Customer, keepMetadata?: boolean): string 
 export function customerEncodeWithContext(value: Customer, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Customer",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Customer" });
     customerEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -162,7 +159,7 @@ export function customerDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as PersonName;
 
         ctx.pushScope("name");
@@ -178,13 +175,14 @@ export function customerDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "name", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
         const __raw_email = obj["email"] as string;
 
         if (!(typeof __raw_email === "string")) {
@@ -311,18 +309,18 @@ export declare const Customer: {
 
 ## Mapping
 
-original 0..53 -> expanded 641..694
-original 92..163 -> expanded 694..765
-original 163..164 -> expanded 10632..10633
-generated 0..641 <- imports
-generated 765..898 <- Default
-generated 898..3229 <- Encode
-generated 3229..9542 <- Decode
-generated 9542..10632 <- __convenience_const
+original 0..53 -> expanded 713..766
+original 92..163 -> expanded 766..837
+original 163..164 -> expanded 10802..10803
+generated 0..713 <- imports
+generated 837..970 <- Default
+generated 970..3287 <- Encode
+generated 3287..9712 <- Decode
+generated 9712..10802 <- __convenience_const
 
 ## Metadata
 
-interface Customer: {"body_span":{"end":164,"start":120},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":93,"start":54}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":143,"start":126},"ts_type":"PersonName"},{"decorators":[],"name":"email","optional":false,"readonly":false,"span":{"end":162,"start":148},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Customer","span":{"end":164,"start":101},"type_params":[]}
+interface Customer: {"body_span":{"end":164,"start":120},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":93,"start":54}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":143,"start":126},"ts_type":"PersonName"},{"decorators":[],"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":162,"start":148},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Customer","span":{"end":164,"start":101},"type_params":[]}
 
 ## Registry reads
 

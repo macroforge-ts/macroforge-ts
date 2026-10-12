@@ -17,7 +17,8 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface Point {
@@ -26,49 +27,57 @@ export interface Point {
 }
 
 export function pointToString(value: Point): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("x: " + String(value.x));
     parts.push("y: " + String(value.y));
-    return "Point { " + parts.join(", ") + " }";
+        return "Point { " + parts.join(", ") + " }";
+    });
 }
 
 export function pointClone(value: Point): Point {
-    return ({
+    return __mf_clonedWith(value, (): Point => ({
 	x: value.x,
 	y: value.y
-});
+}));
 }
 
 export function pointEquals(a: Point, b: Point): boolean {
     if (a === b) return true;
-    return a.x === b.x && a.y === b.y;
+    return __mf_equalWithin(a, b, () => a.x === b.x && a.y === b.y);
 }
 
 export function pointHashCode(value: Point): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function pointPartialCompare(a: Point, b: Point): number | null {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = (a.x < b.x ? -1 : a.x > b.x ? 1 : a.x === b.x ? 0 : null);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
     const cmp1 = (a.y < b.y ? -1 : a.y > b.y ? 1 : a.y === b.y ? 0 : null);
     if (cmp1 === null) return null;
     if (cmp1 !== 0) return cmp1;
-    return 0;
+        return 0;
+    });
 }
 
 export function pointCompare(a: Point, b: Point): number {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = a.x < b.x ? -1 : a.x > b.x ? 1 : 0;
     if (cmp0 !== 0) return cmp0;
     const cmp1 = a.y < b.y ? -1 : a.y > b.y ? 1 : 0;
     if (cmp1 !== 0) return cmp1;
-    return 0;
+        return 0;
+    });
 }
 
 export function pointDefaultValue(): Point {
@@ -89,12 +98,9 @@ export function pointEncode(value: Point, keepMetadata?: boolean): string {
 export function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Point",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Point" });
     pointEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -210,7 +216,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("x")) || (__fields.keeps("x") && obj["x"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
         const __raw_x = obj["x"] as number;
 
         if (!(typeof __raw_x === "number")) {
@@ -219,7 +225,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             instance.x = __raw_x;
         }
     }
-    if ((__fields === undefined || __fields.requires("y")) || (__fields.keeps("y") && obj["y"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("y")) ? "y" in obj : (__fields.keeps("y") && obj["y"] !== undefined)) {
         const __raw_y = obj["y"] as number;
 
         if (!(typeof __raw_y === "number")) {
@@ -369,23 +375,23 @@ export declare const Point: {
 
 ## Mapping
 
-original 91..148 -> expanded 524..581
-original 148..149 -> expanded 11592..11593
-generated 0..524 <- imports
-generated 581..801 <- Debug
-generated 801..897 <- Clone
-generated 897..1028 <- PartialEq
-generated 1028..1443 <- Hash
-generated 1443..1850 <- PartialOrd
-generated 1850..2125 <- Ord
-generated 2125..2221 <- Default
-generated 2221..4446 <- Encode
-generated 4446..10151 <- Decode
-generated 10151..11592 <- __convenience_const
+original 91..148 -> expanded 819..876
+original 148..149 -> expanded 12200..12201
+generated 0..819 <- imports
+generated 876..1158 <- Debug
+generated 1158..1291 <- Clone
+generated 1291..1452 <- PartialEq
+generated 1452..1927 <- Hash
+generated 1927..2391 <- PartialOrd
+generated 2391..2723 <- Ord
+generated 2723..2819 <- Default
+generated 2819..5030 <- Encode
+generated 5030..10759 <- Decode
+generated 10759..12200 <- __convenience_const
 
 ## Metadata
 
-interface Point: {"body_span":{"end":149,"start":116},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":92,"start":1}}],"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":132,"start":122},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":147,"start":137},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Point","span":{"end":149,"start":100},"type_params":[]}
+interface Point: {"body_span":{"end":149,"start":116},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":92,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":132,"start":122},"ts_type":"number"},{"decorators":[],"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":147,"start":137},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Point","span":{"end":149,"start":100},"type_params":[]}
 
 ## Registry reads
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -46,12 +46,9 @@ export function monthlyRecurrenceRuleEncode(value: MonthlyRecurrenceRule, keepMe
 export function monthlyRecurrenceRuleEncodeWithContext(value: MonthlyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "MonthlyRecurrenceRule",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "MonthlyRecurrenceRule" });
     monthlyRecurrenceRuleEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -175,7 +172,7 @@ export function monthlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("quantityOfMonths")) || (__fields.keeps("quantityOfMonths") && obj["quantityOfMonths"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("quantityOfMonths")) ? "quantityOfMonths" in obj : (__fields.keeps("quantityOfMonths") && obj["quantityOfMonths"] !== undefined)) {
         const __raw_quantityOfMonths = obj["quantityOfMonths"] as number;
 
         if (!(typeof __raw_quantityOfMonths === "number")) {
@@ -184,7 +181,7 @@ export function monthlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf
             instance.quantityOfMonths = __raw_quantityOfMonths;
         }
     }
-    if ((__fields === undefined || __fields.requires("day")) || (__fields.keeps("day") && obj["day"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("day")) ? "day" in obj : (__fields.keeps("day") && obj["day"] !== undefined)) {
         const __raw_day = obj["day"] as number;
 
         if (!(typeof __raw_day === "number")) {
@@ -193,7 +190,7 @@ export function monthlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf
             instance.day = __raw_day;
         }
     }
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -542,20 +539,20 @@ export declare const MonthlyRecurrenceRule: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..200 -> expanded 741..834
-original 241..261 -> expanded 834..854
-original 261..262 -> expanded 19681..19682
-generated 0..683 <- imports
-generated 854..1017 <- Default
-generated 1017..3704 <- Encode
-generated 3704..11751 <- Decode
-generated 11751..18064 <- Gigaform
-generated 18064..19681 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..200 -> expanded 813..906
+original 241..261 -> expanded 906..926
+original 261..262 -> expanded 19795..19796
+generated 0..755 <- imports
+generated 926..1089 <- Default
+generated 1089..3762 <- Encode
+generated 3762..11865 <- Decode
+generated 11865..18178 <- Gigaform
+generated 18178..19795 <- __convenience_const
 
 ## Metadata
 
-interface MonthlyRecurrenceRule: {"body_span":{"end":262,"start":148},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"quantityOfMonths","optional":false,"readonly":false,"span":{"end":179,"start":154},"ts_type":"number"},{"decorators":[],"name":"day","optional":false,"readonly":false,"span":{"end":196,"start":184},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":242,"start":201}}],"name":"name","optional":false,"readonly":false,"span":{"end":260,"start":247},"ts_type":"string"}],"heritage":[],"methods":[],"name":"MonthlyRecurrenceRule","span":{"end":262,"start":116},"type_params":[]}
+interface MonthlyRecurrenceRule: {"body_span":{"end":262,"start":148},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"key":"Named","name":"quantityOfMonths","optional":false,"readonly":false,"span":{"end":179,"start":154},"ts_type":"number"},{"decorators":[],"key":"Named","name":"day","optional":false,"readonly":false,"span":{"end":196,"start":184},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":242,"start":201}}],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":260,"start":247},"ts_type":"string"}],"heritage":[],"methods":[],"name":"MonthlyRecurrenceRule","span":{"end":262,"start":116},"type_params":[]}
 
 ## Registry reads
 

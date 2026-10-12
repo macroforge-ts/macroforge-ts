@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -46,12 +46,9 @@ export function emailEncode(value: Email, keepMetadata?: boolean): string {
 export function emailEncodeWithContext(value: Email, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Email",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Email" });
     emailEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -167,7 +164,7 @@ export function emailDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("canEmail")) || (__fields.keeps("canEmail") && obj["canEmail"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("canEmail")) ? "canEmail" in obj : (__fields.keeps("canEmail") && obj["canEmail"] !== undefined)) {
         const __raw_canEmail = obj["canEmail"] as boolean;
 
         if (!(typeof __raw_canEmail === "boolean")) {
@@ -176,7 +173,7 @@ export function emailDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             instance.canEmail = __raw_canEmail;
         }
     }
-    if ((__fields === undefined || __fields.requires("emailString")) || (__fields.keeps("emailString") && obj["emailString"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("emailString")) ? "emailString" in obj : (__fields.keeps("emailString") && obj["emailString"] !== undefined)) {
         const __raw_emailString = obj["emailString"] as string;
 
         if (!(typeof __raw_emailString === "string")) {
@@ -490,22 +487,22 @@ export declare const Email: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..137 -> expanded 741..771
-original 185..213 -> expanded 771..799
-original 255..260 -> expanded 799..804
-original 310..337 -> expanded 804..831
-original 337..338 -> expanded 16438..16439
-generated 0..683 <- imports
-generated 831..949 <- Default
-generated 949..3242 <- Encode
-generated 3242..10676 <- Decode
-generated 10676..15253 <- Gigaform
-generated 15253..16438 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..137 -> expanded 813..843
+original 185..213 -> expanded 843..871
+original 255..260 -> expanded 871..876
+original 310..337 -> expanded 876..903
+original 337..338 -> expanded 16537..16538
+generated 0..755 <- imports
+generated 903..1021 <- Default
+generated 1021..3300 <- Encode
+generated 3300..10775 <- Decode
+generated 10775..15352 <- Gigaform
+generated 15352..16537 <- __convenience_const
 
 ## Metadata
 
-interface Email: {"body_span":{"end":338,"start":132},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ label: \"Can Email\" }","name":"switchController","span":{"end":186,"start":138}}],"name":"canEmail","optional":false,"readonly":false,"span":{"end":209,"start":191},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"email\"] }","name":"endec","span":{"end":311,"start":261}},{"args_src":"{ label: \"Email\" }","name":"textController","span":{"end":256,"start":214}}],"name":"emailString","optional":false,"readonly":false,"span":{"end":336,"start":316},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Email","span":{"end":338,"start":116},"type_params":[]}
+interface Email: {"body_span":{"end":338,"start":132},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ label: \"Can Email\" }","name":"switchController","span":{"end":186,"start":138}}],"key":"Named","name":"canEmail","optional":false,"readonly":false,"span":{"end":209,"start":191},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"email\"] }","name":"endec","span":{"end":311,"start":261}},{"args_src":"{ label: \"Email\" }","name":"textController","span":{"end":256,"start":214}}],"key":"Named","name":"emailString","optional":false,"readonly":false,"span":{"end":336,"start":316},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Email","span":{"end":338,"start":116},"type_params":[]}
 
 ## Registry reads
 

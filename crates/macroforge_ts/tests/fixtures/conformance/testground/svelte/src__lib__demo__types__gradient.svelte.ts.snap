@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -41,12 +41,9 @@ export function gradientEncode(value: Gradient, keepMetadata?: boolean): string 
 export function gradientEncodeWithContext(value: Gradient, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Gradient",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Gradient" });
     gradientEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -154,7 +151,7 @@ export function gradientDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("startHue")) || (__fields.keeps("startHue") && obj["startHue"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("startHue")) ? "startHue" in obj : (__fields.keeps("startHue") && obj["startHue"] !== undefined)) {
         const __raw_startHue = obj["startHue"] as number;
 
         if (!(typeof __raw_startHue === "number")) {
@@ -418,19 +415,19 @@ export declare const Gradient: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..159 -> expanded 741..793
-original 159..160 -> expanded 13189..13190
-generated 0..683 <- imports
-generated 793..888 <- Default
-generated 888..3044 <- Encode
-generated 3044..8402 <- Decode
-generated 8402..11923 <- Gigaform
-generated 11923..13189 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..159 -> expanded 813..865
+original 159..160 -> expanded 13266..13267
+generated 0..755 <- imports
+generated 865..960 <- Default
+generated 960..3102 <- Encode
+generated 3102..8479 <- Decode
+generated 8479..12000 <- Gigaform
+generated 12000..13266 <- __convenience_const
 
 ## Metadata
 
-interface Gradient: {"body_span":{"end":160,"start":135},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"startHue","optional":false,"readonly":false,"span":{"end":158,"start":141},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Gradient","span":{"end":160,"start":116},"type_params":[]}
+interface Gradient: {"body_span":{"end":160,"start":135},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"key":"Named","name":"startHue","optional":false,"readonly":false,"span":{"end":158,"start":141},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Gradient","span":{"end":160,"start":116},"type_params":[]}
 
 ## Registry reads
 

@@ -185,7 +185,7 @@ generated 5717..5769 <- $NonNull
 
 ## Metadata
 
-interface Address: {"body_span":{"end":5619,"start":5561},"decorators":[],"fields":[{"decorators":[],"name":"street","optional":false,"readonly":false,"span":{"end":5582,"start":5567},"ts_type":"string"},{"decorators":[],"name":"city","optional":false,"readonly":false,"span":{"end":5600,"start":5587},"ts_type":"string"},{"decorators":[],"name":"zip","optional":false,"readonly":false,"span":{"end":5617,"start":5605},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Address","span":{"end":5619,"start":5543},"type_params":[]}
+interface Address: {"body_span":{"end":5619,"start":5561},"decorators":[],"fields":[{"decorators":[],"key":"Named","name":"street","optional":false,"readonly":false,"span":{"end":5582,"start":5567},"ts_type":"string"},{"decorators":[],"key":"Named","name":"city","optional":false,"readonly":false,"span":{"end":5600,"start":5587},"ts_type":"string"},{"decorators":[],"key":"Named","name":"zip","optional":false,"readonly":false,"span":{"end":5617,"start":5605},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Address","span":{"end":5619,"start":5543},"type_params":[]}
 type AddressPatch: {"body":{"Other":"{ [K in keyof Address]?: Address[K] }"},"decorators":[],"name":"AddressPatch","span":{"end":5686,"start":5628},"type_params":[]}
 type DefinitelyString: {"body":{"Alias":"Exclude<string | null | undefined, null | undefined>"},"decorators":[],"name":"DefinitelyString","span":{"end":5771,"start":5694},"type_params":[]}
 

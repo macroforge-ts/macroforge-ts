@@ -15,7 +15,7 @@ true
 import { applicationsDecodeWithContext, applicationsEncodeWithContext } from "./applications.svelte";
 import { pageDecodeWithContext, pageEncodeWithContext } from "./page.svelte";
 import { tableDecodeWithContext, tableEncodeWithContext } from "./table.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -52,12 +52,9 @@ export function appPermissionsEncode(value: AppPermissions, keepMetadata?: boole
 export function appPermissionsEncodeWithContext(value: AppPermissions, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "AppPermissions",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "AppPermissions" });
     appPermissionsEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -181,7 +178,7 @@ export function appPermissionsDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("applications")) || (__fields.keeps("applications") && obj["applications"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("applications")) ? "applications" in obj : (__fields.keeps("applications") && obj["applications"] !== undefined)) {
         const __raw_applications = obj["applications"] as Array<Applications>;
         if (Array.isArray(__raw_applications)) {
             ctx.pushScope("applications");
@@ -205,7 +202,7 @@ export function appPermissionsDecodeWithContext(value: unknown, ctx: __mf_Decode
             errors.push({ field: "applications", message: __raw_applications == null ? "AppPermissions.applications is required" : "expected Array<Applications>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("pages")) || (__fields.keeps("pages") && obj["pages"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("pages")) ? "pages" in obj : (__fields.keeps("pages") && obj["pages"] !== undefined)) {
         const __raw_pages = obj["pages"] as Array<Page>;
         if (Array.isArray(__raw_pages)) {
             ctx.pushScope("pages");
@@ -229,7 +226,7 @@ export function appPermissionsDecodeWithContext(value: unknown, ctx: __mf_Decode
             errors.push({ field: "pages", message: __raw_pages == null ? "AppPermissions.pages is required" : "expected Array<Page>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("data")) || (__fields.keeps("data") && obj["data"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("data")) ? "data" in obj : (__fields.keeps("data") && obj["data"] !== undefined)) {
         const __raw_data = obj["data"] as Array<Table>;
         if (Array.isArray(__raw_data)) {
             ctx.pushScope("data");
@@ -675,19 +672,19 @@ export declare const AppPermissions: {
 
 ## Mapping
 
-original 0..206 -> expanded 999..1205
-original 255..378 -> expanded 1205..1328
-original 378..379 -> expanded 24687..24688
-generated 0..999 <- imports
-generated 1328..1477 <- Default
-generated 1477..4221 <- Encode
-generated 4221..13042 <- Decode
-generated 13042..23259 <- Gigaform
-generated 23259..24687 <- __convenience_const
+original 0..206 -> expanded 1071..1277
+original 255..378 -> expanded 1277..1400
+original 378..379 -> expanded 24799..24800
+generated 0..1071 <- imports
+generated 1400..1549 <- Default
+generated 1549..4279 <- Encode
+generated 4279..13154 <- Decode
+generated 13154..23371 <- Gigaform
+generated 23371..24799 <- __convenience_const
 
 ## Metadata
 
-interface AppPermissions: {"body_span":{"end":379,"start":289},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":256,"start":207}}],"fields":[{"decorators":[],"name":"applications","optional":false,"readonly":false,"span":{"end":329,"start":295},"ts_type":"Array<Applications>"},{"decorators":[],"name":"pages","optional":false,"readonly":false,"span":{"end":353,"start":334},"ts_type":"Array<Page>"},{"decorators":[],"name":"data","optional":false,"readonly":false,"span":{"end":377,"start":358},"ts_type":"Array<Table>"}],"heritage":[],"methods":[],"name":"AppPermissions","span":{"end":379,"start":264},"type_params":[]}
+interface AppPermissions: {"body_span":{"end":379,"start":289},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":256,"start":207}}],"fields":[{"decorators":[],"key":"Named","name":"applications","optional":false,"readonly":false,"span":{"end":329,"start":295},"ts_type":"Array<Applications>"},{"decorators":[],"key":"Named","name":"pages","optional":false,"readonly":false,"span":{"end":353,"start":334},"ts_type":"Array<Page>"},{"decorators":[],"key":"Named","name":"data","optional":false,"readonly":false,"span":{"end":377,"start":358},"ts_type":"Array<Table>"}],"heritage":[],"methods":[],"name":"AppPermissions","span":{"end":379,"start":264},"type_params":[]}
 
 ## Registry reads
 

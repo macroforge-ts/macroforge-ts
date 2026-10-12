@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -47,12 +47,9 @@ export function cardinalEncode(value: Cardinal, keepMetadata?: boolean): string 
 export function cardinalEncodeWithContext(value: Cardinal, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Cardinal",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Cardinal" });
     cardinalEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -184,7 +181,7 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("north")) || (__fields.keeps("north") && obj["north"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("north")) ? "north" in obj : (__fields.keeps("north") && obj["north"] !== undefined)) {
         const __raw_north = obj["north"] as number;
 
         if (!(typeof __raw_north === "number")) {
@@ -193,7 +190,7 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             instance.north = __raw_north;
         }
     }
-    if ((__fields === undefined || __fields.requires("east")) || (__fields.keeps("east") && obj["east"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("east")) ? "east" in obj : (__fields.keeps("east") && obj["east"] !== undefined)) {
         const __raw_east = obj["east"] as number;
 
         if (!(typeof __raw_east === "number")) {
@@ -202,7 +199,7 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             instance.east = __raw_east;
         }
     }
-    if ((__fields === undefined || __fields.requires("south")) || (__fields.keeps("south") && obj["south"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("south")) ? "south" in obj : (__fields.keeps("south") && obj["south"] !== undefined)) {
         const __raw_south = obj["south"] as number;
 
         if (!(typeof __raw_south === "number")) {
@@ -211,7 +208,7 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             instance.south = __raw_south;
         }
     }
-    if ((__fields === undefined || __fields.requires("west")) || (__fields.keeps("west") && obj["west"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("west")) ? "west" in obj : (__fields.keeps("west") && obj["west"] !== undefined)) {
         const __raw_west = obj["west"] as number;
 
         if (!(typeof __raw_west === "number")) {
@@ -586,19 +583,19 @@ export declare const Cardinal: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..211 -> expanded 741..845
-original 211..212 -> expanded 19075..19076
-generated 0..683 <- imports
-generated 845..989 <- Default
-generated 989..3599 <- Encode
-generated 3599..10724 <- Decode
-generated 10724..17809 <- Gigaform
-generated 17809..19075 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..211 -> expanded 813..917
+original 211..212 -> expanded 19195..19196
+generated 0..755 <- imports
+generated 917..1061 <- Default
+generated 1061..3657 <- Encode
+generated 3657..10844 <- Decode
+generated 10844..17929 <- Gigaform
+generated 17929..19195 <- __convenience_const
 
 ## Metadata
 
-interface Cardinal: {"body_span":{"end":212,"start":135},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"north","optional":false,"readonly":false,"span":{"end":155,"start":141},"ts_type":"number"},{"decorators":[],"name":"east","optional":false,"readonly":false,"span":{"end":173,"start":160},"ts_type":"number"},{"decorators":[],"name":"south","optional":false,"readonly":false,"span":{"end":192,"start":178},"ts_type":"number"},{"decorators":[],"name":"west","optional":false,"readonly":false,"span":{"end":210,"start":197},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Cardinal","span":{"end":212,"start":116},"type_params":[]}
+interface Cardinal: {"body_span":{"end":212,"start":135},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"key":"Named","name":"north","optional":false,"readonly":false,"span":{"end":155,"start":141},"ts_type":"number"},{"decorators":[],"key":"Named","name":"east","optional":false,"readonly":false,"span":{"end":173,"start":160},"ts_type":"number"},{"decorators":[],"key":"Named","name":"south","optional":false,"readonly":false,"span":{"end":192,"start":178},"ts_type":"number"},{"decorators":[],"key":"Named","name":"west","optional":false,"readonly":false,"span":{"end":210,"start":197},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Cardinal","span":{"end":212,"start":116},"type_params":[]}
 
 ## Registry reads
 

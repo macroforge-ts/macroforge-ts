@@ -186,7 +186,7 @@ export function spanDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
     });
     ctx.trackForFreeze(tuple);
 
-    {
+    if ("0" in obj) {
         const __raw_e0 = obj["0"] as number;
 
         if (!(typeof __raw_e0 === "number")) {
@@ -195,7 +195,7 @@ export function spanDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
             instance.e0 = __raw_e0;
         }
     }
-    {
+    if ("1" in obj) {
         const __raw_e1 = obj["1"] as number;
 
         if (!(typeof __raw_e1 === "number")) {
@@ -270,12 +270,12 @@ export {};
 original 49..71 -> expanded 194..216
 original 71..73 -> expanded 2540..2542
 original 95..125 -> expanded 2542..2572
-original 125..126 -> expanded 6500..6501
+original 125..126 -> expanded 6532..6533
 generated 0..194 <- imports
 generated 216..2223 <- Decode
 generated 2223..2540 <- __convenience_const
-generated 2572..6201 <- Decode
-generated 6201..6500 <- __convenience_const
+generated 2572..6233 <- Decode
+generated 6233..6532 <- __convenience_const
 
 ## Metadata
 

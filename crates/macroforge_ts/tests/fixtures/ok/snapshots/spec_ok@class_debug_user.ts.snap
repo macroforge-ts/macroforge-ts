@@ -18,6 +18,7 @@ true
 
 ## Output
 
+import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
 import { Derive } from '@macro/derive';
 
 
@@ -25,9 +26,11 @@ class User {
     name: string;
 
     static toString(value: User): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("name: " + String(value.name));
-        return "User { " + parts.join(", ") + " }";
+            return "User { " + parts.join(", ") + " }";
+        });
     }
 }
 
@@ -50,16 +53,17 @@ export {};
 
 ## Mapping
 
-original 0..41 -> expanded 0..41
-original 62..94 -> expanded 41..73
-original 94..95 -> expanded 262..263
-original 95..96 -> expanded 351..352
-generated 73..262 <- Debug
-generated 263..351 <- Debug
+original 0..41 -> expanded 85..126
+original 62..94 -> expanded 126..158
+original 94..95 -> expanded 417..418
+original 95..96 -> expanded 506..507
+generated 0..85 <- imports
+generated 158..417 <- Debug
+generated 418..506 <- Debug
 
 ## Metadata
 
-class User: {"body_span":{"end":96,"start":75},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":94,"start":81},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":96,"start":64},"superclass":null,"type_params":[]}
+class User: {"body_span":{"end":96,"start":75},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":94,"start":81},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":96,"start":64},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

@@ -28,21 +28,23 @@ true
 
 ## Output
 
-import { instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith } from "@macroforge/core/structural";
 
 export declare class Point {
     x: number;
     y: number;
 
     static toString(value: Point): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("x: " + String(value.x));
         parts.push("y: " + String(value.y));
-        return "Point { " + parts.join(", ") + " }";
+            return "Point { " + parts.join(", ") + " }";
+        });
     }
 
     static clone(value: Point): Point {
-        return __mf_instanceWith(value, ({
+        return __mf_clonedWith(value, () => ({
         	x: value.x,
         	y: value.y
         }));
@@ -63,9 +65,11 @@ export interface Named {
 }
 
 export function namedToString(value: Named): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("name: " + String(value.name));
-    return "Named { " + parts.join(", ") + " }";
+        return "Named { " + parts.join(", ") + " }";
+    });
 }
 
 export const Named: {
@@ -103,25 +107,25 @@ export declare function formatPoint(point: Point): string;
 
 ## Mapping
 
-original 28..88 -> expanded 81..141
-original 88..89 -> expanded 515..516
-original 89..91 -> expanded 691..693
-original 112..157 -> expanded 693..738
-original 157..159 -> expanded 1024..1026
-original 231..291 -> expanded 1044..1104
-generated 0..81 <- imports
-generated 141..371 <- Debug
-generated 371..515 <- Clone
-generated 516..607 <- Debug
-generated 607..691 <- Clone
-generated 738..923 <- Debug
-generated 923..1024 <- __convenience_const
-generated 1026..1044 <- deprecated
+original 28..88 -> expanded 116..176
+original 88..89 -> expanded 624..625
+original 89..91 -> expanded 800..802
+original 112..157 -> expanded 802..847
+original 157..159 -> expanded 1195..1197
+original 231..291 -> expanded 1215..1275
+generated 0..116 <- imports
+generated 176..476 <- Debug
+generated 476..624 <- Clone
+generated 625..716 <- Debug
+generated 716..800 <- Clone
+generated 847..1094 <- Debug
+generated 1094..1195 <- __convenience_const
+generated 1197..1215 <- deprecated
 
 ## Metadata
 
-class Point: {"body_span":{"end":90,"start":57},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":29,"start":1}}],"fields":[{"decorators":[],"initializer":null,"name":"x","optional":false,"readonly":false,"span":{"end":73,"start":63},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"name":"y","optional":false,"readonly":false,"span":{"end":88,"start":78},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Point","span":{"end":90,"start":37},"superclass":null,"type_params":[]}
-interface Named: {"body_span":{"end":158,"start":137},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":113,"start":92}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":156,"start":143},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Named","span":{"end":158,"start":121},"type_params":[]}
+class Point: {"body_span":{"end":90,"start":57},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":29,"start":1}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":73,"start":63},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":88,"start":78},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Point","span":{"end":90,"start":37},"superclass":null,"type_params":[]}
+interface Named: {"body_span":{"end":158,"start":137},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":113,"start":92}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":156,"start":143},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Named","span":{"end":158,"start":121},"type_params":[]}
 
 ## Registry reads
 

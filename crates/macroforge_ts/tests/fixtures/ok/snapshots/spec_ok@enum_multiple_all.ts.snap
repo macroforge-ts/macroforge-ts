@@ -17,7 +17,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
 
 enum Status {
@@ -58,7 +58,8 @@ export function statusEncodeWithContext(value: Status): string | number {
 
 /** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function statusDecode(input: unknown): Status {
-    return statusDecodeWithContext(input);
+
+    return statusDecodeWithContext(__mf_textOrValue(input, statusIs));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -133,16 +134,16 @@ export {};
 
 ## Mapping
 
-original 61..126 -> expanded 227..292
-original 126..127 -> expanded 2833..2834
-generated 0..227 <- imports
-generated 292..527 <- Debug
-generated 527..601 <- Clone
-generated 601..686 <- PartialEq
-generated 686..841 <- Hash
-generated 841..1251 <- Encode
-generated 1251..2217 <- Decode
-generated 2217..2833 <- __convenience_const
+original 61..126 -> expanded 260..325
+original 126..127 -> expanded 2895..2896
+generated 0..260 <- imports
+generated 325..560 <- Debug
+generated 560..634 <- Clone
+generated 634..719 <- PartialEq
+generated 719..874 <- Hash
+generated 874..1284 <- Encode
+generated 1284..2279 <- Decode
+generated 2279..2895 <- __convenience_const
 
 ## Metadata
 

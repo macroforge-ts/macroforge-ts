@@ -15,7 +15,7 @@ true
 import { activityTypeDecodeWithContext, activityTypeEncodeWithContext, activityTypeDefaultValue } from "./activity-type.svelte";
 import { actorDecodeWithContext, actorEncodeWithContext } from "./actor.svelte";
 import { targetDecodeWithContext, targetEncodeWithContext } from "./target.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -60,12 +60,9 @@ export function didEncode(value: Did, keepMetadata?: boolean): string {
 export function didEncodeWithContext(value: Did, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Did",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Did" });
     didEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -213,7 +210,7 @@ export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("in")) || (__fields.keeps("in") && obj["in"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("in")) ? "in" in obj : (__fields.keeps("in") && obj["in"] !== undefined)) {
         const __raw_in = obj["in"] as string | Actor;
 
         if (typeof __raw_in === "string") {
@@ -232,14 +229,15 @@ export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "in", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("out")) || (__fields.keeps("out") && obj["out"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("out")) ? "out" in obj : (__fields.keeps("out") && obj["out"] !== undefined)) {
         const __raw_out = obj["out"] as string | Target;
 
         if (typeof __raw_out === "string") {
@@ -258,14 +256,15 @@ export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "out", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -274,7 +273,7 @@ export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("activityType")) || (__fields.keeps("activityType") && obj["activityType"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("activityType")) ? "activityType" in obj : (__fields.keeps("activityType") && obj["activityType"] !== undefined)) {
         const __raw_activityType = obj["activityType"] as ActivityType;
 
         ctx.pushScope("activityType");
@@ -290,13 +289,14 @@ export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "activityType", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("createdAt")) || (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
         const __raw_createdAt = obj["createdAt"] as string;
 
         if (!(typeof __raw_createdAt === "string")) {
@@ -305,7 +305,7 @@ export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
             instance.createdAt = __raw_createdAt;
         }
     }
-    if ((__fields === undefined || __fields.requires("metadata")) || (__fields.keeps("metadata") && obj["metadata"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("metadata")) ? "metadata" in obj : (__fields.keeps("metadata") && obj["metadata"] !== undefined)) {
         const __raw_metadata = obj["metadata"] as string | null;
 
         if (!(typeof __raw_metadata === "string" || __raw_metadata === null)) {
@@ -753,21 +753,21 @@ export declare const Did: {
 
 ## Mapping
 
-original 0..211 -> expanded 977..1188
-original 260..288 -> expanded 1188..1216
-original 307..336 -> expanded 1216..1245
-original 355..483 -> expanded 1245..1373
-original 483..484 -> expanded 25012..25013
-generated 0..977 <- imports
-generated 1373..1583 <- Default
-generated 1583..4650 <- Encode
-generated 4650..14498 <- Decode
-generated 14498..23881 <- Gigaform
-generated 23881..25012 <- __convenience_const
+original 0..211 -> expanded 1049..1260
+original 260..288 -> expanded 1260..1288
+original 307..336 -> expanded 1288..1317
+original 355..483 -> expanded 1317..1445
+original 483..484 -> expanded 25420..25421
+generated 0..1049 <- imports
+generated 1445..1655 <- Default
+generated 1655..4708 <- Encode
+generated 4708..14906 <- Decode
+generated 14906..24289 <- Gigaform
+generated 24289..25420 <- __convenience_const
 
 ## Metadata
 
-interface Did: {"body_span":{"end":484,"start":283},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":261,"start":212}}],"fields":[{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":308,"start":289}}],"name":"in","optional":false,"readonly":false,"span":{"end":332,"start":313},"ts_type":"string | Actor"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":356,"start":337}}],"name":"out","optional":false,"readonly":false,"span":{"end":382,"start":361},"ts_type":"string | Target"},{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":398,"start":387},"ts_type":"string"},{"decorators":[],"name":"activityType","optional":false,"readonly":false,"span":{"end":430,"start":403},"ts_type":"ActivityType"},{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":453,"start":435},"ts_type":"string"},{"decorators":[],"name":"metadata","optional":false,"readonly":false,"span":{"end":482,"start":458},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Did","span":{"end":484,"start":269},"type_params":[]}
+interface Did: {"body_span":{"end":484,"start":283},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":261,"start":212}}],"fields":[{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":308,"start":289}}],"key":"Named","name":"in","optional":false,"readonly":false,"span":{"end":332,"start":313},"ts_type":"string | Actor"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":356,"start":337}}],"key":"Named","name":"out","optional":false,"readonly":false,"span":{"end":382,"start":361},"ts_type":"string | Target"},{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":398,"start":387},"ts_type":"string"},{"decorators":[],"key":"Named","name":"activityType","optional":false,"readonly":false,"span":{"end":430,"start":403},"ts_type":"ActivityType"},{"decorators":[],"key":"Named","name":"createdAt","optional":false,"readonly":false,"span":{"end":453,"start":435},"ts_type":"string"},{"decorators":[],"key":"Named","name":"metadata","optional":false,"readonly":false,"span":{"end":482,"start":458},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Did","span":{"end":484,"start":269},"type_params":[]}
 
 ## Registry reads
 

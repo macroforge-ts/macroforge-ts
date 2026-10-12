@@ -146,7 +146,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
         const __raw_email = obj["email"] as string;
 
         if (!(typeof __raw_email === "string")) {
@@ -158,7 +158,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.email = __raw_email;
         }
     }
-    if ((__fields === undefined || __fields.requires("password")) || (__fields.keeps("password") && obj["password"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("password")) ? "password" in obj : (__fields.keeps("password") && obj["password"] !== undefined)) {
         const __raw_password = obj["password"] as string;
 
         if (!(typeof __raw_password === "string")) {
@@ -171,7 +171,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.password = __raw_password;
         }
     }
-    if ((__fields === undefined || __fields.requires("username")) || (__fields.keeps("username") && obj["username"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("username")) ? "username" in obj : (__fields.keeps("username") && obj["username"] !== undefined)) {
         const __raw_username = obj["username"] as string;
 
         if (!(typeof __raw_username === "string")) {
@@ -186,7 +186,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.username = __raw_username;
         }
     }
-    if ((__fields === undefined || __fields.requires("age")) || (__fields.keeps("age") && obj["age"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
         const __raw_age = obj["age"] as number;
 
         if (!(typeof __raw_age === "number")) {
@@ -199,7 +199,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.age = __raw_age;
         }
     }
-    if ((__fields === undefined || __fields.requires("website")) || (__fields.keeps("website") && obj["website"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("website")) ? "website" in obj : (__fields.keeps("website") && obj["website"] !== undefined)) {
         const __raw_website = obj["website"] as string;
 
         if (!(typeof __raw_website === "string")) {
@@ -466,7 +466,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -479,7 +479,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("price")) || (__fields.keeps("price") && obj["price"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("price")) ? "price" in obj : (__fields.keeps("price") && obj["price"] !== undefined)) {
         const __raw_price = obj["price"] as number;
 
         if (!(typeof __raw_price === "number")) {
@@ -492,7 +492,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.price = __raw_price;
         }
     }
-    if ((__fields === undefined || __fields.requires("quantity")) || (__fields.keeps("quantity") && obj["quantity"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("quantity")) ? "quantity" in obj : (__fields.keeps("quantity") && obj["quantity"] !== undefined)) {
         const __raw_quantity = obj["quantity"] as number;
 
         if (!(typeof __raw_quantity === "number")) {
@@ -505,7 +505,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.quantity = __raw_quantity;
         }
     }
-    if ((__fields === undefined || __fields.requires("tags")) || (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
         const __raw_tags = obj["tags"] as Array<string>;
         if (Array.isArray(__raw_tags)) {
             if (__raw_tags == null) { errors.push({ field: "tags", message: "ProductForm.tags is required" }); } else {
@@ -533,7 +533,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             errors.push({ field: "tags", message: __raw_tags == null ? "ProductForm.tags is required" : "expected Array<string>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("sku")) || (__fields.keeps("sku") && obj["sku"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("sku")) ? "sku" in obj : (__fields.keeps("sku") && obj["sku"] !== undefined)) {
         const __raw_sku = obj["sku"] as string;
 
         if (!(typeof __raw_sku === "string")) {
@@ -791,7 +791,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("title")) || (__fields.keeps("title") && obj["title"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
         const __raw_title = obj["title"] as string;
 
         if (!(typeof __raw_title === "string")) {
@@ -804,28 +804,36 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.title = __raw_title;
         }
     }
-    if ((__fields === undefined || __fields.requires("startDate")) || (__fields.keeps("startDate") && obj["startDate"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("startDate")) ? "startDate" in obj : (__fields.keeps("startDate") && obj["startDate"] !== undefined)) {
         const __raw_startDate = obj["startDate"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_startDate === "string" ? new Date(__raw_startDate) : __raw_startDate as Date;if (__dateVal == null) { errors.push({ field: "startDate", message: "EventForm.startDate is required" }); } else {
+            const __dateVal = (__raw_startDate instanceof Date ? __raw_startDate : typeof __raw_startDate === "string" ? new Date(__raw_startDate) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "startDate", message: __raw_startDate == null ? "EventForm.startDate is required" : "expected Date" });
+            } else {if (__dateVal == null) { errors.push({ field: "startDate", message: "EventForm.startDate is required" }); } else {
                 if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "startDate", message: "EventForm.startDate must be a valid date" }); }
                 if (__dateVal.getTime() <= new Date("2020-01-01").getTime()) { errors.push({ field: "startDate", message: "EventForm.startDate must be after 2020-01-01" }); }
             }
-            instance.startDate = __dateVal;
+                instance.startDate = __dateVal;
+            }
         }
     }
-    if ((__fields === undefined || __fields.requires("endDate")) || (__fields.keeps("endDate") && obj["endDate"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("endDate")) ? "endDate" in obj : (__fields.keeps("endDate") && obj["endDate"] !== undefined)) {
         const __raw_endDate = obj["endDate"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_endDate === "string" ? new Date(__raw_endDate) : __raw_endDate as Date;if (__dateVal == null) { errors.push({ field: "endDate", message: "EventForm.endDate is required" }); } else {
+            const __dateVal = (__raw_endDate instanceof Date ? __raw_endDate : typeof __raw_endDate === "string" ? new Date(__raw_endDate) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "endDate", message: __raw_endDate == null ? "EventForm.endDate is required" : "expected Date" });
+            } else {if (__dateVal == null) { errors.push({ field: "endDate", message: "EventForm.endDate is required" }); } else {
                 if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "endDate", message: "EventForm.endDate must be a valid date" }); }
             }
-            instance.endDate = __dateVal;
+                instance.endDate = __dateVal;
+            }
         }
     }
-    if ((__fields === undefined || __fields.requires("maxAttendees")) || (__fields.keeps("maxAttendees") && obj["maxAttendees"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("maxAttendees")) ? "maxAttendees" in obj : (__fields.keeps("maxAttendees") && obj["maxAttendees"] !== undefined)) {
         const __raw_maxAttendees = obj["maxAttendees"] as number;
 
         if (!(typeof __raw_maxAttendees === "number")) {
@@ -1198,36 +1206,36 @@ original 392..420 -> expanded 688..716
 original 529..557 -> expanded 716..744
 original 613..636 -> expanded 744..767
 original 672..694 -> expanded 767..789
-original 694..695 -> expanded 16351..16352
-original 695..697 -> expanded 18314..18316
-original 719..751 -> expanded 18316..18348
-original 810..834 -> expanded 18348..18372
-original 896..921 -> expanded 18372..18397
-original 972..1000 -> expanded 18397..18425
-original 1059..1090 -> expanded 18425..18456
-original 1127..1145 -> expanded 18456..18474
-original 1145..1146 -> expanded 33175..33176
-original 1146..1148 -> expanded 35003..35005
-original 1170..1200 -> expanded 35005..35035
-original 1252..1277 -> expanded 35035..35060
-original 1354..1381 -> expanded 35060..35087
-original 1423..1448 -> expanded 35087..35112
-original 1504..1531 -> expanded 35112..35139
-original 1531..1532 -> expanded 47518..47519
-original 1532..2731 -> expanded 49316..50515
+original 694..695 -> expanded 16437..16438
+original 695..697 -> expanded 18400..18402
+original 719..751 -> expanded 18402..18434
+original 810..834 -> expanded 18434..18458
+original 896..921 -> expanded 18458..18483
+original 972..1000 -> expanded 18483..18511
+original 1059..1090 -> expanded 18511..18542
+original 1127..1145 -> expanded 18542..18560
+original 1145..1146 -> expanded 33340..33341
+original 1146..1148 -> expanded 35168..35170
+original 1170..1200 -> expanded 35170..35200
+original 1252..1277 -> expanded 35200..35225
+original 1354..1381 -> expanded 35225..35252
+original 1423..1448 -> expanded 35252..35277
+original 1504..1531 -> expanded 35277..35304
+original 1531..1532 -> expanded 48374..48375
+original 1532..2731 -> expanded 50172..51371
 generated 0..418 <- imports
-generated 789..16351 <- Decode
-generated 16352..18314 <- Decode
-generated 18474..33175 <- Decode
-generated 33176..35003 <- Decode
-generated 35139..47518 <- Decode
-generated 47519..49316 <- Decode
+generated 789..16437 <- Decode
+generated 16438..18400 <- Decode
+generated 18560..33340 <- Decode
+generated 33341..35168 <- Decode
+generated 35304..48374 <- Decode
+generated 48375..50172 <- Decode
 
 ## Metadata
 
-class UserRegistrationForm: {"body_span":{"end":696,"start":262},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":227,"start":205}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"email\"] }","name":"endec","span":{"end":306,"start":268}}],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":325,"start":311},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minLength(8)\", \"maxLength(50)\"] }","name":"endec","span":{"end":393,"start":331}}],"initializer":null,"name":"password","optional":false,"readonly":false,"span":{"end":415,"start":398},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minLength(3)\", \"maxLength(20)\", \"lowercase\", \"pattern(\\\"^[a-z][a-z0-9_]+$\\\")\"] }","name":"endec","span":{"end":530,"start":421}}],"initializer":null,"name":"username","optional":false,"readonly":false,"span":{"end":552,"start":535},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"between(18, 120)\"] }","name":"endec","span":{"end":614,"start":558}}],"initializer":null,"name":"age","optional":false,"readonly":false,"span":{"end":631,"start":619},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"url\"] }","name":"endec","span":{"end":673,"start":637}}],"initializer":null,"name":"website","optional":false,"readonly":false,"span":{"end":694,"start":678},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UserRegistrationForm","span":{"end":696,"start":235},"superclass":null,"type_params":[]}
-class ProductForm: {"body_span":{"end":1147,"start":746},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":720,"start":698}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"maxLength(100)\"] }","name":"endec","span":{"end":811,"start":752}}],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":829,"start":816},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"positive\", \"lessThan(1000000)\"] }","name":"endec","span":{"end":897,"start":835}}],"initializer":null,"name":"price","optional":false,"readonly":false,"span":{"end":916,"start":902},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"nonNegative\"] }","name":"endec","span":{"end":973,"start":922}}],"initializer":null,"name":"quantity","optional":false,"readonly":false,"span":{"end":995,"start":978},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minItems(1)\", \"maxItems(5)\"] }","name":"endec","span":{"end":1060,"start":1001}}],"initializer":null,"name":"tags","optional":false,"readonly":false,"span":{"end":1085,"start":1065},"ts_type":"Array<string>","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"uuid\"] }","name":"endec","span":{"end":1128,"start":1091}}],"initializer":null,"name":"sku","optional":false,"readonly":false,"span":{"end":1145,"start":1133},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ProductForm","span":{"end":1147,"start":728},"superclass":null,"type_params":[]}
-class EventForm: {"body_span":{"end":1533,"start":1195},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1171,"start":1149}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"trimmed\"] }","name":"endec","span":{"end":1253,"start":1201}}],"initializer":null,"name":"title","optional":false,"readonly":false,"span":{"end":1272,"start":1258},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"validDate\", \"greaterThanDate(\\\"2020-01-01\\\")\"] }","name":"endec","span":{"end":1355,"start":1278}}],"initializer":null,"name":"startDate","optional":false,"readonly":false,"span":{"end":1376,"start":1360},"ts_type":"Date","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":1424,"start":1382}}],"initializer":null,"name":"endDate","optional":false,"readonly":false,"span":{"end":1443,"start":1429},"ts_type":"Date","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"between(1, 1000)\"] }","name":"endec","span":{"end":1505,"start":1449}}],"initializer":null,"name":"maxAttendees","optional":false,"readonly":false,"span":{"end":1531,"start":1510},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EventForm","span":{"end":1533,"start":1179},"superclass":null,"type_params":[]}
+class UserRegistrationForm: {"body_span":{"end":696,"start":262},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":227,"start":205}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"email\"] }","name":"endec","span":{"end":306,"start":268}}],"initializer":null,"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":325,"start":311},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minLength(8)\", \"maxLength(50)\"] }","name":"endec","span":{"end":393,"start":331}}],"initializer":null,"key":"Named","name":"password","optional":false,"readonly":false,"span":{"end":415,"start":398},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minLength(3)\", \"maxLength(20)\", \"lowercase\", \"pattern(\\\"^[a-z][a-z0-9_]+$\\\")\"] }","name":"endec","span":{"end":530,"start":421}}],"initializer":null,"key":"Named","name":"username","optional":false,"readonly":false,"span":{"end":552,"start":535},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"between(18, 120)\"] }","name":"endec","span":{"end":614,"start":558}}],"initializer":null,"key":"Named","name":"age","optional":false,"readonly":false,"span":{"end":631,"start":619},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"url\"] }","name":"endec","span":{"end":673,"start":637}}],"initializer":null,"key":"Named","name":"website","optional":false,"readonly":false,"span":{"end":694,"start":678},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UserRegistrationForm","span":{"end":696,"start":235},"superclass":null,"type_params":[]}
+class ProductForm: {"body_span":{"end":1147,"start":746},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":720,"start":698}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"maxLength(100)\"] }","name":"endec","span":{"end":811,"start":752}}],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":829,"start":816},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"positive\", \"lessThan(1000000)\"] }","name":"endec","span":{"end":897,"start":835}}],"initializer":null,"key":"Named","name":"price","optional":false,"readonly":false,"span":{"end":916,"start":902},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"nonNegative\"] }","name":"endec","span":{"end":973,"start":922}}],"initializer":null,"key":"Named","name":"quantity","optional":false,"readonly":false,"span":{"end":995,"start":978},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minItems(1)\", \"maxItems(5)\"] }","name":"endec","span":{"end":1060,"start":1001}}],"initializer":null,"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":1085,"start":1065},"ts_type":"Array<string>","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"uuid\"] }","name":"endec","span":{"end":1128,"start":1091}}],"initializer":null,"key":"Named","name":"sku","optional":false,"readonly":false,"span":{"end":1145,"start":1133},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ProductForm","span":{"end":1147,"start":728},"superclass":null,"type_params":[]}
+class EventForm: {"body_span":{"end":1533,"start":1195},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1171,"start":1149}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"trimmed\"] }","name":"endec","span":{"end":1253,"start":1201}}],"initializer":null,"key":"Named","name":"title","optional":false,"readonly":false,"span":{"end":1272,"start":1258},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"validDate\", \"greaterThanDate(\\\"2020-01-01\\\")\"] }","name":"endec","span":{"end":1355,"start":1278}}],"initializer":null,"key":"Named","name":"startDate","optional":false,"readonly":false,"span":{"end":1376,"start":1360},"ts_type":"Date","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":1424,"start":1382}}],"initializer":null,"key":"Named","name":"endDate","optional":false,"readonly":false,"span":{"end":1443,"start":1429},"ts_type":"Date","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"between(1, 1000)\"] }","name":"endec","span":{"end":1505,"start":1449}}],"initializer":null,"key":"Named","name":"maxAttendees","optional":false,"readonly":false,"span":{"end":1531,"start":1510},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EventForm","span":{"end":1533,"start":1179},"superclass":null,"type_params":[]}
 type ValidationResult: {"body":{"Alias":"ValidationOutcome<T, Array<string>>"},"decorators":[],"name":"ValidationResult","span":{"end":1686,"start":1623},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
 
 ## Registry reads

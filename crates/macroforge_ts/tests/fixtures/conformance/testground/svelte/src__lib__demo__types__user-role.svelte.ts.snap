@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -54,20 +54,24 @@ export function userRoleEncodeWithContext(value: UserRole, ctx: __mf_EncodeConte
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
 
 /** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
 export function userRoleDecode(input: unknown): { success: true; value: UserRole } | { success: false; errors: Array<{ field: string; message: string }> } {
-    switch (input) {
+
+    const data = __mf_textOrValue(input, userRoleHasShape);
+    switch (data) {
         case 'Administrator':
         case 'SalesRepresentative':
         case 'Technician':
         case 'HumanResources':
         case 'InformationTechnology':
-            return { success: true, value: input as UserRole };
+            return { success: true, value: data as UserRole };
         default:
             return { success: false, errors: [{ field: "_root", message: "Invalid value for UserRole: expected one of " + ['Administrator', 'SalesRepresentative', 'Technician', 'HumanResources', 'InformationTechnology'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
     }
@@ -436,15 +440,15 @@ export declare const UserRole: {
 
 ## Mapping
 
-original 0..58 -> expanded 556..614
-original 107..269 -> expanded 614..776
-original 269..270 -> expanded 12176..12177
-generated 0..556 <- imports
-generated 776..858 <- Default
-generated 858..2114 <- Encode
-generated 2114..4269 <- Decode
-generated 4269..11386 <- Gigaform
-generated 11386..12176 <- __convenience_const
+original 0..58 -> expanded 618..676
+original 107..269 -> expanded 676..838
+original 269..270 -> expanded 12412..12413
+generated 0..618 <- imports
+generated 838..920 <- Default
+generated 920..2291 <- Encode
+generated 2291..4505 <- Decode
+generated 4505..11622 <- Gigaform
+generated 11622..12412 <- __convenience_const
 
 ## Metadata
 

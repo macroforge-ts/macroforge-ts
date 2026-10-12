@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -46,12 +46,9 @@ export function editedEncode(value: Edited, keepMetadata?: boolean): string {
 export function editedEncodeWithContext(value: Edited, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Edited",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Edited" });
     editedEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -175,7 +172,7 @@ export function editedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("fieldName")) || (__fields.keeps("fieldName") && obj["fieldName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("fieldName")) ? "fieldName" in obj : (__fields.keeps("fieldName") && obj["fieldName"] !== undefined)) {
         const __raw_fieldName = obj["fieldName"] as string;
 
         if (!(typeof __raw_fieldName === "string")) {
@@ -187,7 +184,7 @@ export function editedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
             instance.fieldName = __raw_fieldName;
         }
     }
-    if ((__fields === undefined || __fields.requires("oldValue")) || (__fields.keeps("oldValue") && obj["oldValue"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("oldValue")) ? "oldValue" in obj : (__fields.keeps("oldValue") && obj["oldValue"] !== undefined)) {
         const __raw_oldValue = obj["oldValue"] as string | null;
 
         if (!(typeof __raw_oldValue === "string" || __raw_oldValue === null)) {
@@ -196,7 +193,7 @@ export function editedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
             instance.oldValue = __raw_oldValue;
         }
     }
-    if ((__fields === undefined || __fields.requires("newValue")) || (__fields.keeps("newValue") && obj["newValue"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("newValue")) ? "newValue" in obj : (__fields.keeps("newValue") && obj["newValue"] !== undefined)) {
         const __raw_newValue = obj["newValue"] as string | null;
 
         if (!(typeof __raw_newValue === "string" || __raw_newValue === null)) {
@@ -534,20 +531,20 @@ export declare const Edited: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..138 -> expanded 741..772
-original 179..262 -> expanded 772..855
-original 262..263 -> expanded 17820..17821
-generated 0..683 <- imports
-generated 855..996 <- Default
-generated 996..3466 <- Encode
-generated 3466..11016 <- Decode
-generated 11016..16608 <- Gigaform
-generated 16608..17820 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..138 -> expanded 813..844
+original 179..262 -> expanded 844..927
+original 262..263 -> expanded 17936..17937
+generated 0..755 <- imports
+generated 927..1068 <- Default
+generated 1068..3524 <- Encode
+generated 3524..11132 <- Decode
+generated 11132..16724 <- Gigaform
+generated 16724..17936 <- __convenience_const
 
 ## Metadata
 
-interface Edited: {"body_span":{"end":263,"start":133},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":180,"start":139}}],"name":"fieldName","optional":false,"readonly":false,"span":{"end":203,"start":185},"ts_type":"string"},{"decorators":[],"name":"oldValue","optional":false,"readonly":false,"span":{"end":232,"start":208},"ts_type":"string | null"},{"decorators":[],"name":"newValue","optional":false,"readonly":false,"span":{"end":261,"start":237},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Edited","span":{"end":263,"start":116},"type_params":[]}
+interface Edited: {"body_span":{"end":263,"start":133},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":180,"start":139}}],"key":"Named","name":"fieldName","optional":false,"readonly":false,"span":{"end":203,"start":185},"ts_type":"string"},{"decorators":[],"key":"Named","name":"oldValue","optional":false,"readonly":false,"span":{"end":232,"start":208},"ts_type":"string | null"},{"decorators":[],"key":"Named","name":"newValue","optional":false,"readonly":false,"span":{"end":261,"start":237},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Edited","span":{"end":263,"start":116},"type_params":[]}
 
 ## Registry reads
 

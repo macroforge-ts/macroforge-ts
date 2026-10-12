@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -48,12 +48,9 @@ export function numberEncode(value: Number, keepMetadata?: boolean): string {
 export function numberEncodeWithContext(value: Number, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Number",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Number" });
     numberEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -177,7 +174,7 @@ export function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("countryCode")) || (__fields.keeps("countryCode") && obj["countryCode"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("countryCode")) ? "countryCode" in obj : (__fields.keeps("countryCode") && obj["countryCode"] !== undefined)) {
         const __raw_countryCode = obj["countryCode"] as string;
 
         if (!(typeof __raw_countryCode === "string")) {
@@ -189,7 +186,7 @@ export function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
             instance.countryCode = __raw_countryCode;
         }
     }
-    if ((__fields === undefined || __fields.requires("areaCode")) || (__fields.keeps("areaCode") && obj["areaCode"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("areaCode")) ? "areaCode" in obj : (__fields.keeps("areaCode") && obj["areaCode"] !== undefined)) {
         const __raw_areaCode = obj["areaCode"] as string;
 
         if (!(typeof __raw_areaCode === "string")) {
@@ -201,7 +198,7 @@ export function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
             instance.areaCode = __raw_areaCode;
         }
     }
-    if ((__fields === undefined || __fields.requires("localNumber")) || (__fields.keeps("localNumber") && obj["localNumber"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("localNumber")) ? "localNumber" in obj : (__fields.keeps("localNumber") && obj["localNumber"] !== undefined)) {
         const __raw_localNumber = obj["localNumber"] as string;
 
         if (!(typeof __raw_localNumber === "string")) {
@@ -566,22 +563,22 @@ export declare const Number: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..138 -> expanded 741..772
-original 179..209 -> expanded 772..802
-original 250..277 -> expanded 802..829
-original 318..345 -> expanded 829..856
-original 345..346 -> expanded 20052..20053
-generated 0..683 <- imports
-generated 856..998 <- Default
-generated 998..3488 <- Encode
-generated 3488..13171 <- Decode
-generated 13171..18840 <- Gigaform
-generated 18840..20052 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..138 -> expanded 813..844
+original 179..209 -> expanded 844..874
+original 250..277 -> expanded 874..901
+original 318..345 -> expanded 901..928
+original 345..346 -> expanded 20173..20174
+generated 0..755 <- imports
+generated 928..1070 <- Default
+generated 1070..3546 <- Encode
+generated 3546..13292 <- Decode
+generated 13292..18961 <- Gigaform
+generated 18961..20173 <- __convenience_const
 
 ## Metadata
 
-interface Number: {"body_span":{"end":346,"start":133},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":180,"start":139}}],"name":"countryCode","optional":false,"readonly":false,"span":{"end":205,"start":185},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":251,"start":210}}],"name":"areaCode","optional":false,"readonly":false,"span":{"end":273,"start":256},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":319,"start":278}}],"name":"localNumber","optional":false,"readonly":false,"span":{"end":344,"start":324},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Number","span":{"end":346,"start":116},"type_params":[]}
+interface Number: {"body_span":{"end":346,"start":133},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":180,"start":139}}],"key":"Named","name":"countryCode","optional":false,"readonly":false,"span":{"end":205,"start":185},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":251,"start":210}}],"key":"Named","name":"areaCode","optional":false,"readonly":false,"span":{"end":273,"start":256},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":319,"start":278}}],"key":"Named","name":"localNumber","optional":false,"readonly":false,"span":{"end":344,"start":324},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Number","span":{"end":346,"start":116},"type_params":[]}
 
 ## Registry reads
 

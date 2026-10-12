@@ -117,7 +117,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
         const __raw_email = obj["email"] as string;
 
         if (!(typeof __raw_email === "string")) {
@@ -299,7 +299,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("url")) || (__fields.keeps("url") && obj["url"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("url")) ? "url" in obj : (__fields.keeps("url") && obj["url"] !== undefined)) {
         const __raw_url = obj["url"] as string;
 
         if (!(typeof __raw_url === "string")) {
@@ -481,7 +481,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -663,7 +663,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("shortText")) || (__fields.keeps("shortText") && obj["shortText"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("shortText")) ? "shortText" in obj : (__fields.keeps("shortText") && obj["shortText"] !== undefined)) {
         const __raw_shortText = obj["shortText"] as string;
 
         if (!(typeof __raw_shortText === "string")) {
@@ -845,7 +845,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("longText")) || (__fields.keeps("longText") && obj["longText"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("longText")) ? "longText" in obj : (__fields.keeps("longText") && obj["longText"] !== undefined)) {
         const __raw_longText = obj["longText"] as string;
 
         if (!(typeof __raw_longText === "string")) {
@@ -1027,7 +1027,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("fixedText")) || (__fields.keeps("fixedText") && obj["fixedText"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("fixedText")) ? "fixedText" in obj : (__fields.keeps("fixedText") && obj["fixedText"] !== undefined)) {
         const __raw_fixedText = obj["fixedText"] as string;
 
         if (!(typeof __raw_fixedText === "string")) {
@@ -1209,7 +1209,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("rangedText")) || (__fields.keeps("rangedText") && obj["rangedText"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("rangedText")) ? "rangedText" in obj : (__fields.keeps("rangedText") && obj["rangedText"] !== undefined)) {
         const __raw_rangedText = obj["rangedText"] as string;
 
         if (!(typeof __raw_rangedText === "string")) {
@@ -1391,7 +1391,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("code")) || (__fields.keeps("code") && obj["code"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("code")) ? "code" in obj : (__fields.keeps("code") && obj["code"] !== undefined)) {
         const __raw_code = obj["code"] as string;
 
         if (!(typeof __raw_code === "string")) {
@@ -1573,7 +1573,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("required")) || (__fields.keeps("required") && obj["required"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("required")) ? "required" in obj : (__fields.keeps("required") && obj["required"] !== undefined)) {
         const __raw_required = obj["required"] as string;
 
         if (!(typeof __raw_required === "string")) {
@@ -1755,7 +1755,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("trimmed")) || (__fields.keeps("trimmed") && obj["trimmed"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("trimmed")) ? "trimmed" in obj : (__fields.keeps("trimmed") && obj["trimmed"] !== undefined)) {
         const __raw_trimmed = obj["trimmed"] as string;
 
         if (!(typeof __raw_trimmed === "string")) {
@@ -1937,7 +1937,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("lower")) || (__fields.keeps("lower") && obj["lower"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("lower")) ? "lower" in obj : (__fields.keeps("lower") && obj["lower"] !== undefined)) {
         const __raw_lower = obj["lower"] as string;
 
         if (!(typeof __raw_lower === "string")) {
@@ -2119,7 +2119,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("upper")) || (__fields.keeps("upper") && obj["upper"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("upper")) ? "upper" in obj : (__fields.keeps("upper") && obj["upper"] !== undefined)) {
         const __raw_upper = obj["upper"] as string;
 
         if (!(typeof __raw_upper === "string")) {
@@ -2301,7 +2301,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("cap")) || (__fields.keeps("cap") && obj["cap"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("cap")) ? "cap" in obj : (__fields.keeps("cap") && obj["cap"] !== undefined)) {
         const __raw_cap = obj["cap"] as string;
 
         if (!(typeof __raw_cap === "string")) {
@@ -2483,7 +2483,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("uncap")) || (__fields.keeps("uncap") && obj["uncap"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("uncap")) ? "uncap" in obj : (__fields.keeps("uncap") && obj["uncap"] !== undefined)) {
         const __raw_uncap = obj["uncap"] as string;
 
         if (!(typeof __raw_uncap === "string")) {
@@ -2665,7 +2665,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("secureUrl")) || (__fields.keeps("secureUrl") && obj["secureUrl"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("secureUrl")) ? "secureUrl" in obj : (__fields.keeps("secureUrl") && obj["secureUrl"] !== undefined)) {
         const __raw_secureUrl = obj["secureUrl"] as string;
 
         if (!(typeof __raw_secureUrl === "string")) {
@@ -2847,7 +2847,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("filename")) || (__fields.keeps("filename") && obj["filename"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("filename")) ? "filename" in obj : (__fields.keeps("filename") && obj["filename"] !== undefined)) {
         const __raw_filename = obj["filename"] as string;
 
         if (!(typeof __raw_filename === "string")) {
@@ -3029,7 +3029,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("emailLike")) || (__fields.keeps("emailLike") && obj["emailLike"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("emailLike")) ? "emailLike" in obj : (__fields.keeps("emailLike") && obj["emailLike"] !== undefined)) {
         const __raw_emailLike = obj["emailLike"] as string;
 
         if (!(typeof __raw_emailLike === "string")) {
@@ -4011,95 +4011,95 @@ export declare function includesValidatorIs(value: unknown): value is IncludesVa
 ## Mapping
 
 original 0..276 -> expanded 350..626
-original 276..277 -> expanded 6694..6695
-original 277..405 -> expanded 8567..8695
-original 405..406 -> expanded 14570..14571
-original 406..536 -> expanded 16413..16543
-original 536..537 -> expanded 22585..22586
-original 537..693 -> expanded 24443..24599
-original 693..694 -> expanded 30873..30874
-original 694..848 -> expanded 32806..32960
-original 848..849 -> expanded 39195..39196
-original 849..1003 -> expanded 41128..41282
-original 1003..1004 -> expanded 47478..47479
-original 1004..1190 -> expanded 49366..49552
-original 1190..1191 -> expanded 56003..56004
-original 1191..1346 -> expanded 57966..58121
-original 1346..1347 -> expanded 64181..64182
-original 1347..1495 -> expanded 66084..66232
-original 1495..1496 -> expanded 72405..72406
-original 1496..1640 -> expanded 74323..74467
-original 1640..1641 -> expanded 80592..80593
-original 1641..1789 -> expanded 82495..82643
-original 1789..1790 -> expanded 88773..88774
-original 1790..1938 -> expanded 90706..90854
-original 1938..1939 -> expanded 96984..96985
-original 1939..2091 -> expanded 98917..99069
-original 2091..2092 -> expanded 105265..105266
-original 2092..2252 -> expanded 107228..107388
-original 2252..2253 -> expanded 113718..113719
-original 2253..2420 -> expanded 115711..115878
-original 2420..2421 -> expanded 122199..122200
-original 2421..2578 -> expanded 124147..124304
-original 2578..2579 -> expanded 130507..130508
-original 2579..2733 -> expanded 132425..132579
-original 2733..2734 -> expanded 138791..138792
-original 2734..2735 -> expanded 140709..140710
+original 276..277 -> expanded 6710..6711
+original 277..405 -> expanded 8583..8711
+original 405..406 -> expanded 14600..14601
+original 406..536 -> expanded 16443..16573
+original 536..537 -> expanded 22628..22629
+original 537..693 -> expanded 24486..24642
+original 693..694 -> expanded 30936..30937
+original 694..848 -> expanded 32869..33023
+original 848..849 -> expanded 39277..39278
+original 849..1003 -> expanded 41210..41364
+original 1003..1004 -> expanded 47580..47581
+original 1004..1190 -> expanded 49468..49654
+original 1190..1191 -> expanded 56126..56127
+original 1191..1346 -> expanded 58089..58244
+original 1346..1347 -> expanded 64319..64320
+original 1347..1495 -> expanded 66222..66370
+original 1495..1496 -> expanded 72562..72563
+original 1496..1640 -> expanded 74480..74624
+original 1640..1641 -> expanded 80767..80768
+original 1641..1789 -> expanded 82670..82818
+original 1789..1790 -> expanded 88964..88965
+original 1790..1938 -> expanded 90897..91045
+original 1938..1939 -> expanded 97191..97192
+original 1939..2091 -> expanded 99124..99276
+original 2091..2092 -> expanded 105486..105487
+original 2092..2252 -> expanded 107449..107609
+original 2252..2253 -> expanded 113955..113956
+original 2253..2420 -> expanded 115948..116115
+original 2420..2421 -> expanded 122456..122457
+original 2421..2578 -> expanded 124404..124561
+original 2578..2579 -> expanded 130783..130784
+original 2579..2733 -> expanded 132701..132855
+original 2733..2734 -> expanded 139087..139088
+original 2734..2735 -> expanded 141005..141006
 generated 0..350 <- imports
-generated 626..6694 <- Decode
-generated 6695..8567 <- Decode
-generated 8695..14570 <- Decode
-generated 14571..16413 <- Decode
-generated 16543..22585 <- Decode
-generated 22586..24443 <- Decode
-generated 24599..30873 <- Decode
-generated 30874..32806 <- Decode
-generated 32960..39195 <- Decode
-generated 39196..41128 <- Decode
-generated 41282..47478 <- Decode
-generated 47479..49366 <- Decode
-generated 49552..56003 <- Decode
-generated 56004..57966 <- Decode
-generated 58121..64181 <- Decode
-generated 64182..66084 <- Decode
-generated 66232..72405 <- Decode
-generated 72406..74323 <- Decode
-generated 74467..80592 <- Decode
-generated 80593..82495 <- Decode
-generated 82643..88773 <- Decode
-generated 88774..90706 <- Decode
-generated 90854..96984 <- Decode
-generated 96985..98917 <- Decode
-generated 99069..105265 <- Decode
-generated 105266..107228 <- Decode
-generated 107388..113718 <- Decode
-generated 113719..115711 <- Decode
-generated 115878..122199 <- Decode
-generated 122200..124147 <- Decode
-generated 124304..130507 <- Decode
-generated 130508..132425 <- Decode
-generated 132579..138791 <- Decode
-generated 138792..140709 <- Decode
+generated 626..6710 <- Decode
+generated 6711..8583 <- Decode
+generated 8711..14600 <- Decode
+generated 14601..16443 <- Decode
+generated 16573..22628 <- Decode
+generated 22629..24486 <- Decode
+generated 24642..30936 <- Decode
+generated 30937..32869 <- Decode
+generated 33023..39277 <- Decode
+generated 39278..41210 <- Decode
+generated 41364..47580 <- Decode
+generated 47581..49468 <- Decode
+generated 49654..56126 <- Decode
+generated 56127..58089 <- Decode
+generated 58244..64319 <- Decode
+generated 64320..66222 <- Decode
+generated 66370..72562 <- Decode
+generated 72563..74480 <- Decode
+generated 74624..80767 <- Decode
+generated 80768..82670 <- Decode
+generated 82818..88964 <- Decode
+generated 88965..90897 <- Decode
+generated 91045..97191 <- Decode
+generated 97192..99124 <- Decode
+generated 99276..105486 <- Decode
+generated 105487..107449 <- Decode
+generated 107609..113955 <- Decode
+generated 113956..115948 <- Decode
+generated 116115..122456 <- Decode
+generated 122457..124404 <- Decode
+generated 124561..130783 <- Decode
+generated 130784..132701 <- Decode
+generated 132855..139087 <- Decode
+generated 139088..141005 <- Decode
 
 ## Metadata
 
-class EmailValidator: {"body_span":{"end":278,"start":213},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":184,"start":162}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"email\"] }","name":"endec","span":{"end":257,"start":219}}],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":276,"start":262},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EmailValidator","span":{"end":278,"start":192},"superclass":null,"type_params":[]}
-class UrlValidator: {"body_span":{"end":407,"start":346},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":319,"start":297}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"url\"] }","name":"endec","span":{"end":388,"start":352}}],"initializer":null,"name":"url","optional":false,"readonly":false,"span":{"end":405,"start":393},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UrlValidator","span":{"end":407,"start":327},"superclass":null,"type_params":[]}
-class UuidValidator: {"body_span":{"end":538,"start":477},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":449,"start":427}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uuid\"] }","name":"endec","span":{"end":520,"start":483}}],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":536,"start":525},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UuidValidator","span":{"end":538,"start":457},"superclass":null,"type_params":[]}
-class MaxLengthValidator: {"body_span":{"end":695,"start":618},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":585,"start":563}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"maxLength(10)\"] }","name":"endec","span":{"end":670,"start":624}}],"initializer":null,"name":"shortText","optional":false,"readonly":false,"span":{"end":693,"start":675},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MaxLengthValidator","span":{"end":695,"start":593},"superclass":null,"type_params":[]}
-class MinLengthValidator: {"body_span":{"end":850,"start":775},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":742,"start":720}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minLength(5)\"] }","name":"endec","span":{"end":826,"start":781}}],"initializer":null,"name":"longText","optional":false,"readonly":false,"span":{"end":848,"start":831},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MinLengthValidator","span":{"end":850,"start":750},"superclass":null,"type_params":[]}
-class LengthValidator: {"body_span":{"end":1005,"start":932},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":902,"start":880}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"length(8)\"] }","name":"endec","span":{"end":980,"start":938}}],"initializer":null,"name":"fixedText","optional":false,"readonly":false,"span":{"end":1003,"start":985},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LengthValidator","span":{"end":1005,"start":910},"superclass":null,"type_params":[]}
-class LengthRangeValidator: {"body_span":{"end":1192,"start":1114},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1079,"start":1057}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"length(5, 10)\"] }","name":"endec","span":{"end":1166,"start":1120}}],"initializer":null,"name":"rangedText","optional":false,"readonly":false,"span":{"end":1190,"start":1171},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LengthRangeValidator","span":{"end":1192,"start":1087},"superclass":null,"type_params":[]}
-class PatternValidator: {"body_span":{"end":1348,"start":1268},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1237,"start":1215}}],"fields":[{"decorators":[{"args_src":"{ validate: ['pattern(\"^[A-Z]{3}$\")'] }","name":"endec","span":{"end":1328,"start":1274}}],"initializer":null,"name":"code","optional":false,"readonly":false,"span":{"end":1346,"start":1333},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"PatternValidator","span":{"end":1348,"start":1245},"superclass":null,"type_params":[]}
-class NonEmptyValidator: {"body_span":{"end":1497,"start":1426},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1394,"start":1372}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1473,"start":1432}}],"initializer":null,"name":"required","optional":false,"readonly":false,"span":{"end":1495,"start":1478},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonEmptyValidator","span":{"end":1497,"start":1402},"superclass":null,"type_params":[]}
-class TrimmedValidator: {"body_span":{"end":1642,"start":1573},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1542,"start":1520}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"trimmed\"] }","name":"endec","span":{"end":1619,"start":1579}}],"initializer":null,"name":"trimmed","optional":false,"readonly":false,"span":{"end":1640,"start":1624},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"TrimmedValidator","span":{"end":1642,"start":1550},"superclass":null,"type_params":[]}
-class LowercaseValidator: {"body_span":{"end":1791,"start":1722},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1689,"start":1667}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lowercase\"] }","name":"endec","span":{"end":1770,"start":1728}}],"initializer":null,"name":"lower","optional":false,"readonly":false,"span":{"end":1789,"start":1775},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LowercaseValidator","span":{"end":1791,"start":1697},"superclass":null,"type_params":[]}
-class UppercaseValidator: {"body_span":{"end":1940,"start":1871},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1838,"start":1816}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uppercase\"] }","name":"endec","span":{"end":1919,"start":1877}}],"initializer":null,"name":"upper","optional":false,"readonly":false,"span":{"end":1938,"start":1924},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UppercaseValidator","span":{"end":1940,"start":1846},"superclass":null,"type_params":[]}
-class CapitalizedValidator: {"body_span":{"end":2093,"start":2024},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1989,"start":1967}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"capitalized\"] }","name":"endec","span":{"end":2074,"start":2030}}],"initializer":null,"name":"cap","optional":false,"readonly":false,"span":{"end":2091,"start":2079},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CapitalizedValidator","span":{"end":2093,"start":1997},"superclass":null,"type_params":[]}
-class UncapitalizedValidator: {"body_span":{"end":2254,"start":2181},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2144,"start":2122}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uncapitalized\"] }","name":"endec","span":{"end":2233,"start":2187}}],"initializer":null,"name":"uncap","optional":false,"readonly":false,"span":{"end":2252,"start":2238},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UncapitalizedValidator","span":{"end":2254,"start":2152},"superclass":null,"type_params":[]}
-class StartsWithValidator: {"body_span":{"end":2422,"start":2336},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2302,"start":2280}}],"fields":[{"decorators":[{"args_src":"{ validate: ['startsWith(\"https://\")'] }","name":"endec","span":{"end":2397,"start":2342}}],"initializer":null,"name":"secureUrl","optional":false,"readonly":false,"span":{"end":2420,"start":2402},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"StartsWithValidator","span":{"end":2422,"start":2310},"superclass":null,"type_params":[]}
-class EndsWithValidator: {"body_span":{"end":2580,"start":2500},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2468,"start":2446}}],"fields":[{"decorators":[{"args_src":"{ validate: ['endsWith(\".json\")'] }","name":"endec","span":{"end":2556,"start":2506}}],"initializer":null,"name":"filename","optional":false,"readonly":false,"span":{"end":2578,"start":2561},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EndsWithValidator","span":{"end":2580,"start":2476},"superclass":null,"type_params":[]}
-class IncludesValidator: {"body_span":{"end":2735,"start":2658},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2626,"start":2604}}],"fields":[{"decorators":[{"args_src":"{ validate: ['includes(\"@\")'] }","name":"endec","span":{"end":2710,"start":2664}}],"initializer":null,"name":"emailLike","optional":false,"readonly":false,"span":{"end":2733,"start":2715},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"IncludesValidator","span":{"end":2735,"start":2634},"superclass":null,"type_params":[]}
+class EmailValidator: {"body_span":{"end":278,"start":213},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":184,"start":162}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"email\"] }","name":"endec","span":{"end":257,"start":219}}],"initializer":null,"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":276,"start":262},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EmailValidator","span":{"end":278,"start":192},"superclass":null,"type_params":[]}
+class UrlValidator: {"body_span":{"end":407,"start":346},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":319,"start":297}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"url\"] }","name":"endec","span":{"end":388,"start":352}}],"initializer":null,"key":"Named","name":"url","optional":false,"readonly":false,"span":{"end":405,"start":393},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UrlValidator","span":{"end":407,"start":327},"superclass":null,"type_params":[]}
+class UuidValidator: {"body_span":{"end":538,"start":477},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":449,"start":427}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uuid\"] }","name":"endec","span":{"end":520,"start":483}}],"initializer":null,"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":536,"start":525},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UuidValidator","span":{"end":538,"start":457},"superclass":null,"type_params":[]}
+class MaxLengthValidator: {"body_span":{"end":695,"start":618},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":585,"start":563}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"maxLength(10)\"] }","name":"endec","span":{"end":670,"start":624}}],"initializer":null,"key":"Named","name":"shortText","optional":false,"readonly":false,"span":{"end":693,"start":675},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MaxLengthValidator","span":{"end":695,"start":593},"superclass":null,"type_params":[]}
+class MinLengthValidator: {"body_span":{"end":850,"start":775},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":742,"start":720}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minLength(5)\"] }","name":"endec","span":{"end":826,"start":781}}],"initializer":null,"key":"Named","name":"longText","optional":false,"readonly":false,"span":{"end":848,"start":831},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MinLengthValidator","span":{"end":850,"start":750},"superclass":null,"type_params":[]}
+class LengthValidator: {"body_span":{"end":1005,"start":932},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":902,"start":880}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"length(8)\"] }","name":"endec","span":{"end":980,"start":938}}],"initializer":null,"key":"Named","name":"fixedText","optional":false,"readonly":false,"span":{"end":1003,"start":985},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LengthValidator","span":{"end":1005,"start":910},"superclass":null,"type_params":[]}
+class LengthRangeValidator: {"body_span":{"end":1192,"start":1114},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1079,"start":1057}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"length(5, 10)\"] }","name":"endec","span":{"end":1166,"start":1120}}],"initializer":null,"key":"Named","name":"rangedText","optional":false,"readonly":false,"span":{"end":1190,"start":1171},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LengthRangeValidator","span":{"end":1192,"start":1087},"superclass":null,"type_params":[]}
+class PatternValidator: {"body_span":{"end":1348,"start":1268},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1237,"start":1215}}],"fields":[{"decorators":[{"args_src":"{ validate: ['pattern(\"^[A-Z]{3}$\")'] }","name":"endec","span":{"end":1328,"start":1274}}],"initializer":null,"key":"Named","name":"code","optional":false,"readonly":false,"span":{"end":1346,"start":1333},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"PatternValidator","span":{"end":1348,"start":1245},"superclass":null,"type_params":[]}
+class NonEmptyValidator: {"body_span":{"end":1497,"start":1426},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1394,"start":1372}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1473,"start":1432}}],"initializer":null,"key":"Named","name":"required","optional":false,"readonly":false,"span":{"end":1495,"start":1478},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonEmptyValidator","span":{"end":1497,"start":1402},"superclass":null,"type_params":[]}
+class TrimmedValidator: {"body_span":{"end":1642,"start":1573},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1542,"start":1520}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"trimmed\"] }","name":"endec","span":{"end":1619,"start":1579}}],"initializer":null,"key":"Named","name":"trimmed","optional":false,"readonly":false,"span":{"end":1640,"start":1624},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"TrimmedValidator","span":{"end":1642,"start":1550},"superclass":null,"type_params":[]}
+class LowercaseValidator: {"body_span":{"end":1791,"start":1722},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1689,"start":1667}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lowercase\"] }","name":"endec","span":{"end":1770,"start":1728}}],"initializer":null,"key":"Named","name":"lower","optional":false,"readonly":false,"span":{"end":1789,"start":1775},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LowercaseValidator","span":{"end":1791,"start":1697},"superclass":null,"type_params":[]}
+class UppercaseValidator: {"body_span":{"end":1940,"start":1871},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1838,"start":1816}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uppercase\"] }","name":"endec","span":{"end":1919,"start":1877}}],"initializer":null,"key":"Named","name":"upper","optional":false,"readonly":false,"span":{"end":1938,"start":1924},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UppercaseValidator","span":{"end":1940,"start":1846},"superclass":null,"type_params":[]}
+class CapitalizedValidator: {"body_span":{"end":2093,"start":2024},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1989,"start":1967}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"capitalized\"] }","name":"endec","span":{"end":2074,"start":2030}}],"initializer":null,"key":"Named","name":"cap","optional":false,"readonly":false,"span":{"end":2091,"start":2079},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CapitalizedValidator","span":{"end":2093,"start":1997},"superclass":null,"type_params":[]}
+class UncapitalizedValidator: {"body_span":{"end":2254,"start":2181},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2144,"start":2122}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uncapitalized\"] }","name":"endec","span":{"end":2233,"start":2187}}],"initializer":null,"key":"Named","name":"uncap","optional":false,"readonly":false,"span":{"end":2252,"start":2238},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UncapitalizedValidator","span":{"end":2254,"start":2152},"superclass":null,"type_params":[]}
+class StartsWithValidator: {"body_span":{"end":2422,"start":2336},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2302,"start":2280}}],"fields":[{"decorators":[{"args_src":"{ validate: ['startsWith(\"https://\")'] }","name":"endec","span":{"end":2397,"start":2342}}],"initializer":null,"key":"Named","name":"secureUrl","optional":false,"readonly":false,"span":{"end":2420,"start":2402},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"StartsWithValidator","span":{"end":2422,"start":2310},"superclass":null,"type_params":[]}
+class EndsWithValidator: {"body_span":{"end":2580,"start":2500},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2468,"start":2446}}],"fields":[{"decorators":[{"args_src":"{ validate: ['endsWith(\".json\")'] }","name":"endec","span":{"end":2556,"start":2506}}],"initializer":null,"key":"Named","name":"filename","optional":false,"readonly":false,"span":{"end":2578,"start":2561},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EndsWithValidator","span":{"end":2580,"start":2476},"superclass":null,"type_params":[]}
+class IncludesValidator: {"body_span":{"end":2735,"start":2658},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2626,"start":2604}}],"fields":[{"decorators":[{"args_src":"{ validate: ['includes(\"@\")'] }","name":"endec","span":{"end":2710,"start":2664}}],"initializer":null,"key":"Named","name":"emailLike","optional":false,"readonly":false,"span":{"end":2733,"start":2715},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"IncludesValidator","span":{"end":2735,"start":2634},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

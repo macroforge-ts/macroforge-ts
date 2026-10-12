@@ -1,0 +1,390 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/shadowed_globals.ts
+---
+## Input
+
+import { Set } from './collections';
+
+/** @derive(Debug) */
+interface Record {
+    id: string;
+}
+
+class Map {
+    size = 0;
+}
+
+type Partial = { part: number };
+
+/** @derive(Encode, Decode) */
+interface Index {
+    byName: Map;
+    seen: Set;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { setDecodeWithContext, setEncodeWithContext } from "./collections";
+import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { Set } from './collections';
+
+
+interface Record {
+    id: string;
+}
+
+export function recordToString(value: Record): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("id: " + String(value.id));
+        return "Record { " + parts.join(", ") + " }";
+    });
+}
+
+const Record: {
+  readonly toString: typeof recordToString;
+} = {
+  toString: recordToString
+};
+
+class Map {
+    size = 0;
+}
+
+type Partial = { part: number };
+
+
+interface Index {
+    byName: Map;
+    seen: Set;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function indexEncode(value: Index, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = indexEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function indexEncodeWithContext(value: Index, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Index" });
+    indexEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function indexEncodePartialWithContext(value: Partial<Index>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Index>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Index" };
+        indexEncodeFields(value as Index, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function indexEncodeFields(value: Index, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("byName")) {
+        if (value.byName !== undefined) {
+            result.byName = mapEncodeWithContext(value.byName, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("seen")) {
+        if (value.seen !== undefined) {
+            result.seen = setEncodeWithContext(value.seen, ctx);
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function indexDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Index } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = indexDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Index.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function indexDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Index | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function indexDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Index> | __mf_PendingRef;
+export function indexDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Index> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Index.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Index.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Index") as Index | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Index.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("byName")) && !("byName" in obj)) {
+        errors.push({ field: "byName", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("seen")) && !("seen" in obj)) {
+        errors.push({ field: "seen", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "Index");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+        const __raw_byName = obj["byName"] as Map;
+
+        ctx.pushScope("byName");
+        try {
+            const __result = mapDecodeWithContext(__raw_byName, ctx);
+            ctx.assignOrDefer(instance, "byName", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "byName" : "byName." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "byName", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("seen")) ? "seen" in obj : (__fields.keeps("seen") && obj["seen"] !== undefined)) {
+        const __raw_seen = obj["seen"] as Set;
+
+        ctx.pushScope("seen");
+        try {
+            const __result = setDecodeWithContext(__raw_seen, ctx);
+            ctx.assignOrDefer(instance, "seen", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "seen" : "seen." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "seen", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Index;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function indexDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Index>): Partial<Index> | __mf_PendingRef {
+    return indexDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function indexValidateField<K extends keyof Index>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function indexValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function indexValidateFields(partial: { readonly [K in keyof Index]?: unknown }): Array<{ field: string; message: string }>;
+export function indexValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function indexHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "byName" in o && "seen" in o;
+}
+
+export function indexIs(obj: unknown): obj is Index {
+    return indexHasShape(obj) && indexDecode(obj).success;
+}
+
+const Index: {
+  readonly encode: typeof indexEncode;
+  readonly encodeWithContext: typeof indexEncodeWithContext;
+  readonly encodePartialWithContext: typeof indexEncodePartialWithContext;
+  readonly decode: typeof indexDecode;
+  readonly decodeWithContext: typeof indexDecodeWithContext;
+  readonly decodePartialWithContext: typeof indexDecodePartialWithContext;
+  readonly validateField: typeof indexValidateField;
+  readonly validateFields: typeof indexValidateFields;
+  readonly hasShape: typeof indexHasShape;
+  readonly is: typeof indexIs;
+} = {
+  encode: indexEncode,
+  encodeWithContext: indexEncodeWithContext,
+  encodePartialWithContext: indexEncodePartialWithContext,
+  decode: indexDecode,
+  decodeWithContext: indexDecodeWithContext,
+  decodePartialWithContext: indexDecodePartialWithContext,
+  validateField: indexValidateField,
+  validateFields: indexValidateFields,
+  hasShape: indexHasShape,
+  is: indexIs
+};
+
+## DTS
+
+import { Set } from "./collections";
+interface Record {
+	id: string;
+}
+export declare function recordToString(value: Record): string;
+declare class Map {
+	size: number;
+}
+type Partial = {
+	part: number;
+};
+interface Index {
+	byName: Map;
+	seen: Set;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function indexEncode(value: Index, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function indexEncodeWithContext(value: Index, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function indexEncodePartialWithContext(value: Partial<Index>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Index>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function indexDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Index;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function indexDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Index | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function indexDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Index> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function indexDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Index>): Partial<Index> | __mf_PendingRef;
+export declare function indexValidateField<K extends keyof Index>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function indexValidateFields(partial: { readonly [K in keyof Index]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function indexHasShape(obj: unknown): boolean;
+export declare function indexIs(obj: unknown): obj is Index;
+export {};
+
+## Diagnostics
+
+Error [43..57]: this module gives the name `Set` to something of its own, and the built-in derives in it read and write `Set` as the global one
+  help: rename it, or import it under another name: `import { Set as MySet }`
+Error [71..77]: this module gives the name `Record` to something of its own, and the built-in derives in it read and write `Record` as the global one
+  help: rename it, or import it under another name: `import { Record as MyRecord }`
+Error [105..108]: this module gives the name `Map` to something of its own, and the built-in derives in it read and write `Map` as the global one
+  help: rename it, or import it under another name: `import { Map as MyMap }`
+Error [133..140]: this module gives the name `Partial` to something of its own, and the built-in derives in it read and write `Partial` as the global one
+  help: rename it, or import it under another name: `import { Partial as MyPartial }`
+
+## Mapping
+
+original 0..38 -> expanded 757..795
+original 59..96 -> expanded 795..832
+original 96..161 -> expanded 1175..1240
+original 191..243 -> expanded 1240..1292
+original 243..244 -> expanded 11315..11316
+generated 0..757 <- imports
+generated 832..1078 <- Debug
+generated 1078..1175 <- __convenience_const
+generated 1292..3588 <- Encode
+generated 3588..10387 <- Decode
+generated 10387..11315 <- __convenience_const
+
+## Metadata
+
+class Map: {"body_span":{"end":126,"start":109},"decorators":[],"fields":[{"decorators":[],"initializer":"0","key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":124,"start":115},"ts_type":"any","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Map","span":{"end":126,"start":99},"superclass":null,"type_params":[]}
+interface Record: {"body_span":{"end":97,"start":78},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":60,"start":39}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":95,"start":84},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Record","span":{"end":97,"start":61},"type_params":[]}
+interface Index: {"body_span":{"end":244,"start":209},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":192,"start":162}}],"fields":[{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":227,"start":215},"ts_type":"Map"},{"decorators":[],"key":"Named","name":"seen","optional":false,"readonly":false,"span":{"end":242,"start":232},"ts_type":"Set"}],"heritage":[],"methods":[],"name":"Index","span":{"end":244,"start":193},"type_params":[]}
+type Partial: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"part","optional":false,"readonly":false,"span":{"end":157,"start":145},"ts_type":"number"}]}},"decorators":[],"name":"Partial","span":{"end":160,"start":128},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 
     
@@ -37,12 +37,9 @@ export function cardLabelsEncode(value: CardLabels, keepMetadata?: boolean): str
 export function cardLabelsEncodeWithContext(value: CardLabels, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "CardLabels",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "CardLabels" });
     cardLabelsEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -101,17 +98,17 @@ export declare const CardLabels: {
 
 ## Mapping
 
-original 0..5 -> expanded 386..391
-original 36..101 -> expanded 391..456
-original 101..102 -> expanded 3201..3202
-generated 0..386 <- imports
-generated 456..555 <- Default
-generated 555..2737 <- Encode
-generated 2737..3201 <- __convenience_const
+original 0..5 -> expanded 458..463
+original 36..101 -> expanded 463..528
+original 101..102 -> expanded 3259..3260
+generated 0..458 <- imports
+generated 528..627 <- Default
+generated 627..2795 <- Encode
+generated 2795..3259 <- __convenience_const
 
 ## Metadata
 
-interface CardLabels: {"body_span":{"end":102,"start":70},"decorators":[{"args_src":"Default, Encode","name":"Derive","span":{"end":37,"start":6}}],"fields":[{"decorators":[],"name":"heading","optional":false,"readonly":false,"span":{"end":96,"start":80},"ts_type":"string"}],"heritage":[],"methods":[],"name":"CardLabels","span":{"end":102,"start":49},"type_params":[]}
+interface CardLabels: {"body_span":{"end":102,"start":70},"decorators":[{"args_src":"Default, Encode","name":"Derive","span":{"end":37,"start":6}}],"fields":[{"decorators":[],"key":"Named","name":"heading","optional":false,"readonly":false,"span":{"end":96,"start":80},"ts_type":"string"}],"heritage":[],"methods":[],"name":"CardLabels","span":{"end":102,"start":49},"type_params":[]}
 
 ## Registry reads
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -43,12 +43,9 @@ export function coordinatesEncode(value: Coordinates, keepMetadata?: boolean): s
 export function coordinatesEncodeWithContext(value: Coordinates, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Coordinates",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Coordinates" });
     coordinatesEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -164,7 +161,7 @@ export function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("lat")) || (__fields.keeps("lat") && obj["lat"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("lat")) ? "lat" in obj : (__fields.keeps("lat") && obj["lat"] !== undefined)) {
         const __raw_lat = obj["lat"] as number;
 
         if (!(typeof __raw_lat === "number")) {
@@ -173,7 +170,7 @@ export function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.lat = __raw_lat;
         }
     }
-    if ((__fields === undefined || __fields.requires("lng")) || (__fields.keeps("lng") && obj["lng"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("lng")) ? "lng" in obj : (__fields.keeps("lng") && obj["lng"] !== undefined)) {
         const __raw_lng = obj["lng"] as number;
 
         if (!(typeof __raw_lng === "number")) {
@@ -474,19 +471,19 @@ export declare const Coordinates: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..174 -> expanded 741..808
-original 174..175 -> expanded 15210..15211
-generated 0..683 <- imports
-generated 808..920 <- Default
-generated 920..3251 <- Encode
-generated 3251..9220 <- Decode
-generated 9220..13863 <- Gigaform
-generated 13863..15210 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..174 -> expanded 813..880
+original 174..175 -> expanded 15296..15297
+generated 0..755 <- imports
+generated 880..992 <- Default
+generated 992..3309 <- Encode
+generated 3309..9306 <- Decode
+generated 9306..13949 <- Gigaform
+generated 13949..15296 <- __convenience_const
 
 ## Metadata
 
-interface Coordinates: {"body_span":{"end":175,"start":138},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"lat","optional":false,"readonly":false,"span":{"end":156,"start":144},"ts_type":"number"},{"decorators":[],"name":"lng","optional":false,"readonly":false,"span":{"end":173,"start":161},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Coordinates","span":{"end":175,"start":116},"type_params":[]}
+interface Coordinates: {"body_span":{"end":175,"start":138},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"key":"Named","name":"lat","optional":false,"readonly":false,"span":{"end":156,"start":144},"ts_type":"number"},{"decorators":[],"key":"Named","name":"lng","optional":false,"readonly":false,"span":{"end":173,"start":161},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Coordinates","span":{"end":175,"start":116},"type_params":[]}
 
 ## Registry reads
 

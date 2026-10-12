@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -56,14 +56,18 @@ export function weekdayEncodeWithContext(value: Weekday, ctx: __mf_EncodeContext
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
 
 /** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
 export function weekdayDecode(input: unknown): { success: true; value: Weekday } | { success: false; errors: Array<{ field: string; message: string }> } {
-    switch (input) {
+
+    const data = __mf_textOrValue(input, weekdayHasShape);
+    switch (data) {
         case 'Monday':
         case 'Tuesday':
         case 'Wednesday':
@@ -71,7 +75,7 @@ export function weekdayDecode(input: unknown): { success: true; value: Weekday }
         case 'Friday':
         case 'Saturday':
         case 'Sunday':
-            return { success: true, value: input as Weekday };
+            return { success: true, value: data as Weekday };
         default:
             return { success: false, errors: [{ field: "_root", message: "Invalid value for Weekday: expected one of " + ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
     }
@@ -500,15 +504,15 @@ export declare const Weekday: {
 
 ## Mapping
 
-original 0..58 -> expanded 556..614
-original 107..259 -> expanded 614..766
-original 259..260 -> expanded 12446..12447
-generated 0..556 <- imports
-generated 766..839 <- Default
-generated 839..2090 <- Encode
-generated 2090..4216 <- Decode
-generated 4216..11675 <- Gigaform
-generated 11675..12446 <- __convenience_const
+original 0..58 -> expanded 618..676
+original 107..259 -> expanded 676..828
+original 259..260 -> expanded 12681..12682
+generated 0..618 <- imports
+generated 828..901 <- Default
+generated 901..2267 <- Encode
+generated 2267..4451 <- Decode
+generated 4451..11910 <- Gigaform
+generated 11910..12681 <- __convenience_const
 
 ## Metadata
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -42,12 +42,9 @@ export function firstNameEncode(value: FirstName, keepMetadata?: boolean): strin
 export function firstNameEncodeWithContext(value: FirstName, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "FirstName",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "FirstName" });
     firstNameEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -155,7 +152,7 @@ export function firstNameDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -430,20 +427,20 @@ export declare const FirstName: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..141 -> expanded 741..775
-original 182..202 -> expanded 775..795
-original 202..203 -> expanded 13829..13830
-generated 0..683 <- imports
-generated 795..889 <- Default
-generated 889..3044 <- Encode
-generated 3044..9258 <- Decode
-generated 9258..12536 <- Gigaform
-generated 12536..13829 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..141 -> expanded 813..847
+original 182..202 -> expanded 847..867
+original 202..203 -> expanded 13902..13903
+generated 0..755 <- imports
+generated 867..961 <- Default
+generated 961..3102 <- Encode
+generated 3102..9331 <- Decode
+generated 9331..12609 <- Gigaform
+generated 12609..13902 <- __convenience_const
 
 ## Metadata
 
-interface FirstName: {"body_span":{"end":203,"start":136},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":183,"start":142}}],"name":"name","optional":false,"readonly":false,"span":{"end":201,"start":188},"ts_type":"string"}],"heritage":[],"methods":[],"name":"FirstName","span":{"end":203,"start":116},"type_params":[]}
+interface FirstName: {"body_span":{"end":203,"start":136},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":183,"start":142}}],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":201,"start":188},"ts_type":"string"}],"heritage":[],"methods":[],"name":"FirstName","span":{"end":203,"start":116},"type_params":[]}
 
 ## Registry reads
 

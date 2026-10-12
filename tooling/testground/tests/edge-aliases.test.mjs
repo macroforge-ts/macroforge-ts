@@ -264,3 +264,189 @@ Deno.test('a holder of aliases codes and defaults each through its own functions
     assertEquals(fieldsOf({ object: { name: 'n' } }), ['object.count']);
     assertEquals(fieldsOf({ list: [{ id: 'l' }] }), ['list[0].score']);
 });
+
+Deno.test('a union member without a tag is told by its shape and coded field by field', () => {
+    const at = new Date('2024-03-04T05:06:07.000Z');
+    const ok = { ok: true, at, tags: new Set(['a', 'b']) };
+    const failed = { ok: false, reason: 'offline' };
+
+    const encoded = JSON.parse(mod.aliasOutcomeEncode(ok));
+    assertEquals(encoded, { ok: true, at: '2024-03-04T05:06:07.000Z', tags: ['a', 'b'] });
+    const value = decoded(mod.aliasOutcomeDecode(encoded));
+    assert(value.at instanceof Date);
+    assert(value.tags instanceof Set);
+    assertEquals(value, ok);
+    assertEquals(
+        decoded(mod.aliasOutcomeDecode(JSON.parse(mod.aliasOutcomeEncode(failed)))),
+        failed
+    );
+    assertEquals(
+        decoded(mod.aliasOutcomeDecode({ ok: false, reason: 'again', retries: 2, stray: true })),
+        { ok: false, reason: 'again', retries: 2 }
+    );
+
+    assert(!mod.aliasOutcomeDecode({ ok: true, at: 5, tags: [] }).success);
+    assert(!mod.aliasOutcomeDecode({ ok: true, at: encoded.at, tags: [1] }).success);
+    assert(!mod.aliasOutcomeDecode({ ok: false }).success);
+    assert(!mod.aliasOutcomeDecode({ ok: 'yes', reason: 'r' }).success);
+
+    const counts = { kind: 'b', counts: new Map([['x', 1]]) };
+    const loose = JSON.parse(mod.aliasLooseEncode(counts));
+    assertEquals(loose, { kind: 'b', counts: { x: 1 } });
+    const back = decoded(mod.aliasLooseDecode(loose));
+    assert(back.counts instanceof Map);
+    assertEquals(back, counts);
+    const dated = decoded(
+        mod.aliasLooseDecode(JSON.parse(mod.aliasLooseEncode({ kind: 'a', when: at })))
+    );
+    assert(dated.when instanceof Date);
+    assert(!mod.aliasLooseDecode({ kind: 'c', when: encoded.at }).success);
+});
+
+Deno.test('the text encode writes decodes to what was encoded, for a type that takes a string', async () => {
+    const at = new Date('2024-03-04T05:06:07.000Z');
+    const item = { id: 'a', score: 1 };
+    const back = (name, value) => decoded(mod[`${name}Decode`](mod[`${name}Encode`](value)));
+
+    assertStrictEquals(back('aliasName', 'Ada'), 'Ada');
+    assertStrictEquals(back('aliasName', '"quoted"'), '"quoted"');
+    assertStrictEquals(back('aliasName', '5'), '5');
+    assertStrictEquals(back('aliasLiterals', 'medium'), 'medium');
+    for (const member of ['auto', 0, 1, true, null]) {
+        assertStrictEquals(back('aliasMixedLiterals', member), member);
+    }
+    assertStrictEquals(back('aliasDate', at).getTime(), at.getTime());
+    assertStrictEquals(back('aliasDateOrNull', null), null);
+    assertStrictEquals(back('aliasUntagged', 'plain'), 'plain');
+    assertEquals(back('aliasUntagged', item), item);
+    assertEquals(back('aliasDeep', item), item);
+    assertStrictEquals(back('aliasDeep', 'text'), 'text');
+    assertStrictEquals(back('aliasDeep', 7), 7);
+    assertStrictEquals(back('aliasDeep', false), false);
+    assertStrictEquals(back('aliasDeep', null), null);
+
+    // A bare string is still the value it is, and one no member takes is refused.
+    assertStrictEquals(decoded(mod.aliasNameDecode('Ada')), 'Ada');
+    assertStrictEquals(decoded(mod.aliasLiteralsDecode('small')), 'small');
+    assert(!mod.aliasLiteralsDecode('huge').success);
+    assert(!mod.aliasLiteralsDecode('"huge"').success);
+    assertStrictEquals(
+        decoded(mod.aliasDateDecode('2024-03-04T05:06:07.000Z')).getTime(),
+        at.getTime()
+    );
+
+    const enums = await expandAndCompile(join(edgeCases, 'enum-shapes.ts'));
+    const { Empty, Quoted, Spaced, Slashed } = enums.EnumText;
+    for (const member of [Empty, Quoted, Spaced, Slashed]) {
+        assertStrictEquals(enums.enumTextDecode(enums.enumTextEncode(member)), member);
+        assertStrictEquals(enums.enumTextDecode(member), member);
+    }
+    assertStrictEquals(
+        enums.enumCountedDecode(enums.enumCountedEncode(enums.EnumCounted.Second)),
+        enums.EnumCounted.Second
+    );
+    assertThrows(() => enums.enumTextDecode('no such member'));
+});
+
+Deno.test('a union carried as it is still has to be one of its members', () => {
+    const at = new Date('2024-03-04T05:06:07.000Z');
+    const carried = {
+        tags: ['a', 'b'],
+        size: 'auto',
+        when: at,
+        lookup: { a: 1 },
+        anything: { any: [1] }
+    };
+    const encoded = JSON.parse(mod.aliasCarriedEncode(carried));
+    const value = decoded(mod.aliasCarriedDecode(encoded));
+    assertEquals(value, { ...carried, when: at.toISOString() });
+    assertEquals(
+        decoded(mod.aliasCarriedDecode({ ...encoded, tags: 'one', size: null, lookup: [1, 2] }))
+            .lookup,
+        [1, 2]
+    );
+    assertStrictEquals(decoded(mod.aliasCarriedDecode({ ...encoded, size: 3 })).size, 3);
+
+    const fieldsOf = (change) => {
+        const result = mod.aliasCarriedDecode({ ...encoded, ...change });
+        assert(!result.success, JSON.stringify(change));
+        return [...new Set(result.errors.map((error) => error.field))];
+    };
+    assertEquals(fieldsOf({ tags: 5 }), ['tags']);
+    assertEquals(fieldsOf({ tags: ['a', 5] }), ['tags']);
+    assertEquals(fieldsOf({ tags: null }), ['tags']);
+    assertEquals(fieldsOf({ size: 'huge' }), ['size']);
+    assertEquals(fieldsOf({ when: 5 }), ['when']);
+    assertEquals(fieldsOf({ lookup: { a: 'one' } }), ['lookup']);
+    assertEquals(fieldsOf({ lookup: ['one'] }), ['lookup']);
+    assertEquals(fieldsOf({ lookup: 'none' }), ['lookup']);
+});
+
+Deno.test('each kind of alias refuses a value that is not of it', () => {
+    const wrong = [null, 5, 'x', true, [], {}];
+    const takes = {
+        aliasArray: [[]],
+        aliasDates: [[]],
+        aliasRecord: [{}],
+        aliasMap: [{}],
+        aliasSet: [[]],
+        aliasNullable: [null],
+        aliasDateOrNull: [null],
+        aliasMixedLiterals: [null, true],
+        aliasName: ['x'],
+        aliasUntagged: ['x']
+    };
+    const names = [
+        'aliasObject',
+        'aliasTuple',
+        'aliasArray',
+        'aliasDates',
+        'aliasRecord',
+        'aliasMap',
+        'aliasSet',
+        'aliasIntersection',
+        'aliasLiterals',
+        'aliasMixedLiterals',
+        'aliasNullable',
+        'aliasDate',
+        'aliasDateOrNull',
+        'aliasMembers',
+        'aliasTagged',
+        'aliasAdjacent',
+        'aliasExternal',
+        'aliasUntagged',
+        'aliasOutcome',
+        'aliasLoose',
+        'aliasName',
+        'aliasPicked',
+        'aliasRequired',
+        'aliasInline'
+    ];
+    const accepted = [];
+    for (const name of names) {
+        for (const value of wrong) {
+            if (
+                (takes[name] ?? []).some((taken) => JSON.stringify(taken) === JSON.stringify(value))
+            ) continue;
+            if (mod[`${name}Decode`](value).success) {
+                accepted.push(`${name}: ${JSON.stringify(value)}`);
+            }
+        }
+    }
+    assertEquals(accepted, []);
+});
+
+Deno.test('an alias of a selection or an object type defaults to the fields it has to have', () => {
+    assertEquals(mod.aliasPickedDefaultValue(), { id: '' });
+    assertEquals(mod.aliasRequiredDefaultValue(), { id: '', score: 0 });
+    const inline = mod.aliasInlineDefaultValue();
+    assertStrictEquals(inline.x, 0);
+    assert(inline.at instanceof Date);
+    assert(!('label' in inline));
+
+    const at = new Date('2024-03-04T05:06:07.000Z');
+    const back = decoded(mod.aliasInlineDecode(mod.aliasInlineEncode({ x: 1, at })));
+    assertEquals(back, { x: 1, at });
+    assertEquals(decoded(mod.aliasPickedDecode(mod.aliasPickedEncode({ id: 'p' }))), { id: 'p' });
+    assert(!mod.aliasRequiredDecode({ id: 'r' }).success);
+});

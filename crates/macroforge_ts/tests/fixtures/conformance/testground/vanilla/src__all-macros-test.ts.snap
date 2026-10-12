@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Comprehensive test class demonstrating all available macros.
@@ -37,17 +37,19 @@ export class AllMacrosTestClass {
     score: number;
 
     static toString(value: AllMacrosTestClass): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("identifier: " + String(value.id));
         parts.push("name: " + String(value.name));
         parts.push("email: " + String(value.email));
         parts.push("isActive: " + String(value.isActive));
         parts.push("score: " + String(value.score));
-        return "AllMacrosTestClass { " + parts.join(", ") + " }";
+            return "AllMacrosTestClass { " + parts.join(", ") + " }";
+        });
     }
 
     static clone(value: AllMacrosTestClass): AllMacrosTestClass {
-        return __mf_instanceWith(value, ({
+        return __mf_clonedWith(value, () => ({
         	id: value.id,
         	name: value.name,
         	email: value.email,
@@ -59,30 +61,29 @@ export class AllMacrosTestClass {
 
     static equals(a: AllMacrosTestClass, b: AllMacrosTestClass): boolean {
         if (a === b) return true;
-        return a.id === b.id && a.name === b.name && a.email === b.email && a.secretToken === b.secretToken && a.isActive === b.isActive && a.score === b.score;
+        return __mf_equalWithin(a, b, () => a.id === b.id && a.name === b.name && a.email === b.email && a.secretToken === b.secretToken && a.isActive === b.isActive && a.score === b.score);
     }
 
     static hashCode(value: AllMacrosTestClass): number {
-        let hash = 17;
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
         hash = (hash * 31 + (Number.isInteger(value.id) ? value.id | 0 : value.id.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         hash = (hash * 31 + ((value.email ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         hash = (hash * 31 + ((value.secretToken ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         hash = (hash * 31 + (value.isActive ? 1231 : 1237)) | 0;
         hash = (hash * 31 + (Number.isInteger(value.score) ? value.score | 0 : value.score.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-        return hash;
+            return hash;
+        });
     }
 
 /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 static encodeWithContext(value: AllMacrosTestClass, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "AllMacrosTestClass",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "AllMacrosTestClass" });
     AllMacrosTestClass.#encodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -246,7 +247,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as number;
 
         if (!(typeof __raw_id === "number")) {
@@ -255,7 +256,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -264,7 +265,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
         const __raw_email = obj["email"] as string;
 
         if (!(typeof __raw_email === "string")) {
@@ -273,7 +274,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.email = __raw_email;
         }
     }
-    if ((__fields === undefined || __fields.requires("secretToken")) || (__fields.keeps("secretToken") && obj["secretToken"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("secretToken")) ? "secretToken" in obj : (__fields.keeps("secretToken") && obj["secretToken"] !== undefined)) {
         const __raw_secretToken = obj["secretToken"] as string;
 
         if (!(typeof __raw_secretToken === "string")) {
@@ -282,7 +283,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.secretToken = __raw_secretToken;
         }
     }
-    if ((__fields === undefined || __fields.requires("isActive")) || (__fields.keeps("isActive") && obj["isActive"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("isActive")) ? "isActive" in obj : (__fields.keeps("isActive") && obj["isActive"] !== undefined)) {
         const __raw_isActive = obj["isActive"] as boolean;
 
         if (!(typeof __raw_isActive === "boolean")) {
@@ -291,7 +292,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.isActive = __raw_isActive;
         }
     }
-    if ((__fields === undefined || __fields.requires("score")) || (__fields.keeps("score") && obj["score"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
         const __raw_score = obj["score"] as number;
 
         if (!(typeof __raw_score === "number")) {
@@ -500,27 +501,27 @@ export declare const testInstance: unknown;
 
 ## Mapping
 
-original 0..449 -> expanded 605..1054
-original 449..450 -> expanded 14313..14314
-original 450..695 -> expanded 18227..18472
-generated 0..605 <- imports
-generated 1054..1491 <- Debug
-generated 1491..1803 <- Clone
-generated 1803..2080 <- PartialEq
-generated 2080..2975 <- Hash
-generated 2975..5431 <- Encode
-generated 5431..5774 <- Encode
-generated 5774..14313 <- Decode
-generated 14314..14444 <- Debug
-generated 14444..14580 <- Clone
-generated 14580..14725 <- PartialEq
-generated 14725..14855 <- Hash
-generated 14855..16295 <- Encode
-generated 16295..18227 <- Decode
+original 0..449 -> expanded 780..1229
+original 449..450 -> expanded 14747..14748
+original 450..695 -> expanded 18661..18906
+generated 0..780 <- imports
+generated 1229..1736 <- Debug
+generated 1736..2052 <- Clone
+generated 2052..2359 <- PartialEq
+generated 2359..3322 <- Hash
+generated 3322..5764 <- Encode
+generated 5764..6107 <- Encode
+generated 6107..14747 <- Decode
+generated 14748..14878 <- Debug
+generated 14878..15014 <- Clone
+generated 15014..15159 <- PartialEq
+generated 15159..15289 <- Hash
+generated 15289..16729 <- Encode
+generated 16729..18661 <- Decode
 
 ## Metadata
 
-class AllMacrosTestClass: {"body_span":{"end":451,"start":245},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":212,"start":151}}],"fields":[{"decorators":[{"args_src":"{ rename: \"identifier\" }","name":"debug","span":{"end":290,"start":251}}],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":306,"start":295},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":325,"start":312},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":345,"start":331},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":380,"start":351}}],"initializer":null,"name":"secretToken","optional":false,"readonly":false,"span":{"end":405,"start":385},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"isActive","optional":false,"readonly":false,"span":{"end":429,"start":411},"ts_type":"boolean","visibility":"Public"},{"decorators":[],"initializer":null,"name":"score","optional":false,"readonly":false,"span":{"end":449,"start":435},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"AllMacrosTestClass","span":{"end":451,"start":220},"superclass":null,"type_params":[]}
+class AllMacrosTestClass: {"body_span":{"end":451,"start":245},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":212,"start":151}}],"fields":[{"decorators":[{"args_src":"{ rename: \"identifier\" }","name":"debug","span":{"end":290,"start":251}}],"initializer":null,"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":306,"start":295},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":325,"start":312},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":345,"start":331},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":380,"start":351}}],"initializer":null,"key":"Named","name":"secretToken","optional":false,"readonly":false,"span":{"end":405,"start":385},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"isActive","optional":false,"readonly":false,"span":{"end":429,"start":411},"ts_type":"boolean","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"score","optional":false,"readonly":false,"span":{"end":449,"start":435},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"AllMacrosTestClass","span":{"end":451,"start":220},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

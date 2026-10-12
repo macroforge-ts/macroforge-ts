@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, textOrValue as __mf_textOrValue, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 declare const __mf_newtype_2: unique symbol;
@@ -179,7 +179,7 @@ export function usernameEncodeWithContext(value: Username): unknown {
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function usernameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Username } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, (__spelled) => typeof __spelled === "string");
 
         const ctx = __mf_DecodeContext.create();
         const result = usernameDecodeWithContext(data, ctx);
@@ -362,7 +362,7 @@ export function centsEncodeWithContext(value: Cents): unknown {
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function centsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Cents } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, (__spelled) => typeof __spelled === "string");
 
         const ctx = __mf_DecodeContext.create();
         const result = centsDecodeWithContext(data, ctx);
@@ -405,7 +405,13 @@ export function centsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     let __decoded: unknown = value;
     if (typeof value !== "bigint") {
         try {
-            __decoded = ((v) => BigInt(v as string))(value);
+            __decoded = ((v) => {
+	const raw: unknown = v;
+	if (typeof raw === "bigint") return raw;
+	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+	return BigInt(raw);
+})(value);
         } catch (__error) {
             throw new __mf_DecodeError([{ field: "_root", message: "Cents.decodeWithContext: expected bigint, " + String(__error) }]);
         }
@@ -462,12 +468,9 @@ export function runEncode(value: Run, keepMetadata?: boolean): string {
 export function runEncodeWithContext(value: Run, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Run",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Run" });
     runEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -596,7 +599,7 @@ export function runDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("runner")) || (__fields.keeps("runner") && obj["runner"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("runner")) ? "runner" in obj : (__fields.keeps("runner") && obj["runner"] !== undefined)) {
         const __raw_runner = obj["runner"] as Username;
 
         ctx.pushScope("runner");
@@ -612,13 +615,14 @@ export function runDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "runner", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("distance")) || (__fields.keeps("distance") && obj["distance"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("distance")) ? "distance" in obj : (__fields.keeps("distance") && obj["distance"] !== undefined)) {
         const __raw_distance = obj["distance"] as Meters;
 
         ctx.pushScope("distance");
@@ -634,13 +638,14 @@ export function runDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "distance", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("splits")) || (__fields.keeps("splits") && obj["splits"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("splits")) ? "splits" in obj : (__fields.keeps("splits") && obj["splits"] !== undefined)) {
         const __raw_splits = obj["splits"] as Meters[];
         if (Array.isArray(__raw_splits)) {
             ctx.pushScope("splits");
@@ -681,7 +686,8 @@ export function runDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "best", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
@@ -952,48 +958,48 @@ export {};
 
 ## Mapping
 
-original 0..308 -> expanded 692..1000
-original 324..325 -> expanded 1044..1045
-original 325..420 -> expanded 5683..5778
-original 436..437 -> expanded 5822..5823
-original 437..496 -> expanded 9179..9238
-original 496..582 -> expanded 12163..12249
-original 598..599 -> expanded 12293..12294
-original 599..741 -> expanded 15783..15925
-original 741..742 -> expanded 28300..28301
-generated 0..557 <- imports
-generated 557..602 <- $Newtype
-generated 602..647 <- $Newtype
-generated 647..692 <- $Newtype
-generated 1000..1044 <- $Newtype
-generated 1045..1753 <- Encode
-generated 1753..3868 <- Decode
-generated 3868..3942 <- Default
-generated 3942..4045 <- Debug
-generated 4045..4119 <- Clone
-generated 4119..4234 <- PartialEq
-generated 4234..4428 <- Hash
-generated 4428..4563 <- PartialOrd
-generated 4563..4667 <- Ord
-generated 4667..5683 <- __convenience_const
-generated 5778..5822 <- $Newtype
-generated 5823..6547 <- Encode
-generated 6547..8657 <- Decode
-generated 8657..9179 <- __convenience_const
-generated 9238..9930 <- Encode
-generated 9930..11693 <- Decode
-generated 11693..12163 <- __convenience_const
-generated 12249..12293 <- $Newtype
-generated 12294..13034 <- Encode
-generated 13034..15300 <- Decode
-generated 15300..15783 <- __convenience_const
-generated 15925..18631 <- Encode
-generated 18631..27407 <- Decode
-generated 27407..28300 <- __convenience_const
+original 0..308 -> expanded 797..1105
+original 324..325 -> expanded 1149..1150
+original 325..420 -> expanded 5788..5883
+original 436..437 -> expanded 5927..5928
+original 437..496 -> expanded 9348..9407
+original 496..582 -> expanded 12332..12418
+original 598..599 -> expanded 12462..12463
+original 599..741 -> expanded 16273..16415
+original 741..742 -> expanded 29078..29079
+generated 0..662 <- imports
+generated 662..707 <- $Newtype
+generated 707..752 <- $Newtype
+generated 752..797 <- $Newtype
+generated 1105..1149 <- $Newtype
+generated 1150..1858 <- Encode
+generated 1858..3973 <- Decode
+generated 3973..4047 <- Default
+generated 4047..4150 <- Debug
+generated 4150..4224 <- Clone
+generated 4224..4339 <- PartialEq
+generated 4339..4533 <- Hash
+generated 4533..4668 <- PartialOrd
+generated 4668..4772 <- Ord
+generated 4772..5788 <- __convenience_const
+generated 5883..5927 <- $Newtype
+generated 5928..6652 <- Encode
+generated 6652..8826 <- Decode
+generated 8826..9348 <- __convenience_const
+generated 9407..10099 <- Encode
+generated 10099..11862 <- Decode
+generated 11862..12332 <- __convenience_const
+generated 12418..12462 <- $Newtype
+generated 12463..13203 <- Encode
+generated 13203..15790 <- Decode
+generated 15790..16273 <- __convenience_const
+generated 16415..19107 <- Encode
+generated 19107..28185 <- Decode
+generated 28185..29078 <- __convenience_const
 
 ## Metadata
 
-interface Run: {"body_span":{"end":961,"start":873},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":851,"start":821}}],"fields":[{"decorators":[],"name":"runner","optional":false,"readonly":false,"span":{"end":896,"start":879},"ts_type":"Username"},{"decorators":[],"name":"distance","optional":false,"readonly":false,"span":{"end":918,"start":901},"ts_type":"Meters"},{"decorators":[],"name":"splits","optional":false,"readonly":false,"span":{"end":940,"start":923},"ts_type":"Meters[]"},{"decorators":[],"name":"best","optional":true,"readonly":false,"span":{"end":959,"start":945},"ts_type":"Meters"}],"heritage":[],"methods":[],"name":"Run","span":{"end":961,"start":859},"type_params":[]}
+interface Run: {"body_span":{"end":961,"start":873},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":851,"start":821}}],"fields":[{"decorators":[],"key":"Named","name":"runner","optional":false,"readonly":false,"span":{"end":896,"start":879},"ts_type":"Username"},{"decorators":[],"key":"Named","name":"distance","optional":false,"readonly":false,"span":{"end":918,"start":901},"ts_type":"Meters"},{"decorators":[],"key":"Named","name":"splits","optional":false,"readonly":false,"span":{"end":940,"start":923},"ts_type":"Meters[]"},{"decorators":[],"key":"Named","name":"best","optional":true,"readonly":false,"span":{"end":959,"start":945},"ts_type":"Meters"}],"heritage":[],"methods":[],"name":"Run","span":{"end":961,"start":859},"type_params":[]}
 type Meters: {"body":{"Newtype":{"Alias":"number"}},"decorators":[{"args_src":"0","name":"default","span":{"end":422,"start":404}},{"args_src":"nonNegative, finite","name":"endec","span":{"end":403,"start":369}},{"args_src":"Encode, Decode, Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord","name":"Derive","span":{"end":368,"start":277}}],"name":"Meters","span":{"end":489,"start":430},"type_params":[]}
 type Username: {"body":{"Newtype":{"Alias":"string"}},"decorators":[{"args_src":"nonEmpty, maxLength(16)","name":"endec","span":{"end":560,"start":522}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":521,"start":491}}],"name":"Username","span":{"end":629,"start":568},"type_params":[]}
 type Port: {"body":{"Alias":"number"},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":661,"start":631}}],"name":"Port","span":{"end":688,"start":669},"type_params":[]}

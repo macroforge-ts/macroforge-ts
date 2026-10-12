@@ -14,7 +14,7 @@ true
 
 import { accountDecodeWithContext, accountEncodeWithContext } from "./account.svelte";
 import { employeeDecodeWithContext, employeeEncodeWithContext } from "./employee.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -54,12 +54,9 @@ export function representsEncode(value: Represents, keepMetadata?: boolean): str
 export function representsEncodeWithContext(value: Represents, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Represents",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Represents" });
     representsEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -191,7 +188,7 @@ export function representsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("in")) || (__fields.keeps("in") && obj["in"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("in")) ? "in" in obj : (__fields.keeps("in") && obj["in"] !== undefined)) {
         const __raw_in = obj["in"] as string | Employee;
 
         if (typeof __raw_in === "string") {
@@ -210,14 +207,15 @@ export function representsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "in", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("out")) || (__fields.keeps("out") && obj["out"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("out")) ? "out" in obj : (__fields.keeps("out") && obj["out"] !== undefined)) {
         const __raw_out = obj["out"] as string | Account;
 
         if (typeof __raw_out === "string") {
@@ -236,14 +234,15 @@ export function representsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "out", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -252,7 +251,7 @@ export function representsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("dateStarted")) || (__fields.keeps("dateStarted") && obj["dateStarted"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("dateStarted")) ? "dateStarted" in obj : (__fields.keeps("dateStarted") && obj["dateStarted"] !== undefined)) {
         const __raw_dateStarted = obj["dateStarted"] as string;
 
         if (!(typeof __raw_dateStarted === "string")) {
@@ -613,21 +612,21 @@ export declare const Represents: {
 
 ## Mapping
 
-original 0..159 -> expanded 860..1019
-original 208..243 -> expanded 1019..1054
-original 262..294 -> expanded 1054..1086
-original 313..383 -> expanded 1086..1156
-original 383..384 -> expanded 20318..20319
-generated 0..860 <- imports
-generated 1156..1308 <- Default
-generated 1308..4100 <- Encode
-generated 4100..12467 <- Decode
-generated 12467..18998 <- Gigaform
-generated 18998..20318 <- __convenience_const
+original 0..159 -> expanded 932..1091
+original 208..243 -> expanded 1091..1126
+original 262..294 -> expanded 1126..1158
+original 313..383 -> expanded 1158..1228
+original 383..384 -> expanded 20597..20598
+generated 0..932 <- imports
+generated 1228..1380 <- Default
+generated 1380..4158 <- Encode
+generated 4158..12746 <- Decode
+generated 12746..19277 <- Gigaform
+generated 19277..20597 <- __convenience_const
 
 ## Metadata
 
-interface Represents: {"body_span":{"end":384,"start":238},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":209,"start":160}}],"fields":[{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":263,"start":244}}],"name":"in","optional":false,"readonly":false,"span":{"end":290,"start":268},"ts_type":"string | Employee"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":314,"start":295}}],"name":"out","optional":false,"readonly":false,"span":{"end":341,"start":319},"ts_type":"string | Account"},{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":357,"start":346},"ts_type":"string"},{"decorators":[],"name":"dateStarted","optional":false,"readonly":false,"span":{"end":382,"start":362},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Represents","span":{"end":384,"start":217},"type_params":[]}
+interface Represents: {"body_span":{"end":384,"start":238},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":209,"start":160}}],"fields":[{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":263,"start":244}}],"key":"Named","name":"in","optional":false,"readonly":false,"span":{"end":290,"start":268},"ts_type":"string | Employee"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":314,"start":295}}],"key":"Named","name":"out","optional":false,"readonly":false,"span":{"end":341,"start":319},"ts_type":"string | Account"},{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":357,"start":346},"ts_type":"string"},{"decorators":[],"key":"Named","name":"dateStarted","optional":false,"readonly":false,"span":{"end":382,"start":362},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Represents","span":{"end":384,"start":217},"type_params":[]}
 
 ## Registry reads
 

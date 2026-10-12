@@ -124,7 +124,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -133,7 +133,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("age")) || (__fields.keeps("age") && obj["age"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
         const __raw_age = obj["age"] as number;
 
         if (!(typeof __raw_age === "number")) {
@@ -266,15 +266,15 @@ export {};
 
 original 0..41 -> expanded 350..391
 original 63..112 -> expanded 391..440
-original 112..113 -> expanded 5861..5862
-original 113..114 -> expanded 7584..7585
+original 112..113 -> expanded 5890..5891
+original 113..114 -> expanded 7613..7614
 generated 0..350 <- imports
-generated 440..5861 <- Decode
-generated 5862..7584 <- Decode
+generated 440..5890 <- Decode
+generated 5891..7613 <- Decode
 
 ## Metadata
 
-class User: {"body_span":{"end":114,"start":76},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":95,"start":82},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"age","optional":false,"readonly":false,"span":{"end":112,"start":100},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":114,"start":65},"superclass":null,"type_params":[]}
+class User: {"body_span":{"end":114,"start":76},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":95,"start":82},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"age","optional":false,"readonly":false,"span":{"end":112,"start":100},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":114,"start":65},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

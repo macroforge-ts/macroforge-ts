@@ -13,7 +13,7 @@ true
 ## Output
 
 import { directionHueDecodeWithContext, directionHueEncodeWithContext } from "./direction-hue.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -44,12 +44,9 @@ export function customEncode(value: Custom, keepMetadata?: boolean): string {
 export function customEncodeWithContext(value: Custom, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Custom",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Custom" });
     customEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -157,7 +154,7 @@ export function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("mappings")) || (__fields.keeps("mappings") && obj["mappings"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("mappings")) ? "mappings" in obj : (__fields.keeps("mappings") && obj["mappings"] !== undefined)) {
         const __raw_mappings = obj["mappings"] as Array<DirectionHue>;
         if (Array.isArray(__raw_mappings)) {
             ctx.pushScope("mappings");
@@ -467,19 +464,19 @@ export declare const Custom: {
 
 ## Mapping
 
-original 0..119 -> expanded 841..960
-original 168..231 -> expanded 960..1023
-original 231..232 -> expanded 15318..15319
-generated 0..841 <- imports
-generated 1023..1115 <- Default
-generated 1115..3302 <- Encode
-generated 3302..9272 <- Decode
-generated 9272..14106 <- Gigaform
-generated 14106..15318 <- __convenience_const
+original 0..119 -> expanded 913..1032
+original 168..231 -> expanded 1032..1095
+original 231..232 -> expanded 15395..15396
+generated 0..913 <- imports
+generated 1095..1187 <- Default
+generated 1187..3360 <- Encode
+generated 3360..9349 <- Decode
+generated 9349..14183 <- Gigaform
+generated 14183..15395 <- __convenience_const
 
 ## Metadata
 
-interface Custom: {"body_span":{"end":232,"start":194},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":169,"start":120}}],"fields":[{"decorators":[],"name":"mappings","optional":false,"readonly":false,"span":{"end":230,"start":200},"ts_type":"Array<DirectionHue>"}],"heritage":[],"methods":[],"name":"Custom","span":{"end":232,"start":177},"type_params":[]}
+interface Custom: {"body_span":{"end":232,"start":194},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":169,"start":120}}],"fields":[{"decorators":[],"key":"Named","name":"mappings","optional":false,"readonly":false,"span":{"end":230,"start":200},"ts_type":"Array<DirectionHue>"}],"heritage":[],"methods":[],"name":"Custom","span":{"end":232,"start":177},"type_params":[]}
 
 ## Registry reads
 

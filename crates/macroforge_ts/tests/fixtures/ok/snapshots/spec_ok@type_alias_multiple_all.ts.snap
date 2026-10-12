@@ -17,7 +17,8 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Coordinate = {
@@ -26,29 +27,33 @@ type Coordinate = {
 };
 
 export function coordinateToString(value: Coordinate): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("lat: " + String(value.lat));
     parts.push("lng: " + String(value.lng));
-    return "Coordinate { " + parts.join(", ") + " }";
+        return "Coordinate { " + parts.join(", ") + " }";
+    });
 }
 
 export function coordinateClone(value: Coordinate): Coordinate {
-    return ({
+    return __mf_clonedWith(value, (): Coordinate => ({
 	lat: value.lat,
 	lng: value.lng
-});
+}));
 }
 
 export function coordinateEquals(a: Coordinate, b: Coordinate): boolean {
     if (a === b) return true;
-    return a.lat === b.lat && a.lng === b.lng;
+    return __mf_equalWithin(a, b, () => a.lat === b.lat && a.lng === b.lng);
 }
 
 export function coordinateHashCode(value: Coordinate): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (Number.isInteger(value.lat) ? value.lat | 0 : value.lat.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (Number.isInteger(value.lng) ? value.lng | 0 : value.lng.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -62,12 +67,9 @@ export function coordinateEncode(value: Coordinate, keepMetadata?: boolean): str
 export function coordinateEncodeWithContext(value: Coordinate, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Coordinate",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Coordinate" });
     coordinateEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -183,7 +185,7 @@ export function coordinateDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("lat")) || (__fields.keeps("lat") && obj["lat"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("lat")) ? "lat" in obj : (__fields.keeps("lat") && obj["lat"] !== undefined)) {
         const __raw_lat = obj["lat"] as number;
 
         if (!(typeof __raw_lat === "number")) {
@@ -192,7 +194,7 @@ export function coordinateDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.lat = __raw_lat;
         }
     }
-    if ((__fields === undefined || __fields.requires("lng")) || (__fields.keeps("lng") && obj["lng"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("lng")) ? "lng" in obj : (__fields.keeps("lng") && obj["lng"] !== undefined)) {
         const __raw_lng = obj["lng"] as number;
 
         if (!(typeof __raw_lng === "number")) {
@@ -315,20 +317,20 @@ export {};
 
 ## Mapping
 
-original 61..118 -> expanded 524..581
-original 118..119 -> expanded 11118..11119
-generated 0..524 <- imports
-generated 581..824 <- Debug
-generated 824..943 <- Clone
-generated 943..1097 <- PartialEq
-generated 1097..1534 <- Hash
-generated 1534..3850 <- Encode
-generated 3850..9785 <- Decode
-generated 9785..11118 <- __convenience_const
+original 61..118 -> expanded 780..837
+original 118..119 -> expanded 11582..11583
+generated 0..780 <- imports
+generated 837..1142 <- Debug
+generated 1142..1303 <- Clone
+generated 1303..1487 <- PartialEq
+generated 1487..1984 <- Hash
+generated 1984..4286 <- Encode
+generated 4286..10249 <- Decode
+generated 10249..11582 <- __convenience_const
 
 ## Metadata
 
-type Coordinate: {"body":{"Object":{"fields":[{"decorators":[],"name":"lat","optional":false,"readonly":false,"span":{"end":99,"start":87},"ts_type":"number"},{"decorators":[],"name":"lng","optional":false,"readonly":false,"span":{"end":116,"start":104},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":62,"start":1}}],"name":"Coordinate","span":{"end":119,"start":63},"type_params":[]}
+type Coordinate: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"lat","optional":false,"readonly":false,"span":{"end":99,"start":87},"ts_type":"number"},{"decorators":[],"key":"Named","name":"lng","optional":false,"readonly":false,"span":{"end":116,"start":104},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":62,"start":1}}],"name":"Coordinate","span":{"end":119,"start":63},"type_params":[]}
 
 ## Registry reads
 

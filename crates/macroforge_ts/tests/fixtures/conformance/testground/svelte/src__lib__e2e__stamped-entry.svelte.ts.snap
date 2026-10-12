@@ -13,10 +13,10 @@ true
 ## Output
 
 import { slugDecodeWithContext, slugEncodeWithContext, slugDecode, stampedDecode, slugDefaultValue } from "./stamp";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedLiteral as __mf_decodedLiteral, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedLiteral as __mf_decodedLiteral, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { DateTime } from "effect";
-import { __foreign__dateTimeDateTimeDefault, __foreign__dateTimeDateTimeHasShape, __foreign__dateTimeDateTimeEncode, __foreign__dateTimeDateTimeDecode } from "#macroforge/config";
+import { __foreign__dateTimeDateTimeDefault, __foreign__dateTimeDateTimeEncode, __foreign__dateTimeDateTimeHasShape, __foreign__dateTimeDateTimeDecode } from "#macroforge/config";
 /**
  * Fields typed by `Stamped<T>` from another module, in each position a field
  * can take it: alone, nullable and as array elements. A literal default that
@@ -48,12 +48,9 @@ export function noteEncode(value: Note, keepMetadata?: boolean): string {
 export function noteEncodeWithContext(value: Note, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Note",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Note" });
     noteEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -161,7 +158,7 @@ export function noteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("text")) || (__fields.keeps("text") && obj["text"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("text")) ? "text" in obj : (__fields.keeps("text") && obj["text"] !== undefined)) {
         const __raw_text = obj["text"] as string;
 
         if (!(typeof __raw_text === "string")) {
@@ -249,12 +246,9 @@ export function labelEncode(value: Label, keepMetadata?: boolean): string {
 export function labelEncodeWithContext(value: Label, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Label",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Label" });
     labelEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -362,7 +356,7 @@ export function labelDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("slug")) || (__fields.keeps("slug") && obj["slug"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("slug")) ? "slug" in obj : (__fields.keeps("slug") && obj["slug"] !== undefined)) {
         const __raw_slug = obj["slug"] as Slug;
 
         ctx.pushScope("slug");
@@ -378,7 +372,8 @@ export function labelDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "slug", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
@@ -476,12 +471,9 @@ export function stampedEntryEncode(value: StampedEntry, keepMetadata?: boolean):
 export function stampedEntryEncodeWithContext(value: StampedEntry, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "StampedEntry",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "StampedEntry" });
     stampedEntryEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -629,7 +621,7 @@ export function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("at")) || (__fields.keeps("at") && obj["at"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
         const __raw_at = obj["at"] as DateTime.DateTime | Note;
 
         if (__foreign__dateTimeDateTimeHasShape(__raw_at)) {
@@ -648,14 +640,15 @@ export function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "at", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("previous")) || (__fields.keeps("previous") && obj["previous"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("previous")) ? "previous" in obj : (__fields.keeps("previous") && obj["previous"] !== undefined)) {
         const __raw_previous = obj["previous"] as DateTime.DateTime | Note | null;
 
         if (__raw_previous === null) {
@@ -677,7 +670,8 @@ export function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                             });
                         }
                     } else {
-                        throw __e;
+
+                        errors.push({ field: "previous", message: __e instanceof Error ? __e.message : String(__e) });
                     }
                 } finally {
                     ctx.popScope();
@@ -685,7 +679,7 @@ export function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("history")) || (__fields.keeps("history") && obj["history"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("history")) ? "history" in obj : (__fields.keeps("history") && obj["history"] !== undefined)) {
         const __raw_history = obj["history"] as Array<DateTime.DateTime | Note>;
         if (Array.isArray(__raw_history)) {
             ctx.pushScope("history");
@@ -709,7 +703,7 @@ export function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             errors.push({ field: "history", message: __raw_history == null ? "StampedEntry.history is required" : "expected Array<DateTime.DateTime | Note>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("slug")) || (__fields.keeps("slug") && obj["slug"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("slug")) ? "slug" in obj : (__fields.keeps("slug") && obj["slug"] !== undefined)) {
         const __raw_slug = obj["slug"] as Slug;
 
         ctx.pushScope("slug");
@@ -725,13 +719,14 @@ export function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "slug", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("label")) || (__fields.keeps("label") && obj["label"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
         const __raw_label = obj["label"] as Label;
 
         ctx.pushScope("label");
@@ -747,13 +742,14 @@ export function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "label", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("since")) || (__fields.keeps("since") && obj["since"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("since")) ? "since" in obj : (__fields.keeps("since") && obj["since"] !== undefined)) {
         const __raw_since = obj["since"] as DateTime.DateTime | Note;
 
         if (__foreign__dateTimeDateTimeHasShape(__raw_since)) {
@@ -772,7 +768,8 @@ export function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "since", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
@@ -1007,35 +1004,35 @@ export declare const StampedEntry: {
 
 ## Mapping
 
-original 0..341 -> expanded 928..1269
-original 380..424 -> expanded 1269..1313
-original 424..426 -> expanded 9641..9643
-original 465..508 -> expanded 9643..9686
-original 508..510 -> expanded 18522..18524
-original 549..680 -> expanded 18524..18655
-original 703..724 -> expanded 18655..18676
-original 759..782 -> expanded 18676..18699
-original 825..853 -> expanded 18699..18727
-original 853..854 -> expanded 36155..36156
-generated 0..928 <- imports
-generated 1313..1397 <- Default
-generated 1397..3477 <- Encode
-generated 3477..8643 <- Decode
-generated 8643..9641 <- __convenience_const
-generated 9686..9788 <- Default
-generated 9788..11910 <- Encode
-generated 11910..17501 <- Decode
-generated 17501..18522 <- __convenience_const
-generated 18727..19113 <- Default
-generated 19113..22738 <- Encode
-generated 22738..34973 <- Decode
-generated 34973..36155 <- __convenience_const
+original 0..341 -> expanded 1000..1341
+original 380..424 -> expanded 1341..1385
+original 424..426 -> expanded 9714..9716
+original 465..508 -> expanded 9716..9759
+original 508..510 -> expanded 18677..18679
+original 549..680 -> expanded 18679..18810
+original 703..724 -> expanded 18810..18831
+original 759..782 -> expanded 18831..18854
+original 825..853 -> expanded 18854..18882
+original 853..854 -> expanded 36802..36803
+generated 0..1000 <- imports
+generated 1385..1469 <- Default
+generated 1469..3535 <- Encode
+generated 3535..8716 <- Decode
+generated 8716..9714 <- __convenience_const
+generated 9759..9861 <- Default
+generated 9861..11969 <- Encode
+generated 11969..17656 <- Decode
+generated 17656..18677 <- __convenience_const
+generated 18882..19268 <- Default
+generated 19268..22879 <- Encode
+generated 22879..35620 <- Decode
+generated 35620..36802 <- __convenience_const
 
 ## Metadata
 
-interface Note: {"body_span":{"end":425,"start":404},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":381,"start":342}}],"fields":[{"decorators":[],"name":"text","optional":false,"readonly":false,"span":{"end":423,"start":410},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Note","span":{"end":425,"start":389},"type_params":[]}
-interface Label: {"body_span":{"end":509,"start":490},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":466,"start":427}}],"fields":[{"decorators":[],"name":"slug","optional":false,"readonly":false,"span":{"end":507,"start":496},"ts_type":"Slug"}],"heritage":[],"methods":[],"name":"Label","span":{"end":509,"start":474},"type_params":[]}
-interface StampedEntry: {"body_span":{"end":854,"start":581},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":550,"start":511}}],"fields":[{"decorators":[],"name":"at","optional":false,"readonly":false,"span":{"end":605,"start":587},"ts_type":"Stamped<Note>"},{"decorators":[],"name":"previous","optional":false,"readonly":false,"span":{"end":641,"start":610},"ts_type":"Stamped<Note> | null"},{"decorators":[],"name":"history","optional":false,"readonly":false,"span":{"end":676,"start":646},"ts_type":"Array<Stamped<Note>>"},{"decorators":[{"args_src":"\"home\"","name":"default","span":{"end":704,"start":681}}],"name":"slug","optional":false,"readonly":false,"span":{"end":720,"start":709},"ts_type":"Slug"},{"decorators":[{"args_src":"{ slug: \"pinned\" }","name":"default","span":{"end":760,"start":725}}],"name":"label","optional":false,"readonly":false,"span":{"end":778,"start":765},"ts_type":"Label"},{"decorators":[{"args_src":"\"2024-01-01T00:00:00.000Z\"","name":"default","span":{"end":826,"start":783}}],"name":"since","optional":false,"readonly":false,"span":{"end":852,"start":831},"ts_type":"Stamped<Note>"}],"heritage":[],"methods":[],"name":"StampedEntry","span":{"end":854,"start":558},"type_params":[]}
+interface Note: {"body_span":{"end":425,"start":404},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":381,"start":342}}],"fields":[{"decorators":[],"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":423,"start":410},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Note","span":{"end":425,"start":389},"type_params":[]}
+interface Label: {"body_span":{"end":509,"start":490},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":466,"start":427}}],"fields":[{"decorators":[],"key":"Named","name":"slug","optional":false,"readonly":false,"span":{"end":507,"start":496},"ts_type":"Slug"}],"heritage":[],"methods":[],"name":"Label","span":{"end":509,"start":474},"type_params":[]}
+interface StampedEntry: {"body_span":{"end":854,"start":581},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":550,"start":511}}],"fields":[{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":605,"start":587},"ts_type":"Stamped<Note>"},{"decorators":[],"key":"Named","name":"previous","optional":false,"readonly":false,"span":{"end":641,"start":610},"ts_type":"Stamped<Note> | null"},{"decorators":[],"key":"Named","name":"history","optional":false,"readonly":false,"span":{"end":676,"start":646},"ts_type":"Array<Stamped<Note>>"},{"decorators":[{"args_src":"\"home\"","name":"default","span":{"end":704,"start":681}}],"key":"Named","name":"slug","optional":false,"readonly":false,"span":{"end":720,"start":709},"ts_type":"Slug"},{"decorators":[{"args_src":"{ slug: \"pinned\" }","name":"default","span":{"end":760,"start":725}}],"key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":778,"start":765},"ts_type":"Label"},{"decorators":[{"args_src":"\"2024-01-01T00:00:00.000Z\"","name":"default","span":{"end":826,"start":783}}],"key":"Named","name":"since","optional":false,"readonly":false,"span":{"end":852,"start":831},"ts_type":"Stamped<Note>"}],"heritage":[],"methods":[],"name":"StampedEntry","span":{"end":854,"start":558},"type_params":[]}
 
 ## Registry reads
 
@@ -1045,7 +1042,6 @@ Name("Label")
 Name("Note")
 Name("Slug")
 Name("Stamped")
-Name("Stamped<Note>")
 
 ## Buildtime dependencies
 

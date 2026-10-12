@@ -17,7 +17,7 @@ import { commissionsDecodeWithContext, commissionsEncodeWithContext } from "./co
 import { overviewSettingsDecodeWithContext, overviewSettingsEncodeWithContext, overviewSettingsDefaultValue } from "./overview-settings.svelte";
 import { pageDecodeWithContext, pageEncodeWithContext } from "./page.svelte";
 import { scheduleSettingsDecodeWithContext, scheduleSettingsEncodeWithContext, scheduleSettingsDefaultValue } from "./schedule-settings.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -75,12 +75,9 @@ export function settingsEncode(value: Settings, keepMetadata?: boolean): string 
 export function settingsEncodeWithContext(value: Settings, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Settings",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Settings" });
     settingsEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -276,7 +273,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("appointmentNotifications")) || (__fields.keeps("appointmentNotifications") && obj["appointmentNotifications"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("appointmentNotifications")) ? "appointmentNotifications" in obj : (__fields.keeps("appointmentNotifications") && obj["appointmentNotifications"] !== undefined)) {
         const __raw_appointmentNotifications = obj["appointmentNotifications"] as AppointmentNotifications | null;
 
         if (__raw_appointmentNotifications === null) {
@@ -295,14 +292,15 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "appointmentNotifications", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("commissions")) || (__fields.keeps("commissions") && obj["commissions"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("commissions")) ? "commissions" in obj : (__fields.keeps("commissions") && obj["commissions"] !== undefined)) {
         const __raw_commissions = obj["commissions"] as Commissions | null;
 
         if (__raw_commissions === null) {
@@ -321,14 +319,15 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "commissions", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("scheduleSettings")) || (__fields.keeps("scheduleSettings") && obj["scheduleSettings"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("scheduleSettings")) ? "scheduleSettings" in obj : (__fields.keeps("scheduleSettings") && obj["scheduleSettings"] !== undefined)) {
         const __raw_scheduleSettings = obj["scheduleSettings"] as ScheduleSettings;
 
         ctx.pushScope("scheduleSettings");
@@ -344,13 +343,14 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "scheduleSettings", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("accountOverviewSettings")) || (__fields.keeps("accountOverviewSettings") && obj["accountOverviewSettings"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("accountOverviewSettings")) ? "accountOverviewSettings" in obj : (__fields.keeps("accountOverviewSettings") && obj["accountOverviewSettings"] !== undefined)) {
         const __raw_accountOverviewSettings = obj["accountOverviewSettings"] as OverviewSettings;
 
         ctx.pushScope("accountOverviewSettings");
@@ -366,13 +366,14 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "accountOverviewSettings", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("serviceOverviewSettings")) || (__fields.keeps("serviceOverviewSettings") && obj["serviceOverviewSettings"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("serviceOverviewSettings")) ? "serviceOverviewSettings" in obj : (__fields.keeps("serviceOverviewSettings") && obj["serviceOverviewSettings"] !== undefined)) {
         const __raw_serviceOverviewSettings = obj["serviceOverviewSettings"] as OverviewSettings;
 
         ctx.pushScope("serviceOverviewSettings");
@@ -388,13 +389,14 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "serviceOverviewSettings", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("appointmentOverviewSettings")) || (__fields.keeps("appointmentOverviewSettings") && obj["appointmentOverviewSettings"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("appointmentOverviewSettings")) ? "appointmentOverviewSettings" in obj : (__fields.keeps("appointmentOverviewSettings") && obj["appointmentOverviewSettings"] !== undefined)) {
         const __raw_appointmentOverviewSettings = obj["appointmentOverviewSettings"] as OverviewSettings;
 
         ctx.pushScope("appointmentOverviewSettings");
@@ -410,13 +412,14 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "appointmentOverviewSettings", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("leadOverviewSettings")) || (__fields.keeps("leadOverviewSettings") && obj["leadOverviewSettings"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("leadOverviewSettings")) ? "leadOverviewSettings" in obj : (__fields.keeps("leadOverviewSettings") && obj["leadOverviewSettings"] !== undefined)) {
         const __raw_leadOverviewSettings = obj["leadOverviewSettings"] as OverviewSettings;
 
         ctx.pushScope("leadOverviewSettings");
@@ -432,13 +435,14 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "leadOverviewSettings", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("packageOverviewSettings")) || (__fields.keeps("packageOverviewSettings") && obj["packageOverviewSettings"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("packageOverviewSettings")) ? "packageOverviewSettings" in obj : (__fields.keeps("packageOverviewSettings") && obj["packageOverviewSettings"] !== undefined)) {
         const __raw_packageOverviewSettings = obj["packageOverviewSettings"] as OverviewSettings;
 
         ctx.pushScope("packageOverviewSettings");
@@ -454,13 +458,14 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "packageOverviewSettings", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("productOverviewSettings")) || (__fields.keeps("productOverviewSettings") && obj["productOverviewSettings"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("productOverviewSettings")) ? "productOverviewSettings" in obj : (__fields.keeps("productOverviewSettings") && obj["productOverviewSettings"] !== undefined)) {
         const __raw_productOverviewSettings = obj["productOverviewSettings"] as OverviewSettings;
 
         ctx.pushScope("productOverviewSettings");
@@ -476,13 +481,14 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "productOverviewSettings", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("orderOverviewSettings")) || (__fields.keeps("orderOverviewSettings") && obj["orderOverviewSettings"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("orderOverviewSettings")) ? "orderOverviewSettings" in obj : (__fields.keeps("orderOverviewSettings") && obj["orderOverviewSettings"] !== undefined)) {
         const __raw_orderOverviewSettings = obj["orderOverviewSettings"] as OverviewSettings;
 
         ctx.pushScope("orderOverviewSettings");
@@ -498,13 +504,14 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "orderOverviewSettings", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("taxRateOverviewSettings")) || (__fields.keeps("taxRateOverviewSettings") && obj["taxRateOverviewSettings"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("taxRateOverviewSettings")) ? "taxRateOverviewSettings" in obj : (__fields.keeps("taxRateOverviewSettings") && obj["taxRateOverviewSettings"] !== undefined)) {
         const __raw_taxRateOverviewSettings = obj["taxRateOverviewSettings"] as OverviewSettings;
 
         ctx.pushScope("taxRateOverviewSettings");
@@ -520,13 +527,14 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "taxRateOverviewSettings", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("homePage")) || (__fields.keeps("homePage") && obj["homePage"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("homePage")) ? "homePage" in obj : (__fields.keeps("homePage") && obj["homePage"] !== undefined)) {
         const __raw_homePage = obj["homePage"] as Page;
 
         ctx.pushScope("homePage");
@@ -542,7 +550,8 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "homePage", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
@@ -1407,20 +1416,20 @@ export declare const Settings: {
 
 ## Mapping
 
-original 0..379 -> expanded 1289..1668
-original 428..976 -> expanded 1668..2216
-original 1003..1025 -> expanded 2216..2238
-original 1025..1026 -> expanded 57737..57738
-generated 0..1289 <- imports
-generated 2238..2986 <- Default
-generated 2986..8151 <- Encode
-generated 8151..28096 <- Decode
-generated 28096..56471 <- Gigaform
-generated 56471..57737 <- __convenience_const
+original 0..379 -> expanded 1361..1740
+original 428..976 -> expanded 1740..2288
+original 1003..1025 -> expanded 2288..2310
+original 1025..1026 -> expanded 59335..59336
+generated 0..1361 <- imports
+generated 2310..3058 <- Default
+generated 3058..8209 <- Encode
+generated 8209..29694 <- Decode
+generated 29694..58069 <- Gigaform
+generated 58069..59335 <- __convenience_const
 
 ## Metadata
 
-interface Settings: {"body_span":{"end":1026,"start":456},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":429,"start":380}}],"fields":[{"decorators":[],"name":"appointmentNotifications","optional":false,"readonly":false,"span":{"end":520,"start":462},"ts_type":"AppointmentNotifications | null"},{"decorators":[],"name":"commissions","optional":false,"readonly":false,"span":{"end":557,"start":525},"ts_type":"Commissions | null"},{"decorators":[],"name":"scheduleSettings","optional":false,"readonly":false,"span":{"end":597,"start":562},"ts_type":"ScheduleSettings"},{"decorators":[],"name":"accountOverviewSettings","optional":false,"readonly":false,"span":{"end":644,"start":602},"ts_type":"OverviewSettings"},{"decorators":[],"name":"serviceOverviewSettings","optional":false,"readonly":false,"span":{"end":691,"start":649},"ts_type":"OverviewSettings"},{"decorators":[],"name":"appointmentOverviewSettings","optional":false,"readonly":false,"span":{"end":742,"start":696},"ts_type":"OverviewSettings"},{"decorators":[],"name":"leadOverviewSettings","optional":false,"readonly":false,"span":{"end":786,"start":747},"ts_type":"OverviewSettings"},{"decorators":[],"name":"packageOverviewSettings","optional":false,"readonly":false,"span":{"end":833,"start":791},"ts_type":"OverviewSettings"},{"decorators":[],"name":"productOverviewSettings","optional":false,"readonly":false,"span":{"end":880,"start":838},"ts_type":"OverviewSettings"},{"decorators":[],"name":"orderOverviewSettings","optional":false,"readonly":false,"span":{"end":925,"start":885},"ts_type":"OverviewSettings"},{"decorators":[],"name":"taxRateOverviewSettings","optional":false,"readonly":false,"span":{"end":972,"start":930},"ts_type":"OverviewSettings"},{"decorators":[{"args_src":"\"UserHome\"","name":"default","span":{"end":1004,"start":977}}],"name":"homePage","optional":false,"readonly":false,"span":{"end":1024,"start":1009},"ts_type":"Page"}],"heritage":[],"methods":[],"name":"Settings","span":{"end":1026,"start":437},"type_params":[]}
+interface Settings: {"body_span":{"end":1026,"start":456},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":429,"start":380}}],"fields":[{"decorators":[],"key":"Named","name":"appointmentNotifications","optional":false,"readonly":false,"span":{"end":520,"start":462},"ts_type":"AppointmentNotifications | null"},{"decorators":[],"key":"Named","name":"commissions","optional":false,"readonly":false,"span":{"end":557,"start":525},"ts_type":"Commissions | null"},{"decorators":[],"key":"Named","name":"scheduleSettings","optional":false,"readonly":false,"span":{"end":597,"start":562},"ts_type":"ScheduleSettings"},{"decorators":[],"key":"Named","name":"accountOverviewSettings","optional":false,"readonly":false,"span":{"end":644,"start":602},"ts_type":"OverviewSettings"},{"decorators":[],"key":"Named","name":"serviceOverviewSettings","optional":false,"readonly":false,"span":{"end":691,"start":649},"ts_type":"OverviewSettings"},{"decorators":[],"key":"Named","name":"appointmentOverviewSettings","optional":false,"readonly":false,"span":{"end":742,"start":696},"ts_type":"OverviewSettings"},{"decorators":[],"key":"Named","name":"leadOverviewSettings","optional":false,"readonly":false,"span":{"end":786,"start":747},"ts_type":"OverviewSettings"},{"decorators":[],"key":"Named","name":"packageOverviewSettings","optional":false,"readonly":false,"span":{"end":833,"start":791},"ts_type":"OverviewSettings"},{"decorators":[],"key":"Named","name":"productOverviewSettings","optional":false,"readonly":false,"span":{"end":880,"start":838},"ts_type":"OverviewSettings"},{"decorators":[],"key":"Named","name":"orderOverviewSettings","optional":false,"readonly":false,"span":{"end":925,"start":885},"ts_type":"OverviewSettings"},{"decorators":[],"key":"Named","name":"taxRateOverviewSettings","optional":false,"readonly":false,"span":{"end":972,"start":930},"ts_type":"OverviewSettings"},{"decorators":[{"args_src":"\"UserHome\"","name":"default","span":{"end":1004,"start":977}}],"key":"Named","name":"homePage","optional":false,"readonly":false,"span":{"end":1024,"start":1009},"ts_type":"Page"}],"heritage":[],"methods":[],"name":"Settings","span":{"end":1026,"start":437},"type_params":[]}
 
 ## Registry reads
 

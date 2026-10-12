@@ -22,7 +22,7 @@ import { representsDecodeWithContext, representsEncodeWithContext } from "./repr
 import { sectorDecodeWithContext, sectorEncodeWithContext } from "./sector.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { taxRateEncodeWithContext } from "./tax-rate.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -166,12 +166,9 @@ export function leadEncode(value: Lead, keepMetadata?: boolean): string {
 export function leadEncodeWithContext(value: Lead, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Lead",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Lead" });
     leadEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -527,7 +524,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -536,7 +533,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("number")) || (__fields.keeps("number") && obj["number"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("number")) ? "number" in obj : (__fields.keeps("number") && obj["number"] !== undefined)) {
         const __raw_number = obj["number"] as number | null;
 
         if (!(typeof __raw_number === "number" || __raw_number === null)) {
@@ -545,7 +542,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.number = __raw_number;
         }
     }
-    if ((__fields === undefined || __fields.requires("accepted")) || (__fields.keeps("accepted") && obj["accepted"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("accepted")) ? "accepted" in obj : (__fields.keeps("accepted") && obj["accepted"] !== undefined)) {
         const __raw_accepted = obj["accepted"] as boolean;
 
         if (!(typeof __raw_accepted === "boolean")) {
@@ -554,7 +551,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.accepted = __raw_accepted;
         }
     }
-    if ((__fields === undefined || __fields.requires("probability")) || (__fields.keeps("probability") && obj["probability"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("probability")) ? "probability" in obj : (__fields.keeps("probability") && obj["probability"] !== undefined)) {
         const __raw_probability = obj["probability"] as number;
 
         if (!(typeof __raw_probability === "number")) {
@@ -563,7 +560,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.probability = __raw_probability;
         }
     }
-    if ((__fields === undefined || __fields.requires("priority")) || (__fields.keeps("priority") && obj["priority"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("priority")) ? "priority" in obj : (__fields.keeps("priority") && obj["priority"] !== undefined)) {
         const __raw_priority = obj["priority"] as Priority;
 
         ctx.pushScope("priority");
@@ -579,13 +576,14 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "priority", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("dueDate")) || (__fields.keeps("dueDate") && obj["dueDate"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("dueDate")) ? "dueDate" in obj : (__fields.keeps("dueDate") && obj["dueDate"] !== undefined)) {
         const __raw_dueDate = obj["dueDate"] as string | null;
 
         if (!(typeof __raw_dueDate === "string" || __raw_dueDate === null)) {
@@ -594,7 +592,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.dueDate = __raw_dueDate;
         }
     }
-    if ((__fields === undefined || __fields.requires("closeDate")) || (__fields.keeps("closeDate") && obj["closeDate"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("closeDate")) ? "closeDate" in obj : (__fields.keeps("closeDate") && obj["closeDate"] !== undefined)) {
         const __raw_closeDate = obj["closeDate"] as string | null;
 
         if (!(typeof __raw_closeDate === "string" || __raw_closeDate === null)) {
@@ -603,7 +601,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.closeDate = __raw_closeDate;
         }
     }
-    if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
         if (!(typeof __raw_value === "number")) {
@@ -612,7 +610,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.value = __raw_value;
         }
     }
-    if ((__fields === undefined || __fields.requires("stage")) || (__fields.keeps("stage") && obj["stage"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("stage")) ? "stage" in obj : (__fields.keeps("stage") && obj["stage"] !== undefined)) {
         const __raw_stage = obj["stage"] as LeadStage;
 
         ctx.pushScope("stage");
@@ -628,13 +626,14 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "stage", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("status")) || (__fields.keeps("status") && obj["status"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("status")) ? "status" in obj : (__fields.keeps("status") && obj["status"] !== undefined)) {
         const __raw_status = obj["status"] as string;
 
         if (!(typeof __raw_status === "string")) {
@@ -646,7 +645,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.status = __raw_status;
         }
     }
-    if ((__fields === undefined || __fields.requires("description")) || (__fields.keeps("description") && obj["description"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("description")) ? "description" in obj : (__fields.keeps("description") && obj["description"] !== undefined)) {
         const __raw_description = obj["description"] as string | null;
 
         if (!(typeof __raw_description === "string" || __raw_description === null)) {
@@ -655,7 +654,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.description = __raw_description;
         }
     }
-    if ((__fields === undefined || __fields.requires("nextStep")) || (__fields.keeps("nextStep") && obj["nextStep"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("nextStep")) ? "nextStep" in obj : (__fields.keeps("nextStep") && obj["nextStep"] !== undefined)) {
         const __raw_nextStep = obj["nextStep"] as NextStep;
 
         ctx.pushScope("nextStep");
@@ -671,13 +670,14 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "nextStep", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("favorite")) || (__fields.keeps("favorite") && obj["favorite"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("favorite")) ? "favorite" in obj : (__fields.keeps("favorite") && obj["favorite"] !== undefined)) {
         const __raw_favorite = obj["favorite"] as boolean;
 
         if (!(typeof __raw_favorite === "boolean")) {
@@ -686,7 +686,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.favorite = __raw_favorite;
         }
     }
-    if ((__fields === undefined || __fields.requires("dateAdded")) || (__fields.keeps("dateAdded") && obj["dateAdded"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("dateAdded")) ? "dateAdded" in obj : (__fields.keeps("dateAdded") && obj["dateAdded"] !== undefined)) {
         const __raw_dateAdded = obj["dateAdded"] as string | null;
 
         if (!(typeof __raw_dateAdded === "string" || __raw_dateAdded === null)) {
@@ -695,7 +695,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.dateAdded = __raw_dateAdded;
         }
     }
-    if ((__fields === undefined || __fields.requires("taxRate")) || (__fields.keeps("taxRate") && obj["taxRate"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("taxRate")) ? "taxRate" in obj : (__fields.keeps("taxRate") && obj["taxRate"] !== undefined)) {
         const __raw_taxRate = obj["taxRate"] as (string | TaxRate) | null;
 
         if (__raw_taxRate === null) {
@@ -704,7 +704,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.taxRate = __raw_taxRate;
         }
     }
-    if ((__fields === undefined || __fields.requires("sector")) || (__fields.keeps("sector") && obj["sector"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("sector")) ? "sector" in obj : (__fields.keeps("sector") && obj["sector"] !== undefined)) {
         const __raw_sector = obj["sector"] as Sector;
 
         ctx.pushScope("sector");
@@ -720,13 +720,14 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "sector", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("leadName")) || (__fields.keeps("leadName") && obj["leadName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("leadName")) ? "leadName" in obj : (__fields.keeps("leadName") && obj["leadName"] !== undefined)) {
         const __raw_leadName = obj["leadName"] as AccountName;
 
         ctx.pushScope("leadName");
@@ -742,13 +743,14 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "leadName", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("phones")) || (__fields.keeps("phones") && obj["phones"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("phones")) ? "phones" in obj : (__fields.keeps("phones") && obj["phones"] !== undefined)) {
         const __raw_phones = obj["phones"] as Array<PhoneNumber>;
         if (Array.isArray(__raw_phones)) {
             ctx.pushScope("phones");
@@ -772,7 +774,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             errors.push({ field: "phones", message: __raw_phones == null ? "Lead.phones is required" : "expected Array<PhoneNumber>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
         const __raw_email = obj["email"] as Email;
 
         ctx.pushScope("email");
@@ -788,13 +790,14 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "email", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("leadSource")) || (__fields.keeps("leadSource") && obj["leadSource"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("leadSource")) ? "leadSource" in obj : (__fields.keeps("leadSource") && obj["leadSource"] !== undefined)) {
         const __raw_leadSource = obj["leadSource"] as string | null;
 
         if (!(typeof __raw_leadSource === "string" || __raw_leadSource === null)) {
@@ -803,7 +806,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.leadSource = __raw_leadSource;
         }
     }
-    if ((__fields === undefined || __fields.requires("site")) || (__fields.keeps("site") && obj["site"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("site")) ? "site" in obj : (__fields.keeps("site") && obj["site"] !== undefined)) {
         const __raw_site = obj["site"] as string | Site;
 
         if (typeof __raw_site === "string") {
@@ -822,14 +825,15 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "site", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("memo")) || (__fields.keeps("memo") && obj["memo"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("memo")) ? "memo" in obj : (__fields.keeps("memo") && obj["memo"] !== undefined)) {
         const __raw_memo = obj["memo"] as string;
 
         if (!(typeof __raw_memo === "string")) {
@@ -841,7 +845,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.memo = __raw_memo;
         }
     }
-    if ((__fields === undefined || __fields.requires("needsReview")) || (__fields.keeps("needsReview") && obj["needsReview"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("needsReview")) ? "needsReview" in obj : (__fields.keeps("needsReview") && obj["needsReview"] !== undefined)) {
         const __raw_needsReview = obj["needsReview"] as boolean;
 
         if (!(typeof __raw_needsReview === "boolean")) {
@@ -850,7 +854,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.needsReview = __raw_needsReview;
         }
     }
-    if ((__fields === undefined || __fields.requires("hasAlert")) || (__fields.keeps("hasAlert") && obj["hasAlert"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("hasAlert")) ? "hasAlert" in obj : (__fields.keeps("hasAlert") && obj["hasAlert"] !== undefined)) {
         const __raw_hasAlert = obj["hasAlert"] as boolean;
 
         if (!(typeof __raw_hasAlert === "boolean")) {
@@ -859,7 +863,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.hasAlert = __raw_hasAlert;
         }
     }
-    if ((__fields === undefined || __fields.requires("salesRep")) || (__fields.keeps("salesRep") && obj["salesRep"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("salesRep")) ? "salesRep" in obj : (__fields.keeps("salesRep") && obj["salesRep"] !== undefined)) {
         const __raw_salesRep = obj["salesRep"] as Array<Represents> | null;
 
         if (__raw_salesRep === null) {
@@ -888,7 +892,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("color")) || (__fields.keeps("color") && obj["color"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("color")) ? "color" in obj : (__fields.keeps("color") && obj["color"] !== undefined)) {
         const __raw_color = obj["color"] as string | null;
 
         if (!(typeof __raw_color === "string" || __raw_color === null)) {
@@ -897,7 +901,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.color = __raw_color;
         }
     }
-    if ((__fields === undefined || __fields.requires("accountType")) || (__fields.keeps("accountType") && obj["accountType"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("accountType")) ? "accountType" in obj : (__fields.keeps("accountType") && obj["accountType"] !== undefined)) {
         const __raw_accountType = obj["accountType"] as string;
 
         if (!(typeof __raw_accountType === "string")) {
@@ -909,7 +913,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.accountType = __raw_accountType;
         }
     }
-    if ((__fields === undefined || __fields.requires("subtype")) || (__fields.keeps("subtype") && obj["subtype"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("subtype")) ? "subtype" in obj : (__fields.keeps("subtype") && obj["subtype"] !== undefined)) {
         const __raw_subtype = obj["subtype"] as string;
 
         if (!(typeof __raw_subtype === "string")) {
@@ -921,7 +925,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.subtype = __raw_subtype;
         }
     }
-    if ((__fields === undefined || __fields.requires("isTaxExempt")) || (__fields.keeps("isTaxExempt") && obj["isTaxExempt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("isTaxExempt")) ? "isTaxExempt" in obj : (__fields.keeps("isTaxExempt") && obj["isTaxExempt"] !== undefined)) {
         const __raw_isTaxExempt = obj["isTaxExempt"] as boolean;
 
         if (!(typeof __raw_isTaxExempt === "boolean")) {
@@ -930,7 +934,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.isTaxExempt = __raw_isTaxExempt;
         }
     }
-    if ((__fields === undefined || __fields.requires("paymentTerms")) || (__fields.keeps("paymentTerms") && obj["paymentTerms"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("paymentTerms")) ? "paymentTerms" in obj : (__fields.keeps("paymentTerms") && obj["paymentTerms"] !== undefined)) {
         const __raw_paymentTerms = obj["paymentTerms"] as string;
 
         if (!(typeof __raw_paymentTerms === "string")) {
@@ -942,7 +946,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.paymentTerms = __raw_paymentTerms;
         }
     }
-    if ((__fields === undefined || __fields.requires("tags")) || (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
         const __raw_tags = obj["tags"] as Array<string>;
         if (Array.isArray(__raw_tags)) {
             ctx.pushScope("tags");
@@ -966,7 +970,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             errors.push({ field: "tags", message: __raw_tags == null ? "Lead.tags is required" : "expected Array<string>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("customFields")) || (__fields.keeps("customFields") && obj["customFields"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("customFields")) ? "customFields" in obj : (__fields.keeps("customFields") && obj["customFields"] !== undefined)) {
         const __raw_customFields = obj["customFields"] as Array<[string, string]>;
         if (Array.isArray(__raw_customFields)) {
             ctx.pushScope("customFields");
@@ -2581,61 +2585,61 @@ export declare const Lead: {
 
 ## Mapping
 
-original 0..572 -> expanded 1726..2298
-original 621..650 -> expanded 2298..2327
-original 678..699 -> expanded 2327..2348
-original 727..759 -> expanded 2348..2380
-original 787..815 -> expanded 2380..2408
-original 883..913 -> expanded 2408..2438
-original 1106..1111 -> expanded 2438..2443
-original 1136..1165 -> expanded 2443..2472
-original 1214..1247 -> expanded 2472..2505
-original 1298..1333 -> expanded 2505..2540
-original 1397..1421 -> expanded 2540..2564
-original 1718..1723 -> expanded 2564..2569
-original 1746..1773 -> expanded 2569..2596
-original 1816..1821 -> expanded 2596..2601
-original 1862..1887 -> expanded 2601..2626
-original 1939..1976 -> expanded 2626..2663
-original 2004..2009 -> expanded 2663..2668
-original 2042..2071 -> expanded 2668..2697
-original 2118..2146 -> expanded 2697..2725
-original 2174..2209 -> expanded 2725..2760
-original 2309..2354 -> expanded 2760..2805
-original 2535..2540 -> expanded 2805..2810
-original 2570..2595 -> expanded 2810..2835
-original 2727..2759 -> expanded 2835..2867
-original 2812..2849 -> expanded 2867..2904
-original 2897..2920 -> expanded 2904..2927
-original 2991..3027 -> expanded 2927..2963
-original 3076..3081 -> expanded 2963..2968
-original 3100..3130 -> expanded 2968..2998
-original 3175..3180 -> expanded 2998..3003
-original 3221..3244 -> expanded 3003..3026
-original 3295..3326 -> expanded 3026..3057
-original 3374..3402 -> expanded 3057..3085
-original 3491..3536 -> expanded 3085..3130
-original 3564..3595 -> expanded 3130..3161
-original 3667..3672 -> expanded 3161..3166
-original 3713..3743 -> expanded 3166..3196
-original 3810..3815 -> expanded 3196..3201
-original 3856..3882 -> expanded 3201..3227
-original 3931..3962 -> expanded 3227..3258
-original 4035..4040 -> expanded 3258..3263
-original 4081..4112 -> expanded 3263..3294
-original 4153..4183 -> expanded 3294..3324
-original 4243..4288 -> expanded 3324..3369
-original 4288..4289 -> expanded 97046..97047
-generated 0..1726 <- imports
-generated 3369..4231 <- Default
-generated 4231..12078 <- Encode
-generated 12078..47867 <- Decode
-generated 47867..95888 <- Gigaform
-generated 95888..97046 <- __convenience_const
+original 0..572 -> expanded 1798..2370
+original 621..650 -> expanded 2370..2399
+original 678..699 -> expanded 2399..2420
+original 727..759 -> expanded 2420..2452
+original 787..815 -> expanded 2452..2480
+original 883..913 -> expanded 2480..2510
+original 1106..1111 -> expanded 2510..2515
+original 1136..1165 -> expanded 2515..2544
+original 1214..1247 -> expanded 2544..2577
+original 1298..1333 -> expanded 2577..2612
+original 1397..1421 -> expanded 2612..2636
+original 1718..1723 -> expanded 2636..2641
+original 1746..1773 -> expanded 2641..2668
+original 1816..1821 -> expanded 2668..2673
+original 1862..1887 -> expanded 2673..2698
+original 1939..1976 -> expanded 2698..2735
+original 2004..2009 -> expanded 2735..2740
+original 2042..2071 -> expanded 2740..2769
+original 2118..2146 -> expanded 2769..2797
+original 2174..2209 -> expanded 2797..2832
+original 2309..2354 -> expanded 2832..2877
+original 2535..2540 -> expanded 2877..2882
+original 2570..2595 -> expanded 2882..2907
+original 2727..2759 -> expanded 2907..2939
+original 2812..2849 -> expanded 2939..2976
+original 2897..2920 -> expanded 2976..2999
+original 2991..3027 -> expanded 2999..3035
+original 3076..3081 -> expanded 3035..3040
+original 3100..3130 -> expanded 3040..3070
+original 3175..3180 -> expanded 3070..3075
+original 3221..3244 -> expanded 3075..3098
+original 3295..3326 -> expanded 3098..3129
+original 3374..3402 -> expanded 3129..3157
+original 3491..3536 -> expanded 3157..3202
+original 3564..3595 -> expanded 3202..3233
+original 3667..3672 -> expanded 3233..3238
+original 3713..3743 -> expanded 3238..3268
+original 3810..3815 -> expanded 3268..3273
+original 3856..3882 -> expanded 3273..3299
+original 3931..3962 -> expanded 3299..3330
+original 4035..4040 -> expanded 3330..3335
+original 4081..4112 -> expanded 3335..3366
+original 4153..4183 -> expanded 3366..3396
+original 4243..4288 -> expanded 3396..3441
+original 4288..4289 -> expanded 98281..98282
+generated 0..1798 <- imports
+generated 3441..4303 <- Default
+generated 4303..12136 <- Encode
+generated 12136..49102 <- Decode
+generated 49102..97123 <- Gigaform
+generated 97123..98281 <- __convenience_const
 
 ## Metadata
 
-interface Lead: {"body_span":{"end":4289,"start":645},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":622,"start":573}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":679,"start":651}}],"name":"id","optional":false,"readonly":false,"span":{"end":695,"start":684},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":728,"start":700}}],"name":"number","optional":false,"readonly":false,"span":{"end":755,"start":733},"ts_type":"number | null"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":788,"start":760}}],"name":"accepted","optional":false,"readonly":false,"span":{"end":811,"start":793},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Probability\", min: 0, max: 100 }","name":"numberController","span":{"end":884,"start":816}}],"name":"probability","optional":false,"readonly":false,"span":{"end":909,"start":889},"ts_type":"number"},{"decorators":[{"args_src":"\"Medium\"","name":"default","span":{"end":1137,"start":1112}},{"args_src":"{ label: \"Priority\", options: [{ label: \"High\", value: \"High\" }, { label: \"Medium\", value: \"Medium\" }, { label: \"Low\", value: \"Low\" }], orientation: \"horizontal\" }","name":"radioGroupController","span":{"end":1107,"start":914}}],"name":"priority","optional":false,"readonly":false,"span":{"end":1161,"start":1142},"ts_type":"Priority"},{"decorators":[{"args_src":"{ label: \"Due Date\" }","name":"dateTimeController","span":{"end":1215,"start":1166}}],"name":"dueDate","optional":false,"readonly":false,"span":{"end":1243,"start":1220},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Close Date\" }","name":"dateTimeController","span":{"end":1299,"start":1248}}],"name":"closeDate","optional":false,"readonly":false,"span":{"end":1329,"start":1304},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Value\", min: 0, step: 0.01 }","name":"numberController","span":{"end":1398,"start":1334}}],"name":"value","optional":false,"readonly":false,"span":{"end":1417,"start":1403},"ts_type":"number"},{"decorators":[{"args_src":"\"Open\"","name":"default","span":{"end":1747,"start":1724}},{"args_src":"{ label: \"Stage\", options: [{ label: \"Open\", value: \"Open\" }, { label: \"Working\", value: \"Working\" }, { label: \"Lost\", value: \"Lost\" }, { label: \"Qualified\", value: \"Qualified\" }, { label: \"Estimate\", value: \"Estimate\" }, { label: \"Negotiation\", value: \"Negotiation\" }] }","name":"selectController","span":{"end":1719,"start":1422}}],"name":"stage","optional":false,"readonly":false,"span":{"end":1769,"start":1752},"ts_type":"LeadStage"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1863,"start":1822}},{"args_src":"{ label: \"Status\" }","name":"textController","span":{"end":1817,"start":1774}}],"name":"status","optional":false,"readonly":false,"span":{"end":1883,"start":1868},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Description\" }","name":"textAreaController","span":{"end":1940,"start":1888}}],"name":"description","optional":false,"readonly":false,"span":{"end":1972,"start":1945},"ts_type":"string | null"},{"decorators":[{"args_src":"\"InitialContact\"","name":"default","span":{"end":2043,"start":2010}},{"args_src":"{}","name":"hiddenController","span":{"end":2005,"start":1977}}],"name":"nextStep","optional":false,"readonly":false,"span":{"end":2067,"start":2048},"ts_type":"NextStep"},{"decorators":[{"args_src":"{ label: \"Favorite\" }","name":"switchController","span":{"end":2119,"start":2072}}],"name":"favorite","optional":false,"readonly":false,"span":{"end":2142,"start":2124},"ts_type":"boolean"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":2175,"start":2147}}],"name":"dateAdded","optional":false,"readonly":false,"span":{"end":2205,"start":2180},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Tax Rate\", allowCustom: false, fetchUrls: [\"/api/tax_rates\"] }","name":"comboboxController","span":{"end":2310,"start":2210}}],"name":"taxRate","optional":false,"readonly":false,"span":{"end":2350,"start":2315},"ts_type":"(string | TaxRate) | null"},{"decorators":[{"args_src":"\"Residential\"","name":"default","span":{"end":2571,"start":2541}},{"args_src":"{ label: \"Sector\", options: [{ label: \"Residential\", value: \"Residential\" }, { label: \"Commercial\", value: \"Commercial\" }], orientation: \"horizontal\" }","name":"radioGroupController","span":{"end":2536,"start":2355}}],"name":"sector","optional":false,"readonly":false,"span":{"end":2591,"start":2576},"ts_type":"Sector"},{"decorators":[{"args_src":"{ legend: \"Name\", variants: { CompanyName: { label: \"Company\" }, PersonName: { label: \"Person\" } } }","name":"enumFieldsetController","span":{"end":2728,"start":2596}}],"name":"leadName","optional":false,"readonly":false,"span":{"end":2755,"start":2733},"ts_type":"AccountName"},{"decorators":[{"args_src":"{ legend: \"Phones\" }","name":"arrayFieldsetController","span":{"end":2813,"start":2760}}],"name":"phones","optional":false,"readonly":false,"span":{"end":2845,"start":2818},"ts_type":"Array<PhoneNumber>"},{"decorators":[{"args_src":"{ label: \"Email\" }","name":"emailFieldController","span":{"end":2898,"start":2850}}],"name":"email","optional":false,"readonly":false,"span":{"end":2916,"start":2903},"ts_type":"Email"},{"decorators":[{"args_src":"{ label: \"Lead Source\", allowCustom: true }","name":"comboboxController","span":{"end":2992,"start":2921}}],"name":"leadSource","optional":false,"readonly":false,"span":{"end":3023,"start":2997},"ts_type":"string | null"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":3101,"start":3082}},{"args_src":"{ label: \"Site\" }","name":"siteFieldsetController","span":{"end":3077,"start":3028}}],"name":"site","optional":false,"readonly":false,"span":{"end":3126,"start":3106},"ts_type":"string | Site"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":3222,"start":3181}},{"args_src":"{ label: \"Memo\" }","name":"textAreaController","span":{"end":3176,"start":3131}}],"name":"memo","optional":false,"readonly":false,"span":{"end":3240,"start":3227},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Needs Review\" }","name":"toggleController","span":{"end":3296,"start":3245}}],"name":"needsReview","optional":false,"readonly":false,"span":{"end":3322,"start":3301},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Has Alert\" }","name":"toggleController","span":{"end":3375,"start":3327}}],"name":"hasAlert","optional":false,"readonly":false,"span":{"end":3398,"start":3380},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Sales Rep\", fetchUrls: [\"/api/employees\"] }","name":"comboboxMultipleController","span":{"end":3492,"start":3403}}],"name":"salesRep","optional":false,"readonly":false,"span":{"end":3532,"start":3497},"ts_type":"Array<Represents> | null"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":3565,"start":3537}}],"name":"color","optional":false,"readonly":false,"span":{"end":3591,"start":3570},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":3714,"start":3673}},{"args_src":"{ label: \"Account Type\", allowCustom: true }","name":"comboboxController","span":{"end":3668,"start":3596}}],"name":"accountType","optional":false,"readonly":false,"span":{"end":3739,"start":3719},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":3857,"start":3816}},{"args_src":"{ label: \"Subtype\", allowCustom: true }","name":"comboboxController","span":{"end":3811,"start":3744}}],"name":"subtype","optional":false,"readonly":false,"span":{"end":3878,"start":3862},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Tax Exempt\" }","name":"toggleController","span":{"end":3932,"start":3883}}],"name":"isTaxExempt","optional":false,"readonly":false,"span":{"end":3958,"start":3937},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":4082,"start":4041}},{"args_src":"{ label: \"Payment Terms\", allowCustom: true }","name":"comboboxController","span":{"end":4036,"start":3963}}],"name":"paymentTerms","optional":false,"readonly":false,"span":{"end":4108,"start":4087},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Tags\" }","name":"tagsController","span":{"end":4154,"start":4113}}],"name":"tags","optional":false,"readonly":false,"span":{"end":4179,"start":4159},"ts_type":"Array<string>"},{"decorators":[{"args_src":"{ legend: \"Custom Fields\" }","name":"arrayFieldsetController","span":{"end":4244,"start":4184}}],"name":"customFields","optional":false,"readonly":false,"span":{"end":4287,"start":4249},"ts_type":"Array<[string, string]>"}],"heritage":[],"methods":[],"name":"Lead","span":{"end":4289,"start":630},"type_params":[]}
+interface Lead: {"body_span":{"end":4289,"start":645},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":622,"start":573}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":679,"start":651}}],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":695,"start":684},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":728,"start":700}}],"key":"Named","name":"number","optional":false,"readonly":false,"span":{"end":755,"start":733},"ts_type":"number | null"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":788,"start":760}}],"key":"Named","name":"accepted","optional":false,"readonly":false,"span":{"end":811,"start":793},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Probability\", min: 0, max: 100 }","name":"numberController","span":{"end":884,"start":816}}],"key":"Named","name":"probability","optional":false,"readonly":false,"span":{"end":909,"start":889},"ts_type":"number"},{"decorators":[{"args_src":"\"Medium\"","name":"default","span":{"end":1137,"start":1112}},{"args_src":"{ label: \"Priority\", options: [{ label: \"High\", value: \"High\" }, { label: \"Medium\", value: \"Medium\" }, { label: \"Low\", value: \"Low\" }], orientation: \"horizontal\" }","name":"radioGroupController","span":{"end":1107,"start":914}}],"key":"Named","name":"priority","optional":false,"readonly":false,"span":{"end":1161,"start":1142},"ts_type":"Priority"},{"decorators":[{"args_src":"{ label: \"Due Date\" }","name":"dateTimeController","span":{"end":1215,"start":1166}}],"key":"Named","name":"dueDate","optional":false,"readonly":false,"span":{"end":1243,"start":1220},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Close Date\" }","name":"dateTimeController","span":{"end":1299,"start":1248}}],"key":"Named","name":"closeDate","optional":false,"readonly":false,"span":{"end":1329,"start":1304},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Value\", min: 0, step: 0.01 }","name":"numberController","span":{"end":1398,"start":1334}}],"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":1417,"start":1403},"ts_type":"number"},{"decorators":[{"args_src":"\"Open\"","name":"default","span":{"end":1747,"start":1724}},{"args_src":"{ label: \"Stage\", options: [{ label: \"Open\", value: \"Open\" }, { label: \"Working\", value: \"Working\" }, { label: \"Lost\", value: \"Lost\" }, { label: \"Qualified\", value: \"Qualified\" }, { label: \"Estimate\", value: \"Estimate\" }, { label: \"Negotiation\", value: \"Negotiation\" }] }","name":"selectController","span":{"end":1719,"start":1422}}],"key":"Named","name":"stage","optional":false,"readonly":false,"span":{"end":1769,"start":1752},"ts_type":"LeadStage"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1863,"start":1822}},{"args_src":"{ label: \"Status\" }","name":"textController","span":{"end":1817,"start":1774}}],"key":"Named","name":"status","optional":false,"readonly":false,"span":{"end":1883,"start":1868},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Description\" }","name":"textAreaController","span":{"end":1940,"start":1888}}],"key":"Named","name":"description","optional":false,"readonly":false,"span":{"end":1972,"start":1945},"ts_type":"string | null"},{"decorators":[{"args_src":"\"InitialContact\"","name":"default","span":{"end":2043,"start":2010}},{"args_src":"{}","name":"hiddenController","span":{"end":2005,"start":1977}}],"key":"Named","name":"nextStep","optional":false,"readonly":false,"span":{"end":2067,"start":2048},"ts_type":"NextStep"},{"decorators":[{"args_src":"{ label: \"Favorite\" }","name":"switchController","span":{"end":2119,"start":2072}}],"key":"Named","name":"favorite","optional":false,"readonly":false,"span":{"end":2142,"start":2124},"ts_type":"boolean"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":2175,"start":2147}}],"key":"Named","name":"dateAdded","optional":false,"readonly":false,"span":{"end":2205,"start":2180},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Tax Rate\", allowCustom: false, fetchUrls: [\"/api/tax_rates\"] }","name":"comboboxController","span":{"end":2310,"start":2210}}],"key":"Named","name":"taxRate","optional":false,"readonly":false,"span":{"end":2350,"start":2315},"ts_type":"(string | TaxRate) | null"},{"decorators":[{"args_src":"\"Residential\"","name":"default","span":{"end":2571,"start":2541}},{"args_src":"{ label: \"Sector\", options: [{ label: \"Residential\", value: \"Residential\" }, { label: \"Commercial\", value: \"Commercial\" }], orientation: \"horizontal\" }","name":"radioGroupController","span":{"end":2536,"start":2355}}],"key":"Named","name":"sector","optional":false,"readonly":false,"span":{"end":2591,"start":2576},"ts_type":"Sector"},{"decorators":[{"args_src":"{ legend: \"Name\", variants: { CompanyName: { label: \"Company\" }, PersonName: { label: \"Person\" } } }","name":"enumFieldsetController","span":{"end":2728,"start":2596}}],"key":"Named","name":"leadName","optional":false,"readonly":false,"span":{"end":2755,"start":2733},"ts_type":"AccountName"},{"decorators":[{"args_src":"{ legend: \"Phones\" }","name":"arrayFieldsetController","span":{"end":2813,"start":2760}}],"key":"Named","name":"phones","optional":false,"readonly":false,"span":{"end":2845,"start":2818},"ts_type":"Array<PhoneNumber>"},{"decorators":[{"args_src":"{ label: \"Email\" }","name":"emailFieldController","span":{"end":2898,"start":2850}}],"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":2916,"start":2903},"ts_type":"Email"},{"decorators":[{"args_src":"{ label: \"Lead Source\", allowCustom: true }","name":"comboboxController","span":{"end":2992,"start":2921}}],"key":"Named","name":"leadSource","optional":false,"readonly":false,"span":{"end":3023,"start":2997},"ts_type":"string | null"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":3101,"start":3082}},{"args_src":"{ label: \"Site\" }","name":"siteFieldsetController","span":{"end":3077,"start":3028}}],"key":"Named","name":"site","optional":false,"readonly":false,"span":{"end":3126,"start":3106},"ts_type":"string | Site"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":3222,"start":3181}},{"args_src":"{ label: \"Memo\" }","name":"textAreaController","span":{"end":3176,"start":3131}}],"key":"Named","name":"memo","optional":false,"readonly":false,"span":{"end":3240,"start":3227},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Needs Review\" }","name":"toggleController","span":{"end":3296,"start":3245}}],"key":"Named","name":"needsReview","optional":false,"readonly":false,"span":{"end":3322,"start":3301},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Has Alert\" }","name":"toggleController","span":{"end":3375,"start":3327}}],"key":"Named","name":"hasAlert","optional":false,"readonly":false,"span":{"end":3398,"start":3380},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Sales Rep\", fetchUrls: [\"/api/employees\"] }","name":"comboboxMultipleController","span":{"end":3492,"start":3403}}],"key":"Named","name":"salesRep","optional":false,"readonly":false,"span":{"end":3532,"start":3497},"ts_type":"Array<Represents> | null"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":3565,"start":3537}}],"key":"Named","name":"color","optional":false,"readonly":false,"span":{"end":3591,"start":3570},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":3714,"start":3673}},{"args_src":"{ label: \"Account Type\", allowCustom: true }","name":"comboboxController","span":{"end":3668,"start":3596}}],"key":"Named","name":"accountType","optional":false,"readonly":false,"span":{"end":3739,"start":3719},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":3857,"start":3816}},{"args_src":"{ label: \"Subtype\", allowCustom: true }","name":"comboboxController","span":{"end":3811,"start":3744}}],"key":"Named","name":"subtype","optional":false,"readonly":false,"span":{"end":3878,"start":3862},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Tax Exempt\" }","name":"toggleController","span":{"end":3932,"start":3883}}],"key":"Named","name":"isTaxExempt","optional":false,"readonly":false,"span":{"end":3958,"start":3937},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":4082,"start":4041}},{"args_src":"{ label: \"Payment Terms\", allowCustom: true }","name":"comboboxController","span":{"end":4036,"start":3963}}],"key":"Named","name":"paymentTerms","optional":false,"readonly":false,"span":{"end":4108,"start":4087},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Tags\" }","name":"tagsController","span":{"end":4154,"start":4113}}],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":4179,"start":4159},"ts_type":"Array<string>"},{"decorators":[{"args_src":"{ legend: \"Custom Fields\" }","name":"arrayFieldsetController","span":{"end":4244,"start":4184}}],"key":"Named","name":"customFields","optional":false,"readonly":false,"span":{"end":4287,"start":4249},"ts_type":"Array<[string, string]>"}],"heritage":[],"methods":[],"name":"Lead","span":{"end":4289,"start":630},"type_params":[]}
 
 ## Registry reads
 

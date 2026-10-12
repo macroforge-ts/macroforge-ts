@@ -113,7 +113,7 @@ export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -122,15 +122,19 @@ export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("createdAt")) || (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
         const __raw_createdAt = obj["createdAt"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_createdAt === "string" ? new Date(__raw_createdAt) : __raw_createdAt as Date;
-            instance.createdAt = __dateVal;
+            const __dateVal = (__raw_createdAt instanceof Date ? __raw_createdAt : typeof __raw_createdAt === "string" ? new Date(__raw_createdAt) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Inner.createdAt is required" : "expected Date" });
+            } else {
+                instance.createdAt = __dateVal;
+            }
         }
     }
-    if ((__fields === undefined || __fields.requires("score")) || (__fields.keeps("score") && obj["score"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
         const __raw_score = obj["score"] as number;
 
         if (!(typeof __raw_score === "number")) {
@@ -279,7 +283,7 @@ export function containerDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("items")) || (__fields.keeps("items") && obj["items"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
         const __raw_items = obj["items"] as Inner[];
         if (Array.isArray(__raw_items)) {
             ctx.pushScope("items");
@@ -532,20 +536,20 @@ export {};
 ## Mapping
 
 original 0..107 -> expanded 383..490
-original 107..182 -> expanded 7530..7605
-original 182..2159 -> expanded 14282..16259
+original 107..182 -> expanded 7888..7963
+original 182..2159 -> expanded 14656..16633
 generated 0..383 <- imports
-generated 490..6897 <- Decode
-generated 6897..7530 <- __convenience_const
-generated 7605..13589 <- Decode
-generated 13589..14282 <- __convenience_const
+generated 490..7255 <- Decode
+generated 7255..7888 <- __convenience_const
+generated 7963..13963 <- Decode
+generated 13963..14656 <- __convenience_const
 
 ## Metadata
 
-interface Inner: {"body_span":{"end":108,"start":47},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":66,"start":53},"ts_type":"string"},{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":87,"start":71},"ts_type":"Date"},{"decorators":[],"name":"score","optional":false,"readonly":false,"span":{"end":106,"start":92},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Inner","span":{"end":108,"start":31},"type_params":[]}
-interface Container: {"body_span":{"end":183,"start":160},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":132,"start":110}}],"fields":[{"decorators":[],"name":"items","optional":false,"readonly":false,"span":{"end":181,"start":166},"ts_type":"Inner[]"}],"heritage":[],"methods":[],"name":"Container","span":{"end":183,"start":140},"type_params":[]}
+interface Inner: {"body_span":{"end":108,"start":47},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":66,"start":53},"ts_type":"string"},{"decorators":[],"key":"Named","name":"createdAt","optional":false,"readonly":false,"span":{"end":87,"start":71},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"score","optional":false,"readonly":false,"span":{"end":106,"start":92},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Inner","span":{"end":108,"start":31},"type_params":[]}
+interface Container: {"body_span":{"end":183,"start":160},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":132,"start":110}}],"fields":[{"decorators":[],"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":181,"start":166},"ts_type":"Inner[]"}],"heritage":[],"methods":[],"name":"Container","span":{"end":183,"start":140},"type_params":[]}
 type ContainerFailure: {"body":{"Alias":"Extract<ReturnType<typeof Container.decode>, { success: false }>"},"decorators":[],"name":"ContainerFailure","span":{"end":942,"start":853},"type_params":[]}
-type RecursiveDeserResult: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"success","optional":false,"readonly":false,"span":{"end":1002,"start":987},"ts_type":"false"},{"decorators":[],"name":"errors","optional":false,"readonly":false,"span":{"end":1037,"start":1003},"ts_type":"ContainerFailure['errors']"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"success","optional":false,"readonly":false,"span":{"end":1070,"start":1056},"ts_type":"true"},{"decorators":[],"name":"itemCount","optional":false,"readonly":false,"span":{"end":1097,"start":1079},"ts_type":"number"},{"decorators":[],"name":"firstIsDate","optional":false,"readonly":false,"span":{"end":1127,"start":1106},"ts_type":"boolean"},{"decorators":[],"name":"firstDateISO","optional":false,"readonly":false,"span":{"end":1169,"start":1136},"ts_type":"string | undefined"},{"decorators":[],"name":"secondIsDate","optional":false,"readonly":false,"span":{"end":1200,"start":1178},"ts_type":"boolean"},{"decorators":[],"name":"secondDateISO","optional":false,"readonly":false,"span":{"end":1243,"start":1209},"ts_type":"string | undefined"}]}}}]},"decorators":[],"name":"RecursiveDeserResult","span":{"end":1250,"start":951},"type_params":[]}
+type RecursiveDeserResult: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"success","optional":false,"readonly":false,"span":{"end":1002,"start":987},"ts_type":"false"},{"decorators":[],"key":"Named","name":"errors","optional":false,"readonly":false,"span":{"end":1037,"start":1003},"ts_type":"ContainerFailure['errors']"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"success","optional":false,"readonly":false,"span":{"end":1070,"start":1056},"ts_type":"true"},{"decorators":[],"key":"Named","name":"itemCount","optional":false,"readonly":false,"span":{"end":1097,"start":1079},"ts_type":"number"},{"decorators":[],"key":"Named","name":"firstIsDate","optional":false,"readonly":false,"span":{"end":1127,"start":1106},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"firstDateISO","optional":false,"readonly":false,"span":{"end":1169,"start":1136},"ts_type":"string | undefined"},{"decorators":[],"key":"Named","name":"secondIsDate","optional":false,"readonly":false,"span":{"end":1200,"start":1178},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"secondDateISO","optional":false,"readonly":false,"span":{"end":1243,"start":1209},"ts_type":"string | undefined"}]}}}]},"decorators":[],"name":"RecursiveDeserResult","span":{"end":1250,"start":951},"type_params":[]}
 
 ## Registry reads
 

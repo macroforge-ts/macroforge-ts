@@ -111,3 +111,33 @@ export interface AliasHolder {
     table: AliasRecord;
     members: AliasMembers[];
 }
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type AliasOutcome =
+    | { ok: true; at: Date; tags: Set<string> }
+    | { ok: false; reason: string; retries?: number };
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @endec({ untagged: true }) */
+export type AliasLoose = { kind: 'a'; when: Date } | { kind: 'b'; counts: Map<string, number> };
+
+/** @derive(Encode, Decode) */
+export type AliasName = string;
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface AliasCarried {
+    tags: string | string[];
+    size: number | 'auto' | null;
+    when: Date | string;
+    lookup: Record<string, number> | number[];
+    anything: unknown;
+}
+
+/** @derive(Default, Encode, Decode) */
+export type AliasPicked = Pick<EdgeItem, 'id'>;
+
+/** @derive(Default, Encode, Decode) */
+export type AliasRequired = Required<EdgeItem>;
+
+/** @derive(Default, Encode, Decode) */
+export type AliasInline = { x: number; label?: string; at: Date };

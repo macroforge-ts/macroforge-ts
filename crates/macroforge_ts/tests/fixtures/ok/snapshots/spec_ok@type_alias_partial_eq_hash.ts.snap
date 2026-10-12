@@ -18,6 +18,8 @@ true
 
 ## Output
 
+import { equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
+
 type Vector = {
     x: number;
     y: number;
@@ -26,15 +28,17 @@ type Vector = {
 
 export function vectorEquals(a: Vector, b: Vector): boolean {
     if (a === b) return true;
-    return a.x === b.x && a.y === b.y && a.z === b.z;
+    return __mf_equalWithin(a, b, () => a.x === b.x && a.y === b.y && a.z === b.z);
 }
 
 export function vectorHashCode(value: Vector): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (Number.isInteger(value.z) ? value.z | 0 : value.z.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 const Vector: {
@@ -62,15 +66,16 @@ export {};
 
 ## Mapping
 
-original 31..95 -> expanded 0..64
-original 95..96 -> expanded 952..953
-generated 64..213 <- PartialEq
-generated 213..791 <- Hash
-generated 791..952 <- __convenience_const
+original 31..95 -> expanded 114..178
+original 95..96 -> expanded 1156..1157
+generated 0..114 <- imports
+generated 178..357 <- PartialEq
+generated 357..995 <- Hash
+generated 995..1156 <- __convenience_const
 
 ## Metadata
 
-type Vector: {"body":{"Object":{"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":63,"start":53},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":78,"start":68},"ts_type":"number"},{"decorators":[],"name":"z","optional":false,"readonly":false,"span":{"end":93,"start":83},"ts_type":"number"}]}},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":32,"start":1}}],"name":"Vector","span":{"end":96,"start":33},"type_params":[]}
+type Vector: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":63,"start":53},"ts_type":"number"},{"decorators":[],"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":78,"start":68},"ts_type":"number"},{"decorators":[],"key":"Named","name":"z","optional":false,"readonly":false,"span":{"end":93,"start":83},"ts_type":"number"}]}},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":32,"start":1}}],"name":"Vector","span":{"end":96,"start":33},"type_params":[]}
 
 ## Registry reads
 

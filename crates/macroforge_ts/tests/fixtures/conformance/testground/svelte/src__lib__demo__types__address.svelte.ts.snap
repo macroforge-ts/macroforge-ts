@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -51,12 +51,9 @@ export function addressEncode(value: Address, keepMetadata?: boolean): string {
 export function addressEncodeWithContext(value: Address, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Address",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Address" });
     addressEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -188,7 +185,7 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("street")) || (__fields.keeps("street") && obj["street"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("street")) ? "street" in obj : (__fields.keeps("street") && obj["street"] !== undefined)) {
         const __raw_street = obj["street"] as string;
 
         if (!(typeof __raw_street === "string")) {
@@ -200,7 +197,7 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.street = __raw_street;
         }
     }
-    if ((__fields === undefined || __fields.requires("city")) || (__fields.keeps("city") && obj["city"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("city")) ? "city" in obj : (__fields.keeps("city") && obj["city"] !== undefined)) {
         const __raw_city = obj["city"] as string;
 
         if (!(typeof __raw_city === "string")) {
@@ -212,7 +209,7 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.city = __raw_city;
         }
     }
-    if ((__fields === undefined || __fields.requires("state")) || (__fields.keeps("state") && obj["state"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("state")) ? "state" in obj : (__fields.keeps("state") && obj["state"] !== undefined)) {
         const __raw_state = obj["state"] as string;
 
         if (!(typeof __raw_state === "string")) {
@@ -224,7 +221,7 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.state = __raw_state;
         }
     }
-    if ((__fields === undefined || __fields.requires("zipcode")) || (__fields.keeps("zipcode") && obj["zipcode"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("zipcode")) ? "zipcode" in obj : (__fields.keeps("zipcode") && obj["zipcode"] !== undefined)) {
         const __raw_zipcode = obj["zipcode"] as string;
 
         if (!(typeof __raw_zipcode === "string")) {
@@ -634,23 +631,23 @@ export declare const Address: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..139 -> expanded 741..773
-original 180..205 -> expanded 773..798
-original 246..269 -> expanded 798..821
-original 310..334 -> expanded 821..845
-original 375..398 -> expanded 845..868
-original 398..399 -> expanded 22195..22196
-generated 0..683 <- imports
-generated 868..1018 <- Default
-generated 1018..3629 <- Encode
-generated 3629..14467 <- Decode
-generated 14467..20956 <- Gigaform
-generated 20956..22195 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..139 -> expanded 813..845
+original 180..205 -> expanded 845..870
+original 246..269 -> expanded 870..893
+original 310..334 -> expanded 893..917
+original 375..398 -> expanded 917..940
+original 398..399 -> expanded 22319..22320
+generated 0..755 <- imports
+generated 940..1090 <- Default
+generated 1090..3687 <- Encode
+generated 3687..14591 <- Decode
+generated 14591..21080 <- Gigaform
+generated 21080..22319 <- __convenience_const
 
 ## Metadata
 
-interface Address: {"body_span":{"end":399,"start":134},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":181,"start":140}}],"name":"street","optional":false,"readonly":false,"span":{"end":201,"start":186},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":247,"start":206}}],"name":"city","optional":false,"readonly":false,"span":{"end":265,"start":252},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":311,"start":270}}],"name":"state","optional":false,"readonly":false,"span":{"end":330,"start":316},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":376,"start":335}}],"name":"zipcode","optional":false,"readonly":false,"span":{"end":397,"start":381},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Address","span":{"end":399,"start":116},"type_params":[]}
+interface Address: {"body_span":{"end":399,"start":134},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":181,"start":140}}],"key":"Named","name":"street","optional":false,"readonly":false,"span":{"end":201,"start":186},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":247,"start":206}}],"key":"Named","name":"city","optional":false,"readonly":false,"span":{"end":265,"start":252},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":311,"start":270}}],"key":"Named","name":"state","optional":false,"readonly":false,"span":{"end":330,"start":316},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":376,"start":335}}],"key":"Named","name":"zipcode","optional":false,"readonly":false,"span":{"end":397,"start":381},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Address","span":{"end":399,"start":116},"type_params":[]}
 
 ## Registry reads
 

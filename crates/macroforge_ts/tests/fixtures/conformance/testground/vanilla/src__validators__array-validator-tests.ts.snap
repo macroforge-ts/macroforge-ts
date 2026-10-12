@@ -116,7 +116,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("items")) || (__fields.keeps("items") && obj["items"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
         const __raw_items = obj["items"] as Array<string>;
         if (Array.isArray(__raw_items)) {
             if (__raw_items == null) { errors.push({ field: "items", message: "MaxItemsValidator.items is required" }); } else {
@@ -313,7 +313,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("items")) || (__fields.keeps("items") && obj["items"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
         const __raw_items = obj["items"] as Array<string>;
         if (Array.isArray(__raw_items)) {
             if (__raw_items == null) { errors.push({ field: "items", message: "MinItemsValidator.items is required" }); } else {
@@ -510,7 +510,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("items")) || (__fields.keeps("items") && obj["items"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
         const __raw_items = obj["items"] as Array<string>;
         if (Array.isArray(__raw_items)) {
             if (__raw_items == null) { errors.push({ field: "items", message: "ItemsCountValidator.items is required" }); } else {
@@ -778,25 +778,25 @@ export declare function itemsCountValidatorIs(value: unknown): value is ItemsCou
 ## Mapping
 
 original 0..240 -> expanded 418..658
-original 240..241 -> expanded 7382..7383
-original 241..396 -> expanded 9300..9455
-original 396..397 -> expanded 16182..16183
-original 397..558 -> expanded 18100..18261
-original 558..559 -> expanded 25043..25044
-original 559..560 -> expanded 26991..26992
+original 240..241 -> expanded 7398..7399
+original 241..396 -> expanded 9316..9471
+original 396..397 -> expanded 16214..16215
+original 397..558 -> expanded 18132..18293
+original 558..559 -> expanded 25091..25092
+original 559..560 -> expanded 27039..27040
 generated 0..418 <- imports
-generated 658..7382 <- Decode
-generated 7383..9300 <- Decode
-generated 9455..16182 <- Decode
-generated 16183..18100 <- Decode
-generated 18261..25043 <- Decode
-generated 25044..26991 <- Decode
+generated 658..7398 <- Decode
+generated 7399..9316 <- Decode
+generated 9471..16214 <- Decode
+generated 16215..18132 <- Decode
+generated 18293..25091 <- Decode
+generated 25092..27039 <- Decode
 
 ## Metadata
 
-class MaxItemsValidator: {"body_span":{"end":242,"start":164},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":132,"start":110}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"maxItems(5)\"] }","name":"endec","span":{"end":214,"start":170}}],"initializer":null,"name":"items","optional":false,"readonly":false,"span":{"end":240,"start":219},"ts_type":"Array<string>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MaxItemsValidator","span":{"end":242,"start":140},"superclass":null,"type_params":[]}
-class MinItemsValidator: {"body_span":{"end":398,"start":320},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":288,"start":266}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minItems(2)\"] }","name":"endec","span":{"end":370,"start":326}}],"initializer":null,"name":"items","optional":false,"readonly":false,"span":{"end":396,"start":375},"ts_type":"Array<string>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MinItemsValidator","span":{"end":398,"start":296},"superclass":null,"type_params":[]}
-class ItemsCountValidator: {"body_span":{"end":560,"start":480},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":446,"start":424}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"itemsCount(3)\"] }","name":"endec","span":{"end":532,"start":486}}],"initializer":null,"name":"items","optional":false,"readonly":false,"span":{"end":558,"start":537},"ts_type":"Array<string>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ItemsCountValidator","span":{"end":560,"start":454},"superclass":null,"type_params":[]}
+class MaxItemsValidator: {"body_span":{"end":242,"start":164},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":132,"start":110}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"maxItems(5)\"] }","name":"endec","span":{"end":214,"start":170}}],"initializer":null,"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":240,"start":219},"ts_type":"Array<string>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MaxItemsValidator","span":{"end":242,"start":140},"superclass":null,"type_params":[]}
+class MinItemsValidator: {"body_span":{"end":398,"start":320},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":288,"start":266}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minItems(2)\"] }","name":"endec","span":{"end":370,"start":326}}],"initializer":null,"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":396,"start":375},"ts_type":"Array<string>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MinItemsValidator","span":{"end":398,"start":296},"superclass":null,"type_params":[]}
+class ItemsCountValidator: {"body_span":{"end":560,"start":480},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":446,"start":424}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"itemsCount(3)\"] }","name":"endec","span":{"end":532,"start":486}}],"initializer":null,"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":558,"start":537},"ts_type":"Array<string>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ItemsCountValidator","span":{"end":560,"start":454},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

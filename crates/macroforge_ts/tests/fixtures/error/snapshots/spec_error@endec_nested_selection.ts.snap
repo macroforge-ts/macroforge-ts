@@ -22,7 +22,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Item {
@@ -41,12 +41,9 @@ export function itemEncode(value: Item, keepMetadata?: boolean): string {
 export function itemEncodeWithContext(value: Item, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Item",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Item" });
     itemEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -162,7 +159,7 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -171,7 +168,7 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("score")) || (__fields.keeps("score") && obj["score"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
         const __raw_score = obj["score"] as number;
 
         if (!(typeof __raw_score === "number")) {
@@ -288,18 +285,18 @@ Error [140..173]: @derive(Decode): `Partial<Pick<Item, 'id'>>` selects fields of
 
 ## Mapping
 
-original 30..84 -> expanded 524..578
-original 84..86 -> expanded 9461..9463
-original 116..175 -> expanded 9463..9522
-generated 0..524 <- imports
-generated 578..2808 <- Encode
-generated 2808..8554 <- Decode
-generated 8554..9461 <- __convenience_const
+original 30..84 -> expanded 596..650
+original 84..86 -> expanded 9548..9550
+original 116..175 -> expanded 9550..9609
+generated 0..596 <- imports
+generated 650..2866 <- Encode
+generated 2866..8641 <- Decode
+generated 8641..9548 <- __convenience_const
 
 ## Metadata
 
-interface Item: {"body_span":{"end":85,"start":47},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":64,"start":53},"ts_type":"string"},{"decorators":[],"name":"score","optional":false,"readonly":false,"span":{"end":83,"start":69},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Item","span":{"end":85,"start":32},"type_params":[]}
-interface Draft: {"body_span":{"end":175,"start":134},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":117,"start":87}}],"fields":[{"decorators":[],"name":"patch","optional":false,"readonly":false,"span":{"end":173,"start":140},"ts_type":"Partial<Pick<Item, 'id'>>"}],"heritage":[],"methods":[],"name":"Draft","span":{"end":175,"start":118},"type_params":[]}
+interface Item: {"body_span":{"end":85,"start":47},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":64,"start":53},"ts_type":"string"},{"decorators":[],"key":"Named","name":"score","optional":false,"readonly":false,"span":{"end":83,"start":69},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Item","span":{"end":85,"start":32},"type_params":[]}
+interface Draft: {"body_span":{"end":175,"start":134},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":117,"start":87}}],"fields":[{"decorators":[],"key":"Named","name":"patch","optional":false,"readonly":false,"span":{"end":173,"start":140},"ts_type":"Partial<Pick<Item, 'id'>>"}],"heritage":[],"methods":[],"name":"Draft","span":{"end":175,"start":118},"type_params":[]}
 
 ## Registry reads
 

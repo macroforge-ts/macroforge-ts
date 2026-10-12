@@ -14,7 +14,7 @@ true
 
 import { accountDecodeWithContext, accountEncodeWithContext } from "./account.svelte";
 import { orderDecodeWithContext, orderEncodeWithContext } from "./order.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -54,12 +54,9 @@ export function orderedEncode(value: Ordered, keepMetadata?: boolean): string {
 export function orderedEncodeWithContext(value: Ordered, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Ordered",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Ordered" });
     orderedEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -191,7 +188,7 @@ export function orderedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -200,7 +197,7 @@ export function orderedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("in")) || (__fields.keeps("in") && obj["in"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("in")) ? "in" in obj : (__fields.keeps("in") && obj["in"] !== undefined)) {
         const __raw_in = obj["in"] as string | Account;
 
         if (typeof __raw_in === "string") {
@@ -219,14 +216,15 @@ export function orderedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "in", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("out")) || (__fields.keeps("out") && obj["out"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("out")) ? "out" in obj : (__fields.keeps("out") && obj["out"] !== undefined)) {
         const __raw_out = obj["out"] as string | Order;
 
         if (typeof __raw_out === "string") {
@@ -245,14 +243,15 @@ export function orderedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "out", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("date")) || (__fields.keeps("date") && obj["date"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("date")) ? "date" in obj : (__fields.keeps("date") && obj["date"] !== undefined)) {
         const __raw_date = obj["date"] as string;
 
         if (!(typeof __raw_date === "string")) {
@@ -613,21 +612,21 @@ export declare const Ordered: {
 
 ## Mapping
 
-original 0..153 -> expanded 851..1004
-original 202..250 -> expanded 1004..1052
-original 269..300 -> expanded 1052..1083
-original 319..364 -> expanded 1083..1128
-original 364..365 -> expanded 19670..19671
-generated 0..851 <- imports
-generated 1128..1267 <- Default
-generated 1267..3983 <- Encode
-generated 3983..12137 <- Decode
-generated 12137..18431 <- Gigaform
-generated 18431..19670 <- __convenience_const
+original 0..153 -> expanded 923..1076
+original 202..250 -> expanded 1076..1124
+original 269..300 -> expanded 1124..1155
+original 319..364 -> expanded 1155..1200
+original 364..365 -> expanded 19942..19943
+generated 0..923 <- imports
+generated 1200..1339 <- Default
+generated 1339..4041 <- Encode
+generated 4041..12409 <- Decode
+generated 12409..18703 <- Gigaform
+generated 18703..19942 <- __convenience_const
 
 ## Metadata
 
-interface Ordered: {"body_span":{"end":365,"start":229},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":203,"start":154}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":246,"start":235},"ts_type":"string"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":270,"start":251}}],"name":"in","optional":false,"readonly":false,"span":{"end":296,"start":275},"ts_type":"string | Account"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":320,"start":301}}],"name":"out","optional":false,"readonly":false,"span":{"end":345,"start":325},"ts_type":"string | Order"},{"decorators":[],"name":"date","optional":false,"readonly":false,"span":{"end":363,"start":350},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Ordered","span":{"end":365,"start":211},"type_params":[]}
+interface Ordered: {"body_span":{"end":365,"start":229},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":203,"start":154}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":246,"start":235},"ts_type":"string"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":270,"start":251}}],"key":"Named","name":"in","optional":false,"readonly":false,"span":{"end":296,"start":275},"ts_type":"string | Account"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":320,"start":301}}],"key":"Named","name":"out","optional":false,"readonly":false,"span":{"end":345,"start":325},"ts_type":"string | Order"},{"decorators":[],"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":363,"start":350},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Ordered","span":{"end":365,"start":211},"type_params":[]}
 
 ## Registry reads
 

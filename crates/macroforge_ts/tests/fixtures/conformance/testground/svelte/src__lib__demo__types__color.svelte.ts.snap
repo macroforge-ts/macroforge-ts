@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -45,12 +45,9 @@ export function colorEncode(value: Color, keepMetadata?: boolean): string {
 export function colorEncodeWithContext(value: Color, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Color",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Color" });
     colorEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -174,7 +171,7 @@ export function colorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("red")) || (__fields.keeps("red") && obj["red"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("red")) ? "red" in obj : (__fields.keeps("red") && obj["red"] !== undefined)) {
         const __raw_red = obj["red"] as number;
 
         if (!(typeof __raw_red === "number")) {
@@ -183,7 +180,7 @@ export function colorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             instance.red = __raw_red;
         }
     }
-    if ((__fields === undefined || __fields.requires("green")) || (__fields.keeps("green") && obj["green"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("green")) ? "green" in obj : (__fields.keeps("green") && obj["green"] !== undefined)) {
         const __raw_green = obj["green"] as number;
 
         if (!(typeof __raw_green === "number")) {
@@ -192,7 +189,7 @@ export function colorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             instance.green = __raw_green;
         }
     }
-    if ((__fields === undefined || __fields.requires("blue")) || (__fields.keeps("blue") && obj["blue"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("blue")) ? "blue" in obj : (__fields.keeps("blue") && obj["blue"] !== undefined)) {
         const __raw_blue = obj["blue"] as number;
 
         if (!(typeof __raw_blue === "number")) {
@@ -530,19 +527,19 @@ export declare const Color: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..188 -> expanded 741..822
-original 188..189 -> expanded 16664..16665
-generated 0..683 <- imports
-generated 822..941 <- Default
-generated 941..3344 <- Encode
-generated 3344..9735 <- Decode
-generated 9735..15479 <- Gigaform
-generated 15479..16664 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..188 -> expanded 813..894
+original 188..189 -> expanded 16767..16768
+generated 0..755 <- imports
+generated 894..1013 <- Default
+generated 1013..3402 <- Encode
+generated 3402..9838 <- Decode
+generated 9838..15582 <- Gigaform
+generated 15582..16767 <- __convenience_const
 
 ## Metadata
 
-interface Color: {"body_span":{"end":189,"start":132},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"red","optional":false,"readonly":false,"span":{"end":150,"start":138},"ts_type":"number"},{"decorators":[],"name":"green","optional":false,"readonly":false,"span":{"end":169,"start":155},"ts_type":"number"},{"decorators":[],"name":"blue","optional":false,"readonly":false,"span":{"end":187,"start":174},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Color","span":{"end":189,"start":116},"type_params":[]}
+interface Color: {"body_span":{"end":189,"start":132},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"key":"Named","name":"red","optional":false,"readonly":false,"span":{"end":150,"start":138},"ts_type":"number"},{"decorators":[],"key":"Named","name":"green","optional":false,"readonly":false,"span":{"end":169,"start":155},"ts_type":"number"},{"decorators":[],"key":"Named","name":"blue","optional":false,"readonly":false,"span":{"end":187,"start":174},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Color","span":{"end":189,"start":116},"type_params":[]}
 
 ## Registry reads
 

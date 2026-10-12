@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -49,7 +49,9 @@ export function recurrenceEndEncodeWithContext(value: RecurrenceEnd, ctx: __mf_E
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -57,7 +59,7 @@ export function recurrenceEndEncodeWithContext(value: RecurrenceEnd, ctx: __mf_E
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function recurrenceEndDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: RecurrenceEnd } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, recurrenceEndHasShape);
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = recurrenceEndDecodeWithContext(data, ctx);
@@ -380,15 +382,15 @@ export declare const RecurrenceEnd: {
 
 ## Mapping
 
-original 0..58 -> expanded 556..614
-original 107..171 -> expanded 614..678
-original 171..172 -> expanded 9877..9878
-generated 0..556 <- imports
-generated 678..756 <- Default
-generated 756..2037 <- Encode
-generated 2037..4583 <- Decode
-generated 4583..8992 <- Gigaform
-generated 8992..9877 <- __convenience_const
+original 0..58 -> expanded 618..676
+original 107..171 -> expanded 676..740
+original 171..172 -> expanded 10095..10096
+generated 0..618 <- imports
+generated 740..818 <- Default
+generated 818..2214 <- Encode
+generated 2214..4801 <- Decode
+generated 4801..9210 <- Gigaform
+generated 9210..10095 <- __convenience_const
 
 ## Metadata
 

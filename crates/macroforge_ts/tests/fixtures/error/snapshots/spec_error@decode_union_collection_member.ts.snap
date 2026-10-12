@@ -112,7 +112,7 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -214,15 +214,15 @@ Error [83..114]: @derive(Decode): member `Item[]` of union 'OneOrMany' has no de
 ## Mapping
 
 original 22..57 -> expanded 350..385
-original 57..59 -> expanded 6132..6134
-original 81..114 -> expanded 6134..6167
+original 57..59 -> expanded 6145..6147
+original 81..114 -> expanded 6147..6180
 generated 0..350 <- imports
-generated 385..5521 <- Decode
-generated 5521..6132 <- __convenience_const
+generated 385..5534 <- Decode
+generated 5534..6145 <- __convenience_const
 
 ## Metadata
 
-interface Item: {"body_span":{"end":58,"start":39},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":56,"start":45},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Item","span":{"end":58,"start":24},"type_params":[]}
+interface Item: {"body_span":{"end":58,"start":39},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":56,"start":45},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Item","span":{"end":58,"start":24},"type_params":[]}
 type OneOrMany: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"Item"}},{"decorators":[],"kind":{"TypeRef":"Item[]"}}]},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":82,"start":60}}],"name":"OneOrMany","span":{"end":114,"start":83},"type_params":[]}
 
 ## Registry reads

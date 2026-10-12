@@ -13,7 +13,7 @@ true
 ## Output
 
 import { serviceDefaultsDecodeWithContext, serviceDefaultsEncodeWithContext, serviceDefaultsDefaultValue } from "./service-defaults.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -76,12 +76,9 @@ export function serviceEncode(value: Service, keepMetadata?: boolean): string {
 export function serviceEncodeWithContext(value: Service, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Service",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Service" });
     serviceEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -269,7 +266,7 @@ export function serviceDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -278,7 +275,7 @@ export function serviceDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -290,7 +287,7 @@ export function serviceDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("quickCode")) || (__fields.keeps("quickCode") && obj["quickCode"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("quickCode")) ? "quickCode" in obj : (__fields.keeps("quickCode") && obj["quickCode"] !== undefined)) {
         const __raw_quickCode = obj["quickCode"] as string;
 
         if (!(typeof __raw_quickCode === "string")) {
@@ -302,7 +299,7 @@ export function serviceDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.quickCode = __raw_quickCode;
         }
     }
-    if ((__fields === undefined || __fields.requires("group")) || (__fields.keeps("group") && obj["group"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("group")) ? "group" in obj : (__fields.keeps("group") && obj["group"] !== undefined)) {
         const __raw_group = obj["group"] as string | null;
 
         if (!(typeof __raw_group === "string" || __raw_group === null)) {
@@ -311,7 +308,7 @@ export function serviceDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.group = __raw_group;
         }
     }
-    if ((__fields === undefined || __fields.requires("subgroup")) || (__fields.keeps("subgroup") && obj["subgroup"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("subgroup")) ? "subgroup" in obj : (__fields.keeps("subgroup") && obj["subgroup"] !== undefined)) {
         const __raw_subgroup = obj["subgroup"] as string | null;
 
         if (!(typeof __raw_subgroup === "string" || __raw_subgroup === null)) {
@@ -320,7 +317,7 @@ export function serviceDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.subgroup = __raw_subgroup;
         }
     }
-    if ((__fields === undefined || __fields.requires("unit")) || (__fields.keeps("unit") && obj["unit"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("unit")) ? "unit" in obj : (__fields.keeps("unit") && obj["unit"] !== undefined)) {
         const __raw_unit = obj["unit"] as string | null;
 
         if (!(typeof __raw_unit === "string" || __raw_unit === null)) {
@@ -329,7 +326,7 @@ export function serviceDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.unit = __raw_unit;
         }
     }
-    if ((__fields === undefined || __fields.requires("active")) || (__fields.keeps("active") && obj["active"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("active")) ? "active" in obj : (__fields.keeps("active") && obj["active"] !== undefined)) {
         const __raw_active = obj["active"] as boolean;
 
         if (!(typeof __raw_active === "boolean")) {
@@ -338,7 +335,7 @@ export function serviceDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.active = __raw_active;
         }
     }
-    if ((__fields === undefined || __fields.requires("commission")) || (__fields.keeps("commission") && obj["commission"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("commission")) ? "commission" in obj : (__fields.keeps("commission") && obj["commission"] !== undefined)) {
         const __raw_commission = obj["commission"] as boolean;
 
         if (!(typeof __raw_commission === "boolean")) {
@@ -347,7 +344,7 @@ export function serviceDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.commission = __raw_commission;
         }
     }
-    if ((__fields === undefined || __fields.requires("favorite")) || (__fields.keeps("favorite") && obj["favorite"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("favorite")) ? "favorite" in obj : (__fields.keeps("favorite") && obj["favorite"] !== undefined)) {
         const __raw_favorite = obj["favorite"] as boolean;
 
         if (!(typeof __raw_favorite === "boolean")) {
@@ -356,7 +353,7 @@ export function serviceDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.favorite = __raw_favorite;
         }
     }
-    if ((__fields === undefined || __fields.requires("averageTime")) || (__fields.keeps("averageTime") && obj["averageTime"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("averageTime")) ? "averageTime" in obj : (__fields.keeps("averageTime") && obj["averageTime"] !== undefined)) {
         const __raw_averageTime = obj["averageTime"] as string | null;
 
         if (!(typeof __raw_averageTime === "string" || __raw_averageTime === null)) {
@@ -365,7 +362,7 @@ export function serviceDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.averageTime = __raw_averageTime;
         }
     }
-    if ((__fields === undefined || __fields.requires("defaults")) || (__fields.keeps("defaults") && obj["defaults"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("defaults")) ? "defaults" in obj : (__fields.keeps("defaults") && obj["defaults"] !== undefined)) {
         const __raw_defaults = obj["defaults"] as ServiceDefaults;
 
         ctx.pushScope("defaults");
@@ -381,7 +378,8 @@ export function serviceDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "defaults", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
@@ -1022,31 +1020,31 @@ export declare const Service: {
 
 ## Mapping
 
-original 0..125 -> expanded 824..949
-original 174..206 -> expanded 949..981
-original 234..255 -> expanded 981..1002
-original 296..301 -> expanded 1002..1007
-original 342..365 -> expanded 1007..1030
-original 412..417 -> expanded 1030..1035
-original 458..486 -> expanded 1035..1063
-original 551..582 -> expanded 1063..1094
-original 650..684 -> expanded 1094..1128
-original 750..780 -> expanded 1128..1158
-original 825..851 -> expanded 1158..1184
-original 900..930 -> expanded 1184..1214
-original 977..1005 -> expanded 1214..1242
-original 1054..1119 -> expanded 1242..1307
-original 1119..1120 -> expanded 36124..36125
-generated 0..824 <- imports
-generated 1307..1652 <- Default
-generated 1652..5479 <- Encode
-generated 5479..19409 <- Decode
-generated 19409..34885 <- Gigaform
-generated 34885..36124 <- __convenience_const
+original 0..125 -> expanded 896..1021
+original 174..206 -> expanded 1021..1053
+original 234..255 -> expanded 1053..1074
+original 296..301 -> expanded 1074..1079
+original 342..365 -> expanded 1079..1102
+original 412..417 -> expanded 1102..1107
+original 458..486 -> expanded 1107..1135
+original 551..582 -> expanded 1135..1166
+original 650..684 -> expanded 1166..1200
+original 750..780 -> expanded 1200..1230
+original 825..851 -> expanded 1230..1256
+original 900..930 -> expanded 1256..1286
+original 977..1005 -> expanded 1286..1314
+original 1054..1119 -> expanded 1314..1379
+original 1119..1120 -> expanded 36463..36464
+generated 0..896 <- imports
+generated 1379..1724 <- Default
+generated 1724..5537 <- Encode
+generated 5537..19748 <- Decode
+generated 19748..35224 <- Gigaform
+generated 35224..36463 <- __convenience_const
 
 ## Metadata
 
-interface Service: {"body_span":{"end":1120,"start":201},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":175,"start":126}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":235,"start":207}}],"name":"id","optional":false,"readonly":false,"span":{"end":251,"start":240},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":343,"start":302}},{"args_src":"{ label: \"Name\" }","name":"textController","span":{"end":297,"start":256}}],"name":"name","optional":false,"readonly":false,"span":{"end":361,"start":348},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":459,"start":418}},{"args_src":"{ label: \"Quick Code\" }","name":"textController","span":{"end":413,"start":366}}],"name":"quickCode","optional":false,"readonly":false,"span":{"end":482,"start":464},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Group\", allowCustom: true }","name":"comboboxController","span":{"end":552,"start":487}}],"name":"group","optional":false,"readonly":false,"span":{"end":578,"start":557},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Subgroup\", allowCustom: true }","name":"comboboxController","span":{"end":651,"start":583}}],"name":"subgroup","optional":false,"readonly":false,"span":{"end":680,"start":656},"ts_type":"string | null"},{"decorators":[{"args_src":"{ labeool: \"Unit\", allowCustom: true }","name":"comboboxController","span":{"end":751,"start":685}}],"name":"unit","optional":false,"readonly":false,"span":{"end":776,"start":756},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Active\" }","name":"switchController","span":{"end":826,"start":781}}],"name":"active","optional":false,"readonly":false,"span":{"end":847,"start":831},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Commission\" }","name":"switchController","span":{"end":901,"start":852}}],"name":"commission","optional":false,"readonly":false,"span":{"end":926,"start":906},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Favorite\" }","name":"switchController","span":{"end":978,"start":931}}],"name":"favorite","optional":false,"readonly":false,"span":{"end":1001,"start":983},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Average Time\" }","name":"textController","span":{"end":1055,"start":1006}}],"name":"averageTime","optional":false,"readonly":false,"span":{"end":1087,"start":1060},"ts_type":"string | null"},{"decorators":[],"name":"defaults","optional":false,"readonly":false,"span":{"end":1118,"start":1092},"ts_type":"ServiceDefaults"}],"heritage":[],"methods":[],"name":"Service","span":{"end":1120,"start":183},"type_params":[]}
+interface Service: {"body_span":{"end":1120,"start":201},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":175,"start":126}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":235,"start":207}}],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":251,"start":240},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":343,"start":302}},{"args_src":"{ label: \"Name\" }","name":"textController","span":{"end":297,"start":256}}],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":361,"start":348},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":459,"start":418}},{"args_src":"{ label: \"Quick Code\" }","name":"textController","span":{"end":413,"start":366}}],"key":"Named","name":"quickCode","optional":false,"readonly":false,"span":{"end":482,"start":464},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Group\", allowCustom: true }","name":"comboboxController","span":{"end":552,"start":487}}],"key":"Named","name":"group","optional":false,"readonly":false,"span":{"end":578,"start":557},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Subgroup\", allowCustom: true }","name":"comboboxController","span":{"end":651,"start":583}}],"key":"Named","name":"subgroup","optional":false,"readonly":false,"span":{"end":680,"start":656},"ts_type":"string | null"},{"decorators":[{"args_src":"{ labeool: \"Unit\", allowCustom: true }","name":"comboboxController","span":{"end":751,"start":685}}],"key":"Named","name":"unit","optional":false,"readonly":false,"span":{"end":776,"start":756},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Active\" }","name":"switchController","span":{"end":826,"start":781}}],"key":"Named","name":"active","optional":false,"readonly":false,"span":{"end":847,"start":831},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Commission\" }","name":"switchController","span":{"end":901,"start":852}}],"key":"Named","name":"commission","optional":false,"readonly":false,"span":{"end":926,"start":906},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Favorite\" }","name":"switchController","span":{"end":978,"start":931}}],"key":"Named","name":"favorite","optional":false,"readonly":false,"span":{"end":1001,"start":983},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Average Time\" }","name":"textController","span":{"end":1055,"start":1006}}],"key":"Named","name":"averageTime","optional":false,"readonly":false,"span":{"end":1087,"start":1060},"ts_type":"string | null"},{"decorators":[],"key":"Named","name":"defaults","optional":false,"readonly":false,"span":{"end":1118,"start":1092},"ts_type":"ServiceDefaults"}],"heritage":[],"methods":[],"name":"Service","span":{"end":1120,"start":183},"type_params":[]}
 
 ## Registry reads
 

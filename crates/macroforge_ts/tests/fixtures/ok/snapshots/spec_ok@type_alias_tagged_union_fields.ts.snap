@@ -17,7 +17,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeDate as __mf_decodeDate, decodeString as __mf_decodeString, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeDate as __mf_decodeDate, decodeString as __mf_decodeString, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Shape =
@@ -63,7 +63,9 @@ export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): u
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "kind": (value as any)["kind"] ?? __typeName, ...fields };
+        const __tagged = { "kind": (value as any)["kind"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -232,16 +234,16 @@ export {};
 
 ## Mapping
 
-original 61..165 -> expanded 533..637
-original 165..166 -> expanded 6652..6653
-generated 0..533 <- imports
-generated 637..2566 <- Encode
-generated 2566..6040 <- Decode
-generated 6040..6652 <- __convenience_const
+original 61..165 -> expanded 562..666
+original 165..166 -> expanded 6796..6797
+generated 0..562 <- imports
+generated 666..2710 <- Encode
+generated 2710..6184 <- Decode
+generated 6184..6796 <- __convenience_const
 
 ## Metadata
 
-type Shape: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":99,"start":84},"ts_type":"'circle'"},{"decorators":[],"name":"radius","optional":false,"readonly":false,"span":{"end":114,"start":100},"ts_type":"number"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":139,"start":125},"ts_type":"'event'"},{"decorators":[],"name":"at","optional":false,"readonly":false,"span":{"end":149,"start":140},"ts_type":"Date"},{"decorators":[],"name":"note","optional":true,"readonly":false,"span":{"end":163,"start":150},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":62,"start":32}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"name":"Shape","span":{"end":166,"start":63},"type_params":[]}
+type Shape: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":99,"start":84},"ts_type":"'circle'"},{"decorators":[],"key":"Named","name":"radius","optional":false,"readonly":false,"span":{"end":114,"start":100},"ts_type":"number"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":139,"start":125},"ts_type":"'event'"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":149,"start":140},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"note","optional":true,"readonly":false,"span":{"end":163,"start":150},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":62,"start":32}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"name":"Shape","span":{"end":166,"start":63},"type_params":[]}
 
 ## Registry reads
 

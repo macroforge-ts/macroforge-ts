@@ -140,6 +140,14 @@ Deno.test('a missing or malformed field is reported under its JSON key', () => {
     assertEquals(fieldsOf({ user_name: undefined }), ['user_name']);
     assertEquals(fieldsOf({ balance: 'not a number' }), ['balance']);
     assertEquals(fieldsOf({ optionalBalance: 'not a number' }), ['optionalBalance']);
+    // A decimal is a number or the text of one: nothing `Number()` merely coerces.
+    for (const bad of ['', '  ', true, null, [], {}]) {
+        assertEquals(fieldsOf({ balance: bad }), ['balance'], JSON.stringify(bad));
+    }
+    const numeric = mod.optionFieldsDecode({ ...wire, balance: 7, optionalBalance: ' 2.50 ' });
+    assert(numeric.success, JSON.stringify(numeric.errors));
+    assertStrictEquals(numeric.value.balance, 7);
+    assertStrictEquals(numeric.value.optionalBalance, 2.5);
     assertEquals(fieldsOf({ count: 'one' }), ['count']);
     assertEquals(fieldsOf({ tags: 'none' }), ['tags']);
     assertEquals(fieldsOf({ item: { id: 'i' } }), ['item.score']);
@@ -304,10 +312,191 @@ Deno.test('a value that fails its validator is reported under its field', () => 
     assertEquals(fieldsOf({ tags: [] }), ['tags']);
     assertEquals(fieldsOf({ at: 'not a date' }), ['at']);
     assertEquals(fieldsOf({ maybeAt: 'not a date' }), ['maybeAt']);
+    // A nullable date takes `null`, a date or the text of one, and no other value.
+    assertEquals(fieldsOf({ maybeAt: 5 }), ['maybeAt']);
+    assertEquals(fieldsOf({ maybeAt: { year: 2024 } }), ['maybeAt']);
+    assertEquals(fieldsOf({ at: null }), ['at']);
+    assertEquals(fieldsOf({ at: true }), ['at']);
     assertEquals(fieldsOf({ retries: -1 }), ['retries']);
     assertEquals(fieldsOf({ email: 'not mail', tags: [], retries: 0 }).sort(), [
         'email',
         'retries',
         'tags'
     ]);
+});
+
+Deno.test('every kind of field refuses a value that is not of its type', () => {
+    const valid = {
+        text: 't',
+        count: 1,
+        flag: true,
+        big: '12',
+        at: '2024-01-02T03:04:05.000Z',
+        item: { id: 'i', score: 1 },
+        size: 'small',
+        list: ['a'],
+        set: [1],
+        map: { a: 1 },
+        record: { a: true },
+        pair: ['a', 1],
+        inline: { x: 1 },
+        maybeText: null,
+        partial: {},
+        link: 'https://example.com/path',
+        query: 'a=1&b=2',
+        pattern: { source: 'a+', flags: 'g' },
+        failure: { name: 'RangeError', message: 'out of range' },
+        bytes: [1, 2, 255],
+        bigs: ['1', '-2'],
+        buffer: [3, 4]
+    };
+    const whole = mod.optionKindsDecode(valid);
+    assert(whole.success, JSON.stringify(whole.errors));
+    assert(whole.value.link instanceof URL);
+    assertStrictEquals(whole.value.query.get('b'), '2');
+    assertStrictEquals(whole.value.pattern.flags, 'g');
+    assertStrictEquals(whole.value.failure.name, 'RangeError');
+    assert(whole.value.bytes instanceof Uint8Array);
+    assertStrictEquals(whole.value.bigs[1], -2n);
+    assertStrictEquals(new Uint8Array(whole.value.buffer)[1], 4);
+    assertStrictEquals(whole.value.big, 12n);
+    // What was decoded encodes back to what it was decoded from.
+    const again = JSON.parse(mod.optionKindsEncode(whole.value));
+    for (const field of ['big', 'link', 'query', 'pattern', 'bytes', 'bigs', 'buffer']) {
+        assertEquals(again[field], valid[field], field);
+    }
+
+    const wrong = {
+        text: [null, 5, true, [], {}],
+        count: [null, 'x', true, [], {}],
+        flag: [null, 5, 'x', [], {}],
+        big: [null, 'x', true, [], {}, 1.5],
+        at: [null, 5, 'x', true, [], {}],
+        item: [null, 5, 'x', true, [], {}],
+        size: [null, 5, 'x', true, [], {}],
+        list: [null, 5, 'x', true, {}, [1]],
+        set: [null, 5, 'x', true, {}, ['a']],
+        map: [null, 5, 'x', true, [], { a: 'x' }],
+        record: [null, 5, 'x', true, [], { a: 1 }],
+        pair: [null, 5, 'x', true, {}, [], ['a'], ['a', 1, 2], [1, 'a']],
+        inline: [null, 5, 'x', true, [], {}, { x: '1' }],
+        maybeText: [5, true, [], {}],
+        laterText: [null, 5, true, [], {}],
+        partial: [null, 5, 'x', true, [], { id: 5 }],
+        link: [null, 5, true, [], {}, 'not a url'],
+        query: [null, 5, true, [], {}],
+        pattern: [null, 5, 'x', true, [], {}, { source: 5 }],
+        failure: [null, 5, 'x', true, [], {}, { message: 5 }],
+        bytes: [null, 5, 'x', true, {}, ['a']],
+        bigs: [null, 5, 'x', true, {}, [1], ['x'], ['1.5']],
+        buffer: [null, 5, 'x', true, {}, ['a']]
+    };
+    const accepted = [];
+    for (const [field, values] of Object.entries(wrong)) {
+        for (const value of values) {
+            const result = mod.optionKindsDecode({ ...valid, [field]: value });
+            const label = `${field}: ${JSON.stringify(value)}`;
+            if (result.success) {
+                accepted.push(label);
+                continue;
+            }
+            for (const error of result.errors) {
+                assert(
+                    error.field === field || error.field.startsWith(field),
+                    `${label} reported under ${error.field}`
+                );
+            }
+        }
+    }
+    assertEquals(accepted, []);
+});
+
+Deno.test('a default holds what each kind of field has to have', () => {
+    const value = mod.optionDefaultKindsDefaultValue();
+    assertEquals(value.required, { id: '', score: 0 });
+    assertEquals(value.partial, {});
+    assertEquals(value.picked, { id: '' });
+    assertEquals(value.dictionary, {});
+    assertEquals(value.inline, { x: 0 });
+    assertStrictEquals(value.carried, '');
+    assertStrictEquals(value.dated, '');
+    assertStrictEquals(value.size, 'small');
+    assertStrictEquals(value.linked, '');
+    assertStrictEquals(value.big, 0n);
+    assert(value.bytes instanceof Uint8Array);
+    assertStrictEquals(value.bytes.length, 0);
+    assertEquals(value.pair, ['', 0]);
+    assert(value.nested instanceof Map);
+    assertStrictEquals(value.nested.size, 0);
+    // Each default is a value of its own.
+    assertNotStrictEquals(mod.optionDefaultKindsDefaultValue().inline, value.inline);
+    assertNotStrictEquals(mod.optionDefaultKindsDefaultValue().picked, value.picked);
+});
+
+Deno.test('a class refuses a value of the wrong type in each kind of field, and defaults each', () => {
+    const valid = {
+        text: 't',
+        count: 1,
+        at: '2024-01-02T03:04:05.000Z',
+        big: '12',
+        item: { id: 'i', score: 1 },
+        list: ['a'],
+        map: { a: 1 },
+        pair: ['a', 1],
+        inline: { x: 1 },
+        picked: { id: 'p' },
+        required: { id: 'r', score: 2 },
+        maybe: null
+    };
+    const whole = mod.OptionKindsClass.decode(valid);
+    assert(whole.success, JSON.stringify(whole.errors));
+    assert(whole.value instanceof mod.OptionKindsClass);
+    assert(whole.value.at instanceof Date);
+    assertEquals(JSON.parse(mod.OptionKindsClass.encode(whole.value)), valid);
+
+    const wrong = {
+        text: [null, 5, true, [], {}],
+        count: [null, 'x', true, [], {}],
+        at: [null, 5, 'x', true, [], {}],
+        big: [null, 'x', true, [], {}],
+        item: [null, 5, 'x', true, [], {}],
+        list: [null, 5, 'x', true, {}, [1]],
+        map: [null, 5, 'x', true, [], { a: 'x' }],
+        pair: [null, 5, 'x', true, {}, [], ['a'], [1, 'a']],
+        inline: [null, 5, 'x', true, [], {}, { x: '1' }],
+        picked: [null, 5, 'x', true, [], {}, { id: 5 }],
+        required: [null, 5, 'x', true, [], {}, { id: 'r' }],
+        maybe: [5, true, [], {}],
+        later: [null, 5, true, [], {}]
+    };
+    const accepted = [];
+    for (const [field, values] of Object.entries(wrong)) {
+        for (const value of values) {
+            const result = mod.OptionKindsClass.decode({ ...valid, [field]: value });
+            const label = `${field}: ${JSON.stringify(value)}`;
+            if (result.success) accepted.push(label);
+            else {
+                for (const error of result.errors) {
+                    assert(error.field.startsWith(field), `${label} reported under ${error.field}`);
+                }
+            }
+        }
+    }
+    assertEquals(accepted, []);
+
+    const blank = mod.OptionKindsClass.defaultValue();
+    assert(blank instanceof mod.OptionKindsClass);
+    assertStrictEquals(blank.text, '');
+    assertStrictEquals(blank.count, 0);
+    assert(blank.at instanceof Date);
+    assertStrictEquals(blank.big, 0n);
+    assertEquals(blank.item, { id: '', score: 0 });
+    assertEquals(blank.list, []);
+    assert(blank.map instanceof Map);
+    assertEquals(blank.pair, ['', 0]);
+    assertEquals(blank.inline, { x: 0 });
+    assertEquals(blank.picked, { id: '' });
+    assertEquals(blank.required, { id: '', score: 0 });
+    assertStrictEquals(blank.maybe, null);
+    assert(!('later' in blank));
 });

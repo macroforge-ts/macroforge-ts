@@ -279,3 +279,150 @@ Deno.test('a reference to a value of another type fails to decode', async () => 
         );
     }
 });
+
+Deno.test('the value traits follow a value that holds itself', () => {
+    const cyclic = () => {
+        const root = { name: 'root', parent: null, children: [] };
+        root.children.push({ name: 'child', parent: root, children: [] });
+        return root;
+    };
+    const root = cyclic();
+
+    const copy = mod.graphTreeClone(root);
+    assert(copy !== root);
+    assertStrictEquals(copy.name, 'root');
+    assertStrictEquals(copy.children[0].parent, copy);
+    assert(copy.children[0] !== root.children[0]);
+
+    assert(mod.graphTreeEquals(root, copy));
+    assert(mod.graphTreeEquals(root, cyclic()));
+    const other = cyclic();
+    other.children[0].name = 'changed';
+    assert(!mod.graphTreeEquals(root, other));
+    assert(!mod.graphTreeEquals(other, root));
+
+    assertStrictEquals(mod.graphTreeHashCode(root), mod.graphTreeHashCode(cyclic()));
+    assert(mod.graphTreeHashCode(root) !== mod.graphTreeHashCode(other));
+    assertEquals(
+        mod.graphTreeToString(root),
+        'GraphTree { name: root, parent: null, children: [GraphTree { name: child, parent: [Circular], children: [] }] }'
+    );
+
+    // A value held twice is one value in the copy, as it is in the original.
+    const shared = { name: 'shared', parent: null, children: [] };
+    const tree = { name: 'tree', parent: null, children: [shared, shared] };
+    const twin = mod.graphTreeClone(tree);
+    assertStrictEquals(twin.children[0], twin.children[1]);
+    assert(twin.children[0] !== shared);
+    assert(mod.graphTreeEquals(tree, twin));
+    assertStrictEquals(mod.graphTreeHashCode(tree), mod.graphTreeHashCode(twin));
+    // The next clone starts afresh.
+    assert(mod.graphTreeClone(tree).children[0] !== twin.children[0]);
+});
+
+Deno.test('the value traits follow class instances that hold each other', () => {
+    const person = (name) =>
+        decoded(mod.GraphPerson.decode({ name, best: null, friends: [], circle: [], byName: {} }));
+    const pair = () => {
+        const ada = person('Ada');
+        const grace = person('Grace');
+        ada.best = grace;
+        grace.best = ada;
+        ada.friends.push(grace, ada);
+        ada.circle.add(grace);
+        grace.byName.set('ada', ada);
+        return ada;
+    };
+    const ada = pair();
+
+    const copy = mod.GraphPerson.clone(ada);
+    assert(copy instanceof mod.GraphPerson);
+    assert(copy !== ada);
+    assert(copy.best instanceof mod.GraphPerson);
+    assertStrictEquals(copy.best.best, copy);
+    assertStrictEquals(copy.friends[0], copy.best);
+    assertStrictEquals(copy.friends[1], copy);
+    assert(copy.circle.has(copy.best));
+    assertStrictEquals(copy.best.byName.get('ada'), copy);
+
+    assert(mod.GraphPerson.equals(ada, copy));
+    assert(mod.GraphPerson.equals(ada, pair()));
+    assertStrictEquals(mod.GraphPerson.hashCode(ada), mod.GraphPerson.hashCode(pair()));
+    const other = pair();
+    other.best.name = 'Hopper';
+    assert(!mod.GraphPerson.equals(ada, other));
+    assert(mod.GraphPerson.toString(ada).includes('[Circular]'));
+});
+
+Deno.test('without its metadata a value held twice is written out at each place', () => {
+    const item = { id: 'shared', score: 1 };
+    const other = { id: 'other', score: 2 };
+    const source = {
+        first: item,
+        again: item,
+        maybe: item,
+        list: [item, other, item],
+        set: new Set([item, other]),
+        byName: new Map([
+            ['a', item],
+            ['b', other]
+        ]),
+        record: { a: item, b: other },
+        pair: [item, other]
+    };
+    const text = mod.graphSharedEncode(source);
+    assert(!text.includes('__ref'));
+    assert(!text.includes('__id'));
+    assertEquals(JSON.parse(text).again, item);
+    assertEquals(JSON.parse(text).list, [item, other, item]);
+
+    // Nothing says the copies were one value, so they decode as equal ones.
+    const shared = decoded(mod.graphSharedDecode(text));
+    assertEquals(shared, source);
+    assert(shared.again !== shared.first);
+
+    const person = (name) =>
+        decoded(mod.GraphPerson.decode({ name, best: null, friends: [], circle: [], byName: {} }));
+    const ada = person('Ada');
+    const grace = person('Grace');
+    ada.friends.push(grace, grace);
+    ada.byName.set('g', grace);
+    const people = JSON.parse(mod.GraphPerson.encode(ada));
+    assertEquals(people.friends.map((friend) => friend.name), ['Grace', 'Grace']);
+    assertStrictEquals(people.byName.g.name, 'Grace');
+    assert(decoded(mod.GraphPerson.decode(people)).friends[1] instanceof mod.GraphPerson);
+});
+
+Deno.test('without its metadata a value that holds itself has no text', () => {
+    const loop = { name: 'loop', self: null, view: null, rest: null, patch: null };
+    loop.self = loop;
+    assertThrows(() => mod.graphLoopEncode(loop), TypeError, 'keepMetadata');
+
+    const root = { name: 'root', parent: null, children: [] };
+    root.children.push({ name: 'child', parent: root, children: [] });
+    assertThrows(() => mod.graphTreeEncode(root), TypeError, 'keepMetadata');
+    assertStrictEquals(typeof mod.graphTreeEncode(root, true), 'string');
+});
+
+Deno.test('the ordering derives follow a value that holds itself', () => {
+    const cyclic = (childName) => {
+        const root = { name: 'root', parent: null, children: [] };
+        root.children.push({ name: childName, parent: root, children: [] });
+        return root;
+    };
+    const first = cyclic('a');
+    const same = cyclic('a');
+    const later = cyclic('b');
+
+    assertStrictEquals(mod.graphTreeCompare(first, same), 0);
+    assertStrictEquals(mod.graphTreePartialCompare(first, same), 0);
+    assert(mod.graphTreeCompare(first, later) < 0);
+    assert(mod.graphTreeCompare(later, first) > 0);
+    assert(mod.graphTreePartialCompare(first, later) < 0);
+    assert(mod.graphTreePartialCompare(later, first) > 0);
+
+    // A sort over such values ends, and agrees with their equality.
+    const sorted = [later, first, same].sort(mod.graphTreeCompare);
+    assertStrictEquals(sorted[2], later);
+    assert(mod.graphTreeEquals(sorted[0], sorted[1]));
+});

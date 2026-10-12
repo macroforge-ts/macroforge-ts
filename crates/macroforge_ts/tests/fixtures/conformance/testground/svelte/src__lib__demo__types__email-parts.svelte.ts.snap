@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -48,12 +48,9 @@ export function emailPartsEncode(value: EmailParts, keepMetadata?: boolean): str
 export function emailPartsEncodeWithContext(value: EmailParts, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "EmailParts",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "EmailParts" });
     emailPartsEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -177,7 +174,7 @@ export function emailPartsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("local")) || (__fields.keeps("local") && obj["local"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("local")) ? "local" in obj : (__fields.keeps("local") && obj["local"] !== undefined)) {
         const __raw_local = obj["local"] as string;
 
         if (!(typeof __raw_local === "string")) {
@@ -189,7 +186,7 @@ export function emailPartsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.local = __raw_local;
         }
     }
-    if ((__fields === undefined || __fields.requires("domainName")) || (__fields.keeps("domainName") && obj["domainName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("domainName")) ? "domainName" in obj : (__fields.keeps("domainName") && obj["domainName"] !== undefined)) {
         const __raw_domainName = obj["domainName"] as string;
 
         if (!(typeof __raw_domainName === "string")) {
@@ -201,7 +198,7 @@ export function emailPartsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.domainName = __raw_domainName;
         }
     }
-    if ((__fields === undefined || __fields.requires("topLevelDomain")) || (__fields.keeps("topLevelDomain") && obj["topLevelDomain"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("topLevelDomain")) ? "topLevelDomain" in obj : (__fields.keeps("topLevelDomain") && obj["topLevelDomain"] !== undefined)) {
         const __raw_topLevelDomain = obj["topLevelDomain"] as string;
 
         if (!(typeof __raw_topLevelDomain === "string")) {
@@ -566,22 +563,22 @@ export declare const EmailParts: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..142 -> expanded 741..776
-original 183..207 -> expanded 776..800
-original 248..277 -> expanded 800..829
-original 318..348 -> expanded 829..859
-original 348..349 -> expanded 20484..20485
-generated 0..683 <- imports
-generated 859..1008 <- Default
-generated 1008..3554 <- Encode
-generated 3554..13408 <- Decode
-generated 13408..19164 <- Gigaform
-generated 19164..20484 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..142 -> expanded 813..848
+original 183..207 -> expanded 848..872
+original 248..277 -> expanded 872..901
+original 318..348 -> expanded 901..931
+original 348..349 -> expanded 20604..20605
+generated 0..755 <- imports
+generated 931..1080 <- Default
+generated 1080..3612 <- Encode
+generated 3612..13528 <- Decode
+generated 13528..19284 <- Gigaform
+generated 19284..20604 <- __convenience_const
 
 ## Metadata
 
-interface EmailParts: {"body_span":{"end":349,"start":137},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":184,"start":143}}],"name":"local","optional":false,"readonly":false,"span":{"end":203,"start":189},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":249,"start":208}}],"name":"domainName","optional":false,"readonly":false,"span":{"end":273,"start":254},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":319,"start":278}}],"name":"topLevelDomain","optional":false,"readonly":false,"span":{"end":347,"start":324},"ts_type":"string"}],"heritage":[],"methods":[],"name":"EmailParts","span":{"end":349,"start":116},"type_params":[]}
+interface EmailParts: {"body_span":{"end":349,"start":137},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":184,"start":143}}],"key":"Named","name":"local","optional":false,"readonly":false,"span":{"end":203,"start":189},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":249,"start":208}}],"key":"Named","name":"domainName","optional":false,"readonly":false,"span":{"end":273,"start":254},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":319,"start":278}}],"key":"Named","name":"topLevelDomain","optional":false,"readonly":false,"span":{"end":347,"start":324},"ts_type":"string"}],"heritage":[],"methods":[],"name":"EmailParts","span":{"end":349,"start":116},"type_params":[]}
 
 ## Registry reads
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -43,12 +43,9 @@ export function promotionEncode(value: Promotion, keepMetadata?: boolean): strin
 export function promotionEncodeWithContext(value: Promotion, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Promotion",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Promotion" });
     promotionEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -164,7 +161,7 @@ export function promotionDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -173,7 +170,7 @@ export function promotionDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("date")) || (__fields.keeps("date") && obj["date"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("date")) ? "date" in obj : (__fields.keeps("date") && obj["date"] !== undefined)) {
         const __raw_date = obj["date"] as string;
 
         if (!(typeof __raw_date === "string")) {
@@ -466,19 +463,19 @@ export declare const Promotion: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..172 -> expanded 741..806
-original 172..173 -> expanded 14694..14695
-generated 0..683 <- imports
-generated 806..916 <- Default
-generated 916..3217 <- Encode
-generated 3217..9118 <- Decode
-generated 9118..13401 <- Gigaform
-generated 13401..14694 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..172 -> expanded 813..878
+original 172..173 -> expanded 14780..14781
+generated 0..755 <- imports
+generated 878..988 <- Default
+generated 988..3275 <- Encode
+generated 3275..9204 <- Decode
+generated 9204..13487 <- Gigaform
+generated 13487..14780 <- __convenience_const
 
 ## Metadata
 
-interface Promotion: {"body_span":{"end":173,"start":136},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":153,"start":142},"ts_type":"string"},{"decorators":[],"name":"date","optional":false,"readonly":false,"span":{"end":171,"start":158},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Promotion","span":{"end":173,"start":116},"type_params":[]}
+interface Promotion: {"body_span":{"end":173,"start":136},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":153,"start":142},"ts_type":"string"},{"decorators":[],"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":171,"start":158},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Promotion","span":{"end":173,"start":116},"type_params":[]}
 
 ## Registry reads
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -43,12 +43,9 @@ export function viewedEncode(value: Viewed, keepMetadata?: boolean): string {
 export function viewedEncodeWithContext(value: Viewed, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Viewed",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Viewed" });
     viewedEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -164,7 +161,7 @@ export function viewedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("durationSeconds")) || (__fields.keeps("durationSeconds") && obj["durationSeconds"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("durationSeconds")) ? "durationSeconds" in obj : (__fields.keeps("durationSeconds") && obj["durationSeconds"] !== undefined)) {
         const __raw_durationSeconds = obj["durationSeconds"] as number | null;
 
         if (!(typeof __raw_durationSeconds === "number" || __raw_durationSeconds === null)) {
@@ -173,7 +170,7 @@ export function viewedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
             instance.durationSeconds = __raw_durationSeconds;
         }
     }
-    if ((__fields === undefined || __fields.requires("source")) || (__fields.keeps("source") && obj["source"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("source")) ? "source" in obj : (__fields.keeps("source") && obj["source"] !== undefined)) {
         const __raw_source = obj["source"] as string | null;
 
         if (!(typeof __raw_source === "string" || __raw_source === null)) {
@@ -470,19 +467,19 @@ export declare const Viewed: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..198 -> expanded 741..832
-original 198..199 -> expanded 15244..15245
-generated 0..683 <- imports
-generated 832..955 <- Default
-generated 955..3271 <- Encode
-generated 3271..9258 <- Decode
-generated 9258..14032 <- Gigaform
-generated 14032..15244 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..198 -> expanded 813..904
+original 198..199 -> expanded 15345..15346
+generated 0..755 <- imports
+generated 904..1027 <- Default
+generated 1027..3329 <- Encode
+generated 3329..9359 <- Decode
+generated 9359..14133 <- Gigaform
+generated 14133..15345 <- __convenience_const
 
 ## Metadata
 
-interface Viewed: {"body_span":{"end":199,"start":133},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"durationSeconds","optional":false,"readonly":false,"span":{"end":170,"start":139},"ts_type":"number | null"},{"decorators":[],"name":"source","optional":false,"readonly":false,"span":{"end":197,"start":175},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Viewed","span":{"end":199,"start":116},"type_params":[]}
+interface Viewed: {"body_span":{"end":199,"start":133},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"key":"Named","name":"durationSeconds","optional":false,"readonly":false,"span":{"end":170,"start":139},"ts_type":"number | null"},{"decorators":[],"key":"Named","name":"source","optional":false,"readonly":false,"span":{"end":197,"start":175},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Viewed","span":{"end":199,"start":116},"type_params":[]}
 
 ## Registry reads
 

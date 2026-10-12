@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -47,12 +47,9 @@ export function personNameEncode(value: PersonName, keepMetadata?: boolean): str
 export function personNameEncodeWithContext(value: PersonName, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "PersonName",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "PersonName" });
     personNameEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -168,7 +165,7 @@ export function personNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("firstName")) || (__fields.keeps("firstName") && obj["firstName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("firstName")) ? "firstName" in obj : (__fields.keeps("firstName") && obj["firstName"] !== undefined)) {
         const __raw_firstName = obj["firstName"] as string;
 
         if (!(typeof __raw_firstName === "string")) {
@@ -180,7 +177,7 @@ export function personNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.firstName = __raw_firstName;
         }
     }
-    if ((__fields === undefined || __fields.requires("lastName")) || (__fields.keeps("lastName") && obj["lastName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("lastName")) ? "lastName" in obj : (__fields.keeps("lastName") && obj["lastName"] !== undefined)) {
         const __raw_lastName = obj["lastName"] as string;
 
         if (!(typeof __raw_lastName === "string")) {
@@ -500,23 +497,23 @@ export declare const PersonName: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..142 -> expanded 741..776
-original 189..194 -> expanded 776..781
-original 235..263 -> expanded 781..809
-original 309..314 -> expanded 809..814
-original 355..379 -> expanded 814..838
-original 379..380 -> expanded 17252..17253
-generated 0..683 <- imports
-generated 838..961 <- Default
-generated 961..3321 <- Encode
-generated 3321..11390 <- Decode
-generated 11390..15932 <- Gigaform
-generated 15932..17252 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..142 -> expanded 813..848
+original 189..194 -> expanded 848..853
+original 235..263 -> expanded 853..881
+original 309..314 -> expanded 881..886
+original 355..379 -> expanded 886..910
+original 379..380 -> expanded 17349..17350
+generated 0..755 <- imports
+generated 910..1033 <- Default
+generated 1033..3379 <- Encode
+generated 3379..11487 <- Decode
+generated 11487..16029 <- Gigaform
+generated 16029..17349 <- __convenience_const
 
 ## Metadata
 
-interface PersonName: {"body_span":{"end":380,"start":137},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":236,"start":195}},{"args_src":"{ label: \"First Name\" }","name":"textController","span":{"end":190,"start":143}}],"name":"firstName","optional":false,"readonly":false,"span":{"end":259,"start":241},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":356,"start":315}},{"args_src":"{ label: \"Last Name\" }","name":"textController","span":{"end":310,"start":264}}],"name":"lastName","optional":false,"readonly":false,"span":{"end":378,"start":361},"ts_type":"string"}],"heritage":[],"methods":[],"name":"PersonName","span":{"end":380,"start":116},"type_params":[]}
+interface PersonName: {"body_span":{"end":380,"start":137},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":236,"start":195}},{"args_src":"{ label: \"First Name\" }","name":"textController","span":{"end":190,"start":143}}],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":259,"start":241},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":356,"start":315}},{"args_src":"{ label: \"Last Name\" }","name":"textController","span":{"end":310,"start":264}}],"key":"Named","name":"lastName","optional":false,"readonly":false,"span":{"end":378,"start":361},"ts_type":"string"}],"heritage":[],"methods":[],"name":"PersonName","span":{"end":380,"start":116},"type_params":[]}
 
 ## Registry reads
 

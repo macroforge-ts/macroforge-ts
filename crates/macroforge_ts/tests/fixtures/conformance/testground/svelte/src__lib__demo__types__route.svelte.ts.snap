@@ -13,7 +13,7 @@ true
 ## Output
 
 import { employeeDecodeWithContext, employeeEncodeWithContext } from "./employee.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -67,12 +67,9 @@ export function routeEncode(value: Route, keepMetadata?: boolean): string {
 export function routeEncodeWithContext(value: Route, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Route",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Route" });
     routeEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -260,7 +257,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -269,7 +266,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("techs")) || (__fields.keeps("techs") && obj["techs"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("techs")) ? "techs" in obj : (__fields.keeps("techs") && obj["techs"] !== undefined)) {
         const __raw_techs = obj["techs"] as Array<string | Employee> | null;
 
         if (__raw_techs === null) {
@@ -298,7 +295,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("active")) || (__fields.keeps("active") && obj["active"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("active")) ? "active" in obj : (__fields.keeps("active") && obj["active"] !== undefined)) {
         const __raw_active = obj["active"] as boolean;
 
         if (!(typeof __raw_active === "boolean")) {
@@ -307,7 +304,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             instance.active = __raw_active;
         }
     }
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -319,7 +316,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("phone")) || (__fields.keeps("phone") && obj["phone"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("phone")) ? "phone" in obj : (__fields.keeps("phone") && obj["phone"] !== undefined)) {
         const __raw_phone = obj["phone"] as string;
 
         if (!(typeof __raw_phone === "string")) {
@@ -331,7 +328,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             instance.phone = __raw_phone;
         }
     }
-    if ((__fields === undefined || __fields.requires("position")) || (__fields.keeps("position") && obj["position"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("position")) ? "position" in obj : (__fields.keeps("position") && obj["position"] !== undefined)) {
         const __raw_position = obj["position"] as string;
 
         if (!(typeof __raw_position === "string")) {
@@ -343,7 +340,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             instance.position = __raw_position;
         }
     }
-    if ((__fields === undefined || __fields.requires("serviceRoute")) || (__fields.keeps("serviceRoute") && obj["serviceRoute"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("serviceRoute")) ? "serviceRoute" in obj : (__fields.keeps("serviceRoute") && obj["serviceRoute"] !== undefined)) {
         const __raw_serviceRoute = obj["serviceRoute"] as boolean;
 
         if (!(typeof __raw_serviceRoute === "boolean")) {
@@ -352,7 +349,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             instance.serviceRoute = __raw_serviceRoute;
         }
     }
-    if ((__fields === undefined || __fields.requires("defaultDurationHours")) || (__fields.keeps("defaultDurationHours") && obj["defaultDurationHours"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("defaultDurationHours")) ? "defaultDurationHours" in obj : (__fields.keeps("defaultDurationHours") && obj["defaultDurationHours"] !== undefined)) {
         const __raw_defaultDurationHours = obj["defaultDurationHours"] as number;
 
         if (!(typeof __raw_defaultDurationHours === "number")) {
@@ -361,7 +358,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             instance.defaultDurationHours = __raw_defaultDurationHours;
         }
     }
-    if ((__fields === undefined || __fields.requires("tags")) || (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
         const __raw_tags = obj["tags"] as Array<string>;
         if (Array.isArray(__raw_tags)) {
             ctx.pushScope("tags");
@@ -385,7 +382,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             errors.push({ field: "tags", message: __raw_tags == null ? "Route.tags is required" : "expected Array<string>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("icon")) || (__fields.keeps("icon") && obj["icon"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("icon")) ? "icon" in obj : (__fields.keeps("icon") && obj["icon"] !== undefined)) {
         const __raw_icon = obj["icon"] as string | null;
 
         if (!(typeof __raw_icon === "string" || __raw_icon === null)) {
@@ -394,7 +391,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             instance.icon = __raw_icon;
         }
     }
-    if ((__fields === undefined || __fields.requires("color")) || (__fields.keeps("color") && obj["color"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("color")) ? "color" in obj : (__fields.keeps("color") && obj["color"] !== undefined)) {
         const __raw_color = obj["color"] as string | null;
 
         if (!(typeof __raw_color === "string" || __raw_color === null)) {
@@ -1043,22 +1040,22 @@ export declare const Route: {
 
 ## Mapping
 
-original 0..110 -> expanded 863..973
-original 159..270 -> expanded 973..1084
-original 311..334 -> expanded 1084..1107
-original 375..399 -> expanded 1107..1131
-original 440..601 -> expanded 1131..1292
-original 601..602 -> expanded 38023..38024
-generated 0..863 <- imports
-generated 1292..1600 <- Default
-generated 1600..5488 <- Encode
-generated 5488..21354 <- Decode
-generated 21354..36838 <- Gigaform
-generated 36838..38023 <- __convenience_const
+original 0..110 -> expanded 935..1045
+original 159..270 -> expanded 1045..1156
+original 311..334 -> expanded 1156..1179
+original 375..399 -> expanded 1179..1203
+original 440..601 -> expanded 1203..1364
+original 601..602 -> expanded 38277..38278
+generated 0..935 <- imports
+generated 1364..1672 <- Default
+generated 1672..5546 <- Encode
+generated 5546..21608 <- Decode
+generated 21608..37092 <- Gigaform
+generated 37092..38277 <- __convenience_const
 
 ## Metadata
 
-interface Route: {"body_span":{"end":602,"start":184},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":160,"start":111}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":201,"start":190},"ts_type":"string"},{"decorators":[],"name":"techs","optional":false,"readonly":false,"span":{"end":245,"start":206},"ts_type":"Array<string | Employee> | null"},{"decorators":[],"name":"active","optional":false,"readonly":false,"span":{"end":266,"start":250},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":312,"start":271}}],"name":"name","optional":false,"readonly":false,"span":{"end":330,"start":317},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":376,"start":335}}],"name":"phone","optional":false,"readonly":false,"span":{"end":395,"start":381},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":441,"start":400}}],"name":"position","optional":false,"readonly":false,"span":{"end":463,"start":446},"ts_type":"string"},{"decorators":[],"name":"serviceRoute","optional":false,"readonly":false,"span":{"end":490,"start":468},"ts_type":"boolean"},{"decorators":[],"name":"defaultDurationHours","optional":false,"readonly":false,"span":{"end":524,"start":495},"ts_type":"number"},{"decorators":[],"name":"tags","optional":false,"readonly":false,"span":{"end":549,"start":529},"ts_type":"Array<string>"},{"decorators":[],"name":"icon","optional":false,"readonly":false,"span":{"end":574,"start":554},"ts_type":"string | null"},{"decorators":[],"name":"color","optional":false,"readonly":false,"span":{"end":600,"start":579},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Route","span":{"end":602,"start":168},"type_params":[]}
+interface Route: {"body_span":{"end":602,"start":184},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":160,"start":111}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":201,"start":190},"ts_type":"string"},{"decorators":[],"key":"Named","name":"techs","optional":false,"readonly":false,"span":{"end":245,"start":206},"ts_type":"Array<string | Employee> | null"},{"decorators":[],"key":"Named","name":"active","optional":false,"readonly":false,"span":{"end":266,"start":250},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":312,"start":271}}],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":330,"start":317},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":376,"start":335}}],"key":"Named","name":"phone","optional":false,"readonly":false,"span":{"end":395,"start":381},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":441,"start":400}}],"key":"Named","name":"position","optional":false,"readonly":false,"span":{"end":463,"start":446},"ts_type":"string"},{"decorators":[],"key":"Named","name":"serviceRoute","optional":false,"readonly":false,"span":{"end":490,"start":468},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"defaultDurationHours","optional":false,"readonly":false,"span":{"end":524,"start":495},"ts_type":"number"},{"decorators":[],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":549,"start":529},"ts_type":"Array<string>"},{"decorators":[],"key":"Named","name":"icon","optional":false,"readonly":false,"span":{"end":574,"start":554},"ts_type":"string | null"},{"decorators":[],"key":"Named","name":"color","optional":false,"readonly":false,"span":{"end":600,"start":579},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Route","span":{"end":602,"start":168},"type_params":[]}
 
 ## Registry reads
 

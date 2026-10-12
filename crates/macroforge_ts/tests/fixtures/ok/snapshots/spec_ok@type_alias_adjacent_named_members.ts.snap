@@ -25,7 +25,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Circle {
@@ -43,12 +43,9 @@ export function circleEncode(value: Circle, keepMetadata?: boolean): string {
 export function circleEncodeWithContext(value: Circle, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Circle",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Circle" });
     circleEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -156,7 +153,7 @@ export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("radius")) || (__fields.keeps("radius") && obj["radius"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("radius")) ? "radius" in obj : (__fields.keeps("radius") && obj["radius"] !== undefined)) {
         const __raw_radius = obj["radius"] as number;
 
         if (!(typeof __raw_radius === "number")) {
@@ -236,12 +233,9 @@ export function squareEncode(value: Square, keepMetadata?: boolean): string {
 export function squareEncodeWithContext(value: Square, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Square",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Square" });
     squareEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -349,7 +343,7 @@ export function squareDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("side")) || (__fields.keeps("side") && obj["side"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("side")) ? "side" in obj : (__fields.keeps("side") && obj["side"] !== undefined)) {
         const __raw_side = obj["side"] as number;
 
         if (!(typeof __raw_side === "number")) {
@@ -449,7 +443,7 @@ export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): u
     if (typeof __typeName !== "string") return __variant;
 
     const __outer: Record<string, unknown> = { "kind": __typeName, "data": fields };
-    if (__idVal !== undefined) __outer.__id = __idVal;
+    if (__idVal !== undefined) __mf_encodedAs(ctx, __idVal, __outer);
     return __outer;
 }
 
@@ -669,27 +663,27 @@ export {};
 
 ## Mapping
 
-original 30..71 -> expanded 563..604
-original 71..73 -> expanded 8933..8935
-original 103..142 -> expanded 8935..8974
-original 142..144 -> expanded 17265..17267
-original 222..252 -> expanded 17267..17297
-original 252..253 -> expanded 23200..23201
-generated 0..563 <- imports
-generated 604..2722 <- Encode
-generated 2722..7984 <- Decode
-generated 7984..8933 <- __convenience_const
-generated 8974..11084 <- Encode
-generated 11084..16316 <- Decode
-generated 16316..17265 <- __convenience_const
-generated 17297..19274 <- Encode
-generated 19274..22724 <- Decode
-generated 22724..23200 <- __convenience_const
+original 30..71 -> expanded 635..676
+original 71..73 -> expanded 9008..9010
+original 103..142 -> expanded 9010..9049
+original 142..144 -> expanded 17341..17343
+original 222..252 -> expanded 17343..17373
+original 252..253 -> expanded 23291..23292
+generated 0..635 <- imports
+generated 676..2780 <- Encode
+generated 2780..8059 <- Decode
+generated 8059..9008 <- __convenience_const
+generated 9049..11145 <- Encode
+generated 11145..16392 <- Decode
+generated 16392..17341 <- __convenience_const
+generated 17373..19365 <- Encode
+generated 19365..22815 <- Decode
+generated 22815..23291 <- __convenience_const
 
 ## Metadata
 
-interface Circle: {"body_span":{"end":72,"start":49},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"name":"radius","optional":false,"readonly":false,"span":{"end":70,"start":55},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Circle","span":{"end":72,"start":32},"type_params":[]}
-interface Square: {"body_span":{"end":143,"start":122},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":104,"start":74}}],"fields":[{"decorators":[],"name":"side","optional":false,"readonly":false,"span":{"end":141,"start":128},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Square","span":{"end":143,"start":105},"type_params":[]}
+interface Circle: {"body_span":{"end":72,"start":49},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"radius","optional":false,"readonly":false,"span":{"end":70,"start":55},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Circle","span":{"end":72,"start":32},"type_params":[]}
+interface Square: {"body_span":{"end":143,"start":122},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":104,"start":74}}],"fields":[{"decorators":[],"key":"Named","name":"side","optional":false,"readonly":false,"span":{"end":141,"start":128},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Square","span":{"end":143,"start":105},"type_params":[]}
 type Shape: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"Circle"}},{"decorators":[],"kind":{"TypeRef":"Square"}}]},"decorators":[{"args_src":"{ tag: \"kind\", content: \"data\" }","name":"endec","span":{"end":223,"start":176}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":175,"start":145}}],"name":"Shape","span":{"end":253,"start":224},"type_params":[]}
 
 ## Registry reads

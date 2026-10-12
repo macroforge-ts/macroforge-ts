@@ -12,9 +12,9 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString } from "@macroforge/core/endec";
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin, instanceOf as __mf_instanceOf, structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { instanceWith as __mf_instanceWith, instanceOf as __mf_instanceOf, structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
 /**
  * The types the edge-case modules build on. They live in a module of their
  * own so those modules reach every generated function across an import.
@@ -27,49 +27,57 @@ export interface EdgeItem {
 }
 
 export function edgeItemToString(value: EdgeItem): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("id: " + String(value.id));
     parts.push("score: " + String(value.score));
-    return "EdgeItem { " + parts.join(", ") + " }";
+        return "EdgeItem { " + parts.join(", ") + " }";
+    });
 }
 
 export function edgeItemClone(value: EdgeItem): EdgeItem {
-    return ({
+    return __mf_clonedWith(value, (): EdgeItem => ({
 	id: value.id,
 	score: value.score
-});
+}));
 }
 
 export function edgeItemEquals(a: EdgeItem, b: EdgeItem): boolean {
     if (a === b) return true;
-    return a.id === b.id && a.score === b.score;
+    return __mf_equalWithin(a, b, () => a.id === b.id && a.score === b.score);
 }
 
 export function edgeItemHashCode(value: EdgeItem): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (Number.isInteger(value.score) ? value.score | 0 : value.score.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function edgeItemPartialCompare(a: EdgeItem, b: EdgeItem): number | null {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
     const cmp1 = (a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score ? 0 : null);
     if (cmp1 === null) return null;
     if (cmp1 !== 0) return cmp1;
-    return 0;
+        return 0;
+    });
 }
 
 export function edgeItemCompare(a: EdgeItem, b: EdgeItem): number {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
     if (cmp0 !== 0) return cmp0;
     const cmp1 = a.score < b.score ? -1 : a.score > b.score ? 1 : 0;
     if (cmp1 !== 0) return cmp1;
-    return 0;
+        return 0;
+    });
 }
 
 export function edgeItemDefaultValue(): EdgeItem {
@@ -90,12 +98,9 @@ export function edgeItemEncode(value: EdgeItem, keepMetadata?: boolean): string 
 export function edgeItemEncodeWithContext(value: EdgeItem, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "EdgeItem",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "EdgeItem" });
     edgeItemEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -211,7 +216,7 @@ export function edgeItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -220,7 +225,7 @@ export function edgeItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("score")) || (__fields.keeps("score") && obj["score"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
         const __raw_score = obj["score"] as number;
 
         if (!(typeof __raw_score === "number")) {
@@ -304,14 +309,16 @@ export class EdgeCard {
     items: EdgeItem[] = [];
 
     static toString(value: EdgeCard): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("title: " + String(value.title));
         parts.push("items: " + "[" + value.items.map(edgeItemToString).join(", ") + "]");
-        return "EdgeCard { " + parts.join(", ") + " }";
+            return "EdgeCard { " + parts.join(", ") + " }";
+        });
     }
 
     static clone(value: EdgeCard): EdgeCard {
-        return __mf_instanceWith(value, ({
+        return __mf_clonedWith(value, () => ({
         	title: value.title,
         	items: value.items.map((__item0) => edgeItemClone(__item0))
         }));
@@ -319,17 +326,19 @@ export class EdgeCard {
 
     static equals(a: EdgeCard, b: EdgeCard): boolean {
         if (a === b) return true;
-        return a.title === b.title && a.items.length === b.items.length && a.items.every((__item0, __index0) => {
+        return __mf_equalWithin(a, b, () => a.title === b.title && a.items.length === b.items.length && a.items.every((__item0, __index0) => {
         	const __other0 = b.items[__index0];
         	return __other0 === undefined ? __item0 === undefined : edgeItemEquals(__item0, __other0);
-        });
+        }));
     }
 
     static hashCode(value: EdgeCard): number {
-        let hash = 17;
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
         hash = (hash * 31 + ((value.title ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         hash = (hash * 31 + (value.items.reduce<number>((__hash0, __item0) => __hash0 * 31 + edgeItemHashCode(__item0) | 0, 1))) | 0;
-        return hash;
+            return hash;
+        });
     }
 
     static defaultValue(): EdgeCard {
@@ -344,12 +353,9 @@ export class EdgeCard {
 static encodeWithContext(value: EdgeCard, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "EdgeCard",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "EdgeCard" });
     EdgeCard.#encodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -477,7 +483,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("title")) || (__fields.keeps("title") && obj["title"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
         const __raw_title = obj["title"] as string;
 
         if (!(typeof __raw_title === "string")) {
@@ -486,7 +492,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.title = __raw_title;
         }
     }
-    if ((__fields === undefined || __fields.requires("items")) || (__fields.keeps("items") && obj["items"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
         const __raw_items = obj["items"] as EdgeItem[];
         if (Array.isArray(__raw_items)) {
             ctx.pushScope("items");
@@ -620,44 +626,48 @@ export interface EdgeProfile {
 }
 
 export function edgeProfileToString(value: EdgeProfile): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("displayName: " + String(value.displayName));
     parts.push("email: " + String(value.email));
     parts.push("joinedAt: " + String(value.joinedAt));
     parts.push("tags: " + __mf_structuralDebug(value.tags));
     parts.push("nickname: " + String(value.nickname));
     parts.push("level: " + String(value.level));
-    return "EdgeProfile { " + parts.join(", ") + " }";
+        return "EdgeProfile { " + parts.join(", ") + " }";
+    });
 }
 
 export function edgeProfileClone(value: EdgeProfile): EdgeProfile {
-    return ({
+    return __mf_clonedWith(value, (): EdgeProfile => ({
 	displayName: value.displayName,
 	email: value.email,
 	joinedAt: new Date(value.joinedAt.getTime()),
 	tags: [...value.tags],
 	..."nickname" in value ? { nickname: value.nickname } : {},
 	level: value.level
-});
+}));
 }
 
 export function edgeProfileEquals(a: EdgeProfile, b: EdgeProfile): boolean {
     if (a === b) return true;
-    return a.displayName === b.displayName && a.email === b.email && a.joinedAt.getTime() === b.joinedAt.getTime() && a.tags.length === b.tags.length && a.tags.every((__item0, __index0) => {
+    return __mf_equalWithin(a, b, () => a.displayName === b.displayName && a.email === b.email && a.joinedAt.getTime() === b.joinedAt.getTime() && a.tags.length === b.tags.length && a.tags.every((__item0, __index0) => {
 	const __other0 = b.tags[__index0];
 	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
-}) && a.nickname === b.nickname && a.level === b.level;
+}) && a.nickname === b.nickname && a.level === b.level);
 }
 
 export function edgeProfileHashCode(value: EdgeProfile): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + ((value.displayName ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + ((value.email ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (value.joinedAt.getTime() | 0)) | 0;
     hash = (hash * 31 + (value.tags.reduce<number>((__hash0, __item0) => __hash0 * 31 + (__item0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0, 1))) | 0;
     hash = (hash * 31 + (value.nickname == null ? 0 : (value.nickname ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (Number.isInteger(value.level) ? value.level | 0 : value.level.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -671,12 +681,9 @@ export function edgeProfileEncode(value: EdgeProfile, keepMetadata?: boolean): s
 export function edgeProfileEncodeWithContext(value: EdgeProfile, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "EdgeProfile",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "EdgeProfile" });
     edgeProfileEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -818,7 +825,7 @@ export function edgeProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("displayName")) || (__fields.keeps("displayName") && obj["display_name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("displayName")) ? "display_name" in obj : (__fields.keeps("displayName") && obj["display_name"] !== undefined)) {
         const __raw_displayName = obj["display_name"] as string;
 
         if (!(typeof __raw_displayName === "string")) {
@@ -827,7 +834,7 @@ export function edgeProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.displayName = __raw_displayName;
         }
     }
-    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["mail"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("email")) ? "mail" in obj : (__fields.keeps("email") && obj["mail"] !== undefined)) {
         const __raw_email = obj["mail"] as string;
 
         if (!(typeof __raw_email === "string")) {
@@ -839,15 +846,19 @@ export function edgeProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.email = __raw_email;
         }
     }
-    if ((__fields === undefined || __fields.requires("joinedAt")) || (__fields.keeps("joinedAt") && obj["joined_at"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("joinedAt")) ? "joined_at" in obj : (__fields.keeps("joinedAt") && obj["joined_at"] !== undefined)) {
         const __raw_joinedAt = obj["joined_at"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_joinedAt === "string" ? new Date(__raw_joinedAt) : __raw_joinedAt as Date;
-            instance.joinedAt = __dateVal;
+            const __dateVal = (__raw_joinedAt instanceof Date ? __raw_joinedAt : typeof __raw_joinedAt === "string" ? new Date(__raw_joinedAt) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "joined_at", message: __raw_joinedAt == null ? "EdgeProfile.joined_at is required" : "expected Date" });
+            } else {
+                instance.joinedAt = __dateVal;
+            }
         }
     }
-    if ((__fields === undefined || __fields.requires("tags")) || (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
         const __raw_tags = obj["tags"] as string[];
         if (Array.isArray(__raw_tags)) {
             ctx.pushScope("tags");
@@ -979,29 +990,33 @@ export interface EdgeStrict {
 }
 
 export function edgeStrictToString(value: EdgeStrict): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("id: " + String(value.id));
     parts.push("note: " + String(value.note));
-    return "EdgeStrict { " + parts.join(", ") + " }";
+        return "EdgeStrict { " + parts.join(", ") + " }";
+    });
 }
 
 export function edgeStrictClone(value: EdgeStrict): EdgeStrict {
-    return ({
+    return __mf_clonedWith(value, (): EdgeStrict => ({
 	id: value.id,
 	note: value.note
-});
+}));
 }
 
 export function edgeStrictEquals(a: EdgeStrict, b: EdgeStrict): boolean {
     if (a === b) return true;
-    return a.id === b.id && a.note === b.note;
+    return __mf_equalWithin(a, b, () => a.id === b.id && a.note === b.note);
 }
 
 export function edgeStrictHashCode(value: EdgeStrict): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + ((value.note ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -1015,12 +1030,9 @@ export function edgeStrictEncode(value: EdgeStrict, keepMetadata?: boolean): str
 export function edgeStrictEncodeWithContext(value: EdgeStrict, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "EdgeStrict",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "EdgeStrict" });
     edgeStrictEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1142,7 +1154,7 @@ export function edgeStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -1151,7 +1163,7 @@ export function edgeStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("note")) || (__fields.keeps("note") && obj["note"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("note")) ? "note" in obj : (__fields.keeps("note") && obj["note"] !== undefined)) {
         const __raw_note = obj["note"] as string;
 
         if (!(typeof __raw_note === "string")) {
@@ -1231,29 +1243,33 @@ export interface EdgeLabeled {
 }
 
 export function edgeLabeledToString(value: EdgeLabeled): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("label: " + String(value.label));
     parts.push("origin: " + edgeItemToString(value.origin));
-    return "EdgeLabeled { " + parts.join(", ") + " }";
+        return "EdgeLabeled { " + parts.join(", ") + " }";
+    });
 }
 
 export function edgeLabeledClone(value: EdgeLabeled): EdgeLabeled {
-    return ({
+    return __mf_clonedWith(value, (): EdgeLabeled => ({
 	label: value.label,
 	origin: edgeItemClone(value.origin)
-});
+}));
 }
 
 export function edgeLabeledEquals(a: EdgeLabeled, b: EdgeLabeled): boolean {
     if (a === b) return true;
-    return a.label === b.label && edgeItemEquals(a.origin, b.origin);
+    return __mf_equalWithin(a, b, () => a.label === b.label && edgeItemEquals(a.origin, b.origin));
 }
 
 export function edgeLabeledHashCode(value: EdgeLabeled): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + ((value.label ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (edgeItemHashCode(value.origin))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -1267,12 +1283,9 @@ export function edgeLabeledEncode(value: EdgeLabeled, keepMetadata?: boolean): s
 export function edgeLabeledEncodeWithContext(value: EdgeLabeled, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "EdgeLabeled",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "EdgeLabeled" });
     edgeLabeledEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1387,7 +1400,7 @@ export function edgeLabeledDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("label")) || (__fields.keeps("label") && obj["label"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
         const __raw_label = obj["label"] as string;
 
         if (!(typeof __raw_label === "string")) {
@@ -1482,29 +1495,33 @@ export interface EdgeNode {
 }
 
 export function edgeNodeToString(value: EdgeNode): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("name: " + String(value.name));
     parts.push("next: " + (value.next == null ? String(value.next) : edgeNodeToString(value.next)));
-    return "EdgeNode { " + parts.join(", ") + " }";
+        return "EdgeNode { " + parts.join(", ") + " }";
+    });
 }
 
 export function edgeNodeClone(value: EdgeNode): EdgeNode {
-    return ({
+    return __mf_clonedWith(value, (): EdgeNode => ({
 	name: value.name,
 	next: value.next == null ? value.next : edgeNodeClone(value.next)
-});
+}));
 }
 
 export function edgeNodeEquals(a: EdgeNode, b: EdgeNode): boolean {
     if (a === b) return true;
-    return a.name === b.name && (a.next == null || b.next == null ? a.next === b.next : edgeNodeEquals(a.next, b.next));
+    return __mf_equalWithin(a, b, () => a.name === b.name && (a.next == null || b.next == null ? a.next === b.next : edgeNodeEquals(a.next, b.next)));
 }
 
 export function edgeNodeHashCode(value: EdgeNode): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (value.next == null ? 0 : edgeNodeHashCode(value.next))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -1518,12 +1535,9 @@ export function edgeNodeEncode(value: EdgeNode, keepMetadata?: boolean): string 
 export function edgeNodeEncodeWithContext(value: EdgeNode, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "EdgeNode",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "EdgeNode" });
     edgeNodeEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1639,7 +1653,7 @@ export function edgeNodeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -1648,7 +1662,7 @@ export function edgeNodeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("next")) || (__fields.keeps("next") && obj["next"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("next")) ? "next" in obj : (__fields.keeps("next") && obj["next"] !== undefined)) {
         const __raw_next = obj["next"] as EdgeNode | null;
 
         if (__raw_next === null) {
@@ -1667,7 +1681,8 @@ export function edgeNodeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "next", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
@@ -2131,77 +2146,77 @@ export declare const EdgeNode: {
 
 ## Mapping
 
-original 0..314 -> expanded 745..1059
-original 314..463 -> expanded 12505..12654
-original 463..464 -> expanded 22402..22403
-original 464..822 -> expanded 26016..26374
-original 822..994 -> expanded 42863..43035
-original 994..1158 -> expanded 53715..53879
-original 1158..1296 -> expanded 64695..64833
-original 1296..1297 -> expanded 75925..75926
-generated 0..745 <- imports
-generated 1059..1298 <- Debug
-generated 1298..1413 <- Clone
-generated 1413..1563 <- PartialEq
-generated 1563..1952 <- Hash
-generated 1952..2375 <- PartialOrd
-generated 2375..2679 <- Ord
-generated 2679..2787 <- Default
-generated 2787..5077 <- Encode
-generated 5077..10959 <- Decode
-generated 10959..12505 <- __convenience_const
-generated 12654..12943 <- Debug
-generated 12943..13150 <- Clone
-generated 13150..13517 <- PartialEq
-generated 13517..13873 <- Hash
-generated 13873..14098 <- Default
-generated 14098..15869 <- Encode
-generated 15869..16192 <- Encode
-generated 16192..22402 <- Decode
-generated 22403..22503 <- Debug
-generated 22503..22599 <- Clone
-generated 22599..22704 <- PartialEq
-generated 22704..22804 <- Hash
-generated 22804..22894 <- Default
-generated 22894..24234 <- Encode
-generated 24234..26016 <- Decode
-generated 26374..26860 <- Debug
-generated 26860..27155 <- Clone
-generated 27155..27627 <- PartialEq
-generated 27627..28551 <- Hash
-generated 28551..31589 <- Encode
-generated 31589..41494 <- Decode
-generated 41494..42863 <- __convenience_const
-generated 43035..43278 <- Debug
-generated 43278..43397 <- Clone
-generated 43397..43551 <- PartialEq
-generated 43551..43890 <- Hash
-generated 43890..46206 <- Encode
-generated 46206..52375 <- Decode
-generated 52375..53715 <- __convenience_const
-generated 53879..54145 <- Debug
-generated 54145..54292 <- Clone
-generated 54292..54472 <- PartialEq
-generated 54472..54760 <- Hash
-generated 54760..57271 <- Encode
-generated 57271..63326 <- Decode
-generated 63326..64695 <- __convenience_const
-generated 64833..65128 <- Debug
-generated 65128..65294 <- Clone
-generated 65294..65516 <- PartialEq
-generated 65516..65820 <- Hash
-generated 65820..68174 <- Encode
-generated 68174..74643 <- Decode
-generated 74643..75925 <- __convenience_const
+original 0..314 -> expanded 959..1273
+original 314..463 -> expanded 13040..13189
+original 463..464 -> expanded 23127..23128
+original 464..822 -> expanded 26741..27099
+original 822..994 -> expanded 44153..44325
+original 994..1158 -> expanded 55213..55377
+original 1158..1296 -> expanded 66390..66528
+original 1296..1297 -> expanded 77909..77910
+generated 0..959 <- imports
+generated 1273..1574 <- Debug
+generated 1574..1729 <- Clone
+generated 1729..1909 <- PartialEq
+generated 1909..2358 <- Hash
+generated 2358..2838 <- PartialOrd
+generated 2838..3199 <- Ord
+generated 3199..3307 <- Default
+generated 3307..5583 <- Encode
+generated 5583..11494 <- Decode
+generated 11494..13040 <- __convenience_const
+generated 13189..13548 <- Debug
+generated 13548..13759 <- Clone
+generated 13759..14156 <- PartialEq
+generated 14156..14580 <- Hash
+generated 14580..14805 <- Default
+generated 14805..16562 <- Encode
+generated 16562..16885 <- Encode
+generated 16885..23127 <- Decode
+generated 23128..23228 <- Debug
+generated 23228..23324 <- Clone
+generated 23324..23429 <- PartialEq
+generated 23429..23529 <- Hash
+generated 23529..23619 <- Default
+generated 23619..24959 <- Encode
+generated 24959..26741 <- Decode
+generated 27099..27647 <- Debug
+generated 27647..27985 <- Clone
+generated 27985..28487 <- PartialEq
+generated 28487..29471 <- Hash
+generated 29471..32495 <- Encode
+generated 32495..42784 <- Decode
+generated 42784..44153 <- __convenience_const
+generated 44325..44630 <- Debug
+generated 44630..44791 <- Clone
+generated 44791..44975 <- PartialEq
+generated 44975..45374 <- Hash
+generated 45374..47676 <- Encode
+generated 47676..53873 <- Decode
+generated 53873..55213 <- __convenience_const
+generated 55377..55705 <- Debug
+generated 55705..55895 <- Clone
+generated 55895..56105 <- PartialEq
+generated 56105..56453 <- Hash
+generated 56453..58950 <- Encode
+generated 58950..65021 <- Decode
+generated 65021..66390 <- __convenience_const
+generated 66528..66885 <- Debug
+generated 66885..67091 <- Clone
+generated 67091..67343 <- PartialEq
+generated 67343..67707 <- Hash
+generated 67707..70047 <- Encode
+generated 70047..76627 <- Decode
+generated 76627..77909 <- __convenience_const
 
 ## Metadata
 
-class EdgeCard: {"body_span":{"end":465,"start":410},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":387,"start":317}}],"fields":[{"decorators":[],"initializer":"''","name":"title","optional":false,"readonly":false,"span":{"end":435,"start":416},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"[]","name":"items","optional":false,"readonly":false,"span":{"end":463,"start":440},"ts_type":"EdgeItem[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EdgeCard","span":{"end":465,"start":395},"superclass":null,"type_params":[]}
-interface EdgeItem: {"body_span":{"end":315,"start":277},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":250,"start":159}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":294,"start":283},"ts_type":"string"},{"decorators":[],"name":"score","optional":false,"readonly":false,"span":{"end":313,"start":299},"ts_type":"number"}],"heritage":[],"methods":[],"name":"EdgeItem","span":{"end":315,"start":258},"type_params":[]}
-interface EdgeProfile: {"body_span":{"end":823,"start":601},"decorators":[{"args_src":"{ renameAll: \"snake_case\" }","name":"endec","span":{"end":571,"start":529}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":528,"start":467}}],"fields":[{"decorators":[],"name":"displayName","optional":false,"readonly":false,"span":{"end":627,"start":607},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"mail\", validate: [\"email\"] }","name":"endec","span":{"end":686,"start":632}}],"name":"email","optional":false,"readonly":false,"span":{"end":705,"start":691},"ts_type":"string"},{"decorators":[],"name":"joinedAt","optional":false,"readonly":false,"span":{"end":725,"start":710},"ts_type":"Date"},{"decorators":[],"name":"tags","optional":false,"readonly":false,"span":{"end":745,"start":730},"ts_type":"string[]"},{"decorators":[],"name":"nickname","optional":true,"readonly":false,"span":{"end":768,"start":750},"ts_type":"string"},{"decorators":[{"args_src":"{ default: 1 }","name":"endec","span":{"end":802,"start":773}}],"name":"level","optional":false,"readonly":false,"span":{"end":821,"start":807},"ts_type":"number"}],"heritage":[],"methods":[],"name":"EdgeProfile","span":{"end":823,"start":579},"type_params":[]}
-interface EdgeStrict: {"body_span":{"end":995,"start":958},"decorators":[{"args_src":"{ denyUnknownFields: true }","name":"endec","span":{"end":929,"start":887}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":886,"start":825}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":975,"start":964},"ts_type":"string"},{"decorators":[],"name":"note","optional":false,"readonly":false,"span":{"end":993,"start":980},"ts_type":"string"}],"heritage":[],"methods":[],"name":"EdgeStrict","span":{"end":995,"start":937},"type_params":[]}
-interface EdgeLabeled: {"body_span":{"end":1159,"start":1088},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1058,"start":997}}],"fields":[{"decorators":[],"name":"label","optional":false,"readonly":false,"span":{"end":1108,"start":1094},"ts_type":"string"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":1135,"start":1113}}],"name":"origin","optional":false,"readonly":false,"span":{"end":1157,"start":1140},"ts_type":"EdgeItem"}],"heritage":[],"methods":[],"name":"EdgeLabeled","span":{"end":1159,"start":1066},"type_params":[]}
-interface EdgeNode: {"body_span":{"end":1297,"start":1249},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1222,"start":1161}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":1268,"start":1255},"ts_type":"string"},{"decorators":[],"name":"next","optional":false,"readonly":false,"span":{"end":1295,"start":1273},"ts_type":"EdgeNode | null"}],"heritage":[],"methods":[],"name":"EdgeNode","span":{"end":1297,"start":1230},"type_params":[]}
+class EdgeCard: {"body_span":{"end":465,"start":410},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":387,"start":317}}],"fields":[{"decorators":[],"initializer":"''","key":"Named","name":"title","optional":false,"readonly":false,"span":{"end":435,"start":416},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":463,"start":440},"ts_type":"EdgeItem[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EdgeCard","span":{"end":465,"start":395},"superclass":null,"type_params":[]}
+interface EdgeItem: {"body_span":{"end":315,"start":277},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":250,"start":159}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":294,"start":283},"ts_type":"string"},{"decorators":[],"key":"Named","name":"score","optional":false,"readonly":false,"span":{"end":313,"start":299},"ts_type":"number"}],"heritage":[],"methods":[],"name":"EdgeItem","span":{"end":315,"start":258},"type_params":[]}
+interface EdgeProfile: {"body_span":{"end":823,"start":601},"decorators":[{"args_src":"{ renameAll: \"snake_case\" }","name":"endec","span":{"end":571,"start":529}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":528,"start":467}}],"fields":[{"decorators":[],"key":"Named","name":"displayName","optional":false,"readonly":false,"span":{"end":627,"start":607},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"mail\", validate: [\"email\"] }","name":"endec","span":{"end":686,"start":632}}],"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":705,"start":691},"ts_type":"string"},{"decorators":[],"key":"Named","name":"joinedAt","optional":false,"readonly":false,"span":{"end":725,"start":710},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":745,"start":730},"ts_type":"string[]"},{"decorators":[],"key":"Named","name":"nickname","optional":true,"readonly":false,"span":{"end":768,"start":750},"ts_type":"string"},{"decorators":[{"args_src":"{ default: 1 }","name":"endec","span":{"end":802,"start":773}}],"key":"Named","name":"level","optional":false,"readonly":false,"span":{"end":821,"start":807},"ts_type":"number"}],"heritage":[],"methods":[],"name":"EdgeProfile","span":{"end":823,"start":579},"type_params":[]}
+interface EdgeStrict: {"body_span":{"end":995,"start":958},"decorators":[{"args_src":"{ denyUnknownFields: true }","name":"endec","span":{"end":929,"start":887}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":886,"start":825}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":975,"start":964},"ts_type":"string"},{"decorators":[],"key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":993,"start":980},"ts_type":"string"}],"heritage":[],"methods":[],"name":"EdgeStrict","span":{"end":995,"start":937},"type_params":[]}
+interface EdgeLabeled: {"body_span":{"end":1159,"start":1088},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1058,"start":997}}],"fields":[{"decorators":[],"key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":1108,"start":1094},"ts_type":"string"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":1135,"start":1113}}],"key":"Named","name":"origin","optional":false,"readonly":false,"span":{"end":1157,"start":1140},"ts_type":"EdgeItem"}],"heritage":[],"methods":[],"name":"EdgeLabeled","span":{"end":1159,"start":1066},"type_params":[]}
+interface EdgeNode: {"body_span":{"end":1297,"start":1249},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1222,"start":1161}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1268,"start":1255},"ts_type":"string"},{"decorators":[],"key":"Named","name":"next","optional":false,"readonly":false,"span":{"end":1295,"start":1273},"ts_type":"EdgeNode | null"}],"heritage":[],"methods":[],"name":"EdgeNode","span":{"end":1297,"start":1230},"type_params":[]}
 
 ## Registry reads
 

@@ -196,3 +196,38 @@ Deno.test('type parameters named like generated ones do not collide with them', 
     });
     assert(mod.NameParamsClass.equals(instance, mod.NameParamsClass.clone(instance)));
 });
+
+Deno.test('a type named in lowercase is coded through its functions from another module', async () => {
+    const imports = await expandAndCompile(
+        join(vanillaRoot, 'src', 'edge-cases', 'name-imports.ts')
+    );
+    const point = (x, y) => ({ x, y });
+    const source = {
+        origin: point(0, 0),
+        path: [point(1, 2), point(3, 4)],
+        byName: new Map([['a', point(5, 6)]]),
+        maybe: point(7, 8)
+    };
+    const value = decoded(imports.nameImportsDecode(imports.nameImportsEncode(source)));
+    assertEquals(value, source);
+    assert(value.byName instanceof Map);
+
+    const encoded = JSON.parse(imports.nameImportsEncode(source));
+    assertEquals(errorFields(imports.nameImportsDecode({ ...encoded, origin: { x: 1 } })), [
+        'origin.y'
+    ]);
+    assertEquals(
+        errorFields(imports.nameImportsDecode({ ...encoded, path: [{ x: 1, y: 'two' }] })),
+        ['path[0].y']
+    );
+    assertEquals(errorFields(imports.nameImportsDecode({ ...encoded, maybe: { y: 1 } })), [
+        'maybe.x'
+    ]);
+
+    const copy = imports.nameImportsClone(source);
+    assertNotStrictEquals(copy.origin, source.origin);
+    assert(imports.nameImportsEquals(source, copy));
+    assertStrictEquals(imports.nameImportsHashCode(source), imports.nameImportsHashCode(copy));
+    assert(imports.nameImportsToString(source).includes('origin'));
+    assertEquals(imports.nameImportsDefaultValue().origin, point(0, 0));
+});

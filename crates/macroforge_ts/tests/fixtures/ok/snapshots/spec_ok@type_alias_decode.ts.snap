@@ -114,7 +114,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("theme")) || (__fields.keeps("theme") && obj["theme"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("theme")) ? "theme" in obj : (__fields.keeps("theme") && obj["theme"] !== undefined)) {
         const __raw_theme = obj["theme"] as string;
 
         if (!(typeof __raw_theme === "string")) {
@@ -123,7 +123,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             instance.theme = __raw_theme;
         }
     }
-    if ((__fields === undefined || __fields.requires("language")) || (__fields.keeps("language") && obj["language"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("language")) ? "language" in obj : (__fields.keeps("language") && obj["language"] !== undefined)) {
         const __raw_language = obj["language"] as string;
 
         if (!(typeof __raw_language === "string")) {
@@ -223,14 +223,14 @@ export {};
 ## Mapping
 
 original 22..84 -> expanded 350..412
-original 84..85 -> expanded 7055..7056
+original 84..85 -> expanded 7090..7091
 generated 0..350 <- imports
-generated 412..6384 <- Decode
-generated 6384..7055 <- __convenience_const
+generated 412..6419 <- Decode
+generated 6419..7090 <- __convenience_const
 
 ## Metadata
 
-type Settings: {"body":{"Object":{"fields":[{"decorators":[],"name":"theme","optional":false,"readonly":false,"span":{"end":60,"start":46},"ts_type":"string"},{"decorators":[],"name":"language","optional":false,"readonly":false,"span":{"end":82,"start":65},"ts_type":"string"}]}},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"name":"Settings","span":{"end":85,"start":24},"type_params":[]}
+type Settings: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"theme","optional":false,"readonly":false,"span":{"end":60,"start":46},"ts_type":"string"},{"decorators":[],"key":"Named","name":"language","optional":false,"readonly":false,"span":{"end":82,"start":65},"ts_type":"string"}]}},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"name":"Settings","span":{"end":85,"start":24},"type_params":[]}
 
 ## Registry reads
 

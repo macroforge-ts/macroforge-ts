@@ -33,7 +33,7 @@ true
 ## Output
 
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 
 interface Profile {
@@ -160,7 +160,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -169,7 +169,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("age")) || (__fields.keeps("age") && obj["age"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
         const __raw_age = obj["age"] as number;
 
         if (!(typeof __raw_age === "number")) {
@@ -178,7 +178,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.age = __raw_age;
         }
     }
-    if ((__fields === undefined || __fields.requires("active")) || (__fields.keeps("active") && obj["active"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("active")) ? "active" in obj : (__fields.keeps("active") && obj["active"] !== undefined)) {
         const __raw_active = obj["active"] as boolean;
 
         if (!(typeof __raw_active === "boolean")) {
@@ -187,7 +187,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.active = __raw_active;
         }
     }
-    if ((__fields === undefined || __fields.requires("kind")) || (__fields.keeps("kind") && obj["kind"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("kind")) ? "kind" in obj : (__fields.keeps("kind") && obj["kind"] !== undefined)) {
         const __raw_kind = obj["kind"] as "user";
 
         if (!(__raw_kind === "user")) {
@@ -196,7 +196,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.kind = __raw_kind;
         }
     }
-    if ((__fields === undefined || __fields.requires("mode")) || (__fields.keeps("mode") && obj["mode"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("mode")) ? "mode" in obj : (__fields.keeps("mode") && obj["mode"] !== undefined)) {
         const __raw_mode = obj["mode"] as "light" | "dark";
 
         if (!(__raw_mode === "light" || __raw_mode === "dark")) {
@@ -205,7 +205,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.mode = __raw_mode;
         }
     }
-    if ((__fields === undefined || __fields.requires("nickname")) || (__fields.keeps("nickname") && obj["nickname"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("nickname")) ? "nickname" in obj : (__fields.keeps("nickname") && obj["nickname"] !== undefined)) {
         const __raw_nickname = obj["nickname"] as string | null;
 
         if (!(typeof __raw_nickname === "string" || __raw_nickname === null)) {
@@ -234,7 +234,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.rank = __raw_rank;
         }
     }
-    if ((__fields === undefined || __fields.requires("height")) || (__fields.keeps("height") && obj["height"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("height")) ? "height" in obj : (__fields.keeps("height") && obj["height"] !== undefined)) {
         const __raw_height = obj["height"] as number & { readonly [__mf_newtype_1]: true };
 
         if (!(typeof __raw_height === "number")) {
@@ -243,16 +243,26 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.height = __raw_height;
         }
     }
-    if ((__fields === undefined || __fields.requires("balance")) || (__fields.keeps("balance") && obj["balance"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
         try {
-            instance.balance = ((v) => BigInt(v as string))(obj["balance"]);
+            instance.balance = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw === "bigint") return raw;
+        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+        	return BigInt(raw);
+        })(obj["balance"]);
         } catch (__error) {
             errors.push({ field: "balance", message: __error instanceof Error ? __error.message : String(__error) });
         }
     }
-    if ((__fields === undefined || __fields.requires("site")) || (__fields.keeps("site") && obj["site"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("site")) ? "site" in obj : (__fields.keeps("site") && obj["site"] !== undefined)) {
         try {
-            instance.site = ((v) => new URL(v as string))(obj["site"]);
+            instance.site = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw !== "string") throw new TypeError("expected the text of a URL");
+        	return new URL(raw);
+        })(obj["site"]);
         } catch (__error) {
             errors.push({ field: "site", message: __error instanceof Error ? __error.message : String(__error) });
         }
@@ -413,7 +423,7 @@ type Loose = string & {};
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function looseDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Loose } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, (__spelled) => typeof __spelled === "string");
 
         const ctx = __mf_DecodeContext.create();
         const result = looseDecodeWithContext(data, ctx);
@@ -573,30 +583,30 @@ export {};
 
 ## Mapping
 
-original 22..216 -> expanded 465..659
-original 232..267 -> expanded 703..738
-original 267..269 -> expanded 12384..12386
-original 312..367 -> expanded 12386..12441
-original 367..369 -> expanded 15862..15864
-original 391..417 -> expanded 15864..15890
-original 417..418 -> expanded 17923..17924
-generated 0..420 <- imports
-generated 420..465 <- $Newtype
-generated 659..703 <- $Newtype
-generated 738..11728 <- Decode
-generated 11728..12384 <- __convenience_const
-generated 12441..13149 <- Encode
-generated 13149..14932 <- Decode
-generated 14932..15126 <- Hash
-generated 15126..15229 <- Debug
-generated 15229..15862 <- __convenience_const
-generated 15890..17615 <- Decode
-generated 17615..17923 <- __convenience_const
+original 22..216 -> expanded 498..692
+original 232..267 -> expanded 736..771
+original 267..269 -> expanded 13010..13012
+original 312..367 -> expanded 13012..13067
+original 367..369 -> expanded 16488..16490
+original 391..417 -> expanded 16490..16516
+original 417..418 -> expanded 18613..18614
+generated 0..453 <- imports
+generated 453..498 <- $Newtype
+generated 692..736 <- $Newtype
+generated 771..12354 <- Decode
+generated 12354..13010 <- __convenience_const
+generated 13067..13775 <- Encode
+generated 13775..15558 <- Decode
+generated 15558..15752 <- Hash
+generated 15752..15855 <- Debug
+generated 15855..16488 <- __convenience_const
+generated 16516..18305 <- Decode
+generated 18305..18613 <- __convenience_const
 
 ## Metadata
 
-interface Profile: {"body_span":{"end":341,"start":87},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":68,"start":46}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":104,"start":91},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":119,"start":107},"ts_type":"number"},{"decorators":[],"name":"active","optional":false,"readonly":false,"span":{"end":138,"start":122},"ts_type":"boolean"},{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":154,"start":141},"ts_type":"\"user\""},{"decorators":[],"name":"mode","optional":false,"readonly":false,"span":{"end":180,"start":157},"ts_type":"\"light\" | \"dark\""},{"decorators":[],"name":"nickname","optional":false,"readonly":false,"span":{"end":207,"start":183},"ts_type":"string | null"},{"decorators":[],"name":"bio","optional":true,"readonly":false,"span":{"end":223,"start":210},"ts_type":"string"},{"decorators":[],"name":"rank","optional":false,"readonly":false,"span":{"end":251,"start":226},"ts_type":"number | undefined"},{"decorators":[],"name":"height","optional":false,"readonly":false,"span":{"end":307,"start":254},"ts_type":"number & { readonly [__mf_newtype_1]: true }"},{"decorators":[],"name":"balance","optional":false,"readonly":false,"span":{"end":326,"start":310},"ts_type":"bigint"},{"decorators":[],"name":"site","optional":false,"readonly":false,"span":{"end":339,"start":329},"ts_type":"URL"}],"heritage":[],"methods":[],"name":"Profile","span":{"end":341,"start":69},"type_params":[]}
-type Tagged: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"__brand","optional":false,"readonly":true,"span":{"end":438,"start":412},"ts_type":"\"Tagged\""}]}}}]},"decorators":[{"args_src":"Encode, Decode, Hash, Debug","name":"Derive","span":{"end":386,"start":343}}],"name":"Tagged","span":{"end":441,"start":387},"type_params":[]}
+interface Profile: {"body_span":{"end":341,"start":87},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":68,"start":46}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":104,"start":91},"ts_type":"string"},{"decorators":[],"key":"Named","name":"age","optional":false,"readonly":false,"span":{"end":119,"start":107},"ts_type":"number"},{"decorators":[],"key":"Named","name":"active","optional":false,"readonly":false,"span":{"end":138,"start":122},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":154,"start":141},"ts_type":"\"user\""},{"decorators":[],"key":"Named","name":"mode","optional":false,"readonly":false,"span":{"end":180,"start":157},"ts_type":"\"light\" | \"dark\""},{"decorators":[],"key":"Named","name":"nickname","optional":false,"readonly":false,"span":{"end":207,"start":183},"ts_type":"string | null"},{"decorators":[],"key":"Named","name":"bio","optional":true,"readonly":false,"span":{"end":223,"start":210},"ts_type":"string"},{"decorators":[],"key":"Named","name":"rank","optional":false,"readonly":false,"span":{"end":251,"start":226},"ts_type":"number | undefined"},{"decorators":[],"key":"Named","name":"height","optional":false,"readonly":false,"span":{"end":307,"start":254},"ts_type":"number & { readonly [__mf_newtype_1]: true }"},{"decorators":[],"key":"Named","name":"balance","optional":false,"readonly":false,"span":{"end":326,"start":310},"ts_type":"bigint"},{"decorators":[],"key":"Named","name":"site","optional":false,"readonly":false,"span":{"end":339,"start":329},"ts_type":"URL"}],"heritage":[],"methods":[],"name":"Profile","span":{"end":341,"start":69},"type_params":[]}
+type Tagged: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"__brand","optional":false,"readonly":true,"span":{"end":438,"start":412},"ts_type":"\"Tagged\""}]}}}]},"decorators":[{"args_src":"Encode, Decode, Hash, Debug","name":"Derive","span":{"end":386,"start":343}}],"name":"Tagged","span":{"end":441,"start":387},"type_params":[]}
 type Loose: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"Object":{"fields":[]}}}]},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":465,"start":443}}],"name":"Loose","span":{"end":491,"start":466},"type_params":[]}
 
 ## Registry reads

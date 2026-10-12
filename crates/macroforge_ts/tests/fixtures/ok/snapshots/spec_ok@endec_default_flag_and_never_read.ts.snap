@@ -21,7 +21,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Settings {
@@ -44,12 +44,9 @@ export function settingsEncode(value: Settings, keepMetadata?: boolean): string 
 export function settingsEncodeWithContext(value: Settings, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Settings",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Settings" });
     settingsEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -298,19 +295,19 @@ export {};
 
 ## Mapping
 
-original 30..56 -> expanded 524..550
-original 88..114 -> expanded 550..576
-original 176..201 -> expanded 576..601
-original 235..259 -> expanded 601..625
-original 259..260 -> expanded 10070..10071
-generated 0..524 <- imports
-generated 625..3105 <- Encode
-generated 3105..9079 <- Decode
-generated 9079..10070 <- __convenience_const
+original 30..56 -> expanded 596..622
+original 88..114 -> expanded 622..648
+original 176..201 -> expanded 648..673
+original 235..259 -> expanded 673..697
+original 259..260 -> expanded 10128..10129
+generated 0..596 <- imports
+generated 697..3163 <- Encode
+generated 3163..9137 <- Decode
+generated 9137..10128 <- __convenience_const
 
 ## Metadata
 
-interface Settings: {"body_span":{"end":260,"start":51},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[{"args_src":"{ default: true }","name":"endec","span":{"end":89,"start":57}}],"name":"retries","optional":false,"readonly":false,"span":{"end":110,"start":94},"ts_type":"number"},{"decorators":[{"args_src":"{ skipDecoding: true, default: \"\\\"computed\\\"\" }","name":"endec","span":{"end":177,"start":115}}],"name":"origin","optional":false,"readonly":false,"span":{"end":197,"start":182},"ts_type":"string"},{"decorators":[{"args_src":"{ default: \"true\" }","name":"endec","span":{"end":236,"start":202}}],"name":"enabled","optional":false,"readonly":false,"span":{"end":258,"start":241},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"Settings","span":{"end":260,"start":32},"type_params":[]}
+interface Settings: {"body_span":{"end":260,"start":51},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[{"args_src":"{ default: true }","name":"endec","span":{"end":89,"start":57}}],"key":"Named","name":"retries","optional":false,"readonly":false,"span":{"end":110,"start":94},"ts_type":"number"},{"decorators":[{"args_src":"{ skipDecoding: true, default: \"\\\"computed\\\"\" }","name":"endec","span":{"end":177,"start":115}}],"key":"Named","name":"origin","optional":false,"readonly":false,"span":{"end":197,"start":182},"ts_type":"string"},{"decorators":[{"args_src":"{ default: \"true\" }","name":"endec","span":{"end":236,"start":202}}],"key":"Named","name":"enabled","optional":false,"readonly":false,"span":{"end":258,"start":241},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"Settings","span":{"end":260,"start":32},"type_params":[]}
 
 ## Registry reads
 

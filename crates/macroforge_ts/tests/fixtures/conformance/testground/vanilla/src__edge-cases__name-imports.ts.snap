@@ -1,0 +1,496 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/edge-cases/name-imports.ts
+sha256 b94eedd243e0457fe6cfcead630c0e772c79573a251fd78f3fdc3a9c8b11a38e
+
+## Changed
+
+true
+
+## Output
+
+import { point2DDecodeWithContext, point2DEncodeWithContext, point2DDefaultValue, point2DHashCode, point2DEquals, point2DClone, point2DToString } from "./name-shapes";
+import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * Types named in lowercase, held from another module: their functions are
+ * imported like any other type's.
+ */
+
+import type { point2D } from './name-shapes';
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface NameImports {
+    origin: point2D;
+    path: point2D[];
+    byName: Map<string, point2D>;
+    maybe: point2D | null;
+}
+
+export function nameImportsToString(value: NameImports): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("origin: " + point2DToString(value.origin));
+    parts.push("path: " + "[" + value.path.map(point2DToString).join(", ") + "]");
+    parts.push("byName: " + __mf_structuralDebug(value.byName));
+    parts.push("maybe: " + (value.maybe == null ? String(value.maybe) : point2DToString(value.maybe)));
+        return "NameImports { " + parts.join(", ") + " }";
+    });
+}
+
+export function nameImportsClone(value: NameImports): NameImports {
+    return __mf_clonedWith(value, (): NameImports => ({
+	origin: point2DClone(value.origin),
+	path: value.path.map((__item0) => point2DClone(__item0)),
+	byName: (() => {
+		const __copy0 = new Map(value.byName);
+		for (const [__key0, __item0] of value.byName) __copy0.set(__key0, point2DClone(__item0));
+		return __copy0;
+	})(),
+	maybe: value.maybe == null ? value.maybe : point2DClone(value.maybe)
+}));
+}
+
+export function nameImportsEquals(a: NameImports, b: NameImports): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => point2DEquals(a.origin, b.origin) && a.path.length === b.path.length && a.path.every((__item0, __index0) => {
+	const __other0 = b.path[__index0];
+	return __other0 === undefined ? __item0 === undefined : point2DEquals(__item0, __other0);
+}) && a.byName.size === b.byName.size && Array.from(a.byName).every(([__key0, __item0]) => {
+	const __other0 = b.byName.get(__key0);
+	return b.byName.has(__key0) && (__other0 === undefined ? __item0 === undefined : point2DEquals(__item0, __other0));
+}) && (a.maybe == null || b.maybe == null ? a.maybe === b.maybe : point2DEquals(a.maybe, b.maybe)));
+}
+
+export function nameImportsHashCode(value: NameImports): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (point2DHashCode(value.origin))) | 0;
+    hash = (hash * 31 + (value.path.reduce<number>((__hash0, __item0) => __hash0 * 31 + point2DHashCode(__item0) | 0, 1))) | 0;
+    hash = (hash * 31 + (Array.from(value.byName).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + point2DHashCode(__item0) | 0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.maybe == null ? 0 : point2DHashCode(value.maybe))) | 0;
+        return hash;
+    });
+}
+
+export function nameImportsDefaultValue(): NameImports {
+    return {
+        origin: point2DDefaultValue(),
+        path: [],
+        byName: new Map(),
+        maybe: null,
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function nameImportsEncode(value: NameImports, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = nameImportsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function nameImportsEncodeWithContext(value: NameImports, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "NameImports" });
+    nameImportsEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function nameImportsEncodePartialWithContext(value: Partial<NameImports>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameImports>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "NameImports" };
+        nameImportsEncodeFields(value as NameImports, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function nameImportsEncodeFields(value: NameImports, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("origin")) {
+        if (value.origin !== undefined) {
+            result.origin = point2DEncodeWithContext(value.origin, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("path")) {
+        if (value.path !== undefined) {
+            result.path = value.path.map((__item0) => point2DEncodeWithContext(__item0, ctx));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("byName")) {
+        if (value.byName !== undefined) {
+            result.byName = Object.fromEntries(Array.from(value.byName, ([__key0, __item0]) => [__key0, point2DEncodeWithContext(__item0, ctx)]));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("maybe")) {
+        if (value.maybe !== undefined) {
+            result.maybe = value.maybe === null ? null : point2DEncodeWithContext(value.maybe, ctx);
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function nameImportsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NameImports } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = nameImportsDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "NameImports.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function nameImportsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NameImports | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function nameImportsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<NameImports> | __mf_PendingRef;
+export function nameImportsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<NameImports> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "NameImports.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "NameImports.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "NameImports") as NameImports | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "NameImports.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("origin")) && !("origin" in obj)) {
+        errors.push({ field: "origin", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("path")) && !("path" in obj)) {
+        errors.push({ field: "path", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("byName")) && !("byName" in obj)) {
+        errors.push({ field: "byName", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
+        errors.push({ field: "maybe", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "NameImports");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("origin")) ? "origin" in obj : (__fields.keeps("origin") && obj["origin"] !== undefined)) {
+        const __raw_origin = obj["origin"] as point2D;
+
+        ctx.pushScope("origin");
+        try {
+            const __result = point2DDecodeWithContext(__raw_origin, ctx);
+            ctx.assignOrDefer(instance, "origin", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "origin" : "origin." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "origin", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("path")) ? "path" in obj : (__fields.keeps("path") && obj["path"] !== undefined)) {
+        const __raw_path = obj["path"] as point2D[];
+        if (Array.isArray(__raw_path)) {
+            ctx.pushScope("path");
+            try {
+                instance.path = __mf_decodeArray(__raw_path, ctx, (__raw0) => point2DDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "path" : "path." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "path", message: __raw_path == null ? "NameImports.path is required" : "expected point2D[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+        const __raw_byName = obj["byName"] as Record<string, point2D>;
+        if (typeof __raw_byName === "object" && __raw_byName !== null) {
+            ctx.pushScope("byName");
+            try {
+                instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => point2DDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "byName" : "byName." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "byName", message: __raw_byName == null ? "NameImports.byName is required" : "expected Map<string, point2D>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+        const __raw_maybe = obj["maybe"] as point2D | null;
+
+        if (__raw_maybe === null) {
+            instance.maybe = null;
+        } else {
+            ctx.pushScope("maybe");
+            try {
+                const __result = point2DDecodeWithContext(__raw_maybe, ctx);
+                ctx.assignOrDefer(instance, "maybe", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+
+                    errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as NameImports;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function nameImportsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NameImports>): Partial<NameImports> | __mf_PendingRef {
+    return nameImportsDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function nameImportsValidateField<K extends keyof NameImports>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function nameImportsValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function nameImportsValidateFields(partial: { readonly [K in keyof NameImports]?: unknown }): Array<{ field: string; message: string }>;
+export function nameImportsValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function nameImportsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "origin" in o && "path" in o && "byName" in o && "maybe" in o;
+}
+
+export function nameImportsIs(obj: unknown): obj is NameImports {
+    return nameImportsHasShape(obj) && nameImportsDecode(obj).success;
+}
+
+export const NameImports: {
+  readonly toString: typeof nameImportsToString;
+  readonly clone: typeof nameImportsClone;
+  readonly equals: typeof nameImportsEquals;
+  readonly hashCode: typeof nameImportsHashCode;
+  readonly defaultValue: typeof nameImportsDefaultValue;
+  readonly encode: typeof nameImportsEncode;
+  readonly encodeWithContext: typeof nameImportsEncodeWithContext;
+  readonly encodePartialWithContext: typeof nameImportsEncodePartialWithContext;
+  readonly decode: typeof nameImportsDecode;
+  readonly decodeWithContext: typeof nameImportsDecodeWithContext;
+  readonly decodePartialWithContext: typeof nameImportsDecodePartialWithContext;
+  readonly validateField: typeof nameImportsValidateField;
+  readonly validateFields: typeof nameImportsValidateFields;
+  readonly hasShape: typeof nameImportsHasShape;
+  readonly is: typeof nameImportsIs;
+} = {
+  toString: nameImportsToString,
+  clone: nameImportsClone,
+  equals: nameImportsEquals,
+  hashCode: nameImportsHashCode,
+  defaultValue: nameImportsDefaultValue,
+  encode: nameImportsEncode,
+  encodeWithContext: nameImportsEncodeWithContext,
+  encodePartialWithContext: nameImportsEncodePartialWithContext,
+  decode: nameImportsDecode,
+  decodeWithContext: nameImportsDecodeWithContext,
+  decodePartialWithContext: nameImportsDecodePartialWithContext,
+  validateField: nameImportsValidateField,
+  validateFields: nameImportsValidateFields,
+  hasShape: nameImportsHasShape,
+  is: nameImportsIs
+};
+
+## DTS
+
+/**
+* Types named in lowercase, held from another module: their functions are
+* imported like any other type's.
+*/
+import type { point2D } from "./name-shapes";
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface NameImports {
+	origin: point2D;
+	path: point2D[];
+	byName: Map<string, point2D>;
+	maybe: point2D | null;
+}
+export declare function nameImportsToString(value: NameImports): string;
+export declare function nameImportsClone(value: NameImports): NameImports;
+export declare function nameImportsEquals(a: NameImports, b: NameImports): boolean;
+export declare function nameImportsHashCode(value: NameImports): number;
+export declare function nameImportsDefaultValue(): NameImports;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function nameImportsEncode(value: NameImports, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function nameImportsEncodeWithContext(value: NameImports, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function nameImportsEncodePartialWithContext(value: Partial<NameImports>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameImports>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function nameImportsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NameImports;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function nameImportsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NameImports | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function nameImportsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<NameImports> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function nameImportsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NameImports>): Partial<NameImports> | __mf_PendingRef;
+export declare function nameImportsValidateField<K extends keyof NameImports>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function nameImportsValidateFields(partial: { readonly [K in keyof NameImports]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function nameImportsHasShape(obj: unknown): boolean;
+export declare function nameImportsIs(obj: unknown): obj is NameImports;
+export declare const NameImports: {
+	readonly toString: typeof nameImportsToString;
+	readonly clone: typeof nameImportsClone;
+	readonly equals: typeof nameImportsEquals;
+	readonly hashCode: typeof nameImportsHashCode;
+	readonly defaultValue: typeof nameImportsDefaultValue;
+	readonly encode: typeof nameImportsEncode;
+	readonly encodeWithContext: typeof nameImportsEncodeWithContext;
+	readonly encodePartialWithContext: typeof nameImportsEncodePartialWithContext;
+	readonly decode: typeof nameImportsDecode;
+	readonly decodeWithContext: typeof nameImportsDecodeWithContext;
+	readonly decodePartialWithContext: typeof nameImportsDecodePartialWithContext;
+	readonly validateField: typeof nameImportsValidateField;
+	readonly validateFields: typeof nameImportsValidateFields;
+	readonly hasShape: typeof nameImportsHasShape;
+	readonly is: typeof nameImportsIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..372 -> expanded 1051..1423
+original 372..373 -> expanded 18235..18236
+generated 0..1051 <- imports
+generated 1423..1953 <- Debug
+generated 1953..2427 <- Clone
+generated 2427..3165 <- PartialEq
+generated 3165..3850 <- Hash
+generated 3850..4035 <- Default
+generated 4035..6941 <- Encode
+generated 6941..16768 <- Decode
+generated 16768..18235 <- __convenience_const
+
+## Metadata
+
+interface NameImports: {"body_span":{"end":373,"start":267},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":237,"start":167}}],"fields":[{"decorators":[],"key":"Named","name":"origin","optional":false,"readonly":false,"span":{"end":289,"start":273},"ts_type":"point2D"},{"decorators":[],"key":"Named","name":"path","optional":false,"readonly":false,"span":{"end":310,"start":294},"ts_type":"point2D[]"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":344,"start":315},"ts_type":"Map<string, point2D>"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":371,"start":349},"ts_type":"point2D | null"}],"heritage":[],"methods":[],"name":"NameImports","span":{"end":373,"start":245},"type_params":[]}
+
+## Registry reads
+
+Name("Map")
+Name("point2D")
+
+## Buildtime dependencies
+
+(none)

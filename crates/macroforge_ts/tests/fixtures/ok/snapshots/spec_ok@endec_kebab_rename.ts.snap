@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 /** @endec({ renameAll: "kebab-case" }) */
@@ -38,12 +38,9 @@ export function profileEncode(value: Profile, keepMetadata?: boolean): string {
 export function profileEncodeWithContext(value: Profile, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Profile",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Profile" });
     profileEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -159,7 +156,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("firstName")) || (__fields.keeps("firstName") && obj["first-name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("firstName")) ? "first-name" in obj : (__fields.keeps("firstName") && obj["first-name"] !== undefined)) {
         const __raw_firstName = obj["first-name"] as string;
 
         if (!(typeof __raw_firstName === "string")) {
@@ -168,7 +165,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.firstName = __raw_firstName;
         }
     }
-    if ((__fields === undefined || __fields.requires("isActive")) || (__fields.keeps("isActive") && obj["is-active"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("isActive")) ? "is-active" in obj : (__fields.keeps("isActive") && obj["is-active"] !== undefined)) {
         const __raw_isActive = obj["is-active"] as boolean;
 
         if (!(typeof __raw_isActive === "boolean")) {
@@ -280,16 +277,16 @@ export {};
 
 ## Mapping
 
-original 30..141 -> expanded 524..635
-original 141..142 -> expanded 9943..9944
-generated 0..524 <- imports
-generated 635..2958 <- Encode
-generated 2958..8973 <- Decode
-generated 8973..9943 <- __convenience_const
+original 30..141 -> expanded 596..707
+original 141..142 -> expanded 10042..10043
+generated 0..596 <- imports
+generated 707..3016 <- Encode
+generated 3016..9072 <- Decode
+generated 9072..10042 <- __convenience_const
 
 ## Metadata
 
-interface Profile: {"body_span":{"end":142,"start":93},"decorators":[{"args_src":"{ renameAll: \"kebab-case\" }","name":"endec","span":{"end":74,"start":32}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"name":"firstName","optional":false,"readonly":false,"span":{"end":117,"start":99},"ts_type":"string"},{"decorators":[],"name":"isActive","optional":false,"readonly":false,"span":{"end":140,"start":122},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"Profile","span":{"end":142,"start":75},"type_params":[]}
+interface Profile: {"body_span":{"end":142,"start":93},"decorators":[{"args_src":"{ renameAll: \"kebab-case\" }","name":"endec","span":{"end":74,"start":32}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":117,"start":99},"ts_type":"string"},{"decorators":[],"key":"Named","name":"isActive","optional":false,"readonly":false,"span":{"end":140,"start":122},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"Profile","span":{"end":142,"start":75},"type_params":[]}
 
 ## Registry reads
 

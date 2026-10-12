@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/option-shapes.ts
-sha256 449a8ab105e597117c4fb5b16a75969482e0924edddbad289427498828340ec9
+sha256 fb55fa1553d05f318d52ec54f805bc32a60e861b28986aa629453e0b6774c19b
 
 ## Changed
 
@@ -12,9 +12,9 @@ true
 
 ## Output
 
-import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemDecodePartialWithContext, edgeItemHasShape, edgeItemEncodePartialWithContext, edgeProfileDecodePartialWithContext, edgeProfileHasShape, edgeProfileEncodePartialWithContext, edgeItemDefaultValue, edgeItemDecode } from "./edge-types";
-import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord } from "@macroforge/core/endec";
-import { instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
+import { edgeItemDecodePartialWithContext, edgeItemDecodeWithContext, edgeItemEncodePartialWithContext, edgeItemEncodeWithContext, edgeItemDefaultValue, edgeItemHasShape, edgeProfileDecodePartialWithContext, edgeProfileHasShape, edgeProfileEncodePartialWithContext, edgeItemDecode } from "./edge-types";
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
+import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeBoolean as __mf_decodeBoolean, decodeTuple as __mf_decodeTuple, decodeObject as __mf_decodeObject } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Every option a derive's decorator takes, each on a field of its own and in
@@ -38,40 +38,45 @@ export interface OptionTraits {
 }
 
 export function optionTraitsToString(value: OptionTraits): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("id: " + String(value.id));
     parts.push("shown: " + String(value.label));
     parts.push("cached: " + String(value.cached));
     parts.push("unordered: " + String(value.unordered));
-    return "OptionTraits { " + parts.join(", ") + " }";
+        return "OptionTraits { " + parts.join(", ") + " }";
+    });
 }
 
 export function optionTraitsClone(value: OptionTraits): OptionTraits {
-    return ({
+    return __mf_clonedWith(value, (): OptionTraits => ({
 	id: value.id,
 	label: value.label,
 	secret: value.secret,
 	cached: value.cached,
 	unordered: value.unordered
-});
+}));
 }
 
 export function optionTraitsEquals(a: OptionTraits, b: OptionTraits): boolean {
     if (a === b) return true;
-    return a.id === b.id && a.label === b.label && a.secret === b.secret && a.unordered === b.unordered;
+    return __mf_equalWithin(a, b, () => a.id === b.id && a.label === b.label && a.secret === b.secret && a.unordered === b.unordered);
 }
 
 export function optionTraitsHashCode(value: OptionTraits): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + ((value.label ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + ((value.secret ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + ((value.unordered ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function optionTraitsPartialCompare(a: OptionTraits, b: OptionTraits): number | null {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
@@ -81,18 +86,21 @@ export function optionTraitsPartialCompare(a: OptionTraits, b: OptionTraits): nu
     const cmp2 = (a.secret < b.secret ? -1 : a.secret > b.secret ? 1 : 0);
     if (cmp2 === null) return null;
     if (cmp2 !== 0) return cmp2;
-    return 0;
+        return 0;
+    });
 }
 
 export function optionTraitsCompare(a: OptionTraits, b: OptionTraits): number {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
     if (cmp0 !== 0) return cmp0;
     const cmp1 = a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
     if (cmp1 !== 0) return cmp1;
     const cmp2 = a.secret < b.secret ? -1 : a.secret > b.secret ? 1 : 0;
     if (cmp2 !== 0) return cmp2;
-    return 0;
+        return 0;
+    });
 }
 
 export const OptionTraits: {
@@ -226,12 +234,9 @@ export function optionFieldsEncode(value: OptionFields, keepMetadata?: boolean):
 export function optionFieldsEncodeWithContext(value: OptionFields, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "OptionFields",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "OptionFields" });
     optionFieldsEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -393,7 +398,7 @@ export function optionFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["user_name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "user_name" in obj : (__fields.keeps("name") && obj["user_name"] !== undefined)) {
         const __raw_name = obj["user_name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -402,7 +407,7 @@ export function optionFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("writeOnly")) || (__fields.keeps("writeOnly") && obj["writeOnly"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("writeOnly")) ? "writeOnly" in obj : (__fields.keeps("writeOnly") && obj["writeOnly"] !== undefined)) {
         const __raw_writeOnly = obj["writeOnly"] as string;
 
         if (!(typeof __raw_writeOnly === "string")) {
@@ -489,7 +494,8 @@ export function optionFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
@@ -499,11 +505,13 @@ export function optionFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             instance.item = edgeItemDefaultValue();
         }
     }
-    if ((__fields === undefined || __fields.requires("balance")) || (__fields.keeps("balance") && obj["balance"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
         const __raw_balance = obj["balance"] as number;
 
         {
-            const __numVal = globalThis.Number(__raw_balance);
+
+            const __rawNum: unknown = __raw_balance;
+            const __numVal = typeof __rawNum === "number" ? __rawNum : typeof __rawNum === "string" && __rawNum.trim() !== "" ? globalThis.Number(__rawNum) : globalThis.Number.NaN;
             if (globalThis.Number.isNaN(__numVal)) {
                 errors.push({ field: "balance", message: "expected a numeric string, got " + JSON.stringify(__raw_balance) });
             } else {
@@ -516,7 +524,9 @@ export function optionFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             const __raw_optionalBalance = obj["optionalBalance"] as number;
 
             {
-                const __numVal = globalThis.Number(__raw_optionalBalance);
+
+                const __rawNum: unknown = __raw_optionalBalance;
+                const __numVal = typeof __rawNum === "number" ? __rawNum : typeof __rawNum === "string" && __rawNum.trim() !== "" ? globalThis.Number(__rawNum) : globalThis.Number.NaN;
                 if (globalThis.Number.isNaN(__numVal)) {
                     errors.push({ field: "optionalBalance", message: "expected a numeric string, got " + JSON.stringify(__raw_optionalBalance) });
                 } else {
@@ -525,7 +535,7 @@ export function optionFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("shout")) || (__fields.keeps("shout") && obj["shout"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("shout")) ? "shout" in obj : (__fields.keeps("shout") && obj["shout"] !== undefined)) {
         try {
             instance.shout = lowerCase(obj["shout"]);
         } catch (__error) {
@@ -616,12 +626,9 @@ export function optionScreamingEncode(value: OptionScreaming, keepMetadata?: boo
 export function optionScreamingEncodeWithContext(value: OptionScreaming, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "OptionScreaming",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "OptionScreaming" });
     optionScreamingEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -745,7 +752,7 @@ export function optionScreamingDecodeWithContext(value: unknown, ctx: __mf_Decod
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("firstName")) || (__fields.keeps("firstName") && obj["FIRST_NAME"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("firstName")) ? "FIRST_NAME" in obj : (__fields.keeps("firstName") && obj["FIRST_NAME"] !== undefined)) {
         const __raw_firstName = obj["FIRST_NAME"] as string;
 
         if (!(typeof __raw_firstName === "string")) {
@@ -754,7 +761,7 @@ export function optionScreamingDecodeWithContext(value: unknown, ctx: __mf_Decod
             instance.firstName = __raw_firstName;
         }
     }
-    if ((__fields === undefined || __fields.requires("lastName")) || (__fields.keeps("lastName") && obj["kept"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("lastName")) ? "kept" in obj : (__fields.keeps("lastName") && obj["kept"] !== undefined)) {
         const __raw_lastName = obj["kept"] as string;
 
         if (!(typeof __raw_lastName === "string")) {
@@ -763,7 +770,7 @@ export function optionScreamingDecodeWithContext(value: unknown, ctx: __mf_Decod
             instance.lastName = __raw_lastName;
         }
     }
-    if ((__fields === undefined || __fields.requires("homeAddress2")) || (__fields.keeps("homeAddress2") && obj["HOME_ADDRESS_2"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("homeAddress2")) ? "HOME_ADDRESS_2" in obj : (__fields.keeps("homeAddress2") && obj["HOME_ADDRESS_2"] !== undefined)) {
         const __raw_homeAddress2 = obj["HOME_ADDRESS_2"] as string;
 
         if (!(typeof __raw_homeAddress2 === "string")) {
@@ -846,12 +853,9 @@ export function optionKebabEncode(value: OptionKebab, keepMetadata?: boolean): s
 export function optionKebabEncodeWithContext(value: OptionKebab, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "OptionKebab",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "OptionKebab" });
     optionKebabEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -975,7 +979,7 @@ export function optionKebabDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("firstName")) || (__fields.keeps("firstName") && obj["first-name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("firstName")) ? "first-name" in obj : (__fields.keeps("firstName") && obj["first-name"] !== undefined)) {
         const __raw_firstName = obj["first-name"] as string;
 
         if (!(typeof __raw_firstName === "string")) {
@@ -984,7 +988,7 @@ export function optionKebabDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.firstName = __raw_firstName;
         }
     }
-    if ((__fields === undefined || __fields.requires("isActive")) || (__fields.keeps("isActive") && obj["is-active"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("isActive")) ? "is-active" in obj : (__fields.keeps("isActive") && obj["is-active"] !== undefined)) {
         const __raw_isActive = obj["is-active"] as boolean;
 
         if (!(typeof __raw_isActive === "boolean")) {
@@ -993,7 +997,7 @@ export function optionKebabDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.isActive = __raw_isActive;
         }
     }
-    if ((__fields === undefined || __fields.requires("items")) || (__fields.keeps("items") && obj["items"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
         const __raw_items = obj["items"] as EdgeItem[];
         if (Array.isArray(__raw_items)) {
             ctx.pushScope("items");
@@ -1082,12 +1086,9 @@ export class OptionPascal {
 static encodeWithContext(value: OptionPascal, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "OptionPascal",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "OptionPascal" });
     OptionPascal.#encodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1215,7 +1216,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("firstName")) || (__fields.keeps("firstName") && obj["FirstName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("firstName")) ? "FirstName" in obj : (__fields.keeps("firstName") && obj["FirstName"] !== undefined)) {
         const __raw_firstName = obj["FirstName"] as string;
 
         if (!(typeof __raw_firstName === "string")) {
@@ -1224,7 +1225,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.firstName = __raw_firstName;
         }
     }
-    if ((__fields === undefined || __fields.requires("homeTown")) || (__fields.keeps("homeTown") && obj["HomeTown"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("homeTown")) ? "HomeTown" in obj : (__fields.keeps("homeTown") && obj["HomeTown"] !== undefined)) {
         const __raw_homeTown = obj["HomeTown"] as string | null;
 
         if (!(typeof __raw_homeTown === "string" || __raw_homeTown === null)) {
@@ -1327,12 +1328,9 @@ export function optionCamelEncode(value: OptionCamel, keepMetadata?: boolean): s
 export function optionCamelEncodeWithContext(value: OptionCamel, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "OptionCamel",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "OptionCamel" });
     optionCamelEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1448,7 +1446,7 @@ export function optionCamelDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("first_name")) || (__fields.keeps("first_name") && obj["firstName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("first_name")) ? "firstName" in obj : (__fields.keeps("first_name") && obj["firstName"] !== undefined)) {
         const __raw_first_name = obj["firstName"] as string;
 
         if (!(typeof __raw_first_name === "string")) {
@@ -1457,7 +1455,7 @@ export function optionCamelDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.first_name = __raw_first_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("home_town")) || (__fields.keeps("home_town") && obj["homeTown"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("home_town")) ? "homeTown" in obj : (__fields.keeps("home_town") && obj["homeTown"] !== undefined)) {
         const __raw_home_town = obj["homeTown"] as string;
 
         if (!(typeof __raw_home_town === "string")) {
@@ -1541,12 +1539,9 @@ export function optionFlattenedEncode(value: OptionFlattened, keepMetadata?: boo
 export function optionFlattenedEncodeWithContext(value: OptionFlattened, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "OptionFlattened",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "OptionFlattened" });
     optionFlattenedEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1668,7 +1663,7 @@ export function optionFlattenedDecodeWithContext(value: unknown, ctx: __mf_Decod
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("title")) || (__fields.keeps("title") && obj["title"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
         const __raw_title = obj["title"] as string;
 
         if (!(typeof __raw_title === "string")) {
@@ -1784,12 +1779,9 @@ export function optionFlattenedOptionalEncode(value: OptionFlattenedOptional, ke
 export function optionFlattenedOptionalEncodeWithContext(value: OptionFlattenedOptional, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "OptionFlattenedOptional",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "OptionFlattenedOptional" });
     optionFlattenedOptionalEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1909,7 +1901,7 @@ export function optionFlattenedOptionalDecodeWithContext(value: unknown, ctx: __
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("title")) || (__fields.keeps("title") && obj["title"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
         const __raw_title = obj["title"] as string;
 
         if (!(typeof __raw_title === "string")) {
@@ -2037,12 +2029,9 @@ export function optionStrictEncode(value: OptionStrict, keepMetadata?: boolean):
 export function optionStrictEncodeWithContext(value: OptionStrict, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "OptionStrict",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "OptionStrict" });
     optionStrictEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -2169,7 +2158,7 @@ export function optionStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("firstName")) || (__fields.keeps("firstName") && obj["first_name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("firstName")) ? "first_name" in obj : (__fields.keeps("firstName") && obj["first_name"] !== undefined)) {
         const __raw_firstName = obj["first_name"] as string;
 
         if (!(typeof __raw_firstName === "string")) {
@@ -2178,7 +2167,7 @@ export function optionStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             instance.firstName = __raw_firstName;
         }
     }
-    if ((__fields === undefined || __fields.requires("item")) || (__fields.keeps("item") && obj["item"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
         const __raw_item = obj["item"] as EdgeItem;
 
         ctx.pushScope("item");
@@ -2194,7 +2183,8 @@ export function optionStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
@@ -2217,7 +2207,8 @@ export function optionStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "nested", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
@@ -2297,12 +2288,9 @@ export function optionTaggedEncode(value: OptionTagged, keepMetadata?: boolean):
 export function optionTaggedEncodeWithContext(value: OptionTagged, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "kind": "OptionTagged",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "kind": "OptionTagged" });
     optionTaggedEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -2418,7 +2406,7 @@ export function optionTaggedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -2427,7 +2415,7 @@ export function optionTaggedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("child")) || (__fields.keeps("child") && obj["child"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("child")) ? "child" in obj : (__fields.keeps("child") && obj["child"] !== undefined)) {
         const __raw_child = obj["child"] as OptionTagged | null;
 
         if (__raw_child === null) {
@@ -2446,7 +2434,8 @@ export function optionTaggedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "child", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
@@ -2539,12 +2528,9 @@ export function optionValidatedEncode(value: OptionValidated, keepMetadata?: boo
 export function optionValidatedEncodeWithContext(value: OptionValidated, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "OptionValidated",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "OptionValidated" });
     optionValidatedEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -2699,7 +2685,7 @@ export function optionValidatedDecodeWithContext(value: unknown, ctx: __mf_Decod
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
         const __raw_email = obj["email"] as string;
 
         if (!(typeof __raw_email === "string")) {
@@ -2725,7 +2711,7 @@ export function optionValidatedDecodeWithContext(value: unknown, ctx: __mf_Decod
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("nullableCount")) || (__fields.keeps("nullableCount") && obj["nullableCount"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("nullableCount")) ? "nullableCount" in obj : (__fields.keeps("nullableCount") && obj["nullableCount"] !== undefined)) {
         const __raw_nullableCount = obj["nullableCount"] as number | null;
 
         if (!(typeof __raw_nullableCount === "number" || __raw_nullableCount === null)) {
@@ -2748,7 +2734,7 @@ export function optionValidatedDecodeWithContext(value: unknown, ctx: __mf_Decod
             instance.laterCount = __raw_laterCount;
         }
     }
-    if ((__fields === undefined || __fields.requires("tags")) || (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
         const __raw_tags = obj["tags"] as string[];
         if (Array.isArray(__raw_tags)) {
             if (__raw_tags == null) { errors.push({ field: "tags", message: "OptionValidated.tags is required" }); } else {
@@ -2775,26 +2761,34 @@ export function optionValidatedDecodeWithContext(value: unknown, ctx: __mf_Decod
             errors.push({ field: "tags", message: __raw_tags == null ? "OptionValidated.tags is required" : "expected string[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("at")) || (__fields.keeps("at") && obj["at"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
         const __raw_at = obj["at"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_at === "string" ? new Date(__raw_at) : __raw_at as Date;if (__dateVal == null) { errors.push({ field: "at", message: "OptionValidated.at is required" }); } else {
+            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "at", message: __raw_at == null ? "OptionValidated.at is required" : "expected Date" });
+            } else {if (__dateVal == null) { errors.push({ field: "at", message: "OptionValidated.at is required" }); } else {
                 if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "at", message: "OptionValidated.at must be a valid date" }); }
             }
-            instance.at = __dateVal;
+                instance.at = __dateVal;
+            }
         }
     }
-    if ((__fields === undefined || __fields.requires("maybeAt")) || (__fields.keeps("maybeAt") && obj["maybeAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("maybeAt")) ? "maybeAt" in obj : (__fields.keeps("maybeAt") && obj["maybeAt"] !== undefined)) {
         const __raw_maybeAt = obj["maybeAt"] as string | Date | null;
 
         if (__raw_maybeAt === null) {
             instance.maybeAt = null;
         } else {
-            const __dateVal = typeof __raw_maybeAt === "string" ? new Date(__raw_maybeAt) : __raw_maybeAt;if (__dateVal != null) {
+            const __dateVal = (__raw_maybeAt instanceof Date ? __raw_maybeAt : typeof __raw_maybeAt === "string" ? new Date(__raw_maybeAt) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "maybeAt", message: "expected Date | null" });
+            } else {if (__dateVal != null) {
                 if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "maybeAt", message: "OptionValidated.maybeAt must be a valid date" }); }
             }
-            instance.maybeAt = __dateVal;
+                instance.maybeAt = __dateVal;
+            }
         }
     }
     if ((__fields === undefined || __fields.keeps("retries"))) {
@@ -2964,6 +2958,1345 @@ export const OptionValidated: {
   hasShape: optionValidatedHasShape,
   is: optionValidatedIs
 };
+
+/** @derive(Encode, Decode) */
+export interface OptionKinds {
+    text: string;
+    count: number;
+    flag: boolean;
+    big: bigint;
+    at: Date;
+    item: EdgeItem;
+    size: 'small' | 'large';
+    list: string[];
+    set: Set<number>;
+    map: Map<string, number>;
+    record: Record<string, boolean>;
+    pair: [string, number];
+    inline: { x: number };
+    maybeText: string | null;
+    laterText?: string;
+    partial: Partial<EdgeItem>;
+    link: URL;
+    query: URLSearchParams;
+    pattern: RegExp;
+    failure: Error;
+    bytes: Uint8Array;
+    bigs: BigInt64Array;
+    buffer: ArrayBuffer;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function optionKindsEncode(value: OptionKinds, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = optionKindsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function optionKindsEncodeWithContext(value: OptionKinds, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "OptionKinds" });
+    optionKindsEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function optionKindsEncodePartialWithContext(value: Partial<OptionKinds>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OptionKinds>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "OptionKinds" };
+        optionKindsEncodeFields(value as OptionKinds, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function optionKindsEncodeFields(value: OptionKinds, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("text")) {
+        if (value.text !== undefined) {
+            result.text = value.text;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("count")) {
+        if (value.count !== undefined) {
+            result.count = value.count;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("flag")) {
+        if (value.flag !== undefined) {
+            result.flag = value.flag;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("big")) {
+        if (value.big !== undefined) {
+            result.big = ((v) => String(v))(value.big);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("at")) {
+        if (value.at !== undefined) {
+            result.at = value.at.toISOString();
+        }
+    }
+    if (__fields === undefined || __fields.keeps("item")) {
+        if (value.item !== undefined) {
+            result.item = edgeItemEncodeWithContext(value.item, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("size")) {
+        if (value.size !== undefined) {
+            result.size = value.size;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("list")) {
+        if (value.list !== undefined) {
+            result.list = value.list;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("set")) {
+        if (value.set !== undefined) {
+            result.set = Array.from(value.set);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("map")) {
+        if (value.map !== undefined) {
+            result.map = Object.fromEntries(value.map.entries());
+        }
+    }
+    if (__fields === undefined || __fields.keeps("record")) {
+        if (value.record !== undefined) {
+            result.record = value.record;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("pair")) {
+        if (value.pair !== undefined) {
+            result.pair = value.pair;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("inline")) {
+        if (value.inline !== undefined) {
+            result.inline = value.inline;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("maybeText")) {
+        if (value.maybeText !== undefined) {
+            result.maybeText = value.maybeText;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("laterText")) {
+        if (value.laterText !== undefined) {
+            result.laterText = value.laterText;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("partial")) {
+        if (value.partial !== undefined) {
+            result.partial = edgeItemEncodePartialWithContext(value.partial, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("link")) {
+        if (value.link !== undefined) {
+            result.link = ((v) => v.toString())(value.link);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("query")) {
+        if (value.query !== undefined) {
+            result.query = ((v) => v.toString())(value.query);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("pattern")) {
+        if (value.pattern !== undefined) {
+            result.pattern = ((v) => ({ source: v.source, flags: v.flags }))(value.pattern);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("failure")) {
+        if (value.failure !== undefined) {
+            result.failure = ((v) => ({ name: v.name, message: v.message, stack: v.stack }))(value.failure);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("bytes")) {
+        if (value.bytes !== undefined) {
+            result.bytes = ((v) => Array.from(v))(value.bytes);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("bigs")) {
+        if (value.bigs !== undefined) {
+            result.bigs = ((v) => Array.from(v, (n) => String(n)))(value.bigs);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("buffer")) {
+        if (value.buffer !== undefined) {
+            result.buffer = ((v) => Array.from(new Uint8Array(v)))(value.buffer);
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function optionKindsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OptionKinds } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = optionKindsDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "OptionKinds.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): OptionKinds | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<OptionKinds> | __mf_PendingRef;
+export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<OptionKinds> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "OptionKinds.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "OptionKinds.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "OptionKinds") as OptionKinds | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "OptionKinds.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("text")) && !("text" in obj)) {
+        errors.push({ field: "text", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
+        errors.push({ field: "count", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("flag")) && !("flag" in obj)) {
+        errors.push({ field: "flag", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("big")) && !("big" in obj)) {
+        errors.push({ field: "big", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
+        errors.push({ field: "at", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("item")) && !("item" in obj)) {
+        errors.push({ field: "item", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("size")) && !("size" in obj)) {
+        errors.push({ field: "size", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("list")) && !("list" in obj)) {
+        errors.push({ field: "list", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("set")) && !("set" in obj)) {
+        errors.push({ field: "set", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("map")) && !("map" in obj)) {
+        errors.push({ field: "map", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("record")) && !("record" in obj)) {
+        errors.push({ field: "record", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
+        errors.push({ field: "pair", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("inline")) && !("inline" in obj)) {
+        errors.push({ field: "inline", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("maybeText")) && !("maybeText" in obj)) {
+        errors.push({ field: "maybeText", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("partial")) && !("partial" in obj)) {
+        errors.push({ field: "partial", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("link")) && !("link" in obj)) {
+        errors.push({ field: "link", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("query")) && !("query" in obj)) {
+        errors.push({ field: "query", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("pattern")) && !("pattern" in obj)) {
+        errors.push({ field: "pattern", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("failure")) && !("failure" in obj)) {
+        errors.push({ field: "failure", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("bytes")) && !("bytes" in obj)) {
+        errors.push({ field: "bytes", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("bigs")) && !("bigs" in obj)) {
+        errors.push({ field: "bigs", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("buffer")) && !("buffer" in obj)) {
+        errors.push({ field: "buffer", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "OptionKinds");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("text")) ? "text" in obj : (__fields.keeps("text") && obj["text"] !== undefined)) {
+        const __raw_text = obj["text"] as string;
+
+        if (!(typeof __raw_text === "string")) {
+            errors.push({ field: "text", message: __raw_text == null ? "OptionKinds.text is required" : "expected string" });
+        } else {
+            instance.text = __raw_text;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
+        const __raw_count = obj["count"] as number;
+
+        if (!(typeof __raw_count === "number")) {
+            errors.push({ field: "count", message: __raw_count == null ? "OptionKinds.count is required" : "expected number" });
+        } else {
+            instance.count = __raw_count;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("flag")) ? "flag" in obj : (__fields.keeps("flag") && obj["flag"] !== undefined)) {
+        const __raw_flag = obj["flag"] as boolean;
+
+        if (!(typeof __raw_flag === "boolean")) {
+            errors.push({ field: "flag", message: __raw_flag == null ? "OptionKinds.flag is required" : "expected boolean" });
+        } else {
+            instance.flag = __raw_flag;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
+        try {
+            instance.big = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw === "bigint") return raw;
+        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+        	return BigInt(raw);
+        })(obj["big"]);
+        } catch (__error) {
+            errors.push({ field: "big", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+        const __raw_at = obj["at"] as string | Date;
+
+        {
+            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "at", message: __raw_at == null ? "OptionKinds.at is required" : "expected Date" });
+            } else {
+                instance.at = __dateVal;
+            }
+        }
+    }
+    if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
+        const __raw_item = obj["item"] as EdgeItem;
+
+        ctx.pushScope("item");
+        try {
+            const __result = edgeItemDecodeWithContext(__raw_item, ctx);
+            ctx.assignOrDefer(instance, "item", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "item" : "item." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("size")) ? "size" in obj : (__fields.keeps("size") && obj["size"] !== undefined)) {
+        const __raw_size = obj["size"] as 'small' | 'large';
+
+        if (!(__raw_size === "small" || __raw_size === "large")) {
+            errors.push({ field: "size", message: __raw_size == null ? "OptionKinds.size is required" : "expected 'small' | 'large'" });
+        } else {
+            instance.size = __raw_size;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
+        const __raw_list = obj["list"] as string[];
+        if (Array.isArray(__raw_list)) {
+            ctx.pushScope("list");
+            try {
+                instance.list = __mf_decodeArray(__raw_list, ctx, __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "list" : "list." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "list", message: __raw_list == null ? "OptionKinds.list is required" : "expected string[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("set")) ? "set" in obj : (__fields.keeps("set") && obj["set"] !== undefined)) {
+        const __raw_set = obj["set"] as Array<number>;
+        if (Array.isArray(__raw_set)) {
+            ctx.pushScope("set");
+            try {
+                instance.set = __mf_decodeSet(__raw_set, ctx, __mf_decodeNumber);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "set" : "set." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "set", message: __raw_set == null ? "OptionKinds.set is required" : "expected Set<number>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("map")) ? "map" in obj : (__fields.keeps("map") && obj["map"] !== undefined)) {
+        const __raw_map = obj["map"] as Record<string, number>;
+        if (typeof __raw_map === "object" && __raw_map !== null) {
+            ctx.pushScope("map");
+            try {
+                instance.map = __mf_decodeMap(__raw_map, ctx, (__key0) => __key0, __mf_decodeNumber);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "map" : "map." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "map", message: __raw_map == null ? "OptionKinds.map is required" : "expected Map<string, number>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("record")) ? "record" in obj : (__fields.keeps("record") && obj["record"] !== undefined)) {
+        const __raw_record = obj["record"] as Record<string, boolean>;
+        if (typeof __raw_record === "object" && __raw_record !== null) {
+            ctx.pushScope("record");
+            try {
+                instance.record = (__mf_decodeRecord(__raw_record, ctx, __mf_decodeBoolean) as Record<string, boolean>);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "record" : "record." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "record", message: __raw_record == null ? "OptionKinds.record is required" : "expected Record<string, boolean>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+        const __raw_pair = obj["pair"] as [string, number];
+        if (Array.isArray(__raw_pair)) {
+            ctx.pushScope("pair");
+            try {
+                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [__mf_decodeString, __mf_decodeNumber], 2) as [string, number]);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "pair", message: __raw_pair == null ? "OptionKinds.pair is required" : "expected [string, number]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("inline")) ? "inline" in obj : (__fields.keeps("inline") && obj["inline"] !== undefined)) {
+        const __raw_inline = obj["inline"] as { x: number };
+        if (typeof __raw_inline === "object" && __raw_inline !== null) {
+            ctx.pushScope("inline");
+            try {
+                instance.inline = (__mf_decodeObject(__raw_inline, ctx, { x: __mf_decodeNumber }) as { x: number });
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "inline" : "inline." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "inline", message: __raw_inline == null ? "OptionKinds.inline is required" : "expected { x: number }" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("maybeText")) ? "maybeText" in obj : (__fields.keeps("maybeText") && obj["maybeText"] !== undefined)) {
+        const __raw_maybeText = obj["maybeText"] as string | null;
+
+        if (!(typeof __raw_maybeText === "string" || __raw_maybeText === null)) {
+            errors.push({ field: "maybeText", message: "expected string | null" });
+        } else {
+            instance.maybeText = __raw_maybeText;
+        }
+    }
+    if ((__fields === undefined || __fields.keeps("laterText"))) {
+        if (("laterText" in obj && obj["laterText"] !== undefined)) {
+            const __raw_laterText = obj["laterText"] as string;
+
+            if (!(typeof __raw_laterText === "string")) {
+                errors.push({ field: "laterText", message: "expected string" });
+            } else {
+                instance.laterText = __raw_laterText;
+            }
+        }
+    }
+    if ((__fields === undefined || __fields.requires("partial")) ? "partial" in obj : (__fields.keeps("partial") && obj["partial"] !== undefined)) {
+        const __raw_partial = obj["partial"] as Partial<EdgeItem>;
+
+        ctx.pushScope("partial");
+        try {
+            const __result = edgeItemDecodePartialWithContext(__raw_partial, ctx);
+            ctx.assignOrDefer(instance, "partial", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "partial" : "partial." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "partial", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("link")) ? "link" in obj : (__fields.keeps("link") && obj["link"] !== undefined)) {
+        try {
+            instance.link = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw !== "string") throw new TypeError("expected the text of a URL");
+        	return new URL(raw);
+        })(obj["link"]);
+        } catch (__error) {
+            errors.push({ field: "link", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("query")) ? "query" in obj : (__fields.keeps("query") && obj["query"] !== undefined)) {
+        try {
+            instance.query = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw !== "string") throw new TypeError("expected the text of a query string");
+        	return new URLSearchParams(raw);
+        })(obj["query"]);
+        } catch (__error) {
+            errors.push({ field: "query", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("pattern")) ? "pattern" in obj : (__fields.keeps("pattern") && obj["pattern"] !== undefined)) {
+        try {
+            instance.pattern = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw !== "object" || raw === null || !("source" in raw) || typeof raw.source !== "string") throw new TypeError("expected the source and flags of a RegExp");
+        	const flags = "flags" in raw && typeof raw.flags === "string" ? raw.flags : "";
+        	return new RegExp(raw.source, flags);
+        })(obj["pattern"]);
+        } catch (__error) {
+            errors.push({ field: "pattern", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("failure")) ? "failure" in obj : (__fields.keeps("failure") && obj["failure"] !== undefined)) {
+        try {
+            instance.failure = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw !== "object" || raw === null || !("message" in raw) || typeof raw.message !== "string") throw new TypeError("expected the name and message of an Error");
+        	const error = new Error(raw.message);
+        	if ("name" in raw && typeof raw.name === "string") error.name = raw.name;
+        	return error;
+        })(obj["failure"]);
+        } catch (__error) {
+            errors.push({ field: "failure", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("bytes")) ? "bytes" in obj : (__fields.keeps("bytes") && obj["bytes"] !== undefined)) {
+        try {
+            instance.bytes = ((v) => {
+        	if (!Array.isArray(v) || !v.every((n: unknown): n is number => typeof n === "number")) throw new TypeError("expected an array of numbers");
+        	return new Uint8Array(v);
+        })(obj["bytes"]);
+        } catch (__error) {
+            errors.push({ field: "bytes", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("bigs")) ? "bigs" in obj : (__fields.keeps("bigs") && obj["bigs"] !== undefined)) {
+        try {
+            instance.bigs = ((v) => {
+        	if (!Array.isArray(v) || !v.every((s: unknown): s is string => typeof s === "string" && /^-?\d+$/.test(s))) throw new TypeError("expected an array of whole numbers as text");
+        	return new BigInt64Array(v.map((s) => BigInt(s)));
+        })(obj["bigs"]);
+        } catch (__error) {
+            errors.push({ field: "bigs", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("buffer")) ? "buffer" in obj : (__fields.keeps("buffer") && obj["buffer"] !== undefined)) {
+        try {
+            instance.buffer = ((v) => {
+        	if (!Array.isArray(v) || !v.every((n: unknown): n is number => typeof n === "number")) throw new TypeError("expected an array of numbers");
+        	return new Uint8Array(v).buffer;
+        })(obj["buffer"]);
+        } catch (__error) {
+            errors.push({ field: "buffer", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as OptionKinds;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function optionKindsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof OptionKinds>): Partial<OptionKinds> | __mf_PendingRef {
+    return optionKindsDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function optionKindsValidateField<K extends keyof OptionKinds>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function optionKindsValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function optionKindsValidateFields(partial: { readonly [K in keyof OptionKinds]?: unknown }): Array<{ field: string; message: string }>;
+export function optionKindsValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function optionKindsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "text" in o && "count" in o && "flag" in o && "big" in o && "at" in o && "item" in o && "size" in o && "list" in o && "set" in o && "map" in o && "record" in o && "pair" in o && "inline" in o && "maybeText" in o && "partial" in o && "link" in o && "query" in o && "pattern" in o && "failure" in o && "bytes" in o && "bigs" in o && "buffer" in o;
+}
+
+export function optionKindsIs(obj: unknown): obj is OptionKinds {
+    return optionKindsHasShape(obj) && optionKindsDecode(obj).success;
+}
+
+export const OptionKinds: {
+  readonly encode: typeof optionKindsEncode;
+  readonly encodeWithContext: typeof optionKindsEncodeWithContext;
+  readonly encodePartialWithContext: typeof optionKindsEncodePartialWithContext;
+  readonly decode: typeof optionKindsDecode;
+  readonly decodeWithContext: typeof optionKindsDecodeWithContext;
+  readonly decodePartialWithContext: typeof optionKindsDecodePartialWithContext;
+  readonly validateField: typeof optionKindsValidateField;
+  readonly validateFields: typeof optionKindsValidateFields;
+  readonly hasShape: typeof optionKindsHasShape;
+  readonly is: typeof optionKindsIs;
+} = {
+  encode: optionKindsEncode,
+  encodeWithContext: optionKindsEncodeWithContext,
+  encodePartialWithContext: optionKindsEncodePartialWithContext,
+  decode: optionKindsDecode,
+  decodeWithContext: optionKindsDecodeWithContext,
+  decodePartialWithContext: optionKindsDecodePartialWithContext,
+  validateField: optionKindsValidateField,
+  validateFields: optionKindsValidateFields,
+  hasShape: optionKindsHasShape,
+  is: optionKindsIs
+};
+
+/** @derive(Default) */
+export interface OptionDefaultKinds {
+    required: Required<EdgeItem>;
+    partial: Partial<EdgeItem>;
+    picked: Pick<EdgeItem, 'id'>;
+    dictionary: { [key: string]: number };
+    inline: { x: number; label?: string };
+    carried: string | string[];
+    dated: Date | string;
+    size: 'small' | 'large';
+    linked: string | EdgeItem;
+    big: bigint;
+    bytes: Uint8Array;
+    pair: [string, number];
+    nested: Map<string, Set<number>>;
+}
+
+export function optionDefaultKindsDefaultValue(): OptionDefaultKinds {
+    return {
+        required: edgeItemDefaultValue(),
+        partial: ({}),
+        picked: ({ id: "" }),
+        dictionary: ({}),
+        inline: ({ x: 0 }),
+        carried: "",
+        dated: "",
+        size: "small",
+        linked: "",
+        big: 0n,
+        bytes: new Uint8Array(),
+        pair: ["", 0],
+        nested: new Map(),
+    };
+}
+
+export const OptionDefaultKinds: {
+  readonly defaultValue: typeof optionDefaultKindsDefaultValue;
+} = {
+  defaultValue: optionDefaultKindsDefaultValue
+};
+
+/** @derive(Default, Encode, Decode) */
+export class OptionKindsClass {
+    text!: string;
+    count!: number;
+    at!: Date;
+    big!: bigint;
+    item!: EdgeItem;
+    list!: string[];
+    map!: Map<string, number>;
+    pair!: [string, number];
+    inline!: { x: number };
+    picked!: Pick<EdgeItem, 'id'>;
+    required!: Required<EdgeItem>;
+    maybe!: string | null;
+    later?: string;
+
+    static defaultValue(): OptionKindsClass {
+        const fields: { text: string; count: number; at: Date; big: bigint; item: EdgeItem; list: string[]; map: Map<string, number>; pair: [string, number]; inline: { x: number }; picked: Pick<EdgeItem, 'id'>; required: Required<EdgeItem>; maybe: string | null } = {
+            text: "",
+            count: 0,
+            at: new Date(),
+            big: 0n,
+            item: edgeItemDefaultValue(),
+            list: [],
+            map: new Map(),
+            pair: ["", 0],
+            inline: ({ x: 0 }),
+            picked: ({ id: "" }),
+            required: edgeItemDefaultValue(),
+            maybe: null,
+        };
+        return __mf_instanceOf(OptionKindsClass.prototype, fields);
+    }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: OptionKindsClass, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "OptionKindsClass" });
+    OptionKindsClass.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<OptionKindsClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OptionKindsClass>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "OptionKindsClass" };
+        OptionKindsClass.#encodeFields(value as OptionKindsClass, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: OptionKindsClass, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("text")) {
+        if (value.text !== undefined) {
+            result.text = value.text;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("count")) {
+        if (value.count !== undefined) {
+            result.count = value.count;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("at")) {
+        if (value.at !== undefined) {
+            result.at = value.at.toISOString();
+        }
+    }
+    if (__fields === undefined || __fields.keeps("big")) {
+        if (value.big !== undefined) {
+            result.big = ((v) => String(v))(value.big);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("item")) {
+        if (value.item !== undefined) {
+            result.item = edgeItemEncodeWithContext(value.item, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("list")) {
+        if (value.list !== undefined) {
+            result.list = value.list;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("map")) {
+        if (value.map !== undefined) {
+            result.map = Object.fromEntries(value.map.entries());
+        }
+    }
+    if (__fields === undefined || __fields.keeps("pair")) {
+        if (value.pair !== undefined) {
+            result.pair = value.pair;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("inline")) {
+        if (value.inline !== undefined) {
+            result.inline = value.inline;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("picked")) {
+        if (value.picked !== undefined) {
+            result.picked = edgeItemEncodePartialWithContext(value.picked, ctx, { only: ["id"] });
+        }
+    }
+    if (__fields === undefined || __fields.keeps("required")) {
+        if (value.required !== undefined) {
+            result.required = edgeItemEncodeWithContext(value.required, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("maybe")) {
+        if (value.maybe !== undefined) {
+            result.maybe = value.maybe;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("later")) {
+        if (value.later !== undefined) {
+            result.later = value.later;
+        }
+    }
+}
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: OptionKindsClass, keepMetadata?: boolean): string {
+        return optionKindsClassEncode(value, keepMetadata);
+    }
+
+constructor(props: { text: string; count: number; at: Date; big: bigint; item: EdgeItem; list: string[]; map: Map<string, number>; pair: [string, number]; inline: { x: number }; picked: Pick<EdgeItem, 'id'>; required: Required<EdgeItem>; maybe: string | null; later?: string }) {
+
+    this.text = props.text;
+    this.count = props.count;
+    this.at = props.at;
+    this.big = props.big;
+    this.item = props.item;
+    this.list = props.list;
+    this.map = props.map;
+    this.pair = props.pair;
+    this.inline = props.inline;
+    this.picked = props.picked;
+    this.required = props.required;
+    this.maybe = props.maybe;
+    if (props.later !== undefined) {
+        this.later = props.later;
+    }
+}
+
+/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OptionKindsClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = OptionKindsClass.decodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "OptionKindsClass.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): OptionKindsClass | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<OptionKindsClass> | __mf_PendingRef;
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<OptionKindsClass> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "OptionKindsClass.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "OptionKindsClass.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "OptionKindsClass") as OptionKindsClass | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "OptionKindsClass.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("text")) && !("text" in obj)) {
+        errors.push({ field: "text", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
+        errors.push({ field: "count", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
+        errors.push({ field: "at", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("big")) && !("big" in obj)) {
+        errors.push({ field: "big", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("item")) && !("item" in obj)) {
+        errors.push({ field: "item", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("list")) && !("list" in obj)) {
+        errors.push({ field: "list", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("map")) && !("map" in obj)) {
+        errors.push({ field: "map", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
+        errors.push({ field: "pair", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("inline")) && !("inline" in obj)) {
+        errors.push({ field: "inline", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("picked")) && !("picked" in obj)) {
+        errors.push({ field: "picked", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("required")) && !("required" in obj)) {
+        errors.push({ field: "required", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
+        errors.push({ field: "maybe", message: "missing required field" });
+    }
+
+    const instance: any = Object.create(OptionKindsClass.prototype);
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "OptionKindsClass");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("text")) ? "text" in obj : (__fields.keeps("text") && obj["text"] !== undefined)) {
+        const __raw_text = obj["text"] as string;
+
+        if (!(typeof __raw_text === "string")) {
+            errors.push({ field: "text", message: __raw_text == null ? "OptionKindsClass.text is required" : "expected string" });
+        } else {
+            instance.text = __raw_text;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
+        const __raw_count = obj["count"] as number;
+
+        if (!(typeof __raw_count === "number")) {
+            errors.push({ field: "count", message: __raw_count == null ? "OptionKindsClass.count is required" : "expected number" });
+        } else {
+            instance.count = __raw_count;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+        const __raw_at = obj["at"] as string | Date;
+
+        {
+            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "at", message: __raw_at == null ? "OptionKindsClass.at is required" : "expected Date" });
+            } else {
+                instance.at = __dateVal;
+            }
+        }
+    }
+    if ((__fields === undefined || __fields.requires("big")) ? "big" in obj : (__fields.keeps("big") && obj["big"] !== undefined)) {
+        try {
+            instance.big = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw === "bigint") return raw;
+        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+        	return BigInt(raw);
+        })(obj["big"]);
+        } catch (__error) {
+            errors.push({ field: "big", message: __error instanceof Error ? __error.message : String(__error) });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
+        const __raw_item = obj["item"] as EdgeItem;
+
+        ctx.pushScope("item");
+        try {
+            const __result = edgeItemDecodeWithContext(__raw_item, ctx);
+            ctx.assignOrDefer(instance, "item", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "item" : "item." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
+        const __raw_list = obj["list"] as string[];
+        if (Array.isArray(__raw_list)) {
+            ctx.pushScope("list");
+            try {
+                instance.list = __mf_decodeArray(__raw_list, ctx, __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "list" : "list." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "list", message: __raw_list == null ? "OptionKindsClass.list is required" : "expected string[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("map")) ? "map" in obj : (__fields.keeps("map") && obj["map"] !== undefined)) {
+        const __raw_map = obj["map"] as Record<string, number>;
+        if (typeof __raw_map === "object" && __raw_map !== null) {
+            ctx.pushScope("map");
+            try {
+                instance.map = __mf_decodeMap(__raw_map, ctx, (__key0) => __key0, __mf_decodeNumber);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "map" : "map." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "map", message: __raw_map == null ? "OptionKindsClass.map is required" : "expected Map<string, number>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+        const __raw_pair = obj["pair"] as [string, number];
+        if (Array.isArray(__raw_pair)) {
+            ctx.pushScope("pair");
+            try {
+                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [__mf_decodeString, __mf_decodeNumber], 2) as [string, number]);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "pair", message: __raw_pair == null ? "OptionKindsClass.pair is required" : "expected [string, number]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("inline")) ? "inline" in obj : (__fields.keeps("inline") && obj["inline"] !== undefined)) {
+        const __raw_inline = obj["inline"] as { x: number };
+        if (typeof __raw_inline === "object" && __raw_inline !== null) {
+            ctx.pushScope("inline");
+            try {
+                instance.inline = (__mf_decodeObject(__raw_inline, ctx, { x: __mf_decodeNumber }) as { x: number });
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "inline" : "inline." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "inline", message: __raw_inline == null ? "OptionKindsClass.inline is required" : "expected { x: number }" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("picked")) ? "picked" in obj : (__fields.keeps("picked") && obj["picked"] !== undefined)) {
+        const __raw_picked = obj["picked"] as Pick<EdgeItem, 'id'>;
+
+        ctx.pushScope("picked");
+        try {
+            const __result = edgeItemDecodePartialWithContext(__raw_picked, ctx, { only: ["id"] });
+            ctx.assignOrDefer(instance, "picked", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "picked" : "picked." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "picked", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("required")) ? "required" in obj : (__fields.keeps("required") && obj["required"] !== undefined)) {
+        const __raw_required = obj["required"] as Required<EdgeItem>;
+
+        ctx.pushScope("required");
+        try {
+            const __result = edgeItemDecodeWithContext(__raw_required, ctx);
+            ctx.assignOrDefer(instance, "required", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "required" : "required." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "required", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+        const __raw_maybe = obj["maybe"] as string | null;
+
+        if (!(typeof __raw_maybe === "string" || __raw_maybe === null)) {
+            errors.push({ field: "maybe", message: "expected string | null" });
+        } else {
+            instance.maybe = __raw_maybe;
+        }
+    }
+    if ((__fields === undefined || __fields.keeps("later"))) {
+        if (("later" in obj && obj["later"] !== undefined)) {
+            const __raw_later = obj["later"] as string;
+
+            if (!(typeof __raw_later === "string")) {
+                errors.push({ field: "later", message: "expected string" });
+            } else {
+                instance.later = __raw_later;
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance;
+}
+static validateField<K extends keyof OptionKindsClass>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static validateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static validateFields(partial: { readonly [K in keyof OptionKindsClass]?: unknown }): Array<{ field: string; message: string }>;
+static validateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "text" in o && "count" in o && "at" in o && "big" in o && "item" in o && "list" in o && "map" in o && "pair" in o && "inline" in o && "picked" in o && "required" in o && "maybe" in o;
+}
+
+static is(obj: unknown): obj is OptionKindsClass {
+    if (obj instanceof OptionKindsClass) {
+        return true;
+    }
+    if (!OptionKindsClass.hasShape(obj)) {
+        return false;
+    }
+    const result = OptionKindsClass.decode(obj);
+    return result.success;
+}
+}
+
+export function optionKindsClassDefaultValue(): OptionKindsClass {
+    return OptionKindsClass.defaultValue();
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function optionKindsClassEncode(value: OptionKindsClass, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = optionKindsClassEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function optionKindsClassEncodeWithContext(value: OptionKindsClass, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return OptionKindsClass.encodeWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function optionKindsClassEncodePartialWithContext(value: Partial<OptionKindsClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OptionKindsClass>): Record<string, unknown> {
+    return OptionKindsClass.encodePartialWithContext(value, ctx, fields);
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function optionKindsClassDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OptionKindsClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return OptionKindsClass.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function optionKindsClassDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): OptionKindsClass | __mf_PendingRef {
+    return OptionKindsClass.decodeWithContext(value, ctx);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function optionKindsClassHasShape(value: unknown): boolean {
+    return OptionKindsClass.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function optionKindsClassDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof OptionKindsClass>): Partial<OptionKindsClass> | __mf_PendingRef {
+    return OptionKindsClass.decodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function optionKindsClassIs(value: unknown): value is OptionKindsClass {
+    return OptionKindsClass.is(value);
+}
 
 ## DTS
 
@@ -3605,6 +4938,198 @@ export declare const OptionValidated: {
 	readonly hasShape: typeof optionValidatedHasShape;
 	readonly is: typeof optionValidatedIs;
 };
+/** @derive(Encode, Decode) */
+export interface OptionKinds {
+	text: string;
+	count: number;
+	flag: boolean;
+	big: bigint;
+	at: Date;
+	item: EdgeItem;
+	size: "small" | "large";
+	list: string[];
+	set: Set<number>;
+	map: Map<string, number>;
+	record: Record<string, boolean>;
+	pair: [string, number];
+	inline: {
+		x: number;
+	};
+	maybeText: string | null;
+	laterText?: string;
+	partial: Partial<EdgeItem>;
+	link: URL;
+	query: URLSearchParams;
+	pattern: RegExp;
+	failure: Error;
+	bytes: Uint8Array;
+	bigs: BigInt64Array;
+	buffer: ArrayBuffer;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function optionKindsEncode(value: OptionKinds, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function optionKindsEncodeWithContext(value: OptionKinds, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function optionKindsEncodePartialWithContext(value: Partial<OptionKinds>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OptionKinds>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function optionKindsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: OptionKinds;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): OptionKinds | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<OptionKinds> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function optionKindsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof OptionKinds>): Partial<OptionKinds> | __mf_PendingRef;
+export declare function optionKindsValidateField<K extends keyof OptionKinds>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function optionKindsValidateFields(partial: { readonly [K in keyof OptionKinds]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function optionKindsHasShape(obj: unknown): boolean;
+export declare function optionKindsIs(obj: unknown): obj is OptionKinds;
+export declare const OptionKinds: {
+	readonly encode: typeof optionKindsEncode;
+	readonly encodeWithContext: typeof optionKindsEncodeWithContext;
+	readonly encodePartialWithContext: typeof optionKindsEncodePartialWithContext;
+	readonly decode: typeof optionKindsDecode;
+	readonly decodeWithContext: typeof optionKindsDecodeWithContext;
+	readonly decodePartialWithContext: typeof optionKindsDecodePartialWithContext;
+	readonly validateField: typeof optionKindsValidateField;
+	readonly validateFields: typeof optionKindsValidateFields;
+	readonly hasShape: typeof optionKindsHasShape;
+	readonly is: typeof optionKindsIs;
+};
+/** @derive(Default) */
+export interface OptionDefaultKinds {
+	required: Required<EdgeItem>;
+	partial: Partial<EdgeItem>;
+	picked: Pick<EdgeItem, "id">;
+	dictionary: {
+		[key: string]: number;
+	};
+	inline: {
+		x: number;
+		label?: string;
+	};
+	carried: string | string[];
+	dated: Date | string;
+	size: "small" | "large";
+	linked: string | EdgeItem;
+	big: bigint;
+	bytes: Uint8Array;
+	pair: [string, number];
+	nested: Map<string, Set<number>>;
+}
+export declare function optionDefaultKindsDefaultValue(): OptionDefaultKinds;
+export declare const OptionDefaultKinds: {
+	readonly defaultValue: typeof optionDefaultKindsDefaultValue;
+};
+/** @derive(Default, Encode, Decode) */
+export declare class OptionKindsClass {
+	#private;
+	text: string;
+	count: number;
+	at: Date;
+	big: bigint;
+	item: EdgeItem;
+	list: string[];
+	map: Map<string, number>;
+	pair: [string, number];
+	inline: {
+		x: number;
+	};
+	picked: Pick<EdgeItem, "id">;
+	required: Required<EdgeItem>;
+	maybe: string | null;
+	later?: string;
+	static defaultValue(): OptionKindsClass;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: OptionKindsClass, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext(value: Partial<OptionKindsClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OptionKindsClass>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: OptionKindsClass, keepMetadata?: boolean): string;
+	constructor(props: {
+		text: string;
+		count: number;
+		at: Date;
+		big: bigint;
+		item: EdgeItem;
+		list: string[];
+		map: Map<string, number>;
+		pair: [string, number];
+		inline: {
+			x: number;
+		};
+		picked: Pick<EdgeItem, "id">;
+		required: Required<EdgeItem>;
+		maybe: string | null;
+		later?: string;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: OptionKindsClass;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): OptionKindsClass | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<OptionKindsClass> | __mf_PendingRef;
+	static validateField<K extends keyof OptionKindsClass>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof OptionKindsClass]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is OptionKindsClass;
+}
+export declare function optionKindsClassDefaultValue(): OptionKindsClass;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function optionKindsClassEncode(value: OptionKindsClass, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function optionKindsClassEncodeWithContext(value: OptionKindsClass, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function optionKindsClassEncodePartialWithContext(value: Partial<OptionKindsClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OptionKindsClass>): Record<string, unknown>;
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function optionKindsClassDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: OptionKindsClass;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function optionKindsClassDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): OptionKindsClass | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function optionKindsClassHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function optionKindsClassDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof OptionKindsClass>): Partial<OptionKindsClass> | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function optionKindsClassIs(value: unknown): value is OptionKindsClass;
 
 ## Diagnostics
 
@@ -3612,91 +5137,133 @@ export declare const OptionValidated: {
 
 ## Mapping
 
-original 0..680 -> expanded 1082..1762
-original 680..1188 -> expanded 4644..5152
-original 1188..1439 -> expanded 5640..5891
-original 1439..1440 -> expanded 6215..6216
-original 1440..2512 -> expanded 6339..7411
-original 2512..2743 -> expanded 24367..24598
-original 2743..2920 -> expanded 35352..35529
-original 2920..3088 -> expanded 46603..46771
-original 3088..3089 -> expanded 54634..54635
-original 3089..3243 -> expanded 57857..58011
-original 3243..3431 -> expanded 67603..67791
-original 3431..3637 -> expanded 78663..78869
-original 3637..3837 -> expanded 90815..91015
-original 3837..3984 -> expanded 102378..102525
-original 3984..4627 -> expanded 112649..113292
-original 4627..4628 -> expanded 134896..134897
-generated 0..1082 <- imports
-generated 1762..2121 <- Debug
-generated 2121..2323 <- Clone
-generated 2323..2541 <- PartialEq
-generated 2541..3130 <- Hash
-generated 3130..3680 <- PartialOrd
-generated 3680..4102 <- Ord
-generated 4102..4644 <- __convenience_const
-generated 5152..5496 <- Default
-generated 5496..5640 <- __convenience_const
-generated 5891..6215 <- Default
-generated 6216..6339 <- Default
-generated 7411..11195 <- Encode
-generated 11195..23285 <- Decode
-generated 23285..24367 <- __convenience_const
-generated 24598..27218 <- Encode
-generated 27218..34207 <- Decode
-generated 34207..35352 <- __convenience_const
-generated 35529..38127 <- Encode
-generated 38127..45542 <- Decode
-generated 45542..46603 <- __convenience_const
-generated 46771..48549 <- Encode
-generated 48549..48880 <- Encode
-generated 48880..54634 <- Decode
-generated 54635..56015 <- Encode
-generated 56015..57857 <- Decode
-generated 58011..60392 <- Encode
-generated 60392..66542 <- Decode
-generated 66542..67603 <- __convenience_const
-generated 67791..70685 <- Encode
-generated 70685..77518 <- Decode
-generated 77518..78663 <- __convenience_const
-generated 78869..81720 <- Encode
-generated 81720..89502 <- Decode
-generated 89502..90815 <- __convenience_const
-generated 91015..93615 <- Encode
-generated 93615..101296 <- Decode
-generated 101296..102378 <- __convenience_const
-generated 102525..104942 <- Encode
-generated 104942..111567 <- Decode
-generated 111567..112649 <- __convenience_const
-generated 113292..116787 <- Encode
-generated 116787..133751 <- Decode
-generated 133751..134896 <- __convenience_const
+original 0..680 -> expanded 1494..2174
+original 680..1188 -> expanded 5366..5874
+original 1188..1439 -> expanded 6362..6613
+original 1439..1440 -> expanded 6937..6938
+original 1440..2512 -> expanded 7061..8133
+original 2512..2743 -> expanded 25578..25809
+original 2743..2920 -> expanded 36610..36787
+original 2920..3088 -> expanded 47904..48072
+original 3088..3089 -> expanded 55960..55961
+original 3089..3243 -> expanded 59183..59337
+original 3243..3431 -> expanded 68954..69142
+original 3431..3637 -> expanded 80016..80222
+original 3637..3837 -> expanded 92170..92370
+original 3837..3984 -> expanded 103919..104066
+original 3984..4627 -> expanded 114289..114932
+original 4627..5235 -> expanded 137157..137765
+original 5235..5710 -> expanded 170559..171034
+original 5710..6103 -> expanded 171616..172009
+original 6103..6104 -> expanded 194343..194344
+original 6104..6105 -> expanded 197780..197781
+generated 0..1494 <- imports
+generated 2174..2595 <- Debug
+generated 2595..2841 <- Clone
+generated 2841..3089 <- PartialEq
+generated 3089..3738 <- Hash
+generated 3738..4345 <- PartialOrd
+generated 4345..4824 <- Ord
+generated 4824..5366 <- __convenience_const
+generated 5874..6218 <- Default
+generated 6218..6362 <- __convenience_const
+generated 6613..6937 <- Default
+generated 6938..7061 <- Default
+generated 8133..11903 <- Encode
+generated 11903..24496 <- Decode
+generated 24496..25578 <- __convenience_const
+generated 25809..28415 <- Encode
+generated 28415..35465 <- Decode
+generated 35465..36610 <- __convenience_const
+generated 36787..39371 <- Encode
+generated 39371..46843 <- Decode
+generated 46843..47904 <- __convenience_const
+generated 48072..49836 <- Encode
+generated 49836..50167 <- Encode
+generated 50167..55960 <- Decode
+generated 55961..57341 <- Encode
+generated 57341..59183 <- Decode
+generated 59337..61704 <- Encode
+generated 61704..67893 <- Decode
+generated 67893..68954 <- __convenience_const
+generated 69142..72022 <- Encode
+generated 72022..78871 <- Decode
+generated 78871..80016 <- __convenience_const
+generated 80222..83059 <- Encode
+generated 83059..90857 <- Decode
+generated 90857..92170 <- __convenience_const
+generated 92370..94956 <- Encode
+generated 94956..102837 <- Decode
+generated 102837..103919 <- __convenience_const
+generated 104066..106469 <- Encode
+generated 106469..113207 <- Decode
+generated 113207..114289 <- __convenience_const
+generated 114932..118413 <- Encode
+generated 118413..136012 <- Decode
+generated 136012..137157 <- __convenience_const
+generated 137765..143828 <- Encode
+generated 143828..169498 <- Decode
+generated 169498..170559 <- __convenience_const
+generated 171034..171460 <- Default
+generated 171460..171616 <- __convenience_const
+generated 172009..172758 <- Default
+generated 172758..176428 <- Encode
+generated 176428..176767 <- Encode
+generated 176767..194343 <- Decode
+generated 194344..194458 <- Default
+generated 194458..195878 <- Encode
+generated 195878..197780 <- Decode
 
 ## Metadata
 
-class OptionDefaultsClass: {"body_span":{"end":1441,"start":1248},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":1214,"start":1191}}],"fields":[{"decorators":[{"args_src":"\"light\"","name":"default","span":{"end":1278,"start":1254}}],"initializer":"'dark'","name":"theme","optional":false,"readonly":false,"span":{"end":1306,"start":1283},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"25","name":"pageSize","optional":false,"readonly":false,"span":{"end":1333,"start":1311},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"new Map([[\"a\", 1]])","name":"default","span":{"end":1374,"start":1338}}],"initializer":"new Map()","name":"counts","optional":false,"readonly":false,"span":{"end":1419,"start":1379},"ts_type":"Map<string, number>","visibility":"Public"},{"decorators":[],"initializer":null,"name":"label","optional":true,"readonly":false,"span":{"end":1439,"start":1424},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"OptionDefaultsClass","span":{"end":1441,"start":1222},"superclass":null,"type_params":[]}
-class OptionPascal: {"body_span":{"end":3090,"start":3023},"decorators":[{"args_src":"{ renameAll: \"PascalCase\" }","name":"endec","span":{"end":2996,"start":2954}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":2953,"start":2923}}],"fields":[{"decorators":[],"initializer":"''","name":"firstName","optional":false,"readonly":false,"span":{"end":3052,"start":3029},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"null","name":"homeTown","optional":false,"readonly":false,"span":{"end":3088,"start":3057},"ts_type":"string | null","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"OptionPascal","span":{"end":3090,"start":3004},"superclass":null,"type_params":[]}
-interface OptionTraits: {"body_span":{"end":681,"start":394},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord","name":"Derive","span":{"end":363,"start":297}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":411,"start":400},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"shown\" }","name":"debug","span":{"end":450,"start":416}}],"name":"label","optional":false,"readonly":false,"span":{"end":469,"start":455},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":503,"start":474}}],"name":"secret","optional":false,"readonly":false,"span":{"end":523,"start":508},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: true }","name":"partialEq","span":{"end":604,"start":528}},{"args_src":"{ skip: true }","name":"hash","span":{"end":604,"start":528}},{"args_src":"{ skip: true }","name":"ord","span":{"end":604,"start":528}}],"name":"cached","optional":false,"readonly":false,"span":{"end":624,"start":609},"ts_type":"number"},{"decorators":[{"args_src":"{ skip: true }","name":"ord","span":{"end":656,"start":629}}],"name":"unordered","optional":false,"readonly":false,"span":{"end":679,"start":661},"ts_type":"string"}],"heritage":[],"methods":[],"name":"OptionTraits","span":{"end":681,"start":371},"type_params":[]}
-interface OptionDefaults: {"body_span":{"end":1189,"start":739},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":706,"start":683}}],"fields":[{"decorators":[{"args_src":"\"light\"","name":"default","span":{"end":769,"start":745}}],"name":"theme","optional":false,"readonly":false,"span":{"end":788,"start":774},"ts_type":"string"},{"decorators":[{"args_src":"10","name":"default","span":{"end":812,"start":793}}],"name":"pageSize","optional":false,"readonly":false,"span":{"end":834,"start":817},"ts_type":"number"},{"decorators":[{"args_src":"true","name":"default","span":{"end":860,"start":839}}],"name":"enabled","optional":false,"readonly":false,"span":{"end":882,"start":865},"ts_type":"boolean"},{"decorators":[{"args_src":"[\"a\", \"b\"]","name":"default","span":{"end":914,"start":887}}],"name":"tags","optional":false,"readonly":false,"span":{"end":934,"start":919},"ts_type":"string[]"},{"decorators":[{"args_src":"{ id: \"seed\", score: 1 }","name":"default","span":{"end":980,"start":939}}],"name":"item","optional":false,"readonly":false,"span":{"end":1000,"start":985},"ts_type":"EdgeItem"},{"decorators":[{"args_src":"null","name":"default","span":{"end":1026,"start":1005}}],"name":"maybe","optional":false,"readonly":false,"span":{"end":1054,"start":1031},"ts_type":"EdgeItem | null"},{"decorators":[{"args_src":"new Date(0)","name":"default","span":{"end":1087,"start":1059}}],"name":"at","optional":false,"readonly":false,"span":{"end":1101,"start":1092},"ts_type":"Date"},{"decorators":[{"args_src":"10n","name":"default","span":{"end":1126,"start":1106}}],"name":"total","optional":false,"readonly":false,"span":{"end":1145,"start":1131},"ts_type":"bigint"},{"decorators":[],"name":"plain","optional":false,"readonly":false,"span":{"end":1164,"start":1150},"ts_type":"number"},{"decorators":[],"name":"optional","optional":true,"readonly":false,"span":{"end":1187,"start":1169},"ts_type":"string"}],"heritage":[],"methods":[],"name":"OptionDefaults","span":{"end":1189,"start":714},"type_params":[]}
-interface OptionFields: {"body_span":{"end":2513,"start":1679},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1648,"start":1618}}],"fields":[{"decorators":[{"args_src":"{ rename: \"user_name\" }","name":"endec","span":{"end":1723,"start":1685}}],"name":"name","optional":false,"readonly":false,"span":{"end":1741,"start":1728},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: true }","name":"endec","span":{"end":1775,"start":1746}}],"name":"skipped","optional":true,"readonly":false,"span":{"end":1797,"start":1780},"ts_type":"string"},{"decorators":[{"args_src":"{ skipEncoding: true }","name":"endec","span":{"end":1839,"start":1802}}],"name":"writeOnly","optional":false,"readonly":false,"span":{"end":1862,"start":1844},"ts_type":"string"},{"decorators":[{"args_src":"{ skipDecoding: true, default: \"\\\"computed\\\"\" }","name":"endec","span":{"end":1929,"start":1867}}],"name":"readOnly","optional":false,"readonly":false,"span":{"end":1951,"start":1934},"ts_type":"string"},{"decorators":[{"args_src":"{ default: true }","name":"endec","span":{"end":1988,"start":1956}}],"name":"count","optional":false,"readonly":false,"span":{"end":2007,"start":1993},"ts_type":"number"},{"decorators":[{"args_src":"{ default: \"\\\"pending\\\"\" }","name":"endec","span":{"end":2053,"start":2012}}],"name":"status","optional":false,"readonly":false,"span":{"end":2073,"start":2058},"ts_type":"string"},{"decorators":[{"args_src":"{ default: \"[]\" }","name":"endec","span":{"end":2110,"start":2078}}],"name":"tags","optional":false,"readonly":false,"span":{"end":2130,"start":2115},"ts_type":"string[]"},{"decorators":[{"args_src":"{ default: true }","name":"endec","span":{"end":2167,"start":2135}}],"name":"item","optional":false,"readonly":false,"span":{"end":2187,"start":2172},"ts_type":"EdgeItem"},{"decorators":[{"args_src":"{ format: \"decimal\" }","name":"endec","span":{"end":2228,"start":2192}}],"name":"balance","optional":false,"readonly":false,"span":{"end":2249,"start":2233},"ts_type":"number"},{"decorators":[{"args_src":"{ format: \"decimal\" }","name":"endec","span":{"end":2290,"start":2254}}],"name":"optionalBalance","optional":true,"readonly":false,"span":{"end":2320,"start":2295},"ts_type":"number"},{"decorators":[{"args_src":"{ encodeWith: \"upperCase\", decodeWith: \"lowerCase\" }","name":"endec","span":{"end":2392,"start":2325}}],"name":"shout","optional":false,"readonly":false,"span":{"end":2411,"start":2397},"ts_type":"string"},{"decorators":[{"args_src":"{ encodeWith: \"upperCase\", decodeWith: \"lowerCase\" }","name":"endec","span":{"end":2483,"start":2416}}],"name":"optionalShout","optional":true,"readonly":false,"span":{"end":2511,"start":2488},"ts_type":"string"}],"heritage":[],"methods":[],"name":"OptionFields","span":{"end":2513,"start":1656},"type_params":[]}
-interface OptionScreaming: {"body_span":{"end":2744,"start":2632},"decorators":[{"args_src":"{ renameAll: \"SCREAMING_SNAKE_CASE\" }","name":"endec","span":{"end":2598,"start":2546}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":2545,"start":2515}}],"fields":[{"decorators":[],"name":"firstName","optional":false,"readonly":false,"span":{"end":2656,"start":2638},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"kept\" }","name":"endec","span":{"end":2694,"start":2661}}],"name":"lastName","optional":false,"readonly":false,"span":{"end":2716,"start":2699},"ts_type":"string"},{"decorators":[],"name":"homeAddress2","optional":false,"readonly":false,"span":{"end":2742,"start":2721},"ts_type":"string"}],"heritage":[],"methods":[],"name":"OptionScreaming","span":{"end":2744,"start":2606},"type_params":[]}
-interface OptionKebab: {"body_span":{"end":2921,"start":2849},"decorators":[{"args_src":"{ renameAll: \"kebab-case\" }","name":"endec","span":{"end":2819,"start":2777}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":2776,"start":2746}}],"fields":[{"decorators":[],"name":"firstName","optional":false,"readonly":false,"span":{"end":2873,"start":2855},"ts_type":"string"},{"decorators":[],"name":"isActive","optional":false,"readonly":false,"span":{"end":2896,"start":2878},"ts_type":"boolean"},{"decorators":[],"name":"items","optional":false,"readonly":false,"span":{"end":2919,"start":2901},"ts_type":"EdgeItem[]"}],"heritage":[],"methods":[],"name":"OptionKebab","span":{"end":2921,"start":2827},"type_params":[]}
-interface OptionCamel: {"body_span":{"end":3244,"start":3194},"decorators":[{"args_src":"{ renameAll: \"camelCase\" }","name":"endec","span":{"end":3164,"start":3123}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":3122,"start":3092}}],"fields":[{"decorators":[],"name":"first_name","optional":false,"readonly":false,"span":{"end":3219,"start":3200},"ts_type":"string"},{"decorators":[],"name":"home_town","optional":false,"readonly":false,"span":{"end":3242,"start":3224},"ts_type":"string"}],"heritage":[],"methods":[],"name":"OptionCamel","span":{"end":3244,"start":3172},"type_params":[]}
-interface OptionFlattened: {"body_span":{"end":3432,"start":3310},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":3276,"start":3246}}],"fields":[{"decorators":[],"name":"title","optional":false,"readonly":false,"span":{"end":3330,"start":3316},"ts_type":"string"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":3357,"start":3335}}],"name":"item","optional":false,"readonly":false,"span":{"end":3377,"start":3362},"ts_type":"EdgeItem"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":3404,"start":3382}}],"name":"profile","optional":false,"readonly":false,"span":{"end":3430,"start":3409},"ts_type":"EdgeProfile"}],"heritage":[],"methods":[],"name":"OptionFlattened","span":{"end":3432,"start":3284},"type_params":[]}
-interface OptionFlattenedOptional: {"body_span":{"end":3638,"start":3506},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":3464,"start":3434}}],"fields":[{"decorators":[],"name":"title","optional":false,"readonly":false,"span":{"end":3526,"start":3512},"ts_type":"string"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":3553,"start":3531}}],"name":"item","optional":true,"readonly":false,"span":{"end":3574,"start":3558},"ts_type":"EdgeItem"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":3601,"start":3579}}],"name":"extra","optional":false,"readonly":false,"span":{"end":3636,"start":3606},"ts_type":"Record<string, number>"}],"heritage":[],"methods":[],"name":"OptionFlattenedOptional","span":{"end":3638,"start":3472},"type_params":[]}
-interface OptionStrict: {"body_span":{"end":3838,"start":3769},"decorators":[{"args_src":"{ denyUnknownFields: true, renameAll: \"snake_case\" }","name":"endec","span":{"end":3738,"start":3671}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":3670,"start":3640}}],"fields":[{"decorators":[],"name":"firstName","optional":false,"readonly":false,"span":{"end":3793,"start":3775},"ts_type":"string"},{"decorators":[],"name":"item","optional":false,"readonly":false,"span":{"end":3813,"start":3798},"ts_type":"EdgeItem"},{"decorators":[],"name":"nested","optional":true,"readonly":false,"span":{"end":3836,"start":3818},"ts_type":"EdgeItem"}],"heritage":[],"methods":[],"name":"OptionStrict","span":{"end":3838,"start":3746},"type_params":[]}
-interface OptionTagged: {"body_span":{"end":3985,"start":3932},"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":3901,"start":3871}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":3870,"start":3840}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":3951,"start":3938},"ts_type":"string"},{"decorators":[],"name":"child","optional":false,"readonly":false,"span":{"end":3983,"start":3956},"ts_type":"OptionTagged | null"}],"heritage":[],"methods":[],"name":"OptionTagged","span":{"end":3985,"start":3909},"type_params":[]}
-interface OptionValidated: {"body_span":{"end":4628,"start":4051},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":4017,"start":3987}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"email\"] }","name":"endec","span":{"end":4095,"start":4057}}],"name":"email","optional":false,"readonly":false,"span":{"end":4114,"start":4100},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":4160,"start":4119}}],"name":"optionalName","optional":true,"readonly":false,"span":{"end":4187,"start":4165},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"positive\"] }","name":"endec","span":{"end":4233,"start":4192}}],"name":"nullableCount","optional":false,"readonly":false,"span":{"end":4267,"start":4238},"ts_type":"number | null"},{"decorators":[{"args_src":"{ validate: [\"int\"] }","name":"endec","span":{"end":4308,"start":4272}}],"name":"laterCount","optional":false,"readonly":false,"span":{"end":4344,"start":4313},"ts_type":"number | undefined"},{"decorators":[{"args_src":"{ validate: [\"minItems(1)\"] }","name":"endec","span":{"end":4393,"start":4349}}],"name":"tags","optional":false,"readonly":false,"span":{"end":4413,"start":4398},"ts_type":"string[]"},{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":4460,"start":4418}}],"name":"at","optional":false,"readonly":false,"span":{"end":4474,"start":4465},"ts_type":"Date"},{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":4521,"start":4479}}],"name":"maybeAt","optional":false,"readonly":false,"span":{"end":4547,"start":4526},"ts_type":"Date | null"},{"decorators":[{"args_src":"{ default: 3, validate: [\"positive\"] }","name":"endec","span":{"end":4605,"start":4552}}],"name":"retries","optional":false,"readonly":false,"span":{"end":4626,"start":4610},"ts_type":"number"}],"heritage":[],"methods":[],"name":"OptionValidated","span":{"end":4628,"start":4025},"type_params":[]}
+class OptionDefaultsClass: {"body_span":{"end":1441,"start":1248},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":1214,"start":1191}}],"fields":[{"decorators":[{"args_src":"\"light\"","name":"default","span":{"end":1278,"start":1254}}],"initializer":"'dark'","key":"Named","name":"theme","optional":false,"readonly":false,"span":{"end":1306,"start":1283},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"25","key":"Named","name":"pageSize","optional":false,"readonly":false,"span":{"end":1333,"start":1311},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"new Map([[\"a\", 1]])","name":"default","span":{"end":1374,"start":1338}}],"initializer":"new Map()","key":"Named","name":"counts","optional":false,"readonly":false,"span":{"end":1419,"start":1379},"ts_type":"Map<string, number>","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"label","optional":true,"readonly":false,"span":{"end":1439,"start":1424},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"OptionDefaultsClass","span":{"end":1441,"start":1222},"superclass":null,"type_params":[]}
+class OptionPascal: {"body_span":{"end":3090,"start":3023},"decorators":[{"args_src":"{ renameAll: \"PascalCase\" }","name":"endec","span":{"end":2996,"start":2954}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":2953,"start":2923}}],"fields":[{"decorators":[],"initializer":"''","key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":3052,"start":3029},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"null","key":"Named","name":"homeTown","optional":false,"readonly":false,"span":{"end":3088,"start":3057},"ts_type":"string | null","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"OptionPascal","span":{"end":3090,"start":3004},"superclass":null,"type_params":[]}
+class OptionKindsClass: {"body_span":{"end":6105,"start":5783},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":5752,"start":5713}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":5803,"start":5789},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":5823,"start":5808},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":5838,"start":5828},"ts_type":"Date","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"big","optional":false,"readonly":false,"span":{"end":5856,"start":5843},"ts_type":"bigint","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":5877,"start":5861},"ts_type":"EdgeItem","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":5898,"start":5882},"ts_type":"string[]","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"map","optional":false,"readonly":false,"span":{"end":5929,"start":5903},"ts_type":"Map<string, number>","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":5958,"start":5934},"ts_type":"[string, number]","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"inline","optional":false,"readonly":false,"span":{"end":5986,"start":5963},"ts_type":"{ x: number }","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"picked","optional":false,"readonly":false,"span":{"end":6021,"start":5991},"ts_type":"Pick<EdgeItem, 'id'>","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"required","optional":false,"readonly":false,"span":{"end":6056,"start":6026},"ts_type":"Required<EdgeItem>","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":6083,"start":6061},"ts_type":"string | null","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"later","optional":true,"readonly":false,"span":{"end":6103,"start":6088},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"OptionKindsClass","span":{"end":6105,"start":5760},"superclass":null,"type_params":[]}
+interface OptionTraits: {"body_span":{"end":681,"start":394},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord","name":"Derive","span":{"end":363,"start":297}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":411,"start":400},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"shown\" }","name":"debug","span":{"end":450,"start":416}}],"key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":469,"start":455},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":503,"start":474}}],"key":"Named","name":"secret","optional":false,"readonly":false,"span":{"end":523,"start":508},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: true }","name":"partialEq","span":{"end":604,"start":528}},{"args_src":"{ skip: true }","name":"hash","span":{"end":604,"start":528}},{"args_src":"{ skip: true }","name":"ord","span":{"end":604,"start":528}}],"key":"Named","name":"cached","optional":false,"readonly":false,"span":{"end":624,"start":609},"ts_type":"number"},{"decorators":[{"args_src":"{ skip: true }","name":"ord","span":{"end":656,"start":629}}],"key":"Named","name":"unordered","optional":false,"readonly":false,"span":{"end":679,"start":661},"ts_type":"string"}],"heritage":[],"methods":[],"name":"OptionTraits","span":{"end":681,"start":371},"type_params":[]}
+interface OptionDefaults: {"body_span":{"end":1189,"start":739},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":706,"start":683}}],"fields":[{"decorators":[{"args_src":"\"light\"","name":"default","span":{"end":769,"start":745}}],"key":"Named","name":"theme","optional":false,"readonly":false,"span":{"end":788,"start":774},"ts_type":"string"},{"decorators":[{"args_src":"10","name":"default","span":{"end":812,"start":793}}],"key":"Named","name":"pageSize","optional":false,"readonly":false,"span":{"end":834,"start":817},"ts_type":"number"},{"decorators":[{"args_src":"true","name":"default","span":{"end":860,"start":839}}],"key":"Named","name":"enabled","optional":false,"readonly":false,"span":{"end":882,"start":865},"ts_type":"boolean"},{"decorators":[{"args_src":"[\"a\", \"b\"]","name":"default","span":{"end":914,"start":887}}],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":934,"start":919},"ts_type":"string[]"},{"decorators":[{"args_src":"{ id: \"seed\", score: 1 }","name":"default","span":{"end":980,"start":939}}],"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":1000,"start":985},"ts_type":"EdgeItem"},{"decorators":[{"args_src":"null","name":"default","span":{"end":1026,"start":1005}}],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":1054,"start":1031},"ts_type":"EdgeItem | null"},{"decorators":[{"args_src":"new Date(0)","name":"default","span":{"end":1087,"start":1059}}],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":1101,"start":1092},"ts_type":"Date"},{"decorators":[{"args_src":"10n","name":"default","span":{"end":1126,"start":1106}}],"key":"Named","name":"total","optional":false,"readonly":false,"span":{"end":1145,"start":1131},"ts_type":"bigint"},{"decorators":[],"key":"Named","name":"plain","optional":false,"readonly":false,"span":{"end":1164,"start":1150},"ts_type":"number"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":1187,"start":1169},"ts_type":"string"}],"heritage":[],"methods":[],"name":"OptionDefaults","span":{"end":1189,"start":714},"type_params":[]}
+interface OptionFields: {"body_span":{"end":2513,"start":1679},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1648,"start":1618}}],"fields":[{"decorators":[{"args_src":"{ rename: \"user_name\" }","name":"endec","span":{"end":1723,"start":1685}}],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1741,"start":1728},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: true }","name":"endec","span":{"end":1775,"start":1746}}],"key":"Named","name":"skipped","optional":true,"readonly":false,"span":{"end":1797,"start":1780},"ts_type":"string"},{"decorators":[{"args_src":"{ skipEncoding: true }","name":"endec","span":{"end":1839,"start":1802}}],"key":"Named","name":"writeOnly","optional":false,"readonly":false,"span":{"end":1862,"start":1844},"ts_type":"string"},{"decorators":[{"args_src":"{ skipDecoding: true, default: \"\\\"computed\\\"\" }","name":"endec","span":{"end":1929,"start":1867}}],"key":"Named","name":"readOnly","optional":false,"readonly":false,"span":{"end":1951,"start":1934},"ts_type":"string"},{"decorators":[{"args_src":"{ default: true }","name":"endec","span":{"end":1988,"start":1956}}],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":2007,"start":1993},"ts_type":"number"},{"decorators":[{"args_src":"{ default: \"\\\"pending\\\"\" }","name":"endec","span":{"end":2053,"start":2012}}],"key":"Named","name":"status","optional":false,"readonly":false,"span":{"end":2073,"start":2058},"ts_type":"string"},{"decorators":[{"args_src":"{ default: \"[]\" }","name":"endec","span":{"end":2110,"start":2078}}],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":2130,"start":2115},"ts_type":"string[]"},{"decorators":[{"args_src":"{ default: true }","name":"endec","span":{"end":2167,"start":2135}}],"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":2187,"start":2172},"ts_type":"EdgeItem"},{"decorators":[{"args_src":"{ format: \"decimal\" }","name":"endec","span":{"end":2228,"start":2192}}],"key":"Named","name":"balance","optional":false,"readonly":false,"span":{"end":2249,"start":2233},"ts_type":"number"},{"decorators":[{"args_src":"{ format: \"decimal\" }","name":"endec","span":{"end":2290,"start":2254}}],"key":"Named","name":"optionalBalance","optional":true,"readonly":false,"span":{"end":2320,"start":2295},"ts_type":"number"},{"decorators":[{"args_src":"{ encodeWith: \"upperCase\", decodeWith: \"lowerCase\" }","name":"endec","span":{"end":2392,"start":2325}}],"key":"Named","name":"shout","optional":false,"readonly":false,"span":{"end":2411,"start":2397},"ts_type":"string"},{"decorators":[{"args_src":"{ encodeWith: \"upperCase\", decodeWith: \"lowerCase\" }","name":"endec","span":{"end":2483,"start":2416}}],"key":"Named","name":"optionalShout","optional":true,"readonly":false,"span":{"end":2511,"start":2488},"ts_type":"string"}],"heritage":[],"methods":[],"name":"OptionFields","span":{"end":2513,"start":1656},"type_params":[]}
+interface OptionScreaming: {"body_span":{"end":2744,"start":2632},"decorators":[{"args_src":"{ renameAll: \"SCREAMING_SNAKE_CASE\" }","name":"endec","span":{"end":2598,"start":2546}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":2545,"start":2515}}],"fields":[{"decorators":[],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":2656,"start":2638},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"kept\" }","name":"endec","span":{"end":2694,"start":2661}}],"key":"Named","name":"lastName","optional":false,"readonly":false,"span":{"end":2716,"start":2699},"ts_type":"string"},{"decorators":[],"key":"Named","name":"homeAddress2","optional":false,"readonly":false,"span":{"end":2742,"start":2721},"ts_type":"string"}],"heritage":[],"methods":[],"name":"OptionScreaming","span":{"end":2744,"start":2606},"type_params":[]}
+interface OptionKebab: {"body_span":{"end":2921,"start":2849},"decorators":[{"args_src":"{ renameAll: \"kebab-case\" }","name":"endec","span":{"end":2819,"start":2777}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":2776,"start":2746}}],"fields":[{"decorators":[],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":2873,"start":2855},"ts_type":"string"},{"decorators":[],"key":"Named","name":"isActive","optional":false,"readonly":false,"span":{"end":2896,"start":2878},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":2919,"start":2901},"ts_type":"EdgeItem[]"}],"heritage":[],"methods":[],"name":"OptionKebab","span":{"end":2921,"start":2827},"type_params":[]}
+interface OptionCamel: {"body_span":{"end":3244,"start":3194},"decorators":[{"args_src":"{ renameAll: \"camelCase\" }","name":"endec","span":{"end":3164,"start":3123}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":3122,"start":3092}}],"fields":[{"decorators":[],"key":"Named","name":"first_name","optional":false,"readonly":false,"span":{"end":3219,"start":3200},"ts_type":"string"},{"decorators":[],"key":"Named","name":"home_town","optional":false,"readonly":false,"span":{"end":3242,"start":3224},"ts_type":"string"}],"heritage":[],"methods":[],"name":"OptionCamel","span":{"end":3244,"start":3172},"type_params":[]}
+interface OptionFlattened: {"body_span":{"end":3432,"start":3310},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":3276,"start":3246}}],"fields":[{"decorators":[],"key":"Named","name":"title","optional":false,"readonly":false,"span":{"end":3330,"start":3316},"ts_type":"string"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":3357,"start":3335}}],"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":3377,"start":3362},"ts_type":"EdgeItem"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":3404,"start":3382}}],"key":"Named","name":"profile","optional":false,"readonly":false,"span":{"end":3430,"start":3409},"ts_type":"EdgeProfile"}],"heritage":[],"methods":[],"name":"OptionFlattened","span":{"end":3432,"start":3284},"type_params":[]}
+interface OptionFlattenedOptional: {"body_span":{"end":3638,"start":3506},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":3464,"start":3434}}],"fields":[{"decorators":[],"key":"Named","name":"title","optional":false,"readonly":false,"span":{"end":3526,"start":3512},"ts_type":"string"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":3553,"start":3531}}],"key":"Named","name":"item","optional":true,"readonly":false,"span":{"end":3574,"start":3558},"ts_type":"EdgeItem"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":3601,"start":3579}}],"key":"Named","name":"extra","optional":false,"readonly":false,"span":{"end":3636,"start":3606},"ts_type":"Record<string, number>"}],"heritage":[],"methods":[],"name":"OptionFlattenedOptional","span":{"end":3638,"start":3472},"type_params":[]}
+interface OptionStrict: {"body_span":{"end":3838,"start":3769},"decorators":[{"args_src":"{ denyUnknownFields: true, renameAll: \"snake_case\" }","name":"endec","span":{"end":3738,"start":3671}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":3670,"start":3640}}],"fields":[{"decorators":[],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":3793,"start":3775},"ts_type":"string"},{"decorators":[],"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":3813,"start":3798},"ts_type":"EdgeItem"},{"decorators":[],"key":"Named","name":"nested","optional":true,"readonly":false,"span":{"end":3836,"start":3818},"ts_type":"EdgeItem"}],"heritage":[],"methods":[],"name":"OptionStrict","span":{"end":3838,"start":3746},"type_params":[]}
+interface OptionTagged: {"body_span":{"end":3985,"start":3932},"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":3901,"start":3871}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":3870,"start":3840}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":3951,"start":3938},"ts_type":"string"},{"decorators":[],"key":"Named","name":"child","optional":false,"readonly":false,"span":{"end":3983,"start":3956},"ts_type":"OptionTagged | null"}],"heritage":[],"methods":[],"name":"OptionTagged","span":{"end":3985,"start":3909},"type_params":[]}
+interface OptionValidated: {"body_span":{"end":4628,"start":4051},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":4017,"start":3987}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"email\"] }","name":"endec","span":{"end":4095,"start":4057}}],"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":4114,"start":4100},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":4160,"start":4119}}],"key":"Named","name":"optionalName","optional":true,"readonly":false,"span":{"end":4187,"start":4165},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"positive\"] }","name":"endec","span":{"end":4233,"start":4192}}],"key":"Named","name":"nullableCount","optional":false,"readonly":false,"span":{"end":4267,"start":4238},"ts_type":"number | null"},{"decorators":[{"args_src":"{ validate: [\"int\"] }","name":"endec","span":{"end":4308,"start":4272}}],"key":"Named","name":"laterCount","optional":false,"readonly":false,"span":{"end":4344,"start":4313},"ts_type":"number | undefined"},{"decorators":[{"args_src":"{ validate: [\"minItems(1)\"] }","name":"endec","span":{"end":4393,"start":4349}}],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":4413,"start":4398},"ts_type":"string[]"},{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":4460,"start":4418}}],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":4474,"start":4465},"ts_type":"Date"},{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":4521,"start":4479}}],"key":"Named","name":"maybeAt","optional":false,"readonly":false,"span":{"end":4547,"start":4526},"ts_type":"Date | null"},{"decorators":[{"args_src":"{ default: 3, validate: [\"positive\"] }","name":"endec","span":{"end":4605,"start":4552}}],"key":"Named","name":"retries","optional":false,"readonly":false,"span":{"end":4626,"start":4610},"ts_type":"number"}],"heritage":[],"methods":[],"name":"OptionValidated","span":{"end":4628,"start":4025},"type_params":[]}
+interface OptionKinds: {"body_span":{"end":5236,"start":4690},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":4660,"start":4630}}],"fields":[{"decorators":[],"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":4709,"start":4696},"ts_type":"string"},{"decorators":[],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":4728,"start":4714},"ts_type":"number"},{"decorators":[],"key":"Named","name":"flag","optional":false,"readonly":false,"span":{"end":4747,"start":4733},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"big","optional":false,"readonly":false,"span":{"end":4764,"start":4752},"ts_type":"bigint"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":4778,"start":4769},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":4798,"start":4783},"ts_type":"EdgeItem"},{"decorators":[],"key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":4827,"start":4803},"ts_type":"'small' | 'large'"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":4847,"start":4832},"ts_type":"string[]"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":4869,"start":4852},"ts_type":"Set<number>"},{"decorators":[],"key":"Named","name":"map","optional":false,"readonly":false,"span":{"end":4899,"start":4874},"ts_type":"Map<string, number>"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":4936,"start":4904},"ts_type":"Record<string, boolean>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":4964,"start":4941},"ts_type":"[string, number]"},{"decorators":[],"key":"Named","name":"inline","optional":false,"readonly":false,"span":{"end":4991,"start":4969},"ts_type":"{ x: number }"},{"decorators":[],"key":"Named","name":"maybeText","optional":false,"readonly":false,"span":{"end":5021,"start":4996},"ts_type":"string | null"},{"decorators":[],"key":"Named","name":"laterText","optional":true,"readonly":false,"span":{"end":5045,"start":5026},"ts_type":"string"},{"decorators":[],"key":"Named","name":"partial","optional":false,"readonly":false,"span":{"end":5077,"start":5050},"ts_type":"Partial<EdgeItem>"},{"decorators":[],"key":"Named","name":"link","optional":false,"readonly":false,"span":{"end":5092,"start":5082},"ts_type":"URL"},{"decorators":[],"key":"Named","name":"query","optional":false,"readonly":false,"span":{"end":5120,"start":5097},"ts_type":"URLSearchParams"},{"decorators":[],"key":"Named","name":"pattern","optional":false,"readonly":false,"span":{"end":5141,"start":5125},"ts_type":"RegExp"},{"decorators":[],"key":"Named","name":"failure","optional":false,"readonly":false,"span":{"end":5161,"start":5146},"ts_type":"Error"},{"decorators":[],"key":"Named","name":"bytes","optional":false,"readonly":false,"span":{"end":5184,"start":5166},"ts_type":"Uint8Array"},{"decorators":[],"key":"Named","name":"bigs","optional":false,"readonly":false,"span":{"end":5209,"start":5189},"ts_type":"BigInt64Array"},{"decorators":[],"key":"Named","name":"buffer","optional":false,"readonly":false,"span":{"end":5234,"start":5214},"ts_type":"ArrayBuffer"}],"heritage":[],"methods":[],"name":"OptionKinds","span":{"end":5236,"start":4668},"type_params":[]}
+interface OptionDefaultKinds: {"body_span":{"end":5711,"start":5298},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":5261,"start":5238}}],"fields":[{"decorators":[],"key":"Named","name":"required","optional":false,"readonly":false,"span":{"end":5333,"start":5304},"ts_type":"Required<EdgeItem>"},{"decorators":[],"key":"Named","name":"partial","optional":false,"readonly":false,"span":{"end":5365,"start":5338},"ts_type":"Partial<EdgeItem>"},{"decorators":[],"key":"Named","name":"picked","optional":false,"readonly":false,"span":{"end":5399,"start":5370},"ts_type":"Pick<EdgeItem, 'id'>"},{"decorators":[],"key":"Named","name":"dictionary","optional":false,"readonly":false,"span":{"end":5442,"start":5404},"ts_type":"{ [key: string]: number }"},{"decorators":[],"key":"Named","name":"inline","optional":false,"readonly":false,"span":{"end":5485,"start":5447},"ts_type":"{ x: number; label?: string }"},{"decorators":[],"key":"Named","name":"carried","optional":false,"readonly":false,"span":{"end":5517,"start":5490},"ts_type":"string | string[]"},{"decorators":[],"key":"Named","name":"dated","optional":false,"readonly":false,"span":{"end":5543,"start":5522},"ts_type":"Date | string"},{"decorators":[],"key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":5572,"start":5548},"ts_type":"'small' | 'large'"},{"decorators":[],"key":"Named","name":"linked","optional":false,"readonly":false,"span":{"end":5603,"start":5577},"ts_type":"string | EdgeItem"},{"decorators":[],"key":"Named","name":"big","optional":false,"readonly":false,"span":{"end":5620,"start":5608},"ts_type":"bigint"},{"decorators":[],"key":"Named","name":"bytes","optional":false,"readonly":false,"span":{"end":5643,"start":5625},"ts_type":"Uint8Array"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":5671,"start":5648},"ts_type":"[string, number]"},{"decorators":[],"key":"Named","name":"nested","optional":false,"readonly":false,"span":{"end":5709,"start":5676},"ts_type":"Map<string, Set<number>>"}],"heritage":[],"methods":[],"name":"OptionDefaultKinds","span":{"end":5711,"start":5269},"type_params":[]}
 
 ## Registry reads
 
+Name("'id'")
+Name("'small' | 'large'")
+Name("ArrayBuffer")
+Name("BigInt64Array")
+Name("Date")
+Name("Date | string")
 Name("EdgeItem")
 Name("EdgeProfile")
+Name("Error")
+Name("Map")
 Name("OptionTagged")
+Name("Partial")
+Name("Pick")
 Name("Record")
+Name("RegExp")
+Name("Required")
+Name("Set")
+Name("URL")
+Name("URLSearchParams")
+Name("Uint8Array")
+Name("[string, number]")
+Name("number")
 Name("string")
+Name("string | EdgeItem")
+Name("string | string")
 Name("string[]")
+Name("{ [key: string]: number }")
+Name("{ x: number }")
+Name("{ x: number; label?: string }")
 
 ## Buildtime dependencies
 

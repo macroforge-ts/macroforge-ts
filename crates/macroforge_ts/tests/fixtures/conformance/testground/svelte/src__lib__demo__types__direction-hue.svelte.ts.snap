@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -43,12 +43,9 @@ export function directionHueEncode(value: DirectionHue, keepMetadata?: boolean):
 export function directionHueEncodeWithContext(value: DirectionHue, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "DirectionHue",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "DirectionHue" });
     directionHueEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -164,7 +161,7 @@ export function directionHueDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("bearing")) || (__fields.keeps("bearing") && obj["bearing"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("bearing")) ? "bearing" in obj : (__fields.keeps("bearing") && obj["bearing"] !== undefined)) {
         const __raw_bearing = obj["bearing"] as number;
 
         if (!(typeof __raw_bearing === "number")) {
@@ -173,7 +170,7 @@ export function directionHueDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             instance.bearing = __raw_bearing;
         }
     }
-    if ((__fields === undefined || __fields.requires("hue")) || (__fields.keeps("hue") && obj["hue"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("hue")) ? "hue" in obj : (__fields.keeps("hue") && obj["hue"] !== undefined)) {
         const __raw_hue = obj["hue"] as number;
 
         if (!(typeof __raw_hue === "number")) {
@@ -474,19 +471,19 @@ export declare const DirectionHue: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..179 -> expanded 741..813
-original 179..180 -> expanded 15507..15508
-generated 0..683 <- imports
-generated 813..931 <- Default
-generated 931..3293 <- Encode
-generated 3293..9356 <- Decode
-generated 9356..14133 <- Gigaform
-generated 14133..15507 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..179 -> expanded 813..885
+original 179..180 -> expanded 15597..15598
+generated 0..755 <- imports
+generated 885..1003 <- Default
+generated 1003..3351 <- Encode
+generated 3351..9446 <- Decode
+generated 9446..14223 <- Gigaform
+generated 14223..15597 <- __convenience_const
 
 ## Metadata
 
-interface DirectionHue: {"body_span":{"end":180,"start":139},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"bearing","optional":false,"readonly":false,"span":{"end":161,"start":145},"ts_type":"number"},{"decorators":[],"name":"hue","optional":false,"readonly":false,"span":{"end":178,"start":166},"ts_type":"number"}],"heritage":[],"methods":[],"name":"DirectionHue","span":{"end":180,"start":116},"type_params":[]}
+interface DirectionHue: {"body_span":{"end":180,"start":139},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"key":"Named","name":"bearing","optional":false,"readonly":false,"span":{"end":161,"start":145},"ts_type":"number"},{"decorators":[],"key":"Named","name":"hue","optional":false,"readonly":false,"span":{"end":178,"start":166},"ts_type":"number"}],"heritage":[],"methods":[],"name":"DirectionHue","span":{"end":180,"start":116},"type_params":[]}
 
 ## Registry reads
 

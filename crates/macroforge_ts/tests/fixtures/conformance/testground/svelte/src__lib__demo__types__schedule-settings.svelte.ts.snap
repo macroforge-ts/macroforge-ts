@@ -13,7 +13,7 @@ true
 ## Output
 
 import { rowHeightDecodeWithContext, rowHeightEncodeWithContext } from "./row-height.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -51,12 +51,9 @@ export function scheduleSettingsEncode(value: ScheduleSettings, keepMetadata?: b
 export function scheduleSettingsEncodeWithContext(value: ScheduleSettings, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "ScheduleSettings",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ScheduleSettings" });
     scheduleSettingsEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -188,7 +185,7 @@ export function scheduleSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("daysPerWeek")) || (__fields.keeps("daysPerWeek") && obj["daysPerWeek"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("daysPerWeek")) ? "daysPerWeek" in obj : (__fields.keeps("daysPerWeek") && obj["daysPerWeek"] !== undefined)) {
         const __raw_daysPerWeek = obj["daysPerWeek"] as number;
 
         if (!(typeof __raw_daysPerWeek === "number")) {
@@ -197,7 +194,7 @@ export function scheduleSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
             instance.daysPerWeek = __raw_daysPerWeek;
         }
     }
-    if ((__fields === undefined || __fields.requires("rowHeight")) || (__fields.keeps("rowHeight") && obj["rowHeight"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("rowHeight")) ? "rowHeight" in obj : (__fields.keeps("rowHeight") && obj["rowHeight"] !== undefined)) {
         const __raw_rowHeight = obj["rowHeight"] as RowHeight;
 
         ctx.pushScope("rowHeight");
@@ -213,13 +210,14 @@ export function scheduleSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "rowHeight", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("visibleRoutes")) || (__fields.keeps("visibleRoutes") && obj["visibleRoutes"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("visibleRoutes")) ? "visibleRoutes" in obj : (__fields.keeps("visibleRoutes") && obj["visibleRoutes"] !== undefined)) {
         const __raw_visibleRoutes = obj["visibleRoutes"] as Array<string>;
         if (Array.isArray(__raw_visibleRoutes)) {
             ctx.pushScope("visibleRoutes");
@@ -243,7 +241,7 @@ export function scheduleSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "visibleRoutes", message: __raw_visibleRoutes == null ? "ScheduleSettings.visibleRoutes is required" : "expected Array<string>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("detailedCards")) || (__fields.keeps("detailedCards") && obj["detailedCards"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("detailedCards")) ? "detailedCards" in obj : (__fields.keeps("detailedCards") && obj["detailedCards"] !== undefined)) {
         const __raw_detailedCards = obj["detailedCards"] as boolean;
 
         if (!(typeof __raw_detailedCards === "boolean")) {
@@ -642,20 +640,20 @@ export declare const ScheduleSettings: {
 
 ## Mapping
 
-original 0..113 -> expanded 867..980
-original 162..228 -> expanded 980..1046
-original 253..343 -> expanded 1046..1136
-original 343..344 -> expanded 23615..23616
-generated 0..867 <- imports
-generated 1136..1336 <- Default
-generated 1336..4210 <- Encode
-generated 4210..13076 <- Decode
-generated 13076..22133 <- Gigaform
-generated 22133..23615 <- __convenience_const
+original 0..113 -> expanded 939..1052
+original 162..228 -> expanded 1052..1118
+original 253..343 -> expanded 1118..1208
+original 343..344 -> expanded 23849..23850
+generated 0..939 <- imports
+generated 1208..1408 <- Default
+generated 1408..4268 <- Encode
+generated 4268..13310 <- Decode
+generated 13310..22367 <- Gigaform
+generated 22367..23849 <- __convenience_const
 
 ## Metadata
 
-interface ScheduleSettings: {"body_span":{"end":344,"start":198},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":163,"start":114}}],"fields":[{"decorators":[],"name":"daysPerWeek","optional":false,"readonly":false,"span":{"end":224,"start":204},"ts_type":"number"},{"decorators":[{"args_src":"\"Medium\"","name":"default","span":{"end":254,"start":229}}],"name":"rowHeight","optional":false,"readonly":false,"span":{"end":280,"start":259},"ts_type":"RowHeight"},{"decorators":[],"name":"visibleRoutes","optional":false,"readonly":false,"span":{"end":314,"start":285},"ts_type":"Array<string>"},{"decorators":[],"name":"detailedCards","optional":false,"readonly":false,"span":{"end":342,"start":319},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"ScheduleSettings","span":{"end":344,"start":171},"type_params":[]}
+interface ScheduleSettings: {"body_span":{"end":344,"start":198},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":163,"start":114}}],"fields":[{"decorators":[],"key":"Named","name":"daysPerWeek","optional":false,"readonly":false,"span":{"end":224,"start":204},"ts_type":"number"},{"decorators":[{"args_src":"\"Medium\"","name":"default","span":{"end":254,"start":229}}],"key":"Named","name":"rowHeight","optional":false,"readonly":false,"span":{"end":280,"start":259},"ts_type":"RowHeight"},{"decorators":[],"key":"Named","name":"visibleRoutes","optional":false,"readonly":false,"span":{"end":314,"start":285},"ts_type":"Array<string>"},{"decorators":[],"key":"Named","name":"detailedCards","optional":false,"readonly":false,"span":{"end":342,"start":319},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"ScheduleSettings","span":{"end":344,"start":171},"type_params":[]}
 
 ## Registry reads
 

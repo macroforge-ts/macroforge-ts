@@ -24,7 +24,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 
 type Contact = /** @endec(email) */ string | number;
@@ -32,7 +32,7 @@ type Contact = /** @endec(email) */ string | number;
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function contactDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Contact } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, contactHasShape);
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = contactDecodeWithContext(data, ctx);
@@ -216,7 +216,7 @@ export function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("digits")) || (__fields.keeps("digits") && obj["digits"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("digits")) ? "digits" in obj : (__fields.keeps("digits") && obj["digits"] !== undefined)) {
         const __raw_digits = obj["digits"] as string;
 
         if (!(typeof __raw_digits === "string")) {
@@ -282,7 +282,7 @@ type Reachable =
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function reachableDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Reachable } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, reachableHasShape);
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = reachableDecodeWithContext(data, ctx);
@@ -489,23 +489,23 @@ export {};
 
 ## Mapping
 
-original 22..75 -> expanded 350..403
-original 75..77 -> expanded 3453..3455
-original 99..137 -> expanded 3455..3493
-original 137..139 -> expanded 9348..9350
-original 161..239 -> expanded 9350..9428
-original 239..240 -> expanded 14199..14200
-generated 0..350 <- imports
-generated 403..3127 <- Decode
-generated 3127..3453 <- __convenience_const
-generated 3493..8722 <- Decode
-generated 8722..9348 <- __convenience_const
-generated 9428..13855 <- Decode
-generated 13855..14199 <- __convenience_const
+original 22..75 -> expanded 383..436
+original 75..77 -> expanded 3521..3523
+original 99..137 -> expanded 3523..3561
+original 137..139 -> expanded 9433..9435
+original 161..239 -> expanded 9435..9513
+original 239..240 -> expanded 14321..14322
+generated 0..383 <- imports
+generated 436..3195 <- Decode
+generated 3195..3521 <- __convenience_const
+generated 3561..8807 <- Decode
+generated 8807..9433 <- __convenience_const
+generated 9513..13977 <- Decode
+generated 13977..14321 <- __convenience_const
 
 ## Metadata
 
-interface Phone: {"body_span":{"end":138,"start":117},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":100,"start":78}}],"fields":[{"decorators":[],"name":"digits","optional":false,"readonly":false,"span":{"end":136,"start":121},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Phone","span":{"end":138,"start":101},"type_params":[]}
+interface Phone: {"body_span":{"end":138,"start":117},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":100,"start":78}}],"fields":[{"decorators":[],"key":"Named","name":"digits","optional":false,"readonly":false,"span":{"end":136,"start":121},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Phone","span":{"end":138,"start":101},"type_params":[]}
 type Contact: {"body":{"Union":[{"decorators":[{"args_src":"email","name":"endec","span":{"end":59,"start":39}}],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"TypeRef":"number"}}]},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"name":"Contact","span":{"end":76,"start":24},"type_params":[]}
 type Reachable: {"body":{"Union":[{"decorators":[{"args_src":"nonEmpty, maxLength(32)","name":"endec","span":{"end":222,"start":184}}],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"TypeRef":"Phone"}}]},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":162,"start":140}}],"name":"Reachable","span":{"end":240,"start":163},"type_params":[]}
 

@@ -4,7 +4,7 @@
  * another generic type, a derived one included.
  */
 
-import type { EdgeItem } from './edge-types';
+import type { EdgeCard, EdgeItem } from './edge-types';
 
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export interface GenericBox<T> {
@@ -61,4 +61,31 @@ export interface GenericUses {
     list: GenericList<EdgeItem>;
     maybe: GenericMaybe<EdgeItem>;
     boxes: Map<string, GenericBox<Date>>;
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface GenericWrapper<T> {
+    inner: GenericBox<T>;
+    pairs: GenericPair<T, T[]>[];
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type GenericOutcome<T> = GenericPair<T, T[]> | 'none';
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface GenericArguments {
+    dated: GenericBox<Date>;
+    maybe: GenericBox<Date> | null;
+    optional?: GenericBox<EdgeCard>;
+    pair: GenericPair<Date, Map<string, Date>>;
+    stack: GenericStack<Date>;
+    result: GenericResult<Date, EdgeCard>;
+    partial: Partial<GenericBox<Date>>;
+    picked: Pick<GenericPair<Date, bigint>, 'right'>;
+    wrapper: GenericWrapper<Date>;
+    plain: GenericBox<string>;
+    link: string | GenericBox<Date>;
+    linkOrNull: string | GenericBox<Date> | null;
+    outcome: GenericOutcome<Date>;
+    outcomes: GenericOutcome<Date>[];
 }

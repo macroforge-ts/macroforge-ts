@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -43,12 +43,9 @@ export function companyNameEncode(value: CompanyName, keepMetadata?: boolean): s
 export function companyNameEncodeWithContext(value: CompanyName, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "CompanyName",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "CompanyName" });
     companyNameEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -156,7 +153,7 @@ export function companyNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("companyName")) || (__fields.keeps("companyName") && obj["companyName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("companyName")) ? "companyName" in obj : (__fields.keeps("companyName") && obj["companyName"] !== undefined)) {
         const __raw_companyName = obj["companyName"] as string;
 
         if (!(typeof __raw_companyName === "string")) {
@@ -431,21 +428,21 @@ export declare const CompanyName: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..143 -> expanded 741..777
-original 192..197 -> expanded 777..782
-original 238..265 -> expanded 782..809
-original 265..266 -> expanded 14469..14470
-generated 0..683 <- imports
-generated 809..914 <- Default
-generated 914..3127 <- Encode
-generated 3127..9646 <- Decode
-generated 9646..13122 <- Gigaform
-generated 13122..14469 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..143 -> expanded 813..849
+original 192..197 -> expanded 849..854
+original 238..265 -> expanded 854..881
+original 265..266 -> expanded 14549..14550
+generated 0..755 <- imports
+generated 881..986 <- Default
+generated 986..3185 <- Encode
+generated 3185..9726 <- Decode
+generated 9726..13202 <- Gigaform
+generated 13202..14549 <- __convenience_const
 
 ## Metadata
 
-interface CompanyName: {"body_span":{"end":266,"start":138},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":239,"start":198}},{"args_src":"{ label: \"Company Name\" }","name":"textController","span":{"end":193,"start":144}}],"name":"companyName","optional":false,"readonly":false,"span":{"end":264,"start":244},"ts_type":"string"}],"heritage":[],"methods":[],"name":"CompanyName","span":{"end":266,"start":116},"type_params":[]}
+interface CompanyName: {"body_span":{"end":266,"start":138},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":239,"start":198}},{"args_src":"{ label: \"Company Name\" }","name":"textController","span":{"end":193,"start":144}}],"key":"Named","name":"companyName","optional":false,"readonly":false,"span":{"end":264,"start":244},"ts_type":"string"}],"heritage":[],"methods":[],"name":"CompanyName","span":{"end":266,"start":116},"type_params":[]}
 
 ## Registry reads
 

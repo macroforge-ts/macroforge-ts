@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -49,17 +49,21 @@ export function sectorEncodeWithContext(value: Sector, ctx: __mf_EncodeContext):
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
 
 /** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
 export function sectorDecode(input: unknown): { success: true; value: Sector } | { success: false; errors: Array<{ field: string; message: string }> } {
-    switch (input) {
+
+    const data = __mf_textOrValue(input, sectorHasShape);
+    switch (data) {
         case 'Residential':
         case 'Commercial':
-            return { success: true, value: input as Sector };
+            return { success: true, value: data as Sector };
         default:
             return { success: false, errors: [{ field: "_root", message: "Invalid value for Sector: expected one of " + ['Residential', 'Commercial'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
     }
@@ -338,15 +342,15 @@ export declare const Sector: {
 
 ## Mapping
 
-original 0..58 -> expanded 556..614
-original 107..174 -> expanded 614..681
-original 174..175 -> expanded 8743..8744
-generated 0..556 <- imports
-generated 681..757 <- Default
-generated 757..2003 <- Encode
-generated 2003..3677 <- Decode
-generated 3677..7991 <- Gigaform
-generated 7991..8743 <- __convenience_const
+original 0..58 -> expanded 618..676
+original 107..174 -> expanded 676..743
+original 174..175 -> expanded 8977..8978
+generated 0..618 <- imports
+generated 743..819 <- Default
+generated 819..2180 <- Encode
+generated 2180..3911 <- Decode
+generated 3911..8225 <- Gigaform
+generated 8225..8977 <- __convenience_const
 
 ## Metadata
 

@@ -16,8 +16,8 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import type { Encoder as __mf_Encoder, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 declare const __mf_newtype_3: unique symbol;
 declare const __mf_newtype_2: unique symbol;
@@ -31,7 +31,7 @@ export function idEncode<T>(value: Id<T>): string {
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
-export function idEncodeWithContext<T>(value: Id<T>, ctx: __mf_EncodeContext): unknown;
+export function idEncodeWithContext<T>(value: Id<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown;
 export function idEncodeWithContext<T>(value: Id<T>): unknown {
     return value;
 }
@@ -39,7 +39,7 @@ export function idEncodeWithContext<T>(value: Id<T>): unknown {
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function idDecode<T>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Id<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, (__spelled) => typeof __spelled === "string");
 
         const ctx = __mf_DecodeContext.create();
         const result = idDecodeWithContext<T>(data, ctx);
@@ -78,7 +78,7 @@ export function idDecode<T>(input: unknown, opts?: __mf_DecodeOptions): { succes
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function idDecodeWithContext<T>(value: unknown, _ctx: __mf_DecodeContext): Id<T> {
+export function idDecodeWithContext<T>(value: unknown, _ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Id<T> {
     const __decoded: unknown = value;
     if (typeof __decoded !== "string") {
         throw new __mf_DecodeError([{ field: "_root", message: "Id.decodeWithContext: expected string" }]);
@@ -123,7 +123,7 @@ export type Id<T> = string & {
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
 export declare function idEncode<T>(value: Id<T>, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
-export declare function idEncodeWithContext<T>(value: Id<T>, ctx: __mf_EncodeContext): unknown;
+export declare function idEncodeWithContext<T>(value: Id<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown;
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function idDecode<T>(input: unknown, opts?: __mf_DecodeOptions): {
 	success: true;
@@ -136,7 +136,7 @@ export declare function idDecode<T>(input: unknown, opts?: __mf_DecodeOptions): 
 	}>;
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export declare function idDecodeWithContext<T>(value: unknown, _ctx: __mf_DecodeContext): Id<T>;
+export declare function idDecodeWithContext<T>(value: unknown, _ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Id<T>;
 export declare function idHasShape(value: unknown): boolean;
 export declare function idIs<T>(value: unknown): value is Id<T>;
 export declare const Id: {
@@ -160,19 +160,19 @@ export {};
 
 ## Mapping
 
-original 30..51 -> expanded 399..420
-original 67..68 -> expanded 464..465
-original 68..89 -> expanded 3328..3349
-original 115..117 -> expanded 3431..3433
-generated 0..264 <- imports
-generated 264..309 <- $Newtype
-generated 309..354 <- $Newtype
-generated 354..399 <- $Newtype
-generated 420..464 <- $Newtype
-generated 465..1165 <- Encode
-generated 1165..2884 <- Decode
-generated 2884..3328 <- __convenience_const
-generated 3349..3431 <- $Newtype
+original 30..51 -> expanded 482..503
+original 67..68 -> expanded 547..548
+original 68..89 -> expanded 3533..3554
+original 115..117 -> expanded 3636..3638
+generated 0..347 <- imports
+generated 347..392 <- $Newtype
+generated 392..437 <- $Newtype
+generated 437..482 <- $Newtype
+generated 503..547 <- $Newtype
+generated 548..1277 <- Encode
+generated 1277..3089 <- Decode
+generated 3089..3533 <- __convenience_const
+generated 3554..3636 <- $Newtype
 
 ## Metadata
 

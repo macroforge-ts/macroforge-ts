@@ -29,7 +29,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 declare const __mf_newtype_2: unique symbol;
@@ -147,7 +147,7 @@ export function usernameEncodeWithContext(value: Username): unknown {
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function usernameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Username } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, (__spelled) => typeof __spelled === "string");
 
         const ctx = __mf_DecodeContext.create();
         const result = usernameDecodeWithContext(data, ctx);
@@ -321,7 +321,7 @@ export function centsEncodeWithContext(value: Cents): unknown {
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function centsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Cents } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, (__spelled) => typeof __spelled === "string");
 
         const ctx = __mf_DecodeContext.create();
         const result = centsDecodeWithContext(data, ctx);
@@ -364,7 +364,13 @@ export function centsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
     let __decoded: unknown = value;
     if (typeof value !== "bigint") {
         try {
-            __decoded = ((v) => BigInt(v as string))(value);
+            __decoded = ((v) => {
+	const raw: unknown = v;
+	if (typeof raw === "bigint") return raw;
+	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+	return BigInt(raw);
+})(value);
         } catch (__error) {
             throw new __mf_DecodeError([{ field: "_root", message: "Cents.decodeWithContext: expected bigint, " + String(__error) }]);
         }
@@ -552,44 +558,44 @@ export {};
 
 ## Mapping
 
-original 65..87 -> expanded 489..511
-original 103..104 -> expanded 555..556
-original 104..106 -> expanded 3875..3877
-original 209..233 -> expanded 3877..3901
-original 249..250 -> expanded 3945..3946
-original 250..252 -> expanded 7480..7482
-original 274..294 -> expanded 7482..7502
-original 311..312 -> expanded 7547..7548
-original 312..335 -> expanded 9621..9644
-original 360..363 -> expanded 9699..9702
-original 439..460 -> expanded 9702..9723
-original 476..477 -> expanded 9767..9768
-original 477..478 -> expanded 13651..13652
-generated 0..264 <- imports
-generated 264..309 <- $Newtype
-generated 309..354 <- $Newtype
-generated 354..399 <- $Newtype
-generated 399..444 <- $Newtype
-generated 444..489 <- $Newtype
-generated 511..555 <- $Newtype
-generated 556..1264 <- Encode
-generated 1264..3379 <- Decode
-generated 3379..3875 <- __convenience_const
-generated 3901..3945 <- $Newtype
-generated 3946..4670 <- Encode
-generated 4670..6780 <- Decode
-generated 6780..6866 <- Default
-generated 6866..7480 <- __convenience_const
-generated 7502..7547 <- $Newtype
-generated 7548..9315 <- Decode
-generated 9315..9621 <- __convenience_const
-generated 9644..9699 <- $Newtype
-generated 9723..9767 <- $Newtype
-generated 9768..10508 <- Encode
-generated 10508..12774 <- Decode
-generated 12774..12928 <- Hash
-generated 12928..13028 <- Debug
-generated 13028..13651 <- __convenience_const
+original 65..87 -> expanded 522..544
+original 103..104 -> expanded 588..589
+original 104..106 -> expanded 3908..3910
+original 209..233 -> expanded 3910..3934
+original 249..250 -> expanded 3978..3979
+original 250..252 -> expanded 7577..7579
+original 274..294 -> expanded 7579..7599
+original 311..312 -> expanded 7644..7645
+original 312..335 -> expanded 9718..9741
+original 360..363 -> expanded 9796..9799
+original 439..460 -> expanded 9799..9820
+original 476..477 -> expanded 9864..9865
+original 477..478 -> expanded 14069..14070
+generated 0..297 <- imports
+generated 297..342 <- $Newtype
+generated 342..387 <- $Newtype
+generated 387..432 <- $Newtype
+generated 432..477 <- $Newtype
+generated 477..522 <- $Newtype
+generated 544..588 <- $Newtype
+generated 589..1297 <- Encode
+generated 1297..3412 <- Decode
+generated 3412..3908 <- __convenience_const
+generated 3934..3978 <- $Newtype
+generated 3979..4703 <- Encode
+generated 4703..6877 <- Decode
+generated 6877..6963 <- Default
+generated 6963..7577 <- __convenience_const
+generated 7599..7644 <- $Newtype
+generated 7645..9412 <- Decode
+generated 9412..9718 <- __convenience_const
+generated 9741..9796 <- $Newtype
+generated 9820..9864 <- $Newtype
+generated 9865..10605 <- Encode
+generated 10605..13192 <- Decode
+generated 13192..13346 <- Hash
+generated 13346..13446 <- Debug
+generated 13446..14069 <- __convenience_const
 
 ## Metadata
 

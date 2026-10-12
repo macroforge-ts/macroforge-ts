@@ -23,7 +23,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 // An externally-tagged variant whose payload is a link type: encodable in
 // its own right, but carried as a bare id string as often as an object. The
@@ -49,14 +49,21 @@ export function refEncodeWithContext(value: Ref, ctx: __mf_EncodeContext): unkno
         __variant = __encoder(value, ctx);
         __matched = true;
     }
-    
+    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) {
+        const result: Record<string, unknown> = {};
+        result.id = value.id;
+        __variant = result;
+        __matched = true;
+    }
     if (!__matched) {
         __variant = value;
     }
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -64,7 +71,7 @@ export function refEncodeWithContext(value: Ref, ctx: __mf_EncodeContext): unkno
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function refDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Ref } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, refHasShape);
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = refDecodeWithContext(data, ctx);
@@ -127,9 +134,7 @@ export function refDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): R
         return value as Ref;
     }
     if (typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) {
-        const __result: Record<string, unknown> = {};
-        __result["id"] = (value as any)["id"];
-        return __result as Ref;
+        return __mf_decodeObject(value, ctx, { id: __mf_decodeString }) as Ref;
     }
 
     throw new __mf_DecodeError([{
@@ -198,14 +203,14 @@ export function stageEncodeWithContext(value: Stage, ctx: __mf_EncodeContext): u
     if (typeof __typeName !== "string") return __variant;
 
     const __outer: Record<string, unknown> = { [__typeName]: fields };
-    if (__idVal !== undefined) __outer.__id = __idVal;
+    if (__idVal !== undefined) __mf_encodedAs(ctx, __idVal, __outer);
     return __outer;
 }
 
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function stageDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Stage } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, stageHasShape);
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = stageDecodeWithContext(data, ctx);
@@ -397,23 +402,23 @@ export declare const Stage: {
 
 ## Mapping
 
-original 0..278 -> expanded 397..675
-original 308..351 -> expanded 675..718
-original 351..353 -> expanded 5090..5092
-original 425..474 -> expanded 5092..5141
-original 474..475 -> expanded 10777..10778
-generated 0..397 <- imports
-generated 718..1949 <- Encode
-generated 1949..4633 <- Decode
-generated 4633..5090 <- __convenience_const
-generated 5141..6792 <- Encode
-generated 6792..10220 <- Decode
-generated 10220..10777 <- __convenience_const
+original 0..278 -> expanded 529..807
+original 308..351 -> expanded 807..850
+original 351..353 -> expanded 5563..5565
+original 425..474 -> expanded 5565..5614
+original 474..475 -> expanded 11298..11299
+generated 0..529 <- imports
+generated 850..2444 <- Encode
+generated 2444..5106 <- Decode
+generated 5106..5563 <- __convenience_const
+generated 5614..7280 <- Encode
+generated 7280..10741 <- Decode
+generated 10741..11298 <- __convenience_const
 
 ## Metadata
 
-type Ref: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":349,"start":339},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":309,"start":279}}],"name":"Ref","span":{"end":352,"start":317},"type_params":[]}
-type Stage: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"'Active'"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"Invoice","optional":false,"readonly":false,"span":{"end":472,"start":460},"ts_type":"Ref"}]}}}]},"decorators":[{"args_src":"{ externallyTagged: true }","name":"endec","span":{"end":426,"start":385}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":384,"start":354}}],"name":"Stage","span":{"end":475,"start":434},"type_params":[]}
+type Ref: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":349,"start":339},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":309,"start":279}}],"name":"Ref","span":{"end":352,"start":317},"type_params":[]}
+type Stage: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"'Active'"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"Invoice","optional":false,"readonly":false,"span":{"end":472,"start":460},"ts_type":"Ref"}]}}}]},"decorators":[{"args_src":"{ externallyTagged: true }","name":"endec","span":{"end":426,"start":385}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":384,"start":354}}],"name":"Stage","span":{"end":475,"start":434},"type_params":[]}
 
 ## Registry reads
 

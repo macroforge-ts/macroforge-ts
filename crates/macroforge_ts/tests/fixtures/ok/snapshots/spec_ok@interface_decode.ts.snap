@@ -114,7 +114,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("x")) || (__fields.keeps("x") && obj["x"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
         const __raw_x = obj["x"] as number;
 
         if (!(typeof __raw_x === "number")) {
@@ -123,7 +123,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             instance.x = __raw_x;
         }
     }
-    if ((__fields === undefined || __fields.requires("y")) || (__fields.keeps("y") && obj["y"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("y")) ? "y" in obj : (__fields.keeps("y") && obj["y"] !== undefined)) {
         const __raw_y = obj["y"] as number;
 
         if (!(typeof __raw_y === "number")) {
@@ -223,14 +223,14 @@ export {};
 ## Mapping
 
 original 22..72 -> expanded 350..400
-original 72..73 -> expanded 6731..6732
+original 72..73 -> expanded 6755..6756
 generated 0..350 <- imports
-generated 400..6105 <- Decode
-generated 6105..6731 <- __convenience_const
+generated 400..6129 <- Decode
+generated 6129..6755 <- __convenience_const
 
 ## Metadata
 
-interface Point: {"body_span":{"end":73,"start":40},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":56,"start":46},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":71,"start":61},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Point","span":{"end":73,"start":24},"type_params":[]}
+interface Point: {"body_span":{"end":73,"start":40},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":56,"start":46},"ts_type":"number"},{"decorators":[],"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":71,"start":61},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Point","span":{"end":73,"start":24},"type_params":[]}
 
 ## Registry reads
 

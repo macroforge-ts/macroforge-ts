@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -49,18 +49,22 @@ export function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext):
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
 
 /** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
 export function statusDecode(input: unknown): { success: true; value: Status } | { success: false; errors: Array<{ field: string; message: string }> } {
-    switch (input) {
+
+    const data = __mf_textOrValue(input, statusHasShape);
+    switch (data) {
         case 'Scheduled':
         case 'OnDeck':
         case 'Waiting':
-            return { success: true, value: input as Status };
+            return { success: true, value: data as Status };
         default:
             return { success: false, errors: [{ field: "_root", message: "Invalid value for Status: expected one of " + ['Scheduled', 'OnDeck', 'Waiting'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
     }
@@ -369,15 +373,15 @@ export declare const Status: {
 
 ## Mapping
 
-original 0..58 -> expanded 556..614
-original 107..180 -> expanded 614..687
-original 180..181 -> expanded 9319..9320
-generated 0..556 <- imports
-generated 687..761 <- Default
-generated 761..2007 <- Encode
-generated 2007..3745 <- Decode
-generated 3745..8567 <- Gigaform
-generated 8567..9319 <- __convenience_const
+original 0..58 -> expanded 618..676
+original 107..180 -> expanded 676..749
+original 180..181 -> expanded 9553..9554
+generated 0..618 <- imports
+generated 749..823 <- Default
+generated 823..2184 <- Encode
+generated 2184..3979 <- Decode
+generated 3979..8801 <- Gigaform
+generated 8801..9553 <- __convenience_const
 
 ## Metadata
 

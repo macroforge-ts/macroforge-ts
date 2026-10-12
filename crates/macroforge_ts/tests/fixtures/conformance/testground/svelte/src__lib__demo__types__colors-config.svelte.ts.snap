@@ -16,7 +16,7 @@ import { cardinalDecodeWithContext, cardinalHasShape, cardinalEncodeWithContext,
 import { customDecodeWithContext, customHasShape, customEncodeWithContext, customDefaultValue } from "./custom.svelte";
 import { gradientDecodeWithContext, gradientHasShape, gradientEncodeWithContext, gradientDefaultValue } from "./gradient.svelte";
 import { ordinalDecodeWithContext, ordinalHasShape, ordinalEncodeWithContext, ordinalDefaultValue } from "./ordinal.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -73,7 +73,9 @@ export function colorsConfigEncodeWithContext(value: ColorsConfig, ctx: __mf_Enc
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -543,15 +545,15 @@ export declare const ColorsConfig: {
 
 ## Mapping
 
-original 0..257 -> expanded 1061..1318
-original 306..407 -> expanded 1318..1419
-original 407..408 -> expanded 16717..16718
-generated 0..1061 <- imports
-generated 1419..1516 <- Default
-generated 1516..3954 <- Encode
-generated 3954..10005 <- Decode
-generated 10005..15851 <- Gigaform
-generated 15851..16717 <- __convenience_const
+original 0..257 -> expanded 1090..1347
+original 306..407 -> expanded 1347..1448
+original 407..408 -> expanded 16861..16862
+generated 0..1090 <- imports
+generated 1448..1545 <- Default
+generated 1545..4098 <- Encode
+generated 4098..10149 <- Decode
+generated 10149..15995 <- Gigaform
+generated 15995..16861 <- __convenience_const
 
 ## Metadata
 

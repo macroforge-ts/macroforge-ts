@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface Order {
@@ -38,12 +38,9 @@ export function orderEncode(value: Order, keepMetadata?: boolean): string {
 export function orderEncodeWithContext(value: Order, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Order",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Order" });
     orderEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -159,7 +156,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -168,7 +165,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("quantity")) || (__fields.keeps("quantity") && obj["quantity"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("quantity")) ? "quantity" in obj : (__fields.keeps("quantity") && obj["quantity"] !== undefined)) {
         const __raw_quantity = obj["quantity"] as number;
 
         if (!(typeof __raw_quantity === "number")) {
@@ -294,17 +291,17 @@ export declare const Order: {
 
 ## Mapping
 
-original 39..104 -> expanded 524..589
-original 104..105 -> expanded 9797..9798
-generated 0..524 <- imports
-generated 589..694 <- Default
-generated 694..2951 <- Encode
-generated 2951..8776 <- Decode
-generated 8776..9797 <- __convenience_const
+original 39..104 -> expanded 596..661
+original 104..105 -> expanded 9887..9888
+generated 0..596 <- imports
+generated 661..766 <- Default
+generated 766..3009 <- Encode
+generated 3009..8866 <- Decode
+generated 8866..9887 <- __convenience_const
 
 ## Metadata
 
-interface Order: {"body_span":{"end":105,"start":64},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":40,"start":1}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":81,"start":70},"ts_type":"string"},{"decorators":[],"name":"quantity","optional":false,"readonly":false,"span":{"end":103,"start":86},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Order","span":{"end":105,"start":48},"type_params":[]}
+interface Order: {"body_span":{"end":105,"start":64},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":40,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":81,"start":70},"ts_type":"string"},{"decorators":[],"key":"Named","name":"quantity","optional":false,"readonly":false,"span":{"end":103,"start":86},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Order","span":{"end":105,"start":48},"type_params":[]}
 
 ## Registry reads
 

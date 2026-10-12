@@ -14,6 +14,7 @@ true
 
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { equalWithin as __mf_equalWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
 /**
  * Stress test for aliased imports and tree-shaking.
  *
@@ -134,7 +135,7 @@ export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -143,7 +144,7 @@ export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_Decode
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("age")) || (__fields.keeps("age") && obj["age"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
         const __raw_age = obj["age"] as number;
 
         if (!(typeof __raw_age === "number")) {
@@ -152,7 +153,7 @@ export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_Decode
             instance.age = __raw_age;
         }
     }
-    if ((__fields === undefined || __fields.requires("email")) || (__fields.keeps("email") && obj["email"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("email")) ? "email" in obj : (__fields.keeps("email") && obj["email"] !== undefined)) {
         const __raw_email = obj["email"] as string;
 
         if (!(typeof __raw_email === "string")) {
@@ -219,18 +220,20 @@ export interface ComparableItem {
 
 export function comparableItemEquals(a: ComparableItem, b: ComparableItem): boolean {
     if (a === b) return true;
-    return a.priority === b.priority && a.name === b.name;
+    return __mf_equalWithin(a, b, () => a.priority === b.priority && a.name === b.name);
 }
 
 export function comparableItemPartialCompare(a: ComparableItem, b: ComparableItem): number | null {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = (a.priority < b.priority ? -1 : a.priority > b.priority ? 1 : a.priority === b.priority ? 0 : null);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
     const cmp1 = (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
     if (cmp1 === null) return null;
     if (cmp1 !== 0) return cmp1;
-    return 0;
+        return 0;
+    });
 }
 
 export const ComparableItem: {
@@ -341,7 +344,7 @@ export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as number;
 
         if (!(typeof __raw_id === "number")) {
@@ -350,7 +353,7 @@ export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_Deco
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as string;
 
         if (!(typeof __raw_value === "string")) {
@@ -359,7 +362,7 @@ export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_Deco
             instance.value = __raw_value;
         }
     }
-    if ((__fields === undefined || __fields.requires("score")) || (__fields.keeps("score") && obj["score"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
         const __raw_score = obj["score"] as number;
 
         if (!(typeof __raw_score === "number")) {
@@ -401,11 +404,12 @@ export function fullFeaturedTypeIs(obj: unknown): obj is FullFeaturedType {
 
 export function fullFeaturedTypeEquals(a: FullFeaturedType, b: FullFeaturedType): boolean {
     if (a === b) return true;
-    return a.id === b.id && a.value === b.value && a.score === b.score;
+    return __mf_equalWithin(a, b, () => a.id === b.id && a.value === b.value && a.score === b.score);
 }
 
 export function fullFeaturedTypePartialCompare(a: FullFeaturedType, b: FullFeaturedType): number | null {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = (a.id < b.id ? -1 : a.id > b.id ? 1 : a.id === b.id ? 0 : null);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
@@ -415,7 +419,8 @@ export function fullFeaturedTypePartialCompare(a: FullFeaturedType, b: FullFeatu
     const cmp2 = (a.score < b.score ? -1 : a.score > b.score ? 1 : a.score === b.score ? 0 : null);
     if (cmp2 === null) return null;
     if (cmp2 !== 0) return cmp2;
-    return 0;
+        return 0;
+    });
 }
 
 export const FullFeaturedType: {
@@ -532,7 +537,7 @@ export function typeADecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("fieldA")) || (__fields.keeps("fieldA") && obj["fieldA"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("fieldA")) ? "fieldA" in obj : (__fields.keeps("fieldA") && obj["fieldA"] !== undefined)) {
         const __raw_fieldA = obj["fieldA"] as string;
 
         if (!(typeof __raw_fieldA === "string")) {
@@ -681,7 +686,7 @@ export function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("fieldB")) || (__fields.keeps("fieldB") && obj["fieldB"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("fieldB")) ? "fieldB" in obj : (__fields.keeps("fieldB") && obj["fieldB"] !== undefined)) {
         const __raw_fieldB = obj["fieldB"] as number;
 
         if (!(typeof __raw_fieldB === "number")) {
@@ -746,15 +751,17 @@ export interface TypeC {
 
 export function typeCEquals(a: TypeC, b: TypeC): boolean {
     if (a === b) return true;
-    return a.fieldC === b.fieldC;
+    return __mf_equalWithin(a, b, () => a.fieldC === b.fieldC);
 }
 
 export function typeCPartialCompare(a: TypeC, b: TypeC): number | null {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = (a.fieldC < b.fieldC ? -1 : a.fieldC > b.fieldC ? 1 : a.fieldC === b.fieldC ? 0 : null);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
-    return 0;
+        return 0;
+    });
 }
 
 export const TypeC: {
@@ -976,45 +983,45 @@ export declare function verifyImports(): void;
 
 ## Mapping
 
-original 0..745 -> expanded 350..1095
-original 767..857 -> expanded 1095..1185
-original 857..921 -> expanded 8659..8723
-original 958..1034 -> expanded 8723..8799
-original 1034..1084 -> expanded 9676..9726
-original 1129..1221 -> expanded 9726..9818
-original 1221..1291 -> expanded 18399..18469
-original 1313..1360 -> expanded 18469..18516
-original 1360..1362 -> expanded 24378..24380
-original 1384..1431 -> expanded 24380..24427
-original 1431..1433 -> expanded 30289..30291
-original 1470..1517 -> expanded 30291..30338
-original 1517..2163 -> expanded 30943..31589
-generated 0..350 <- imports
-generated 1185..7891 <- Decode
-generated 7891..8659 <- __convenience_const
-generated 8799..8977 <- PartialEq
-generated 8977..9444 <- PartialOrd
-generated 9444..9676 <- __convenience_const
-generated 9818..16594 <- Decode
-generated 16594..16791 <- PartialEq
-generated 16791..17401 <- PartialOrd
-generated 17401..18399 <- __convenience_const
-generated 18516..23745 <- Decode
-generated 23745..24378 <- __convenience_const
-generated 24427..29656 <- Decode
-generated 29656..30289 <- __convenience_const
-generated 30338..30464 <- PartialEq
-generated 30464..30756 <- PartialOrd
-generated 30756..30943 <- __convenience_const
+original 0..745 -> expanded 468..1213
+original 767..857 -> expanded 1213..1303
+original 857..921 -> expanded 8822..8886
+original 958..1034 -> expanded 8886..8962
+original 1034..1084 -> expanded 9926..9976
+original 1129..1221 -> expanded 9976..10068
+original 1221..1291 -> expanded 18781..18851
+original 1313..1360 -> expanded 18851..18898
+original 1360..1362 -> expanded 24777..24779
+original 1384..1431 -> expanded 24779..24826
+original 1431..1433 -> expanded 30705..30707
+original 1470..1517 -> expanded 30707..30754
+original 1517..2163 -> expanded 31446..32092
+generated 0..468 <- imports
+generated 1303..8054 <- Decode
+generated 8054..8822 <- __convenience_const
+generated 8962..9170 <- PartialEq
+generated 9170..9694 <- PartialOrd
+generated 9694..9926 <- __convenience_const
+generated 10068..16889 <- Decode
+generated 16889..17116 <- PartialEq
+generated 17116..17783 <- PartialOrd
+generated 17783..18781 <- __convenience_const
+generated 18898..24144 <- Decode
+generated 24144..24777 <- __convenience_const
+generated 24826..30072 <- Decode
+generated 30072..30705 <- __convenience_const
+generated 30754..30910 <- PartialEq
+generated 30910..31259 <- PartialOrd
+generated 31259..31446 <- __convenience_const
 
 ## Metadata
 
-interface UserWithDecode: {"body_span":{"end":858,"start":801},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":768,"start":746}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":820,"start":807},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":837,"start":825},"ts_type":"number"},{"decorators":[],"name":"email","optional":false,"readonly":false,"span":{"end":856,"start":842},"ts_type":"string"}],"heritage":[],"methods":[],"name":"UserWithDecode","span":{"end":858,"start":776},"type_params":[]}
-interface ComparableItem: {"body_span":{"end":1035,"start":992},"decorators":[{"args_src":"PartialEq, PartialOrd","name":"Derive","span":{"end":959,"start":922}}],"fields":[{"decorators":[],"name":"priority","optional":false,"readonly":false,"span":{"end":1015,"start":998},"ts_type":"number"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":1033,"start":1020},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ComparableItem","span":{"end":1035,"start":967},"type_params":[]}
-interface FullFeaturedType: {"body_span":{"end":1222,"start":1165},"decorators":[{"args_src":"Decode, PartialEq, PartialOrd","name":"Derive","span":{"end":1130,"start":1085}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":1182,"start":1171},"ts_type":"number"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":1201,"start":1187},"ts_type":"string"},{"decorators":[],"name":"score","optional":false,"readonly":false,"span":{"end":1220,"start":1206},"ts_type":"number"}],"heritage":[],"methods":[],"name":"FullFeaturedType","span":{"end":1222,"start":1138},"type_params":[]}
-interface TypeA: {"body_span":{"end":1361,"start":1338},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1314,"start":1292}}],"fields":[{"decorators":[],"name":"fieldA","optional":false,"readonly":false,"span":{"end":1359,"start":1344},"ts_type":"string"}],"heritage":[],"methods":[],"name":"TypeA","span":{"end":1361,"start":1322},"type_params":[]}
-interface TypeB: {"body_span":{"end":1432,"start":1409},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1385,"start":1363}}],"fields":[{"decorators":[],"name":"fieldB","optional":false,"readonly":false,"span":{"end":1430,"start":1415},"ts_type":"number"}],"heritage":[],"methods":[],"name":"TypeB","span":{"end":1432,"start":1393},"type_params":[]}
-interface TypeC: {"body_span":{"end":1518,"start":1495},"decorators":[{"args_src":"PartialEq, PartialOrd","name":"Derive","span":{"end":1471,"start":1434}}],"fields":[{"decorators":[],"name":"fieldC","optional":false,"readonly":false,"span":{"end":1516,"start":1501},"ts_type":"number"}],"heritage":[],"methods":[],"name":"TypeC","span":{"end":1518,"start":1479},"type_params":[]}
+interface UserWithDecode: {"body_span":{"end":858,"start":801},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":768,"start":746}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":820,"start":807},"ts_type":"string"},{"decorators":[],"key":"Named","name":"age","optional":false,"readonly":false,"span":{"end":837,"start":825},"ts_type":"number"},{"decorators":[],"key":"Named","name":"email","optional":false,"readonly":false,"span":{"end":856,"start":842},"ts_type":"string"}],"heritage":[],"methods":[],"name":"UserWithDecode","span":{"end":858,"start":776},"type_params":[]}
+interface ComparableItem: {"body_span":{"end":1035,"start":992},"decorators":[{"args_src":"PartialEq, PartialOrd","name":"Derive","span":{"end":959,"start":922}}],"fields":[{"decorators":[],"key":"Named","name":"priority","optional":false,"readonly":false,"span":{"end":1015,"start":998},"ts_type":"number"},{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1033,"start":1020},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ComparableItem","span":{"end":1035,"start":967},"type_params":[]}
+interface FullFeaturedType: {"body_span":{"end":1222,"start":1165},"decorators":[{"args_src":"Decode, PartialEq, PartialOrd","name":"Derive","span":{"end":1130,"start":1085}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1182,"start":1171},"ts_type":"number"},{"decorators":[],"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":1201,"start":1187},"ts_type":"string"},{"decorators":[],"key":"Named","name":"score","optional":false,"readonly":false,"span":{"end":1220,"start":1206},"ts_type":"number"}],"heritage":[],"methods":[],"name":"FullFeaturedType","span":{"end":1222,"start":1138},"type_params":[]}
+interface TypeA: {"body_span":{"end":1361,"start":1338},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1314,"start":1292}}],"fields":[{"decorators":[],"key":"Named","name":"fieldA","optional":false,"readonly":false,"span":{"end":1359,"start":1344},"ts_type":"string"}],"heritage":[],"methods":[],"name":"TypeA","span":{"end":1361,"start":1322},"type_params":[]}
+interface TypeB: {"body_span":{"end":1432,"start":1409},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1385,"start":1363}}],"fields":[{"decorators":[],"key":"Named","name":"fieldB","optional":false,"readonly":false,"span":{"end":1430,"start":1415},"ts_type":"number"}],"heritage":[],"methods":[],"name":"TypeB","span":{"end":1432,"start":1393},"type_params":[]}
+interface TypeC: {"body_span":{"end":1518,"start":1495},"decorators":[{"args_src":"PartialEq, PartialOrd","name":"Derive","span":{"end":1471,"start":1434}}],"fields":[{"decorators":[],"key":"Named","name":"fieldC","optional":false,"readonly":false,"span":{"end":1516,"start":1501},"ts_type":"number"}],"heritage":[],"methods":[],"name":"TypeC","span":{"end":1518,"start":1479},"type_params":[]}
 
 ## Registry reads
 

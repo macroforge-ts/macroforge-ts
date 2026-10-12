@@ -29,7 +29,7 @@ import { serviceDecodeWithContext, serviceHasShape, serviceEncodeWithContext, se
 import { siteDecodeWithContext, siteHasShape, siteEncodeWithContext, siteDefaultValue } from "./site.svelte";
 import { taxRateDecodeWithContext, taxRateHasShape, taxRateEncodeWithContext, taxRateDefaultValue } from "./tax-rate.svelte";
 import { userDecodeWithContext, userHasShape, userEncodeWithContext, userDefaultValue } from "./user.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -138,7 +138,9 @@ export function targetEncodeWithContext(value: Target, ctx: __mf_EncodeContext):
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -1154,15 +1156,15 @@ export declare const Target: {
 
 ## Mapping
 
-original 0..887 -> expanded 2667..3554
-original 936..1209 -> expanded 3554..3827
-original 1209..1210 -> expanded 37927..37928
-generated 0..2667 <- imports
-generated 3827..3911 <- Default
-generated 3911..9657 <- Encode
-generated 9657..23545 <- Decode
-generated 23545..37175 <- Gigaform
-generated 37175..37927 <- __convenience_const
+original 0..887 -> expanded 2696..3583
+original 936..1209 -> expanded 3583..3856
+original 1209..1210 -> expanded 38071..38072
+generated 0..2696 <- imports
+generated 3856..3940 <- Default
+generated 3940..9801 <- Encode
+generated 9801..23689 <- Decode
+generated 23689..37319 <- Gigaform
+generated 37319..38071 <- __convenience_const
 
 ## Metadata
 

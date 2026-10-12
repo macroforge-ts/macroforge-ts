@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/partial-shapes.ts
-sha256 d23a2a2f3eb578785e2cc8bc16d9f45ea3e8d9f83247bb5745701974c518a37f
+sha256 0e159c46158547980311e8dab951157f3f9cb32a5cd0f56dd3451ccf63cbf1bb
 
 ## Changed
 
@@ -13,8 +13,8 @@ true
 ## Output
 
 import { edgeLabeledDecodePartialWithContext, edgeNodeDecodePartialWithContext, edgeProfileDecodePartialWithContext, edgeStrictDecodePartialWithContext, edgeLabeledEncodePartialWithContext, edgeNodeEncodePartialWithContext, edgeProfileEncodePartialWithContext, edgeStrictEncodePartialWithContext, edgeCardDecodePartialWithContext, edgeItemDecodePartialWithContext, edgeCardEncodePartialWithContext, edgeItemEncodePartialWithContext } from "./edge-types";
-import { structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, requireKeys as __mf_requireKeys } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * `Partial`, `Pick` and `Omit` of types from another module, wherever a
@@ -42,7 +42,8 @@ export interface EdgePartials {
 }
 
 export function edgePartialsToString(value: EdgePartials): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("patch: " + __mf_structuralDebug(value.patch));
     parts.push("patches: " + __mf_structuralDebug(value.patches));
     parts.push("patchList: " + __mf_structuralDebug(value.patchList));
@@ -56,11 +57,12 @@ export function edgePartialsToString(value: EdgePartials): string {
     parts.push("nullablePatches: " + __mf_structuralDebug(value.nullablePatches));
     parts.push("card: " + __mf_structuralDebug(value.card));
     parts.push("cards: " + __mf_structuralDebug(value.cards));
-    return "EdgePartials { " + parts.join(", ") + " }";
+        return "EdgePartials { " + parts.join(", ") + " }";
+    });
 }
 
 export function edgePartialsClone(value: EdgePartials): EdgePartials {
-    return ({
+    return __mf_clonedWith(value, (): EdgePartials => ({
 	patch: __mf_structuralClone(value.patch),
 	patches: value.patches.map((__item0) => __mf_structuralClone(__item0)),
 	patchList: value.patchList.map((__item0) => __mf_structuralClone(__item0)),
@@ -78,12 +80,12 @@ export function edgePartialsClone(value: EdgePartials): EdgePartials {
 	nullablePatches: value.nullablePatches.map((__item0) => __mf_structuralClone(__item0)),
 	card: __mf_structuralClone(value.card),
 	cards: value.cards.map((__item0) => __mf_structuralClone(__item0))
-});
+}));
 }
 
 export function edgePartialsEquals(a: EdgePartials, b: EdgePartials): boolean {
     if (a === b) return true;
-    return __mf_structuralEquals(a.patch, b.patch) && a.patches.length === b.patches.length && a.patches.every((__item0, __index0) => {
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.patch, b.patch) && a.patches.length === b.patches.length && a.patches.every((__item0, __index0) => {
 	const __other0 = b.patches[__index0];
 	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
 }) && a.patchList.length === b.patchList.length && a.patchList.every((__item0, __index0) => {
@@ -101,11 +103,12 @@ export function edgePartialsEquals(a: EdgePartials, b: EdgePartials): boolean {
 }) && __mf_structuralEquals(a.card, b.card) && a.cards.length === b.cards.length && a.cards.every((__item0, __index0) => {
 	const __other0 = b.cards[__index0];
 	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
-});
+}));
 }
 
 export function edgePartialsHashCode(value: EdgePartials): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (__mf_structuralHash(value.patch))) | 0;
     hash = (hash * 31 + (value.patches.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
     hash = (hash * 31 + (value.patchList.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
@@ -119,7 +122,8 @@ export function edgePartialsHashCode(value: EdgePartials): number {
     hash = (hash * 31 + (value.nullablePatches.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.card))) | 0;
     hash = (hash * 31 + (value.cards.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -133,12 +137,9 @@ export function edgePartialsEncode(value: EdgePartials, keepMetadata?: boolean):
 export function edgePartialsEncodeWithContext(value: EdgePartials, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "EdgePartials",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "EdgePartials" });
     edgePartialsEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -336,7 +337,7 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("patch")) || (__fields.keeps("patch") && obj["patch"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("patch")) ? "patch" in obj : (__fields.keeps("patch") && obj["patch"] !== undefined)) {
         const __raw_patch = obj["patch"] as Partial<EdgeItem>;
 
         ctx.pushScope("patch");
@@ -352,13 +353,14 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "patch", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("patches")) || (__fields.keeps("patches") && obj["patches"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("patches")) ? "patches" in obj : (__fields.keeps("patches") && obj["patches"] !== undefined)) {
         const __raw_patches = obj["patches"] as Partial<EdgeItem>[];
         if (Array.isArray(__raw_patches)) {
             ctx.pushScope("patches");
@@ -382,7 +384,7 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             errors.push({ field: "patches", message: __raw_patches == null ? "EdgePartials.patches is required" : "expected Partial<EdgeItem>[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("patchList")) || (__fields.keeps("patchList") && obj["patchList"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("patchList")) ? "patchList" in obj : (__fields.keeps("patchList") && obj["patchList"] !== undefined)) {
         const __raw_patchList = obj["patchList"] as Array<Pick<EdgeItem, 'id'>>;
         if (Array.isArray(__raw_patchList)) {
             ctx.pushScope("patchList");
@@ -406,7 +408,7 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             errors.push({ field: "patchList", message: __raw_patchList == null ? "EdgePartials.patchList is required" : "expected Array<Pick<EdgeItem, 'id'>>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("readonlyPatches")) || (__fields.keeps("readonlyPatches") && obj["readonlyPatches"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("readonlyPatches")) ? "readonlyPatches" in obj : (__fields.keeps("readonlyPatches") && obj["readonlyPatches"] !== undefined)) {
         const __raw_readonlyPatches = obj["readonlyPatches"] as ReadonlyArray<Omit<EdgeItem, 'score'>>;
         if (Array.isArray(__raw_readonlyPatches)) {
             ctx.pushScope("readonlyPatches");
@@ -430,7 +432,7 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             errors.push({ field: "readonlyPatches", message: __raw_readonlyPatches == null ? "EdgePartials.readonlyPatches is required" : "expected ReadonlyArray<Omit<EdgeItem, 'score'>>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("patchSet")) || (__fields.keeps("patchSet") && obj["patchSet"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("patchSet")) ? "patchSet" in obj : (__fields.keeps("patchSet") && obj["patchSet"] !== undefined)) {
         const __raw_patchSet = obj["patchSet"] as Array<Partial<EdgeItem>>;
         if (Array.isArray(__raw_patchSet)) {
             ctx.pushScope("patchSet");
@@ -454,7 +456,7 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             errors.push({ field: "patchSet", message: __raw_patchSet == null ? "EdgePartials.patchSet is required" : "expected Set<Partial<EdgeItem>>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("byName")) || (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
         const __raw_byName = obj["byName"] as Record<string, Pick<EdgeItem, 'id'>>;
         if (typeof __raw_byName === "object" && __raw_byName !== null) {
             ctx.pushScope("byName");
@@ -478,7 +480,7 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             errors.push({ field: "byName", message: __raw_byName == null ? "EdgePartials.byName is required" : "expected Map<string, Pick<EdgeItem, 'id'>>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("record")) || (__fields.keeps("record") && obj["record"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("record")) ? "record" in obj : (__fields.keeps("record") && obj["record"] !== undefined)) {
         const __raw_record = obj["record"] as Record<string, Omit<EdgeItem, 'score'>>;
         if (typeof __raw_record === "object" && __raw_record !== null) {
             ctx.pushScope("record");
@@ -502,7 +504,7 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             errors.push({ field: "record", message: __raw_record == null ? "EdgePartials.record is required" : "expected Record<string, Omit<EdgeItem, 'score'>>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("maybe")) || (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
         const __raw_maybe = obj["maybe"] as Partial<EdgeItem> | null;
 
         if (__raw_maybe === null) {
@@ -522,7 +524,8 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
@@ -548,7 +551,8 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "later", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
@@ -572,14 +576,15 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "optional", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("nullablePatches")) || (__fields.keeps("nullablePatches") && obj["nullablePatches"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("nullablePatches")) ? "nullablePatches" in obj : (__fields.keeps("nullablePatches") && obj["nullablePatches"] !== undefined)) {
         const __raw_nullablePatches = obj["nullablePatches"] as (Partial<EdgeItem> | null)[];
         if (Array.isArray(__raw_nullablePatches)) {
             ctx.pushScope("nullablePatches");
@@ -603,7 +608,7 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             errors.push({ field: "nullablePatches", message: __raw_nullablePatches == null ? "EdgePartials.nullablePatches is required" : "expected (Partial<EdgeItem> | null)[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("card")) || (__fields.keeps("card") && obj["card"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("card")) ? "card" in obj : (__fields.keeps("card") && obj["card"] !== undefined)) {
         const __raw_card = obj["card"] as Partial<EdgeCard>;
 
         ctx.pushScope("card");
@@ -619,13 +624,14 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "card", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("cards")) || (__fields.keeps("cards") && obj["cards"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("cards")) ? "cards" in obj : (__fields.keeps("cards") && obj["cards"] !== undefined)) {
         const __raw_cards = obj["cards"] as Pick<EdgeCard, 'title'>[];
         if (Array.isArray(__raw_cards)) {
             ctx.pushScope("cards");
@@ -725,7 +731,8 @@ export interface EdgeRenamedPartials {
 }
 
 export function edgeRenamedPartialsToString(value: EdgeRenamedPartials): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("profile: " + __mf_structuralDebug(value.profile));
     parts.push("contact: " + __mf_structuralDebug(value.contact));
     parts.push("anonymous: " + __mf_structuralDebug(value.anonymous));
@@ -734,11 +741,12 @@ export function edgeRenamedPartialsToString(value: EdgeRenamedPartials): string 
     parts.push("labelOnly: " + __mf_structuralDebug(value.labelOnly));
     parts.push("head: " + __mf_structuralDebug(value.head));
     parts.push("link: " + __mf_structuralDebug(value.link));
-    return "EdgeRenamedPartials { " + parts.join(", ") + " }";
+        return "EdgeRenamedPartials { " + parts.join(", ") + " }";
+    });
 }
 
 export function edgeRenamedPartialsClone(value: EdgeRenamedPartials): EdgeRenamedPartials {
-    return ({
+    return __mf_clonedWith(value, (): EdgeRenamedPartials => ({
 	profile: __mf_structuralClone(value.profile),
 	contact: __mf_structuralClone(value.contact),
 	anonymous: __mf_structuralClone(value.anonymous),
@@ -747,16 +755,17 @@ export function edgeRenamedPartialsClone(value: EdgeRenamedPartials): EdgeRename
 	labelOnly: __mf_structuralClone(value.labelOnly),
 	head: __mf_structuralClone(value.head),
 	link: __mf_structuralClone(value.link)
-});
+}));
 }
 
 export function edgeRenamedPartialsEquals(a: EdgeRenamedPartials, b: EdgeRenamedPartials): boolean {
     if (a === b) return true;
-    return __mf_structuralEquals(a.profile, b.profile) && __mf_structuralEquals(a.contact, b.contact) && __mf_structuralEquals(a.anonymous, b.anonymous) && __mf_structuralEquals(a.strict, b.strict) && __mf_structuralEquals(a.labeled, b.labeled) && __mf_structuralEquals(a.labelOnly, b.labelOnly) && __mf_structuralEquals(a.head, b.head) && __mf_structuralEquals(a.link, b.link);
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.profile, b.profile) && __mf_structuralEquals(a.contact, b.contact) && __mf_structuralEquals(a.anonymous, b.anonymous) && __mf_structuralEquals(a.strict, b.strict) && __mf_structuralEquals(a.labeled, b.labeled) && __mf_structuralEquals(a.labelOnly, b.labelOnly) && __mf_structuralEquals(a.head, b.head) && __mf_structuralEquals(a.link, b.link));
 }
 
 export function edgeRenamedPartialsHashCode(value: EdgeRenamedPartials): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (__mf_structuralHash(value.profile))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.contact))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.anonymous))) | 0;
@@ -765,7 +774,8 @@ export function edgeRenamedPartialsHashCode(value: EdgeRenamedPartials): number 
     hash = (hash * 31 + (__mf_structuralHash(value.labelOnly))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.head))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.link))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -779,12 +789,9 @@ export function edgeRenamedPartialsEncode(value: EdgeRenamedPartials, keepMetada
 export function edgeRenamedPartialsEncodeWithContext(value: EdgeRenamedPartials, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "EdgeRenamedPartials",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "EdgeRenamedPartials" });
     edgeRenamedPartialsEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -948,7 +955,7 @@ export function edgeRenamedPartialsDecodeWithContext(value: unknown, ctx: __mf_D
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("profile")) || (__fields.keeps("profile") && obj["profile"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("profile")) ? "profile" in obj : (__fields.keeps("profile") && obj["profile"] !== undefined)) {
         const __raw_profile = obj["profile"] as Partial<EdgeProfile>;
 
         ctx.pushScope("profile");
@@ -964,13 +971,14 @@ export function edgeRenamedPartialsDecodeWithContext(value: unknown, ctx: __mf_D
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "profile", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("contact")) || (__fields.keeps("contact") && obj["contact"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("contact")) ? "contact" in obj : (__fields.keeps("contact") && obj["contact"] !== undefined)) {
         const __raw_contact = obj["contact"] as Pick<EdgeProfile, 'email' | 'displayName'>;
 
         ctx.pushScope("contact");
@@ -986,13 +994,14 @@ export function edgeRenamedPartialsDecodeWithContext(value: unknown, ctx: __mf_D
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "contact", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("anonymous")) || (__fields.keeps("anonymous") && obj["anonymous"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("anonymous")) ? "anonymous" in obj : (__fields.keeps("anonymous") && obj["anonymous"] !== undefined)) {
         const __raw_anonymous = obj["anonymous"] as Omit<EdgeProfile, 'email' | 'nickname'>;
 
         ctx.pushScope("anonymous");
@@ -1008,13 +1017,14 @@ export function edgeRenamedPartialsDecodeWithContext(value: unknown, ctx: __mf_D
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "anonymous", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("strict")) || (__fields.keeps("strict") && obj["strict"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("strict")) ? "strict" in obj : (__fields.keeps("strict") && obj["strict"] !== undefined)) {
         const __raw_strict = obj["strict"] as Pick<EdgeStrict, 'id'>;
 
         ctx.pushScope("strict");
@@ -1030,13 +1040,14 @@ export function edgeRenamedPartialsDecodeWithContext(value: unknown, ctx: __mf_D
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "strict", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("labeled")) || (__fields.keeps("labeled") && obj["labeled"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("labeled")) ? "labeled" in obj : (__fields.keeps("labeled") && obj["labeled"] !== undefined)) {
         const __raw_labeled = obj["labeled"] as Partial<EdgeLabeled>;
 
         ctx.pushScope("labeled");
@@ -1052,13 +1063,14 @@ export function edgeRenamedPartialsDecodeWithContext(value: unknown, ctx: __mf_D
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "labeled", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("labelOnly")) || (__fields.keeps("labelOnly") && obj["labelOnly"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("labelOnly")) ? "labelOnly" in obj : (__fields.keeps("labelOnly") && obj["labelOnly"] !== undefined)) {
         const __raw_labelOnly = obj["labelOnly"] as Pick<EdgeLabeled, 'label'>;
 
         ctx.pushScope("labelOnly");
@@ -1074,13 +1086,14 @@ export function edgeRenamedPartialsDecodeWithContext(value: unknown, ctx: __mf_D
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "labelOnly", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("head")) || (__fields.keeps("head") && obj["head"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("head")) ? "head" in obj : (__fields.keeps("head") && obj["head"] !== undefined)) {
         const __raw_head = obj["head"] as Pick<EdgeNode, 'name'>;
 
         ctx.pushScope("head");
@@ -1096,13 +1109,14 @@ export function edgeRenamedPartialsDecodeWithContext(value: unknown, ctx: __mf_D
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "head", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("link")) || (__fields.keeps("link") && obj["link"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("link")) ? "link" in obj : (__fields.keeps("link") && obj["link"] !== undefined)) {
         const __raw_link = obj["link"] as Omit<EdgeNode, 'name'>;
 
         ctx.pushScope("link");
@@ -1118,7 +1132,8 @@ export function edgeRenamedPartialsDecodeWithContext(value: unknown, ctx: __mf_D
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "link", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
@@ -1185,6 +1200,714 @@ export const EdgeRenamedPartials: {
   validateFields: edgeRenamedPartialsValidateFields,
   hasShape: edgeRenamedPartialsHasShape,
   is: edgeRenamedPartialsIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface EdgeOptional {
+    id: string;
+    nick?: string;
+    /** @endec({ rename: "years" }) */
+    age?: number;
+    /** @endec({ default: 1 }) */
+    level?: number;
+}
+
+export function edgeOptionalToString(value: EdgeOptional): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("id: " + String(value.id));
+    parts.push("nick: " + String(value.nick));
+    parts.push("age: " + String(value.age));
+    parts.push("level: " + String(value.level));
+        return "EdgeOptional { " + parts.join(", ") + " }";
+    });
+}
+
+export function edgeOptionalClone(value: EdgeOptional): EdgeOptional {
+    return __mf_clonedWith(value, (): EdgeOptional => ({
+	id: value.id,
+	..."nick" in value ? { nick: value.nick } : {},
+	..."age" in value ? { age: value.age } : {},
+	..."level" in value ? { level: value.level } : {}
+}));
+}
+
+export function edgeOptionalEquals(a: EdgeOptional, b: EdgeOptional): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => a.id === b.id && a.nick === b.nick && a.age === b.age && a.level === b.level);
+}
+
+export function edgeOptionalHashCode(value: EdgeOptional): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.nick == null ? 0 : (value.nick ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.age == null ? 0 : Number.isInteger(value.age) ? value.age | 0 : value.age.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (value.level == null ? 0 : Number.isInteger(value.level) ? value.level | 0 : value.level.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function edgeOptionalEncode(value: EdgeOptional, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = edgeOptionalEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function edgeOptionalEncodeWithContext(value: EdgeOptional, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "EdgeOptional" });
+    edgeOptionalEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function edgeOptionalEncodePartialWithContext(value: Partial<EdgeOptional>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof EdgeOptional>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "EdgeOptional" };
+        edgeOptionalEncodeFields(value as EdgeOptional, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function edgeOptionalEncodeFields(value: EdgeOptional, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("id")) {
+        if (value.id !== undefined) {
+            result.id = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("nick")) {
+        if (value.nick !== undefined) {
+            result.nick = value.nick;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("age")) {
+        if (value.age !== undefined) {
+            result.years = value.age;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("level")) {
+        if (value.level !== undefined) {
+            result.level = value.level;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function edgeOptionalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EdgeOptional } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = edgeOptionalDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "EdgeOptional.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function edgeOptionalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): EdgeOptional | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function edgeOptionalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<EdgeOptional> | __mf_PendingRef;
+export function edgeOptionalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<EdgeOptional> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "EdgeOptional.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "EdgeOptional.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "EdgeOptional") as EdgeOptional | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "EdgeOptional.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "EdgeOptional");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+        const __raw_id = obj["id"] as string;
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "EdgeOptional.id is required" : "expected string" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    if ((__fields === undefined || __fields.keeps("nick"))) {
+        if (("nick" in obj && obj["nick"] !== undefined)) {
+            const __raw_nick = obj["nick"] as string;
+
+            if (!(typeof __raw_nick === "string")) {
+                errors.push({ field: "nick", message: "expected string" });
+            } else {
+                instance.nick = __raw_nick;
+            }
+        }
+    }
+    if ((__fields === undefined || __fields.keeps("age"))) {
+        if (("years" in obj && obj["years"] !== undefined)) {
+            const __raw_age = obj["years"] as number;
+
+            if (!(typeof __raw_age === "number")) {
+                errors.push({ field: "years", message: "expected number" });
+            } else {
+                instance.age = __raw_age;
+            }
+        }
+    }
+    if ((__fields === undefined || __fields.keeps("level"))) {
+        if (("level" in obj && obj["level"] !== undefined)) {
+            const __raw_level = obj["level"] as number;
+
+            if (!(typeof __raw_level === "number")) {
+                errors.push({ field: "level", message: "expected number" });
+            } else {
+                instance.level = __raw_level;
+            }
+        }
+        if ((__fields === undefined || __fields.requires("level")) && !("level" in obj && obj["level"] !== undefined)) {
+            instance.level = 1;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as EdgeOptional;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function edgeOptionalDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof EdgeOptional>): Partial<EdgeOptional> | __mf_PendingRef {
+    return edgeOptionalDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function edgeOptionalValidateField<K extends keyof EdgeOptional>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function edgeOptionalValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function edgeOptionalValidateFields(partial: { readonly [K in keyof EdgeOptional]?: unknown }): Array<{ field: string; message: string }>;
+export function edgeOptionalValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function edgeOptionalHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "id" in o;
+}
+
+export function edgeOptionalIs(obj: unknown): obj is EdgeOptional {
+    return edgeOptionalHasShape(obj) && edgeOptionalDecode(obj).success;
+}
+
+export const EdgeOptional: {
+  readonly toString: typeof edgeOptionalToString;
+  readonly clone: typeof edgeOptionalClone;
+  readonly equals: typeof edgeOptionalEquals;
+  readonly hashCode: typeof edgeOptionalHashCode;
+  readonly encode: typeof edgeOptionalEncode;
+  readonly encodeWithContext: typeof edgeOptionalEncodeWithContext;
+  readonly encodePartialWithContext: typeof edgeOptionalEncodePartialWithContext;
+  readonly decode: typeof edgeOptionalDecode;
+  readonly decodeWithContext: typeof edgeOptionalDecodeWithContext;
+  readonly decodePartialWithContext: typeof edgeOptionalDecodePartialWithContext;
+  readonly validateField: typeof edgeOptionalValidateField;
+  readonly validateFields: typeof edgeOptionalValidateFields;
+  readonly hasShape: typeof edgeOptionalHasShape;
+  readonly is: typeof edgeOptionalIs;
+} = {
+  toString: edgeOptionalToString,
+  clone: edgeOptionalClone,
+  equals: edgeOptionalEquals,
+  hashCode: edgeOptionalHashCode,
+  encode: edgeOptionalEncode,
+  encodeWithContext: edgeOptionalEncodeWithContext,
+  encodePartialWithContext: edgeOptionalEncodePartialWithContext,
+  decode: edgeOptionalDecode,
+  decodeWithContext: edgeOptionalDecodeWithContext,
+  decodePartialWithContext: edgeOptionalDecodePartialWithContext,
+  validateField: edgeOptionalValidateField,
+  validateFields: edgeOptionalValidateFields,
+  hasShape: edgeOptionalHasShape,
+  is: edgeOptionalIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface EdgeRequired {
+    plain: EdgeOptional;
+    whole: Required<EdgeOptional>;
+    picked: Required<Pick<EdgeOptional, 'nick'>>;
+    again: Required<Partial<EdgeOptional>>;
+    loose: Partial<Required<EdgeOptional>>;
+    wholes: Required<EdgeOptional>[];
+}
+
+export function edgeRequiredToString(value: EdgeRequired): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("plain: " + edgeOptionalToString(value.plain));
+    parts.push("whole: " + __mf_structuralDebug(value.whole));
+    parts.push("picked: " + __mf_structuralDebug(value.picked));
+    parts.push("again: " + __mf_structuralDebug(value.again));
+    parts.push("loose: " + __mf_structuralDebug(value.loose));
+    parts.push("wholes: " + __mf_structuralDebug(value.wholes));
+        return "EdgeRequired { " + parts.join(", ") + " }";
+    });
+}
+
+export function edgeRequiredClone(value: EdgeRequired): EdgeRequired {
+    return __mf_clonedWith(value, (): EdgeRequired => ({
+	plain: edgeOptionalClone(value.plain),
+	whole: __mf_structuralClone(value.whole),
+	picked: __mf_structuralClone(value.picked),
+	again: __mf_structuralClone(value.again),
+	loose: __mf_structuralClone(value.loose),
+	wholes: value.wholes.map((__item0) => __mf_structuralClone(__item0))
+}));
+}
+
+export function edgeRequiredEquals(a: EdgeRequired, b: EdgeRequired): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => edgeOptionalEquals(a.plain, b.plain) && __mf_structuralEquals(a.whole, b.whole) && __mf_structuralEquals(a.picked, b.picked) && __mf_structuralEquals(a.again, b.again) && __mf_structuralEquals(a.loose, b.loose) && a.wholes.length === b.wholes.length && a.wholes.every((__item0, __index0) => {
+	const __other0 = b.wholes[__index0];
+	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
+}));
+}
+
+export function edgeRequiredHashCode(value: EdgeRequired): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (edgeOptionalHashCode(value.plain))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.whole))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.picked))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.again))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.loose))) | 0;
+    hash = (hash * 31 + (value.wholes.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
+        return hash;
+    });
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function edgeRequiredEncode(value: EdgeRequired, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = edgeRequiredEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function edgeRequiredEncodeWithContext(value: EdgeRequired, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "EdgeRequired" });
+    edgeRequiredEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function edgeRequiredEncodePartialWithContext(value: Partial<EdgeRequired>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof EdgeRequired>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "EdgeRequired" };
+        edgeRequiredEncodeFields(value as EdgeRequired, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function edgeRequiredEncodeFields(value: EdgeRequired, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("plain")) {
+        if (value.plain !== undefined) {
+            result.plain = edgeOptionalEncodeWithContext(value.plain, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("whole")) {
+        if (value.whole !== undefined) {
+            result.whole = edgeOptionalEncodeWithContext(value.whole, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("picked")) {
+        if (value.picked !== undefined) {
+            result.picked = edgeOptionalEncodePartialWithContext(value.picked, ctx, { only: ["nick"] });
+        }
+    }
+    if (__fields === undefined || __fields.keeps("again")) {
+        if (value.again !== undefined) {
+            result.again = edgeOptionalEncodeWithContext(value.again, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("loose")) {
+        if (value.loose !== undefined) {
+            result.loose = edgeOptionalEncodePartialWithContext(value.loose, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("wholes")) {
+        if (value.wholes !== undefined) {
+            result.wholes = value.wholes.map((__item0) => edgeOptionalEncodeWithContext(__item0, ctx));
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function edgeRequiredDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EdgeRequired } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = edgeRequiredDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "EdgeRequired.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function edgeRequiredDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): EdgeRequired | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function edgeRequiredDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<EdgeRequired> | __mf_PendingRef;
+export function edgeRequiredDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<EdgeRequired> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "EdgeRequired.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "EdgeRequired.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "EdgeRequired") as EdgeRequired | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "EdgeRequired.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("plain")) && !("plain" in obj)) {
+        errors.push({ field: "plain", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("whole")) && !("whole" in obj)) {
+        errors.push({ field: "whole", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("picked")) && !("picked" in obj)) {
+        errors.push({ field: "picked", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("again")) && !("again" in obj)) {
+        errors.push({ field: "again", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("loose")) && !("loose" in obj)) {
+        errors.push({ field: "loose", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("wholes")) && !("wholes" in obj)) {
+        errors.push({ field: "wholes", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "EdgeRequired");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("plain")) ? "plain" in obj : (__fields.keeps("plain") && obj["plain"] !== undefined)) {
+        const __raw_plain = obj["plain"] as EdgeOptional;
+
+        ctx.pushScope("plain");
+        try {
+            const __result = edgeOptionalDecodeWithContext(__raw_plain, ctx);
+            ctx.assignOrDefer(instance, "plain", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "plain" : "plain." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "plain", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("whole")) ? "whole" in obj : (__fields.keeps("whole") && obj["whole"] !== undefined)) {
+        const __raw_whole = obj["whole"] as Required<EdgeOptional>;
+
+        ctx.pushScope("whole");
+        try {
+            const __result = edgeOptionalDecodeWithContext(__mf_requireKeys(__raw_whole, ctx, [["nick", "nick"], ["years", "age"]]), ctx);
+            ctx.assignOrDefer(instance, "whole", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "whole" : "whole." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "whole", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("picked")) ? "picked" in obj : (__fields.keeps("picked") && obj["picked"] !== undefined)) {
+        const __raw_picked = obj["picked"] as Required<Pick<EdgeOptional, 'nick'>>;
+
+        ctx.pushScope("picked");
+        try {
+            const __result = edgeOptionalDecodePartialWithContext(__mf_requireKeys(__raw_picked, ctx, [["nick", "nick"]]), ctx, { only: ["nick"] });
+            ctx.assignOrDefer(instance, "picked", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "picked" : "picked." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "picked", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("again")) ? "again" in obj : (__fields.keeps("again") && obj["again"] !== undefined)) {
+        const __raw_again = obj["again"] as Required<Partial<EdgeOptional>>;
+
+        ctx.pushScope("again");
+        try {
+            const __result = edgeOptionalDecodeWithContext(__mf_requireKeys(__raw_again, ctx, [["nick", "nick"], ["years", "age"]]), ctx);
+            ctx.assignOrDefer(instance, "again", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "again" : "again." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "again", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("loose")) ? "loose" in obj : (__fields.keeps("loose") && obj["loose"] !== undefined)) {
+        const __raw_loose = obj["loose"] as Partial<Required<EdgeOptional>>;
+
+        ctx.pushScope("loose");
+        try {
+            const __result = edgeOptionalDecodePartialWithContext(__raw_loose, ctx);
+            ctx.assignOrDefer(instance, "loose", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "loose" : "loose." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "loose", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("wholes")) ? "wholes" in obj : (__fields.keeps("wholes") && obj["wholes"] !== undefined)) {
+        const __raw_wholes = obj["wholes"] as Required<EdgeOptional>[];
+        if (Array.isArray(__raw_wholes)) {
+            ctx.pushScope("wholes");
+            try {
+                instance.wholes = __mf_decodeArray(__raw_wholes, ctx, (__raw0) => edgeOptionalDecodeWithContext(__mf_requireKeys(__raw0, ctx, [["nick", "nick"], ["years", "age"]]), ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "wholes" : "wholes." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "wholes", message: __raw_wholes == null ? "EdgeRequired.wholes is required" : "expected Required<EdgeOptional>[]" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as EdgeRequired;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function edgeRequiredDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof EdgeRequired>): Partial<EdgeRequired> | __mf_PendingRef {
+    return edgeRequiredDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function edgeRequiredValidateField<K extends keyof EdgeRequired>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function edgeRequiredValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function edgeRequiredValidateFields(partial: { readonly [K in keyof EdgeRequired]?: unknown }): Array<{ field: string; message: string }>;
+export function edgeRequiredValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function edgeRequiredHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "plain" in o && "whole" in o && "picked" in o && "again" in o && "loose" in o && "wholes" in o;
+}
+
+export function edgeRequiredIs(obj: unknown): obj is EdgeRequired {
+    return edgeRequiredHasShape(obj) && edgeRequiredDecode(obj).success;
+}
+
+export const EdgeRequired: {
+  readonly toString: typeof edgeRequiredToString;
+  readonly clone: typeof edgeRequiredClone;
+  readonly equals: typeof edgeRequiredEquals;
+  readonly hashCode: typeof edgeRequiredHashCode;
+  readonly encode: typeof edgeRequiredEncode;
+  readonly encodeWithContext: typeof edgeRequiredEncodeWithContext;
+  readonly encodePartialWithContext: typeof edgeRequiredEncodePartialWithContext;
+  readonly decode: typeof edgeRequiredDecode;
+  readonly decodeWithContext: typeof edgeRequiredDecodeWithContext;
+  readonly decodePartialWithContext: typeof edgeRequiredDecodePartialWithContext;
+  readonly validateField: typeof edgeRequiredValidateField;
+  readonly validateFields: typeof edgeRequiredValidateFields;
+  readonly hasShape: typeof edgeRequiredHasShape;
+  readonly is: typeof edgeRequiredIs;
+} = {
+  toString: edgeRequiredToString,
+  clone: edgeRequiredClone,
+  equals: edgeRequiredEquals,
+  hashCode: edgeRequiredHashCode,
+  encode: edgeRequiredEncode,
+  encodeWithContext: edgeRequiredEncodeWithContext,
+  encodePartialWithContext: edgeRequiredEncodePartialWithContext,
+  decode: edgeRequiredDecode,
+  decodeWithContext: edgeRequiredDecodeWithContext,
+  decodePartialWithContext: edgeRequiredDecodePartialWithContext,
+  validateField: edgeRequiredValidateField,
+  validateFields: edgeRequiredValidateFields,
+  hasShape: edgeRequiredHasShape,
+  is: edgeRequiredIs
 };
 
 ## DTS
@@ -1328,6 +2051,130 @@ export declare const EdgeRenamedPartials: {
 	readonly hasShape: typeof edgeRenamedPartialsHasShape;
 	readonly is: typeof edgeRenamedPartialsIs;
 };
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface EdgeOptional {
+	id: string;
+	nick?: string;
+	/** @endec({ rename: "years" }) */
+	age?: number;
+	/** @endec({ default: 1 }) */
+	level?: number;
+}
+export declare function edgeOptionalToString(value: EdgeOptional): string;
+export declare function edgeOptionalClone(value: EdgeOptional): EdgeOptional;
+export declare function edgeOptionalEquals(a: EdgeOptional, b: EdgeOptional): boolean;
+export declare function edgeOptionalHashCode(value: EdgeOptional): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function edgeOptionalEncode(value: EdgeOptional, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function edgeOptionalEncodeWithContext(value: EdgeOptional, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function edgeOptionalEncodePartialWithContext(value: Partial<EdgeOptional>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof EdgeOptional>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function edgeOptionalDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: EdgeOptional;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function edgeOptionalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): EdgeOptional | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function edgeOptionalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<EdgeOptional> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function edgeOptionalDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof EdgeOptional>): Partial<EdgeOptional> | __mf_PendingRef;
+export declare function edgeOptionalValidateField<K extends keyof EdgeOptional>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function edgeOptionalValidateFields(partial: { readonly [K in keyof EdgeOptional]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function edgeOptionalHasShape(obj: unknown): boolean;
+export declare function edgeOptionalIs(obj: unknown): obj is EdgeOptional;
+export declare const EdgeOptional: {
+	readonly toString: typeof edgeOptionalToString;
+	readonly clone: typeof edgeOptionalClone;
+	readonly equals: typeof edgeOptionalEquals;
+	readonly hashCode: typeof edgeOptionalHashCode;
+	readonly encode: typeof edgeOptionalEncode;
+	readonly encodeWithContext: typeof edgeOptionalEncodeWithContext;
+	readonly encodePartialWithContext: typeof edgeOptionalEncodePartialWithContext;
+	readonly decode: typeof edgeOptionalDecode;
+	readonly decodeWithContext: typeof edgeOptionalDecodeWithContext;
+	readonly decodePartialWithContext: typeof edgeOptionalDecodePartialWithContext;
+	readonly validateField: typeof edgeOptionalValidateField;
+	readonly validateFields: typeof edgeOptionalValidateFields;
+	readonly hasShape: typeof edgeOptionalHasShape;
+	readonly is: typeof edgeOptionalIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface EdgeRequired {
+	plain: EdgeOptional;
+	whole: Required<EdgeOptional>;
+	picked: Required<Pick<EdgeOptional, "nick">>;
+	again: Required<Partial<EdgeOptional>>;
+	loose: Partial<Required<EdgeOptional>>;
+	wholes: Required<EdgeOptional>[];
+}
+export declare function edgeRequiredToString(value: EdgeRequired): string;
+export declare function edgeRequiredClone(value: EdgeRequired): EdgeRequired;
+export declare function edgeRequiredEquals(a: EdgeRequired, b: EdgeRequired): boolean;
+export declare function edgeRequiredHashCode(value: EdgeRequired): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function edgeRequiredEncode(value: EdgeRequired, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function edgeRequiredEncodeWithContext(value: EdgeRequired, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function edgeRequiredEncodePartialWithContext(value: Partial<EdgeRequired>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof EdgeRequired>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function edgeRequiredDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: EdgeRequired;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function edgeRequiredDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): EdgeRequired | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function edgeRequiredDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<EdgeRequired> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function edgeRequiredDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof EdgeRequired>): Partial<EdgeRequired> | __mf_PendingRef;
+export declare function edgeRequiredValidateField<K extends keyof EdgeRequired>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function edgeRequiredValidateFields(partial: { readonly [K in keyof EdgeRequired]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function edgeRequiredHasShape(obj: unknown): boolean;
+export declare function edgeRequiredIs(obj: unknown): obj is EdgeRequired;
+export declare const EdgeRequired: {
+	readonly toString: typeof edgeRequiredToString;
+	readonly clone: typeof edgeRequiredClone;
+	readonly equals: typeof edgeRequiredEquals;
+	readonly hashCode: typeof edgeRequiredHashCode;
+	readonly encode: typeof edgeRequiredEncode;
+	readonly encodeWithContext: typeof edgeRequiredEncodeWithContext;
+	readonly encodePartialWithContext: typeof edgeRequiredEncodePartialWithContext;
+	readonly decode: typeof edgeRequiredDecode;
+	readonly decodeWithContext: typeof edgeRequiredDecodeWithContext;
+	readonly decodePartialWithContext: typeof edgeRequiredDecodePartialWithContext;
+	readonly validateField: typeof edgeRequiredValidateField;
+	readonly validateFields: typeof edgeRequiredValidateFields;
+	readonly hasShape: typeof edgeRequiredHasShape;
+	readonly is: typeof edgeRequiredIs;
+};
 
 ## Diagnostics
 
@@ -1335,29 +2182,47 @@ export declare const EdgeRenamedPartials: {
 
 ## Mapping
 
-original 0..963 -> expanded 1315..2278
-original 963..1397 -> expanded 36050..36484
-original 1397..1398 -> expanded 58078..58079
-generated 0..1315 <- imports
-generated 2278..3322 <- Debug
-generated 3322..4384 <- Clone
-generated 4384..6418 <- PartialEq
-generated 6418..7999 <- Hash
-generated 7999..13256 <- Encode
-generated 13256..34652 <- Decode
-generated 34652..36050 <- __convenience_const
-generated 36484..37194 <- Debug
-generated 37194..37676 <- Clone
-generated 37676..38189 <- PartialEq
-generated 38189..38843 <- Hash
-generated 38843..42790 <- Encode
-generated 42790..56477 <- Decode
-generated 56477..58078 <- __convenience_const
+original 0..963 -> expanded 1558..2521
+original 963..1397 -> expanded 37093..37527
+original 1397..1640 -> expanded 60120..60363
+original 1640..1973 -> expanded 72942..73275
+original 1973..1974 -> expanded 92262..92263
+generated 0..1558 <- imports
+generated 2521..3627 <- Debug
+generated 3627..4733 <- Clone
+generated 4733..6797 <- PartialEq
+generated 6797..8438 <- Hash
+generated 8438..13681 <- Encode
+generated 13681..35695 <- Decode
+generated 35695..37093 <- __convenience_const
+generated 37527..38299 <- Debug
+generated 38299..38832 <- Clone
+generated 38832..39375 <- PartialEq
+generated 39375..40089 <- Hash
+generated 40089..44022 <- Encode
+generated 44022..58519 <- Decode
+generated 58519..60120 <- __convenience_const
+generated 60363..60768 <- Debug
+generated 60768..61065 <- Clone
+generated 61065..61297 <- PartialEq
+generated 61297..62115 <- Hash
+generated 62115..64757 <- Encode
+generated 64757..71544 <- Decode
+generated 71544..72942 <- __convenience_const
+generated 73275..73878 <- Debug
+generated 73878..74298 <- Clone
+generated 74298..74886 <- PartialEq
+generated 74886..75514 <- Hash
+generated 75514..78777 <- Encode
+generated 78777..90864 <- Decode
+generated 90864..92262 <- __convenience_const
 
 ## Metadata
 
-interface EdgePartials: {"body_span":{"end":964,"start":417},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":386,"start":325}}],"fields":[{"decorators":[],"name":"patch","optional":false,"readonly":false,"span":{"end":448,"start":423},"ts_type":"Partial<EdgeItem>"},{"decorators":[],"name":"patches","optional":false,"readonly":false,"span":{"end":482,"start":453},"ts_type":"Partial<EdgeItem>[]"},{"decorators":[],"name":"patchList","optional":false,"readonly":false,"span":{"end":526,"start":487},"ts_type":"Array<Pick<EdgeItem, 'id'>>"},{"decorators":[],"name":"readonlyPatches","optional":false,"readonly":false,"span":{"end":587,"start":531},"ts_type":"ReadonlyArray<Omit<EdgeItem, 'score'>>"},{"decorators":[],"name":"patchSet","optional":false,"readonly":false,"span":{"end":625,"start":592},"ts_type":"Set<Partial<EdgeItem>>"},{"decorators":[],"name":"byName","optional":false,"readonly":false,"span":{"end":672,"start":630},"ts_type":"Map<string, Pick<EdgeItem, 'id'>>"},{"decorators":[],"name":"record","optional":false,"readonly":false,"span":{"end":725,"start":677},"ts_type":"Record<string, Omit<EdgeItem, 'score'>>"},{"decorators":[],"name":"maybe","optional":false,"readonly":false,"span":{"end":762,"start":730},"ts_type":"Partial<EdgeItem> | null"},{"decorators":[],"name":"later","optional":false,"readonly":false,"span":{"end":807,"start":767},"ts_type":"Pick<EdgeItem, 'id'> | undefined"},{"decorators":[],"name":"optional","optional":true,"readonly":false,"span":{"end":844,"start":812},"ts_type":"Omit<EdgeItem, 'id'>"},{"decorators":[],"name":"nullablePatches","optional":false,"readonly":false,"span":{"end":895,"start":849},"ts_type":"(Partial<EdgeItem> | null)[]"},{"decorators":[],"name":"card","optional":false,"readonly":false,"span":{"end":924,"start":900},"ts_type":"Partial<EdgeCard>"},{"decorators":[],"name":"cards","optional":false,"readonly":false,"span":{"end":962,"start":929},"ts_type":"Pick<EdgeCard, 'title'>[]"}],"heritage":[],"methods":[],"name":"EdgePartials","span":{"end":964,"start":394},"type_params":[]}
-interface EdgeRenamedPartials: {"body_span":{"end":1398,"start":1065},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1027,"start":966}}],"fields":[{"decorators":[],"name":"profile","optional":false,"readonly":false,"span":{"end":1101,"start":1071},"ts_type":"Partial<EdgeProfile>"},{"decorators":[],"name":"contact","optional":false,"readonly":false,"span":{"end":1158,"start":1106},"ts_type":"Pick<EdgeProfile, 'email' | 'displayName'>"},{"decorators":[],"name":"anonymous","optional":false,"readonly":false,"span":{"end":1214,"start":1163},"ts_type":"Omit<EdgeProfile, 'email' | 'nickname'>"},{"decorators":[],"name":"strict","optional":false,"readonly":false,"span":{"end":1250,"start":1219},"ts_type":"Pick<EdgeStrict, 'id'>"},{"decorators":[],"name":"labeled","optional":false,"readonly":false,"span":{"end":1285,"start":1255},"ts_type":"Partial<EdgeLabeled>"},{"decorators":[],"name":"labelOnly","optional":false,"readonly":false,"span":{"end":1328,"start":1290},"ts_type":"Pick<EdgeLabeled, 'label'>"},{"decorators":[],"name":"head","optional":false,"readonly":false,"span":{"end":1362,"start":1333},"ts_type":"Pick<EdgeNode, 'name'>"},{"decorators":[],"name":"link","optional":false,"readonly":false,"span":{"end":1396,"start":1367},"ts_type":"Omit<EdgeNode, 'name'>"}],"heritage":[],"methods":[],"name":"EdgeRenamedPartials","span":{"end":1398,"start":1035},"type_params":[]}
+interface EdgePartials: {"body_span":{"end":964,"start":417},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":386,"start":325}}],"fields":[{"decorators":[],"key":"Named","name":"patch","optional":false,"readonly":false,"span":{"end":448,"start":423},"ts_type":"Partial<EdgeItem>"},{"decorators":[],"key":"Named","name":"patches","optional":false,"readonly":false,"span":{"end":482,"start":453},"ts_type":"Partial<EdgeItem>[]"},{"decorators":[],"key":"Named","name":"patchList","optional":false,"readonly":false,"span":{"end":526,"start":487},"ts_type":"Array<Pick<EdgeItem, 'id'>>"},{"decorators":[],"key":"Named","name":"readonlyPatches","optional":false,"readonly":false,"span":{"end":587,"start":531},"ts_type":"ReadonlyArray<Omit<EdgeItem, 'score'>>"},{"decorators":[],"key":"Named","name":"patchSet","optional":false,"readonly":false,"span":{"end":625,"start":592},"ts_type":"Set<Partial<EdgeItem>>"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":672,"start":630},"ts_type":"Map<string, Pick<EdgeItem, 'id'>>"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":725,"start":677},"ts_type":"Record<string, Omit<EdgeItem, 'score'>>"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":762,"start":730},"ts_type":"Partial<EdgeItem> | null"},{"decorators":[],"key":"Named","name":"later","optional":false,"readonly":false,"span":{"end":807,"start":767},"ts_type":"Pick<EdgeItem, 'id'> | undefined"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":844,"start":812},"ts_type":"Omit<EdgeItem, 'id'>"},{"decorators":[],"key":"Named","name":"nullablePatches","optional":false,"readonly":false,"span":{"end":895,"start":849},"ts_type":"(Partial<EdgeItem> | null)[]"},{"decorators":[],"key":"Named","name":"card","optional":false,"readonly":false,"span":{"end":924,"start":900},"ts_type":"Partial<EdgeCard>"},{"decorators":[],"key":"Named","name":"cards","optional":false,"readonly":false,"span":{"end":962,"start":929},"ts_type":"Pick<EdgeCard, 'title'>[]"}],"heritage":[],"methods":[],"name":"EdgePartials","span":{"end":964,"start":394},"type_params":[]}
+interface EdgeRenamedPartials: {"body_span":{"end":1398,"start":1065},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1027,"start":966}}],"fields":[{"decorators":[],"key":"Named","name":"profile","optional":false,"readonly":false,"span":{"end":1101,"start":1071},"ts_type":"Partial<EdgeProfile>"},{"decorators":[],"key":"Named","name":"contact","optional":false,"readonly":false,"span":{"end":1158,"start":1106},"ts_type":"Pick<EdgeProfile, 'email' | 'displayName'>"},{"decorators":[],"key":"Named","name":"anonymous","optional":false,"readonly":false,"span":{"end":1214,"start":1163},"ts_type":"Omit<EdgeProfile, 'email' | 'nickname'>"},{"decorators":[],"key":"Named","name":"strict","optional":false,"readonly":false,"span":{"end":1250,"start":1219},"ts_type":"Pick<EdgeStrict, 'id'>"},{"decorators":[],"key":"Named","name":"labeled","optional":false,"readonly":false,"span":{"end":1285,"start":1255},"ts_type":"Partial<EdgeLabeled>"},{"decorators":[],"key":"Named","name":"labelOnly","optional":false,"readonly":false,"span":{"end":1328,"start":1290},"ts_type":"Pick<EdgeLabeled, 'label'>"},{"decorators":[],"key":"Named","name":"head","optional":false,"readonly":false,"span":{"end":1362,"start":1333},"ts_type":"Pick<EdgeNode, 'name'>"},{"decorators":[],"key":"Named","name":"link","optional":false,"readonly":false,"span":{"end":1396,"start":1367},"ts_type":"Omit<EdgeNode, 'name'>"}],"heritage":[],"methods":[],"name":"EdgeRenamedPartials","span":{"end":1398,"start":1035},"type_params":[]}
+interface EdgeOptional: {"body_span":{"end":1641,"start":1492},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1461,"start":1400}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1509,"start":1498},"ts_type":"string"},{"decorators":[],"key":"Named","name":"nick","optional":true,"readonly":false,"span":{"end":1528,"start":1514},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"years\" }","name":"endec","span":{"end":1567,"start":1533}}],"key":"Named","name":"age","optional":true,"readonly":false,"span":{"end":1585,"start":1572},"ts_type":"number"},{"decorators":[{"args_src":"{ default: 1 }","name":"endec","span":{"end":1619,"start":1590}}],"key":"Named","name":"level","optional":true,"readonly":false,"span":{"end":1639,"start":1624},"ts_type":"number"}],"heritage":[],"methods":[],"name":"EdgeOptional","span":{"end":1641,"start":1469},"type_params":[]}
+interface EdgeRequired: {"body_span":{"end":1974,"start":1735},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1704,"start":1643}}],"fields":[{"decorators":[],"key":"Named","name":"plain","optional":false,"readonly":false,"span":{"end":1761,"start":1741},"ts_type":"EdgeOptional"},{"decorators":[],"key":"Named","name":"whole","optional":false,"readonly":false,"span":{"end":1796,"start":1766},"ts_type":"Required<EdgeOptional>"},{"decorators":[],"key":"Named","name":"picked","optional":false,"readonly":false,"span":{"end":1846,"start":1801},"ts_type":"Required<Pick<EdgeOptional, 'nick'>>"},{"decorators":[],"key":"Named","name":"again","optional":false,"readonly":false,"span":{"end":1890,"start":1851},"ts_type":"Required<Partial<EdgeOptional>>"},{"decorators":[],"key":"Named","name":"loose","optional":false,"readonly":false,"span":{"end":1934,"start":1895},"ts_type":"Partial<Required<EdgeOptional>>"},{"decorators":[],"key":"Named","name":"wholes","optional":false,"readonly":false,"span":{"end":1972,"start":1939},"ts_type":"Required<EdgeOptional>[]"}],"heritage":[],"methods":[],"name":"EdgeRequired","span":{"end":1974,"start":1712},"type_params":[]}
 
 ## Registry reads
 
@@ -1366,6 +2231,7 @@ Name("'email' | 'nickname'")
 Name("'id'")
 Name("'label'")
 Name("'name'")
+Name("'nick'")
 Name("'score'")
 Name("'title'")
 Name("(Partial<EdgeItem> | null)")
@@ -1374,6 +2240,7 @@ Name("EdgeCard")
 Name("EdgeItem")
 Name("EdgeLabeled")
 Name("EdgeNode")
+Name("EdgeOptional")
 Name("EdgeProfile")
 Name("EdgeStrict")
 Name("Map")
@@ -1382,6 +2249,7 @@ Name("Partial")
 Name("Pick")
 Name("ReadonlyArray")
 Name("Record")
+Name("Required")
 Name("Set")
 
 ## Buildtime dependencies

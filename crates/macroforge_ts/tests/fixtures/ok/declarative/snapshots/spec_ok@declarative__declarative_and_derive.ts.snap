@@ -24,13 +24,21 @@ true
 
 ## Output
 
+import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
+
+
+
+
+
 class User {
     name: string;
 
     static toString(value: User): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("name: " + String(value.name));
-        return "User { " + parts.join(", ") + " }";
+            return "User { " + parts.join(", ") + " }";
+        });
     }
 }
 
@@ -55,19 +63,20 @@ export {};
 
 ## Mapping
 
-original 52..54 -> expanded 0..2
-original 104..106 -> expanded 2..4
-original 127..159 -> expanded 4..36
-original 159..160 -> expanded 225..226
-original 160..179 -> expanded 314..333
-original 197..199 -> expanded 340..342
-generated 36..225 <- Debug
-generated 226..314 <- Debug
-generated 333..340 <- $identity
+original 52..54 -> expanded 85..87
+original 104..106 -> expanded 87..89
+original 127..159 -> expanded 89..121
+original 159..160 -> expanded 380..381
+original 160..179 -> expanded 469..488
+original 197..199 -> expanded 495..497
+generated 0..85 <- imports
+generated 121..380 <- Debug
+generated 381..469 <- Debug
+generated 488..495 <- $identity
 
 ## Metadata
 
-class User: {"body_span":{"end":59,"start":38},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":26,"start":5}}],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":57,"start":44},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":59,"start":27},"superclass":null,"type_params":[]}
+class User: {"body_span":{"end":59,"start":38},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":26,"start":5}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":57,"start":44},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":59,"start":27},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

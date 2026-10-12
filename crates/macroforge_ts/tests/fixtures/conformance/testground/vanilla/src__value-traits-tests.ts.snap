@@ -12,9 +12,9 @@ true
 
 ## Output
 
-import { instanceWith as __mf_instanceWith, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash, structuralClone as __mf_structuralClone, structuralDebug as __mf_structuralDebug, instanceOf as __mf_instanceOf, structuralCompare as __mf_structuralCompare } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
-import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash, structuralClone as __mf_structuralClone, structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, instanceOf as __mf_instanceOf, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions, Encoder as __mf_Encoder, Decoder as __mf_Decoder } from "@macroforge/core/endec";
 /**
  * PartialEq, Hash and Clone over built-in, collection, optional, union and
  * tuple types. The three must agree: a clone equals its source, and equal
@@ -31,26 +31,28 @@ export interface Timeline {
 
 export function timelineEquals(a: Timeline, b: Timeline): boolean {
     if (a === b) return true;
-    return a.events.length === b.events.length && a.events.every((__item0, __index0) => {
+    return __mf_equalWithin(a, b, () => a.events.length === b.events.length && a.events.every((__item0, __index0) => {
 	const __other0 = b.events[__index0];
 	return __other0 === undefined ? __item0 === undefined : __item0.getTime() === __other0.getTime();
 }) && a.labels.size === b.labels.size && Array.from(a.labels).every(([__key0, __item0]) => {
 	const __other0 = b.labels.get(__key0);
 	return b.labels.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0.getTime() === __other0.getTime());
-}) && (a.started == null || b.started == null ? a.started === b.started : a.started.getTime() === b.started.getTime()) && a.note === b.note;
+}) && (a.started == null || b.started == null ? a.started === b.started : a.started.getTime() === b.started.getTime()) && a.note === b.note);
 }
 
 export function timelineHashCode(value: Timeline): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (value.events.reduce<number>((__hash0, __item0) => __hash0 * 31 + (__item0.getTime() | 0) | 0, 1))) | 0;
     hash = (hash * 31 + (Array.from(value.labels).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + (__item0.getTime() | 0) | 0) | 0, 0))) | 0;
     hash = (hash * 31 + (value.started == null ? 0 : value.started.getTime() | 0)) | 0;
     hash = (hash * 31 + (value.note == null ? 0 : (value.note ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function timelineClone(value: Timeline): Timeline {
-    return ({
+    return __mf_clonedWith(value, (): Timeline => ({
 	events: value.events.map((__item0) => new Date(__item0.getTime())),
 	labels: (() => {
 		const __copy0 = new Map(value.labels);
@@ -59,7 +61,7 @@ export function timelineClone(value: Timeline): Timeline {
 	})(),
 	..."started" in value ? { started: value.started == null ? value.started : new Date(value.started.getTime()) } : {},
 	note: value.note
-});
+}));
 }
 
 export const Timeline: {
@@ -78,17 +80,19 @@ export class Badge {
 
     static equals(a: Badge, b: Badge): boolean {
         if (a === b) return true;
-        return a.label === b.label;
+        return __mf_equalWithin(a, b, () => a.label === b.label);
     }
 
     static hashCode(value: Badge): number {
-        let hash = 17;
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
         hash = (hash * 31 + ((value.label ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-        return hash;
+            return hash;
+        });
     }
 
     static clone(value: Badge): Badge {
-        return __mf_instanceWith(value, ({ label: value.label }));
+        return __mf_clonedWith(value, () => ({ label: value.label }));
     }
 }
 
@@ -112,21 +116,23 @@ export interface Wall {
 
 export function wallEquals(a: Wall, b: Wall): boolean {
     if (a === b) return true;
-    return a.badges.size === b.badges.size && Array.from(a.badges).every((__item0) => b.badges.has(__item0) || Array.from(b.badges).some((__other0) => badgeEquals(__item0, __other0))) && __mf_structuralEquals(a.pinned, b.pinned);
+    return __mf_equalWithin(a, b, () => a.badges.size === b.badges.size && Array.from(a.badges).every((__item0) => b.badges.has(__item0) || Array.from(b.badges).some((__other0) => badgeEquals(__item0, __other0))) && __mf_structuralEquals(a.pinned, b.pinned));
 }
 
 export function wallHashCode(value: Wall): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (Array.from(value.badges).reduce<number>((__hash0, __item0) => __hash0 + badgeHashCode(__item0) | 0, 0))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.pinned))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function wallClone(value: Wall): Wall {
-    return ({
+    return __mf_clonedWith(value, (): Wall => ({
 	badges: new Set(Array.from(value.badges, (__item0) => badgeClone(__item0))),
 	pinned: __mf_structuralClone(value.pinned)
-});
+}));
 }
 
 export const Wall: {
@@ -227,11 +233,13 @@ export interface Inventory {
 }
 
 export function inventoryToString(value: Inventory): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("counts: " + __mf_structuralDebug(value.counts));
     parts.push("owner: " + __mf_structuralDebug(value.owner));
     parts.push("total: " + String(value.total));
-    return "Inventory { " + parts.join(", ") + " }";
+        return "Inventory { " + parts.join(", ") + " }";
+    });
 }
 
 export const Inventory: {
@@ -261,12 +269,9 @@ export class Ledger {
 static encodeWithContext(value: Ledger, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Ledger",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Ledger" });
     Ledger.#encodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -385,7 +390,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("entries")) || (__fields.keeps("entries") && obj["entries"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("entries")) ? "entries" in obj : (__fields.keeps("entries") && obj["entries"] !== undefined)) {
         const __raw_entries = obj["entries"] as Record<string, number>;
         if (typeof __raw_entries === "object" && __raw_entries !== null) {
             ctx.pushScope("entries");
@@ -603,7 +608,7 @@ export function ledgerPairDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     });
     ctx.trackForFreeze(tuple);
 
-    {
+    if ("0" in obj) {
         const __raw_e0 = obj["0"] as Ledger;
 
         ctx.pushScope("0");
@@ -619,13 +624,14 @@ export function ledgerPairDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "0", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    {
+    if ("1" in obj) {
         const __raw_e1 = obj["1"] as Ledger;
 
         ctx.pushScope("1");
@@ -641,7 +647,8 @@ export function ledgerPairDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "1", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
@@ -748,7 +755,7 @@ export function mainLedgerDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     const errors: Array<{ field: string; message: string }> = [];
     const instance: any = {};
 
-    {
+    if ("_root" in obj) {
         const __raw__root = obj["_root"] as Ledger;
 
         ctx.pushScope("_root");
@@ -764,7 +771,8 @@ export function mainLedgerDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "_root", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
@@ -872,7 +880,7 @@ export function totalsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
     const errors: Array<{ field: string; message: string }> = [];
     const instance: any = {};
 
-    {
+    if ("_root" in obj) {
         const __raw__root = obj["_root"] as Record<string, number>;
         if (typeof __raw__root === "object" && __raw__root !== null) {
             ctx.pushScope("_root");
@@ -952,7 +960,9 @@ export function ledgerOrNoteEncodeWithContext(value: LedgerOrNote, ctx: __mf_Enc
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -991,7 +1001,9 @@ export function optionalNoteEncodeWithContext(value: OptionalNote, ctx: __mf_Enc
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -1048,7 +1060,9 @@ export function tallyEncodeWithContext(value: Tally, ctx: __mf_EncodeContext): u
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "kind": (value as any)["kind"] ?? __typeName, ...fields };
+        const __tagged = { "kind": (value as any)["kind"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -1088,11 +1102,12 @@ export interface Rank {
 
 export function rankEquals(a: Rank, b: Rank): boolean {
     if (a === b) return true;
-    return a.label === b.label && (a.at == null || b.at == null ? a.at === b.at : a.at.getTime() === b.at.getTime()) && __mf_structuralEquals(a.meta, b.meta);
+    return __mf_equalWithin(a, b, () => a.label === b.label && (a.at == null || b.at == null ? a.at === b.at : a.at.getTime() === b.at.getTime()) && __mf_structuralEquals(a.meta, b.meta));
 }
 
 export function rankPartialCompare(a: Rank, b: Rank): number | null {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = (a.label < b.label ? -1 : a.label > b.label ? 1 : 0);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
@@ -1102,18 +1117,21 @@ export function rankPartialCompare(a: Rank, b: Rank): number | null {
     const cmp2 = __mf_structuralCompare(a.meta, b.meta);
     if (cmp2 === null) return null;
     if (cmp2 !== 0) return cmp2;
-    return 0;
+        return 0;
+    });
 }
 
 export function rankCompare(a: Rank, b: Rank): number {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
     if (cmp0 !== 0) return cmp0;
     const cmp1 = a.at == null || b.at == null ? __mf_structuralCompare(a.at, b.at) : a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : 0;
     if (cmp1 !== 0) return cmp1;
     const cmp2 = __mf_structuralCompare(a.meta, b.meta);
     if (cmp2 !== 0) return cmp2;
-    return 0;
+        return 0;
+    });
 }
 
 export const Rank: {
@@ -1160,64 +1178,65 @@ export interface Labeled<T extends string = string> {
 
 export function labeledEquals<T extends string = string>(a: Labeled<T>, b: Labeled<T>): boolean {
     if (a === b) return true;
-    return __mf_structuralEquals(a.label, b.label) && a.weight === b.weight;
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.label, b.label) && a.weight === b.weight);
 }
 
 export function labeledHashCode<T extends string = string>(value: Labeled<T>): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (__mf_structuralHash(value.label))) | 0;
     hash = (hash * 31 + (Number.isInteger(value.weight) ? value.weight | 0 : value.weight.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function labeledClone<T extends string = string>(value: Labeled<T>): Labeled<T> {
-    return ({
+    return __mf_clonedWith(value, (): Labeled<T> => ({
 	label: __mf_structuralClone(value.label),
 	weight: value.weight
-});
+}));
 }
 
 export function labeledToString<T extends string = string>(value: Labeled<T>): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("label: " + __mf_structuralDebug(value.label));
     parts.push("weight: " + String(value.weight));
-    return "Labeled { " + parts.join(", ") + " }";
+        return "Labeled { " + parts.join(", ") + " }";
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export function labeledEncode<T extends string = string>(value: Labeled<T>, keepMetadata?: boolean): string {
+export function labeledEncode<T extends string = string>(value: Labeled<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string {
     const ctx = __mf_EncodeContext.create();
-    const __raw = labeledEncodeWithContext<T>(value, ctx);
+    const __raw = labeledEncodeWithContext<T>(value, ctx, __encodeT);
     return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export function labeledEncodeWithContext<T extends string = string>(value: Labeled<T>, ctx: __mf_EncodeContext): Record<string, unknown> {
+export function labeledEncodeWithContext<T extends string = string>(value: Labeled<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Labeled",
-        __id: ctx.register(value),
-    };
-    labeledEncodeFields<T>(value, ctx, result, undefined);
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Labeled" });
+    labeledEncodeFields<T>(value, ctx, result, undefined, __encodeT);
     return result;
 }
 
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function labeledEncodePartialWithContext<T extends string = string>(value: Partial<Labeled<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Labeled<T>>): Record<string, unknown> {
+export function labeledEncodePartialWithContext<T extends string = string>(value: Partial<Labeled<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Labeled<T>>, __encodeT?: __mf_Encoder<T>): Record<string, unknown> {
     return __mf_encodeSelection(ctx, value, () => {
         const result: Record<string, unknown> = { "__type": "Labeled" };
-        labeledEncodeFields<T>(value as Labeled<T>, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        labeledEncodeFields<T>(value as Labeled<T>, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields), __encodeT);
         return result;
     });
 }
 
-function labeledEncodeFields<T extends string = string>(value: Labeled<T>, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+function labeledEncodeFields<T extends string = string>(value: Labeled<T>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeT?: __mf_Encoder<T>): void {
     if (__fields === undefined || __fields.keeps("label")) {
         if (value.label !== undefined) {
-            result.label = value.label;
+            result.label = (__encodeT === undefined ? value.label : __encodeT(value.label, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("weight")) {
@@ -1228,13 +1247,13 @@ function labeledEncodeFields<T extends string = string>(value: Labeled<T>, _ctx:
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-export function labeledDecode<T extends string = string>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Labeled<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+export function labeledDecode<T extends string = string>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Labeled<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
         const data = typeof input === "string" ? JSON.parse(input) : input;
 
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = labeledDecodeWithContext<T>(data, ctx);
+        const resultOrRef = labeledDecodeWithContext<T>(data, ctx, __decodeT);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1281,10 +1300,10 @@ export function labeledDecode<T extends string = string>(input: unknown, opts?: 
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function labeledDecodeWithContext<T extends string = string>(value: unknown, ctx: __mf_DecodeContext): Labeled<T> | __mf_PendingRef;
+export function labeledDecodeWithContext<T extends string = string>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Labeled<T> | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
-export function labeledDecodeWithContext<T extends string = string>(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Labeled<T>> | __mf_PendingRef;
-export function labeledDecodeWithContext<T extends string = string>(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Labeled<T>> | __mf_PendingRef {
+export function labeledDecodeWithContext<T extends string = string>(value: unknown, ctx: __mf_DecodeContext, __decodeT: __mf_Decoder<T> | undefined, fields: __mf_FieldRequirement): Partial<Labeled<T>> | __mf_PendingRef;
+export function labeledDecodeWithContext<T extends string = string>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>, __fields?: __mf_FieldRequirement): Partial<Labeled<T>> | __mf_PendingRef {
     if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
         throw new __mf_DecodeError([{ field: "_root", message: "Labeled.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
     }
@@ -1316,12 +1335,29 @@ export function labeledDecodeWithContext<T extends string = string>(value: unkno
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("label")) || (__fields.keeps("label") && obj["label"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("label")) ? "label" in obj : (__fields.keeps("label") && obj["label"] !== undefined)) {
         const __raw_label = obj["label"] as T;
+        ctx.pushScope("label");
+        try {
+            const __result = (__decodeT === undefined ? __raw_label as T : __decodeT(__raw_label, ctx));
+            ctx.assignOrDefer(instance, "label", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "label" : "label." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
 
-        instance.label = __raw_label;
+                errors.push({ field: "label", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
     }
-    if ((__fields === undefined || __fields.requires("weight")) || (__fields.keeps("weight") && obj["weight"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
         const __raw_weight = obj["weight"] as number;
 
         if (!(typeof __raw_weight === "number")) {
@@ -1337,8 +1373,8 @@ export function labeledDecodeWithContext<T extends string = string>(value: unkno
 }
 
 /** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
-export function labeledDecodePartialWithContext<T extends string = string>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Labeled<T>>): Partial<Labeled<T>> | __mf_PendingRef {
-    return labeledDecodeWithContext<T>(value, ctx, __mf_fieldRequirement(fields));
+export function labeledDecodePartialWithContext<T extends string = string>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Labeled<T>>, __decodeT?: __mf_Decoder<T>): Partial<Labeled<T>> | __mf_PendingRef {
+    return labeledDecodeWithContext<T>(value, ctx, __decodeT, __mf_fieldRequirement(fields));
 }
 export function labeledValidateField<T extends string = string, K extends keyof Labeled<T> = keyof Labeled<T>>(field: K, value: unknown): Array<{ field: string; message: string }>;
 export function labeledValidateField(): Array<{ field: string; message: string }> {
@@ -1417,84 +1453,89 @@ export interface Keyed<K extends string> {
 
 export function keyedEquals<K extends string>(a: Keyed<K>, b: Keyed<K>): boolean {
     if (a === b) return true;
-    return __mf_structuralEquals(a.key, b.key) && a.rank === b.rank;
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.key, b.key) && a.rank === b.rank);
 }
 
 export function keyedHashCode<K extends string>(value: Keyed<K>): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (__mf_structuralHash(value.key))) | 0;
     hash = (hash * 31 + (Number.isInteger(value.rank) ? value.rank | 0 : value.rank.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function keyedClone<K extends string>(value: Keyed<K>): Keyed<K> {
-    return ({
+    return __mf_clonedWith(value, (): Keyed<K> => ({
 	key: __mf_structuralClone(value.key),
 	rank: value.rank
-});
+}));
 }
 
 export function keyedToString<K extends string>(value: Keyed<K>): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("key: " + __mf_structuralDebug(value.key));
     parts.push("rank: " + String(value.rank));
-    return "Keyed { " + parts.join(", ") + " }";
+        return "Keyed { " + parts.join(", ") + " }";
+    });
 }
 
 export function keyedPartialCompare<K extends string>(a: Keyed<K>, b: Keyed<K>): number | null {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = __mf_structuralCompare(a.key, b.key);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
     const cmp1 = (a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : a.rank === b.rank ? 0 : null);
     if (cmp1 === null) return null;
     if (cmp1 !== 0) return cmp1;
-    return 0;
+        return 0;
+    });
 }
 
 export function keyedCompare<K extends string>(a: Keyed<K>, b: Keyed<K>): number {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = __mf_structuralCompare(a.key, b.key);
     if (cmp0 !== 0) return cmp0;
     const cmp1 = a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : 0;
     if (cmp1 !== 0) return cmp1;
-    return 0;
+        return 0;
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export function keyedEncode<K extends string>(value: Keyed<K>, keepMetadata?: boolean): string {
+export function keyedEncode<K extends string>(value: Keyed<K>, keepMetadata?: boolean, __encodeK?: __mf_Encoder<K>): string {
     const ctx = __mf_EncodeContext.create();
-    const __raw = keyedEncodeWithContext<K>(value, ctx);
+    const __raw = keyedEncodeWithContext<K>(value, ctx, __encodeK);
     return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export function keyedEncodeWithContext<K extends string>(value: Keyed<K>, ctx: __mf_EncodeContext): Record<string, unknown> {
+export function keyedEncodeWithContext<K extends string>(value: Keyed<K>, ctx: __mf_EncodeContext, __encodeK?: __mf_Encoder<K>): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Keyed",
-        __id: ctx.register(value),
-    };
-    keyedEncodeFields<K>(value, ctx, result, undefined);
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Keyed" });
+    keyedEncodeFields<K>(value, ctx, result, undefined, __encodeK);
     return result;
 }
 
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function keyedEncodePartialWithContext<K extends string>(value: Partial<Keyed<K>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Keyed<K>>): Record<string, unknown> {
+export function keyedEncodePartialWithContext<K extends string>(value: Partial<Keyed<K>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Keyed<K>>, __encodeK?: __mf_Encoder<K>): Record<string, unknown> {
     return __mf_encodeSelection(ctx, value, () => {
         const result: Record<string, unknown> = { "__type": "Keyed" };
-        keyedEncodeFields<K>(value as Keyed<K>, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        keyedEncodeFields<K>(value as Keyed<K>, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields), __encodeK);
         return result;
     });
 }
 
-function keyedEncodeFields<K extends string>(value: Keyed<K>, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+function keyedEncodeFields<K extends string>(value: Keyed<K>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeK?: __mf_Encoder<K>): void {
     if (__fields === undefined || __fields.keeps("key")) {
         if (value.key !== undefined) {
-            result.key = value.key;
+            result.key = (__encodeK === undefined ? value.key : __encodeK(value.key, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("rank")) {
@@ -1505,13 +1546,13 @@ function keyedEncodeFields<K extends string>(value: Keyed<K>, _ctx: __mf_EncodeC
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-export function keyedDecode<K extends string>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Keyed<K> } | { success: false; errors: Array<{ field: string; message: string }> } {
+export function keyedDecode<K extends string>(input: unknown, opts?: __mf_DecodeOptions, __decodeK?: __mf_Decoder<K>): { success: true; value: Keyed<K> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
         const data = typeof input === "string" ? JSON.parse(input) : input;
 
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = keyedDecodeWithContext<K>(data, ctx);
+        const resultOrRef = keyedDecodeWithContext<K>(data, ctx, __decodeK);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1558,10 +1599,10 @@ export function keyedDecode<K extends string>(input: unknown, opts?: __mf_Decode
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function keyedDecodeWithContext<K extends string>(value: unknown, ctx: __mf_DecodeContext): Keyed<K> | __mf_PendingRef;
+export function keyedDecodeWithContext<K extends string>(value: unknown, ctx: __mf_DecodeContext, __decodeK?: __mf_Decoder<K>): Keyed<K> | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
-export function keyedDecodeWithContext<K extends string>(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Keyed<K>> | __mf_PendingRef;
-export function keyedDecodeWithContext<K extends string>(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Keyed<K>> | __mf_PendingRef {
+export function keyedDecodeWithContext<K extends string>(value: unknown, ctx: __mf_DecodeContext, __decodeK: __mf_Decoder<K> | undefined, fields: __mf_FieldRequirement): Partial<Keyed<K>> | __mf_PendingRef;
+export function keyedDecodeWithContext<K extends string>(value: unknown, ctx: __mf_DecodeContext, __decodeK?: __mf_Decoder<K>, __fields?: __mf_FieldRequirement): Partial<Keyed<K>> | __mf_PendingRef {
     if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
         throw new __mf_DecodeError([{ field: "_root", message: "Keyed.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
     }
@@ -1593,12 +1634,29 @@ export function keyedDecodeWithContext<K extends string>(value: unknown, ctx: __
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("key")) || (__fields.keeps("key") && obj["key"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("key")) ? "key" in obj : (__fields.keeps("key") && obj["key"] !== undefined)) {
         const __raw_key = obj["key"] as K;
+        ctx.pushScope("key");
+        try {
+            const __result = (__decodeK === undefined ? __raw_key as K : __decodeK(__raw_key, ctx));
+            ctx.assignOrDefer(instance, "key", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "key" : "key." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
 
-        instance.key = __raw_key;
+                errors.push({ field: "key", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
     }
-    if ((__fields === undefined || __fields.requires("rank")) || (__fields.keeps("rank") && obj["rank"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("rank")) ? "rank" in obj : (__fields.keeps("rank") && obj["rank"] !== undefined)) {
         const __raw_rank = obj["rank"] as number;
 
         if (!(typeof __raw_rank === "number")) {
@@ -1614,8 +1672,8 @@ export function keyedDecodeWithContext<K extends string>(value: unknown, ctx: __
 }
 
 /** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
-export function keyedDecodePartialWithContext<K extends string>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Keyed<K>>): Partial<Keyed<K>> | __mf_PendingRef {
-    return keyedDecodeWithContext<K>(value, ctx, __mf_fieldRequirement(fields));
+export function keyedDecodePartialWithContext<K extends string>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Keyed<K>>, __decodeK?: __mf_Decoder<K>): Partial<Keyed<K>> | __mf_PendingRef {
+    return keyedDecodeWithContext<K>(value, ctx, __decodeK, __mf_fieldRequirement(fields));
 }
 export function keyedValidateField<K extends string, K1 extends keyof Keyed<K> = keyof Keyed<K>>(field: K1, value: unknown): Array<{ field: string; message: string }>;
 export function keyedValidateField(): Array<{ field: string; message: string }> {
@@ -1681,77 +1739,82 @@ export class Slot<T extends object> {
 
     static equals<T extends object>(a: Slot<T>, b: Slot<T>): boolean {
         if (a === b) return true;
-        return __mf_structuralEquals(a.held, b.held) && a.index === b.index;
+        return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.held, b.held) && a.index === b.index);
     }
 
     static hashCode<T extends object>(value: Slot<T>): number {
-        let hash = 17;
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
         hash = (hash * 31 + (__mf_structuralHash(value.held))) | 0;
         hash = (hash * 31 + (Number.isInteger(value.index) ? value.index | 0 : value.index.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-        return hash;
+            return hash;
+        });
     }
 
     static clone<T extends object>(value: Slot<T>): Slot<T> {
-        return __mf_instanceWith(value, ({
+        return __mf_clonedWith(value, () => ({
         	held: __mf_structuralClone(value.held),
         	index: value.index
         }));
     }
 
     static toString<T extends object>(value: Slot<T>): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("held: " + __mf_structuralDebug(value.held));
         parts.push("index: " + String(value.index));
-        return "Slot { " + parts.join(", ") + " }";
+            return "Slot { " + parts.join(", ") + " }";
+        });
     }
 
     static partialCompare<T extends object>(a: Slot<T>, b: Slot<T>): number | null {
         if (a === b) return 0;
+        return __mf_comparedWithin(a, b, () => {
         const cmp0 = __mf_structuralCompare(a.held, b.held);
         if (cmp0 === null) return null;
         if (cmp0 !== 0) return cmp0;
         const cmp1 = (a.index < b.index ? -1 : a.index > b.index ? 1 : a.index === b.index ? 0 : null);
         if (cmp1 === null) return null;
         if (cmp1 !== 0) return cmp1;
-        return 0;
+            return 0;
+        });
     }
 
     static compare<T extends object>(a: Slot<T>, b: Slot<T>): number {
         if (a === b) return 0;
+        return __mf_comparedWithin(a, b, () => {
         const cmp0 = __mf_structuralCompare(a.held, b.held);
         if (cmp0 !== 0) return cmp0;
         const cmp1 = a.index < b.index ? -1 : a.index > b.index ? 1 : 0;
         if (cmp1 !== 0) return cmp1;
-        return 0;
+            return 0;
+        });
     }
 
 /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-static encodeWithContext<T extends object>(value: Slot<T>, ctx: __mf_EncodeContext): Record<string, unknown> {
+static encodeWithContext<T extends object>(value: Slot<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Slot",
-        __id: ctx.register(value),
-    };
-    Slot.#encodeFields<T>(value, ctx, result, undefined);
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Slot" });
+    Slot.#encodeFields<T>(value, ctx, result, undefined, __encodeT);
     return result;
 }
 
 /** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-static encodePartialWithContext<T extends object>(value: Partial<Slot<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Slot<T>>): Record<string, unknown> {
+static encodePartialWithContext<T extends object>(value: Partial<Slot<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Slot<T>>, __encodeT?: __mf_Encoder<T>): Record<string, unknown> {
     return __mf_encodeSelection(ctx, value, () => {
         const result: Record<string, unknown> = { "__type": "Slot" };
-        Slot.#encodeFields<T>(value as Slot<T>, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        Slot.#encodeFields<T>(value as Slot<T>, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields), __encodeT);
         return result;
     });
 }
 
-static #encodeFields<T extends object>(value: Slot<T>, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+static #encodeFields<T extends object>(value: Slot<T>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeT?: __mf_Encoder<T>): void {
     if (__fields === undefined || __fields.keeps("held")) {
         if (value.held !== undefined) {
-            result.held = value.held;
+            result.held = value.held === null ? null : (__encodeT === undefined ? value.held : __encodeT(value.held, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("index")) {
@@ -1762,8 +1825,8 @@ static #encodeFields<T extends object>(value: Slot<T>, _ctx: __mf_EncodeContext,
 }
 
     /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-    static encode<T extends object>(value: Slot<T>, keepMetadata?: boolean): string {
-        return slotEncode(value, keepMetadata);
+    static encode<T extends object>(value: Slot<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string {
+        return slotEncode(value, keepMetadata, __encodeT);
     }
 
 constructor(props: { held: T | null; index: number }) {
@@ -1773,13 +1836,13 @@ constructor(props: { held: T | null; index: number }) {
 }
 
 /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-static decode<T extends object>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Slot<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+static decode<T extends object>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Slot<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
         const data = typeof input === "string" ? JSON.parse(input) : input;
 
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = Slot.decodeWithContext<T>(data, ctx);
+        const resultOrRef = Slot.decodeWithContext<T>(data, ctx, __decodeT);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -1827,10 +1890,10 @@ static decode<T extends object>(input: unknown, opts?: __mf_DecodeOptions): { su
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-static decodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext): Slot<T> | __mf_PendingRef;
+static decodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Slot<T> | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
-static decodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Slot<T>> | __mf_PendingRef;
-static decodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Slot<T>> | __mf_PendingRef {
+static decodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, __decodeT: __mf_Decoder<T> | undefined, fields: __mf_FieldRequirement): Partial<Slot<T>> | __mf_PendingRef;
+static decodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>, __fields?: __mf_FieldRequirement): Partial<Slot<T>> | __mf_PendingRef {
     if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
         throw new __mf_DecodeError([{ field: "_root", message: "Slot.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
     }
@@ -1862,16 +1925,34 @@ static decodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("held")) || (__fields.keeps("held") && obj["held"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("held")) ? "held" in obj : (__fields.keeps("held") && obj["held"] !== undefined)) {
         const __raw_held = obj["held"] as T | null;
 
         if (__raw_held === null) {
             instance.held = null;
         } else {
-            instance.held = __raw_held;
+            ctx.pushScope("held");
+            try {
+                const __result = (__decodeT === undefined ? __raw_held as T : __decodeT(__raw_held, ctx));
+                ctx.assignOrDefer(instance, "held", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "held" : "held." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+
+                    errors.push({ field: "held", message: __e instanceof Error ? __e.message : String(__e) });
+                }
+            } finally {
+                ctx.popScope();
+            }
         }
     }
-    if ((__fields === undefined || __fields.requires("index")) || (__fields.keeps("index") && obj["index"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("index")) ? "index" in obj : (__fields.keeps("index") && obj["index"] !== undefined)) {
         const __raw_index = obj["index"] as number;
 
         if (!(typeof __raw_index === "number")) {
@@ -1940,29 +2021,29 @@ export function slotCompare<T extends object>(a: Slot<T>, b: Slot<T>): number {
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export function slotEncode<T extends object>(value: Slot<T>, keepMetadata?: boolean): string {
+export function slotEncode<T extends object>(value: Slot<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string {
     const ctx = __mf_EncodeContext.create();
-    const __raw = slotEncodeWithContext(value, ctx);
+    const __raw = slotEncodeWithContext(value, ctx, __encodeT);
     return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export function slotEncodeWithContext<T extends object>(value: Slot<T>, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return Slot.encodeWithContext<T>(value, ctx);
+export function slotEncodeWithContext<T extends object>(value: Slot<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): Record<string, unknown> {
+    return Slot.encodeWithContext<T>(value, ctx, __encodeT);
 }
 
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function slotEncodePartialWithContext<T extends object>(value: Partial<Slot<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Slot<T>>): Record<string, unknown> {
-    return Slot.encodePartialWithContext<T>(value, ctx, fields);
+export function slotEncodePartialWithContext<T extends object>(value: Partial<Slot<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Slot<T>>, __encodeT?: __mf_Encoder<T>): Record<string, unknown> {
+    return Slot.encodePartialWithContext<T>(value, ctx, fields, __encodeT);
 }
 
 /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-export function slotDecode<T extends object>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Slot<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
-    return Slot.decode<T>(input, opts);
+export function slotDecode<T extends object>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Slot<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return Slot.decode<T>(input, opts, __decodeT);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function slotDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext): Slot<T> | __mf_PendingRef {
-    return Slot.decodeWithContext<T>(value, ctx);
+export function slotDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Slot<T> | __mf_PendingRef {
+    return Slot.decodeWithContext<T>(value, ctx, __decodeT);
 }
 
 /** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
@@ -1971,8 +2052,8 @@ export function slotHasShape(value: unknown): boolean {
 }
 
 /** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
-export function slotDecodePartialWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Slot<T>>): Partial<Slot<T>> | __mf_PendingRef {
-    return Slot.decodeWithContext<T>(value, ctx, __mf_fieldRequirement(fields));
+export function slotDecodePartialWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Slot<T>>, __decodeT?: __mf_Decoder<T>): Partial<Slot<T>> | __mf_PendingRef {
+    return Slot.decodeWithContext<T>(value, ctx, __decodeT, __mf_fieldRequirement(fields));
 }
 
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
@@ -1984,22 +2065,21 @@ export function slotIs<T extends object>(value: unknown): value is Slot<T> {
 export type Counted<T extends object> = [T, number];
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export function countedEncode<T extends object>(value: Counted<T>, keepMetadata?: boolean): string {
+export function countedEncode<T extends object>(value: Counted<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string {
     const ctx = __mf_EncodeContext.create();
-    const __raw = countedEncodeWithContext(value, ctx);
+    const __raw = countedEncodeWithContext(value, ctx, __encodeT);
     return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export function countedEncodeWithContext<T extends object>(value: Counted<T>, ctx: __mf_EncodeContext): unknown;
-export function countedEncodeWithContext<T extends object>(value: Counted<T>): unknown {
+export function countedEncodeWithContext<T extends object>(value: Counted<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown {
     const __view: { e0: T; e1: number } = {
         e0: value[0],
         e1: value[1],
     };
     return ((value: { e0: T; e1: number }): unknown[] => {
         const result: Record<string, unknown> = {};
-        result.e0 = value.e0;
+        result.e0 = (__encodeT === undefined ? value.e0 : __encodeT(value.e0, ctx));
         result.e1 = value.e1;
         const __tuple: unknown[] = [];
         if ("e0" in result) {
@@ -2013,12 +2093,12 @@ export function countedEncodeWithContext<T extends object>(value: Counted<T>): u
 }
 
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-export function countedDecode<T extends object>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Counted<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+export function countedDecode<T extends object>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Counted<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === "string" ? JSON.parse(input) : input;
 
         const ctx = __mf_DecodeContext.create();
-        const result = countedDecodeWithContext<T>(data, ctx);
+        const result = countedDecodeWithContext<T>(data, ctx, __decodeT);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -2058,7 +2138,7 @@ export function countedIs<T extends object>(value: unknown): value is Counted<T>
     return countedHasShape(value);
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function countedDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext): Counted<T> {
+export function countedDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Counted<T> {
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Counted.decodeWithContext: __ref must be a number" }]);
@@ -2099,12 +2179,29 @@ export function countedDecodeWithContext<T extends object>(value: unknown, ctx: 
     });
     ctx.trackForFreeze(tuple);
 
-    {
+    if ("0" in obj) {
         const __raw_e0 = obj["0"] as T;
+        ctx.pushScope("0");
+        try {
+            const __result = (__decodeT === undefined ? __raw_e0 as T : __decodeT(__raw_e0, ctx));
+            ctx.assignOrDefer(instance, "e0", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "0" : "0." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
 
-        instance.e0 = __raw_e0;
+                errors.push({ field: "0", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
     }
-    {
+    if ("1" in obj) {
         const __raw_e1 = obj["1"] as number;
 
         if (!(typeof __raw_e1 === "number")) {
@@ -2142,14 +2239,14 @@ export const Counted: {
 export type Code<T extends string> = T | number;
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export function codeEncode<T extends string>(value: Code<T>, keepMetadata?: boolean): string {
+export function codeEncode<T extends string>(value: Code<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string {
     const ctx = __mf_EncodeContext.create();
-    const __raw = codeEncodeWithContext(value, ctx);
+    const __raw = codeEncodeWithContext(value, ctx, __encodeT);
     return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export function codeEncodeWithContext<T extends string>(value: Code<T>, ctx: __mf_EncodeContext): unknown {
+export function codeEncodeWithContext<T extends string>(value: Code<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown {
     let __variant: unknown;
     let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
@@ -2164,18 +2261,20 @@ export function codeEncodeWithContext<T extends string>(value: Code<T>, ctx: __m
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
 
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-export function codeDecode<T extends string>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Code<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+export function codeDecode<T extends string>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Code<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === "string" ? JSON.parse(input) : input;
 
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = codeDecodeWithContext<T>(data, ctx);
+        const resultOrRef = codeDecodeWithContext<T>(data, ctx, __decodeT);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2222,7 +2321,7 @@ export function codeDecode<T extends string>(input: unknown, opts?: __mf_DecodeO
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function codeDecodeWithContext<T extends string>(value: unknown, ctx: __mf_DecodeContext): Code<T> | __mf_PendingRef {
+export function codeDecodeWithContext<T extends string>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Code<T> | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Code.decodeWithContext: __ref must be a number" }]);
@@ -2233,6 +2332,9 @@ export function codeDecodeWithContext<T extends string>(value: unknown, ctx: __m
     
     if (typeof value === "number") {
         return value as Code<T>;
+    }
+    if (__decodeT !== undefined && value !== null && value !== undefined) {
+        return __decodeT(value, ctx) as Code<T> | __mf_PendingRef;
     }
     return value as Code<T>;
 
@@ -2269,29 +2371,28 @@ export const Code: {
 export type Boxed<T extends object> = Array<T>;
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export function boxedEncode<T extends object>(value: Boxed<T>, keepMetadata?: boolean): string {
+export function boxedEncode<T extends object>(value: Boxed<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string {
     const ctx = __mf_EncodeContext.create();
-    const __raw = boxedEncodeWithContext(value, ctx);
+    const __raw = boxedEncodeWithContext(value, ctx, __encodeT);
     return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export function boxedEncodeWithContext<T extends object>(value: Boxed<T>, ctx: __mf_EncodeContext): unknown;
-export function boxedEncodeWithContext<T extends object>(value: Boxed<T>): unknown {
+export function boxedEncodeWithContext<T extends object>(value: Boxed<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown {
     return ((value: { value: Array<T> }): unknown => {
         const result: Record<string, unknown> = {};
-        result.value = value.value;
+        result.value = value.value.map((__item0) => (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx)));
         return result.value;
     })({ value });
 }
 
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-export function boxedDecode<T extends object>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Boxed<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+export function boxedDecode<T extends object>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Boxed<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
         const data = typeof input === "string" ? JSON.parse(input) : input;
 
         const ctx = __mf_DecodeContext.create();
-        const result = boxedDecodeWithContext<T>(data, ctx);
+        const result = boxedDecodeWithContext<T>(data, ctx, __decodeT);
         ctx.applyPatches();
         if (opts?.freeze) {
             ctx.freezeAll();
@@ -2331,7 +2432,7 @@ export function boxedIs<T extends object>(value: unknown): value is Boxed<T> {
     return boxedHasShape(value);
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function boxedDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext): Boxed<T> {
+export function boxedDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Boxed<T> {
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Boxed.decodeWithContext: __ref must be a number" }]);
@@ -2342,10 +2443,26 @@ export function boxedDecodeWithContext<T extends object>(value: unknown, ctx: __
     const errors: Array<{ field: string; message: string }> = [];
     const instance: any = {};
 
-    {
+    if ("_root" in obj) {
         const __raw__root = obj["_root"] as Array<T>;
         if (Array.isArray(__raw__root)) {
-            instance._root = __raw__root as Array<T>;
+            ctx.pushScope("_root");
+            try {
+                instance._root = __mf_decodeArray(__raw__root, ctx, (__raw0) => (__decodeT === undefined ? __raw0 as T : __decodeT(__raw0, ctx)));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "_root" : "_root." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "_root", message: __raw__root == null ? "Boxed._root is required" : "expected Array<T>" });
         }
@@ -2716,13 +2833,13 @@ export declare function labeledHashCode<T extends string = string>(value: Labele
 export declare function labeledClone<T extends string = string>(value: Labeled<T>): Labeled<T>;
 export declare function labeledToString<T extends string = string>(value: Labeled<T>): string;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export declare function labeledEncode<T extends string = string>(value: Labeled<T>, keepMetadata?: boolean): string;
+export declare function labeledEncode<T extends string = string>(value: Labeled<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export declare function labeledEncodeWithContext<T extends string = string>(value: Labeled<T>, ctx: __mf_EncodeContext): Record<string, unknown>;
+export declare function labeledEncodeWithContext<T extends string = string>(value: Labeled<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export declare function labeledEncodePartialWithContext<T extends string = string>(value: Partial<Labeled<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Labeled<T>>): Record<string, unknown>;
+export declare function labeledEncodePartialWithContext<T extends string = string>(value: Partial<Labeled<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Labeled<T>>, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-export declare function labeledDecode<T extends string = string>(input: unknown, opts?: __mf_DecodeOptions): {
+export declare function labeledDecode<T extends string = string>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 	success: true;
 	value: Labeled<T>;
 } | {
@@ -2733,11 +2850,11 @@ export declare function labeledDecode<T extends string = string>(input: unknown,
 	}>;
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export declare function labeledDecodeWithContext<T extends string = string>(value: unknown, ctx: __mf_DecodeContext): Labeled<T> | __mf_PendingRef;
+export declare function labeledDecodeWithContext<T extends string = string>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Labeled<T> | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
-export declare function labeledDecodeWithContext<T extends string = string>(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Labeled<T>> | __mf_PendingRef;
+export declare function labeledDecodeWithContext<T extends string = string>(value: unknown, ctx: __mf_DecodeContext, __decodeT: __mf_Decoder<T> | undefined, fields: __mf_FieldRequirement): Partial<Labeled<T>> | __mf_PendingRef;
 /** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
-export declare function labeledDecodePartialWithContext<T extends string = string>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Labeled<T>>): Partial<Labeled<T>> | __mf_PendingRef;
+export declare function labeledDecodePartialWithContext<T extends string = string>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Labeled<T>>, __decodeT?: __mf_Decoder<T>): Partial<Labeled<T>> | __mf_PendingRef;
 export declare function labeledValidateField<
 	T extends string = string,
 	K extends keyof Labeled<T> = keyof Labeled<T>
@@ -2785,13 +2902,13 @@ export declare function keyedToString<K extends string>(value: Keyed<K>): string
 export declare function keyedPartialCompare<K extends string>(a: Keyed<K>, b: Keyed<K>): number | null;
 export declare function keyedCompare<K extends string>(a: Keyed<K>, b: Keyed<K>): number;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export declare function keyedEncode<K extends string>(value: Keyed<K>, keepMetadata?: boolean): string;
+export declare function keyedEncode<K extends string>(value: Keyed<K>, keepMetadata?: boolean, __encodeK?: __mf_Encoder<K>): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export declare function keyedEncodeWithContext<K extends string>(value: Keyed<K>, ctx: __mf_EncodeContext): Record<string, unknown>;
+export declare function keyedEncodeWithContext<K extends string>(value: Keyed<K>, ctx: __mf_EncodeContext, __encodeK?: __mf_Encoder<K>): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export declare function keyedEncodePartialWithContext<K extends string>(value: Partial<Keyed<K>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Keyed<K>>): Record<string, unknown>;
+export declare function keyedEncodePartialWithContext<K extends string>(value: Partial<Keyed<K>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Keyed<K>>, __encodeK?: __mf_Encoder<K>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-export declare function keyedDecode<K extends string>(input: unknown, opts?: __mf_DecodeOptions): {
+export declare function keyedDecode<K extends string>(input: unknown, opts?: __mf_DecodeOptions, __decodeK?: __mf_Decoder<K>): {
 	success: true;
 	value: Keyed<K>;
 } | {
@@ -2802,11 +2919,11 @@ export declare function keyedDecode<K extends string>(input: unknown, opts?: __m
 	}>;
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export declare function keyedDecodeWithContext<K extends string>(value: unknown, ctx: __mf_DecodeContext): Keyed<K> | __mf_PendingRef;
+export declare function keyedDecodeWithContext<K extends string>(value: unknown, ctx: __mf_DecodeContext, __decodeK?: __mf_Decoder<K>): Keyed<K> | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
-export declare function keyedDecodeWithContext<K extends string>(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Keyed<K>> | __mf_PendingRef;
+export declare function keyedDecodeWithContext<K extends string>(value: unknown, ctx: __mf_DecodeContext, __decodeK: __mf_Decoder<K> | undefined, fields: __mf_FieldRequirement): Partial<Keyed<K>> | __mf_PendingRef;
 /** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
-export declare function keyedDecodePartialWithContext<K extends string>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Keyed<K>>): Partial<Keyed<K>> | __mf_PendingRef;
+export declare function keyedDecodePartialWithContext<K extends string>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Keyed<K>>, __decodeK?: __mf_Decoder<K>): Partial<Keyed<K>> | __mf_PendingRef;
 export declare function keyedValidateField<
 	K extends string,
 	K1 extends keyof Keyed<K> = keyof Keyed<K>
@@ -2850,17 +2967,17 @@ export declare class Slot<T extends object> {
 	static partialCompare<T extends object>(a: Slot<T>, b: Slot<T>): number | null;
 	static compare<T extends object>(a: Slot<T>, b: Slot<T>): number;
 	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-	static encodeWithContext<T extends object>(value: Slot<T>, ctx: __mf_EncodeContext): Record<string, unknown>;
+	static encodeWithContext<T extends object>(value: Slot<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
 	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-	static encodePartialWithContext<T extends object>(value: Partial<Slot<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Slot<T>>): Record<string, unknown>;
+	static encodePartialWithContext<T extends object>(value: Partial<Slot<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Slot<T>>, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
 	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-	static encode<T extends object>(value: Slot<T>, keepMetadata?: boolean): string;
+	static encode<T extends object>(value: Slot<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
 	constructor(props: {
 		held: T | null;
 		index: number;
 	});
 	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-	static decode<T extends object>(input: unknown, opts?: __mf_DecodeOptions): {
+	static decode<T extends object>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 		success: true;
 		value: Slot<T>;
 	} | {
@@ -2871,9 +2988,9 @@ export declare class Slot<T extends object> {
 		}>;
 	};
 	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-	static decodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext): Slot<T> | __mf_PendingRef;
+	static decodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Slot<T> | __mf_PendingRef;
 	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
-	static decodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Slot<T>> | __mf_PendingRef;
+	static decodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, __decodeT: __mf_Decoder<T> | undefined, fields: __mf_FieldRequirement): Partial<Slot<T>> | __mf_PendingRef;
 	static validateField<
 		T extends object,
 		K extends keyof Slot<T> = keyof Slot<T>
@@ -2895,13 +3012,13 @@ export declare function slotToString<T extends object>(value: Slot<T>): string;
 export declare function slotPartialCompare<T extends object>(a: Slot<T>, b: Slot<T>): number | null;
 export declare function slotCompare<T extends object>(a: Slot<T>, b: Slot<T>): number;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export declare function slotEncode<T extends object>(value: Slot<T>, keepMetadata?: boolean): string;
+export declare function slotEncode<T extends object>(value: Slot<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export declare function slotEncodeWithContext<T extends object>(value: Slot<T>, ctx: __mf_EncodeContext): Record<string, unknown>;
+export declare function slotEncodeWithContext<T extends object>(value: Slot<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export declare function slotEncodePartialWithContext<T extends object>(value: Partial<Slot<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Slot<T>>): Record<string, unknown>;
+export declare function slotEncodePartialWithContext<T extends object>(value: Partial<Slot<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Slot<T>>, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
 /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-export declare function slotDecode<T extends object>(input: unknown, opts?: __mf_DecodeOptions): {
+export declare function slotDecode<T extends object>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 	success: true;
 	value: Slot<T>;
 } | {
@@ -2912,21 +3029,21 @@ export declare function slotDecode<T extends object>(input: unknown, opts?: __mf
 	}>;
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export declare function slotDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext): Slot<T> | __mf_PendingRef;
+export declare function slotDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Slot<T> | __mf_PendingRef;
 /** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
 export declare function slotHasShape(value: unknown): boolean;
 /** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
-export declare function slotDecodePartialWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Slot<T>>): Partial<Slot<T>> | __mf_PendingRef;
+export declare function slotDecodePartialWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Slot<T>>, __decodeT?: __mf_Decoder<T>): Partial<Slot<T>> | __mf_PendingRef;
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
 export declare function slotIs<T extends object>(value: unknown): value is Slot<T>;
 /** @derive(Encode, Decode) */
 export type Counted<T extends object> = [T, number];
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export declare function countedEncode<T extends object>(value: Counted<T>, keepMetadata?: boolean): string;
+export declare function countedEncode<T extends object>(value: Counted<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export declare function countedEncodeWithContext<T extends object>(value: Counted<T>, ctx: __mf_EncodeContext): unknown;
+export declare function countedEncodeWithContext<T extends object>(value: Counted<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown;
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-export declare function countedDecode<T extends object>(input: unknown, opts?: __mf_DecodeOptions): {
+export declare function countedDecode<T extends object>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 	success: true;
 	value: Counted<T>;
 } | {
@@ -2938,7 +3055,7 @@ export declare function countedDecode<T extends object>(input: unknown, opts?: _
 };
 export declare function countedIs<T extends object>(value: unknown): value is Counted<T>;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export declare function countedDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext): Counted<T>;
+export declare function countedDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Counted<T>;
 export declare function countedHasShape(value: unknown): boolean;
 export declare const Counted: {
 	readonly encode: typeof countedEncode;
@@ -2951,11 +3068,11 @@ export declare const Counted: {
 /** @derive(Encode, Decode) */
 export type Code<T extends string> = T | number;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export declare function codeEncode<T extends string>(value: Code<T>, keepMetadata?: boolean): string;
+export declare function codeEncode<T extends string>(value: Code<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export declare function codeEncodeWithContext<T extends string>(value: Code<T>, ctx: __mf_EncodeContext): unknown;
+export declare function codeEncodeWithContext<T extends string>(value: Code<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown;
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-export declare function codeDecode<T extends string>(input: unknown, opts?: __mf_DecodeOptions): {
+export declare function codeDecode<T extends string>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 	success: true;
 	value: Code<T>;
 } | {
@@ -2966,7 +3083,7 @@ export declare function codeDecode<T extends string>(input: unknown, opts?: __mf
 	}>;
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export declare function codeDecodeWithContext<T extends string>(value: unknown, ctx: __mf_DecodeContext): Code<T> | __mf_PendingRef;
+export declare function codeDecodeWithContext<T extends string>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Code<T> | __mf_PendingRef;
 export declare function codeHasShape(value: unknown): boolean;
 export declare function codeIs<T extends string>(value: unknown): value is Code<T>;
 export declare const Code: {
@@ -2980,11 +3097,11 @@ export declare const Code: {
 /** @derive(Encode, Decode) */
 export type Boxed<T extends object> = Array<T>;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export declare function boxedEncode<T extends object>(value: Boxed<T>, keepMetadata?: boolean): string;
+export declare function boxedEncode<T extends object>(value: Boxed<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export declare function boxedEncodeWithContext<T extends object>(value: Boxed<T>, ctx: __mf_EncodeContext): unknown;
+export declare function boxedEncodeWithContext<T extends object>(value: Boxed<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown;
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-export declare function boxedDecode<T extends object>(input: unknown, opts?: __mf_DecodeOptions): {
+export declare function boxedDecode<T extends object>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 	success: true;
 	value: Boxed<T>;
 } | {
@@ -2996,7 +3113,7 @@ export declare function boxedDecode<T extends object>(input: unknown, opts?: __m
 };
 export declare function boxedIs<T extends object>(value: unknown): value is Boxed<T>;
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export declare function boxedDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext): Boxed<T>;
+export declare function boxedDecodeWithContext<T extends object>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Boxed<T>;
 export declare function boxedHasShape(value: unknown): boolean;
 export declare const Boxed: {
 	readonly encode: typeof boxedEncode;
@@ -3013,167 +3130,167 @@ export declare const Boxed: {
 
 ## Mapping
 
-original 0..349 -> expanded 948..1297
-original 349..435 -> expanded 3435..3521
-original 435..436 -> expanded 3980..3981
-original 436..547 -> expanded 4249..4360
-original 547..698 -> expanded 5375..5526
-original 698..786 -> expanded 6068..6156
-original 786..867 -> expanded 6858..6939
-original 867..1002 -> expanded 7511..7646
-original 1002..1074 -> expanded 8086..8158
-original 1074..1175 -> expanded 8379..8480
-original 1175..1176 -> expanded 15974..15975
-original 1176..1251 -> expanded 19047..19122
-original 1251..1316 -> expanded 25473..25538
-original 1316..1390 -> expanded 29887..29961
-original 1390..1458 -> expanded 34611..34679
-original 1458..1529 -> expanded 36569..36640
-original 1529..1696 -> expanded 38150..38317
-original 1696..1791 -> expanded 40376..40471
-original 1791..1792 -> expanded 40689..40690
-original 1792..1928 -> expanded 40780..40916
-original 1928..2064 -> expanded 42561..42697
-original 2064..2217 -> expanded 43318..43471
-original 2217..2303 -> expanded 54160..54246
-original 2303..2304 -> expanded 54441..54442
-original 2304..2463 -> expanded 54547..54706
-original 2463..2636 -> expanded 65877..66050
-original 2636..2637 -> expanded 75489..75490
-original 2637..2722 -> expanded 79385..79470
-original 2722..2803 -> expanded 84873..84954
-original 2803..2883 -> expanded 89192..89272
-original 2883..2884 -> expanded 93260..93261
-generated 0..948 <- imports
-generated 1297..2024 <- PartialEq
-generated 2024..2726 <- Hash
-generated 2726..3193 <- Clone
-generated 3193..3435 <- __convenience_const
-generated 3521..3647 <- PartialEq
-generated 3647..3866 <- Hash
-generated 3866..3980 <- Clone
-generated 3981..4074 <- PartialEq
-generated 4074..4165 <- Hash
-generated 4165..4249 <- Clone
-generated 4360..4679 <- PartialEq
-generated 4679..4971 <- Hash
-generated 4971..5161 <- Clone
-generated 5161..5375 <- __convenience_const
-generated 5526..5658 <- PartialEq
-generated 5658..5754 <- Hash
-generated 5754..5847 <- Clone
-generated 5847..6068 <- __convenience_const
-generated 6156..6314 <- PartialEq
-generated 6314..6521 <- Hash
-generated 6521..6630 <- Clone
-generated 6630..6858 <- __convenience_const
-generated 6939..7077 <- PartialEq
-generated 7077..7177 <- Hash
-generated 7177..7276 <- Clone
-generated 7276..7511 <- __convenience_const
-generated 7646..7973 <- Debug
-generated 7973..8086 <- __convenience_const
-generated 8158..8275 <- Debug
-generated 8275..8379 <- __convenience_const
-generated 8480..10056 <- Encode
-generated 10056..10375 <- Encode
-generated 10375..15974 <- Decode
-generated 15975..17295 <- Encode
-generated 17295..19047 <- Decode
-generated 19122..20422 <- Encode
-generated 20422..24925 <- Decode
-generated 24925..25473 <- __convenience_const
-generated 25538..26488 <- Encode
-generated 26488..29339 <- Decode
-generated 29339..29887 <- __convenience_const
-generated 29961..30969 <- Encode
-generated 30969..34115 <- Decode
-generated 34115..34611 <- __convenience_const
-generated 34679..36335 <- Encode
-generated 36335..36569 <- __convenience_const
-generated 36640..37916 <- Encode
-generated 37916..38150 <- __convenience_const
-generated 38317..40177 <- Encode
-generated 40177..40376 <- __convenience_const
-generated 40471..40689 <- Default
-generated 40690..40780 <- Default
-generated 40916..41164 <- PartialEq
-generated 41164..41825 <- PartialOrd
-generated 41825..42315 <- Ord
-generated 42315..42561 <- __convenience_const
-generated 42697..42832 <- PartialEq
-generated 42832..42952 <- PartialOrd
-generated 42952..43058 <- Ord
-generated 43058..43318 <- __convenience_const
-generated 43471..43679 <- PartialEq
-generated 43679..44047 <- Hash
-generated 44047..44222 <- Clone
-generated 44222..44510 <- Debug
-generated 44510..46936 <- Encode
-generated 46936..52907 <- Decode
-generated 52907..54160 <- __convenience_const
-generated 54246..54441 <- Default
-generated 54442..54547 <- Default
-generated 54706..54891 <- PartialEq
-generated 54891..55238 <- Hash
-generated 55238..55390 <- Clone
-generated 55390..55655 <- Debug
-generated 55655..56083 <- PartialOrd
-generated 56083..56396 <- Ord
-generated 56396..58740 <- Encode
-generated 58740..64522 <- Decode
-generated 64522..65877 <- __convenience_const
-generated 66050..66239 <- PartialEq
-generated 66239..66599 <- Hash
-generated 66599..66801 <- Clone
-generated 66801..67078 <- Debug
-generated 67078..67538 <- PartialOrd
-generated 67538..67873 <- Ord
-generated 67873..69622 <- Encode
-generated 69622..69958 <- Encode
-generated 69958..75489 <- Decode
-generated 75490..75606 <- PartialEq
-generated 75606..75718 <- Hash
-generated 75718..75825 <- Clone
-generated 75825..75937 <- Debug
-generated 75937..76075 <- PartialOrd
-generated 76075..76192 <- Ord
-generated 76192..77564 <- Encode
-generated 77564..79385 <- Decode
-generated 79470..80815 <- Encode
-generated 80815..84364 <- Decode
-generated 84364..84873 <- __convenience_const
-generated 84954..86232 <- Encode
-generated 86232..88722 <- Decode
-generated 88722..89192 <- __convenience_const
-generated 89272..90295 <- Encode
-generated 90295..92777 <- Decode
-generated 92777..93260 <- __convenience_const
+original 0..349 -> expanded 1245..1594
+original 349..435 -> expanded 3862..3948
+original 435..436 -> expanded 4509..4510
+original 436..547 -> expanded 4778..4889
+original 547..698 -> expanded 6030..6181
+original 698..786 -> expanded 6723..6811
+original 786..867 -> expanded 7513..7594
+original 867..1002 -> expanded 8166..8301
+original 1002..1074 -> expanded 8803..8875
+original 1074..1175 -> expanded 9096..9197
+original 1175..1176 -> expanded 16695..16696
+original 1176..1251 -> expanded 19768..19843
+original 1251..1316 -> expanded 26382..26447
+original 1316..1390 -> expanded 30898..30972
+original 1390..1458 -> expanded 35642..35710
+original 1458..1529 -> expanded 37715..37786
+original 1529..1696 -> expanded 39411..39578
+original 1696..1791 -> expanded 41752..41847
+original 1791..1792 -> expanded 42065..42066
+original 1792..1928 -> expanded 42156..42292
+original 1928..2064 -> expanded 44081..44217
+original 2064..2217 -> expanded 44838..44991
+original 2217..2303 -> expanded 56990..57076
+original 2303..2304 -> expanded 57271..57272
+original 2304..2463 -> expanded 57377..57536
+original 2463..2636 -> expanded 70113..70286
+original 2636..2637 -> expanded 81193..81194
+original 2637..2722 -> expanded 85329..85414
+original 2722..2803 -> expanded 91648..91729
+original 2803..2883 -> expanded 96369..96449
+original 2883..2884 -> expanded 101253..101254
+generated 0..1245 <- imports
+generated 1594..2351 <- PartialEq
+generated 2351..3113 <- Hash
+generated 3113..3620 <- Clone
+generated 3620..3862 <- __convenience_const
+generated 3948..4104 <- PartialEq
+generated 4104..4391 <- Hash
+generated 4391..4509 <- Clone
+generated 4510..4603 <- PartialEq
+generated 4603..4694 <- Hash
+generated 4694..4778 <- Clone
+generated 4889..5238 <- PartialEq
+generated 5238..5590 <- Hash
+generated 5590..5816 <- Clone
+generated 5816..6030 <- __convenience_const
+generated 6181..6313 <- PartialEq
+generated 6313..6409 <- Hash
+generated 6409..6502 <- Clone
+generated 6502..6723 <- __convenience_const
+generated 6811..6969 <- PartialEq
+generated 6969..7176 <- Hash
+generated 7176..7285 <- Clone
+generated 7285..7513 <- __convenience_const
+generated 7594..7732 <- PartialEq
+generated 7732..7832 <- Hash
+generated 7832..7931 <- Clone
+generated 7931..8166 <- __convenience_const
+generated 8301..8690 <- Debug
+generated 8690..8803 <- __convenience_const
+generated 8875..8992 <- Debug
+generated 8992..9096 <- __convenience_const
+generated 9197..10759 <- Encode
+generated 10759..11078 <- Encode
+generated 11078..16695 <- Decode
+generated 16696..18016 <- Encode
+generated 18016..19768 <- Decode
+generated 19843..21143 <- Encode
+generated 21143..25834 <- Decode
+generated 25834..26382 <- __convenience_const
+generated 26447..27397 <- Encode
+generated 27397..30350 <- Decode
+generated 30350..30898 <- __convenience_const
+generated 30972..31980 <- Encode
+generated 31980..35146 <- Decode
+generated 35146..35642 <- __convenience_const
+generated 35710..37481 <- Encode
+generated 37481..37715 <- __convenience_const
+generated 37786..39177 <- Encode
+generated 39177..39411 <- __convenience_const
+generated 39578..41553 <- Encode
+generated 41553..41752 <- __convenience_const
+generated 41847..42065 <- Default
+generated 42066..42156 <- Default
+generated 42292..42570 <- PartialEq
+generated 42570..43288 <- PartialOrd
+generated 43288..43835 <- Ord
+generated 43835..44081 <- __convenience_const
+generated 44217..44352 <- PartialEq
+generated 44352..44472 <- PartialOrd
+generated 44472..44578 <- Ord
+generated 44578..44838 <- __convenience_const
+generated 44991..45229 <- PartialEq
+generated 45229..45657 <- Hash
+generated 45657..45874 <- Clone
+generated 45874..46224 <- Debug
+generated 46224..48842 <- Encode
+generated 48842..55737 <- Decode
+generated 55737..56990 <- __convenience_const
+generated 57076..57271 <- Default
+generated 57272..57377 <- Default
+generated 57536..57751 <- PartialEq
+generated 57751..58158 <- Hash
+generated 58158..58350 <- Clone
+generated 58350..58677 <- Debug
+generated 58677..59162 <- PartialOrd
+generated 59162..59532 <- Ord
+generated 59532..62066 <- Encode
+generated 62066..68758 <- Decode
+generated 68758..70113 <- __convenience_const
+generated 70286..70505 <- PartialEq
+generated 70505..70933 <- Hash
+generated 70933..71139 <- Clone
+generated 71139..71486 <- Debug
+generated 71486..72011 <- PartialOrd
+generated 72011..72411 <- Ord
+generated 72411..74340 <- Encode
+generated 74340..74716 <- Encode
+generated 74716..81193 <- Decode
+generated 81194..81310 <- PartialEq
+generated 81310..81422 <- Hash
+generated 81422..81529 <- Clone
+generated 81529..81641 <- Debug
+generated 81641..81779 <- PartialOrd
+generated 81779..81896 <- Ord
+generated 81896..83388 <- Encode
+generated 83388..85329 <- Decode
+generated 85414..86795 <- Encode
+generated 86795..91139 <- Decode
+generated 91139..91648 <- __convenience_const
+generated 91729..93191 <- Encode
+generated 93191..95899 <- Decode
+generated 95899..96369 <- __convenience_const
+generated 96449..97537 <- Encode
+generated 97537..100770 <- Decode
+generated 100770..101253 <- __convenience_const
 
 ## Metadata
 
-class Badge: {"body_span":{"end":437,"start":410},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":390,"start":352}}],"fields":[{"decorators":[],"initializer":"''","name":"label","optional":false,"readonly":false,"span":{"end":435,"start":416},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Badge","span":{"end":437,"start":398},"superclass":null,"type_params":[]}
-class Ledger: {"body_span":{"end":1177,"start":1128},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1107,"start":1077}}],"fields":[{"decorators":[],"initializer":"new Map()","name":"entries","optional":false,"readonly":false,"span":{"end":1175,"start":1134},"ts_type":"Map<string, number>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Ledger","span":{"end":1177,"start":1115},"superclass":null,"type_params":[]}
-class Shelf: {"body_span":{"end":1793,"start":1745},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":1722,"start":1699}}],"fields":[{"decorators":[],"initializer":"[]","name":"items","optional":false,"readonly":false,"span":{"end":1767,"start":1751},"ts_type":"T[]","visibility":"Public"},{"decorators":[],"initializer":"''","name":"label","optional":false,"readonly":false,"span":{"end":1791,"start":1772},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Shelf","span":{"end":1793,"start":1730},"superclass":null,"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
-class Crate: {"body_span":{"end":2305,"start":2281},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":2243,"start":2220}}],"fields":[{"decorators":[],"initializer":"[]","name":"items","optional":false,"readonly":false,"span":{"end":2303,"start":2287},"ts_type":"T[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Crate","span":{"end":2305,"start":2251},"superclass":null,"type_params":[{"constraint":"object","default":null,"is_const":false,"name":"T"}]}
-class Slot: {"body_span":{"end":2638,"start":2585},"decorators":[{"args_src":"PartialEq, Eq, Hash, Clone, Debug, PartialOrd, Ord, Encode, Decode","name":"Derive","span":{"end":2548,"start":2466}}],"fields":[{"decorators":[],"initializer":"null","name":"held","optional":false,"readonly":false,"span":{"end":2613,"start":2591},"ts_type":"T | null","visibility":"Public"},{"decorators":[],"initializer":"0","name":"index","optional":false,"readonly":false,"span":{"end":2636,"start":2618},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Slot","span":{"end":2638,"start":2556},"superclass":null,"type_params":[{"constraint":"object","default":null,"is_const":false,"name":"T"}]}
-interface Timeline: {"body_span":{"end":350,"start":251},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":224,"start":186}}],"fields":[{"decorators":[],"name":"events","optional":false,"readonly":false,"span":{"end":272,"start":257},"ts_type":"Date[]"},{"decorators":[],"name":"labels","optional":false,"readonly":false,"span":{"end":303,"start":277},"ts_type":"Map<string, Date>"},{"decorators":[],"name":"started","optional":true,"readonly":false,"span":{"end":323,"start":308},"ts_type":"Date"},{"decorators":[],"name":"note","optional":false,"readonly":false,"span":{"end":348,"start":328},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Timeline","span":{"end":350,"start":232},"type_params":[]}
-interface Wall: {"body_span":{"end":548,"start":500},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":477,"start":439}}],"fields":[{"decorators":[],"name":"badges","optional":false,"readonly":false,"span":{"end":525,"start":506},"ts_type":"Set<Badge>"},{"decorators":[],"name":"pinned","optional":false,"readonly":false,"span":{"end":546,"start":530},"ts_type":"unknown"}],"heritage":[],"methods":[],"name":"Wall","span":{"end":548,"start":485},"type_params":[]}
-interface Inventory: {"body_span":{"end":1003,"start":919},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":891,"start":870}}],"fields":[{"decorators":[],"name":"counts","optional":false,"readonly":false,"span":{"end":953,"start":925},"ts_type":"Map<string, number>"},{"decorators":[],"name":"owner","optional":false,"readonly":false,"span":{"end":982,"start":958},"ts_type":"{ name: string }"},{"decorators":[],"name":"total","optional":false,"readonly":false,"span":{"end":1001,"start":987},"ts_type":"bigint"}],"heritage":[],"methods":[],"name":"Inventory","span":{"end":1003,"start":899},"type_params":[]}
-interface Rank: {"body_span":{"end":1929,"start":1864},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":1841,"start":1795}}],"fields":[{"decorators":[],"name":"label","optional":false,"readonly":false,"span":{"end":1884,"start":1870},"ts_type":"string"},{"decorators":[],"name":"at","optional":true,"readonly":false,"span":{"end":1899,"start":1889},"ts_type":"Date"},{"decorators":[],"name":"meta","optional":false,"readonly":false,"span":{"end":1927,"start":1904},"ts_type":"{ tier: number }"}],"heritage":[],"methods":[],"name":"Rank","span":{"end":1929,"start":1849},"type_params":[]}
-interface Labeled: {"body_span":{"end":2218,"start":2181},"decorators":[{"args_src":"PartialEq, Hash, Clone, Debug, Encode, Decode","name":"Derive","span":{"end":2128,"start":2067}}],"fields":[{"decorators":[],"name":"label","optional":false,"readonly":false,"span":{"end":2196,"start":2187},"ts_type":"T"},{"decorators":[],"name":"weight","optional":false,"readonly":false,"span":{"end":2216,"start":2201},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Labeled","span":{"end":2218,"start":2136},"type_params":[{"constraint":"string","default":"string","is_const":false,"name":"T"}]}
-interface Keyed: {"body_span":{"end":2464,"start":2431},"decorators":[{"args_src":"PartialEq, Eq, Hash, Clone, Debug, PartialOrd, Ord, Encode, Decode","name":"Derive","span":{"end":2389,"start":2307}}],"fields":[{"decorators":[],"name":"key","optional":false,"readonly":false,"span":{"end":2444,"start":2437},"ts_type":"K"},{"decorators":[],"name":"rank","optional":false,"readonly":false,"span":{"end":2462,"start":2449},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Keyed","span":{"end":2464,"start":2397},"type_params":[{"constraint":"string","default":null,"is_const":false,"name":"K"}]}
-type Shape: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":632,"start":617},"ts_type":"'circle'"},{"decorators":[],"name":"radius","optional":false,"readonly":false,"span":{"end":647,"start":633},"ts_type":"number"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":673,"start":658},"ts_type":"'square'"},{"decorators":[],"name":"side","optional":false,"readonly":false,"span":{"end":687,"start":674},"ts_type":"number"},{"decorators":[],"name":"at","optional":false,"readonly":false,"span":{"end":696,"start":688},"ts_type":"Date"}]}}}]},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":588,"start":550}}],"name":"Shape","span":{"end":699,"start":596},"type_params":[]}
+class Badge: {"body_span":{"end":437,"start":410},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":390,"start":352}}],"fields":[{"decorators":[],"initializer":"''","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":435,"start":416},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Badge","span":{"end":437,"start":398},"superclass":null,"type_params":[]}
+class Ledger: {"body_span":{"end":1177,"start":1128},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1107,"start":1077}}],"fields":[{"decorators":[],"initializer":"new Map()","key":"Named","name":"entries","optional":false,"readonly":false,"span":{"end":1175,"start":1134},"ts_type":"Map<string, number>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Ledger","span":{"end":1177,"start":1115},"superclass":null,"type_params":[]}
+class Shelf: {"body_span":{"end":1793,"start":1745},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":1722,"start":1699}}],"fields":[{"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":1767,"start":1751},"ts_type":"T[]","visibility":"Public"},{"decorators":[],"initializer":"''","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":1791,"start":1772},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Shelf","span":{"end":1793,"start":1730},"superclass":null,"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+class Crate: {"body_span":{"end":2305,"start":2281},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":2243,"start":2220}}],"fields":[{"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":2303,"start":2287},"ts_type":"T[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Crate","span":{"end":2305,"start":2251},"superclass":null,"type_params":[{"constraint":"object","default":null,"is_const":false,"name":"T"}]}
+class Slot: {"body_span":{"end":2638,"start":2585},"decorators":[{"args_src":"PartialEq, Eq, Hash, Clone, Debug, PartialOrd, Ord, Encode, Decode","name":"Derive","span":{"end":2548,"start":2466}}],"fields":[{"decorators":[],"initializer":"null","key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":2613,"start":2591},"ts_type":"T | null","visibility":"Public"},{"decorators":[],"initializer":"0","key":"Named","name":"index","optional":false,"readonly":false,"span":{"end":2636,"start":2618},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Slot","span":{"end":2638,"start":2556},"superclass":null,"type_params":[{"constraint":"object","default":null,"is_const":false,"name":"T"}]}
+interface Timeline: {"body_span":{"end":350,"start":251},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":224,"start":186}}],"fields":[{"decorators":[],"key":"Named","name":"events","optional":false,"readonly":false,"span":{"end":272,"start":257},"ts_type":"Date[]"},{"decorators":[],"key":"Named","name":"labels","optional":false,"readonly":false,"span":{"end":303,"start":277},"ts_type":"Map<string, Date>"},{"decorators":[],"key":"Named","name":"started","optional":true,"readonly":false,"span":{"end":323,"start":308},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":348,"start":328},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Timeline","span":{"end":350,"start":232},"type_params":[]}
+interface Wall: {"body_span":{"end":548,"start":500},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":477,"start":439}}],"fields":[{"decorators":[],"key":"Named","name":"badges","optional":false,"readonly":false,"span":{"end":525,"start":506},"ts_type":"Set<Badge>"},{"decorators":[],"key":"Named","name":"pinned","optional":false,"readonly":false,"span":{"end":546,"start":530},"ts_type":"unknown"}],"heritage":[],"methods":[],"name":"Wall","span":{"end":548,"start":485},"type_params":[]}
+interface Inventory: {"body_span":{"end":1003,"start":919},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":891,"start":870}}],"fields":[{"decorators":[],"key":"Named","name":"counts","optional":false,"readonly":false,"span":{"end":953,"start":925},"ts_type":"Map<string, number>"},{"decorators":[],"key":"Named","name":"owner","optional":false,"readonly":false,"span":{"end":982,"start":958},"ts_type":"{ name: string }"},{"decorators":[],"key":"Named","name":"total","optional":false,"readonly":false,"span":{"end":1001,"start":987},"ts_type":"bigint"}],"heritage":[],"methods":[],"name":"Inventory","span":{"end":1003,"start":899},"type_params":[]}
+interface Rank: {"body_span":{"end":1929,"start":1864},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":1841,"start":1795}}],"fields":[{"decorators":[],"key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":1884,"start":1870},"ts_type":"string"},{"decorators":[],"key":"Named","name":"at","optional":true,"readonly":false,"span":{"end":1899,"start":1889},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"meta","optional":false,"readonly":false,"span":{"end":1927,"start":1904},"ts_type":"{ tier: number }"}],"heritage":[],"methods":[],"name":"Rank","span":{"end":1929,"start":1849},"type_params":[]}
+interface Labeled: {"body_span":{"end":2218,"start":2181},"decorators":[{"args_src":"PartialEq, Hash, Clone, Debug, Encode, Decode","name":"Derive","span":{"end":2128,"start":2067}}],"fields":[{"decorators":[],"key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":2196,"start":2187},"ts_type":"T"},{"decorators":[],"key":"Named","name":"weight","optional":false,"readonly":false,"span":{"end":2216,"start":2201},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Labeled","span":{"end":2218,"start":2136},"type_params":[{"constraint":"string","default":"string","is_const":false,"name":"T"}]}
+interface Keyed: {"body_span":{"end":2464,"start":2431},"decorators":[{"args_src":"PartialEq, Eq, Hash, Clone, Debug, PartialOrd, Ord, Encode, Decode","name":"Derive","span":{"end":2389,"start":2307}}],"fields":[{"decorators":[],"key":"Named","name":"key","optional":false,"readonly":false,"span":{"end":2444,"start":2437},"ts_type":"K"},{"decorators":[],"key":"Named","name":"rank","optional":false,"readonly":false,"span":{"end":2462,"start":2449},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Keyed","span":{"end":2464,"start":2397},"type_params":[{"constraint":"string","default":null,"is_const":false,"name":"K"}]}
+type Shape: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":632,"start":617},"ts_type":"'circle'"},{"decorators":[],"key":"Named","name":"radius","optional":false,"readonly":false,"span":{"end":647,"start":633},"ts_type":"number"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":673,"start":658},"ts_type":"'square'"},{"decorators":[],"key":"Named","name":"side","optional":false,"readonly":false,"span":{"end":687,"start":674},"ts_type":"number"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":696,"start":688},"ts_type":"Date"}]}}}]},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":588,"start":550}}],"name":"Shape","span":{"end":699,"start":596},"type_params":[]}
 type Moment: {"body":{"Tuple":["label: string","at: Date"]},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":739,"start":701}}],"name":"Moment","span":{"end":787,"start":747},"type_params":[]}
 type Reading: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"TypeRef":"number[]"}}]},"decorators":[{"args_src":"PartialEq, Hash, Clone","name":"Derive","span":{"end":827,"start":789}}],"name":"Reading","span":{"end":868,"start":835},"type_params":[]}
-type Amount: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"bigint"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":1072,"start":1059},"ts_type":"bigint"}]}}}]},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":1026,"start":1005}}],"name":"Amount","span":{"end":1075,"start":1034},"type_params":[]}
+type Amount: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"bigint"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":1072,"start":1059},"ts_type":"bigint"}]}}}]},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":1026,"start":1005}}],"name":"Amount","span":{"end":1075,"start":1034},"type_params":[]}
 type LedgerPair: {"body":{"Tuple":["Ledger","Ledger"]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1209,"start":1179}}],"name":"LedgerPair","span":{"end":1252,"start":1217},"type_params":[]}
 type MainLedger: {"body":{"Alias":"Ledger"},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1284,"start":1254}}],"name":"MainLedger","span":{"end":1317,"start":1292},"type_params":[]}
 type Totals: {"body":{"Alias":"Map<string, number>"},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1349,"start":1319}}],"name":"Totals","span":{"end":1391,"start":1357},"type_params":[]}
 type LedgerOrNote: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"Ledger"}},{"decorators":[],"kind":{"TypeRef":"string"}}]},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":1415,"start":1393}}],"name":"LedgerOrNote","span":{"end":1459,"start":1423},"type_params":[]}
 type OptionalNote: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"TypeRef":"undefined"}}]},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":1483,"start":1461}}],"name":"OptionalNote","span":{"end":1530,"start":1491},"type_params":[]}
-type Tally: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":1629,"start":1614},"ts_type":"'counts'"},{"decorators":[],"name":"counts","optional":false,"readonly":false,"span":{"end":1657,"start":1630},"ts_type":"Map<string, number>"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":1681,"start":1668},"ts_type":"'note'"},{"decorators":[],"name":"text","optional":false,"readonly":false,"span":{"end":1694,"start":1682},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":1585,"start":1532}},{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":1585,"start":1532}}],"name":"Tally","span":{"end":1697,"start":1593},"type_params":[]}
-type Choice: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":2011,"start":2001},"ts_type":"'a'"},{"decorators":[],"name":"count","optional":false,"readonly":false,"span":{"end":2025,"start":2012},"ts_type":"number"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":2042,"start":2032},"ts_type":"'b'"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":2055,"start":2043},"ts_type":"string"}]}}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":1977,"start":1931}}],"name":"Choice","span":{"end":2065,"start":1985},"type_params":[]}
+type Tally: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1629,"start":1614},"ts_type":"'counts'"},{"decorators":[],"key":"Named","name":"counts","optional":false,"readonly":false,"span":{"end":1657,"start":1630},"ts_type":"Map<string, number>"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1681,"start":1668},"ts_type":"'note'"},{"decorators":[],"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":1694,"start":1682},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":1585,"start":1532}},{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":1585,"start":1532}}],"name":"Tally","span":{"end":1697,"start":1593},"type_params":[]}
+type Choice: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2011,"start":2001},"ts_type":"'a'"},{"decorators":[],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":2025,"start":2012},"ts_type":"number"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2042,"start":2032},"ts_type":"'b'"},{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":2055,"start":2043},"ts_type":"string"}]}}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":1977,"start":1931}}],"name":"Choice","span":{"end":2065,"start":1985},"type_params":[]}
 type Counted: {"body":{"Tuple":["T","number"]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2670,"start":2640}}],"name":"Counted","span":{"end":2723,"start":2678},"type_params":[{"constraint":"object","default":null,"is_const":false,"name":"T"}]}
 type Code: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"T"}},{"decorators":[],"kind":{"TypeRef":"number"}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2755,"start":2725}}],"name":"Code","span":{"end":2804,"start":2763},"type_params":[{"constraint":"string","default":null,"is_const":false,"name":"T"}]}
 type Boxed: {"body":{"Alias":"Array<T>"},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":2836,"start":2806}}],"name":"Boxed","span":{"end":2884,"start":2844},"type_params":[{"constraint":"object","default":null,"is_const":false,"name":"T"}]}

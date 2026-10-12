@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -49,17 +49,21 @@ export function overviewDisplayEncodeWithContext(value: OverviewDisplay, ctx: __
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
 
 /** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
 export function overviewDisplayDecode(input: unknown): { success: true; value: OverviewDisplay } | { success: false; errors: Array<{ field: string; message: string }> } {
-    switch (input) {
+
+    const data = __mf_textOrValue(input, overviewDisplayHasShape);
+    switch (data) {
         case 'Card':
         case 'Table':
-            return { success: true, value: input as OverviewDisplay };
+            return { success: true, value: data as OverviewDisplay };
         default:
             return { success: false, errors: [{ field: "_root", message: "Invalid value for OverviewDisplay: expected one of " + ['Card', 'Table'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
     }
@@ -338,15 +342,15 @@ export declare const OverviewDisplay: {
 
 ## Mapping
 
-original 0..58 -> expanded 556..614
-original 107..171 -> expanded 614..678
-original 171..172 -> expanded 9208..9209
-generated 0..556 <- imports
-generated 678..765 <- Default
-generated 765..2056 <- Encode
-generated 2056..3778 <- Decode
-generated 3778..8285 <- Gigaform
-generated 8285..9208 <- __convenience_const
+original 0..58 -> expanded 618..676
+original 107..171 -> expanded 676..740
+original 171..172 -> expanded 9451..9452
+generated 0..618 <- imports
+generated 740..827 <- Default
+generated 827..2233 <- Encode
+generated 2233..4021 <- Decode
+generated 4021..8528 <- Gigaform
+generated 8528..9451 <- __convenience_const
 
 ## Metadata
 

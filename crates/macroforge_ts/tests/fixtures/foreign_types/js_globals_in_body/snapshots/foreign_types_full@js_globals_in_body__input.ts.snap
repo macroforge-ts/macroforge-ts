@@ -19,7 +19,7 @@ true
 ## Output
 
 import { __foreign__dateTimeUtcDefault, __foreign__dateTimeUtcEncode, __foreign__dateTimeUtcDecode } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { DateTime } from 'effect';
 
@@ -45,12 +45,9 @@ export function eventEncode(value: Event, keepMetadata?: boolean): string {
 export function eventEncodeWithContext(value: Event, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Event",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Event" });
     eventEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -158,7 +155,7 @@ export function eventDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("at")) || (__fields.keeps("at") && obj["at"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
         try {
             instance.at = __foreign__dateTimeUtcDecode(obj["at"]);
         } catch (__error) {
@@ -282,18 +279,18 @@ export declare const Event: {
 
 ## Mapping
 
-original 0..36 -> expanded 652..688
-original 75..124 -> expanded 688..737
-original 124..125 -> expanded 9118..9119
-generated 0..652 <- imports
-generated 737..850 <- Default
-generated 850..2967 <- Encode
-generated 2967..8097 <- Decode
-generated 8097..9118 <- __convenience_const
+original 0..36 -> expanded 724..760
+original 75..124 -> expanded 760..809
+original 124..125 -> expanded 9189..9190
+generated 0..724 <- imports
+generated 809..922 <- Default
+generated 922..3025 <- Encode
+generated 3025..8168 <- Decode
+generated 8168..9189 <- __convenience_const
 
 ## Metadata
 
-interface Event: {"body_span":{"end":125,"start":100},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":76,"start":37}}],"fields":[{"decorators":[],"name":"at","optional":false,"readonly":false,"span":{"end":123,"start":106},"ts_type":"DateTime.Utc"}],"heritage":[],"methods":[],"name":"Event","span":{"end":125,"start":84},"type_params":[]}
+interface Event: {"body_span":{"end":125,"start":100},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":76,"start":37}}],"fields":[{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":123,"start":106},"ts_type":"DateTime.Utc"}],"heritage":[],"methods":[],"name":"Event","span":{"end":125,"start":84},"type_params":[]}
 
 ## Registry reads
 

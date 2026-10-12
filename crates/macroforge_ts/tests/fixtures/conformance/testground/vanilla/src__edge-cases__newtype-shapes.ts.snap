@@ -12,9 +12,9 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
-import { structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
+import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
 declare const __mf_newtype_1: unique symbol;
 declare const __mf_newtype_2: unique symbol;
 declare const __mf_newtype_3: unique symbol;
@@ -75,7 +75,7 @@ export function newTextEncodeWithContext(value: NewText): unknown {
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function newTextDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewText } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, (__spelled) => typeof __spelled === "string");
 
         const ctx = __mf_DecodeContext.create();
         const result = newTextDecodeWithContext(data, ctx);
@@ -339,7 +339,7 @@ export function newTotalEncodeWithContext(value: NewTotal): unknown {
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function newTotalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewTotal } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, (__spelled) => typeof __spelled === "string");
 
         const ctx = __mf_DecodeContext.create();
         const result = newTotalDecodeWithContext(data, ctx);
@@ -382,7 +382,13 @@ export function newTotalDecodeWithContext(value: unknown, _ctx: __mf_DecodeConte
     let __decoded: unknown = value;
     if (typeof value !== "bigint") {
         try {
-            __decoded = ((v) => BigInt(v as string))(value);
+            __decoded = ((v) => {
+	const raw: unknown = v;
+	if (typeof raw === "bigint") return raw;
+	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+	return BigInt(raw);
+})(value);
         } catch (__error) {
             throw new __mf_DecodeError([{ field: "_root", message: "NewTotal.decodeWithContext: expected bigint, " + String(__error) }]);
         }
@@ -612,7 +618,7 @@ export function newSlugEncodeWithContext(value: NewSlug): unknown {
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function newSlugDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewSlug } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, (__spelled) => typeof __spelled === "string");
 
         const ctx = __mf_DecodeContext.create();
         const result = newSlugDecodeWithContext(data, ctx);
@@ -880,7 +886,7 @@ export function newPlainEncodeWithContext(value: NewPlain): unknown {
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function newPlainDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewPlain } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, (__spelled) => typeof __spelled === "string");
 
         const ctx = __mf_DecodeContext.create();
         const result = newPlainDecodeWithContext(data, ctx);
@@ -984,7 +990,8 @@ export interface NewHolder {
 }
 
 export function newHolderToString(value: NewHolder): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("text: " + newTextToString(value.text));
     parts.push("count: " + newCountToString(value.count));
     parts.push("flag: " + newFlagToString(value.flag));
@@ -999,11 +1006,12 @@ export function newHolderToString(value: NewHolder): string {
     parts.push("bySlug: " + __mf_structuralDebug(value.bySlug));
     parts.push("record: " + __mf_structuralDebug(value.record));
     parts.push("pair: " + __mf_structuralDebug(value.pair));
-    return "NewHolder { " + parts.join(", ") + " }";
+        return "NewHolder { " + parts.join(", ") + " }";
+    });
 }
 
 export function newHolderClone(value: NewHolder): NewHolder {
-    return ({
+    return __mf_clonedWith(value, (): NewHolder => ({
 	text: newTextClone(value.text),
 	count: newCountClone(value.count),
 	flag: newFlagClone(value.flag),
@@ -1022,22 +1030,23 @@ export function newHolderClone(value: NewHolder): NewHolder {
 	})(),
 	record: __mf_structuralClone(value.record),
 	pair: __mf_structuralClone(value.pair)
-});
+}));
 }
 
 export function newHolderEquals(a: NewHolder, b: NewHolder): boolean {
     if (a === b) return true;
-    return newTextEquals(a.text, b.text) && newCountEquals(a.count, b.count) && newFlagEquals(a.flag, b.flag) && newSlugEquals(a.slug, b.slug) && newNestedEquals(a.nested, b.nested) && newPlainEquals(a.plain, b.plain) && (a.maybe == null || b.maybe == null ? a.maybe === b.maybe : newSlugEquals(a.maybe, b.maybe)) && (a.later == null || b.later == null ? a.later === b.later : newCountEquals(a.later, b.later)) && (a.optional == null || b.optional == null ? a.optional === b.optional : newTextEquals(a.optional, b.optional)) && a.list.length === b.list.length && a.list.every((__item0, __index0) => {
+    return __mf_equalWithin(a, b, () => newTextEquals(a.text, b.text) && newCountEquals(a.count, b.count) && newFlagEquals(a.flag, b.flag) && newSlugEquals(a.slug, b.slug) && newNestedEquals(a.nested, b.nested) && newPlainEquals(a.plain, b.plain) && (a.maybe == null || b.maybe == null ? a.maybe === b.maybe : newSlugEquals(a.maybe, b.maybe)) && (a.later == null || b.later == null ? a.later === b.later : newCountEquals(a.later, b.later)) && (a.optional == null || b.optional == null ? a.optional === b.optional : newTextEquals(a.optional, b.optional)) && a.list.length === b.list.length && a.list.every((__item0, __index0) => {
 	const __other0 = b.list[__index0];
 	return __other0 === undefined ? __item0 === undefined : newSlugEquals(__item0, __other0);
 }) && a.set.size === b.set.size && Array.from(a.set).every((__item0) => b.set.has(__item0) || Array.from(b.set).some((__other0) => newTextEquals(__item0, __other0))) && a.bySlug.size === b.bySlug.size && Array.from(a.bySlug).every(([__key0, __item0]) => {
 	const __other0 = b.bySlug.get(__key0);
 	return b.bySlug.has(__key0) && (__other0 === undefined ? __item0 === undefined : newCountEquals(__item0, __other0));
-}) && __mf_structuralEquals(a.record, b.record) && __mf_structuralEquals(a.pair, b.pair);
+}) && __mf_structuralEquals(a.record, b.record) && __mf_structuralEquals(a.pair, b.pair));
 }
 
 export function newHolderHashCode(value: NewHolder): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (newTextHashCode(value.text))) | 0;
     hash = (hash * 31 + (newCountHashCode(value.count))) | 0;
     hash = (hash * 31 + (newFlagHashCode(value.flag))) | 0;
@@ -1052,7 +1061,8 @@ export function newHolderHashCode(value: NewHolder): number {
     hash = (hash * 31 + (Array.from(value.bySlug).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + (__mf_structuralHash(__key0) * 31 + newCountHashCode(__item0) | 0) | 0, 0))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.record))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.pair))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function newHolderDefaultValue(): NewHolder {
@@ -1084,12 +1094,9 @@ export function newHolderEncode(value: NewHolder, keepMetadata?: boolean): strin
 export function newHolderEncodeWithContext(value: NewHolder, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "NewHolder",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "NewHolder" });
     newHolderEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1295,7 +1302,7 @@ export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("text")) || (__fields.keeps("text") && obj["text"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("text")) ? "text" in obj : (__fields.keeps("text") && obj["text"] !== undefined)) {
         const __raw_text = obj["text"] as NewText;
 
         ctx.pushScope("text");
@@ -1311,13 +1318,14 @@ export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "text", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("count")) || (__fields.keeps("count") && obj["count"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
         const __raw_count = obj["count"] as NewCount;
 
         ctx.pushScope("count");
@@ -1333,13 +1341,14 @@ export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "count", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("flag")) || (__fields.keeps("flag") && obj["flag"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("flag")) ? "flag" in obj : (__fields.keeps("flag") && obj["flag"] !== undefined)) {
         const __raw_flag = obj["flag"] as NewFlag;
 
         ctx.pushScope("flag");
@@ -1355,13 +1364,14 @@ export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "flag", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("slug")) || (__fields.keeps("slug") && obj["slug"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("slug")) ? "slug" in obj : (__fields.keeps("slug") && obj["slug"] !== undefined)) {
         const __raw_slug = obj["slug"] as NewSlug;
 
         ctx.pushScope("slug");
@@ -1377,13 +1387,14 @@ export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "slug", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("nested")) || (__fields.keeps("nested") && obj["nested"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("nested")) ? "nested" in obj : (__fields.keeps("nested") && obj["nested"] !== undefined)) {
         const __raw_nested = obj["nested"] as NewNested;
 
         ctx.pushScope("nested");
@@ -1399,13 +1410,14 @@ export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "nested", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("plain")) || (__fields.keeps("plain") && obj["plain"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("plain")) ? "plain" in obj : (__fields.keeps("plain") && obj["plain"] !== undefined)) {
         const __raw_plain = obj["plain"] as NewPlain;
 
         ctx.pushScope("plain");
@@ -1421,13 +1433,14 @@ export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "plain", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("maybe")) || (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
         const __raw_maybe = obj["maybe"] as NewSlug | null;
 
         if (__raw_maybe === null) {
@@ -1446,7 +1459,8 @@ export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
@@ -1472,7 +1486,8 @@ export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "later", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
@@ -1496,14 +1511,15 @@ export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "optional", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("list")) || (__fields.keeps("list") && obj["list"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
         const __raw_list = obj["list"] as NewSlug[];
         if (Array.isArray(__raw_list)) {
             ctx.pushScope("list");
@@ -1527,7 +1543,7 @@ export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
             errors.push({ field: "list", message: __raw_list == null ? "NewHolder.list is required" : "expected NewSlug[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("set")) || (__fields.keeps("set") && obj["set"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("set")) ? "set" in obj : (__fields.keeps("set") && obj["set"] !== undefined)) {
         const __raw_set = obj["set"] as Array<NewText>;
         if (Array.isArray(__raw_set)) {
             ctx.pushScope("set");
@@ -1551,7 +1567,7 @@ export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
             errors.push({ field: "set", message: __raw_set == null ? "NewHolder.set is required" : "expected Set<NewText>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("bySlug")) || (__fields.keeps("bySlug") && obj["bySlug"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("bySlug")) ? "bySlug" in obj : (__fields.keeps("bySlug") && obj["bySlug"] !== undefined)) {
         const __raw_bySlug = obj["bySlug"] as Record<string, NewCount>;
         if (typeof __raw_bySlug === "object" && __raw_bySlug !== null) {
             ctx.pushScope("bySlug");
@@ -1575,7 +1591,7 @@ export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
             errors.push({ field: "bySlug", message: __raw_bySlug == null ? "NewHolder.bySlug is required" : "expected Map<NewSlug, NewCount>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("record")) || (__fields.keeps("record") && obj["record"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("record")) ? "record" in obj : (__fields.keeps("record") && obj["record"] !== undefined)) {
         const __raw_record = obj["record"] as Record<string, NewCount>;
         if (typeof __raw_record === "object" && __raw_record !== null) {
             ctx.pushScope("record");
@@ -1599,7 +1615,7 @@ export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
             errors.push({ field: "record", message: __raw_record == null ? "NewHolder.record is required" : "expected Record<string, NewCount>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("pair")) || (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
         const __raw_pair = obj["pair"] as [NewText, NewCount];
         if (Array.isArray(__raw_pair)) {
             ctx.pushScope("pair");
@@ -1697,30 +1713,33 @@ export interface NewOrdered {
 }
 
 export function newOrderedToString(value: NewOrdered): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("slug: " + newSlugToString(value.slug));
     parts.push("count: " + newCountToString(value.count));
     parts.push("total: " + newTotalToString(value.total));
     parts.push("flag: " + newFlagToString(value.flag));
-    return "NewOrdered { " + parts.join(", ") + " }";
+        return "NewOrdered { " + parts.join(", ") + " }";
+    });
 }
 
 export function newOrderedClone(value: NewOrdered): NewOrdered {
-    return ({
+    return __mf_clonedWith(value, (): NewOrdered => ({
 	slug: newSlugClone(value.slug),
 	count: newCountClone(value.count),
 	total: newTotalClone(value.total),
 	flag: newFlagClone(value.flag)
-});
+}));
 }
 
 export function newOrderedEquals(a: NewOrdered, b: NewOrdered): boolean {
     if (a === b) return true;
-    return newSlugEquals(a.slug, b.slug) && newCountEquals(a.count, b.count) && newTotalEquals(a.total, b.total) && newFlagEquals(a.flag, b.flag);
+    return __mf_equalWithin(a, b, () => newSlugEquals(a.slug, b.slug) && newCountEquals(a.count, b.count) && newTotalEquals(a.total, b.total) && newFlagEquals(a.flag, b.flag));
 }
 
 export function newOrderedPartialCompare(a: NewOrdered, b: NewOrdered): number | null {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = newSlugPartialCompare(a.slug, b.slug);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
@@ -1733,11 +1752,13 @@ export function newOrderedPartialCompare(a: NewOrdered, b: NewOrdered): number |
     const cmp3 = newFlagPartialCompare(a.flag, b.flag);
     if (cmp3 === null) return null;
     if (cmp3 !== 0) return cmp3;
-    return 0;
+        return 0;
+    });
 }
 
 export function newOrderedCompare(a: NewOrdered, b: NewOrdered): number {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = newSlugCompare(a.slug, b.slug);
     if (cmp0 !== 0) return cmp0;
     const cmp1 = newCountCompare(a.count, b.count);
@@ -1746,7 +1767,8 @@ export function newOrderedCompare(a: NewOrdered, b: NewOrdered): number {
     if (cmp2 !== 0) return cmp2;
     const cmp3 = newFlagCompare(a.flag, b.flag);
     if (cmp3 !== 0) return cmp3;
-    return 0;
+        return 0;
+    });
 }
 
 export const NewOrdered: {
@@ -1770,32 +1792,36 @@ export interface NewLedger {
 }
 
 export function newLedgerToString(value: NewLedger): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("total: " + newTotalToString(value.total));
     parts.push("totals: " + "[" + value.totals.map(newTotalToString).join(", ") + "]");
-    return "NewLedger { " + parts.join(", ") + " }";
+        return "NewLedger { " + parts.join(", ") + " }";
+    });
 }
 
 export function newLedgerClone(value: NewLedger): NewLedger {
-    return ({
+    return __mf_clonedWith(value, (): NewLedger => ({
 	total: newTotalClone(value.total),
 	totals: value.totals.map((__item0) => newTotalClone(__item0))
-});
+}));
 }
 
 export function newLedgerEquals(a: NewLedger, b: NewLedger): boolean {
     if (a === b) return true;
-    return newTotalEquals(a.total, b.total) && a.totals.length === b.totals.length && a.totals.every((__item0, __index0) => {
+    return __mf_equalWithin(a, b, () => newTotalEquals(a.total, b.total) && a.totals.length === b.totals.length && a.totals.every((__item0, __index0) => {
 	const __other0 = b.totals[__index0];
 	return __other0 === undefined ? __item0 === undefined : newTotalEquals(__item0, __other0);
-});
+}));
 }
 
 export function newLedgerHashCode(value: NewLedger): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (newTotalHashCode(value.total))) | 0;
     hash = (hash * 31 + (value.totals.reduce<number>((__hash0, __item0) => __hash0 * 31 + newTotalHashCode(__item0) | 0, 1))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -1809,12 +1835,9 @@ export function newLedgerEncode(value: NewLedger, keepMetadata?: boolean): strin
 export function newLedgerEncodeWithContext(value: NewLedger, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "NewLedger",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "NewLedger" });
     newLedgerEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1930,7 +1953,7 @@ export function newLedgerDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("total")) || (__fields.keeps("total") && obj["total"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("total")) ? "total" in obj : (__fields.keeps("total") && obj["total"] !== undefined)) {
         const __raw_total = obj["total"] as NewTotal;
 
         ctx.pushScope("total");
@@ -1946,13 +1969,14 @@ export function newLedgerDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "total", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("totals")) || (__fields.keeps("totals") && obj["totals"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("totals")) ? "totals" in obj : (__fields.keeps("totals") && obj["totals"] !== undefined)) {
         const __raw_totals = obj["totals"] as NewTotal[];
         if (Array.isArray(__raw_totals)) {
             ctx.pushScope("totals");
@@ -2527,134 +2551,134 @@ export {};
 
 ## Mapping
 
-original 0..332 -> expanded 1208..1540
-original 348..349 -> expanded 1584..1585
-original 349..466 -> expanded 5851..5968
-original 482..483 -> expanded 6012..6013
-original 483..600 -> expanded 10449..10566
-original 616..617 -> expanded 10610..10611
-original 617..733 -> expanded 15306..15422
-original 750..751 -> expanded 15467..15468
-original 751..926 -> expanded 19723..19898
-original 942..943 -> expanded 19942..19943
-original 943..1061 -> expanded 24567..24685
-original 1087..1088 -> expanded 24767..24768
-original 1088..1212 -> expanded 29269..29393
-original 1212..1670 -> expanded 33724..34182
-original 1670..1844 -> expanded 66266..66440
-original 1844..1983 -> expanded 68826..68965
-original 1983..1984 -> expanded 80844..80845
-generated 0..893 <- imports
-generated 893..938 <- $Newtype
-generated 938..983 <- $Newtype
-generated 983..1028 <- $Newtype
-generated 1028..1073 <- $Newtype
-generated 1073..1118 <- $Newtype
-generated 1118..1163 <- $Newtype
-generated 1163..1208 <- $Newtype
-generated 1540..1584 <- $Newtype
-generated 1585..1691 <- Debug
-generated 1691..1768 <- Clone
-generated 1768..1886 <- PartialEq
-generated 1886..2041 <- Hash
-generated 2041..2162 <- PartialOrd
-generated 2162..2269 <- Ord
-generated 2269..2347 <- Default
-generated 2347..3063 <- Encode
-generated 3063..4808 <- Decode
-generated 4808..5851 <- __convenience_const
-generated 5968..6012 <- $Newtype
-generated 6013..6122 <- Debug
-generated 6122..6202 <- Clone
-generated 6202..6323 <- PartialEq
-generated 6323..6521 <- Hash
-generated 6521..6662 <- PartialOrd
-generated 6662..6772 <- Ord
-generated 6772..6852 <- Default
-generated 6852..7576 <- Encode
-generated 7576..9379 <- Decode
-generated 9379..10449 <- __convenience_const
-generated 10566..10610 <- $Newtype
-generated 10611..10720 <- Debug
-generated 10720..10800 <- Clone
-generated 10800..10921 <- PartialEq
-generated 10921..11081 <- Hash
-generated 11081..11205 <- PartialOrd
-generated 11205..11315 <- Ord
-generated 11315..11396 <- Default
-generated 11396..12160 <- Encode
-generated 12160..14236 <- Decode
-generated 14236..15306 <- __convenience_const
-generated 15422..15467 <- $Newtype
-generated 15468..15574 <- Debug
-generated 15574..15651 <- Clone
-generated 15651..15769 <- PartialEq
-generated 15769..15862 <- Hash
-generated 15862..15981 <- PartialOrd
-generated 15981..16086 <- Ord
-generated 16086..16167 <- Default
-generated 16167..16883 <- Encode
-generated 16883..18680 <- Decode
-generated 18680..19723 <- __convenience_const
-generated 19898..19942 <- $Newtype
-generated 19943..20049 <- Debug
-generated 20049..20126 <- Clone
-generated 20126..20244 <- PartialEq
-generated 20244..20399 <- Hash
-generated 20399..20520 <- PartialOrd
-generated 20520..20627 <- Ord
-generated 20627..20709 <- Default
-generated 20709..21425 <- Encode
-generated 21425..23524 <- Decode
-generated 23524..24567 <- __convenience_const
-generated 24685..24767 <- $Newtype
-generated 24768..24880 <- Debug
-generated 24880..24963 <- Clone
-generated 24963..25087 <- PartialEq
-generated 25087..25287 <- Hash
-generated 25287..25431 <- PartialOrd
-generated 25431..25544 <- Ord
-generated 25544..25627 <- Default
-generated 25627..26359 <- Encode
-generated 26359..28172 <- Decode
-generated 28172..29269 <- __convenience_const
-generated 29393..29502 <- Debug
-generated 29502..29582 <- Clone
-generated 29582..29703 <- PartialEq
-generated 29703..29860 <- Hash
-generated 29860..29984 <- PartialOrd
-generated 29984..30094 <- Ord
-generated 30094..30175 <- Default
-generated 30175..30899 <- Encode
-generated 30899..32654 <- Decode
-generated 32654..33724 <- __convenience_const
-generated 34182..35338 <- Debug
-generated 35338..36286 <- Clone
-generated 36286..37622 <- PartialEq
-generated 37622..38940 <- Hash
-generated 38940..39447 <- Default
-generated 39447..44394 <- Encode
-generated 44394..64861 <- Decode
-generated 64861..66266 <- __convenience_const
-generated 66440..66823 <- Debug
-generated 66823..67046 <- Clone
-generated 67046..67300 <- PartialEq
-generated 67300..67938 <- PartialOrd
-generated 67938..68390 <- Ord
-generated 68390..68826 <- __convenience_const
-generated 68965..69262 <- Debug
-generated 69262..69444 <- Clone
-generated 69444..69808 <- PartialEq
-generated 69808..70102 <- Hash
-generated 70102..72512 <- Encode
-generated 72512..79533 <- Decode
-generated 79533..80844 <- __convenience_const
+original 0..332 -> expanded 1490..1822
+original 348..349 -> expanded 1866..1867
+original 349..466 -> expanded 6197..6314
+original 482..483 -> expanded 6358..6359
+original 483..600 -> expanded 10795..10912
+original 616..617 -> expanded 10956..10957
+original 617..733 -> expanded 15973..16089
+original 750..751 -> expanded 16134..16135
+original 751..926 -> expanded 20390..20565
+original 942..943 -> expanded 20609..20610
+original 943..1061 -> expanded 25298..25416
+original 1087..1088 -> expanded 25498..25499
+original 1088..1212 -> expanded 30000..30124
+original 1212..1670 -> expanded 34519..34977
+original 1670..1844 -> expanded 68167..68341
+original 1844..1983 -> expanded 70975..71114
+original 1983..1984 -> expanded 83287..83288
+generated 0..1175 <- imports
+generated 1175..1220 <- $Newtype
+generated 1220..1265 <- $Newtype
+generated 1265..1310 <- $Newtype
+generated 1310..1355 <- $Newtype
+generated 1355..1400 <- $Newtype
+generated 1400..1445 <- $Newtype
+generated 1445..1490 <- $Newtype
+generated 1822..1866 <- $Newtype
+generated 1867..1973 <- Debug
+generated 1973..2050 <- Clone
+generated 2050..2168 <- PartialEq
+generated 2168..2323 <- Hash
+generated 2323..2444 <- PartialOrd
+generated 2444..2551 <- Ord
+generated 2551..2629 <- Default
+generated 2629..3345 <- Encode
+generated 3345..5154 <- Decode
+generated 5154..6197 <- __convenience_const
+generated 6314..6358 <- $Newtype
+generated 6359..6468 <- Debug
+generated 6468..6548 <- Clone
+generated 6548..6669 <- PartialEq
+generated 6669..6867 <- Hash
+generated 6867..7008 <- PartialOrd
+generated 7008..7118 <- Ord
+generated 7118..7198 <- Default
+generated 7198..7922 <- Encode
+generated 7922..9725 <- Decode
+generated 9725..10795 <- __convenience_const
+generated 10912..10956 <- $Newtype
+generated 10957..11066 <- Debug
+generated 11066..11146 <- Clone
+generated 11146..11267 <- PartialEq
+generated 11267..11427 <- Hash
+generated 11427..11551 <- PartialOrd
+generated 11551..11661 <- Ord
+generated 11661..11742 <- Default
+generated 11742..12506 <- Encode
+generated 12506..14903 <- Decode
+generated 14903..15973 <- __convenience_const
+generated 16089..16134 <- $Newtype
+generated 16135..16241 <- Debug
+generated 16241..16318 <- Clone
+generated 16318..16436 <- PartialEq
+generated 16436..16529 <- Hash
+generated 16529..16648 <- PartialOrd
+generated 16648..16753 <- Ord
+generated 16753..16834 <- Default
+generated 16834..17550 <- Encode
+generated 17550..19347 <- Decode
+generated 19347..20390 <- __convenience_const
+generated 20565..20609 <- $Newtype
+generated 20610..20716 <- Debug
+generated 20716..20793 <- Clone
+generated 20793..20911 <- PartialEq
+generated 20911..21066 <- Hash
+generated 21066..21187 <- PartialOrd
+generated 21187..21294 <- Ord
+generated 21294..21376 <- Default
+generated 21376..22092 <- Encode
+generated 22092..24255 <- Decode
+generated 24255..25298 <- __convenience_const
+generated 25416..25498 <- $Newtype
+generated 25499..25611 <- Debug
+generated 25611..25694 <- Clone
+generated 25694..25818 <- PartialEq
+generated 25818..26018 <- Hash
+generated 26018..26162 <- PartialOrd
+generated 26162..26275 <- Ord
+generated 26275..26358 <- Default
+generated 26358..27090 <- Encode
+generated 27090..28903 <- Decode
+generated 28903..30000 <- __convenience_const
+generated 30124..30233 <- Debug
+generated 30233..30313 <- Clone
+generated 30313..30434 <- PartialEq
+generated 30434..30591 <- Hash
+generated 30591..30715 <- PartialOrd
+generated 30715..30825 <- Ord
+generated 30825..30906 <- Default
+generated 30906..31630 <- Encode
+generated 31630..33449 <- Decode
+generated 33449..34519 <- __convenience_const
+generated 34977..36195 <- Debug
+generated 36195..37184 <- Clone
+generated 37184..38550 <- PartialEq
+generated 38550..39928 <- Hash
+generated 39928..40435 <- Default
+generated 40435..45368 <- Encode
+generated 45368..66762 <- Decode
+generated 66762..68167 <- __convenience_const
+generated 68341..68786 <- Debug
+generated 68786..69051 <- Clone
+generated 69051..69335 <- PartialEq
+generated 69335..70030 <- PartialOrd
+generated 70030..70539 <- Ord
+generated 70539..70975 <- __convenience_const
+generated 71114..71473 <- Debug
+generated 71473..71696 <- Clone
+generated 71696..72090 <- PartialEq
+generated 72090..72444 <- Hash
+generated 72444..74840 <- Encode
+generated 74840..81976 <- Decode
+generated 81976..83287 <- __convenience_const
 
 ## Metadata
 
-interface NewHolder: {"body_span":{"end":2182,"start":1824},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1796,"start":1726}}],"fields":[{"decorators":[],"name":"text","optional":false,"readonly":false,"span":{"end":1844,"start":1830},"ts_type":"NewText"},{"decorators":[],"name":"count","optional":false,"readonly":false,"span":{"end":1865,"start":1849},"ts_type":"NewCount"},{"decorators":[],"name":"flag","optional":false,"readonly":false,"span":{"end":1884,"start":1870},"ts_type":"NewFlag"},{"decorators":[],"name":"slug","optional":false,"readonly":false,"span":{"end":1903,"start":1889},"ts_type":"NewSlug"},{"decorators":[],"name":"nested","optional":false,"readonly":false,"span":{"end":1926,"start":1908},"ts_type":"NewNested"},{"decorators":[],"name":"plain","optional":false,"readonly":false,"span":{"end":1947,"start":1931},"ts_type":"NewPlain"},{"decorators":[],"name":"maybe","optional":false,"readonly":false,"span":{"end":1974,"start":1952},"ts_type":"NewSlug | null"},{"decorators":[],"name":"later","optional":false,"readonly":false,"span":{"end":2007,"start":1979},"ts_type":"NewCount | undefined"},{"decorators":[],"name":"optional","optional":true,"readonly":false,"span":{"end":2031,"start":2012},"ts_type":"NewText"},{"decorators":[],"name":"list","optional":false,"readonly":false,"span":{"end":2052,"start":2036},"ts_type":"NewSlug[]"},{"decorators":[],"name":"set","optional":false,"readonly":false,"span":{"end":2075,"start":2057},"ts_type":"Set<NewText>"},{"decorators":[],"name":"bySlug","optional":false,"readonly":false,"span":{"end":2111,"start":2080},"ts_type":"Map<NewSlug, NewCount>"},{"decorators":[],"name":"record","optional":false,"readonly":false,"span":{"end":2149,"start":2116},"ts_type":"Record<string, NewCount>"},{"decorators":[],"name":"pair","optional":false,"readonly":false,"span":{"end":2180,"start":2154},"ts_type":"[NewText, NewCount]"}],"heritage":[],"methods":[],"name":"NewHolder","span":{"end":2182,"start":1804},"type_params":[]}
-interface NewOrdered: {"body_span":{"end":2356,"start":2273},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":2244,"start":2184}}],"fields":[{"decorators":[],"name":"slug","optional":false,"readonly":false,"span":{"end":2293,"start":2279},"ts_type":"NewSlug"},{"decorators":[],"name":"count","optional":false,"readonly":false,"span":{"end":2314,"start":2298},"ts_type":"NewCount"},{"decorators":[],"name":"total","optional":false,"readonly":false,"span":{"end":2335,"start":2319},"ts_type":"NewTotal"},{"decorators":[],"name":"flag","optional":false,"readonly":false,"span":{"end":2354,"start":2340},"ts_type":"NewFlag"}],"heritage":[],"methods":[],"name":"NewOrdered","span":{"end":2356,"start":2252},"type_params":[]}
-interface NewLedger: {"body_span":{"end":2495,"start":2447},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2419,"start":2358}}],"fields":[{"decorators":[],"name":"total","optional":false,"readonly":false,"span":{"end":2469,"start":2453},"ts_type":"NewTotal"},{"decorators":[],"name":"totals","optional":false,"readonly":false,"span":{"end":2493,"start":2474},"ts_type":"NewTotal[]"}],"heritage":[],"methods":[],"name":"NewLedger","span":{"end":2495,"start":2427},"type_params":[]}
+interface NewHolder: {"body_span":{"end":2182,"start":1824},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1796,"start":1726}}],"fields":[{"decorators":[],"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":1844,"start":1830},"ts_type":"NewText"},{"decorators":[],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":1865,"start":1849},"ts_type":"NewCount"},{"decorators":[],"key":"Named","name":"flag","optional":false,"readonly":false,"span":{"end":1884,"start":1870},"ts_type":"NewFlag"},{"decorators":[],"key":"Named","name":"slug","optional":false,"readonly":false,"span":{"end":1903,"start":1889},"ts_type":"NewSlug"},{"decorators":[],"key":"Named","name":"nested","optional":false,"readonly":false,"span":{"end":1926,"start":1908},"ts_type":"NewNested"},{"decorators":[],"key":"Named","name":"plain","optional":false,"readonly":false,"span":{"end":1947,"start":1931},"ts_type":"NewPlain"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":1974,"start":1952},"ts_type":"NewSlug | null"},{"decorators":[],"key":"Named","name":"later","optional":false,"readonly":false,"span":{"end":2007,"start":1979},"ts_type":"NewCount | undefined"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":2031,"start":2012},"ts_type":"NewText"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":2052,"start":2036},"ts_type":"NewSlug[]"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":2075,"start":2057},"ts_type":"Set<NewText>"},{"decorators":[],"key":"Named","name":"bySlug","optional":false,"readonly":false,"span":{"end":2111,"start":2080},"ts_type":"Map<NewSlug, NewCount>"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":2149,"start":2116},"ts_type":"Record<string, NewCount>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":2180,"start":2154},"ts_type":"[NewText, NewCount]"}],"heritage":[],"methods":[],"name":"NewHolder","span":{"end":2182,"start":1804},"type_params":[]}
+interface NewOrdered: {"body_span":{"end":2356,"start":2273},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":2244,"start":2184}}],"fields":[{"decorators":[],"key":"Named","name":"slug","optional":false,"readonly":false,"span":{"end":2293,"start":2279},"ts_type":"NewSlug"},{"decorators":[],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":2314,"start":2298},"ts_type":"NewCount"},{"decorators":[],"key":"Named","name":"total","optional":false,"readonly":false,"span":{"end":2335,"start":2319},"ts_type":"NewTotal"},{"decorators":[],"key":"Named","name":"flag","optional":false,"readonly":false,"span":{"end":2354,"start":2340},"ts_type":"NewFlag"}],"heritage":[],"methods":[],"name":"NewOrdered","span":{"end":2356,"start":2252},"type_params":[]}
+interface NewLedger: {"body_span":{"end":2495,"start":2447},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2419,"start":2358}}],"fields":[{"decorators":[],"key":"Named","name":"total","optional":false,"readonly":false,"span":{"end":2469,"start":2453},"ts_type":"NewTotal"},{"decorators":[],"key":"Named","name":"totals","optional":false,"readonly":false,"span":{"end":2493,"start":2474},"ts_type":"NewTotal[]"}],"heritage":[],"methods":[],"name":"NewLedger","span":{"end":2495,"start":2427},"type_params":[]}
 type NewText: {"body":{"Newtype":{"Alias":"string"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":625,"start":534}}],"name":"NewText","span":{"end":693,"start":633},"type_params":[]}
 type NewCount: {"body":{"Newtype":{"Alias":"number"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":786,"start":695}}],"name":"NewCount","span":{"end":855,"start":794},"type_params":[]}
 type NewTotal: {"body":{"Newtype":{"Alias":"bigint"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":948,"start":857}}],"name":"NewTotal","span":{"end":1017,"start":956},"type_params":[]}
@@ -2674,7 +2698,6 @@ Name("NewSlug")
 Name("NewText")
 Name("NewTotal")
 Name("Record")
-Name("Record<string, NewCount>")
 Name("Set")
 Name("[NewText, NewCount]")
 Name("bigint")

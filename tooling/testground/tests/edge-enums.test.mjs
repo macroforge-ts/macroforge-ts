@@ -74,7 +74,14 @@ Deno.test('a counted enum codes and orders by its numbers', () => {
     assert(mod.enumCountedToString(EnumCounted.Second).includes('Second'));
     assertThrows(() => mod.enumCountedDecode(3));
     assertThrows(() => mod.enumCountedDecode('First'));
-    assertThrows(() => mod.enumCountedDecode('1'));
+    // The text `encode` writes for a member reads back as it; held in a
+    // value, the same text is no member.
+    assertStrictEquals(mod.enumCountedDecode('1'), EnumCounted.Second);
+    assertStrictEquals(
+        mod.enumCountedDecode(mod.enumCountedEncode(EnumCounted.Third)),
+        EnumCounted.Third
+    );
+    assertThrows(() => mod.enumCountedDecodeWithContext('1'));
     assert(!mod.enumCountedIs(3));
 });
 
@@ -101,8 +108,12 @@ Deno.test('an enum of numbers and strings codes each as it is and orders them al
     assertValueTraits('enumMixed', values);
     assertStrictEquals(mod.enumMixedDecode('text'), EnumMixed.Text);
     assertStrictEquals(mod.enumMixedDecode(5), EnumMixed.Five);
-    assertThrows(() => mod.enumMixedDecode('5'));
-    assertThrows(() => mod.enumMixedDecode('0'));
+    for (const value of values) {
+        assertStrictEquals(mod.enumMixedDecode(mod.enumMixedEncode(value)), value);
+    }
+    assertStrictEquals(mod.enumMixedDecode('5'), EnumMixed.Five);
+    assertThrows(() => mod.enumMixedDecodeWithContext('5'));
+    assertThrows(() => mod.enumMixedDecode('6'));
     assertStrictEquals(mod.enumMixedDefaultValue(), EnumMixed.Zero);
 
     // The order is total: it sorts the values one way, whatever way they come in.

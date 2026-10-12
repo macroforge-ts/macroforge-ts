@@ -38,6 +38,31 @@ test.describe('Svelte Testground Macro Tests', () => {
         await expect(testResults).toHaveAttribute('data-tests-complete', 'true');
     });
 
+    test('the reading derives follow a class of runes as its state changes', async ({ page }) => {
+        const debug = page.locator('[data-testid="rune-debug"]');
+        const json = page.locator('[data-testid="rune-json"]');
+        const equals = page.locator('[data-testid="rune-equals"]');
+        const hash = page.locator('[data-testid="rune-hash"]');
+
+        await expect(debug).toContainText('RuneCounter {');
+        await expect(debug).toContainText('count: 0');
+        await expect(debug).toContainText('doubled: 0');
+        await expect(json).toContainText('"count":0');
+        await expect(equals).toHaveText('true');
+        await expect(hash).toHaveText('true');
+
+        await page.click('[data-testid="rune-increment"]');
+        await page.click('[data-testid="rune-increment"]');
+
+        await expect(debug).toContainText('count: 2');
+        await expect(debug).toContainText('doubled: 4');
+        await expect(json).toContainText('"label":"clicks"');
+        await expect(json).toContainText('"count":2');
+        await expect(json).toContainText('"doubled":4');
+        await expect(equals).toHaveText('false');
+        await expect(hash).toHaveText('false');
+    });
+
     test('Debug macro generates toString() in Svelte', async ({ page }) => {
         await page.click('[data-testid="test-all-macros"]');
         await page.waitForSelector('[data-tests-complete="true"]');

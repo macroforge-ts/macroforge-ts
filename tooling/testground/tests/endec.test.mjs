@@ -6,7 +6,13 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 import { expandSync } from '@macroforge/core';
-import { encodedText, encodedTextWithoutMetadata } from '@macroforge/core/endec';
+import {
+    EncodeContext,
+    encodedAs,
+    encodedReference,
+    encodedText,
+    encodedTextWithoutMetadata
+} from '@macroforge/core/endec';
 
 // ============================================================================
 // Encode Macro Expansion Tests
@@ -75,7 +81,10 @@ describe('Encode macro expansion', () => {
             result.code.includes('ctx.getId(value)'),
             'Should check for existing ID'
         );
-        assert.ok(result.code.includes('__ref:'), 'Should return __ref for cycles');
+        assert.ok(
+            result.code.includes('return __mf_encodedReference(ctx, existingId);'),
+            'Should return a reference for a value met again'
+        );
         assert.ok(
             result.code.includes('ctx.register(value)'),
             'Should register object'
@@ -808,8 +817,8 @@ describe('Edge cases', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('__ref'),
-            'Should handle self-reference with __ref'
+            result.code.includes('__mf_encodedReference(ctx, existingId)'),
+            'Should handle self-reference with a reference'
         );
         assert.ok(result.code.includes('ctx.getId'), 'Should check for cycles');
     });
@@ -1161,7 +1170,7 @@ describe('Built-in type endec', () => {
             'Should encode bigint with String(v)'
         );
         assert.ok(
-            result.code.includes('BigInt(v as string)'),
+            result.code.includes('return BigInt(raw);'),
             'Should decode bigint with BigInt()'
         );
     });
@@ -1178,7 +1187,7 @@ describe('Built-in type endec', () => {
             'Should encode URL with toString()'
         );
         assert.ok(
-            result.code.includes('new URL(v as string)'),
+            result.code.includes('return new URL(raw);'),
             'Should decode URL with new URL()'
         );
     });
@@ -1212,7 +1221,7 @@ describe('Built-in type endec', () => {
             'Should encode Uint8Array with Array.from()'
         );
         assert.ok(
-            result.code.includes('new Uint8Array(v as number[])'),
+            result.code.includes('new Uint8Array(v)'),
             'Should decode Uint8Array with new Uint8Array()'
         );
     });
@@ -1230,7 +1239,7 @@ describe('Built-in type endec', () => {
         );
         assert.ok(
             result.code.includes('.map(') &&
-                result.code.includes('new URL(v as string)'),
+                result.code.includes('return new URL(raw);'),
             'Should decode URL[] by mapping new URL()'
         );
     });
@@ -1249,7 +1258,7 @@ describe('Built-in type endec', () => {
         );
         assert.ok(
             result.code.includes('__mf_decodeSet(') &&
-                result.code.includes('new URL(v as string)'),
+                result.code.includes('return new URL(raw);'),
             'Should decode Set<URL> with new Set and new URL()'
         );
     });
@@ -1268,7 +1277,7 @@ describe('Built-in type endec', () => {
         );
         assert.ok(
             result.code.includes('__mf_decodeMap(') &&
-                result.code.includes('new URL(v as string)'),
+                result.code.includes('return new URL(raw);'),
             'Should decode Map<string, URL> with new Map and new URL()'
         );
     });
@@ -1287,7 +1296,7 @@ describe('Built-in type endec', () => {
         );
         assert.ok(
             result.code.includes('=== null ? null') &&
-                result.code.includes('BigInt(v as string)'),
+                result.code.includes('return BigInt(raw);'),
             'Should decode bigint | null with null check and BigInt()'
         );
     });
@@ -1321,7 +1330,7 @@ describe('Built-in type endec', () => {
             'Should encode URLSearchParams with toString()'
         );
         assert.ok(
-            result.code.includes('new URLSearchParams(v as string)'),
+            result.code.includes('return new URLSearchParams(raw);'),
             'Should decode URLSearchParams with new URLSearchParams()'
         );
     });
@@ -1339,7 +1348,7 @@ describe('Built-in type endec', () => {
             'Should encode ArrayBuffer via Uint8Array + Array.from()'
         );
         assert.ok(
-            result.code.includes('new Uint8Array(v as number[])') &&
+            result.code.includes('new Uint8Array(v)') &&
                 result.code.includes('.buffer'),
             'Should decode ArrayBuffer via new Uint8Array().buffer'
         );
@@ -1372,7 +1381,7 @@ describe('Built-in type endec', () => {
         );
         assert.ok(
             result.code.includes('__mf_decodeRecord(') &&
-                result.code.includes('new URL(v as string)'),
+                result.code.includes('return new URL(raw);'),
             'Should decode Record<string, URL> with Object.entries and new URL()'
         );
     });
@@ -1412,19 +1421,22 @@ describe('Encode metadata stripping', () => {
     });
 
     test('the text helpers strip the tag and __id at every depth, or keep them', () => {
-        const encoded = {
+        const ctx = EncodeContext.create();
+        const phone = encodedAs(ctx, 1, { __type: 'PhoneNumber', main: true, number: '555' });
+        const encoded = encodedAs(ctx, 0, {
             __type: 'Account',
-            __id: 0,
             name: 'Ada',
-            phones: [{ __type: 'PhoneNumber', __id: 1, main: true, number: '555' }],
-            owner: { __ref: 0 },
+            phones: [phone],
+            primary: encodedReference(ctx, 1),
             missing: undefined,
             nothing: null
-        };
+        });
 
+        // Without the ids a reference has nothing to name, so the value it
+        // stands for is written out in its place.
         assert.equal(
             encodedTextWithoutMetadata(encoded, '__type'),
-            '{"name":"Ada","phones":[{"main":true,"number":"555"}],"owner":{"__ref":0},"nothing":null}'
+            '{"name":"Ada","phones":[{"main":true,"number":"555"}],"primary":{"main":true,"number":"555"},"nothing":null}'
         );
         assert.equal(
             encodedTextWithoutMetadata({ kind: 'Circle', __type: 'kept', radius: 1 }, 'kind'),
@@ -1433,6 +1445,71 @@ describe('Encode metadata stripping', () => {
         );
         assert.equal(encodedText(encoded), JSON.stringify(encoded));
         assert.equal(encodedText('red'), '"red"');
+    });
+
+    test('only a reference the encoders wrote is written out', () => {
+        const ctx = EncodeContext.create();
+        const secret = encodedAs(ctx, 0, { __type: 'Secret', token: 'hidden' });
+        // Data shaped like a reference, or like an encoding with an id, is data.
+        const forged = { note: { __ref: 0 }, claim: { __id: 0, token: 'forged' }, at: new Date(0) };
+        assert.equal(
+            encodedTextWithoutMetadata(
+                { secret, forged, again: encodedReference(ctx, 0) },
+                '__type'
+            ),
+            '{"secret":{"token":"hidden"},"forged":{"note":{"__ref":0},"claim":{"token":"forged"},"at":"1970-01-01T00:00:00.000Z"},"again":{"token":"hidden"}}'
+        );
+        // A reference from another context names nothing in this one.
+        assert.equal(
+            encodedTextWithoutMetadata(
+                { other: encodedReference(EncodeContext.create(), 0) },
+                '__type'
+            ),
+            '{"other":{"__ref":0}}'
+        );
+    });
+
+    test('a value that holds itself, or is held too many times over, has no text without metadata', () => {
+        const ctx = EncodeContext.create();
+        const loop = encodedAs(ctx, 0, { __type: 'Loop', name: 'Ada' });
+        loop.self = encodedReference(ctx, 0);
+        assert.throws(() => encodedTextWithoutMetadata(loop, '__type'), {
+            name: 'TypeError',
+            message: /holds itself.*keepMetadata/
+        });
+        assert.equal(typeof encodedText(loop), 'string');
+
+        // Each level holds the one below it twice, so the text doubles with
+        // every level: thirty of them would be a billion copies.
+        let level = encodedAs(ctx, 1, { __type: 'Level', depth: 0 });
+        for (let id = 2; id < 32; id++) {
+            level = encodedAs(ctx, id, {
+                __type: 'Level',
+                left: level,
+                right: encodedReference(ctx, id - 1)
+            });
+        }
+        assert.throws(() => encodedTextWithoutMetadata(level, '__type'), {
+            name: 'TypeError',
+            message: /too large to write out.*keepMetadata/
+        });
+
+        // What is copied is counted by its size, strings and arrays included:
+        // a large value held in many places is refused, a few times is fine.
+        const blob = encodedAs(ctx, 100, {
+            __type: 'Blob',
+            text: 'x'.repeat(1_000_000),
+            items: new Array(1000).fill(0)
+        });
+        const held = (times) => ({
+            first: blob,
+            rest: Array.from({ length: times }, () => encodedReference(ctx, 100))
+        });
+        assert.throws(() => encodedTextWithoutMetadata(held(32), '__type'), {
+            name: 'TypeError',
+            message: /too large to write out.*keepMetadata/
+        });
+        assert.equal(JSON.parse(encodedTextWithoutMetadata(held(4), '__type')).rest.length, 4);
     });
 
     test('the text helpers throw for a value with no JSON text', () => {
@@ -1457,7 +1534,7 @@ describe('Encode metadata stripping', () => {
             'encodeWithContext should still have __type marker'
         );
         assert.ok(
-            result.code.includes('__id: ctx.register(value)'),
+            result.code.includes('__mf_encodedAs(ctx, ctx.register(value), {'),
             'encodeWithContext should still register __id'
         );
     });

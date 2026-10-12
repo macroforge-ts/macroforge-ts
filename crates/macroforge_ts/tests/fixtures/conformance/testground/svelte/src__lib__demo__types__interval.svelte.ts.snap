@@ -16,7 +16,7 @@ import { dailyRecurrenceRuleDecodeWithContext, dailyRecurrenceRuleHasShape, dail
 import { monthlyRecurrenceRuleDecodeWithContext, monthlyRecurrenceRuleHasShape, monthlyRecurrenceRuleEncodeWithContext, monthlyRecurrenceRuleDefaultValue } from "./monthly-recurrence-rule.svelte";
 import { weeklyRecurrenceRuleDecodeWithContext, weeklyRecurrenceRuleHasShape, weeklyRecurrenceRuleEncodeWithContext, weeklyRecurrenceRuleDefaultValue } from "./weekly-recurrence-rule.svelte";
 import { yearlyRecurrenceRuleDecodeWithContext, yearlyRecurrenceRuleHasShape, yearlyRecurrenceRuleEncodeWithContext, yearlyRecurrenceRuleDefaultValue } from "./yearly-recurrence-rule.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -73,7 +73,9 @@ export function intervalEncodeWithContext(value: Interval, ctx: __mf_EncodeConte
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -543,15 +545,15 @@ export declare const Interval: {
 
 ## Mapping
 
-original 0..367 -> expanded 1324..1691
-original 416..564 -> expanded 1691..1839
-original 564..565 -> expanded 18526..18527
-generated 0..1324 <- imports
-generated 1839..1939 <- Default
-generated 1939..4561 <- Encode
-generated 4561..11116 <- Decode
-generated 11116..17736 <- Gigaform
-generated 17736..18526 <- __convenience_const
+original 0..367 -> expanded 1353..1720
+original 416..564 -> expanded 1720..1868
+original 564..565 -> expanded 18670..18671
+generated 0..1353 <- imports
+generated 1868..1968 <- Default
+generated 1968..4705 <- Encode
+generated 4705..11260 <- Decode
+generated 11260..17880 <- Gigaform
+generated 17880..18670 <- __convenience_const
 
 ## Metadata
 

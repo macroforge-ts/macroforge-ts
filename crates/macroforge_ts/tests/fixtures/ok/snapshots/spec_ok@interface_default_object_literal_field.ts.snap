@@ -65,7 +65,7 @@ generated 251..383 <- __convenience_const
 
 ## Metadata
 
-interface Assignment: {"body_span":{"end":134,"start":53},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":24,"start":1}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":72,"start":59},"ts_type":"string"},{"decorators":[],"name":"scores","optional":false,"readonly":false,"span":{"end":111,"start":77},"ts_type":"{ [key: string]: number }"},{"decorators":[],"name":"active","optional":false,"readonly":false,"span":{"end":132,"start":116},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"Assignment","span":{"end":134,"start":32},"type_params":[]}
+interface Assignment: {"body_span":{"end":134,"start":53},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":24,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":72,"start":59},"ts_type":"string"},{"decorators":[],"key":"Named","name":"scores","optional":false,"readonly":false,"span":{"end":111,"start":77},"ts_type":"{ [key: string]: number }"},{"decorators":[],"key":"Named","name":"active","optional":false,"readonly":false,"span":{"end":132,"start":116},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"Assignment","span":{"end":134,"start":32},"type_params":[]}
 
 ## Registry reads
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -76,12 +76,9 @@ export function taxRateEncode(value: TaxRate, keepMetadata?: boolean): string {
 export function taxRateEncodeWithContext(value: TaxRate, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "TaxRate",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "TaxRate" });
     taxRateEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -261,7 +258,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -270,7 +267,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -282,7 +279,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("taxAgency")) || (__fields.keeps("taxAgency") && obj["taxAgency"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("taxAgency")) ? "taxAgency" in obj : (__fields.keeps("taxAgency") && obj["taxAgency"] !== undefined)) {
         const __raw_taxAgency = obj["taxAgency"] as string;
 
         if (!(typeof __raw_taxAgency === "string")) {
@@ -294,7 +291,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.taxAgency = __raw_taxAgency;
         }
     }
-    if ((__fields === undefined || __fields.requires("zip")) || (__fields.keeps("zip") && obj["zip"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("zip")) ? "zip" in obj : (__fields.keeps("zip") && obj["zip"] !== undefined)) {
         const __raw_zip = obj["zip"] as number;
 
         if (!(typeof __raw_zip === "number")) {
@@ -303,7 +300,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.zip = __raw_zip;
         }
     }
-    if ((__fields === undefined || __fields.requires("city")) || (__fields.keeps("city") && obj["city"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("city")) ? "city" in obj : (__fields.keeps("city") && obj["city"] !== undefined)) {
         const __raw_city = obj["city"] as string;
 
         if (!(typeof __raw_city === "string")) {
@@ -315,7 +312,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.city = __raw_city;
         }
     }
-    if ((__fields === undefined || __fields.requires("county")) || (__fields.keeps("county") && obj["county"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("county")) ? "county" in obj : (__fields.keeps("county") && obj["county"] !== undefined)) {
         const __raw_county = obj["county"] as string;
 
         if (!(typeof __raw_county === "string")) {
@@ -327,7 +324,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.county = __raw_county;
         }
     }
-    if ((__fields === undefined || __fields.requires("state")) || (__fields.keeps("state") && obj["state"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("state")) ? "state" in obj : (__fields.keeps("state") && obj["state"] !== undefined)) {
         const __raw_state = obj["state"] as string;
 
         if (!(typeof __raw_state === "string")) {
@@ -339,7 +336,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.state = __raw_state;
         }
     }
-    if ((__fields === undefined || __fields.requires("isActive")) || (__fields.keeps("isActive") && obj["isActive"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("isActive")) ? "isActive" in obj : (__fields.keeps("isActive") && obj["isActive"] !== undefined)) {
         const __raw_isActive = obj["isActive"] as boolean;
 
         if (!(typeof __raw_isActive === "boolean")) {
@@ -348,7 +345,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.isActive = __raw_isActive;
         }
     }
-    if ((__fields === undefined || __fields.requires("description")) || (__fields.keeps("description") && obj["description"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("description")) ? "description" in obj : (__fields.keeps("description") && obj["description"] !== undefined)) {
         const __raw_description = obj["description"] as string;
 
         if (!(typeof __raw_description === "string")) {
@@ -360,10 +357,29 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.description = __raw_description;
         }
     }
-    if ((__fields === undefined || __fields.requires("taxComponents")) || (__fields.keeps("taxComponents") && obj["taxComponents"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("taxComponents")) ? "taxComponents" in obj : (__fields.keeps("taxComponents") && obj["taxComponents"] !== undefined)) {
         const __raw_taxComponents = obj["taxComponents"] as { [key: string]: number };
-
-        instance.taxComponents = __raw_taxComponents;
+        if (typeof __raw_taxComponents === "object" && __raw_taxComponents !== null) {
+            ctx.pushScope("taxComponents");
+            try {
+                instance.taxComponents = ((__mf_decodeRecord(__raw_taxComponents, ctx, __mf_decodeNumber) as Record<string, number>) as { [key: string]: number });
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "taxComponents" : "taxComponents." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "taxComponents", message: __raw_taxComponents == null ? "TaxRate.taxComponents is required" : "expected { [key: string]: number }" });
+        }
     }
 
     ctx.pushErrors(errors);
@@ -996,36 +1012,36 @@ export declare const TaxRate: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..139 -> expanded 741..773
-original 167..188 -> expanded 773..794
-original 229..234 -> expanded 794..799
-original 275..298 -> expanded 799..822
-original 345..350 -> expanded 822..827
-original 391..419 -> expanded 827..855
-original 469..491 -> expanded 855..877
-original 532..537 -> expanded 877..882
-original 578..601 -> expanded 882..905
-original 644..649 -> expanded 905..910
-original 690..715 -> expanded 910..935
-original 757..762 -> expanded 935..940
-original 803..827 -> expanded 940..964
-original 872..900 -> expanded 964..992
-original 952..957 -> expanded 992..997
-original 998..1028 -> expanded 997..1027
-original 1056..1061 -> expanded 1027..1032
-original 1080..1128 -> expanded 1032..1080
-original 1128..1129 -> expanded 36136..36137
-generated 0..683 <- imports
-generated 1080..1361 <- Default
-generated 1361..4972 <- Encode
-generated 4972..21433 <- Decode
-generated 21433..34897 <- Gigaform
-generated 34897..36136 <- __convenience_const
+original 0..58 -> expanded 825..883
+original 107..139 -> expanded 883..915
+original 167..188 -> expanded 915..936
+original 229..234 -> expanded 936..941
+original 275..298 -> expanded 941..964
+original 345..350 -> expanded 964..969
+original 391..419 -> expanded 969..997
+original 469..491 -> expanded 997..1019
+original 532..537 -> expanded 1019..1024
+original 578..601 -> expanded 1024..1047
+original 644..649 -> expanded 1047..1052
+original 690..715 -> expanded 1052..1077
+original 757..762 -> expanded 1077..1082
+original 803..827 -> expanded 1082..1106
+original 872..900 -> expanded 1106..1134
+original 952..957 -> expanded 1134..1139
+original 998..1028 -> expanded 1139..1169
+original 1056..1061 -> expanded 1169..1174
+original 1080..1128 -> expanded 1174..1222
+original 1128..1129 -> expanded 37423..37424
+generated 0..825 <- imports
+generated 1222..1503 <- Default
+generated 1503..5100 <- Encode
+generated 5100..22720 <- Decode
+generated 22720..36184 <- Gigaform
+generated 36184..37423 <- __convenience_const
 
 ## Metadata
 
-interface TaxRate: {"body_span":{"end":1129,"start":134},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":168,"start":140}}],"name":"id","optional":false,"readonly":false,"span":{"end":184,"start":173},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":276,"start":235}},{"args_src":"{ label: \"Name\" }","name":"textController","span":{"end":230,"start":189}}],"name":"name","optional":false,"readonly":false,"span":{"end":294,"start":281},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":392,"start":351}},{"args_src":"{ label: \"Tax Agency\" }","name":"textController","span":{"end":346,"start":299}}],"name":"taxAgency","optional":false,"readonly":false,"span":{"end":415,"start":397},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Zip\", min: 0 }","name":"numberController","span":{"end":470,"start":420}}],"name":"zip","optional":false,"readonly":false,"span":{"end":487,"start":475},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":579,"start":538}},{"args_src":"{ label: \"City\" }","name":"textController","span":{"end":533,"start":492}}],"name":"city","optional":false,"readonly":false,"span":{"end":597,"start":584},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":691,"start":650}},{"args_src":"{ label: \"County\" }","name":"textController","span":{"end":645,"start":602}}],"name":"county","optional":false,"readonly":false,"span":{"end":711,"start":696},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":804,"start":763}},{"args_src":"{ label: \"State\" }","name":"textController","span":{"end":758,"start":716}}],"name":"state","optional":false,"readonly":false,"span":{"end":823,"start":809},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Active\" }","name":"switchController","span":{"end":873,"start":828}}],"name":"isActive","optional":false,"readonly":false,"span":{"end":896,"start":878},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":999,"start":958}},{"args_src":"{ label: \"Description\" }","name":"textAreaController","span":{"end":953,"start":901}}],"name":"description","optional":false,"readonly":false,"span":{"end":1024,"start":1004},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"default","span":{"end":1081,"start":1062}},{"args_src":"{}","name":"hiddenController","span":{"end":1057,"start":1029}}],"name":"taxComponents","optional":false,"readonly":false,"span":{"end":1127,"start":1086},"ts_type":"{ [key: string]: number }"}],"heritage":[],"methods":[],"name":"TaxRate","span":{"end":1129,"start":116},"type_params":[]}
+interface TaxRate: {"body_span":{"end":1129,"start":134},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":168,"start":140}}],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":184,"start":173},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":276,"start":235}},{"args_src":"{ label: \"Name\" }","name":"textController","span":{"end":230,"start":189}}],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":294,"start":281},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":392,"start":351}},{"args_src":"{ label: \"Tax Agency\" }","name":"textController","span":{"end":346,"start":299}}],"key":"Named","name":"taxAgency","optional":false,"readonly":false,"span":{"end":415,"start":397},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Zip\", min: 0 }","name":"numberController","span":{"end":470,"start":420}}],"key":"Named","name":"zip","optional":false,"readonly":false,"span":{"end":487,"start":475},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":579,"start":538}},{"args_src":"{ label: \"City\" }","name":"textController","span":{"end":533,"start":492}}],"key":"Named","name":"city","optional":false,"readonly":false,"span":{"end":597,"start":584},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":691,"start":650}},{"args_src":"{ label: \"County\" }","name":"textController","span":{"end":645,"start":602}}],"key":"Named","name":"county","optional":false,"readonly":false,"span":{"end":711,"start":696},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":804,"start":763}},{"args_src":"{ label: \"State\" }","name":"textController","span":{"end":758,"start":716}}],"key":"Named","name":"state","optional":false,"readonly":false,"span":{"end":823,"start":809},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Active\" }","name":"switchController","span":{"end":873,"start":828}}],"key":"Named","name":"isActive","optional":false,"readonly":false,"span":{"end":896,"start":878},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":999,"start":958}},{"args_src":"{ label: \"Description\" }","name":"textAreaController","span":{"end":953,"start":901}}],"key":"Named","name":"description","optional":false,"readonly":false,"span":{"end":1024,"start":1004},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"default","span":{"end":1081,"start":1062}},{"args_src":"{}","name":"hiddenController","span":{"end":1057,"start":1029}}],"key":"Named","name":"taxComponents","optional":false,"readonly":false,"span":{"end":1127,"start":1086},"ts_type":"{ [key: string]: number }"}],"heritage":[],"methods":[],"name":"TaxRate","span":{"end":1129,"start":116},"type_params":[]}
 
 ## Registry reads
 

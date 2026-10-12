@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { instanceOf as __mf_instanceOf, instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
-import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { instanceOf as __mf_instanceOf, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
+import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 // Default on classes whose fields have initializers, derived beside Decode,
 // whose constructor takes arguments.
@@ -150,7 +150,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("theme")) || (__fields.keeps("theme") && obj["theme"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("theme")) ? "theme" in obj : (__fields.keeps("theme") && obj["theme"] !== undefined)) {
         const __raw_theme = obj["theme"] as string;
 
         if (!(typeof __raw_theme === "string")) {
@@ -181,7 +181,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("tags")) || (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
         const __raw_tags = obj["tags"] as string[];
         if (Array.isArray(__raw_tags)) {
             ctx.pushScope("tags");
@@ -205,7 +205,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             errors.push({ field: "tags", message: __raw_tags == null ? "Settings.tags is required" : "expected string[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("limit")) || (__fields.keeps("limit") && obj["limit"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("limit")) ? "limit" in obj : (__fields.keeps("limit") && obj["limit"] !== undefined)) {
         const __raw_limit = obj["limit"] as number;
 
         if (!(typeof __raw_limit === "number")) {
@@ -214,7 +214,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.limit = __raw_limit;
         }
     }
-    if ((__fields === undefined || __fields.requires("createdAt")) || (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
         const __raw_createdAt = obj["createdAt"] as number;
 
         if (!(typeof __raw_createdAt === "number")) {
@@ -315,51 +315,56 @@ export class Counter {
     count: number = 1;
 
     static toString(value: Counter): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("count: " + String(value.count));
-        return "Counter { " + parts.join(", ") + " }";
+            return "Counter { " + parts.join(", ") + " }";
+        });
     }
 
     static clone(value: Counter): Counter {
-        return __mf_instanceWith(value, ({ count: value.count }));
+        return __mf_clonedWith(value, () => ({ count: value.count }));
     }
 
     static equals(a: Counter, b: Counter): boolean {
         if (a === b) return true;
-        return a.count === b.count;
+        return __mf_equalWithin(a, b, () => a.count === b.count);
     }
 
     static hashCode(value: Counter): number {
-        let hash = 17;
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
         hash = (hash * 31 + (Number.isInteger(value.count) ? value.count | 0 : value.count.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-        return hash;
+            return hash;
+        });
     }
 
     static partialCompare(a: Counter, b: Counter): number | null {
         if (a === b) return 0;
+        return __mf_comparedWithin(a, b, () => {
         const cmp0 = (a.count < b.count ? -1 : a.count > b.count ? 1 : a.count === b.count ? 0 : null);
         if (cmp0 === null) return null;
         if (cmp0 !== 0) return cmp0;
-        return 0;
+            return 0;
+        });
     }
 
     static compare(a: Counter, b: Counter): number {
         if (a === b) return 0;
+        return __mf_comparedWithin(a, b, () => {
         const cmp0 = a.count < b.count ? -1 : a.count > b.count ? 1 : 0;
         if (cmp0 !== 0) return cmp0;
-        return 0;
+            return 0;
+        });
     }
 
 /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 static encodeWithContext(value: Counter, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Counter",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Counter" });
     Counter.#encodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -478,7 +483,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("count")) || (__fields.keeps("count") && obj["count"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
         const __raw_count = obj["count"] as number;
 
         if (!(typeof __raw_count === "number")) {
@@ -758,45 +763,45 @@ export declare function counterDefaultValue(): Counter;
 
 ## Mapping
 
-original 0..396 -> expanded 704..1100
-original 396..397 -> expanded 10038..10039
-original 397..579 -> expanded 11911..12093
-original 579..580 -> expanded 12366..12367
-original 580..752 -> expanded 12454..12626
-original 752..753 -> expanded 20796..20797
-original 753..754 -> expanded 24593..24594
-generated 0..704 <- imports
-generated 1100..1466 <- Default
-generated 1466..10038 <- Decode
-generated 10039..10129 <- Default
-generated 10129..11911 <- Decode
-generated 12093..12366 <- Default
-generated 12367..12454 <- Default
-generated 12626..12823 <- Debug
-generated 12823..12941 <- Clone
-generated 12941..13071 <- PartialEq
-generated 13071..13345 <- Hash
-generated 13345..13649 <- PartialOrd
-generated 13649..13868 <- Ord
-generated 13868..15415 <- Encode
-generated 15415..15736 <- Encode
-generated 15736..20616 <- Decode
-generated 20616..20796 <- Default
-generated 20797..20894 <- Debug
-generated 20894..20986 <- Clone
-generated 20986..21087 <- PartialEq
-generated 21087..21184 <- Hash
-generated 21184..21307 <- PartialOrd
-generated 21307..21409 <- Ord
-generated 21409..22739 <- Encode
-generated 22739..24506 <- Decode
-generated 24506..24593 <- Default
+original 0..396 -> expanded 918..1314
+original 396..397 -> expanded 10319..10320
+original 397..579 -> expanded 12192..12374
+original 579..580 -> expanded 12647..12648
+original 580..752 -> expanded 12735..12907
+original 752..753 -> expanded 21381..21382
+original 753..754 -> expanded 25178..25179
+generated 0..918 <- imports
+generated 1314..1680 <- Default
+generated 1680..10319 <- Decode
+generated 10320..10410 <- Default
+generated 10410..12192 <- Decode
+generated 12374..12647 <- Default
+generated 12648..12735 <- Default
+generated 12907..13174 <- Debug
+generated 13174..13296 <- Clone
+generated 13296..13456 <- PartialEq
+generated 13456..13798 <- Hash
+generated 13798..14167 <- PartialOrd
+generated 14167..14451 <- Ord
+generated 14451..15984 <- Encode
+generated 15984..16305 <- Encode
+generated 16305..21201 <- Decode
+generated 21201..21381 <- Default
+generated 21382..21479 <- Debug
+generated 21479..21571 <- Clone
+generated 21571..21672 <- PartialEq
+generated 21672..21769 <- Hash
+generated 21769..21892 <- PartialOrd
+generated 21892..21994 <- Ord
+generated 21994..23324 <- Encode
+generated 23324..25091 <- Decode
+generated 25091..25178 <- Default
 
 ## Metadata
 
-class Settings: {"body_span":{"end":398,"start":171},"decorators":[{"args_src":"Default, Decode","name":"Derive","span":{"end":148,"start":117}}],"fields":[{"decorators":[],"initializer":"'dark'","name":"theme","optional":false,"readonly":false,"span":{"end":200,"start":177},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"3","name":"retries","optional":true,"readonly":false,"span":{"end":226,"start":205},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"name":"label","optional":true,"readonly":false,"span":{"end":246,"start":231},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"['general']","name":"tags","optional":false,"readonly":false,"span":{"end":280,"start":251},"ts_type":"string[]","visibility":"Public"},{"decorators":[{"args_src":"7","name":"default","span":{"end":303,"start":285}}],"initializer":"5","name":"limit","optional":false,"readonly":false,"span":{"end":326,"start":308},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"Date.now()","name":"createdAt","optional":false,"readonly":false,"span":{"end":362,"start":331},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Settings","span":{"end":398,"start":156},"superclass":null,"type_params":[]}
-class Greeter: {"body_span":{"end":581,"start":445},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":423,"start":400}}],"fields":[{"decorators":[],"initializer":"'world'","name":"name","optional":false,"readonly":false,"span":{"end":474,"start":451},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"function (this: Greeter): string {\n        return `hello ${this.name}`;\n    }","name":"greet","optional":false,"readonly":false,"span":{"end":579,"start":479},"ts_type":"() => string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Greeter","span":{"end":581,"start":431},"superclass":null,"type_params":[]}
-class Counter: {"body_span":{"end":754,"start":696},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode, Default","name":"Derive","span":{"end":674,"start":583}}],"fields":[{"decorators":[],"initializer":"1","name":"count","optional":false,"readonly":false,"span":{"end":752,"start":734},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Counter","span":{"end":754,"start":682},"superclass":null,"type_params":[]}
+class Settings: {"body_span":{"end":398,"start":171},"decorators":[{"args_src":"Default, Decode","name":"Derive","span":{"end":148,"start":117}}],"fields":[{"decorators":[],"initializer":"'dark'","key":"Named","name":"theme","optional":false,"readonly":false,"span":{"end":200,"start":177},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"3","key":"Named","name":"retries","optional":true,"readonly":false,"span":{"end":226,"start":205},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"label","optional":true,"readonly":false,"span":{"end":246,"start":231},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"['general']","key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":280,"start":251},"ts_type":"string[]","visibility":"Public"},{"decorators":[{"args_src":"7","name":"default","span":{"end":303,"start":285}}],"initializer":"5","key":"Named","name":"limit","optional":false,"readonly":false,"span":{"end":326,"start":308},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"Date.now()","key":"Named","name":"createdAt","optional":false,"readonly":false,"span":{"end":362,"start":331},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Settings","span":{"end":398,"start":156},"superclass":null,"type_params":[]}
+class Greeter: {"body_span":{"end":581,"start":445},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":423,"start":400}}],"fields":[{"decorators":[],"initializer":"'world'","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":474,"start":451},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"function (this: Greeter): string {\n        return `hello ${this.name}`;\n    }","key":"Named","name":"greet","optional":false,"readonly":false,"span":{"end":579,"start":479},"ts_type":"() => string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Greeter","span":{"end":581,"start":431},"superclass":null,"type_params":[]}
+class Counter: {"body_span":{"end":754,"start":696},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode, Default","name":"Derive","span":{"end":674,"start":583}}],"fields":[{"decorators":[],"initializer":"1","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":752,"start":734},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Counter","span":{"end":754,"start":682},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

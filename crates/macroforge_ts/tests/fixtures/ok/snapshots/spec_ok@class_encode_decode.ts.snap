@@ -17,7 +17,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 class Config {
@@ -28,12 +28,9 @@ class Config {
 static encodeWithContext(value: Config, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Config",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Config" });
     Config.#encodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -161,7 +158,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("host")) || (__fields.keeps("host") && obj["host"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("host")) ? "host" in obj : (__fields.keeps("host") && obj["host"] !== undefined)) {
         const __raw_host = obj["host"] as string;
 
         if (!(typeof __raw_host === "string")) {
@@ -170,7 +167,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.host = __raw_host;
         }
     }
-    if ((__fields === undefined || __fields.requires("port")) || (__fields.keeps("port") && obj["port"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("port")) ? "port" in obj : (__fields.keeps("port") && obj["port"] !== undefined)) {
         const __raw_port = obj["port"] as number;
 
         if (!(typeof __raw_port === "number")) {
@@ -330,19 +327,19 @@ export {};
 
 ## Mapping
 
-original 30..82 -> expanded 524..576
-original 82..83 -> expanded 8064..8065
-original 83..84 -> expanded 11137..11138
-generated 0..524 <- imports
-generated 576..2264 <- Encode
-generated 2264..2583 <- Encode
-generated 2583..8064 <- Decode
-generated 8065..9385 <- Encode
-generated 9385..11137 <- Decode
+original 30..82 -> expanded 596..648
+original 82..83 -> expanded 8152..8153
+original 83..84 -> expanded 11225..11226
+generated 0..596 <- imports
+generated 648..2322 <- Encode
+generated 2322..2641 <- Encode
+generated 2641..8152 <- Decode
+generated 8153..9473 <- Encode
+generated 9473..11225 <- Decode
 
 ## Metadata
 
-class Config: {"body_span":{"end":84,"start":45},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"initializer":null,"name":"host","optional":false,"readonly":false,"span":{"end":64,"start":51},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"port","optional":false,"readonly":false,"span":{"end":82,"start":69},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Config","span":{"end":84,"start":32},"superclass":null,"type_params":[]}
+class Config: {"body_span":{"end":84,"start":45},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"initializer":null,"key":"Named","name":"host","optional":false,"readonly":false,"span":{"end":64,"start":51},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"key":"Named","name":"port","optional":false,"readonly":false,"span":{"end":82,"start":69},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Config","span":{"end":84,"start":32},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

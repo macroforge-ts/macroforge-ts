@@ -13,8 +13,8 @@ true
 ## Output
 
 import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemDefaultValue, edgeItemHashCode, edgeItemEquals, edgeItemClone, edgeCardDecodeWithContext, edgeCardEncodeWithContext, edgeCardHashCode, edgeCardEquals, edgeCardClone, edgeItemToString } from "./edge-types";
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, decodeDate as __mf_decodeDate, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, PendingRef as __mf_PendingRef, decodeNumberKey as __mf_decodeNumberKey, decodeChecked as __mf_decodeChecked, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
-import { structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, decodeDate as __mf_decodeDate, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, PendingRef as __mf_PendingRef, decodeNumberKey as __mf_decodeNumberKey, decodeChecked as __mf_decodeChecked, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
+import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Collections nested in one another and keyed or filled by every kind of
@@ -82,7 +82,8 @@ export function collectionKindEncodeWithContext(value: CollectionKind): string |
 
 /** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
 export function collectionKindDecode(input: unknown): CollectionKind {
-    return collectionKindDecodeWithContext(input);
+
+    return collectionKindDecodeWithContext(__mf_textOrValue(input, collectionKindIs));
 }
 
 /** Decodes with an existing context (for consistency with other types).  */
@@ -138,7 +139,8 @@ export interface CollectionNested {
 }
 
 export function collectionNestedToString(value: CollectionNested): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("grid: " + __mf_structuralDebug(value.grid));
     parts.push("dateGrid: " + __mf_structuralDebug(value.dateGrid));
     parts.push("itemGrid: " + __mf_structuralDebug(value.itemGrid));
@@ -150,11 +152,12 @@ export function collectionNestedToString(value: CollectionNested): string {
     parts.push("optionalItems: " + (value.optionalItems == null ? String(value.optionalItems) : "[" + value.optionalItems.map(edgeItemToString).join(", ") + "]"));
     parts.push("maybeItems: " + (value.maybeItems == null ? String(value.maybeItems) : "[" + value.maybeItems.map(edgeItemToString).join(", ") + "]"));
     parts.push("laterItems: " + (value.laterItems == null ? String(value.laterItems) : "[" + value.laterItems.map(edgeItemToString).join(", ") + "]"));
-    return "CollectionNested { " + parts.join(", ") + " }";
+        return "CollectionNested { " + parts.join(", ") + " }";
+    });
 }
 
 export function collectionNestedClone(value: CollectionNested): CollectionNested {
-    return ({
+    return __mf_clonedWith(value, (): CollectionNested => ({
 	grid: value.grid.map((__item0) => [...__item0]),
 	dateGrid: value.dateGrid.map((__item0) => __item0.map((__item1) => new Date(__item1.getTime()))),
 	itemGrid: value.itemGrid.map((__item0) => __item0.map((__item1) => edgeItemClone(__item1))),
@@ -182,12 +185,12 @@ export function collectionNestedClone(value: CollectionNested): CollectionNested
 	..."optionalItems" in value ? { optionalItems: value.optionalItems == null ? value.optionalItems : value.optionalItems.map((__item0) => edgeItemClone(__item0)) } : {},
 	maybeItems: value.maybeItems == null ? value.maybeItems : value.maybeItems.map((__item0) => edgeItemClone(__item0)),
 	laterItems: value.laterItems == null ? value.laterItems : value.laterItems.map((__item0) => edgeItemClone(__item0))
-});
+}));
 }
 
 export function collectionNestedEquals(a: CollectionNested, b: CollectionNested): boolean {
     if (a === b) return true;
-    return a.grid.length === b.grid.length && a.grid.every((__item0, __index0) => {
+    return __mf_equalWithin(a, b, () => a.grid.length === b.grid.length && a.grid.every((__item0, __index0) => {
 	const __other0 = b.grid[__index0];
 	return __other0 === undefined ? __item0 === undefined : __item0.length === __other0.length && __item0.every((__item1, __index1) => {
 		const __other1 = __other0[__index1];
@@ -232,11 +235,12 @@ export function collectionNestedEquals(a: CollectionNested, b: CollectionNested)
 }))(a.maybeItems, b.maybeItems)) && (a.laterItems == null || b.laterItems == null ? a.laterItems === b.laterItems : ((__left0, __right0) => __left0.length === __right0.length && __left0.every((__item0, __index0) => {
 	const __other0 = __right0[__index0];
 	return __other0 === undefined ? __item0 === undefined : edgeItemEquals(__item0, __other0);
-}))(a.laterItems, b.laterItems));
+}))(a.laterItems, b.laterItems)));
 }
 
 export function collectionNestedHashCode(value: CollectionNested): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (value.grid.reduce<number>((__hash0, __item0) => __hash0 * 31 + __item0.reduce<number>((__hash1, __item1) => __hash1 * 31 + (Number.isInteger(__item1) ? __item1 | 0 : __item1.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0, 1) | 0, 1))) | 0;
     hash = (hash * 31 + (value.dateGrid.reduce<number>((__hash0, __item0) => __hash0 * 31 + __item0.reduce<number>((__hash1, __item1) => __hash1 * 31 + (__item1.getTime() | 0) | 0, 1) | 0, 1))) | 0;
     hash = (hash * 31 + (value.itemGrid.reduce<number>((__hash0, __item0) => __hash0 * 31 + __item0.reduce<number>((__hash1, __item1) => __hash1 * 31 + edgeItemHashCode(__item1) | 0, 1) | 0, 1))) | 0;
@@ -248,7 +252,8 @@ export function collectionNestedHashCode(value: CollectionNested): number {
     hash = (hash * 31 + (value.optionalItems == null ? 0 : value.optionalItems.reduce<number>((__hash0, __item0) => __hash0 * 31 + edgeItemHashCode(__item0) | 0, 1))) | 0;
     hash = (hash * 31 + (value.maybeItems == null ? 0 : value.maybeItems.reduce<number>((__hash0, __item0) => __hash0 * 31 + edgeItemHashCode(__item0) | 0, 1))) | 0;
     hash = (hash * 31 + (value.laterItems == null ? 0 : value.laterItems.reduce<number>((__hash0, __item0) => __hash0 * 31 + edgeItemHashCode(__item0) | 0, 1))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function collectionNestedDefaultValue(): CollectionNested {
@@ -277,12 +282,9 @@ export function collectionNestedEncode(value: CollectionNested, keepMetadata?: b
 export function collectionNestedEncodeWithContext(value: CollectionNested, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "CollectionNested",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "CollectionNested" });
     collectionNestedEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -464,7 +466,7 @@ export function collectionNestedDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("grid")) || (__fields.keeps("grid") && obj["grid"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("grid")) ? "grid" in obj : (__fields.keeps("grid") && obj["grid"] !== undefined)) {
         const __raw_grid = obj["grid"] as number[][];
         if (Array.isArray(__raw_grid)) {
             ctx.pushScope("grid");
@@ -488,7 +490,7 @@ export function collectionNestedDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "grid", message: __raw_grid == null ? "CollectionNested.grid is required" : "expected number[][]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("dateGrid")) || (__fields.keeps("dateGrid") && obj["dateGrid"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("dateGrid")) ? "dateGrid" in obj : (__fields.keeps("dateGrid") && obj["dateGrid"] !== undefined)) {
         const __raw_dateGrid = obj["dateGrid"] as Array<Array<string | Date>>;
         if (Array.isArray(__raw_dateGrid)) {
             ctx.pushScope("dateGrid");
@@ -512,7 +514,7 @@ export function collectionNestedDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "dateGrid", message: __raw_dateGrid == null ? "CollectionNested.dateGrid is required" : "expected Array<Array<Date>>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("itemGrid")) || (__fields.keeps("itemGrid") && obj["itemGrid"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("itemGrid")) ? "itemGrid" in obj : (__fields.keeps("itemGrid") && obj["itemGrid"] !== undefined)) {
         const __raw_itemGrid = obj["itemGrid"] as EdgeItem[][];
         if (Array.isArray(__raw_itemGrid)) {
             ctx.pushScope("itemGrid");
@@ -536,7 +538,7 @@ export function collectionNestedDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "itemGrid", message: __raw_itemGrid == null ? "CollectionNested.itemGrid is required" : "expected EdgeItem[][]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("datesByName")) || (__fields.keeps("datesByName") && obj["datesByName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("datesByName")) ? "datesByName" in obj : (__fields.keeps("datesByName") && obj["datesByName"] !== undefined)) {
         const __raw_datesByName = obj["datesByName"] as Record<string, Array<string | Date>>;
         if (typeof __raw_datesByName === "object" && __raw_datesByName !== null) {
             ctx.pushScope("datesByName");
@@ -560,7 +562,7 @@ export function collectionNestedDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "datesByName", message: __raw_datesByName == null ? "CollectionNested.datesByName is required" : "expected Map<string, Date[]>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("itemsByName")) || (__fields.keeps("itemsByName") && obj["itemsByName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("itemsByName")) ? "itemsByName" in obj : (__fields.keeps("itemsByName") && obj["itemsByName"] !== undefined)) {
         const __raw_itemsByName = obj["itemsByName"] as Record<string, EdgeItem[]>;
         if (typeof __raw_itemsByName === "object" && __raw_itemsByName !== null) {
             ctx.pushScope("itemsByName");
@@ -584,7 +586,7 @@ export function collectionNestedDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "itemsByName", message: __raw_itemsByName == null ? "CollectionNested.itemsByName is required" : "expected Record<string, EdgeItem[]>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("setsByName")) || (__fields.keeps("setsByName") && obj["setsByName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("setsByName")) ? "setsByName" in obj : (__fields.keeps("setsByName") && obj["setsByName"] !== undefined)) {
         const __raw_setsByName = obj["setsByName"] as Record<string, Array<string>>;
         if (typeof __raw_setsByName === "object" && __raw_setsByName !== null) {
             ctx.pushScope("setsByName");
@@ -608,7 +610,7 @@ export function collectionNestedDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "setsByName", message: __raw_setsByName == null ? "CollectionNested.setsByName is required" : "expected Map<string, Set<string>>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("mapOfMaps")) || (__fields.keeps("mapOfMaps") && obj["mapOfMaps"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("mapOfMaps")) ? "mapOfMaps" in obj : (__fields.keeps("mapOfMaps") && obj["mapOfMaps"] !== undefined)) {
         const __raw_mapOfMaps = obj["mapOfMaps"] as Record<string, Record<string, number>>;
         if (typeof __raw_mapOfMaps === "object" && __raw_mapOfMaps !== null) {
             ctx.pushScope("mapOfMaps");
@@ -632,7 +634,7 @@ export function collectionNestedDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "mapOfMaps", message: __raw_mapOfMaps == null ? "CollectionNested.mapOfMaps is required" : "expected Map<string, Map<string, number>>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("cardsByName")) || (__fields.keeps("cardsByName") && obj["cardsByName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("cardsByName")) ? "cardsByName" in obj : (__fields.keeps("cardsByName") && obj["cardsByName"] !== undefined)) {
         const __raw_cardsByName = obj["cardsByName"] as Record<string, EdgeCard>;
         if (typeof __raw_cardsByName === "object" && __raw_cardsByName !== null) {
             ctx.pushScope("cardsByName");
@@ -682,7 +684,7 @@ export function collectionNestedDecodeWithContext(value: unknown, ctx: __mf_Deco
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("maybeItems")) || (__fields.keeps("maybeItems") && obj["maybeItems"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("maybeItems")) ? "maybeItems" in obj : (__fields.keeps("maybeItems") && obj["maybeItems"] !== undefined)) {
         const __raw_maybeItems = obj["maybeItems"] as EdgeItem[] | null;
 
         if (__raw_maybeItems === null) {
@@ -819,7 +821,8 @@ export interface CollectionKeys {
 }
 
 export function collectionKeysToString(value: CollectionKeys): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("byNumber: " + __mf_structuralDebug(value.byNumber));
     parts.push("byKind: " + __mf_structuralDebug(value.byKind));
     parts.push("byDate: " + __mf_structuralDebug(value.byDate));
@@ -830,11 +833,12 @@ export function collectionKeysToString(value: CollectionKeys): string {
     parts.push("nullableDates: " + __mf_structuralDebug(value.nullableDates));
     parts.push("dateSet: " + __mf_structuralDebug(value.dateSet));
     parts.push("dateRecord: " + __mf_structuralDebug(value.dateRecord));
-    return "CollectionKeys { " + parts.join(", ") + " }";
+        return "CollectionKeys { " + parts.join(", ") + " }";
+    });
 }
 
 export function collectionKeysClone(value: CollectionKeys): CollectionKeys {
-    return ({
+    return __mf_clonedWith(value, (): CollectionKeys => ({
 	byNumber: new Map(value.byNumber),
 	byKind: new Map(value.byKind),
 	byDate: new Map(value.byDate),
@@ -845,12 +849,12 @@ export function collectionKeysClone(value: CollectionKeys): CollectionKeys {
 	nullableDates: value.nullableDates.map((__item0) => __item0 == null ? __item0 : new Date(__item0.getTime())),
 	dateSet: new Set(Array.from(value.dateSet, (__item0) => __item0 == null ? __item0 : new Date(__item0.getTime()))),
 	dateRecord: __mf_structuralClone(value.dateRecord)
-});
+}));
 }
 
 export function collectionKeysEquals(a: CollectionKeys, b: CollectionKeys): boolean {
     if (a === b) return true;
-    return a.byNumber.size === b.byNumber.size && Array.from(a.byNumber).every(([__key0, __item0]) => {
+    return __mf_equalWithin(a, b, () => a.byNumber.size === b.byNumber.size && Array.from(a.byNumber).every(([__key0, __item0]) => {
 	const __other0 = b.byNumber.get(__key0);
 	return b.byNumber.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
 }) && a.byKind.size === b.byKind.size && Array.from(a.byKind).every(([__key0, __item0]) => {
@@ -862,11 +866,12 @@ export function collectionKeysEquals(a: CollectionKeys, b: CollectionKeys): bool
 }) && __mf_structuralEquals(a.kindLabels, b.kindLabels) && __mf_structuralEquals(a.numbered, b.numbered) && a.kinds.size === b.kinds.size && Array.from(a.kinds).every((__item0) => b.kinds.has(__item0) || Array.from(b.kinds).some((__other0) => collectionKindEquals(__item0, __other0))) && a.dates.size === b.dates.size && Array.from(a.dates).every((__item0) => b.dates.has(__item0) || Array.from(b.dates).some((__other0) => __item0.getTime() === __other0.getTime())) && a.nullableDates.length === b.nullableDates.length && a.nullableDates.every((__item0, __index0) => {
 	const __other0 = b.nullableDates[__index0];
 	return __other0 === undefined ? __item0 === undefined : __item0 == null || __other0 == null ? __item0 === __other0 : __item0.getTime() === __other0.getTime();
-}) && a.dateSet.size === b.dateSet.size && Array.from(a.dateSet).every((__item0) => b.dateSet.has(__item0) || Array.from(b.dateSet).some((__other0) => __item0 == null || __other0 == null ? __item0 === __other0 : __item0.getTime() === __other0.getTime())) && __mf_structuralEquals(a.dateRecord, b.dateRecord);
+}) && a.dateSet.size === b.dateSet.size && Array.from(a.dateSet).every((__item0) => b.dateSet.has(__item0) || Array.from(b.dateSet).some((__other0) => __item0 == null || __other0 == null ? __item0 === __other0 : __item0.getTime() === __other0.getTime())) && __mf_structuralEquals(a.dateRecord, b.dateRecord));
 }
 
 export function collectionKeysHashCode(value: CollectionKeys): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (Array.from(value.byNumber).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((Number.isInteger(__key0) ? __key0 | 0 : __key0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) * 31 + (__item0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0) | 0, 0))) | 0;
     hash = (hash * 31 + (Array.from(value.byKind).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + (__mf_structuralHash(__key0) * 31 + (Number.isInteger(__item0) ? __item0 | 0 : __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0)) | 0) | 0, 0))) | 0;
     hash = (hash * 31 + (Array.from(value.byDate).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0.getTime() | 0) * 31 + (__item0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0) | 0, 0))) | 0;
@@ -877,7 +882,8 @@ export function collectionKeysHashCode(value: CollectionKeys): number {
     hash = (hash * 31 + (value.nullableDates.reduce<number>((__hash0, __item0) => __hash0 * 31 + (__item0 == null ? 0 : __item0.getTime() | 0) | 0, 1))) | 0;
     hash = (hash * 31 + (Array.from(value.dateSet).reduce<number>((__hash0, __item0) => __hash0 + (__item0 == null ? 0 : __item0.getTime() | 0) | 0, 0))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.dateRecord))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function collectionKeysDefaultValue(): CollectionKeys {
@@ -909,12 +915,9 @@ export function collectionKeysEncode(value: CollectionKeys, keepMetadata?: boole
 export function collectionKeysEncodeWithContext(value: CollectionKeys, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "CollectionKeys",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "CollectionKeys" });
     collectionKeysEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1094,7 +1097,7 @@ export function collectionKeysDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("byNumber")) || (__fields.keeps("byNumber") && obj["byNumber"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("byNumber")) ? "byNumber" in obj : (__fields.keeps("byNumber") && obj["byNumber"] !== undefined)) {
         const __raw_byNumber = obj["byNumber"] as Record<string, string>;
         if (typeof __raw_byNumber === "object" && __raw_byNumber !== null) {
             ctx.pushScope("byNumber");
@@ -1118,7 +1121,7 @@ export function collectionKeysDecodeWithContext(value: unknown, ctx: __mf_Decode
             errors.push({ field: "byNumber", message: __raw_byNumber == null ? "CollectionKeys.byNumber is required" : "expected Map<number, string>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("byKind")) || (__fields.keeps("byKind") && obj["byKind"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("byKind")) ? "byKind" in obj : (__fields.keeps("byKind") && obj["byKind"] !== undefined)) {
         const __raw_byKind = obj["byKind"] as Record<string, number>;
         if (typeof __raw_byKind === "object" && __raw_byKind !== null) {
             ctx.pushScope("byKind");
@@ -1142,7 +1145,7 @@ export function collectionKeysDecodeWithContext(value: unknown, ctx: __mf_Decode
             errors.push({ field: "byKind", message: __raw_byKind == null ? "CollectionKeys.byKind is required" : "expected Map<CollectionKind, number>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("byDate")) || (__fields.keeps("byDate") && obj["byDate"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("byDate")) ? "byDate" in obj : (__fields.keeps("byDate") && obj["byDate"] !== undefined)) {
         const __raw_byDate = obj["byDate"] as Record<string, string>;
         if (typeof __raw_byDate === "object" && __raw_byDate !== null) {
             ctx.pushScope("byDate");
@@ -1166,7 +1169,7 @@ export function collectionKeysDecodeWithContext(value: unknown, ctx: __mf_Decode
             errors.push({ field: "byDate", message: __raw_byDate == null ? "CollectionKeys.byDate is required" : "expected Map<Date, string>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("kindLabels")) || (__fields.keeps("kindLabels") && obj["kindLabels"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("kindLabels")) ? "kindLabels" in obj : (__fields.keeps("kindLabels") && obj["kindLabels"] !== undefined)) {
         const __raw_kindLabels = obj["kindLabels"] as Record<CollectionKind, string>;
         if (typeof __raw_kindLabels === "object" && __raw_kindLabels !== null) {
             ctx.pushScope("kindLabels");
@@ -1190,7 +1193,7 @@ export function collectionKeysDecodeWithContext(value: unknown, ctx: __mf_Decode
             errors.push({ field: "kindLabels", message: __raw_kindLabels == null ? "CollectionKeys.kindLabels is required" : "expected Record<CollectionKind, string>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("numbered")) || (__fields.keeps("numbered") && obj["numbered"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("numbered")) ? "numbered" in obj : (__fields.keeps("numbered") && obj["numbered"] !== undefined)) {
         const __raw_numbered = obj["numbered"] as Record<number, EdgeItem>;
         if (typeof __raw_numbered === "object" && __raw_numbered !== null) {
             ctx.pushScope("numbered");
@@ -1214,7 +1217,7 @@ export function collectionKeysDecodeWithContext(value: unknown, ctx: __mf_Decode
             errors.push({ field: "numbered", message: __raw_numbered == null ? "CollectionKeys.numbered is required" : "expected Record<number, EdgeItem>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("kinds")) || (__fields.keeps("kinds") && obj["kinds"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("kinds")) ? "kinds" in obj : (__fields.keeps("kinds") && obj["kinds"] !== undefined)) {
         const __raw_kinds = obj["kinds"] as Array<CollectionKind>;
         if (Array.isArray(__raw_kinds)) {
             ctx.pushScope("kinds");
@@ -1238,7 +1241,7 @@ export function collectionKeysDecodeWithContext(value: unknown, ctx: __mf_Decode
             errors.push({ field: "kinds", message: __raw_kinds == null ? "CollectionKeys.kinds is required" : "expected Set<CollectionKind>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("dates")) || (__fields.keeps("dates") && obj["dates"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("dates")) ? "dates" in obj : (__fields.keeps("dates") && obj["dates"] !== undefined)) {
         const __raw_dates = obj["dates"] as Array<string | Date>;
         if (Array.isArray(__raw_dates)) {
             ctx.pushScope("dates");
@@ -1262,7 +1265,7 @@ export function collectionKeysDecodeWithContext(value: unknown, ctx: __mf_Decode
             errors.push({ field: "dates", message: __raw_dates == null ? "CollectionKeys.dates is required" : "expected Set<Date>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("nullableDates")) || (__fields.keeps("nullableDates") && obj["nullableDates"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("nullableDates")) ? "nullableDates" in obj : (__fields.keeps("nullableDates") && obj["nullableDates"] !== undefined)) {
         const __raw_nullableDates = obj["nullableDates"] as Array<string | Date | null>;
         if (Array.isArray(__raw_nullableDates)) {
             ctx.pushScope("nullableDates");
@@ -1286,7 +1289,7 @@ export function collectionKeysDecodeWithContext(value: unknown, ctx: __mf_Decode
             errors.push({ field: "nullableDates", message: __raw_nullableDates == null ? "CollectionKeys.nullableDates is required" : "expected (Date | null)[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("dateSet")) || (__fields.keeps("dateSet") && obj["dateSet"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("dateSet")) ? "dateSet" in obj : (__fields.keeps("dateSet") && obj["dateSet"] !== undefined)) {
         const __raw_dateSet = obj["dateSet"] as Array<string | Date | null>;
         if (Array.isArray(__raw_dateSet)) {
             ctx.pushScope("dateSet");
@@ -1310,7 +1313,7 @@ export function collectionKeysDecodeWithContext(value: unknown, ctx: __mf_Decode
             errors.push({ field: "dateSet", message: __raw_dateSet == null ? "CollectionKeys.dateSet is required" : "expected Set<Date | null>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("dateRecord")) || (__fields.keeps("dateRecord") && obj["dateRecord"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("dateRecord")) ? "dateRecord" in obj : (__fields.keeps("dateRecord") && obj["dateRecord"] !== undefined)) {
         const __raw_dateRecord = obj["dateRecord"] as Record<string, Date>;
         if (typeof __raw_dateRecord === "object" && __raw_dateRecord !== null) {
             ctx.pushScope("dateRecord");
@@ -1411,7 +1414,8 @@ export interface CollectionUnions {
 }
 
 export function collectionUnionsToString(value: CollectionUnions): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("mixed: " + __mf_structuralDebug(value.mixed));
     parts.push("itemOrText: " + __mf_structuralDebug(value.itemOrText));
     parts.push("itemOrNull: " + __mf_structuralDebug(value.itemOrNull));
@@ -1419,11 +1423,12 @@ export function collectionUnionsToString(value: CollectionUnions): string {
     parts.push("recordOrNull: " + __mf_structuralDebug(value.recordOrNull));
     parts.push("literal: " + __mf_structuralDebug(value.literal));
     parts.push("kindOrNull: " + __mf_structuralDebug(value.kindOrNull));
-    return "CollectionUnions { " + parts.join(", ") + " }";
+        return "CollectionUnions { " + parts.join(", ") + " }";
+    });
 }
 
 export function collectionUnionsClone(value: CollectionUnions): CollectionUnions {
-    return ({
+    return __mf_clonedWith(value, (): CollectionUnions => ({
 	mixed: value.mixed.map((__item0) => __mf_structuralClone(__item0)),
 	itemOrText: value.itemOrText.map((__item0) => __mf_structuralClone(__item0)),
 	itemOrNull: new Set(Array.from(value.itemOrNull, (__item0) => __item0 == null ? __item0 : edgeItemClone(__item0))),
@@ -1435,12 +1440,12 @@ export function collectionUnionsClone(value: CollectionUnions): CollectionUnions
 	recordOrNull: __mf_structuralClone(value.recordOrNull),
 	literal: [...value.literal],
 	kindOrNull: value.kindOrNull.map((__item0) => __mf_structuralClone(__item0))
-});
+}));
 }
 
 export function collectionUnionsEquals(a: CollectionUnions, b: CollectionUnions): boolean {
     if (a === b) return true;
-    return a.mixed.length === b.mixed.length && a.mixed.every((__item0, __index0) => {
+    return __mf_equalWithin(a, b, () => a.mixed.length === b.mixed.length && a.mixed.every((__item0, __index0) => {
 	const __other0 = b.mixed[__index0];
 	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
 }) && a.itemOrText.length === b.itemOrText.length && a.itemOrText.every((__item0, __index0) => {
@@ -1455,11 +1460,12 @@ export function collectionUnionsEquals(a: CollectionUnions, b: CollectionUnions)
 }) && a.kindOrNull.length === b.kindOrNull.length && a.kindOrNull.every((__item0, __index0) => {
 	const __other0 = b.kindOrNull[__index0];
 	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
-});
+}));
 }
 
 export function collectionUnionsHashCode(value: CollectionUnions): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (value.mixed.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
     hash = (hash * 31 + (value.itemOrText.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
     hash = (hash * 31 + (Array.from(value.itemOrNull).reduce<number>((__hash0, __item0) => __hash0 + (__item0 == null ? 0 : edgeItemHashCode(__item0)) | 0, 0))) | 0;
@@ -1467,7 +1473,8 @@ export function collectionUnionsHashCode(value: CollectionUnions): number {
     hash = (hash * 31 + (__mf_structuralHash(value.recordOrNull))) | 0;
     hash = (hash * 31 + (value.literal.reduce<number>((__hash0, __item0) => __hash0 * 31 + (__item0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0, 1))) | 0;
     hash = (hash * 31 + (value.kindOrNull.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function collectionUnionsDefaultValue(): CollectionUnions {
@@ -1493,12 +1500,9 @@ export function collectionUnionsEncode(value: CollectionUnions, keepMetadata?: b
 export function collectionUnionsEncodeWithContext(value: CollectionUnions, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "CollectionUnions",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "CollectionUnions" });
     collectionUnionsEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1654,7 +1658,7 @@ export function collectionUnionsDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("mixed")) || (__fields.keeps("mixed") && obj["mixed"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("mixed")) ? "mixed" in obj : (__fields.keeps("mixed") && obj["mixed"] !== undefined)) {
         const __raw_mixed = obj["mixed"] as (string | number)[];
         if (Array.isArray(__raw_mixed)) {
             ctx.pushScope("mixed");
@@ -1678,7 +1682,7 @@ export function collectionUnionsDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "mixed", message: __raw_mixed == null ? "CollectionUnions.mixed is required" : "expected (string | number)[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("itemOrText")) || (__fields.keeps("itemOrText") && obj["itemOrText"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("itemOrText")) ? "itemOrText" in obj : (__fields.keeps("itemOrText") && obj["itemOrText"] !== undefined)) {
         const __raw_itemOrText = obj["itemOrText"] as Array<EdgeItem | string>;
         if (Array.isArray(__raw_itemOrText)) {
             ctx.pushScope("itemOrText");
@@ -1702,7 +1706,7 @@ export function collectionUnionsDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "itemOrText", message: __raw_itemOrText == null ? "CollectionUnions.itemOrText is required" : "expected Array<EdgeItem | string>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("itemOrNull")) || (__fields.keeps("itemOrNull") && obj["itemOrNull"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("itemOrNull")) ? "itemOrNull" in obj : (__fields.keeps("itemOrNull") && obj["itemOrNull"] !== undefined)) {
         const __raw_itemOrNull = obj["itemOrNull"] as Array<EdgeItem | null>;
         if (Array.isArray(__raw_itemOrNull)) {
             ctx.pushScope("itemOrNull");
@@ -1726,7 +1730,7 @@ export function collectionUnionsDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "itemOrNull", message: __raw_itemOrNull == null ? "CollectionUnions.itemOrNull is required" : "expected Set<EdgeItem | null>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("valueOrNull")) || (__fields.keeps("valueOrNull") && obj["valueOrNull"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("valueOrNull")) ? "valueOrNull" in obj : (__fields.keeps("valueOrNull") && obj["valueOrNull"] !== undefined)) {
         const __raw_valueOrNull = obj["valueOrNull"] as Record<string, EdgeItem | null>;
         if (typeof __raw_valueOrNull === "object" && __raw_valueOrNull !== null) {
             ctx.pushScope("valueOrNull");
@@ -1750,7 +1754,7 @@ export function collectionUnionsDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "valueOrNull", message: __raw_valueOrNull == null ? "CollectionUnions.valueOrNull is required" : "expected Map<string, EdgeItem | null>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("recordOrNull")) || (__fields.keeps("recordOrNull") && obj["recordOrNull"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("recordOrNull")) ? "recordOrNull" in obj : (__fields.keeps("recordOrNull") && obj["recordOrNull"] !== undefined)) {
         const __raw_recordOrNull = obj["recordOrNull"] as Record<string, EdgeItem | null>;
         if (typeof __raw_recordOrNull === "object" && __raw_recordOrNull !== null) {
             ctx.pushScope("recordOrNull");
@@ -1774,7 +1778,7 @@ export function collectionUnionsDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "recordOrNull", message: __raw_recordOrNull == null ? "CollectionUnions.recordOrNull is required" : "expected Record<string, EdgeItem | null>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("literal")) || (__fields.keeps("literal") && obj["literal"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("literal")) ? "literal" in obj : (__fields.keeps("literal") && obj["literal"] !== undefined)) {
         const __raw_literal = obj["literal"] as ('on' | 'off')[];
         if (Array.isArray(__raw_literal)) {
             ctx.pushScope("literal");
@@ -1798,7 +1802,7 @@ export function collectionUnionsDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "literal", message: __raw_literal == null ? "CollectionUnions.literal is required" : "expected ('on' | 'off')[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("kindOrNull")) || (__fields.keeps("kindOrNull") && obj["kindOrNull"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("kindOrNull")) ? "kindOrNull" in obj : (__fields.keeps("kindOrNull") && obj["kindOrNull"] !== undefined)) {
         const __raw_kindOrNull = obj["kindOrNull"] as (CollectionKind | null)[];
         if (Array.isArray(__raw_kindOrNull)) {
             ctx.pushScope("kindOrNull");
@@ -1900,7 +1904,8 @@ export interface CollectionTuples {
 }
 
 export function collectionTuplesToString(value: CollectionTuples): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("pair: " + __mf_structuralDebug(value.pair));
     parts.push("named: " + __mf_structuralDebug(value.named));
     parts.push("itemPair: " + __mf_structuralDebug(value.itemPair));
@@ -1909,11 +1914,12 @@ export function collectionTuplesToString(value: CollectionTuples): string {
     parts.push("rest: " + __mf_structuralDebug(value.rest));
     parts.push("pairs: " + __mf_structuralDebug(value.pairs));
     parts.push("nested: " + __mf_structuralDebug(value.nested));
-    return "CollectionTuples { " + parts.join(", ") + " }";
+        return "CollectionTuples { " + parts.join(", ") + " }";
+    });
 }
 
 export function collectionTuplesClone(value: CollectionTuples): CollectionTuples {
-    return ({
+    return __mf_clonedWith(value, (): CollectionTuples => ({
 	pair: __mf_structuralClone(value.pair),
 	named: __mf_structuralClone(value.named),
 	itemPair: __mf_structuralClone(value.itemPair),
@@ -1922,19 +1928,20 @@ export function collectionTuplesClone(value: CollectionTuples): CollectionTuples
 	rest: __mf_structuralClone(value.rest),
 	pairs: value.pairs.map((__item0) => __mf_structuralClone(__item0)),
 	nested: __mf_structuralClone(value.nested)
-});
+}));
 }
 
 export function collectionTuplesEquals(a: CollectionTuples, b: CollectionTuples): boolean {
     if (a === b) return true;
-    return __mf_structuralEquals(a.pair, b.pair) && __mf_structuralEquals(a.named, b.named) && __mf_structuralEquals(a.itemPair, b.itemPair) && __mf_structuralEquals(a.readonlyPair, b.readonlyPair) && __mf_structuralEquals(a.optionalTail, b.optionalTail) && __mf_structuralEquals(a.rest, b.rest) && a.pairs.length === b.pairs.length && a.pairs.every((__item0, __index0) => {
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.pair, b.pair) && __mf_structuralEquals(a.named, b.named) && __mf_structuralEquals(a.itemPair, b.itemPair) && __mf_structuralEquals(a.readonlyPair, b.readonlyPair) && __mf_structuralEquals(a.optionalTail, b.optionalTail) && __mf_structuralEquals(a.rest, b.rest) && a.pairs.length === b.pairs.length && a.pairs.every((__item0, __index0) => {
 	const __other0 = b.pairs[__index0];
 	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
-}) && __mf_structuralEquals(a.nested, b.nested);
+}) && __mf_structuralEquals(a.nested, b.nested));
 }
 
 export function collectionTuplesHashCode(value: CollectionTuples): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (__mf_structuralHash(value.pair))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.named))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.itemPair))) | 0;
@@ -1943,7 +1950,8 @@ export function collectionTuplesHashCode(value: CollectionTuples): number {
     hash = (hash * 31 + (__mf_structuralHash(value.rest))) | 0;
     hash = (hash * 31 + (value.pairs.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.nested))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function collectionTuplesDefaultValue(): CollectionTuples {
@@ -1970,12 +1978,9 @@ export function collectionTuplesEncode(value: CollectionTuples, keepMetadata?: b
 export function collectionTuplesEncodeWithContext(value: CollectionTuples, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "CollectionTuples",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "CollectionTuples" });
     collectionTuplesEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -2139,7 +2144,7 @@ export function collectionTuplesDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("pair")) || (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
         const __raw_pair = obj["pair"] as [string, number];
         if (Array.isArray(__raw_pair)) {
             ctx.pushScope("pair");
@@ -2163,7 +2168,7 @@ export function collectionTuplesDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "pair", message: __raw_pair == null ? "CollectionTuples.pair is required" : "expected [string, number]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("named")) || (__fields.keeps("named") && obj["named"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("named")) ? "named" in obj : (__fields.keeps("named") && obj["named"] !== undefined)) {
         const __raw_named = obj["named"] as [label: string, at: Date];
         if (Array.isArray(__raw_named)) {
             ctx.pushScope("named");
@@ -2187,7 +2192,7 @@ export function collectionTuplesDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "named", message: __raw_named == null ? "CollectionTuples.named is required" : "expected [label: string, at: Date]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("itemPair")) || (__fields.keeps("itemPair") && obj["itemPair"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("itemPair")) ? "itemPair" in obj : (__fields.keeps("itemPair") && obj["itemPair"] !== undefined)) {
         const __raw_itemPair = obj["itemPair"] as [EdgeItem, EdgeItem | null];
         if (Array.isArray(__raw_itemPair)) {
             ctx.pushScope("itemPair");
@@ -2211,7 +2216,7 @@ export function collectionTuplesDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "itemPair", message: __raw_itemPair == null ? "CollectionTuples.itemPair is required" : "expected [EdgeItem, EdgeItem | null]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("readonlyPair")) || (__fields.keeps("readonlyPair") && obj["readonlyPair"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("readonlyPair")) ? "readonlyPair" in obj : (__fields.keeps("readonlyPair") && obj["readonlyPair"] !== undefined)) {
         const __raw_readonlyPair = obj["readonlyPair"] as readonly [number, number];
         if (Array.isArray(__raw_readonlyPair)) {
             ctx.pushScope("readonlyPair");
@@ -2235,7 +2240,7 @@ export function collectionTuplesDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "readonlyPair", message: __raw_readonlyPair == null ? "CollectionTuples.readonlyPair is required" : "expected readonly [number, number]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("optionalTail")) || (__fields.keeps("optionalTail") && obj["optionalTail"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("optionalTail")) ? "optionalTail" in obj : (__fields.keeps("optionalTail") && obj["optionalTail"] !== undefined)) {
         const __raw_optionalTail = obj["optionalTail"] as [string, number?];
         if (Array.isArray(__raw_optionalTail)) {
             ctx.pushScope("optionalTail");
@@ -2259,7 +2264,7 @@ export function collectionTuplesDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "optionalTail", message: __raw_optionalTail == null ? "CollectionTuples.optionalTail is required" : "expected [string, number?]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("rest")) || (__fields.keeps("rest") && obj["rest"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("rest")) ? "rest" in obj : (__fields.keeps("rest") && obj["rest"] !== undefined)) {
         const __raw_rest = obj["rest"] as [string, ...number[]];
         if (Array.isArray(__raw_rest)) {
             ctx.pushScope("rest");
@@ -2283,7 +2288,7 @@ export function collectionTuplesDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "rest", message: __raw_rest == null ? "CollectionTuples.rest is required" : "expected [string, ...number[]]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("pairs")) || (__fields.keeps("pairs") && obj["pairs"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("pairs")) ? "pairs" in obj : (__fields.keeps("pairs") && obj["pairs"] !== undefined)) {
         const __raw_pairs = obj["pairs"] as [string, EdgeItem][];
         if (Array.isArray(__raw_pairs)) {
             ctx.pushScope("pairs");
@@ -2307,7 +2312,7 @@ export function collectionTuplesDecodeWithContext(value: unknown, ctx: __mf_Deco
             errors.push({ field: "pairs", message: __raw_pairs == null ? "CollectionTuples.pairs is required" : "expected [string, EdgeItem][]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("nested")) || (__fields.keeps("nested") && obj["nested"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("nested")) ? "nested" in obj : (__fields.keeps("nested") && obj["nested"] !== undefined)) {
         const __raw_nested = obj["nested"] as [[number, number], [string, Date]];
         if (Array.isArray(__raw_nested)) {
             ctx.pushScope("nested");
@@ -2405,41 +2410,45 @@ export interface CollectionBig {
 }
 
 export function collectionBigToString(value: CollectionBig): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("total: " + String(value.total));
     parts.push("totals: " + __mf_structuralDebug(value.totals));
     parts.push("maybeTotal: " + String(value.maybeTotal));
     parts.push("byName: " + __mf_structuralDebug(value.byName));
-    return "CollectionBig { " + parts.join(", ") + " }";
+        return "CollectionBig { " + parts.join(", ") + " }";
+    });
 }
 
 export function collectionBigClone(value: CollectionBig): CollectionBig {
-    return ({
+    return __mf_clonedWith(value, (): CollectionBig => ({
 	total: value.total,
 	totals: [...value.totals],
 	maybeTotal: value.maybeTotal,
 	byName: new Map(value.byName)
-});
+}));
 }
 
 export function collectionBigEquals(a: CollectionBig, b: CollectionBig): boolean {
     if (a === b) return true;
-    return a.total === b.total && a.totals.length === b.totals.length && a.totals.every((__item0, __index0) => {
+    return __mf_equalWithin(a, b, () => a.total === b.total && a.totals.length === b.totals.length && a.totals.every((__item0, __index0) => {
 	const __other0 = b.totals[__index0];
 	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
 }) && a.maybeTotal === b.maybeTotal && a.byName.size === b.byName.size && Array.from(a.byName).every(([__key0, __item0]) => {
 	const __other0 = b.byName.get(__key0);
 	return b.byName.has(__key0) && (__other0 === undefined ? __item0 === undefined : __item0 === __other0);
-});
+}));
 }
 
 export function collectionBigHashCode(value: CollectionBig): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (value.total.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (value.totals.reduce<number>((__hash0, __item0) => __hash0 * 31 + __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0, 1))) | 0;
     hash = (hash * 31 + (value.maybeTotal == null ? 0 : value.maybeTotal.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (Array.from(value.byName).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + __item0.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) | 0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -2453,12 +2462,9 @@ export function collectionBigEncode(value: CollectionBig, keepMetadata?: boolean
 export function collectionBigEncodeWithContext(value: CollectionBig, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "CollectionBig",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "CollectionBig" });
     collectionBigEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -2590,19 +2596,31 @@ export function collectionBigDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("total")) || (__fields.keeps("total") && obj["total"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("total")) ? "total" in obj : (__fields.keeps("total") && obj["total"] !== undefined)) {
         try {
-            instance.total = ((v) => BigInt(v as string))(obj["total"]);
+            instance.total = ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw === "bigint") return raw;
+        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+        	return BigInt(raw);
+        })(obj["total"]);
         } catch (__error) {
             errors.push({ field: "total", message: __error instanceof Error ? __error.message : String(__error) });
         }
     }
-    if ((__fields === undefined || __fields.requires("totals")) || (__fields.keeps("totals") && obj["totals"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("totals")) ? "totals" in obj : (__fields.keeps("totals") && obj["totals"] !== undefined)) {
         const __raw_totals = obj["totals"] as bigint[];
         if (Array.isArray(__raw_totals)) {
             ctx.pushScope("totals");
             try {
-                instance.totals = __mf_decodeArray(__raw_totals, ctx, (__raw0) => ((v) => BigInt(v as string))(__raw0));
+                instance.totals = __mf_decodeArray(__raw_totals, ctx, (__raw0) => ((v) => {
+                        const raw: unknown = v;
+                        if (typeof raw === "bigint") return raw;
+                        if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+                        if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+                        return BigInt(raw);
+                    })(__raw0));
             } catch (__e) {
                 if (__e instanceof __mf_DecodeError) {
                     for (const __err of __e.errors) {
@@ -2621,19 +2639,31 @@ export function collectionBigDecodeWithContext(value: unknown, ctx: __mf_DecodeC
             errors.push({ field: "totals", message: __raw_totals == null ? "CollectionBig.totals is required" : "expected bigint[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("maybeTotal")) || (__fields.keeps("maybeTotal") && obj["maybeTotal"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("maybeTotal")) ? "maybeTotal" in obj : (__fields.keeps("maybeTotal") && obj["maybeTotal"] !== undefined)) {
         try {
-            instance.maybeTotal = ((__raw: unknown) => __raw === null ? null : ((v) => BigInt(v as string))(__raw))(obj["maybeTotal"]);
+            instance.maybeTotal = ((__raw: unknown) => __raw === null ? null : ((v) => {
+        	const raw: unknown = v;
+        	if (typeof raw === "bigint") return raw;
+        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+        	return BigInt(raw);
+        })(__raw))(obj["maybeTotal"]);
         } catch (__error) {
             errors.push({ field: "maybeTotal", message: __error instanceof Error ? __error.message : String(__error) });
         }
     }
-    if ((__fields === undefined || __fields.requires("byName")) || (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
         const __raw_byName = obj["byName"] as Record<string, bigint>;
         if (typeof __raw_byName === "object" && __raw_byName !== null) {
             ctx.pushScope("byName");
             try {
-                instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => ((v) => BigInt(v as string))(__raw0));
+                instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => ((v) => {
+                        const raw: unknown = v;
+                        if (typeof raw === "bigint") return raw;
+                        if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+                        if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+                        return BigInt(raw);
+                    })(__raw0));
             } catch (__e) {
                 if (__e instanceof __mf_DecodeError) {
                     for (const __err of __e.errors) {
@@ -3094,71 +3124,71 @@ export declare const CollectionBig: {
 
 ## Mapping
 
-original 0..433 -> expanded 1349..1782
-original 433..948 -> expanded 5561..6076
-original 948..1410 -> expanded 43164..43626
-original 1410..1804 -> expanded 73850..74244
-original 1804..2219 -> expanded 99360..99775
-original 2219..2422 -> expanded 124176..124379
-original 2422..2423 -> expanded 139562..139563
-generated 0..1349 <- imports
-generated 1782..2065 <- Debug
-generated 2065..2163 <- Clone
-generated 2163..2272 <- PartialEq
-generated 2272..2443 <- Hash
-generated 2443..2667 <- PartialOrd
-generated 2667..2877 <- Ord
-generated 2877..2976 <- Default
-generated 2976..3434 <- Encode
-generated 3434..4516 <- Decode
-generated 4516..5561 <- __convenience_const
-generated 6076..7283 <- Debug
-generated 7283..8867 <- Clone
-generated 8867..12903 <- PartialEq
-generated 12903..15773 <- Hash
-generated 15773..16134 <- Default
-generated 16134..21086 <- Encode
-generated 21086..41542 <- Decode
-generated 41542..43164 <- __convenience_const
-generated 43626..44477 <- Debug
-generated 44477..45225 <- Clone
-generated 45225..47156 <- PartialEq
-generated 47156..48955 <- Hash
-generated 48955..49365 <- Default
-generated 49365..53754 <- Encode
-generated 53754..72290 <- Decode
-generated 72290..73850 <- __convenience_const
-generated 74244..74916 <- Debug
-generated 74916..75670 <- Clone
-generated 75670..77358 <- PartialEq
-generated 77358..78583 <- Hash
-generated 78583..78852 <- Default
-generated 78852..82745 <- Encode
-generated 82745..97738 <- Decode
-generated 97738..99360 <- __convenience_const
-generated 99775..100482 <- Debug
-generated 100482..100987 <- Clone
-generated 100987..101672 <- PartialEq
-generated 101672..102391 <- Hash
-generated 102391..102728 <- Default
-generated 102728..106458 <- Encode
-generated 106458..122554 <- Decode
-generated 122554..124176 <- __convenience_const
-generated 124379..124779 <- Debug
-generated 124779..124985 <- Clone
-generated 124985..125606 <- PartialEq
-generated 125606..126494 <- Hash
-generated 126494..129430 <- Encode
-generated 129430..138135 <- Decode
-generated 138135..139562 <- __convenience_const
+original 0..433 -> expanded 1592..2025
+original 433..948 -> expanded 5841..6356
+original 948..1410 -> expanded 43811..44273
+original 1410..1804 -> expanded 74869..75263
+original 1804..2219 -> expanded 100707..101122
+original 2219..2422 -> expanded 125853..126056
+original 2422..2423 -> expanded 142887..142888
+generated 0..1592 <- imports
+generated 2025..2308 <- Debug
+generated 2308..2406 <- Clone
+generated 2406..2515 <- PartialEq
+generated 2515..2686 <- Hash
+generated 2686..2910 <- PartialOrd
+generated 2910..3120 <- Ord
+generated 3120..3219 <- Default
+generated 3219..3677 <- Encode
+generated 3677..4796 <- Decode
+generated 4796..5841 <- __convenience_const
+generated 6356..7625 <- Debug
+generated 7625..9257 <- Clone
+generated 9257..13323 <- PartialEq
+generated 13323..16253 <- Hash
+generated 16253..16614 <- Default
+generated 16614..21552 <- Encode
+generated 21552..42189 <- Decode
+generated 42189..43811 <- __convenience_const
+generated 44273..45186 <- Debug
+generated 45186..45980 <- Clone
+generated 45980..47941 <- PartialEq
+generated 47941..49800 <- Hash
+generated 49800..50210 <- Default
+generated 50210..54585 <- Encode
+generated 54585..73309 <- Decode
+generated 73309..74869 <- __convenience_const
+generated 75263..75997 <- Debug
+generated 75997..76799 <- Clone
+generated 76799..78517 <- PartialEq
+generated 78517..79802 <- Hash
+generated 79802..80071 <- Default
+generated 80071..83950 <- Encode
+generated 83950..99085 <- Decode
+generated 99085..100707 <- __convenience_const
+generated 101122..101891 <- Debug
+generated 101891..102444 <- Clone
+generated 102444..103159 <- PartialEq
+generated 103159..103938 <- Hash
+generated 103938..104275 <- Default
+generated 104275..107991 <- Encode
+generated 107991..124231 <- Decode
+generated 124231..125853 <- __convenience_const
+generated 126056..126518 <- Debug
+generated 126518..126769 <- Clone
+generated 126769..127420 <- PartialEq
+generated 127420..128368 <- Hash
+generated 128368..131290 <- Encode
+generated 131290..141460 <- Decode
+generated 141460..142887 <- __convenience_const
 
 ## Metadata
 
-interface CollectionNested: {"body_span":{"end":949,"start":541},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":506,"start":436}}],"fields":[{"decorators":[],"name":"grid","optional":false,"readonly":false,"span":{"end":564,"start":547},"ts_type":"number[][]"},{"decorators":[],"name":"dateGrid","optional":false,"readonly":false,"span":{"end":598,"start":569},"ts_type":"Array<Array<Date>>"},{"decorators":[],"name":"itemGrid","optional":false,"readonly":false,"span":{"end":626,"start":603},"ts_type":"EdgeItem[][]"},{"decorators":[],"name":"datesByName","optional":false,"readonly":false,"span":{"end":664,"start":631},"ts_type":"Map<string, Date[]>"},{"decorators":[],"name":"itemsByName","optional":false,"readonly":false,"span":{"end":709,"start":669},"ts_type":"Record<string, EdgeItem[]>"},{"decorators":[],"name":"setsByName","optional":false,"readonly":false,"span":{"end":751,"start":714},"ts_type":"Map<string, Set<string>>"},{"decorators":[],"name":"mapOfMaps","optional":false,"readonly":false,"span":{"end":800,"start":756},"ts_type":"Map<string, Map<string, number>>"},{"decorators":[],"name":"cardsByName","optional":false,"readonly":false,"span":{"end":840,"start":805},"ts_type":"Map<string, EdgeCard>"},{"decorators":[],"name":"optionalItems","optional":true,"readonly":false,"span":{"end":872,"start":845},"ts_type":"EdgeItem[]"},{"decorators":[],"name":"maybeItems","optional":false,"readonly":false,"span":{"end":907,"start":877},"ts_type":"EdgeItem[] | null"},{"decorators":[],"name":"laterItems","optional":false,"readonly":false,"span":{"end":947,"start":912},"ts_type":"EdgeItem[] | undefined"}],"heritage":[],"methods":[],"name":"CollectionNested","span":{"end":949,"start":514},"type_params":[]}
-interface CollectionKeys: {"body_span":{"end":1411,"start":1054},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1021,"start":951}}],"fields":[{"decorators":[],"name":"byNumber","optional":false,"readonly":false,"span":{"end":1090,"start":1060},"ts_type":"Map<number, string>"},{"decorators":[],"name":"byKind","optional":false,"readonly":false,"span":{"end":1131,"start":1095},"ts_type":"Map<CollectionKind, number>"},{"decorators":[],"name":"byDate","optional":false,"readonly":false,"span":{"end":1162,"start":1136},"ts_type":"Map<Date, string>"},{"decorators":[],"name":"kindLabels","optional":false,"readonly":false,"span":{"end":1210,"start":1167},"ts_type":"Record<CollectionKind, string>"},{"decorators":[],"name":"numbered","optional":false,"readonly":false,"span":{"end":1250,"start":1215},"ts_type":"Record<number, EdgeItem>"},{"decorators":[],"name":"kinds","optional":false,"readonly":false,"span":{"end":1282,"start":1255},"ts_type":"Set<CollectionKind>"},{"decorators":[],"name":"dates","optional":false,"readonly":false,"span":{"end":1304,"start":1287},"ts_type":"Set<Date>"},{"decorators":[],"name":"nullableDates","optional":false,"readonly":false,"span":{"end":1340,"start":1309},"ts_type":"(Date | null)[]"},{"decorators":[],"name":"dateSet","optional":false,"readonly":false,"span":{"end":1371,"start":1345},"ts_type":"Set<Date | null>"},{"decorators":[],"name":"dateRecord","optional":false,"readonly":false,"span":{"end":1409,"start":1376},"ts_type":"Record<string, Date>"}],"heritage":[],"methods":[],"name":"CollectionKeys","span":{"end":1411,"start":1029},"type_params":[]}
-interface CollectionUnions: {"body_span":{"end":1805,"start":1518},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1483,"start":1413}}],"fields":[{"decorators":[],"name":"mixed","optional":false,"readonly":false,"span":{"end":1551,"start":1524},"ts_type":"(string | number)[]"},{"decorators":[],"name":"itemOrText","optional":false,"readonly":false,"span":{"end":1593,"start":1556},"ts_type":"Array<EdgeItem | string>"},{"decorators":[],"name":"itemOrNull","optional":false,"readonly":false,"span":{"end":1631,"start":1598},"ts_type":"Set<EdgeItem | null>"},{"decorators":[],"name":"valueOrNull","optional":false,"readonly":false,"span":{"end":1678,"start":1636},"ts_type":"Map<string, EdgeItem | null>"},{"decorators":[],"name":"recordOrNull","optional":false,"readonly":false,"span":{"end":1729,"start":1683},"ts_type":"Record<string, EdgeItem | null>"},{"decorators":[],"name":"literal","optional":false,"readonly":false,"span":{"end":1760,"start":1734},"ts_type":"('on' | 'off')[]"},{"decorators":[],"name":"kindOrNull","optional":false,"readonly":false,"span":{"end":1803,"start":1765},"ts_type":"(CollectionKind | null)[]"}],"heritage":[],"methods":[],"name":"CollectionUnions","span":{"end":1805,"start":1491},"type_params":[]}
-interface CollectionTuples: {"body_span":{"end":2220,"start":1912},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1877,"start":1807}}],"fields":[{"decorators":[],"name":"pair","optional":false,"readonly":false,"span":{"end":1941,"start":1918},"ts_type":"[string, number]"},{"decorators":[],"name":"named","optional":false,"readonly":false,"span":{"end":1979,"start":1946},"ts_type":"[label: string, at: Date]"},{"decorators":[],"name":"itemPair","optional":false,"readonly":false,"span":{"end":2022,"start":1984},"ts_type":"[EdgeItem, EdgeItem | null]"},{"decorators":[],"name":"readonlyPair","optional":false,"readonly":false,"span":{"end":2067,"start":2027},"ts_type":"readonly [number, number]"},{"decorators":[],"name":"optionalTail","optional":false,"readonly":false,"span":{"end":2104,"start":2072},"ts_type":"[string, number?]"},{"decorators":[],"name":"rest","optional":false,"readonly":false,"span":{"end":2137,"start":2109},"ts_type":"[string, ...number[]]"},{"decorators":[],"name":"pairs","optional":false,"readonly":false,"span":{"end":2170,"start":2142},"ts_type":"[string, EdgeItem][]"},{"decorators":[],"name":"nested","optional":false,"readonly":false,"span":{"end":2218,"start":2175},"ts_type":"[[number, number], [string, Date]]"}],"heritage":[],"methods":[],"name":"CollectionTuples","span":{"end":2220,"start":1885},"type_params":[]}
-interface CollectionBig: {"body_span":{"end":2423,"start":2315},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2283,"start":2222}}],"fields":[{"decorators":[],"name":"total","optional":false,"readonly":false,"span":{"end":2335,"start":2321},"ts_type":"bigint"},{"decorators":[],"name":"totals","optional":false,"readonly":false,"span":{"end":2357,"start":2340},"ts_type":"bigint[]"},{"decorators":[],"name":"maybeTotal","optional":false,"readonly":false,"span":{"end":2388,"start":2362},"ts_type":"bigint | null"},{"decorators":[],"name":"byName","optional":false,"readonly":false,"span":{"end":2421,"start":2393},"ts_type":"Map<string, bigint>"}],"heritage":[],"methods":[],"name":"CollectionBig","span":{"end":2423,"start":2291},"type_params":[]}
+interface CollectionNested: {"body_span":{"end":949,"start":541},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":506,"start":436}}],"fields":[{"decorators":[],"key":"Named","name":"grid","optional":false,"readonly":false,"span":{"end":564,"start":547},"ts_type":"number[][]"},{"decorators":[],"key":"Named","name":"dateGrid","optional":false,"readonly":false,"span":{"end":598,"start":569},"ts_type":"Array<Array<Date>>"},{"decorators":[],"key":"Named","name":"itemGrid","optional":false,"readonly":false,"span":{"end":626,"start":603},"ts_type":"EdgeItem[][]"},{"decorators":[],"key":"Named","name":"datesByName","optional":false,"readonly":false,"span":{"end":664,"start":631},"ts_type":"Map<string, Date[]>"},{"decorators":[],"key":"Named","name":"itemsByName","optional":false,"readonly":false,"span":{"end":709,"start":669},"ts_type":"Record<string, EdgeItem[]>"},{"decorators":[],"key":"Named","name":"setsByName","optional":false,"readonly":false,"span":{"end":751,"start":714},"ts_type":"Map<string, Set<string>>"},{"decorators":[],"key":"Named","name":"mapOfMaps","optional":false,"readonly":false,"span":{"end":800,"start":756},"ts_type":"Map<string, Map<string, number>>"},{"decorators":[],"key":"Named","name":"cardsByName","optional":false,"readonly":false,"span":{"end":840,"start":805},"ts_type":"Map<string, EdgeCard>"},{"decorators":[],"key":"Named","name":"optionalItems","optional":true,"readonly":false,"span":{"end":872,"start":845},"ts_type":"EdgeItem[]"},{"decorators":[],"key":"Named","name":"maybeItems","optional":false,"readonly":false,"span":{"end":907,"start":877},"ts_type":"EdgeItem[] | null"},{"decorators":[],"key":"Named","name":"laterItems","optional":false,"readonly":false,"span":{"end":947,"start":912},"ts_type":"EdgeItem[] | undefined"}],"heritage":[],"methods":[],"name":"CollectionNested","span":{"end":949,"start":514},"type_params":[]}
+interface CollectionKeys: {"body_span":{"end":1411,"start":1054},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1021,"start":951}}],"fields":[{"decorators":[],"key":"Named","name":"byNumber","optional":false,"readonly":false,"span":{"end":1090,"start":1060},"ts_type":"Map<number, string>"},{"decorators":[],"key":"Named","name":"byKind","optional":false,"readonly":false,"span":{"end":1131,"start":1095},"ts_type":"Map<CollectionKind, number>"},{"decorators":[],"key":"Named","name":"byDate","optional":false,"readonly":false,"span":{"end":1162,"start":1136},"ts_type":"Map<Date, string>"},{"decorators":[],"key":"Named","name":"kindLabels","optional":false,"readonly":false,"span":{"end":1210,"start":1167},"ts_type":"Record<CollectionKind, string>"},{"decorators":[],"key":"Named","name":"numbered","optional":false,"readonly":false,"span":{"end":1250,"start":1215},"ts_type":"Record<number, EdgeItem>"},{"decorators":[],"key":"Named","name":"kinds","optional":false,"readonly":false,"span":{"end":1282,"start":1255},"ts_type":"Set<CollectionKind>"},{"decorators":[],"key":"Named","name":"dates","optional":false,"readonly":false,"span":{"end":1304,"start":1287},"ts_type":"Set<Date>"},{"decorators":[],"key":"Named","name":"nullableDates","optional":false,"readonly":false,"span":{"end":1340,"start":1309},"ts_type":"(Date | null)[]"},{"decorators":[],"key":"Named","name":"dateSet","optional":false,"readonly":false,"span":{"end":1371,"start":1345},"ts_type":"Set<Date | null>"},{"decorators":[],"key":"Named","name":"dateRecord","optional":false,"readonly":false,"span":{"end":1409,"start":1376},"ts_type":"Record<string, Date>"}],"heritage":[],"methods":[],"name":"CollectionKeys","span":{"end":1411,"start":1029},"type_params":[]}
+interface CollectionUnions: {"body_span":{"end":1805,"start":1518},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1483,"start":1413}}],"fields":[{"decorators":[],"key":"Named","name":"mixed","optional":false,"readonly":false,"span":{"end":1551,"start":1524},"ts_type":"(string | number)[]"},{"decorators":[],"key":"Named","name":"itemOrText","optional":false,"readonly":false,"span":{"end":1593,"start":1556},"ts_type":"Array<EdgeItem | string>"},{"decorators":[],"key":"Named","name":"itemOrNull","optional":false,"readonly":false,"span":{"end":1631,"start":1598},"ts_type":"Set<EdgeItem | null>"},{"decorators":[],"key":"Named","name":"valueOrNull","optional":false,"readonly":false,"span":{"end":1678,"start":1636},"ts_type":"Map<string, EdgeItem | null>"},{"decorators":[],"key":"Named","name":"recordOrNull","optional":false,"readonly":false,"span":{"end":1729,"start":1683},"ts_type":"Record<string, EdgeItem | null>"},{"decorators":[],"key":"Named","name":"literal","optional":false,"readonly":false,"span":{"end":1760,"start":1734},"ts_type":"('on' | 'off')[]"},{"decorators":[],"key":"Named","name":"kindOrNull","optional":false,"readonly":false,"span":{"end":1803,"start":1765},"ts_type":"(CollectionKind | null)[]"}],"heritage":[],"methods":[],"name":"CollectionUnions","span":{"end":1805,"start":1491},"type_params":[]}
+interface CollectionTuples: {"body_span":{"end":2220,"start":1912},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1877,"start":1807}}],"fields":[{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":1941,"start":1918},"ts_type":"[string, number]"},{"decorators":[],"key":"Named","name":"named","optional":false,"readonly":false,"span":{"end":1979,"start":1946},"ts_type":"[label: string, at: Date]"},{"decorators":[],"key":"Named","name":"itemPair","optional":false,"readonly":false,"span":{"end":2022,"start":1984},"ts_type":"[EdgeItem, EdgeItem | null]"},{"decorators":[],"key":"Named","name":"readonlyPair","optional":false,"readonly":false,"span":{"end":2067,"start":2027},"ts_type":"readonly [number, number]"},{"decorators":[],"key":"Named","name":"optionalTail","optional":false,"readonly":false,"span":{"end":2104,"start":2072},"ts_type":"[string, number?]"},{"decorators":[],"key":"Named","name":"rest","optional":false,"readonly":false,"span":{"end":2137,"start":2109},"ts_type":"[string, ...number[]]"},{"decorators":[],"key":"Named","name":"pairs","optional":false,"readonly":false,"span":{"end":2170,"start":2142},"ts_type":"[string, EdgeItem][]"},{"decorators":[],"key":"Named","name":"nested","optional":false,"readonly":false,"span":{"end":2218,"start":2175},"ts_type":"[[number, number], [string, Date]]"}],"heritage":[],"methods":[],"name":"CollectionTuples","span":{"end":2220,"start":1885},"type_params":[]}
+interface CollectionBig: {"body_span":{"end":2423,"start":2315},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2283,"start":2222}}],"fields":[{"decorators":[],"key":"Named","name":"total","optional":false,"readonly":false,"span":{"end":2335,"start":2321},"ts_type":"bigint"},{"decorators":[],"key":"Named","name":"totals","optional":false,"readonly":false,"span":{"end":2357,"start":2340},"ts_type":"bigint[]"},{"decorators":[],"key":"Named","name":"maybeTotal","optional":false,"readonly":false,"span":{"end":2388,"start":2362},"ts_type":"bigint | null"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":2421,"start":2393},"ts_type":"Map<string, bigint>"}],"heritage":[],"methods":[],"name":"CollectionBig","span":{"end":2423,"start":2291},"type_params":[]}
 enum CollectionKind: {"body_span":{"end":434,"start":370},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":342,"start":251}}],"is_const":false,"name":"CollectionKind","span":{"end":434,"start":350},"variants":[{"decorators":[{"args_src":"","name":"default","span":{"end":391,"start":376}}],"name":"Plain","span":{"end":411,"start":396},"value":{"String":"plain"}},{"decorators":[],"name":"Fancy","span":{"end":432,"start":417},"value":{"String":"fancy"}}]}
 
 ## Registry reads
@@ -3174,10 +3204,6 @@ Name("EdgeItem")
 Name("EdgeItem | string")
 Name("Map")
 Name("Record")
-Name("Record<CollectionKind, string>")
-Name("Record<number, EdgeItem>")
-Name("Record<string, Date>")
-Name("Record<string, EdgeItem[]>")
 Name("Set")
 Name("[EdgeItem, EdgeItem | null]")
 Name("[[number, number], [string, Date]]")
@@ -3186,6 +3212,7 @@ Name("[string, ...number[]]")
 Name("[string, EdgeItem]")
 Name("[string, number?]")
 Name("[string, number]")
+Name("bigint")
 Name("number")
 Name("readonly [number, number]")
 Name("string")

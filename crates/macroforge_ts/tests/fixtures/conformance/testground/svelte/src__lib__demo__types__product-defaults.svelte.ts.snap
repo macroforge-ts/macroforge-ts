@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -46,12 +46,9 @@ export function productDefaultsEncode(value: ProductDefaults, keepMetadata?: boo
 export function productDefaultsEncodeWithContext(value: ProductDefaults, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "ProductDefaults",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ProductDefaults" });
     productDefaultsEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -167,7 +164,7 @@ export function productDefaultsDecodeWithContext(value: unknown, ctx: __mf_Decod
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("price")) || (__fields.keeps("price") && obj["price"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("price")) ? "price" in obj : (__fields.keeps("price") && obj["price"] !== undefined)) {
         const __raw_price = obj["price"] as number;
 
         if (!(typeof __raw_price === "number")) {
@@ -176,7 +173,7 @@ export function productDefaultsDecodeWithContext(value: unknown, ctx: __mf_Decod
             instance.price = __raw_price;
         }
     }
-    if ((__fields === undefined || __fields.requires("description")) || (__fields.keeps("description") && obj["description"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("description")) ? "description" in obj : (__fields.keeps("description") && obj["description"] !== undefined)) {
         const __raw_description = obj["description"] as string;
 
         if (!(typeof __raw_description === "string")) {
@@ -488,22 +485,22 @@ export declare const ProductDefaults: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..147 -> expanded 741..781
-original 211..235 -> expanded 781..805
-original 287..292 -> expanded 805..810
-original 333..360 -> expanded 810..837
-original 360..361 -> expanded 16957..16958
-generated 0..683 <- imports
-generated 837..968 <- Default
-generated 968..3399 <- Encode
-generated 3399..10687 <- Decode
-generated 10687..15502 <- Gigaform
-generated 15502..16957 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..147 -> expanded 813..853
+original 211..235 -> expanded 853..877
+original 287..292 -> expanded 877..882
+original 333..360 -> expanded 882..909
+original 360..361 -> expanded 17053..17054
+generated 0..755 <- imports
+generated 909..1040 <- Default
+generated 1040..3457 <- Encode
+generated 3457..10783 <- Decode
+generated 10783..15598 <- Gigaform
+generated 15598..17053 <- __convenience_const
 
 ## Metadata
 
-interface ProductDefaults: {"body_span":{"end":361,"start":142},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ label: \"Price\", min: 0, step: 0.01 }","name":"numberController","span":{"end":212,"start":148}}],"name":"price","optional":false,"readonly":false,"span":{"end":231,"start":217},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":334,"start":293}},{"args_src":"{ label: \"Description\" }","name":"textAreaController","span":{"end":288,"start":236}}],"name":"description","optional":false,"readonly":false,"span":{"end":359,"start":339},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ProductDefaults","span":{"end":361,"start":116},"type_params":[]}
+interface ProductDefaults: {"body_span":{"end":361,"start":142},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ label: \"Price\", min: 0, step: 0.01 }","name":"numberController","span":{"end":212,"start":148}}],"key":"Named","name":"price","optional":false,"readonly":false,"span":{"end":231,"start":217},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":334,"start":293}},{"args_src":"{ label: \"Description\" }","name":"textAreaController","span":{"end":288,"start":236}}],"key":"Named","name":"description","optional":false,"readonly":false,"span":{"end":359,"start":339},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ProductDefaults","span":{"end":361,"start":116},"type_params":[]}
 
 ## Registry reads
 

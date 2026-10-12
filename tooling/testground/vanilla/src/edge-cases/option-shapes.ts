@@ -170,3 +170,64 @@ export interface OptionValidated {
     /** @endec({ default: 3, validate: ["positive"] }) */
     retries: number;
 }
+
+/** @derive(Encode, Decode) */
+export interface OptionKinds {
+    text: string;
+    count: number;
+    flag: boolean;
+    big: bigint;
+    at: Date;
+    item: EdgeItem;
+    size: 'small' | 'large';
+    list: string[];
+    set: Set<number>;
+    map: Map<string, number>;
+    record: Record<string, boolean>;
+    pair: [string, number];
+    inline: { x: number };
+    maybeText: string | null;
+    laterText?: string;
+    partial: Partial<EdgeItem>;
+    link: URL;
+    query: URLSearchParams;
+    pattern: RegExp;
+    failure: Error;
+    bytes: Uint8Array;
+    bigs: BigInt64Array;
+    buffer: ArrayBuffer;
+}
+
+/** @derive(Default) */
+export interface OptionDefaultKinds {
+    required: Required<EdgeItem>;
+    partial: Partial<EdgeItem>;
+    picked: Pick<EdgeItem, 'id'>;
+    dictionary: { [key: string]: number };
+    inline: { x: number; label?: string };
+    carried: string | string[];
+    dated: Date | string;
+    size: 'small' | 'large';
+    linked: string | EdgeItem;
+    big: bigint;
+    bytes: Uint8Array;
+    pair: [string, number];
+    nested: Map<string, Set<number>>;
+}
+
+/** @derive(Default, Encode, Decode) */
+export class OptionKindsClass {
+    text!: string;
+    count!: number;
+    at!: Date;
+    big!: bigint;
+    item!: EdgeItem;
+    list!: string[];
+    map!: Map<string, number>;
+    pair!: [string, number];
+    inline!: { x: number };
+    picked!: Pick<EdgeItem, 'id'>;
+    required!: Required<EdgeItem>;
+    maybe!: string | null;
+    later?: string;
+}

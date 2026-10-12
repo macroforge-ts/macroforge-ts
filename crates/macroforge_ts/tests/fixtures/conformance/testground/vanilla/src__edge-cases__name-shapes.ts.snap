@@ -12,9 +12,9 @@ true
 
 ## Output
 
-import { structuralDebug as __mf_structuralDebug, structuralCompare as __mf_structuralCompare, instanceWith as __mf_instanceWith, instanceOf as __mf_instanceOf, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeMap as __mf_decodeMap } from "@macroforge/core/endec";
-import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin, instanceOf as __mf_instanceOf, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeMap as __mf_decodeMap } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions, Encoder as __mf_Encoder, Decoder as __mf_Decoder } from "@macroforge/core/endec";
 /**
  * Names that can collide with what a derive generates or that need quoting:
  * fields named like the generated functions' own locals, keys that are not
@@ -45,7 +45,8 @@ export interface NameLocals {
 }
 
 export function nameLocalsToString(value: NameLocals): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("value: " + String(value.value));
     parts.push("ctx: " + String(value.ctx));
     parts.push("result: " + String(value.result));
@@ -64,11 +65,12 @@ export function nameLocalsToString(value: NameLocals): string {
     parts.push("key: " + String(value.key));
     parts.push("idx: " + String(value.idx));
     parts.push("other: " + String(value.other));
-    return "NameLocals { " + parts.join(", ") + " }";
+        return "NameLocals { " + parts.join(", ") + " }";
+    });
 }
 
 export function nameLocalsClone(value: NameLocals): NameLocals {
-    return ({
+    return __mf_clonedWith(value, (): NameLocals => ({
 	value: value.value,
 	ctx: value.ctx,
 	result: value.result,
@@ -87,22 +89,23 @@ export function nameLocalsClone(value: NameLocals): NameLocals {
 	key: value.key,
 	idx: value.idx,
 	other: value.other
-});
+}));
 }
 
 export function nameLocalsEquals(a: NameLocals, b: NameLocals): boolean {
     if (a === b) return true;
-    return a.value === b.value && a.ctx === b.ctx && a.result === b.result && a.obj === b.obj && a.errors.length === b.errors.length && a.errors.every((__item0, __index0) => {
+    return __mf_equalWithin(a, b, () => a.value === b.value && a.ctx === b.ctx && a.result === b.result && a.obj === b.obj && a.errors.length === b.errors.length && a.errors.every((__item0, __index0) => {
 	const __other0 = b.errors[__index0];
 	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
 }) && a.instance === b.instance && a.fields === b.fields && a.hash === b.hash && a.parts.length === b.parts.length && a.parts.every((__item0, __index0) => {
 	const __other0 = b.parts[__index0];
 	return __other0 === undefined ? __item0 === undefined : __item0 === __other0;
-}) && a.a === b.a && a.b === b.b && a.input === b.input && a.opts === b.opts && a.data === b.data && a.item === b.item && a.key === b.key && a.idx === b.idx && a.other === b.other;
+}) && a.a === b.a && a.b === b.b && a.input === b.input && a.opts === b.opts && a.data === b.data && a.item === b.item && a.key === b.key && a.idx === b.idx && a.other === b.other);
 }
 
 export function nameLocalsHashCode(value: NameLocals): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + ((value.value ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + ((value.ctx ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + ((value.result ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
@@ -121,11 +124,13 @@ export function nameLocalsHashCode(value: NameLocals): number {
     hash = (hash * 31 + ((value.key ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (Number.isInteger(value.idx) ? value.idx | 0 : value.idx.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + ((value.other ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function nameLocalsPartialCompare(a: NameLocals, b: NameLocals): number | null {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = (a.value < b.value ? -1 : a.value > b.value ? 1 : 0);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
@@ -208,11 +213,13 @@ export function nameLocalsPartialCompare(a: NameLocals, b: NameLocals): number |
     const cmp17 = (a.other < b.other ? -1 : a.other > b.other ? 1 : 0);
     if (cmp17 === null) return null;
     if (cmp17 !== 0) return cmp17;
-    return 0;
+        return 0;
+    });
 }
 
 export function nameLocalsCompare(a: NameLocals, b: NameLocals): number {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = a.value < b.value ? -1 : a.value > b.value ? 1 : 0;
     if (cmp0 !== 0) return cmp0;
     const cmp1 = a.ctx < b.ctx ? -1 : a.ctx > b.ctx ? 1 : 0;
@@ -271,7 +278,8 @@ export function nameLocalsCompare(a: NameLocals, b: NameLocals): number {
     if (cmp16 !== 0) return cmp16;
     const cmp17 = a.other < b.other ? -1 : a.other > b.other ? 1 : 0;
     if (cmp17 !== 0) return cmp17;
-    return 0;
+        return 0;
+    });
 }
 
 export function nameLocalsDefaultValue(): NameLocals {
@@ -308,12 +316,9 @@ export function nameLocalsEncode(value: NameLocals, keepMetadata?: boolean): str
 export function nameLocalsEncodeWithContext(value: NameLocals, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "NameLocals",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "NameLocals" });
     nameLocalsEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -557,7 +562,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as string;
 
         if (!(typeof __raw_value === "string")) {
@@ -566,7 +571,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.value = __raw_value;
         }
     }
-    if ((__fields === undefined || __fields.requires("ctx")) || (__fields.keeps("ctx") && obj["ctx"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("ctx")) ? "ctx" in obj : (__fields.keeps("ctx") && obj["ctx"] !== undefined)) {
         const __raw_ctx = obj["ctx"] as string;
 
         if (!(typeof __raw_ctx === "string")) {
@@ -575,7 +580,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.ctx = __raw_ctx;
         }
     }
-    if ((__fields === undefined || __fields.requires("result")) || (__fields.keeps("result") && obj["result"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("result")) ? "result" in obj : (__fields.keeps("result") && obj["result"] !== undefined)) {
         const __raw_result = obj["result"] as string;
 
         if (!(typeof __raw_result === "string")) {
@@ -584,7 +589,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.result = __raw_result;
         }
     }
-    if ((__fields === undefined || __fields.requires("obj")) || (__fields.keeps("obj") && obj["obj"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("obj")) ? "obj" in obj : (__fields.keeps("obj") && obj["obj"] !== undefined)) {
         const __raw_obj = obj["obj"] as string;
 
         if (!(typeof __raw_obj === "string")) {
@@ -593,7 +598,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.obj = __raw_obj;
         }
     }
-    if ((__fields === undefined || __fields.requires("errors")) || (__fields.keeps("errors") && obj["errors"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("errors")) ? "errors" in obj : (__fields.keeps("errors") && obj["errors"] !== undefined)) {
         const __raw_errors = obj["errors"] as string[];
         if (Array.isArray(__raw_errors)) {
             ctx.pushScope("errors");
@@ -617,7 +622,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             errors.push({ field: "errors", message: __raw_errors == null ? "NameLocals.errors is required" : "expected string[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("instance")) || (__fields.keeps("instance") && obj["instance"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("instance")) ? "instance" in obj : (__fields.keeps("instance") && obj["instance"] !== undefined)) {
         const __raw_instance = obj["instance"] as string;
 
         if (!(typeof __raw_instance === "string")) {
@@ -626,7 +631,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.instance = __raw_instance;
         }
     }
-    if ((__fields === undefined || __fields.requires("fields")) || (__fields.keeps("fields") && obj["fields"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("fields")) ? "fields" in obj : (__fields.keeps("fields") && obj["fields"] !== undefined)) {
         const __raw_fields = obj["fields"] as string;
 
         if (!(typeof __raw_fields === "string")) {
@@ -635,7 +640,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.fields = __raw_fields;
         }
     }
-    if ((__fields === undefined || __fields.requires("hash")) || (__fields.keeps("hash") && obj["hash"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("hash")) ? "hash" in obj : (__fields.keeps("hash") && obj["hash"] !== undefined)) {
         const __raw_hash = obj["hash"] as number;
 
         if (!(typeof __raw_hash === "number")) {
@@ -644,7 +649,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.hash = __raw_hash;
         }
     }
-    if ((__fields === undefined || __fields.requires("parts")) || (__fields.keeps("parts") && obj["parts"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("parts")) ? "parts" in obj : (__fields.keeps("parts") && obj["parts"] !== undefined)) {
         const __raw_parts = obj["parts"] as string[];
         if (Array.isArray(__raw_parts)) {
             ctx.pushScope("parts");
@@ -668,7 +673,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             errors.push({ field: "parts", message: __raw_parts == null ? "NameLocals.parts is required" : "expected string[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("a")) || (__fields.keeps("a") && obj["a"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("a")) ? "a" in obj : (__fields.keeps("a") && obj["a"] !== undefined)) {
         const __raw_a = obj["a"] as number;
 
         if (!(typeof __raw_a === "number")) {
@@ -677,7 +682,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.a = __raw_a;
         }
     }
-    if ((__fields === undefined || __fields.requires("b")) || (__fields.keeps("b") && obj["b"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("b")) ? "b" in obj : (__fields.keeps("b") && obj["b"] !== undefined)) {
         const __raw_b = obj["b"] as number;
 
         if (!(typeof __raw_b === "number")) {
@@ -686,7 +691,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.b = __raw_b;
         }
     }
-    if ((__fields === undefined || __fields.requires("input")) || (__fields.keeps("input") && obj["input"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("input")) ? "input" in obj : (__fields.keeps("input") && obj["input"] !== undefined)) {
         const __raw_input = obj["input"] as string;
 
         if (!(typeof __raw_input === "string")) {
@@ -695,7 +700,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.input = __raw_input;
         }
     }
-    if ((__fields === undefined || __fields.requires("opts")) || (__fields.keeps("opts") && obj["opts"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("opts")) ? "opts" in obj : (__fields.keeps("opts") && obj["opts"] !== undefined)) {
         const __raw_opts = obj["opts"] as string;
 
         if (!(typeof __raw_opts === "string")) {
@@ -704,7 +709,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.opts = __raw_opts;
         }
     }
-    if ((__fields === undefined || __fields.requires("data")) || (__fields.keeps("data") && obj["data"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("data")) ? "data" in obj : (__fields.keeps("data") && obj["data"] !== undefined)) {
         const __raw_data = obj["data"] as string;
 
         if (!(typeof __raw_data === "string")) {
@@ -713,7 +718,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.data = __raw_data;
         }
     }
-    if ((__fields === undefined || __fields.requires("item")) || (__fields.keeps("item") && obj["item"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
         const __raw_item = obj["item"] as string;
 
         if (!(typeof __raw_item === "string")) {
@@ -722,7 +727,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.item = __raw_item;
         }
     }
-    if ((__fields === undefined || __fields.requires("key")) || (__fields.keeps("key") && obj["key"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("key")) ? "key" in obj : (__fields.keeps("key") && obj["key"] !== undefined)) {
         const __raw_key = obj["key"] as string;
 
         if (!(typeof __raw_key === "string")) {
@@ -731,7 +736,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.key = __raw_key;
         }
     }
-    if ((__fields === undefined || __fields.requires("idx")) || (__fields.keeps("idx") && obj["idx"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("idx")) ? "idx" in obj : (__fields.keeps("idx") && obj["idx"] !== undefined)) {
         const __raw_idx = obj["idx"] as number;
 
         if (!(typeof __raw_idx === "number")) {
@@ -740,7 +745,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.idx = __raw_idx;
         }
     }
-    if ((__fields === undefined || __fields.requires("other")) || (__fields.keeps("other") && obj["other"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("other")) ? "other" in obj : (__fields.keeps("other") && obj["other"] !== undefined)) {
         const __raw_other = obj["other"] as string;
 
         if (!(typeof __raw_other === "string")) {
@@ -835,7 +840,8 @@ export interface NameQuoted {
 }
 
 export function nameQuotedToString(value: NameQuoted): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("kebab-key: " + String(value["kebab-key"]));
     parts.push("with space: " + String(value["with space"]));
     parts.push("dotted.key: " + String(value["dotted.key"]));
@@ -848,11 +854,12 @@ export function nameQuotedToString(value: NameQuoted): string {
     parts.push("$dollar: " + String(value.$dollar));
     parts.push("_underscore: " + String(value._underscore));
     parts.push("ünïcode: " + String(value["ünïcode"]));
-    return "NameQuoted { " + parts.join(", ") + " }";
+        return "NameQuoted { " + parts.join(", ") + " }";
+    });
 }
 
 export function nameQuotedClone(value: NameQuoted): NameQuoted {
-    return ({
+    return __mf_clonedWith(value, (): NameQuoted => ({
 	"kebab-key": value["kebab-key"],
 	"with space": value["with space"],
 	"dotted.key": value["dotted.key"],
@@ -865,16 +872,17 @@ export function nameQuotedClone(value: NameQuoted): NameQuoted {
 	$dollar: value.$dollar,
 	_underscore: value._underscore,
 	"ünïcode": value["ünïcode"]
-});
+}));
 }
 
 export function nameQuotedEquals(a: NameQuoted, b: NameQuoted): boolean {
     if (a === b) return true;
-    return a["kebab-key"] === b["kebab-key"] && a["with space"] === b["with space"] && a["dotted.key"] === b["dotted.key"] && a["0"] === b["0"] && a.class === b.class && a.default === b.default && a.new === b.new && a.function === b.function && a.typeof === b.typeof && a.$dollar === b.$dollar && a._underscore === b._underscore && a["ünïcode"] === b["ünïcode"];
+    return __mf_equalWithin(a, b, () => a["kebab-key"] === b["kebab-key"] && a["with space"] === b["with space"] && a["dotted.key"] === b["dotted.key"] && a["0"] === b["0"] && a.class === b.class && a.default === b.default && a.new === b.new && a.function === b.function && a.typeof === b.typeof && a.$dollar === b.$dollar && a._underscore === b._underscore && a["ünïcode"] === b["ünïcode"]);
 }
 
 export function nameQuotedHashCode(value: NameQuoted): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + ((value["kebab-key"] ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (Number.isInteger(value["with space"]) ? value["with space"] | 0 : value["with space"].toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (value["dotted.key"] ? 1231 : 1237)) | 0;
@@ -887,11 +895,13 @@ export function nameQuotedHashCode(value: NameQuoted): number {
     hash = (hash * 31 + ((value.$dollar ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + ((value._underscore ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + ((value["ünïcode"] ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function nameQuotedPartialCompare(a: NameQuoted, b: NameQuoted): number | null {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = (a["kebab-key"] < b["kebab-key"] ? -1 : a["kebab-key"] > b["kebab-key"] ? 1 : 0);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
@@ -928,11 +938,13 @@ export function nameQuotedPartialCompare(a: NameQuoted, b: NameQuoted): number |
     const cmp11 = (a["ünïcode"] < b["ünïcode"] ? -1 : a["ünïcode"] > b["ünïcode"] ? 1 : 0);
     if (cmp11 === null) return null;
     if (cmp11 !== 0) return cmp11;
-    return 0;
+        return 0;
+    });
 }
 
 export function nameQuotedCompare(a: NameQuoted, b: NameQuoted): number {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = a["kebab-key"] < b["kebab-key"] ? -1 : a["kebab-key"] > b["kebab-key"] ? 1 : 0;
     if (cmp0 !== 0) return cmp0;
     const cmp1 = a["with space"] < b["with space"] ? -1 : a["with space"] > b["with space"] ? 1 : 0;
@@ -957,7 +969,8 @@ export function nameQuotedCompare(a: NameQuoted, b: NameQuoted): number {
     if (cmp10 !== 0) return cmp10;
     const cmp11 = a["ünïcode"] < b["ünïcode"] ? -1 : a["ünïcode"] > b["ünïcode"] ? 1 : 0;
     if (cmp11 !== 0) return cmp11;
-    return 0;
+        return 0;
+    });
 }
 
 export function nameQuotedDefaultValue(): NameQuoted {
@@ -988,12 +1001,9 @@ export function nameQuotedEncode(value: NameQuoted, keepMetadata?: boolean): str
 export function nameQuotedEncodeWithContext(value: NameQuoted, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "NameQuoted",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "NameQuoted" });
     nameQuotedEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1189,7 +1199,7 @@ export function nameQuotedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("kebab-key")) || (__fields.keeps("kebab-key") && obj["kebab-key"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("kebab-key")) ? "kebab-key" in obj : (__fields.keeps("kebab-key") && obj["kebab-key"] !== undefined)) {
         const __raw_kebab$2dkey = obj["kebab-key"] as string;
 
         if (!(typeof __raw_kebab$2dkey === "string")) {
@@ -1198,7 +1208,7 @@ export function nameQuotedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance["kebab-key"] = __raw_kebab$2dkey;
         }
     }
-    if ((__fields === undefined || __fields.requires("with space")) || (__fields.keeps("with space") && obj["with space"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("with space")) ? "with space" in obj : (__fields.keeps("with space") && obj["with space"] !== undefined)) {
         const __raw_with$20space = obj["with space"] as number;
 
         if (!(typeof __raw_with$20space === "number")) {
@@ -1207,7 +1217,7 @@ export function nameQuotedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance["with space"] = __raw_with$20space;
         }
     }
-    if ((__fields === undefined || __fields.requires("dotted.key")) || (__fields.keeps("dotted.key") && obj["dotted.key"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("dotted.key")) ? "dotted.key" in obj : (__fields.keeps("dotted.key") && obj["dotted.key"] !== undefined)) {
         const __raw_dotted$2ekey = obj["dotted.key"] as boolean;
 
         if (!(typeof __raw_dotted$2ekey === "boolean")) {
@@ -1216,7 +1226,7 @@ export function nameQuotedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance["dotted.key"] = __raw_dotted$2ekey;
         }
     }
-    if ((__fields === undefined || __fields.requires("0")) || (__fields.keeps("0") && obj["0"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("0")) ? "0" in obj : (__fields.keeps("0") && obj["0"] !== undefined)) {
         const __raw_0 = obj["0"] as string;
 
         if (!(typeof __raw_0 === "string")) {
@@ -1225,7 +1235,7 @@ export function nameQuotedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance["0"] = __raw_0;
         }
     }
-    if ((__fields === undefined || __fields.requires("class")) || (__fields.keeps("class") && obj["class"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("class")) ? "class" in obj : (__fields.keeps("class") && obj["class"] !== undefined)) {
         const __raw_class = obj["class"] as string;
 
         if (!(typeof __raw_class === "string")) {
@@ -1234,7 +1244,7 @@ export function nameQuotedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.class = __raw_class;
         }
     }
-    if ((__fields === undefined || __fields.requires("default")) || (__fields.keeps("default") && obj["default"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("default")) ? "default" in obj : (__fields.keeps("default") && obj["default"] !== undefined)) {
         const __raw_default = obj["default"] as number;
 
         if (!(typeof __raw_default === "number")) {
@@ -1243,7 +1253,7 @@ export function nameQuotedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.default = __raw_default;
         }
     }
-    if ((__fields === undefined || __fields.requires("new")) || (__fields.keeps("new") && obj["new"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("new")) ? "new" in obj : (__fields.keeps("new") && obj["new"] !== undefined)) {
         const __raw_new = obj["new"] as boolean;
 
         if (!(typeof __raw_new === "boolean")) {
@@ -1252,7 +1262,7 @@ export function nameQuotedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.new = __raw_new;
         }
     }
-    if ((__fields === undefined || __fields.requires("function")) || (__fields.keeps("function") && obj["function"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("function")) ? "function" in obj : (__fields.keeps("function") && obj["function"] !== undefined)) {
         const __raw_function = obj["function"] as string;
 
         if (!(typeof __raw_function === "string")) {
@@ -1261,7 +1271,7 @@ export function nameQuotedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.function = __raw_function;
         }
     }
-    if ((__fields === undefined || __fields.requires("typeof")) || (__fields.keeps("typeof") && obj["typeof"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("typeof")) ? "typeof" in obj : (__fields.keeps("typeof") && obj["typeof"] !== undefined)) {
         const __raw_typeof = obj["typeof"] as string;
 
         if (!(typeof __raw_typeof === "string")) {
@@ -1270,7 +1280,7 @@ export function nameQuotedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.typeof = __raw_typeof;
         }
     }
-    if ((__fields === undefined || __fields.requires("$dollar")) || (__fields.keeps("$dollar") && obj["$dollar"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("$dollar")) ? "$dollar" in obj : (__fields.keeps("$dollar") && obj["$dollar"] !== undefined)) {
         const __raw_$dollar = obj["$dollar"] as string;
 
         if (!(typeof __raw_$dollar === "string")) {
@@ -1279,7 +1289,7 @@ export function nameQuotedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.$dollar = __raw_$dollar;
         }
     }
-    if ((__fields === undefined || __fields.requires("_underscore")) || (__fields.keeps("_underscore") && obj["_underscore"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("_underscore")) ? "_underscore" in obj : (__fields.keeps("_underscore") && obj["_underscore"] !== undefined)) {
         const __raw__underscore = obj["_underscore"] as string;
 
         if (!(typeof __raw__underscore === "string")) {
@@ -1288,7 +1298,7 @@ export function nameQuotedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance._underscore = __raw__underscore;
         }
     }
-    if ((__fields === undefined || __fields.requires("ünïcode")) || (__fields.keeps("ünïcode") && obj["ünïcode"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("ünïcode")) ? "ünïcode" in obj : (__fields.keeps("ünïcode") && obj["ünïcode"] !== undefined)) {
         const __raw_$fcn$efcode = obj["ünïcode"] as string;
 
         if (!(typeof __raw_$fcn$efcode === "string")) {
@@ -1373,15 +1383,17 @@ export class NameQuotedClass {
     default: number = 0;
 
     static toString(value: NameQuotedClass): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("kebab-key: " + String(value["kebab-key"]));
         parts.push("class: " + String(value.class));
         parts.push("default: " + String(value.default));
-        return "NameQuotedClass { " + parts.join(", ") + " }";
+            return "NameQuotedClass { " + parts.join(", ") + " }";
+        });
     }
 
     static clone(value: NameQuotedClass): NameQuotedClass {
-        return __mf_instanceWith(value, ({
+        return __mf_clonedWith(value, () => ({
         	"kebab-key": value["kebab-key"],
         	class: value.class,
         	default: value.default
@@ -1390,15 +1402,17 @@ export class NameQuotedClass {
 
     static equals(a: NameQuotedClass, b: NameQuotedClass): boolean {
         if (a === b) return true;
-        return a["kebab-key"] === b["kebab-key"] && a.class === b.class && a.default === b.default;
+        return __mf_equalWithin(a, b, () => a["kebab-key"] === b["kebab-key"] && a.class === b.class && a.default === b.default);
     }
 
     static hashCode(value: NameQuotedClass): number {
-        let hash = 17;
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
         hash = (hash * 31 + ((value["kebab-key"] ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         hash = (hash * 31 + ((value.class ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
         hash = (hash * 31 + (Number.isInteger(value.default) ? value.default | 0 : value.default.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-        return hash;
+            return hash;
+        });
     }
 
     static defaultValue(): NameQuotedClass {
@@ -1414,12 +1428,9 @@ export class NameQuotedClass {
 static encodeWithContext(value: NameQuotedClass, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "NameQuotedClass",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "NameQuotedClass" });
     NameQuotedClass.#encodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1556,7 +1567,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("kebab-key")) || (__fields.keeps("kebab-key") && obj["kebab-key"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("kebab-key")) ? "kebab-key" in obj : (__fields.keeps("kebab-key") && obj["kebab-key"] !== undefined)) {
         const __raw_kebab$2dkey = obj["kebab-key"] as string;
 
         if (!(typeof __raw_kebab$2dkey === "string")) {
@@ -1565,7 +1576,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance["kebab-key"] = __raw_kebab$2dkey;
         }
     }
-    if ((__fields === undefined || __fields.requires("class")) || (__fields.keeps("class") && obj["class"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("class")) ? "class" in obj : (__fields.keeps("class") && obj["class"] !== undefined)) {
         const __raw_class = obj["class"] as string;
 
         if (!(typeof __raw_class === "string")) {
@@ -1574,7 +1585,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.class = __raw_class;
         }
     }
-    if ((__fields === undefined || __fields.requires("default")) || (__fields.keeps("default") && obj["default"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("default")) ? "default" in obj : (__fields.keeps("default") && obj["default"] !== undefined)) {
         const __raw_default = obj["default"] as number;
 
         if (!(typeof __raw_default === "number")) {
@@ -1685,39 +1696,47 @@ export interface HTTPResponse {
 }
 
 export function httpResponseToString(value: HTTPResponse): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("statusCode: " + String(value.statusCode));
-    return "HTTPResponse { " + parts.join(", ") + " }";
+        return "HTTPResponse { " + parts.join(", ") + " }";
+    });
 }
 
 export function httpResponseClone(value: HTTPResponse): HTTPResponse {
-    return ({ statusCode: value.statusCode });
+    return __mf_clonedWith(value, (): HTTPResponse => ({ statusCode: value.statusCode }));
 }
 
 export function httpResponseEquals(a: HTTPResponse, b: HTTPResponse): boolean {
     if (a === b) return true;
-    return a.statusCode === b.statusCode;
+    return __mf_equalWithin(a, b, () => a.statusCode === b.statusCode);
 }
 
 export function httpResponseHashCode(value: HTTPResponse): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (Number.isInteger(value.statusCode) ? value.statusCode | 0 : value.statusCode.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function httpResponsePartialCompare(a: HTTPResponse, b: HTTPResponse): number | null {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = (a.statusCode < b.statusCode ? -1 : a.statusCode > b.statusCode ? 1 : a.statusCode === b.statusCode ? 0 : null);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
-    return 0;
+        return 0;
+    });
 }
 
 export function httpResponseCompare(a: HTTPResponse, b: HTTPResponse): number {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = a.statusCode < b.statusCode ? -1 : a.statusCode > b.statusCode ? 1 : 0;
     if (cmp0 !== 0) return cmp0;
-    return 0;
+        return 0;
+    });
 }
 
 export function httpResponseDefaultValue(): HTTPResponse {
@@ -1737,12 +1756,9 @@ export function httpResponseEncode(value: HTTPResponse, keepMetadata?: boolean):
 export function httpResponseEncodeWithContext(value: HTTPResponse, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "HTTPResponse",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "HTTPResponse" });
     httpResponseEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1850,7 +1866,7 @@ export function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("statusCode")) || (__fields.keeps("statusCode") && obj["statusCode"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("statusCode")) ? "statusCode" in obj : (__fields.keeps("statusCode") && obj["statusCode"] !== undefined)) {
         const __raw_statusCode = obj["statusCode"] as number;
 
         if (!(typeof __raw_statusCode === "number")) {
@@ -1935,49 +1951,57 @@ export interface point2D {
 }
 
 export function point2DToString(value: point2D): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("x: " + String(value.x));
     parts.push("y: " + String(value.y));
-    return "point2D { " + parts.join(", ") + " }";
+        return "point2D { " + parts.join(", ") + " }";
+    });
 }
 
 export function point2DClone(value: point2D): point2D {
-    return ({
+    return __mf_clonedWith(value, (): point2D => ({
 	x: value.x,
 	y: value.y
-});
+}));
 }
 
 export function point2DEquals(a: point2D, b: point2D): boolean {
     if (a === b) return true;
-    return a.x === b.x && a.y === b.y;
+    return __mf_equalWithin(a, b, () => a.x === b.x && a.y === b.y);
 }
 
 export function point2DHashCode(value: point2D): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function point2DPartialCompare(a: point2D, b: point2D): number | null {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = (a.x < b.x ? -1 : a.x > b.x ? 1 : a.x === b.x ? 0 : null);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
     const cmp1 = (a.y < b.y ? -1 : a.y > b.y ? 1 : a.y === b.y ? 0 : null);
     if (cmp1 === null) return null;
     if (cmp1 !== 0) return cmp1;
-    return 0;
+        return 0;
+    });
 }
 
 export function point2DCompare(a: point2D, b: point2D): number {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = a.x < b.x ? -1 : a.x > b.x ? 1 : 0;
     if (cmp0 !== 0) return cmp0;
     const cmp1 = a.y < b.y ? -1 : a.y > b.y ? 1 : 0;
     if (cmp1 !== 0) return cmp1;
-    return 0;
+        return 0;
+    });
 }
 
 export function point2DDefaultValue(): point2D {
@@ -1998,12 +2022,9 @@ export function point2DEncode(value: point2D, keepMetadata?: boolean): string {
 export function point2DEncodeWithContext(value: point2D, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "point2D",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "point2D" });
     point2DEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -2119,7 +2140,7 @@ export function point2DDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("x")) || (__fields.keeps("x") && obj["x"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
         const __raw_x = obj["x"] as number;
 
         if (!(typeof __raw_x === "number")) {
@@ -2128,7 +2149,7 @@ export function point2DDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.x = __raw_x;
         }
     }
-    if ((__fields === undefined || __fields.requires("y")) || (__fields.keeps("y") && obj["y"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("y")) ? "y" in obj : (__fields.keeps("y") && obj["y"] !== undefined)) {
         const __raw_y = obj["y"] as number;
 
         if (!(typeof __raw_y === "number")) {
@@ -2215,16 +2236,18 @@ export interface NameHolder {
 }
 
 export function nameHolderToString(value: NameHolder): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("response: " + httpResponseToString(value.response));
     parts.push("responses: " + "[" + value.responses.map(httpResponseToString).join(", ") + "]");
     parts.push("point: " + point2DToString(value.point));
     parts.push("points: " + __mf_structuralDebug(value.points));
-    return "NameHolder { " + parts.join(", ") + " }";
+        return "NameHolder { " + parts.join(", ") + " }";
+    });
 }
 
 export function nameHolderClone(value: NameHolder): NameHolder {
-    return ({
+    return __mf_clonedWith(value, (): NameHolder => ({
 	response: httpResponseClone(value.response),
 	responses: value.responses.map((__item0) => httpResponseClone(__item0)),
 	point: point2DClone(value.point),
@@ -2233,27 +2256,29 @@ export function nameHolderClone(value: NameHolder): NameHolder {
 		for (const [__key0, __item0] of value.points) __copy0.set(__key0, point2DClone(__item0));
 		return __copy0;
 	})()
-});
+}));
 }
 
 export function nameHolderEquals(a: NameHolder, b: NameHolder): boolean {
     if (a === b) return true;
-    return httpResponseEquals(a.response, b.response) && a.responses.length === b.responses.length && a.responses.every((__item0, __index0) => {
+    return __mf_equalWithin(a, b, () => httpResponseEquals(a.response, b.response) && a.responses.length === b.responses.length && a.responses.every((__item0, __index0) => {
 	const __other0 = b.responses[__index0];
 	return __other0 === undefined ? __item0 === undefined : httpResponseEquals(__item0, __other0);
 }) && point2DEquals(a.point, b.point) && a.points.size === b.points.size && Array.from(a.points).every(([__key0, __item0]) => {
 	const __other0 = b.points.get(__key0);
 	return b.points.has(__key0) && (__other0 === undefined ? __item0 === undefined : point2DEquals(__item0, __other0));
-});
+}));
 }
 
 export function nameHolderHashCode(value: NameHolder): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (httpResponseHashCode(value.response))) | 0;
     hash = (hash * 31 + (value.responses.reduce<number>((__hash0, __item0) => __hash0 * 31 + httpResponseHashCode(__item0) | 0, 1))) | 0;
     hash = (hash * 31 + (point2DHashCode(value.point))) | 0;
     hash = (hash * 31 + (Array.from(value.points).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + point2DHashCode(__item0) | 0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function nameHolderDefaultValue(): NameHolder {
@@ -2276,12 +2301,9 @@ export function nameHolderEncode(value: NameHolder, keepMetadata?: boolean): str
 export function nameHolderEncodeWithContext(value: NameHolder, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "NameHolder",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "NameHolder" });
     nameHolderEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -2413,7 +2435,7 @@ export function nameHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("response")) || (__fields.keeps("response") && obj["response"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("response")) ? "response" in obj : (__fields.keeps("response") && obj["response"] !== undefined)) {
         const __raw_response = obj["response"] as HTTPResponse;
 
         ctx.pushScope("response");
@@ -2429,13 +2451,14 @@ export function nameHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "response", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("responses")) || (__fields.keeps("responses") && obj["responses"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("responses")) ? "responses" in obj : (__fields.keeps("responses") && obj["responses"] !== undefined)) {
         const __raw_responses = obj["responses"] as HTTPResponse[];
         if (Array.isArray(__raw_responses)) {
             ctx.pushScope("responses");
@@ -2459,7 +2482,7 @@ export function nameHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             errors.push({ field: "responses", message: __raw_responses == null ? "NameHolder.responses is required" : "expected HTTPResponse[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("point")) || (__fields.keeps("point") && obj["point"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("point")) ? "point" in obj : (__fields.keeps("point") && obj["point"] !== undefined)) {
         const __raw_point = obj["point"] as point2D;
 
         ctx.pushScope("point");
@@ -2475,13 +2498,14 @@ export function nameHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "point", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("points")) || (__fields.keeps("points") && obj["points"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("points")) ? "points" in obj : (__fields.keeps("points") && obj["points"] !== undefined)) {
         const __raw_points = obj["points"] as Record<string, point2D>;
         if (typeof __raw_points === "object" && __raw_points !== null) {
             ctx.pushScope("points");
@@ -2579,101 +2603,102 @@ export interface NameParams<K, Key, T, Value> {
 }
 
 export function nameParamsToString<K, Key, T, Value>(value: NameParams<K, Key, T, Value>): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("key: " + __mf_structuralDebug(value.key));
     parts.push("other: " + __mf_structuralDebug(value.other));
     parts.push("held: " + __mf_structuralDebug(value.held));
     parts.push("values: " + __mf_structuralDebug(value.values));
-    return "NameParams { " + parts.join(", ") + " }";
+        return "NameParams { " + parts.join(", ") + " }";
+    });
 }
 
 export function nameParamsClone<K, Key, T, Value>(value: NameParams<K, Key, T, Value>): NameParams<K, Key, T, Value> {
-    return ({
+    return __mf_clonedWith(value, (): NameParams<K, Key, T, Value> => ({
 	key: __mf_structuralClone(value.key),
 	other: __mf_structuralClone(value.other),
 	held: __mf_structuralClone(value.held),
 	values: value.values.map((__item0) => __mf_structuralClone(__item0))
-});
+}));
 }
 
 export function nameParamsEquals<K, Key, T, Value>(a: NameParams<K, Key, T, Value>, b: NameParams<K, Key, T, Value>): boolean {
     if (a === b) return true;
-    return __mf_structuralEquals(a.key, b.key) && __mf_structuralEquals(a.other, b.other) && __mf_structuralEquals(a.held, b.held) && a.values.length === b.values.length && a.values.every((__item0, __index0) => {
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.key, b.key) && __mf_structuralEquals(a.other, b.other) && __mf_structuralEquals(a.held, b.held) && a.values.length === b.values.length && a.values.every((__item0, __index0) => {
 	const __other0 = b.values[__index0];
 	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
-});
+}));
 }
 
 export function nameParamsHashCode<K, Key, T, Value>(value: NameParams<K, Key, T, Value>): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (__mf_structuralHash(value.key))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.other))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.held))) | 0;
     hash = (hash * 31 + (value.values.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export function nameParamsEncode<K, Key, T, Value>(value: NameParams<K, Key, T, Value>, keepMetadata?: boolean): string {
+export function nameParamsEncode<K, Key, T, Value>(value: NameParams<K, Key, T, Value>, keepMetadata?: boolean, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>, __encodeValue?: __mf_Encoder<Value>): string {
     const ctx = __mf_EncodeContext.create();
-    const __raw = nameParamsEncodeWithContext<K, Key, T, Value>(value, ctx);
+    const __raw = nameParamsEncodeWithContext<K, Key, T, Value>(value, ctx, __encodeK, __encodeKey, __encodeT, __encodeValue);
     return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export function nameParamsEncodeWithContext<K, Key, T, Value>(value: NameParams<K, Key, T, Value>, ctx: __mf_EncodeContext): Record<string, unknown> {
+export function nameParamsEncodeWithContext<K, Key, T, Value>(value: NameParams<K, Key, T, Value>, ctx: __mf_EncodeContext, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>, __encodeValue?: __mf_Encoder<Value>): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "NameParams",
-        __id: ctx.register(value),
-    };
-    nameParamsEncodeFields<K, Key, T, Value>(value, ctx, result, undefined);
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "NameParams" });
+    nameParamsEncodeFields<K, Key, T, Value>(value, ctx, result, undefined, __encodeK, __encodeKey, __encodeT, __encodeValue);
     return result;
 }
 
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function nameParamsEncodePartialWithContext<K, Key, T, Value>(value: Partial<NameParams<K, Key, T, Value>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameParams<K, Key, T, Value>>): Record<string, unknown> {
+export function nameParamsEncodePartialWithContext<K, Key, T, Value>(value: Partial<NameParams<K, Key, T, Value>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameParams<K, Key, T, Value>>, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>, __encodeValue?: __mf_Encoder<Value>): Record<string, unknown> {
     return __mf_encodeSelection(ctx, value, () => {
         const result: Record<string, unknown> = { "__type": "NameParams" };
-        nameParamsEncodeFields<K, Key, T, Value>(value as NameParams<K, Key, T, Value>, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        nameParamsEncodeFields<K, Key, T, Value>(value as NameParams<K, Key, T, Value>, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields), __encodeK, __encodeKey, __encodeT, __encodeValue);
         return result;
     });
 }
 
-function nameParamsEncodeFields<K, Key, T, Value>(value: NameParams<K, Key, T, Value>, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+function nameParamsEncodeFields<K, Key, T, Value>(value: NameParams<K, Key, T, Value>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>, __encodeValue?: __mf_Encoder<Value>): void {
     if (__fields === undefined || __fields.keeps("key")) {
         if (value.key !== undefined) {
-            result.key = value.key;
+            result.key = (__encodeK === undefined ? value.key : __encodeK(value.key, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("other")) {
         if (value.other !== undefined) {
-            result.other = value.other;
+            result.other = (__encodeKey === undefined ? value.other : __encodeKey(value.other, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("held")) {
         if (value.held !== undefined) {
-            result.held = value.held;
+            result.held = (__encodeT === undefined ? value.held : __encodeT(value.held, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("values")) {
         if (value.values !== undefined) {
-            result.values = value.values;
+            result.values = value.values.map((__item0) => (__encodeValue === undefined ? __item0 : __encodeValue(__item0, ctx)));
         }
     }
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-export function nameParamsDecode<K, Key, T, Value>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NameParams<K, Key, T, Value> } | { success: false; errors: Array<{ field: string; message: string }> } {
+export function nameParamsDecode<K, Key, T, Value>(input: unknown, opts?: __mf_DecodeOptions, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>, __decodeValue?: __mf_Decoder<Value>): { success: true; value: NameParams<K, Key, T, Value> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
         const data = typeof input === "string" ? JSON.parse(input) : input;
 
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = nameParamsDecodeWithContext<K, Key, T, Value>(data, ctx);
+        const resultOrRef = nameParamsDecodeWithContext<K, Key, T, Value>(data, ctx, __decodeK, __decodeKey, __decodeT, __decodeValue);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2720,10 +2745,10 @@ export function nameParamsDecode<K, Key, T, Value>(input: unknown, opts?: __mf_D
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function nameParamsDecodeWithContext<K, Key, T, Value>(value: unknown, ctx: __mf_DecodeContext): NameParams<K, Key, T, Value> | __mf_PendingRef;
+export function nameParamsDecodeWithContext<K, Key, T, Value>(value: unknown, ctx: __mf_DecodeContext, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>, __decodeValue?: __mf_Decoder<Value>): NameParams<K, Key, T, Value> | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
-export function nameParamsDecodeWithContext<K, Key, T, Value>(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<NameParams<K, Key, T, Value>> | __mf_PendingRef;
-export function nameParamsDecodeWithContext<K, Key, T, Value>(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<NameParams<K, Key, T, Value>> | __mf_PendingRef {
+export function nameParamsDecodeWithContext<K, Key, T, Value>(value: unknown, ctx: __mf_DecodeContext, __decodeK: __mf_Decoder<K> | undefined, __decodeKey: __mf_Decoder<Key> | undefined, __decodeT: __mf_Decoder<T> | undefined, __decodeValue: __mf_Decoder<Value> | undefined, fields: __mf_FieldRequirement): Partial<NameParams<K, Key, T, Value>> | __mf_PendingRef;
+export function nameParamsDecodeWithContext<K, Key, T, Value>(value: unknown, ctx: __mf_DecodeContext, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>, __decodeValue?: __mf_Decoder<Value>, __fields?: __mf_FieldRequirement): Partial<NameParams<K, Key, T, Value>> | __mf_PendingRef {
     if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
         throw new __mf_DecodeError([{ field: "_root", message: "NameParams.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
     }
@@ -2761,25 +2786,92 @@ export function nameParamsDecodeWithContext<K, Key, T, Value>(value: unknown, ct
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("key")) || (__fields.keeps("key") && obj["key"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("key")) ? "key" in obj : (__fields.keeps("key") && obj["key"] !== undefined)) {
         const __raw_key = obj["key"] as K;
+        ctx.pushScope("key");
+        try {
+            const __result = (__decodeK === undefined ? __raw_key as K : __decodeK(__raw_key, ctx));
+            ctx.assignOrDefer(instance, "key", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "key" : "key." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
 
-        instance.key = __raw_key;
+                errors.push({ field: "key", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
     }
-    if ((__fields === undefined || __fields.requires("other")) || (__fields.keeps("other") && obj["other"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("other")) ? "other" in obj : (__fields.keeps("other") && obj["other"] !== undefined)) {
         const __raw_other = obj["other"] as Key;
+        ctx.pushScope("other");
+        try {
+            const __result = (__decodeKey === undefined ? __raw_other as Key : __decodeKey(__raw_other, ctx));
+            ctx.assignOrDefer(instance, "other", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "other" : "other." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
 
-        instance.other = __raw_other;
+                errors.push({ field: "other", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
     }
-    if ((__fields === undefined || __fields.requires("held")) || (__fields.keeps("held") && obj["held"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("held")) ? "held" in obj : (__fields.keeps("held") && obj["held"] !== undefined)) {
         const __raw_held = obj["held"] as T;
+        ctx.pushScope("held");
+        try {
+            const __result = (__decodeT === undefined ? __raw_held as T : __decodeT(__raw_held, ctx));
+            ctx.assignOrDefer(instance, "held", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "held" : "held." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
 
-        instance.held = __raw_held;
+                errors.push({ field: "held", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
     }
-    if ((__fields === undefined || __fields.requires("values")) || (__fields.keeps("values") && obj["values"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("values")) ? "values" in obj : (__fields.keeps("values") && obj["values"] !== undefined)) {
         const __raw_values = obj["values"] as Value[];
         if (Array.isArray(__raw_values)) {
-            instance.values = __raw_values as Value[];
+            ctx.pushScope("values");
+            try {
+                instance.values = __mf_decodeArray(__raw_values, ctx, (__raw0) => (__decodeValue === undefined ? __raw0 as Value : __decodeValue(__raw0, ctx)));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "values" : "values." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "values", message: __raw_values == null ? "NameParams.values is required" : "expected Value[]" });
         }
@@ -2791,8 +2883,8 @@ export function nameParamsDecodeWithContext<K, Key, T, Value>(value: unknown, ct
 }
 
 /** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
-export function nameParamsDecodePartialWithContext<K, Key, T, Value>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NameParams<K, Key, T, Value>>): Partial<NameParams<K, Key, T, Value>> | __mf_PendingRef {
-    return nameParamsDecodeWithContext<K, Key, T, Value>(value, ctx, __mf_fieldRequirement(fields));
+export function nameParamsDecodePartialWithContext<K, Key, T, Value>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NameParams<K, Key, T, Value>>, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>, __decodeValue?: __mf_Decoder<Value>): Partial<NameParams<K, Key, T, Value>> | __mf_PendingRef {
+    return nameParamsDecodeWithContext<K, Key, T, Value>(value, ctx, __decodeK, __decodeKey, __decodeT, __decodeValue, __mf_fieldRequirement(fields));
 }
 export function nameParamsValidateField<K, Key, T, Value, K1 extends keyof NameParams<K, Key, T, Value> = keyof NameParams<K, Key, T, Value>>(field: K1, value: unknown): Array<{ field: string; message: string }>;
 export function nameParamsValidateField(): Array<{ field: string; message: string }> {
@@ -2854,15 +2946,17 @@ export class NameParamsClass<K, Key, T> {
     held: T[] = [];
 
     static toString<K, Key, T>(value: NameParamsClass<K, Key, T>): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("key: " + __mf_structuralDebug(value.key));
         parts.push("other: " + __mf_structuralDebug(value.other));
         parts.push("held: " + __mf_structuralDebug(value.held));
-        return "NameParamsClass { " + parts.join(", ") + " }";
+            return "NameParamsClass { " + parts.join(", ") + " }";
+        });
     }
 
     static clone<K, Key, T>(value: NameParamsClass<K, Key, T>): NameParamsClass<K, Key, T> {
-        return __mf_instanceWith(value, ({
+        return __mf_clonedWith(value, () => ({
         	key: __mf_structuralClone(value.key),
         	other: __mf_structuralClone(value.other),
         	held: value.held.map((__item0) => __mf_structuralClone(__item0))
@@ -2871,64 +2965,63 @@ export class NameParamsClass<K, Key, T> {
 
     static equals<K, Key, T>(a: NameParamsClass<K, Key, T>, b: NameParamsClass<K, Key, T>): boolean {
         if (a === b) return true;
-        return __mf_structuralEquals(a.key, b.key) && __mf_structuralEquals(a.other, b.other) && a.held.length === b.held.length && a.held.every((__item0, __index0) => {
+        return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.key, b.key) && __mf_structuralEquals(a.other, b.other) && a.held.length === b.held.length && a.held.every((__item0, __index0) => {
         	const __other0 = b.held[__index0];
         	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
-        });
+        }));
     }
 
     static hashCode<K, Key, T>(value: NameParamsClass<K, Key, T>): number {
-        let hash = 17;
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
         hash = (hash * 31 + (__mf_structuralHash(value.key))) | 0;
         hash = (hash * 31 + (__mf_structuralHash(value.other))) | 0;
         hash = (hash * 31 + (value.held.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
-        return hash;
+            return hash;
+        });
     }
 
 /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-static encodeWithContext<K, Key, T>(value: NameParamsClass<K, Key, T>, ctx: __mf_EncodeContext): Record<string, unknown> {
+static encodeWithContext<K, Key, T>(value: NameParamsClass<K, Key, T>, ctx: __mf_EncodeContext, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "NameParamsClass",
-        __id: ctx.register(value),
-    };
-    NameParamsClass.#encodeFields<K, Key, T>(value, ctx, result, undefined);
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "NameParamsClass" });
+    NameParamsClass.#encodeFields<K, Key, T>(value, ctx, result, undefined, __encodeK, __encodeKey, __encodeT);
     return result;
 }
 
 /** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-static encodePartialWithContext<K, Key, T>(value: Partial<NameParamsClass<K, Key, T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameParamsClass<K, Key, T>>): Record<string, unknown> {
+static encodePartialWithContext<K, Key, T>(value: Partial<NameParamsClass<K, Key, T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameParamsClass<K, Key, T>>, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>): Record<string, unknown> {
     return __mf_encodeSelection(ctx, value, () => {
         const result: Record<string, unknown> = { "__type": "NameParamsClass" };
-        NameParamsClass.#encodeFields<K, Key, T>(value as NameParamsClass<K, Key, T>, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        NameParamsClass.#encodeFields<K, Key, T>(value as NameParamsClass<K, Key, T>, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields), __encodeK, __encodeKey, __encodeT);
         return result;
     });
 }
 
-static #encodeFields<K, Key, T>(value: NameParamsClass<K, Key, T>, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+static #encodeFields<K, Key, T>(value: NameParamsClass<K, Key, T>, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>): void {
     if (__fields === undefined || __fields.keeps("key")) {
         if (value.key !== undefined) {
-            result.key = value.key;
+            result.key = value.key === null ? null : (__encodeK === undefined ? value.key : __encodeK(value.key, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("other")) {
         if (value.other !== undefined) {
-            result.other = value.other;
+            result.other = value.other === null ? null : (__encodeKey === undefined ? value.other : __encodeKey(value.other, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("held")) {
         if (value.held !== undefined) {
-            result.held = value.held;
+            result.held = value.held.map((__item0) => (__encodeT === undefined ? __item0 : __encodeT(__item0, ctx)));
         }
     }
 }
 
     /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-    static encode<K, Key, T>(value: NameParamsClass<K, Key, T>, keepMetadata?: boolean): string {
-        return nameParamsClassEncode(value, keepMetadata);
+    static encode<K, Key, T>(value: NameParamsClass<K, Key, T>, keepMetadata?: boolean, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>): string {
+        return nameParamsClassEncode(value, keepMetadata, __encodeK, __encodeKey, __encodeT);
     }
 
 constructor(props: { key: K | null; other: Key | null; held: T[] }) {
@@ -2939,13 +3032,13 @@ constructor(props: { key: K | null; other: Key | null; held: T[] }) {
 }
 
 /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-static decode<K, Key, T>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NameParamsClass<K, Key, T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+static decode<K, Key, T>(input: unknown, opts?: __mf_DecodeOptions, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>): { success: true; value: NameParamsClass<K, Key, T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
         const data = typeof input === "string" ? JSON.parse(input) : input;
 
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = NameParamsClass.decodeWithContext<K, Key, T>(data, ctx);
+        const resultOrRef = NameParamsClass.decodeWithContext<K, Key, T>(data, ctx, __decodeK, __decodeKey, __decodeT);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -2993,10 +3086,10 @@ static decode<K, Key, T>(input: unknown, opts?: __mf_DecodeOptions): { success: 
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-static decodeWithContext<K, Key, T>(value: unknown, ctx: __mf_DecodeContext): NameParamsClass<K, Key, T> | __mf_PendingRef;
+static decodeWithContext<K, Key, T>(value: unknown, ctx: __mf_DecodeContext, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>): NameParamsClass<K, Key, T> | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
-static decodeWithContext<K, Key, T>(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<NameParamsClass<K, Key, T>> | __mf_PendingRef;
-static decodeWithContext<K, Key, T>(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<NameParamsClass<K, Key, T>> | __mf_PendingRef {
+static decodeWithContext<K, Key, T>(value: unknown, ctx: __mf_DecodeContext, __decodeK: __mf_Decoder<K> | undefined, __decodeKey: __mf_Decoder<Key> | undefined, __decodeT: __mf_Decoder<T> | undefined, fields: __mf_FieldRequirement): Partial<NameParamsClass<K, Key, T>> | __mf_PendingRef;
+static decodeWithContext<K, Key, T>(value: unknown, ctx: __mf_DecodeContext, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>, __fields?: __mf_FieldRequirement): Partial<NameParamsClass<K, Key, T>> | __mf_PendingRef {
     if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
         throw new __mf_DecodeError([{ field: "_root", message: "NameParamsClass.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
     }
@@ -3031,28 +3124,80 @@ static decodeWithContext<K, Key, T>(value: unknown, ctx: __mf_DecodeContext, __f
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("key")) || (__fields.keeps("key") && obj["key"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("key")) ? "key" in obj : (__fields.keeps("key") && obj["key"] !== undefined)) {
         const __raw_key = obj["key"] as K | null;
 
         if (__raw_key === null) {
             instance.key = null;
         } else {
-            instance.key = __raw_key;
+            ctx.pushScope("key");
+            try {
+                const __result = (__decodeK === undefined ? __raw_key as K : __decodeK(__raw_key, ctx));
+                ctx.assignOrDefer(instance, "key", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "key" : "key." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+
+                    errors.push({ field: "key", message: __e instanceof Error ? __e.message : String(__e) });
+                }
+            } finally {
+                ctx.popScope();
+            }
         }
     }
-    if ((__fields === undefined || __fields.requires("other")) || (__fields.keeps("other") && obj["other"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("other")) ? "other" in obj : (__fields.keeps("other") && obj["other"] !== undefined)) {
         const __raw_other = obj["other"] as Key | null;
 
         if (__raw_other === null) {
             instance.other = null;
         } else {
-            instance.other = __raw_other;
+            ctx.pushScope("other");
+            try {
+                const __result = (__decodeKey === undefined ? __raw_other as Key : __decodeKey(__raw_other, ctx));
+                ctx.assignOrDefer(instance, "other", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "other" : "other." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+
+                    errors.push({ field: "other", message: __e instanceof Error ? __e.message : String(__e) });
+                }
+            } finally {
+                ctx.popScope();
+            }
         }
     }
-    if ((__fields === undefined || __fields.requires("held")) || (__fields.keeps("held") && obj["held"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("held")) ? "held" in obj : (__fields.keeps("held") && obj["held"] !== undefined)) {
         const __raw_held = obj["held"] as T[];
         if (Array.isArray(__raw_held)) {
-            instance.held = __raw_held as T[];
+            ctx.pushScope("held");
+            try {
+                instance.held = __mf_decodeArray(__raw_held, ctx, (__raw0) => (__decodeT === undefined ? __raw0 as T : __decodeT(__raw0, ctx)));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "held" : "held." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "held", message: __raw_held == null ? "NameParamsClass.held is required" : "expected T[]" });
         }
@@ -3109,29 +3254,29 @@ export function nameParamsClassHashCode<K, Key, T>(value: NameParamsClass<K, Key
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export function nameParamsClassEncode<K, Key, T>(value: NameParamsClass<K, Key, T>, keepMetadata?: boolean): string {
+export function nameParamsClassEncode<K, Key, T>(value: NameParamsClass<K, Key, T>, keepMetadata?: boolean, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>): string {
     const ctx = __mf_EncodeContext.create();
-    const __raw = nameParamsClassEncodeWithContext(value, ctx);
+    const __raw = nameParamsClassEncodeWithContext(value, ctx, __encodeK, __encodeKey, __encodeT);
     return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export function nameParamsClassEncodeWithContext<K, Key, T>(value: NameParamsClass<K, Key, T>, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return NameParamsClass.encodeWithContext<K, Key, T>(value, ctx);
+export function nameParamsClassEncodeWithContext<K, Key, T>(value: NameParamsClass<K, Key, T>, ctx: __mf_EncodeContext, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>): Record<string, unknown> {
+    return NameParamsClass.encodeWithContext<K, Key, T>(value, ctx, __encodeK, __encodeKey, __encodeT);
 }
 
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function nameParamsClassEncodePartialWithContext<K, Key, T>(value: Partial<NameParamsClass<K, Key, T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameParamsClass<K, Key, T>>): Record<string, unknown> {
-    return NameParamsClass.encodePartialWithContext<K, Key, T>(value, ctx, fields);
+export function nameParamsClassEncodePartialWithContext<K, Key, T>(value: Partial<NameParamsClass<K, Key, T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameParamsClass<K, Key, T>>, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>): Record<string, unknown> {
+    return NameParamsClass.encodePartialWithContext<K, Key, T>(value, ctx, fields, __encodeK, __encodeKey, __encodeT);
 }
 
 /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-export function nameParamsClassDecode<K, Key, T>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NameParamsClass<K, Key, T> } | { success: false; errors: Array<{ field: string; message: string }> } {
-    return NameParamsClass.decode<K, Key, T>(input, opts);
+export function nameParamsClassDecode<K, Key, T>(input: unknown, opts?: __mf_DecodeOptions, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>): { success: true; value: NameParamsClass<K, Key, T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return NameParamsClass.decode<K, Key, T>(input, opts, __decodeK, __decodeKey, __decodeT);
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function nameParamsClassDecodeWithContext<K, Key, T>(value: unknown, ctx: __mf_DecodeContext): NameParamsClass<K, Key, T> | __mf_PendingRef {
-    return NameParamsClass.decodeWithContext<K, Key, T>(value, ctx);
+export function nameParamsClassDecodeWithContext<K, Key, T>(value: unknown, ctx: __mf_DecodeContext, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>): NameParamsClass<K, Key, T> | __mf_PendingRef {
+    return NameParamsClass.decodeWithContext<K, Key, T>(value, ctx, __decodeK, __decodeKey, __decodeT);
 }
 
 /** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
@@ -3140,8 +3285,8 @@ export function nameParamsClassHasShape(value: unknown): boolean {
 }
 
 /** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
-export function nameParamsClassDecodePartialWithContext<K, Key, T>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NameParamsClass<K, Key, T>>): Partial<NameParamsClass<K, Key, T>> | __mf_PendingRef {
-    return NameParamsClass.decodeWithContext<K, Key, T>(value, ctx, __mf_fieldRequirement(fields));
+export function nameParamsClassDecodePartialWithContext<K, Key, T>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NameParamsClass<K, Key, T>>, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>): Partial<NameParamsClass<K, Key, T>> | __mf_PendingRef {
+    return NameParamsClass.decodeWithContext<K, Key, T>(value, ctx, __decodeK, __decodeKey, __decodeT, __mf_fieldRequirement(fields));
 }
 
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
@@ -3620,28 +3765,28 @@ export declare function nameParamsEncode<
 	Key,
 	T,
 	Value
->(value: NameParams<K, Key, T, Value>, keepMetadata?: boolean): string;
+>(value: NameParams<K, Key, T, Value>, keepMetadata?: boolean, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>, __encodeValue?: __mf_Encoder<Value>): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function nameParamsEncodeWithContext<
 	K,
 	Key,
 	T,
 	Value
->(value: NameParams<K, Key, T, Value>, ctx: __mf_EncodeContext): Record<string, unknown>;
+>(value: NameParams<K, Key, T, Value>, ctx: __mf_EncodeContext, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>, __encodeValue?: __mf_Encoder<Value>): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function nameParamsEncodePartialWithContext<
 	K,
 	Key,
 	T,
 	Value
->(value: Partial<NameParams<K, Key, T, Value>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameParams<K, Key, T, Value>>): Record<string, unknown>;
+>(value: Partial<NameParams<K, Key, T, Value>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameParams<K, Key, T, Value>>, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>, __encodeValue?: __mf_Encoder<Value>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function nameParamsDecode<
 	K,
 	Key,
 	T,
 	Value
->(input: unknown, opts?: __mf_DecodeOptions): {
+>(input: unknown, opts?: __mf_DecodeOptions, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>, __decodeValue?: __mf_Decoder<Value>): {
 	success: true;
 	value: NameParams<K, Key, T, Value>;
 } | {
@@ -3657,21 +3802,21 @@ export declare function nameParamsDecodeWithContext<
 	Key,
 	T,
 	Value
->(value: unknown, ctx: __mf_DecodeContext): NameParams<K, Key, T, Value> | __mf_PendingRef;
+>(value: unknown, ctx: __mf_DecodeContext, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>, __decodeValue?: __mf_Decoder<Value>): NameParams<K, Key, T, Value> | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
 export declare function nameParamsDecodeWithContext<
 	K,
 	Key,
 	T,
 	Value
->(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<NameParams<K, Key, T, Value>> | __mf_PendingRef;
+>(value: unknown, ctx: __mf_DecodeContext, __decodeK: __mf_Decoder<K> | undefined, __decodeKey: __mf_Decoder<Key> | undefined, __decodeT: __mf_Decoder<T> | undefined, __decodeValue: __mf_Decoder<Value> | undefined, fields: __mf_FieldRequirement): Partial<NameParams<K, Key, T, Value>> | __mf_PendingRef;
 /** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
 export declare function nameParamsDecodePartialWithContext<
 	K,
 	Key,
 	T,
 	Value
->(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NameParams<K, Key, T, Value>>): Partial<NameParams<K, Key, T, Value>> | __mf_PendingRef;
+>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NameParams<K, Key, T, Value>>, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>, __decodeValue?: __mf_Decoder<Value>): Partial<NameParams<K, Key, T, Value>> | __mf_PendingRef;
 export declare function nameParamsValidateField<
 	K,
 	Key,
@@ -3749,19 +3894,19 @@ export declare class NameParamsClass<
 		K,
 		Key,
 		T
-	>(value: NameParamsClass<K, Key, T>, ctx: __mf_EncodeContext): Record<string, unknown>;
+	>(value: NameParamsClass<K, Key, T>, ctx: __mf_EncodeContext, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
 	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 	static encodePartialWithContext<
 		K,
 		Key,
 		T
-	>(value: Partial<NameParamsClass<K, Key, T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameParamsClass<K, Key, T>>): Record<string, unknown>;
+	>(value: Partial<NameParamsClass<K, Key, T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameParamsClass<K, Key, T>>, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
 	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 	static encode<
 		K,
 		Key,
 		T
-	>(value: NameParamsClass<K, Key, T>, keepMetadata?: boolean): string;
+	>(value: NameParamsClass<K, Key, T>, keepMetadata?: boolean, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>): string;
 	constructor(props: {
 		key: K | null;
 		other: Key | null;
@@ -3772,7 +3917,7 @@ export declare class NameParamsClass<
 		K,
 		Key,
 		T
-	>(input: unknown, opts?: __mf_DecodeOptions): {
+	>(input: unknown, opts?: __mf_DecodeOptions, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>): {
 		success: true;
 		value: NameParamsClass<K, Key, T>;
 	} | {
@@ -3787,13 +3932,13 @@ export declare class NameParamsClass<
 		K,
 		Key,
 		T
-	>(value: unknown, ctx: __mf_DecodeContext): NameParamsClass<K, Key, T> | __mf_PendingRef;
+	>(value: unknown, ctx: __mf_DecodeContext, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>): NameParamsClass<K, Key, T> | __mf_PendingRef;
 	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
 	static decodeWithContext<
 		K,
 		Key,
 		T
-	>(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<NameParamsClass<K, Key, T>> | __mf_PendingRef;
+	>(value: unknown, ctx: __mf_DecodeContext, __decodeK: __mf_Decoder<K> | undefined, __decodeKey: __mf_Decoder<Key> | undefined, __decodeT: __mf_Decoder<T> | undefined, fields: __mf_FieldRequirement): Partial<NameParamsClass<K, Key, T>> | __mf_PendingRef;
 	static validateField<
 		K,
 		Key,
@@ -3843,25 +3988,25 @@ export declare function nameParamsClassEncode<
 	K,
 	Key,
 	T
->(value: NameParamsClass<K, Key, T>, keepMetadata?: boolean): string;
+>(value: NameParamsClass<K, Key, T>, keepMetadata?: boolean, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function nameParamsClassEncodeWithContext<
 	K,
 	Key,
 	T
->(value: NameParamsClass<K, Key, T>, ctx: __mf_EncodeContext): Record<string, unknown>;
+>(value: NameParamsClass<K, Key, T>, ctx: __mf_EncodeContext, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function nameParamsClassEncodePartialWithContext<
 	K,
 	Key,
 	T
->(value: Partial<NameParamsClass<K, Key, T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameParamsClass<K, Key, T>>): Record<string, unknown>;
+>(value: Partial<NameParamsClass<K, Key, T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameParamsClass<K, Key, T>>, __encodeK?: __mf_Encoder<K>, __encodeKey?: __mf_Encoder<Key>, __encodeT?: __mf_Encoder<T>): Record<string, unknown>;
 /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function nameParamsClassDecode<
 	K,
 	Key,
 	T
->(input: unknown, opts?: __mf_DecodeOptions): {
+>(input: unknown, opts?: __mf_DecodeOptions, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>): {
 	success: true;
 	value: NameParamsClass<K, Key, T>;
 } | {
@@ -3876,7 +4021,7 @@ export declare function nameParamsClassDecodeWithContext<
 	K,
 	Key,
 	T
->(value: unknown, ctx: __mf_DecodeContext): NameParamsClass<K, Key, T> | __mf_PendingRef;
+>(value: unknown, ctx: __mf_DecodeContext, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>): NameParamsClass<K, Key, T> | __mf_PendingRef;
 /** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
 export declare function nameParamsClassHasShape(value: unknown): boolean;
 /** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
@@ -3884,7 +4029,7 @@ export declare function nameParamsClassDecodePartialWithContext<
 	K,
 	Key,
 	T
->(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NameParamsClass<K, Key, T>>): Partial<NameParamsClass<K, Key, T>> | __mf_PendingRef;
+>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NameParamsClass<K, Key, T>>, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>): Partial<NameParamsClass<K, Key, T>> | __mf_PendingRef;
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
 export declare function nameParamsClassIs<
 	K,
@@ -3898,112 +4043,112 @@ export declare function nameParamsClassIs<
 
 ## Mapping
 
-original 0..765 -> expanded 942..1707
-original 765..1152 -> expanded 37254..37641
-original 1152..1335 -> expanded 63074..63257
-original 1335..1336 -> expanded 73662..73663
-original 1336..1487 -> expanded 77570..77721
-original 1487..1639 -> expanded 88628..88780
-original 1639..1856 -> expanded 99997..100214
-original 1856..2031 -> expanded 116455..116630
-original 2031..2213 -> expanded 129585..129767
-original 2213..2214 -> expanded 140052..140053
-original 2214..2215 -> expanded 144245..144246
-generated 0..942 <- imports
-generated 1707..2742 <- Debug
-generated 2742..3187 <- Clone
-generated 3187..4041 <- PartialEq
-generated 4041..6616 <- Hash
-generated 6616..10622 <- PartialOrd
-generated 10622..13568 <- Ord
-generated 13568..13970 <- Default
-generated 13970..18774 <- Encode
-generated 18774..35638 <- Decode
-generated 35638..37254 <- __convenience_const
-generated 37641..38449 <- Debug
-generated 38449..38863 <- Clone
-generated 38863..39337 <- PartialEq
-generated 39337..40923 <- Hash
-generated 40923..42963 <- PartialOrd
-generated 42963..44453 <- Ord
-generated 44453..44799 <- Default
-generated 44799..48860 <- Encode
-generated 48860..61458 <- Decode
-generated 61458..63074 <- __convenience_const
-generated 63257..63591 <- Debug
-generated 63591..63817 <- Clone
-generated 63817..64027 <- PartialEq
-generated 64027..64570 <- Hash
-generated 64570..64858 <- Default
-generated 64858..66826 <- Encode
-generated 66826..67163 <- Encode
-generated 67163..73662 <- Decode
-generated 73663..73784 <- Debug
-generated 73784..73908 <- Clone
-generated 73908..74041 <- PartialEq
-generated 74041..74162 <- Hash
-generated 74162..74273 <- Default
-generated 74273..75683 <- Encode
-generated 75683..77570 <- Decode
-generated 77721..77939 <- Debug
-generated 77939..78060 <- Clone
-generated 78060..78215 <- PartialEq
-generated 78215..78510 <- Hash
-generated 78510..78847 <- PartialOrd
-generated 78847..79093 <- Ord
-generated 79093..79198 <- Default
-generated 79198..81422 <- Encode
-generated 81422..86942 <- Decode
-generated 86942..88628 <- __convenience_const
-generated 88780..89006 <- Debug
-generated 89006..89108 <- Clone
-generated 89108..89245 <- PartialEq
-generated 89245..89664 <- Hash
-generated 89664..90077 <- PartialOrd
-generated 90077..90358 <- Ord
-generated 90358..90458 <- Default
-generated 90458..92713 <- Encode
-generated 92713..98486 <- Decode
-generated 98486..99997 <- __convenience_const
-generated 100214..100657 <- Debug
-generated 100657..101073 <- Clone
-generated 101073..101751 <- PartialEq
-generated 101751..102365 <- Hash
-generated 102365..102577 <- Default
-generated 102577..105490 <- Encode
-generated 105490..115019 <- Decode
-generated 115019..116455 <- __convenience_const
-generated 116630..117067 <- Debug
-generated 117067..117400 <- Clone
-generated 117400..117915 <- PartialEq
-generated 117915..118380 <- Hash
-generated 118380..121254 <- Encode
-generated 121254..128245 <- Decode
-generated 128245..129585 <- __convenience_const
-generated 129767..130144 <- Debug
-generated 130144..130472 <- Clone
-generated 130472..130948 <- PartialEq
-generated 130948..131347 <- Hash
-generated 131347..133380 <- Encode
-generated 133380..133739 <- Encode
-generated 133739..140052 <- Decode
-generated 140053..140207 <- Debug
-generated 140207..140375 <- Clone
-generated 140375..140552 <- PartialEq
-generated 140552..140706 <- Hash
-generated 140706..142215 <- Encode
-generated 142215..144245 <- Decode
+original 0..765 -> expanded 1206..1971
+original 765..1152 -> expanded 38086..38473
+original 1152..1335 -> expanded 64418..64601
+original 1335..1336 -> expanded 75218..75219
+original 1336..1487 -> expanded 79126..79277
+original 1487..1639 -> expanded 90501..90653
+original 1639..1856 -> expanded 102185..102402
+original 1856..2031 -> expanded 119062..119237
+original 2031..2213 -> expanded 136968..137150
+original 2213..2214 -> expanded 151018..151019
+original 2214..2215 -> expanded 155967..155968
+generated 0..1206 <- imports
+generated 1971..3068 <- Debug
+generated 3068..3555 <- Clone
+generated 3555..4439 <- PartialEq
+generated 4439..7074 <- Hash
+generated 7074..11137 <- PartialOrd
+generated 11137..14140 <- Ord
+generated 14140..14542 <- Default
+generated 14542..19332 <- Encode
+generated 19332..36470 <- Decode
+generated 36470..38086 <- __convenience_const
+generated 38473..39343 <- Debug
+generated 39343..39799 <- Clone
+generated 39799..40303 <- PartialEq
+generated 40303..41949 <- Hash
+generated 41949..44046 <- PartialOrd
+generated 44046..45593 <- Ord
+generated 45593..45939 <- Default
+generated 45939..49986 <- Encode
+generated 49986..62802 <- Decode
+generated 62802..64418 <- __convenience_const
+generated 64601..65005 <- Debug
+generated 65005..65235 <- Clone
+generated 65235..65475 <- PartialEq
+generated 65475..66086 <- Hash
+generated 66086..66374 <- Default
+generated 66374..68328 <- Encode
+generated 68328..68665 <- Encode
+generated 68665..75218 <- Decode
+generated 75219..75340 <- Debug
+generated 75340..75464 <- Clone
+generated 75464..75597 <- PartialEq
+generated 75597..75718 <- Hash
+generated 75718..75829 <- Default
+generated 75829..77239 <- Encode
+generated 77239..79126 <- Decode
+generated 79277..79557 <- Debug
+generated 79557..79722 <- Clone
+generated 79722..79907 <- PartialEq
+generated 79907..80262 <- Hash
+generated 80262..80656 <- PartialOrd
+generated 80656..80959 <- Ord
+generated 80959..81064 <- Default
+generated 81064..83274 <- Encode
+generated 83274..88815 <- Decode
+generated 88815..90501 <- __convenience_const
+generated 90653..90941 <- Debug
+generated 90941..91082 <- Clone
+generated 91082..91249 <- PartialEq
+generated 91249..91728 <- Hash
+generated 91728..92198 <- PartialOrd
+generated 92198..92536 <- Ord
+generated 92536..92636 <- Default
+generated 92636..94877 <- Encode
+generated 94877..100674 <- Decode
+generated 100674..102185 <- __convenience_const
+generated 102402..102907 <- Debug
+generated 102907..103365 <- Clone
+generated 103365..104073 <- PartialEq
+generated 104073..104747 <- Hash
+generated 104747..104959 <- Default
+generated 104959..107858 <- Encode
+generated 107858..117626 <- Decode
+generated 117626..119062 <- __convenience_const
+generated 119237..119736 <- Debug
+generated 119736..120129 <- Clone
+generated 120129..120674 <- PartialEq
+generated 120674..121199 <- Hash
+generated 121199..124983 <- Encode
+generated 124983..135628 <- Decode
+generated 135628..136968 <- __convenience_const
+generated 137150..137597 <- Debug
+generated 137597..137929 <- Clone
+generated 137929..138435 <- PartialEq
+generated 138435..138902 <- Hash
+generated 138902..141519 <- Encode
+generated 141519..142004 <- Encode
+generated 142004..151018 <- Decode
+generated 151019..151173 <- Debug
+generated 151173..151341 <- Clone
+generated 151341..151518 <- PartialEq
+generated 151518..151672 <- Hash
+generated 151672..153559 <- Encode
+generated 153559..155967 <- Decode
 
 ## Metadata
 
-class NameQuotedClass: {"body_span":{"end":1337,"start":1255},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1225,"start":1155}}],"fields":[{"decorators":[],"initializer":"''","name":"kebab-key","optional":false,"readonly":false,"span":{"end":1286,"start":1261},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"''","name":"class","optional":false,"readonly":false,"span":{"end":1310,"start":1291},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"0","name":"default","optional":false,"readonly":false,"span":{"end":1335,"start":1315},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NameQuotedClass","span":{"end":1337,"start":1233},"superclass":null,"type_params":[]}
-class NameParamsClass: {"body_span":{"end":2215,"start":2136},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2095,"start":2034}}],"fields":[{"decorators":[],"initializer":"null","name":"key","optional":false,"readonly":false,"span":{"end":2163,"start":2142},"ts_type":"K | null","visibility":"Public"},{"decorators":[],"initializer":"null","name":"other","optional":false,"readonly":false,"span":{"end":2193,"start":2168},"ts_type":"Key | null","visibility":"Public"},{"decorators":[],"initializer":"[]","name":"held","optional":false,"readonly":false,"span":{"end":2213,"start":2198},"ts_type":"T[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NameParamsClass","span":{"end":2215,"start":2103},"superclass":null,"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"K"},{"constraint":null,"default":null,"is_const":false,"name":"Key"},{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
-interface NameLocals: {"body_span":{"end":766,"start":431},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":402,"start":311}}],"fields":[{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":451,"start":437},"ts_type":"string"},{"decorators":[],"name":"ctx","optional":false,"readonly":false,"span":{"end":468,"start":456},"ts_type":"string"},{"decorators":[],"name":"result","optional":false,"readonly":false,"span":{"end":488,"start":473},"ts_type":"string"},{"decorators":[],"name":"obj","optional":false,"readonly":false,"span":{"end":505,"start":493},"ts_type":"string"},{"decorators":[],"name":"errors","optional":false,"readonly":false,"span":{"end":527,"start":510},"ts_type":"string[]"},{"decorators":[],"name":"instance","optional":false,"readonly":false,"span":{"end":549,"start":532},"ts_type":"string"},{"decorators":[],"name":"fields","optional":false,"readonly":false,"span":{"end":569,"start":554},"ts_type":"string"},{"decorators":[],"name":"hash","optional":false,"readonly":false,"span":{"end":587,"start":574},"ts_type":"number"},{"decorators":[],"name":"parts","optional":false,"readonly":false,"span":{"end":608,"start":592},"ts_type":"string[]"},{"decorators":[],"name":"a","optional":false,"readonly":false,"span":{"end":623,"start":613},"ts_type":"number"},{"decorators":[],"name":"b","optional":false,"readonly":false,"span":{"end":638,"start":628},"ts_type":"number"},{"decorators":[],"name":"input","optional":false,"readonly":false,"span":{"end":657,"start":643},"ts_type":"string"},{"decorators":[],"name":"opts","optional":false,"readonly":false,"span":{"end":675,"start":662},"ts_type":"string"},{"decorators":[],"name":"data","optional":false,"readonly":false,"span":{"end":693,"start":680},"ts_type":"string"},{"decorators":[],"name":"item","optional":false,"readonly":false,"span":{"end":711,"start":698},"ts_type":"string"},{"decorators":[],"name":"key","optional":false,"readonly":false,"span":{"end":728,"start":716},"ts_type":"string"},{"decorators":[],"name":"idx","optional":false,"readonly":false,"span":{"end":745,"start":733},"ts_type":"number"},{"decorators":[],"name":"other","optional":false,"readonly":false,"span":{"end":764,"start":750},"ts_type":"string"}],"heritage":[],"methods":[],"name":"NameLocals","span":{"end":766,"start":410},"type_params":[]}
-interface NameQuoted: {"body_span":{"end":1153,"start":888},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":859,"start":768}}],"fields":[{"decorators":[],"name":"kebab-key","optional":false,"readonly":false,"span":{"end":914,"start":894},"ts_type":"string"},{"decorators":[],"name":"with space","optional":false,"readonly":false,"span":{"end":940,"start":919},"ts_type":"number"},{"decorators":[],"name":"dotted.key","optional":false,"readonly":false,"span":{"end":967,"start":945},"ts_type":"boolean"},{"decorators":[],"name":"0","optional":false,"readonly":false,"span":{"end":982,"start":972},"ts_type":"string"},{"decorators":[],"name":"class","optional":false,"readonly":false,"span":{"end":1001,"start":987},"ts_type":"string"},{"decorators":[],"name":"default","optional":false,"readonly":false,"span":{"end":1022,"start":1006},"ts_type":"number"},{"decorators":[],"name":"new","optional":false,"readonly":false,"span":{"end":1040,"start":1027},"ts_type":"boolean"},{"decorators":[],"name":"function","optional":false,"readonly":false,"span":{"end":1062,"start":1045},"ts_type":"string"},{"decorators":[],"name":"typeof","optional":false,"readonly":false,"span":{"end":1082,"start":1067},"ts_type":"string"},{"decorators":[],"name":"$dollar","optional":false,"readonly":false,"span":{"end":1103,"start":1087},"ts_type":"string"},{"decorators":[],"name":"_underscore","optional":false,"readonly":false,"span":{"end":1128,"start":1108},"ts_type":"string"},{"decorators":[],"name":"ünïcode","optional":false,"readonly":false,"span":{"end":1151,"start":1133},"ts_type":"string"}],"heritage":[],"methods":[],"name":"NameQuoted","span":{"end":1153,"start":867},"type_params":[]}
-interface HTTPResponse: {"body_span":{"end":1488,"start":1461},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1430,"start":1339}}],"fields":[{"decorators":[],"name":"statusCode","optional":false,"readonly":false,"span":{"end":1486,"start":1467},"ts_type":"number"}],"heritage":[],"methods":[],"name":"HTTPResponse","span":{"end":1488,"start":1438},"type_params":[]}
-interface point2D: {"body_span":{"end":1640,"start":1607},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1581,"start":1490}}],"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":1623,"start":1613},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":1638,"start":1628},"ts_type":"number"}],"heritage":[],"methods":[],"name":"point2D","span":{"end":1640,"start":1589},"type_params":[]}
-interface NameHolder: {"body_span":{"end":1857,"start":1741},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1712,"start":1642}}],"fields":[{"decorators":[],"name":"response","optional":false,"readonly":false,"span":{"end":1770,"start":1747},"ts_type":"HTTPResponse"},{"decorators":[],"name":"responses","optional":false,"readonly":false,"span":{"end":1801,"start":1775},"ts_type":"HTTPResponse[]"},{"decorators":[],"name":"point","optional":false,"readonly":false,"span":{"end":1821,"start":1806},"ts_type":"point2D"},{"decorators":[],"name":"points","optional":false,"readonly":false,"span":{"end":1855,"start":1826},"ts_type":"Map<string, point2D>"}],"heritage":[],"methods":[],"name":"NameHolder","span":{"end":1857,"start":1720},"type_params":[]}
-interface NameParams: {"body_span":{"end":2032,"start":1967},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1920,"start":1859}}],"fields":[{"decorators":[],"name":"key","optional":false,"readonly":false,"span":{"end":1980,"start":1973},"ts_type":"K"},{"decorators":[],"name":"other","optional":false,"readonly":false,"span":{"end":1996,"start":1985},"ts_type":"Key"},{"decorators":[],"name":"held","optional":false,"readonly":false,"span":{"end":2009,"start":2001},"ts_type":"T"},{"decorators":[],"name":"values","optional":false,"readonly":false,"span":{"end":2030,"start":2014},"ts_type":"Value[]"}],"heritage":[],"methods":[],"name":"NameParams","span":{"end":2032,"start":1928},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"K"},{"constraint":null,"default":null,"is_const":false,"name":"Key"},{"constraint":null,"default":null,"is_const":false,"name":"T"},{"constraint":null,"default":null,"is_const":false,"name":"Value"}]}
+class NameQuotedClass: {"body_span":{"end":1337,"start":1255},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1225,"start":1155}}],"fields":[{"decorators":[],"initializer":"''","key":"Named","name":"kebab-key","optional":false,"readonly":false,"span":{"end":1286,"start":1261},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"''","key":"Named","name":"class","optional":false,"readonly":false,"span":{"end":1310,"start":1291},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"0","key":"Named","name":"default","optional":false,"readonly":false,"span":{"end":1335,"start":1315},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NameQuotedClass","span":{"end":1337,"start":1233},"superclass":null,"type_params":[]}
+class NameParamsClass: {"body_span":{"end":2215,"start":2136},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2095,"start":2034}}],"fields":[{"decorators":[],"initializer":"null","key":"Named","name":"key","optional":false,"readonly":false,"span":{"end":2163,"start":2142},"ts_type":"K | null","visibility":"Public"},{"decorators":[],"initializer":"null","key":"Named","name":"other","optional":false,"readonly":false,"span":{"end":2193,"start":2168},"ts_type":"Key | null","visibility":"Public"},{"decorators":[],"initializer":"[]","key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":2213,"start":2198},"ts_type":"T[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NameParamsClass","span":{"end":2215,"start":2103},"superclass":null,"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"K"},{"constraint":null,"default":null,"is_const":false,"name":"Key"},{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+interface NameLocals: {"body_span":{"end":766,"start":431},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":402,"start":311}}],"fields":[{"decorators":[],"key":"Named","name":"value","optional":false,"readonly":false,"span":{"end":451,"start":437},"ts_type":"string"},{"decorators":[],"key":"Named","name":"ctx","optional":false,"readonly":false,"span":{"end":468,"start":456},"ts_type":"string"},{"decorators":[],"key":"Named","name":"result","optional":false,"readonly":false,"span":{"end":488,"start":473},"ts_type":"string"},{"decorators":[],"key":"Named","name":"obj","optional":false,"readonly":false,"span":{"end":505,"start":493},"ts_type":"string"},{"decorators":[],"key":"Named","name":"errors","optional":false,"readonly":false,"span":{"end":527,"start":510},"ts_type":"string[]"},{"decorators":[],"key":"Named","name":"instance","optional":false,"readonly":false,"span":{"end":549,"start":532},"ts_type":"string"},{"decorators":[],"key":"Named","name":"fields","optional":false,"readonly":false,"span":{"end":569,"start":554},"ts_type":"string"},{"decorators":[],"key":"Named","name":"hash","optional":false,"readonly":false,"span":{"end":587,"start":574},"ts_type":"number"},{"decorators":[],"key":"Named","name":"parts","optional":false,"readonly":false,"span":{"end":608,"start":592},"ts_type":"string[]"},{"decorators":[],"key":"Named","name":"a","optional":false,"readonly":false,"span":{"end":623,"start":613},"ts_type":"number"},{"decorators":[],"key":"Named","name":"b","optional":false,"readonly":false,"span":{"end":638,"start":628},"ts_type":"number"},{"decorators":[],"key":"Named","name":"input","optional":false,"readonly":false,"span":{"end":657,"start":643},"ts_type":"string"},{"decorators":[],"key":"Named","name":"opts","optional":false,"readonly":false,"span":{"end":675,"start":662},"ts_type":"string"},{"decorators":[],"key":"Named","name":"data","optional":false,"readonly":false,"span":{"end":693,"start":680},"ts_type":"string"},{"decorators":[],"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":711,"start":698},"ts_type":"string"},{"decorators":[],"key":"Named","name":"key","optional":false,"readonly":false,"span":{"end":728,"start":716},"ts_type":"string"},{"decorators":[],"key":"Named","name":"idx","optional":false,"readonly":false,"span":{"end":745,"start":733},"ts_type":"number"},{"decorators":[],"key":"Named","name":"other","optional":false,"readonly":false,"span":{"end":764,"start":750},"ts_type":"string"}],"heritage":[],"methods":[],"name":"NameLocals","span":{"end":766,"start":410},"type_params":[]}
+interface NameQuoted: {"body_span":{"end":1153,"start":888},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":859,"start":768}}],"fields":[{"decorators":[],"key":"Named","name":"kebab-key","optional":false,"readonly":false,"span":{"end":914,"start":894},"ts_type":"string"},{"decorators":[],"key":"Named","name":"with space","optional":false,"readonly":false,"span":{"end":940,"start":919},"ts_type":"number"},{"decorators":[],"key":"Named","name":"dotted.key","optional":false,"readonly":false,"span":{"end":967,"start":945},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"0","optional":false,"readonly":false,"span":{"end":982,"start":972},"ts_type":"string"},{"decorators":[],"key":"Named","name":"class","optional":false,"readonly":false,"span":{"end":1001,"start":987},"ts_type":"string"},{"decorators":[],"key":"Named","name":"default","optional":false,"readonly":false,"span":{"end":1022,"start":1006},"ts_type":"number"},{"decorators":[],"key":"Named","name":"new","optional":false,"readonly":false,"span":{"end":1040,"start":1027},"ts_type":"boolean"},{"decorators":[],"key":"Named","name":"function","optional":false,"readonly":false,"span":{"end":1062,"start":1045},"ts_type":"string"},{"decorators":[],"key":"Named","name":"typeof","optional":false,"readonly":false,"span":{"end":1082,"start":1067},"ts_type":"string"},{"decorators":[],"key":"Named","name":"$dollar","optional":false,"readonly":false,"span":{"end":1103,"start":1087},"ts_type":"string"},{"decorators":[],"key":"Named","name":"_underscore","optional":false,"readonly":false,"span":{"end":1128,"start":1108},"ts_type":"string"},{"decorators":[],"key":"Named","name":"ünïcode","optional":false,"readonly":false,"span":{"end":1151,"start":1133},"ts_type":"string"}],"heritage":[],"methods":[],"name":"NameQuoted","span":{"end":1153,"start":867},"type_params":[]}
+interface HTTPResponse: {"body_span":{"end":1488,"start":1461},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1430,"start":1339}}],"fields":[{"decorators":[],"key":"Named","name":"statusCode","optional":false,"readonly":false,"span":{"end":1486,"start":1467},"ts_type":"number"}],"heritage":[],"methods":[],"name":"HTTPResponse","span":{"end":1488,"start":1438},"type_params":[]}
+interface point2D: {"body_span":{"end":1640,"start":1607},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1581,"start":1490}}],"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":1623,"start":1613},"ts_type":"number"},{"decorators":[],"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":1638,"start":1628},"ts_type":"number"}],"heritage":[],"methods":[],"name":"point2D","span":{"end":1640,"start":1589},"type_params":[]}
+interface NameHolder: {"body_span":{"end":1857,"start":1741},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1712,"start":1642}}],"fields":[{"decorators":[],"key":"Named","name":"response","optional":false,"readonly":false,"span":{"end":1770,"start":1747},"ts_type":"HTTPResponse"},{"decorators":[],"key":"Named","name":"responses","optional":false,"readonly":false,"span":{"end":1801,"start":1775},"ts_type":"HTTPResponse[]"},{"decorators":[],"key":"Named","name":"point","optional":false,"readonly":false,"span":{"end":1821,"start":1806},"ts_type":"point2D"},{"decorators":[],"key":"Named","name":"points","optional":false,"readonly":false,"span":{"end":1855,"start":1826},"ts_type":"Map<string, point2D>"}],"heritage":[],"methods":[],"name":"NameHolder","span":{"end":1857,"start":1720},"type_params":[]}
+interface NameParams: {"body_span":{"end":2032,"start":1967},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1920,"start":1859}}],"fields":[{"decorators":[],"key":"Named","name":"key","optional":false,"readonly":false,"span":{"end":1980,"start":1973},"ts_type":"K"},{"decorators":[],"key":"Named","name":"other","optional":false,"readonly":false,"span":{"end":1996,"start":1985},"ts_type":"Key"},{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":2009,"start":2001},"ts_type":"T"},{"decorators":[],"key":"Named","name":"values","optional":false,"readonly":false,"span":{"end":2030,"start":2014},"ts_type":"Value[]"}],"heritage":[],"methods":[],"name":"NameParams","span":{"end":2032,"start":1928},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"K"},{"constraint":null,"default":null,"is_const":false,"name":"Key"},{"constraint":null,"default":null,"is_const":false,"name":"T"},{"constraint":null,"default":null,"is_const":false,"name":"Value"}]}
 
 ## Registry reads
 

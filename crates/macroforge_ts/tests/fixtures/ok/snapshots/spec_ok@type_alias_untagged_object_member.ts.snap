@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 // An inline object member with no tag field is recognised by shape alone:
 // every required field must be present, and optional fields are copied only
@@ -43,14 +43,24 @@ export function linkEncodeWithContext(value: Link, ctx: __mf_EncodeContext): unk
         __variant = __encoder(value, ctx);
         __matched = true;
     }
-    
+    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) {
+        const result: Record<string, unknown> = {};
+        result.id = value.id;
+        if (value.label !== undefined) {
+            result.label = value.label;
+        }
+        __variant = result;
+        __matched = true;
+    }
     if (!__matched) {
         __variant = value;
     }
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -58,7 +68,7 @@ export function linkEncodeWithContext(value: Link, ctx: __mf_EncodeContext): unk
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function linkDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Link } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, linkHasShape);
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = linkDecodeWithContext(data, ctx);
@@ -121,10 +131,7 @@ export function linkDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
         return value as Link;
     }
     if (typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) {
-        const __result: Record<string, unknown> = {};
-        __result["id"] = (value as any)["id"];
-        if ("label" in value) __result["label"] = (value as any)["label"];
-        return __result as Link;
+        return __mf_decodeObject(value, ctx, { id: __mf_decodeString, label: __mf_decodeString }, ["label"]) as Link;
     }
 
     throw new __mf_DecodeError([{
@@ -197,17 +204,17 @@ export declare const Link: {
 
 ## Mapping
 
-original 0..185 -> expanded 397..582
-original 215..275 -> expanded 582..642
-original 275..276 -> expanded 5122..5123
-generated 0..397 <- imports
-generated 642..1878 <- Encode
-generated 1878..4652 <- Decode
-generated 4652..5122 <- __convenience_const
+original 0..185 -> expanded 529..714
+original 215..275 -> expanded 714..774
+original 275..276 -> expanded 5649..5650
+generated 0..529 <- imports
+generated 774..2464 <- Encode
+generated 2464..5179 <- Decode
+generated 5179..5649 <- __convenience_const
 
 ## Metadata
 
-type Link: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":258,"start":247},"ts_type":"string"},{"decorators":[],"name":"label","optional":true,"readonly":false,"span":{"end":273,"start":259},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":216,"start":186}}],"name":"Link","span":{"end":276,"start":224},"type_params":[]}
+type Link: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":258,"start":247},"ts_type":"string"},{"decorators":[],"key":"Named","name":"label","optional":true,"readonly":false,"span":{"end":273,"start":259},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":216,"start":186}}],"name":"Link","span":{"end":276,"start":224},"type_params":[]}
 
 ## Registry reads
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -42,12 +42,9 @@ export function lastNameEncode(value: LastName, keepMetadata?: boolean): string 
 export function lastNameEncodeWithContext(value: LastName, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "LastName",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "LastName" });
     lastNameEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -155,7 +152,7 @@ export function lastNameDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -430,20 +427,20 @@ export declare const LastName: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..140 -> expanded 741..774
-original 181..201 -> expanded 774..794
-original 201..202 -> expanded 13722..13723
-generated 0..683 <- imports
-generated 794..886 <- Default
-generated 886..3026 <- Encode
-generated 3026..9203 <- Decode
-generated 9203..12456 <- Gigaform
-generated 12456..13722 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..140 -> expanded 813..846
+original 181..201 -> expanded 846..866
+original 201..202 -> expanded 13795..13796
+generated 0..755 <- imports
+generated 866..958 <- Default
+generated 958..3084 <- Encode
+generated 3084..9276 <- Decode
+generated 9276..12529 <- Gigaform
+generated 12529..13795 <- __convenience_const
 
 ## Metadata
 
-interface LastName: {"body_span":{"end":202,"start":135},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":182,"start":141}}],"name":"name","optional":false,"readonly":false,"span":{"end":200,"start":187},"ts_type":"string"}],"heritage":[],"methods":[],"name":"LastName","span":{"end":202,"start":116},"type_params":[]}
+interface LastName: {"body_span":{"end":202,"start":135},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":182,"start":141}}],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":200,"start":187},"ts_type":"string"}],"heritage":[],"methods":[],"name":"LastName","span":{"end":202,"start":116},"type_params":[]}
 
 ## Registry reads
 

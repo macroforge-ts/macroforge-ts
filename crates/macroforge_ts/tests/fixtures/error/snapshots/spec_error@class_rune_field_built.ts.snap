@@ -17,15 +17,19 @@ true
 
 ## Output
 
+import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
+
 class Counter {
     count: number = $state(0);
     label: string = '';
 
     static toString(value: Counter): string {
-        const parts: string[] = [];
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
         parts.push("count: " + String(value.count));
         parts.push("label: " + String(value.label));
-        return "Counter { " + parts.join(", ") + " }";
+            return "Counter { " + parts.join(", ") + " }";
+        });
     }
 }
 
@@ -49,15 +53,16 @@ Error [5..26]: @derive(Clone): field 'count' of class 'Counter' is set up by `$s
 
 ## Mapping
 
-original 28..100 -> expanded 0..72
-original 100..101 -> expanded 322..323
-original 101..102 -> expanded 420..421
-generated 72..322 <- Debug
-generated 323..420 <- Debug
+original 28..100 -> expanded 85..157
+original 100..101 -> expanded 477..478
+original 101..102 -> expanded 575..576
+generated 0..85 <- imports
+generated 157..477 <- Debug
+generated 478..575 <- Debug
 
 ## Metadata
 
-class Counter: {"body_span":{"end":102,"start":44},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":29,"start":1}}],"fields":[{"decorators":[],"initializer":"$state(0)","name":"count","optional":false,"readonly":false,"span":{"end":76,"start":50},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"''","name":"label","optional":false,"readonly":false,"span":{"end":100,"start":81},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Counter","span":{"end":102,"start":30},"superclass":null,"type_params":[]}
+class Counter: {"body_span":{"end":102,"start":44},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":29,"start":1}}],"fields":[{"decorators":[],"initializer":"$state(0)","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":76,"start":50},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"''","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":100,"start":81},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Counter","span":{"end":102,"start":30},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

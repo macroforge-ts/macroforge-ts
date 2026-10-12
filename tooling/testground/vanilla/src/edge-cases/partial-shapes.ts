@@ -41,3 +41,23 @@ export interface EdgeRenamedPartials {
     head: Pick<EdgeNode, 'name'>;
     link: Omit<EdgeNode, 'name'>;
 }
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface EdgeOptional {
+    id: string;
+    nick?: string;
+    /** @endec({ rename: "years" }) */
+    age?: number;
+    /** @endec({ default: 1 }) */
+    level?: number;
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface EdgeRequired {
+    plain: EdgeOptional;
+    whole: Required<EdgeOptional>;
+    picked: Required<Pick<EdgeOptional, 'nick'>>;
+    again: Required<Partial<EdgeOptional>>;
+    loose: Partial<Required<EdgeOptional>>;
+    wholes: Required<EdgeOptional>[];
+}

@@ -43,7 +43,7 @@ generated 0..70 <- imports
 
 ## Metadata
 
-interface Index: {"body_span":{"end":103,"start":48},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"name":"byPoint","optional":false,"readonly":false,"span":{"end":101,"start":54},"ts_type":"Map<{ x: number; y: number }, string>"}],"heritage":[],"methods":[],"name":"Index","span":{"end":103,"start":32},"type_params":[]}
+interface Index: {"body_span":{"end":103,"start":48},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"byPoint","optional":false,"readonly":false,"span":{"end":101,"start":54},"ts_type":"Map<{ x: number; y: number }, string>"}],"heritage":[],"methods":[],"name":"Index","span":{"end":103,"start":32},"type_params":[]}
 
 ## Registry reads
 

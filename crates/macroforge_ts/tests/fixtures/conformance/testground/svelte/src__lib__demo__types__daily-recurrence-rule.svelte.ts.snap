@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -41,12 +41,9 @@ export function dailyRecurrenceRuleEncode(value: DailyRecurrenceRule, keepMetada
 export function dailyRecurrenceRuleEncodeWithContext(value: DailyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "DailyRecurrenceRule",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "DailyRecurrenceRule" });
     dailyRecurrenceRuleEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -154,7 +151,7 @@ export function dailyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_D
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("quantityOfDays")) || (__fields.keeps("quantityOfDays") && obj["quantityOfDays"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("quantityOfDays")) ? "quantityOfDays" in obj : (__fields.keeps("quantityOfDays") && obj["quantityOfDays"] !== undefined)) {
         const __raw_quantityOfDays = obj["quantityOfDays"] as number;
 
         if (!(typeof __raw_quantityOfDays === "number")) {
@@ -418,19 +415,19 @@ export declare const DailyRecurrenceRule: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..176 -> expanded 741..810
-original 176..177 -> expanded 14610..14611
-generated 0..683 <- imports
-generated 810..933 <- Default
-generated 933..3278 <- Encode
-generated 3278..9089 <- Decode
-generated 9089..13047 <- Gigaform
-generated 13047..14610 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..176 -> expanded 813..882
+original 176..177 -> expanded 14693..14694
+generated 0..755 <- imports
+generated 882..1005 <- Default
+generated 1005..3336 <- Encode
+generated 3336..9172 <- Decode
+generated 9172..13130 <- Gigaform
+generated 13130..14693 <- __convenience_const
 
 ## Metadata
 
-interface DailyRecurrenceRule: {"body_span":{"end":177,"start":146},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"quantityOfDays","optional":false,"readonly":false,"span":{"end":175,"start":152},"ts_type":"number"}],"heritage":[],"methods":[],"name":"DailyRecurrenceRule","span":{"end":177,"start":116},"type_params":[]}
+interface DailyRecurrenceRule: {"body_span":{"end":177,"start":146},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"key":"Named","name":"quantityOfDays","optional":false,"readonly":false,"span":{"end":175,"start":152},"ts_type":"number"}],"heritage":[],"methods":[],"name":"DailyRecurrenceRule","span":{"end":177,"start":116},"type_params":[]}
 
 ## Registry reads
 

@@ -13,7 +13,7 @@ true
 ## Output
 
 import { itemDecodeWithContext, itemEncodeWithContext } from "./item.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -55,12 +55,9 @@ export function billedItemEncode(value: BilledItem, keepMetadata?: boolean): str
 export function billedItemEncodeWithContext(value: BilledItem, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "BilledItem",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "BilledItem" });
     billedItemEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -192,7 +189,7 @@ export function billedItemDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("item")) || (__fields.keeps("item") && obj["item"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
         const __raw_item = obj["item"] as Item;
 
         ctx.pushScope("item");
@@ -208,13 +205,14 @@ export function billedItemDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("quantity")) || (__fields.keeps("quantity") && obj["quantity"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("quantity")) ? "quantity" in obj : (__fields.keeps("quantity") && obj["quantity"] !== undefined)) {
         const __raw_quantity = obj["quantity"] as number;
 
         if (!(typeof __raw_quantity === "number")) {
@@ -223,7 +221,7 @@ export function billedItemDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.quantity = __raw_quantity;
         }
     }
-    if ((__fields === undefined || __fields.requires("taxed")) || (__fields.keeps("taxed") && obj["taxed"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("taxed")) ? "taxed" in obj : (__fields.keeps("taxed") && obj["taxed"] !== undefined)) {
         const __raw_taxed = obj["taxed"] as boolean;
 
         if (!(typeof __raw_taxed === "boolean")) {
@@ -232,7 +230,7 @@ export function billedItemDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.taxed = __raw_taxed;
         }
     }
-    if ((__fields === undefined || __fields.requires("upsale")) || (__fields.keeps("upsale") && obj["upsale"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("upsale")) ? "upsale" in obj : (__fields.keeps("upsale") && obj["upsale"] !== undefined)) {
         const __raw_upsale = obj["upsale"] as boolean;
 
         if (!(typeof __raw_upsale === "boolean")) {
@@ -622,24 +620,24 @@ export declare const BilledItem: {
 
 ## Mapping
 
-original 0..102 -> expanded 761..863
-original 151..186 -> expanded 863..898
-original 297..302 -> expanded 898..903
-original 321..342 -> expanded 903..924
-original 406..433 -> expanded 924..951
-original 477..502 -> expanded 951..976
-original 547..570 -> expanded 976..999
-original 570..571 -> expanded 20523..20524
-generated 0..761 <- imports
-generated 999..1161 <- Default
-generated 1161..3848 <- Encode
-generated 3848..11513 <- Decode
-generated 11513..19203 <- Gigaform
-generated 19203..20523 <- __convenience_const
+original 0..102 -> expanded 833..935
+original 151..186 -> expanded 935..970
+original 297..302 -> expanded 970..975
+original 321..342 -> expanded 975..996
+original 406..433 -> expanded 996..1023
+original 477..502 -> expanded 1023..1048
+original 547..570 -> expanded 1048..1071
+original 570..571 -> expanded 20729..20730
+generated 0..833 <- imports
+generated 1071..1233 <- Default
+generated 1233..3906 <- Encode
+generated 3906..11719 <- Decode
+generated 11719..19409 <- Gigaform
+generated 19409..20729 <- __convenience_const
 
 ## Metadata
 
-interface BilledItem: {"body_span":{"end":571,"start":181},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":152,"start":103}}],"fields":[{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":322,"start":303}},{"args_src":"{ label: \"Item\", allowCustom: true, fetchUrls: [\"/api/products\", \"/api/services\"] }","name":"comboboxController","span":{"end":298,"start":187}}],"name":"item","optional":false,"readonly":false,"span":{"end":338,"start":327},"ts_type":"Item"},{"decorators":[{"args_src":"{ label: \"Quantity\", min: 0, step: 1 }","name":"numberController","span":{"end":407,"start":343}}],"name":"quantity","optional":false,"readonly":false,"span":{"end":429,"start":412},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"Taxed\" }","name":"switchController","span":{"end":478,"start":434}}],"name":"taxed","optional":false,"readonly":false,"span":{"end":498,"start":483},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Upsale\" }","name":"switchController","span":{"end":548,"start":503}}],"name":"upsale","optional":false,"readonly":false,"span":{"end":569,"start":553},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"BilledItem","span":{"end":571,"start":160},"type_params":[]}
+interface BilledItem: {"body_span":{"end":571,"start":181},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":152,"start":103}}],"fields":[{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":322,"start":303}},{"args_src":"{ label: \"Item\", allowCustom: true, fetchUrls: [\"/api/products\", \"/api/services\"] }","name":"comboboxController","span":{"end":298,"start":187}}],"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":338,"start":327},"ts_type":"Item"},{"decorators":[{"args_src":"{ label: \"Quantity\", min: 0, step: 1 }","name":"numberController","span":{"end":407,"start":343}}],"key":"Named","name":"quantity","optional":false,"readonly":false,"span":{"end":429,"start":412},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"Taxed\" }","name":"switchController","span":{"end":478,"start":434}}],"key":"Named","name":"taxed","optional":false,"readonly":false,"span":{"end":498,"start":483},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Upsale\" }","name":"switchController","span":{"end":548,"start":503}}],"key":"Named","name":"upsale","optional":false,"readonly":false,"span":{"end":569,"start":553},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"BilledItem","span":{"end":571,"start":160},"type_params":[]}
 
 ## Registry reads
 

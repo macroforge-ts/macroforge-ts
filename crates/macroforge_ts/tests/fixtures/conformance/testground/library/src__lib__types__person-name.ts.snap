@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface PersonName {
@@ -40,12 +40,9 @@ export function personNameEncode(value: PersonName, keepMetadata?: boolean): str
 export function personNameEncodeWithContext(value: PersonName, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "PersonName",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "PersonName" });
     personNameEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -161,7 +158,7 @@ export function personNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("firstName")) || (__fields.keeps("firstName") && obj["firstName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("firstName")) ? "firstName" in obj : (__fields.keeps("firstName") && obj["firstName"] !== undefined)) {
         const __raw_firstName = obj["firstName"] as string;
 
         if (!(typeof __raw_firstName === "string")) {
@@ -173,7 +170,7 @@ export function personNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
             instance.firstName = __raw_firstName;
         }
     }
-    if ((__fields === undefined || __fields.requires("lastName")) || (__fields.keeps("lastName") && obj["lastName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("lastName")) ? "lastName" in obj : (__fields.keeps("lastName") && obj["lastName"] !== undefined)) {
         const __raw_lastName = obj["lastName"] as string;
 
         if (!(typeof __raw_lastName === "string")) {
@@ -326,19 +323,19 @@ export declare const PersonName: {
 
 ## Mapping
 
-original 39..74 -> expanded 524..559
-original 115..143 -> expanded 559..587
-original 184..208 -> expanded 587..611
-original 208..209 -> expanded 12299..12300
-generated 0..524 <- imports
-generated 611..734 <- Default
-generated 734..3094 <- Encode
-generated 3094..11163 <- Decode
-generated 11163..12299 <- __convenience_const
+original 39..74 -> expanded 596..631
+original 115..143 -> expanded 631..659
+original 184..208 -> expanded 659..683
+original 208..209 -> expanded 12396..12397
+generated 0..596 <- imports
+generated 683..806 <- Default
+generated 806..3152 <- Encode
+generated 3152..11260 <- Decode
+generated 11260..12396 <- __convenience_const
 
 ## Metadata
 
-interface PersonName: {"body_span":{"end":209,"start":69},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":40,"start":1}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":116,"start":75}}],"name":"firstName","optional":false,"readonly":false,"span":{"end":139,"start":121},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":185,"start":144}}],"name":"lastName","optional":false,"readonly":false,"span":{"end":207,"start":190},"ts_type":"string"}],"heritage":[],"methods":[],"name":"PersonName","span":{"end":209,"start":48},"type_params":[]}
+interface PersonName: {"body_span":{"end":209,"start":69},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":40,"start":1}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":116,"start":75}}],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":139,"start":121},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":185,"start":144}}],"key":"Named","name":"lastName","optional":false,"readonly":false,"span":{"end":207,"start":190},"ts_type":"string"}],"heritage":[],"methods":[],"name":"PersonName","span":{"end":209,"start":48},"type_params":[]}
 
 ## Registry reads
 

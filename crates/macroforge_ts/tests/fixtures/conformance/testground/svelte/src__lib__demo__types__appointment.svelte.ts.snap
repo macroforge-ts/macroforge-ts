@@ -18,7 +18,7 @@ import { recurrenceRuleDecodeWithContext, recurrenceRuleEncodeWithContext } from
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { statusDecodeWithContext, statusEncodeWithContext } from "./status.svelte";
 import { __foreign__dateTimeDateTimeDefault, __foreign__optionOptionDefault, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeDecode, __foreign__optionOptionDecode } from "#macroforge/config";
-import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -102,12 +102,9 @@ export function appointmentEncode(value: Appointment, keepMetadata?: boolean): s
 export function appointmentEncodeWithContext(value: Appointment, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Appointment",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Appointment" });
     appointmentEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -319,7 +316,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -328,7 +325,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("title")) || (__fields.keeps("title") && obj["title"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("title")) ? "title" in obj : (__fields.keeps("title") && obj["title"] !== undefined)) {
         const __raw_title = obj["title"] as string;
 
         if (!(typeof __raw_title === "string")) {
@@ -340,7 +337,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.title = __raw_title;
         }
     }
-    if ((__fields === undefined || __fields.requires("status")) || (__fields.keeps("status") && obj["status"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("status")) ? "status" in obj : (__fields.keeps("status") && obj["status"] !== undefined)) {
         const __raw_status = obj["status"] as Status;
 
         ctx.pushScope("status");
@@ -356,20 +353,21 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "status", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("begins")) || (__fields.keeps("begins") && obj["begins"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("begins")) ? "begins" in obj : (__fields.keeps("begins") && obj["begins"] !== undefined)) {
         try {
             instance.begins = __foreign__dateTimeDateTimeDecode(obj["begins"]);
         } catch (__error) {
             errors.push({ field: "begins", message: __error instanceof Error ? __error.message : String(__error) });
         }
     }
-    if ((__fields === undefined || __fields.requires("duration")) || (__fields.keeps("duration") && obj["duration"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("duration")) ? "duration" in obj : (__fields.keeps("duration") && obj["duration"] !== undefined)) {
         const __raw_duration = obj["duration"] as number;
 
         if (!(typeof __raw_duration === "number")) {
@@ -378,7 +376,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.duration = __raw_duration;
         }
     }
-    if ((__fields === undefined || __fields.requires("timeZone")) || (__fields.keeps("timeZone") && obj["timeZone"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("timeZone")) ? "timeZone" in obj : (__fields.keeps("timeZone") && obj["timeZone"] !== undefined)) {
         const __raw_timeZone = obj["timeZone"] as string;
 
         if (!(typeof __raw_timeZone === "string")) {
@@ -387,7 +385,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.timeZone = __raw_timeZone;
         }
     }
-    if ((__fields === undefined || __fields.requires("offsetMs")) || (__fields.keeps("offsetMs") && obj["offsetMs"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("offsetMs")) ? "offsetMs" in obj : (__fields.keeps("offsetMs") && obj["offsetMs"] !== undefined)) {
         const __raw_offsetMs = obj["offsetMs"] as number;
 
         if (!(typeof __raw_offsetMs === "number")) {
@@ -396,7 +394,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.offsetMs = __raw_offsetMs;
         }
     }
-    if ((__fields === undefined || __fields.requires("allDay")) || (__fields.keeps("allDay") && obj["allDay"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("allDay")) ? "allDay" in obj : (__fields.keeps("allDay") && obj["allDay"] !== undefined)) {
         const __raw_allDay = obj["allDay"] as boolean;
 
         if (!(typeof __raw_allDay === "boolean")) {
@@ -405,7 +403,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.allDay = __raw_allDay;
         }
     }
-    if ((__fields === undefined || __fields.requires("multiDay")) || (__fields.keeps("multiDay") && obj["multiDay"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("multiDay")) ? "multiDay" in obj : (__fields.keeps("multiDay") && obj["multiDay"] !== undefined)) {
         const __raw_multiDay = obj["multiDay"] as boolean;
 
         if (!(typeof __raw_multiDay === "boolean")) {
@@ -414,7 +412,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.multiDay = __raw_multiDay;
         }
     }
-    if ((__fields === undefined || __fields.requires("employees")) || (__fields.keeps("employees") && obj["employees"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("employees")) ? "employees" in obj : (__fields.keeps("employees") && obj["employees"] !== undefined)) {
         const __raw_employees = obj["employees"] as Array<string | Employee>;
         if (Array.isArray(__raw_employees)) {
             ctx.pushScope("employees");
@@ -438,7 +436,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             errors.push({ field: "employees", message: __raw_employees == null ? "Appointment.employees is required" : "expected Array<string | Employee>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("location")) || (__fields.keeps("location") && obj["location"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("location")) ? "location" in obj : (__fields.keeps("location") && obj["location"] !== undefined)) {
         const __raw_location = obj["location"] as string | Site;
 
         if (typeof __raw_location === "string") {
@@ -457,21 +455,22 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "location", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("description")) || (__fields.keeps("description") && obj["description"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("description")) ? "description" in obj : (__fields.keeps("description") && obj["description"] !== undefined)) {
         try {
             instance.description = __foreign__optionOptionDecode(obj["description"]);
         } catch (__error) {
             errors.push({ field: "description", message: __error instanceof Error ? __error.message : String(__error) });
         }
     }
-    if ((__fields === undefined || __fields.requires("colors")) || (__fields.keeps("colors") && obj["colors"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("colors")) ? "colors" in obj : (__fields.keeps("colors") && obj["colors"] !== undefined)) {
         const __raw_colors = obj["colors"] as Colors;
 
         ctx.pushScope("colors");
@@ -487,13 +486,14 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "colors", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("recurrenceRule")) || (__fields.keeps("recurrenceRule") && obj["recurrenceRule"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("recurrenceRule")) ? "recurrenceRule" in obj : (__fields.keeps("recurrenceRule") && obj["recurrenceRule"] !== undefined)) {
         const __raw_recurrenceRule = obj["recurrenceRule"] as RecurrenceRule | null;
 
         if (__raw_recurrenceRule === null) {
@@ -512,7 +512,8 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "recurrenceRule", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
@@ -1343,37 +1344,37 @@ export declare const Appointment: {
 
 ## Mapping
 
-original 0..359 -> expanded 1465..1824
-original 408..444 -> expanded 1824..1860
-original 472..493 -> expanded 1860..1881
-original 535..540 -> expanded 1881..1886
-original 581..605 -> expanded 1886..1910
-original 784..789 -> expanded 1910..1915
-original 817..842 -> expanded 1915..1940
-original 889..925 -> expanded 1940..1976
-original 980..1007 -> expanded 1976..2003
-original 1053..1080 -> expanded 2003..2030
-original 1108..1135 -> expanded 2030..2057
-original 1181..1207 -> expanded 2057..2083
-original 1255..1283 -> expanded 2083..2111
-original 1372..1418 -> expanded 2111..2157
-original 1471..1476 -> expanded 2157..2162
-original 1495..1529 -> expanded 2162..2196
-original 1581..1626 -> expanded 2196..2241
-original 1654..1659 -> expanded 2241..2246
-original 1732..1757 -> expanded 2246..2271
-original 1785..1830 -> expanded 2271..2316
-original 1830..1831 -> expanded 49450..49451
-generated 0..1465 <- imports
-generated 2316..2868 <- Default
-generated 2868..7637 <- Encode
-generated 7637..25043 <- Decode
-generated 25043..48103 <- Gigaform
-generated 48103..49450 <- __convenience_const
+original 0..359 -> expanded 1537..1896
+original 408..444 -> expanded 1896..1932
+original 472..493 -> expanded 1932..1953
+original 535..540 -> expanded 1953..1958
+original 581..605 -> expanded 1958..1982
+original 784..789 -> expanded 1982..1987
+original 817..842 -> expanded 1987..2012
+original 889..925 -> expanded 2012..2048
+original 980..1007 -> expanded 2048..2075
+original 1053..1080 -> expanded 2075..2102
+original 1108..1135 -> expanded 2102..2129
+original 1181..1207 -> expanded 2129..2155
+original 1255..1283 -> expanded 2155..2183
+original 1372..1418 -> expanded 2183..2229
+original 1471..1476 -> expanded 2229..2234
+original 1495..1529 -> expanded 2234..2268
+original 1581..1626 -> expanded 2268..2313
+original 1654..1659 -> expanded 2313..2318
+original 1732..1757 -> expanded 2318..2343
+original 1785..1830 -> expanded 2343..2388
+original 1830..1831 -> expanded 50109..50110
+generated 0..1537 <- imports
+generated 2388..2940 <- Default
+generated 2940..7695 <- Encode
+generated 7695..25702 <- Decode
+generated 25702..48762 <- Gigaform
+generated 48762..50109 <- __convenience_const
 
 ## Metadata
 
-interface Appointment: {"body_span":{"end":1831,"start":439},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":409,"start":360}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":473,"start":445}}],"name":"id","optional":false,"readonly":false,"span":{"end":489,"start":478},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":582,"start":541}},{"args_src":"{ label: \"Title\" }","name":"textController","span":{"end":536,"start":494}}],"name":"title","optional":false,"readonly":false,"span":{"end":601,"start":587},"ts_type":"string"},{"decorators":[{"args_src":"\"Scheduled\"","name":"default","span":{"end":818,"start":790}},{"args_src":"{ label: \"Status\", options: [{ label: \"Scheduled\", value: \"Scheduled\" }, { label: \"On Deck\", value: \"OnDeck\" }, { label: \"Waiting\", value: \"Waiting\" }] }","name":"selectController","span":{"end":785,"start":606}}],"name":"status","optional":false,"readonly":false,"span":{"end":838,"start":823},"ts_type":"Status"},{"decorators":[{"args_src":"{ label: \"Begins\" }","name":"dateTimeController","span":{"end":890,"start":843}}],"name":"begins","optional":false,"readonly":false,"span":{"end":921,"start":895},"ts_type":"DateTime.DateTime"},{"decorators":[{"args_src":"{ label: \"Duration\", min: 0 }","name":"numberController","span":{"end":981,"start":926}}],"name":"duration","optional":false,"readonly":false,"span":{"end":1003,"start":986},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"Time Zone\" }","name":"textController","span":{"end":1054,"start":1008}}],"name":"timeZone","optional":false,"readonly":false,"span":{"end":1076,"start":1059},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1109,"start":1081}}],"name":"offsetMs","optional":false,"readonly":false,"span":{"end":1131,"start":1114},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"All Day\" }","name":"switchController","span":{"end":1182,"start":1136}}],"name":"allDay","optional":false,"readonly":false,"span":{"end":1203,"start":1187},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Multi Day\" }","name":"switchController","span":{"end":1256,"start":1208}}],"name":"multiDay","optional":false,"readonly":false,"span":{"end":1279,"start":1261},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Employees\", fetchUrls: [\"/api/employees\"] }","name":"comboboxMultipleController","span":{"end":1373,"start":1284}}],"name":"employees","optional":false,"readonly":false,"span":{"end":1414,"start":1378},"ts_type":"Array<string | Employee>"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":1496,"start":1477}},{"args_src":"{ label: \"Location\" }","name":"siteFieldsetController","span":{"end":1472,"start":1419}}],"name":"location","optional":false,"readonly":false,"span":{"end":1525,"start":1501},"ts_type":"string | Site"},{"decorators":[{"args_src":"{ label: \"Description\" }","name":"textAreaController","span":{"end":1582,"start":1530}}],"name":"description","optional":false,"readonly":false,"span":{"end":1622,"start":1587},"ts_type":"Option.Option<string>"},{"decorators":[{"args_src":"{ main: \"#000000\", hover: \"#333333\", active: \"#666666\" }","name":"default","span":{"end":1733,"start":1660}},{"args_src":"{}","name":"hiddenController","span":{"end":1655,"start":1627}}],"name":"colors","optional":false,"readonly":false,"span":{"end":1753,"start":1738},"ts_type":"Colors"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1786,"start":1758}}],"name":"recurrenceRule","optional":false,"readonly":false,"span":{"end":1829,"start":1791},"ts_type":"RecurrenceRule | null"}],"heritage":[],"methods":[],"name":"Appointment","span":{"end":1831,"start":417},"type_params":[]}
+interface Appointment: {"body_span":{"end":1831,"start":439},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":409,"start":360}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":473,"start":445}}],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":489,"start":478},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":582,"start":541}},{"args_src":"{ label: \"Title\" }","name":"textController","span":{"end":536,"start":494}}],"key":"Named","name":"title","optional":false,"readonly":false,"span":{"end":601,"start":587},"ts_type":"string"},{"decorators":[{"args_src":"\"Scheduled\"","name":"default","span":{"end":818,"start":790}},{"args_src":"{ label: \"Status\", options: [{ label: \"Scheduled\", value: \"Scheduled\" }, { label: \"On Deck\", value: \"OnDeck\" }, { label: \"Waiting\", value: \"Waiting\" }] }","name":"selectController","span":{"end":785,"start":606}}],"key":"Named","name":"status","optional":false,"readonly":false,"span":{"end":838,"start":823},"ts_type":"Status"},{"decorators":[{"args_src":"{ label: \"Begins\" }","name":"dateTimeController","span":{"end":890,"start":843}}],"key":"Named","name":"begins","optional":false,"readonly":false,"span":{"end":921,"start":895},"ts_type":"DateTime.DateTime"},{"decorators":[{"args_src":"{ label: \"Duration\", min: 0 }","name":"numberController","span":{"end":981,"start":926}}],"key":"Named","name":"duration","optional":false,"readonly":false,"span":{"end":1003,"start":986},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"Time Zone\" }","name":"textController","span":{"end":1054,"start":1008}}],"key":"Named","name":"timeZone","optional":false,"readonly":false,"span":{"end":1076,"start":1059},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1109,"start":1081}}],"key":"Named","name":"offsetMs","optional":false,"readonly":false,"span":{"end":1131,"start":1114},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"All Day\" }","name":"switchController","span":{"end":1182,"start":1136}}],"key":"Named","name":"allDay","optional":false,"readonly":false,"span":{"end":1203,"start":1187},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Multi Day\" }","name":"switchController","span":{"end":1256,"start":1208}}],"key":"Named","name":"multiDay","optional":false,"readonly":false,"span":{"end":1279,"start":1261},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Employees\", fetchUrls: [\"/api/employees\"] }","name":"comboboxMultipleController","span":{"end":1373,"start":1284}}],"key":"Named","name":"employees","optional":false,"readonly":false,"span":{"end":1414,"start":1378},"ts_type":"Array<string | Employee>"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":1496,"start":1477}},{"args_src":"{ label: \"Location\" }","name":"siteFieldsetController","span":{"end":1472,"start":1419}}],"key":"Named","name":"location","optional":false,"readonly":false,"span":{"end":1525,"start":1501},"ts_type":"string | Site"},{"decorators":[{"args_src":"{ label: \"Description\" }","name":"textAreaController","span":{"end":1582,"start":1530}}],"key":"Named","name":"description","optional":false,"readonly":false,"span":{"end":1622,"start":1587},"ts_type":"Option.Option<string>"},{"decorators":[{"args_src":"{ main: \"#000000\", hover: \"#333333\", active: \"#666666\" }","name":"default","span":{"end":1733,"start":1660}},{"args_src":"{}","name":"hiddenController","span":{"end":1655,"start":1627}}],"key":"Named","name":"colors","optional":false,"readonly":false,"span":{"end":1753,"start":1738},"ts_type":"Colors"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1786,"start":1758}}],"key":"Named","name":"recurrenceRule","optional":false,"readonly":false,"span":{"end":1829,"start":1791},"ts_type":"RecurrenceRule | null"}],"heritage":[],"methods":[],"name":"Appointment","span":{"end":1831,"start":417},"type_params":[]}
 
 ## Registry reads
 

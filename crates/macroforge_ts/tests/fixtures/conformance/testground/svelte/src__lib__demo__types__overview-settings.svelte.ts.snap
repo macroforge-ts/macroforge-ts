@@ -15,7 +15,7 @@ true
 import { columnConfigDecodeWithContext, columnConfigEncodeWithContext } from "./column-config.svelte";
 import { overviewDisplayDecodeWithContext, overviewDisplayEncodeWithContext } from "./overview-display.svelte";
 import { rowHeightDecodeWithContext, rowHeightEncodeWithContext } from "./row-height.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -56,12 +56,9 @@ export function overviewSettingsEncode(value: OverviewSettings, keepMetadata?: b
 export function overviewSettingsEncodeWithContext(value: OverviewSettings, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "OverviewSettings",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "OverviewSettings" });
     overviewSettingsEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -193,7 +190,7 @@ export function overviewSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("rowHeight")) || (__fields.keeps("rowHeight") && obj["rowHeight"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("rowHeight")) ? "rowHeight" in obj : (__fields.keeps("rowHeight") && obj["rowHeight"] !== undefined)) {
         const __raw_rowHeight = obj["rowHeight"] as RowHeight;
 
         ctx.pushScope("rowHeight");
@@ -209,13 +206,14 @@ export function overviewSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "rowHeight", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("cardOrRow")) || (__fields.keeps("cardOrRow") && obj["cardOrRow"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("cardOrRow")) ? "cardOrRow" in obj : (__fields.keeps("cardOrRow") && obj["cardOrRow"] !== undefined)) {
         const __raw_cardOrRow = obj["cardOrRow"] as OverviewDisplay;
 
         ctx.pushScope("cardOrRow");
@@ -231,13 +229,14 @@ export function overviewSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "cardOrRow", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("perPage")) || (__fields.keeps("perPage") && obj["perPage"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("perPage")) ? "perPage" in obj : (__fields.keeps("perPage") && obj["perPage"] !== undefined)) {
         const __raw_perPage = obj["perPage"] as number;
 
         if (!(typeof __raw_perPage === "number")) {
@@ -246,7 +245,7 @@ export function overviewSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
             instance.perPage = __raw_perPage;
         }
     }
-    if ((__fields === undefined || __fields.requires("columnConfigs")) || (__fields.keeps("columnConfigs") && obj["columnConfigs"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("columnConfigs")) ? "columnConfigs" in obj : (__fields.keeps("columnConfigs") && obj["columnConfigs"] !== undefined)) {
         const __raw_columnConfigs = obj["columnConfigs"] as Array<ColumnConfig>;
         if (Array.isArray(__raw_columnConfigs)) {
             ctx.pushScope("columnConfigs");
@@ -701,21 +700,21 @@ export declare const OverviewSettings: {
 
 ## Mapping
 
-original 0..239 -> expanded 1047..1286
-original 288..329 -> expanded 1286..1327
-original 354..385 -> expanded 1327..1358
-original 409..504 -> expanded 1358..1453
-original 504..505 -> expanded 25620..25621
-generated 0..1047 <- imports
-generated 1453..1647 <- Default
-generated 1647..4590 <- Encode
-generated 4590..13780 <- Decode
-generated 13780..24138 <- Gigaform
-generated 24138..25620 <- __convenience_const
+original 0..239 -> expanded 1119..1358
+original 288..329 -> expanded 1358..1399
+original 354..385 -> expanded 1399..1430
+original 409..504 -> expanded 1430..1525
+original 504..505 -> expanded 25932..25933
+generated 0..1119 <- imports
+generated 1525..1719 <- Default
+generated 1719..4648 <- Encode
+generated 4648..14092 <- Decode
+generated 14092..24450 <- Gigaform
+generated 24450..25932 <- __convenience_const
 
 ## Metadata
 
-interface OverviewSettings: {"body_span":{"end":505,"start":324},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":289,"start":240}}],"fields":[{"decorators":[{"args_src":"\"Medium\"","name":"default","span":{"end":355,"start":330}}],"name":"rowHeight","optional":false,"readonly":false,"span":{"end":381,"start":360},"ts_type":"RowHeight"},{"decorators":[{"args_src":"\"Table\"","name":"default","span":{"end":410,"start":386}}],"name":"cardOrRow","optional":false,"readonly":false,"span":{"end":442,"start":415},"ts_type":"OverviewDisplay"},{"decorators":[],"name":"perPage","optional":false,"readonly":false,"span":{"end":463,"start":447},"ts_type":"number"},{"decorators":[],"name":"columnConfigs","optional":false,"readonly":false,"span":{"end":503,"start":468},"ts_type":"Array<ColumnConfig>"}],"heritage":[],"methods":[],"name":"OverviewSettings","span":{"end":505,"start":297},"type_params":[]}
+interface OverviewSettings: {"body_span":{"end":505,"start":324},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":289,"start":240}}],"fields":[{"decorators":[{"args_src":"\"Medium\"","name":"default","span":{"end":355,"start":330}}],"key":"Named","name":"rowHeight","optional":false,"readonly":false,"span":{"end":381,"start":360},"ts_type":"RowHeight"},{"decorators":[{"args_src":"\"Table\"","name":"default","span":{"end":410,"start":386}}],"key":"Named","name":"cardOrRow","optional":false,"readonly":false,"span":{"end":442,"start":415},"ts_type":"OverviewDisplay"},{"decorators":[],"key":"Named","name":"perPage","optional":false,"readonly":false,"span":{"end":463,"start":447},"ts_type":"number"},{"decorators":[],"key":"Named","name":"columnConfigs","optional":false,"readonly":false,"span":{"end":503,"start":468},"ts_type":"Array<ColumnConfig>"}],"heritage":[],"methods":[],"name":"OverviewSettings","span":{"end":505,"start":297},"type_params":[]}
 
 ## Registry reads
 

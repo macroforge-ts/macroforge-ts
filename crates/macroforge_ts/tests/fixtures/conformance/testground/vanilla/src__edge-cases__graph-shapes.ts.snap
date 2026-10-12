@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/graph-shapes.ts
-sha256 320b24960cc2599f628dae8eb77a18e294084874fc73c21237f156ad04c7d1c9
+sha256 7f303b141c4950c247e30dfc85d745becd6296c6f5cadf6ca3f7d3af0e348fac
 
 ## Changed
 
@@ -13,7 +13,8 @@ true
 ## Output
 
 import { edgeItemDecodePartialWithContext, edgeItemDecodeWithContext, edgeItemEncodePartialWithContext, edgeItemEncodeWithContext } from "./edge-types";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Object graphs rather than trees: a value held twice, a child pointing back
@@ -23,7 +24,7 @@ import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_Fi
 
 import type { EdgeItem } from './edge-types';
 
-/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode) */
 export interface GraphTree {
     name: string;
     parent: GraphTree | null;
@@ -31,35 +32,93 @@ export interface GraphTree {
 }
 
 export function graphTreeToString(value: GraphTree): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("name: " + String(value.name));
     parts.push("parent: " + (value.parent == null ? String(value.parent) : graphTreeToString(value.parent)));
     parts.push("children: " + "[" + value.children.map(graphTreeToString).join(", ") + "]");
-    return "GraphTree { " + parts.join(", ") + " }";
+        return "GraphTree { " + parts.join(", ") + " }";
+    });
 }
 
 export function graphTreeClone(value: GraphTree): GraphTree {
-    return ({
+    return __mf_clonedWith(value, (): GraphTree => ({
 	name: value.name,
 	parent: value.parent == null ? value.parent : graphTreeClone(value.parent),
 	children: value.children.map((__item0) => graphTreeClone(__item0))
-});
+}));
 }
 
 export function graphTreeEquals(a: GraphTree, b: GraphTree): boolean {
     if (a === b) return true;
-    return a.name === b.name && (a.parent == null || b.parent == null ? a.parent === b.parent : graphTreeEquals(a.parent, b.parent)) && a.children.length === b.children.length && a.children.every((__item0, __index0) => {
+    return __mf_equalWithin(a, b, () => a.name === b.name && (a.parent == null || b.parent == null ? a.parent === b.parent : graphTreeEquals(a.parent, b.parent)) && a.children.length === b.children.length && a.children.every((__item0, __index0) => {
 	const __other0 = b.children[__index0];
 	return __other0 === undefined ? __item0 === undefined : graphTreeEquals(__item0, __other0);
-});
+}));
 }
 
 export function graphTreeHashCode(value: GraphTree): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (value.parent == null ? 0 : graphTreeHashCode(value.parent))) | 0;
     hash = (hash * 31 + (value.children.reduce<number>((__hash0, __item0) => __hash0 * 31 + graphTreeHashCode(__item0) | 0, 1))) | 0;
-    return hash;
+        return hash;
+    });
+}
+
+export function graphTreePartialCompare(a: GraphTree, b: GraphTree): number | null {
+    if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
+    const cmp0 = (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = (a.parent == null || b.parent == null ? __mf_structuralCompare(a.parent, b.parent) : graphTreePartialCompare(a.parent, b.parent));
+    if (cmp1 === null) return null;
+    if (cmp1 !== 0) return cmp1;
+    const cmp2 = (() => {
+        const __left0 = a.children;
+        const __right0 = b.children;
+        const __shared0 = Math.min(__left0.length, __right0.length);
+        for (let __index0 = 0; __index0 < __shared0; __index0++) {
+            const __item0 = __left0[__index0];
+            const __other0 = __right0[__index0];
+            const __order0 = __item0 === undefined || __other0 === undefined
+                ? __mf_structuralCompare(__item0, __other0)
+                : graphTreePartialCompare(__item0, __other0);
+            if (__order0 !== 0) return __order0;
+        }
+        return __left0.length < __right0.length ? -1
+            : __left0.length > __right0.length ? 1 : 0;
+    })();
+    if (cmp2 === null) return null;
+    if (cmp2 !== 0) return cmp2;
+        return 0;
+    });
+}
+
+export function graphTreeCompare(a: GraphTree, b: GraphTree): number {
+    if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
+    const cmp0 = a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = a.parent == null || b.parent == null ? __mf_structuralCompare(a.parent, b.parent) : graphTreeCompare(a.parent, b.parent);
+    if (cmp1 !== 0) return cmp1;
+    const cmp2 = (() => {
+	const __left0 = a.children;
+	const __right0 = b.children;
+	const __shared0 = Math.min(__left0.length, __right0.length);
+	for (let __index0 = 0; __index0 < __shared0; __index0++) {
+		const __item0 = __left0[__index0];
+		const __other0 = __right0[__index0];
+		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : graphTreeCompare(__item0, __other0);
+		if (__order0 !== 0) return __order0;
+	}
+	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
+})();
+    if (cmp2 !== 0) return cmp2;
+        return 0;
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -73,12 +132,9 @@ export function graphTreeEncode(value: GraphTree, keepMetadata?: boolean): strin
 export function graphTreeEncodeWithContext(value: GraphTree, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "GraphTree",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "GraphTree" });
     graphTreeEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -202,7 +258,7 @@ export function graphTreeDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -211,7 +267,7 @@ export function graphTreeDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("parent")) || (__fields.keeps("parent") && obj["parent"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("parent")) ? "parent" in obj : (__fields.keeps("parent") && obj["parent"] !== undefined)) {
         const __raw_parent = obj["parent"] as GraphTree | null;
 
         if (__raw_parent === null) {
@@ -230,14 +286,15 @@ export function graphTreeDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "parent", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("children")) || (__fields.keeps("children") && obj["children"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("children")) ? "children" in obj : (__fields.keeps("children") && obj["children"] !== undefined)) {
         const __raw_children = obj["children"] as GraphTree[];
         if (Array.isArray(__raw_children)) {
             ctx.pushScope("children");
@@ -297,6 +354,8 @@ export const GraphTree: {
   readonly clone: typeof graphTreeClone;
   readonly equals: typeof graphTreeEquals;
   readonly hashCode: typeof graphTreeHashCode;
+  readonly partialCompare: typeof graphTreePartialCompare;
+  readonly compare: typeof graphTreeCompare;
   readonly encode: typeof graphTreeEncode;
   readonly encodeWithContext: typeof graphTreeEncodeWithContext;
   readonly encodePartialWithContext: typeof graphTreeEncodePartialWithContext;
@@ -312,6 +371,8 @@ export const GraphTree: {
   clone: graphTreeClone,
   equals: graphTreeEquals,
   hashCode: graphTreeHashCode,
+  partialCompare: graphTreePartialCompare,
+  compare: graphTreeCompare,
   encode: graphTreeEncode,
   encodeWithContext: graphTreeEncodeWithContext,
   encodePartialWithContext: graphTreeEncodePartialWithContext,
@@ -324,7 +385,7 @@ export const GraphTree: {
   is: graphTreeIs
 };
 
-/** @derive(Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export class GraphPerson {
     name: string = '';
     best: GraphPerson | null = null;
@@ -332,16 +393,62 @@ export class GraphPerson {
     circle: Set<GraphPerson> = new Set();
     byName: Map<string, GraphPerson> = new Map();
 
+    static toString(value: GraphPerson): string {
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("name: " + String(value.name));
+        parts.push("best: " + (value.best == null ? String(value.best) : graphPersonToString(value.best)));
+        parts.push("friends: " + "[" + value.friends.map(graphPersonToString).join(", ") + "]");
+        parts.push("circle: " + __mf_structuralDebug(value.circle));
+        parts.push("byName: " + __mf_structuralDebug(value.byName));
+            return "GraphPerson { " + parts.join(", ") + " }";
+        });
+    }
+
+    static clone(value: GraphPerson): GraphPerson {
+        return __mf_clonedWith(value, () => ({
+        	name: value.name,
+        	best: value.best == null ? value.best : graphPersonClone(value.best),
+        	friends: value.friends.map((__item0) => graphPersonClone(__item0)),
+        	circle: new Set(Array.from(value.circle, (__item0) => graphPersonClone(__item0))),
+        	byName: (() => {
+        		const __copy0 = new Map(value.byName);
+        		for (const [__key0, __item0] of value.byName) __copy0.set(__key0, graphPersonClone(__item0));
+        		return __copy0;
+        	})()
+        }));
+    }
+
+    static equals(a: GraphPerson, b: GraphPerson): boolean {
+        if (a === b) return true;
+        return __mf_equalWithin(a, b, () => a.name === b.name && (a.best == null || b.best == null ? a.best === b.best : graphPersonEquals(a.best, b.best)) && a.friends.length === b.friends.length && a.friends.every((__item0, __index0) => {
+        	const __other0 = b.friends[__index0];
+        	return __other0 === undefined ? __item0 === undefined : graphPersonEquals(__item0, __other0);
+        }) && a.circle.size === b.circle.size && Array.from(a.circle).every((__item0) => b.circle.has(__item0) || Array.from(b.circle).some((__other0) => graphPersonEquals(__item0, __other0))) && a.byName.size === b.byName.size && Array.from(a.byName).every(([__key0, __item0]) => {
+        	const __other0 = b.byName.get(__key0);
+        	return b.byName.has(__key0) && (__other0 === undefined ? __item0 === undefined : graphPersonEquals(__item0, __other0));
+        }));
+    }
+
+    static hashCode(value: GraphPerson): number {
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
+        hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (value.best == null ? 0 : graphPersonHashCode(value.best))) | 0;
+        hash = (hash * 31 + (value.friends.reduce<number>((__hash0, __item0) => __hash0 * 31 + graphPersonHashCode(__item0) | 0, 1))) | 0;
+        hash = (hash * 31 + (Array.from(value.circle).reduce<number>((__hash0, __item0) => __hash0 + graphPersonHashCode(__item0) | 0, 0))) | 0;
+        hash = (hash * 31 + (Array.from(value.byName).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + graphPersonHashCode(__item0) | 0) | 0, 0))) | 0;
+            return hash;
+        });
+    }
+
 /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 static encodeWithContext(value: GraphPerson, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "GraphPerson",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "GraphPerson" });
     GraphPerson.#encodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -496,7 +603,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -505,7 +612,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("best")) || (__fields.keeps("best") && obj["best"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("best")) ? "best" in obj : (__fields.keeps("best") && obj["best"] !== undefined)) {
         const __raw_best = obj["best"] as GraphPerson | null;
 
         if (__raw_best === null) {
@@ -524,14 +631,15 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "best", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("friends")) || (__fields.keeps("friends") && obj["friends"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("friends")) ? "friends" in obj : (__fields.keeps("friends") && obj["friends"] !== undefined)) {
         const __raw_friends = obj["friends"] as GraphPerson[];
         if (Array.isArray(__raw_friends)) {
             ctx.pushScope("friends");
@@ -555,7 +663,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             errors.push({ field: "friends", message: __raw_friends == null ? "GraphPerson.friends is required" : "expected GraphPerson[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("circle")) || (__fields.keeps("circle") && obj["circle"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("circle")) ? "circle" in obj : (__fields.keeps("circle") && obj["circle"] !== undefined)) {
         const __raw_circle = obj["circle"] as Array<GraphPerson>;
         if (Array.isArray(__raw_circle)) {
             ctx.pushScope("circle");
@@ -579,7 +687,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             errors.push({ field: "circle", message: __raw_circle == null ? "GraphPerson.circle is required" : "expected Set<GraphPerson>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("byName")) || (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
         const __raw_byName = obj["byName"] as Record<string, GraphPerson>;
         if (typeof __raw_byName === "object" && __raw_byName !== null) {
             ctx.pushScope("byName");
@@ -636,6 +744,22 @@ static is(obj: unknown): obj is GraphPerson {
     const result = GraphPerson.decode(obj);
     return result.success;
 }
+}
+
+export function graphPersonToString(value: GraphPerson): string {
+    return GraphPerson.toString(value);
+}
+
+export function graphPersonClone(value: GraphPerson): GraphPerson {
+    return GraphPerson.clone(value);
+}
+
+export function graphPersonEquals(a: GraphPerson, b: GraphPerson): boolean {
+    return GraphPerson.equals(a, b);
+}
+
+export function graphPersonHashCode(value: GraphPerson): number {
+    return GraphPerson.hashCode(value);
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -702,12 +826,9 @@ export function graphSharedEncode(value: GraphShared, keepMetadata?: boolean): s
 export function graphSharedEncodeWithContext(value: GraphShared, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "GraphShared",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "GraphShared" });
     graphSharedEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -871,7 +992,7 @@ export function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("first")) || (__fields.keeps("first") && obj["first"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("first")) ? "first" in obj : (__fields.keeps("first") && obj["first"] !== undefined)) {
         const __raw_first = obj["first"] as EdgeItem;
 
         ctx.pushScope("first");
@@ -887,13 +1008,14 @@ export function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "first", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("again")) || (__fields.keeps("again") && obj["again"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("again")) ? "again" in obj : (__fields.keeps("again") && obj["again"] !== undefined)) {
         const __raw_again = obj["again"] as EdgeItem;
 
         ctx.pushScope("again");
@@ -909,13 +1031,14 @@ export function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "again", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("maybe")) || (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("maybe")) ? "maybe" in obj : (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
         const __raw_maybe = obj["maybe"] as EdgeItem | null;
 
         if (__raw_maybe === null) {
@@ -934,14 +1057,15 @@ export function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "maybe", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("list")) || (__fields.keeps("list") && obj["list"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
         const __raw_list = obj["list"] as EdgeItem[];
         if (Array.isArray(__raw_list)) {
             ctx.pushScope("list");
@@ -965,7 +1089,7 @@ export function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             errors.push({ field: "list", message: __raw_list == null ? "GraphShared.list is required" : "expected EdgeItem[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("set")) || (__fields.keeps("set") && obj["set"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("set")) ? "set" in obj : (__fields.keeps("set") && obj["set"] !== undefined)) {
         const __raw_set = obj["set"] as Array<EdgeItem>;
         if (Array.isArray(__raw_set)) {
             ctx.pushScope("set");
@@ -989,7 +1113,7 @@ export function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             errors.push({ field: "set", message: __raw_set == null ? "GraphShared.set is required" : "expected Set<EdgeItem>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("byName")) || (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("byName")) ? "byName" in obj : (__fields.keeps("byName") && obj["byName"] !== undefined)) {
         const __raw_byName = obj["byName"] as Record<string, EdgeItem>;
         if (typeof __raw_byName === "object" && __raw_byName !== null) {
             ctx.pushScope("byName");
@@ -1013,7 +1137,7 @@ export function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             errors.push({ field: "byName", message: __raw_byName == null ? "GraphShared.byName is required" : "expected Map<string, EdgeItem>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("record")) || (__fields.keeps("record") && obj["record"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("record")) ? "record" in obj : (__fields.keeps("record") && obj["record"] !== undefined)) {
         const __raw_record = obj["record"] as Record<string, EdgeItem>;
         if (typeof __raw_record === "object" && __raw_record !== null) {
             ctx.pushScope("record");
@@ -1037,7 +1161,7 @@ export function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             errors.push({ field: "record", message: __raw_record == null ? "GraphShared.record is required" : "expected Record<string, EdgeItem>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("pair")) || (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("pair")) ? "pair" in obj : (__fields.keeps("pair") && obj["pair"] !== undefined)) {
         const __raw_pair = obj["pair"] as [EdgeItem, EdgeItem];
         if (Array.isArray(__raw_pair)) {
             ctx.pushScope("pair");
@@ -1136,12 +1260,9 @@ export function graphLoopEncode(value: GraphLoop, keepMetadata?: boolean): strin
 export function graphLoopEncodeWithContext(value: GraphLoop, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "GraphLoop",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "GraphLoop" });
     graphLoopEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1281,7 +1402,7 @@ export function graphLoopDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -1290,7 +1411,7 @@ export function graphLoopDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("self")) || (__fields.keeps("self") && obj["self"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("self")) ? "self" in obj : (__fields.keeps("self") && obj["self"] !== undefined)) {
         const __raw_self = obj["self"] as GraphLoop | null;
 
         if (__raw_self === null) {
@@ -1309,14 +1430,15 @@ export function graphLoopDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "self", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("view")) || (__fields.keeps("view") && obj["view"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("view")) ? "view" in obj : (__fields.keeps("view") && obj["view"] !== undefined)) {
         const __raw_view = obj["view"] as Pick<GraphLoop, 'name' | 'view'> | null;
 
         if (__raw_view === null) {
@@ -1336,14 +1458,15 @@ export function graphLoopDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "view", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("rest")) || (__fields.keeps("rest") && obj["rest"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("rest")) ? "rest" in obj : (__fields.keeps("rest") && obj["rest"] !== undefined)) {
         const __raw_rest = obj["rest"] as Omit<GraphLoop, 'name'> | null;
 
         if (__raw_rest === null) {
@@ -1363,14 +1486,15 @@ export function graphLoopDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "rest", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("patch")) || (__fields.keeps("patch") && obj["patch"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("patch")) ? "patch" in obj : (__fields.keeps("patch") && obj["patch"] !== undefined)) {
         const __raw_patch = obj["patch"] as Partial<GraphLoop> | null;
 
         if (__raw_patch === null) {
@@ -1390,7 +1514,8 @@ export function graphLoopDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "patch", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
@@ -1470,12 +1595,9 @@ export function graphPatchedEncode(value: GraphPatched, keepMetadata?: boolean):
 export function graphPatchedEncodeWithContext(value: GraphPatched, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "GraphPatched",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "GraphPatched" });
     graphPatchedEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1599,7 +1721,7 @@ export function graphPatchedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("whole")) || (__fields.keeps("whole") && obj["whole"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("whole")) ? "whole" in obj : (__fields.keeps("whole") && obj["whole"] !== undefined)) {
         const __raw_whole = obj["whole"] as EdgeItem;
 
         ctx.pushScope("whole");
@@ -1615,13 +1737,14 @@ export function graphPatchedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "whole", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("patch")) || (__fields.keeps("patch") && obj["patch"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("patch")) ? "patch" in obj : (__fields.keeps("patch") && obj["patch"] !== undefined)) {
         const __raw_patch = obj["patch"] as Partial<EdgeItem>;
 
         ctx.pushScope("patch");
@@ -1637,13 +1760,14 @@ export function graphPatchedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "patch", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("patches")) || (__fields.keeps("patches") && obj["patches"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("patches")) ? "patches" in obj : (__fields.keeps("patches") && obj["patches"] !== undefined)) {
         const __raw_patches = obj["patches"] as Partial<EdgeItem>[];
         if (Array.isArray(__raw_patches)) {
             ctx.pushScope("patches");
@@ -1739,12 +1863,9 @@ export function graphPatchedFirstEncode(value: GraphPatchedFirst, keepMetadata?:
 export function graphPatchedFirstEncodeWithContext(value: GraphPatchedFirst, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "GraphPatchedFirst",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "GraphPatchedFirst" });
     graphPatchedFirstEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1860,7 +1981,7 @@ export function graphPatchedFirstDecodeWithContext(value: unknown, ctx: __mf_Dec
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("patch")) || (__fields.keeps("patch") && obj["patch"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("patch")) ? "patch" in obj : (__fields.keeps("patch") && obj["patch"] !== undefined)) {
         const __raw_patch = obj["patch"] as Partial<EdgeItem>;
 
         ctx.pushScope("patch");
@@ -1876,13 +1997,14 @@ export function graphPatchedFirstDecodeWithContext(value: unknown, ctx: __mf_Dec
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "patch", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("whole")) || (__fields.keeps("whole") && obj["whole"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("whole")) ? "whole" in obj : (__fields.keeps("whole") && obj["whole"] !== undefined)) {
         const __raw_whole = obj["whole"] as EdgeItem;
 
         ctx.pushScope("whole");
@@ -1898,7 +2020,8 @@ export function graphPatchedFirstDecodeWithContext(value: unknown, ctx: __mf_Dec
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "whole", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
@@ -1967,7 +2090,7 @@ export const GraphPatchedFirst: {
 * `Pick` or `Omit` standing in a cycle.
 */
 import type { EdgeItem } from "./edge-types";
-/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode) */
 export interface GraphTree {
 	name: string;
 	parent: GraphTree | null;
@@ -1977,6 +2100,8 @@ export declare function graphTreeToString(value: GraphTree): string;
 export declare function graphTreeClone(value: GraphTree): GraphTree;
 export declare function graphTreeEquals(a: GraphTree, b: GraphTree): boolean;
 export declare function graphTreeHashCode(value: GraphTree): number;
+export declare function graphTreePartialCompare(a: GraphTree, b: GraphTree): number | null;
+export declare function graphTreeCompare(a: GraphTree, b: GraphTree): number;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 export declare function graphTreeEncode(value: GraphTree, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -2015,6 +2140,8 @@ export declare const GraphTree: {
 	readonly clone: typeof graphTreeClone;
 	readonly equals: typeof graphTreeEquals;
 	readonly hashCode: typeof graphTreeHashCode;
+	readonly partialCompare: typeof graphTreePartialCompare;
+	readonly compare: typeof graphTreeCompare;
 	readonly encode: typeof graphTreeEncode;
 	readonly encodeWithContext: typeof graphTreeEncodeWithContext;
 	readonly encodePartialWithContext: typeof graphTreeEncodePartialWithContext;
@@ -2026,7 +2153,7 @@ export declare const GraphTree: {
 	readonly hasShape: typeof graphTreeHasShape;
 	readonly is: typeof graphTreeIs;
 };
-/** @derive(Encode, Decode) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export declare class GraphPerson {
 	#private;
 	name: string;
@@ -2034,6 +2161,10 @@ export declare class GraphPerson {
 	friends: GraphPerson[];
 	circle: Set<GraphPerson>;
 	byName: Map<string, GraphPerson>;
+	static toString(value: GraphPerson): string;
+	static clone(value: GraphPerson): GraphPerson;
+	static equals(a: GraphPerson, b: GraphPerson): boolean;
+	static hashCode(value: GraphPerson): number;
 	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 	static encodeWithContext(value: GraphPerson, ctx: __mf_EncodeContext): Record<string, unknown>;
 	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
@@ -2073,6 +2204,10 @@ export declare class GraphPerson {
 	static hasShape(obj: unknown): boolean;
 	static is(obj: unknown): obj is GraphPerson;
 }
+export declare function graphPersonToString(value: GraphPerson): string;
+export declare function graphPersonClone(value: GraphPerson): GraphPerson;
+export declare function graphPersonEquals(a: GraphPerson, b: GraphPerson): boolean;
+export declare function graphPersonHashCode(value: GraphPerson): number;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
 export declare function graphPersonEncode(value: GraphPerson, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
@@ -2315,48 +2450,58 @@ export declare const GraphPatchedFirst: {
 
 ## Mapping
 
-original 0..414 -> expanded 836..1250
-original 414..659 -> expanded 14579..14824
-original 659..660 -> expanded 28003..28004
-original 660..946 -> expanded 31201..31487
-original 946..1186 -> expanded 50945..51185
-original 1186..1337 -> expanded 65457..65608
-original 1337..1459 -> expanded 77542..77664
-original 1459..1460 -> expanded 88381..88382
-generated 0..836 <- imports
-generated 1250..1650 <- Debug
-generated 1650..1897 <- Clone
-generated 1897..2359 <- PartialEq
-generated 2359..2804 <- Hash
-generated 2804..5413 <- Encode
-generated 5413..13268 <- Decode
-generated 13268..14579 <- __convenience_const
-generated 14824..17349 <- Encode
-generated 17349..17678 <- Encode
-generated 17678..28003 <- Decode
-generated 28004..29374 <- Encode
-generated 29374..31201 <- Decode
-generated 31487..35327 <- Encode
-generated 35327..49884 <- Decode
-generated 49884..50945 <- __convenience_const
-generated 51185..54279 <- Encode
-generated 54279..64438 <- Decode
-generated 64438..65457 <- __convenience_const
-generated 65608..68271 <- Encode
-generated 68271..76460 <- Decode
-generated 76460..77542 <- __convenience_const
-generated 77664..80171 <- Encode
-generated 80171..87194 <- Decode
-generated 87194..88381 <- __convenience_const
+original 0..435 -> expanded 1217..1652
+original 435..711 -> expanded 17832..18108
+original 711..712 -> expanded 34551..34552
+original 712..998 -> expanded 38192..38478
+original 998..1238 -> expanded 58294..58534
+original 1238..1389 -> expanded 73193..73344
+original 1389..1511 -> expanded 85478..85600
+original 1511..1512 -> expanded 96499..96500
+generated 0..1217 <- imports
+generated 1652..2114 <- Debug
+generated 2114..2402 <- Clone
+generated 2402..2894 <- PartialEq
+generated 2894..3399 <- Hash
+generated 3399..4715 <- PartialOrd
+generated 4715..5761 <- Ord
+generated 5761..8356 <- Encode
+generated 8356..16345 <- Decode
+generated 16345..17832 <- __convenience_const
+generated 18108..18724 <- Debug
+generated 18724..19337 <- Clone
+generated 19337..20303 <- PartialEq
+generated 20303..21223 <- Hash
+generated 21223..23734 <- Encode
+generated 23734..24063 <- Encode
+generated 24063..34551 <- Decode
+generated 34552..34661 <- Debug
+generated 34661..34769 <- Clone
+generated 34769..34886 <- PartialEq
+generated 34886..34995 <- Hash
+generated 34995..36365 <- Encode
+generated 36365..38192 <- Decode
+generated 38478..42304 <- Encode
+generated 42304..57233 <- Decode
+generated 57233..58294 <- __convenience_const
+generated 58534..61614 <- Encode
+generated 61614..72174 <- Decode
+generated 72174..73193 <- __convenience_const
+generated 73344..75993 <- Encode
+generated 75993..84396 <- Decode
+generated 84396..85478 <- __convenience_const
+generated 85600..88093 <- Encode
+generated 88093..95312 <- Decode
+generated 95312..96499 <- __convenience_const
 
 ## Metadata
 
-class GraphPerson: {"body_span":{"end":661,"start":473},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":447,"start":417}}],"fields":[{"decorators":[],"initializer":"''","name":"name","optional":false,"readonly":false,"span":{"end":497,"start":479},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"null","name":"best","optional":false,"readonly":false,"span":{"end":534,"start":502},"ts_type":"GraphPerson | null","visibility":"Public"},{"decorators":[],"initializer":"[]","name":"friends","optional":false,"readonly":false,"span":{"end":567,"start":539},"ts_type":"GraphPerson[]","visibility":"Public"},{"decorators":[],"initializer":"new Set()","name":"circle","optional":false,"readonly":false,"span":{"end":609,"start":572},"ts_type":"Set<GraphPerson>","visibility":"Public"},{"decorators":[],"initializer":"new Map()","name":"byName","optional":false,"readonly":false,"span":{"end":659,"start":614},"ts_type":"Map<string, GraphPerson>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GraphPerson","span":{"end":661,"start":455},"superclass":null,"type_params":[]}
-interface GraphTree: {"body_span":{"end":415,"start":337},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":309,"start":248}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":356,"start":343},"ts_type":"string"},{"decorators":[],"name":"parent","optional":false,"readonly":false,"span":{"end":386,"start":361},"ts_type":"GraphTree | null"},{"decorators":[],"name":"children","optional":false,"readonly":false,"span":{"end":413,"start":391},"ts_type":"GraphTree[]"}],"heritage":[],"methods":[],"name":"GraphTree","span":{"end":415,"start":317},"type_params":[]}
-interface GraphShared: {"body_span":{"end":947,"start":723},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":693,"start":663}}],"fields":[{"decorators":[],"name":"first","optional":false,"readonly":false,"span":{"end":745,"start":729},"ts_type":"EdgeItem"},{"decorators":[],"name":"again","optional":false,"readonly":false,"span":{"end":766,"start":750},"ts_type":"EdgeItem"},{"decorators":[],"name":"maybe","optional":false,"readonly":false,"span":{"end":794,"start":771},"ts_type":"EdgeItem | null"},{"decorators":[],"name":"list","optional":false,"readonly":false,"span":{"end":816,"start":799},"ts_type":"EdgeItem[]"},{"decorators":[],"name":"set","optional":false,"readonly":false,"span":{"end":840,"start":821},"ts_type":"Set<EdgeItem>"},{"decorators":[],"name":"byName","optional":false,"readonly":false,"span":{"end":875,"start":845},"ts_type":"Map<string, EdgeItem>"},{"decorators":[],"name":"record","optional":false,"readonly":false,"span":{"end":913,"start":880},"ts_type":"Record<string, EdgeItem>"},{"decorators":[],"name":"pair","optional":false,"readonly":false,"span":{"end":945,"start":918},"ts_type":"[EdgeItem, EdgeItem]"}],"heritage":[],"methods":[],"name":"GraphShared","span":{"end":947,"start":701},"type_params":[]}
-interface GraphLoop: {"body_span":{"end":1187,"start":1007},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":979,"start":949}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":1026,"start":1013},"ts_type":"string"},{"decorators":[],"name":"self","optional":false,"readonly":false,"span":{"end":1054,"start":1031},"ts_type":"GraphLoop | null"},{"decorators":[],"name":"view","optional":false,"readonly":false,"span":{"end":1105,"start":1059},"ts_type":"Pick<GraphLoop, 'name' | 'view'> | null"},{"decorators":[],"name":"rest","optional":false,"readonly":false,"span":{"end":1147,"start":1110},"ts_type":"Omit<GraphLoop, 'name'> | null"},{"decorators":[],"name":"patch","optional":false,"readonly":false,"span":{"end":1185,"start":1152},"ts_type":"Partial<GraphLoop> | null"}],"heritage":[],"methods":[],"name":"GraphLoop","span":{"end":1187,"start":987},"type_params":[]}
-interface GraphPatched: {"body_span":{"end":1338,"start":1250},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1219,"start":1189}}],"fields":[{"decorators":[],"name":"whole","optional":false,"readonly":false,"span":{"end":1272,"start":1256},"ts_type":"EdgeItem"},{"decorators":[],"name":"patch","optional":false,"readonly":false,"span":{"end":1302,"start":1277},"ts_type":"Partial<EdgeItem>"},{"decorators":[],"name":"patches","optional":false,"readonly":false,"span":{"end":1336,"start":1307},"ts_type":"Partial<EdgeItem>[]"}],"heritage":[],"methods":[],"name":"GraphPatched","span":{"end":1338,"start":1227},"type_params":[]}
-interface GraphPatchedFirst: {"body_span":{"end":1460,"start":1406},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1370,"start":1340}}],"fields":[{"decorators":[],"name":"patch","optional":false,"readonly":false,"span":{"end":1437,"start":1412},"ts_type":"Partial<EdgeItem>"},{"decorators":[],"name":"whole","optional":false,"readonly":false,"span":{"end":1458,"start":1442},"ts_type":"EdgeItem"}],"heritage":[],"methods":[],"name":"GraphPatchedFirst","span":{"end":1460,"start":1378},"type_params":[]}
+class GraphPerson: {"body_span":{"end":713,"start":525},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":499,"start":438}}],"fields":[{"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":549,"start":531},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"null","key":"Named","name":"best","optional":false,"readonly":false,"span":{"end":586,"start":554},"ts_type":"GraphPerson | null","visibility":"Public"},{"decorators":[],"initializer":"[]","key":"Named","name":"friends","optional":false,"readonly":false,"span":{"end":619,"start":591},"ts_type":"GraphPerson[]","visibility":"Public"},{"decorators":[],"initializer":"new Set()","key":"Named","name":"circle","optional":false,"readonly":false,"span":{"end":661,"start":624},"ts_type":"Set<GraphPerson>","visibility":"Public"},{"decorators":[],"initializer":"new Map()","key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":711,"start":666},"ts_type":"Map<string, GraphPerson>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GraphPerson","span":{"end":713,"start":507},"superclass":null,"type_params":[]}
+interface GraphTree: {"body_span":{"end":436,"start":358},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Encode, Decode","name":"Derive","span":{"end":330,"start":248}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":377,"start":364},"ts_type":"string"},{"decorators":[],"key":"Named","name":"parent","optional":false,"readonly":false,"span":{"end":407,"start":382},"ts_type":"GraphTree | null"},{"decorators":[],"key":"Named","name":"children","optional":false,"readonly":false,"span":{"end":434,"start":412},"ts_type":"GraphTree[]"}],"heritage":[],"methods":[],"name":"GraphTree","span":{"end":436,"start":338},"type_params":[]}
+interface GraphShared: {"body_span":{"end":999,"start":775},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":745,"start":715}}],"fields":[{"decorators":[],"key":"Named","name":"first","optional":false,"readonly":false,"span":{"end":797,"start":781},"ts_type":"EdgeItem"},{"decorators":[],"key":"Named","name":"again","optional":false,"readonly":false,"span":{"end":818,"start":802},"ts_type":"EdgeItem"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":846,"start":823},"ts_type":"EdgeItem | null"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":868,"start":851},"ts_type":"EdgeItem[]"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":892,"start":873},"ts_type":"Set<EdgeItem>"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":927,"start":897},"ts_type":"Map<string, EdgeItem>"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":965,"start":932},"ts_type":"Record<string, EdgeItem>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":997,"start":970},"ts_type":"[EdgeItem, EdgeItem]"}],"heritage":[],"methods":[],"name":"GraphShared","span":{"end":999,"start":753},"type_params":[]}
+interface GraphLoop: {"body_span":{"end":1239,"start":1059},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1031,"start":1001}}],"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1078,"start":1065},"ts_type":"string"},{"decorators":[],"key":"Named","name":"self","optional":false,"readonly":false,"span":{"end":1106,"start":1083},"ts_type":"GraphLoop | null"},{"decorators":[],"key":"Named","name":"view","optional":false,"readonly":false,"span":{"end":1157,"start":1111},"ts_type":"Pick<GraphLoop, 'name' | 'view'> | null"},{"decorators":[],"key":"Named","name":"rest","optional":false,"readonly":false,"span":{"end":1199,"start":1162},"ts_type":"Omit<GraphLoop, 'name'> | null"},{"decorators":[],"key":"Named","name":"patch","optional":false,"readonly":false,"span":{"end":1237,"start":1204},"ts_type":"Partial<GraphLoop> | null"}],"heritage":[],"methods":[],"name":"GraphLoop","span":{"end":1239,"start":1039},"type_params":[]}
+interface GraphPatched: {"body_span":{"end":1390,"start":1302},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1271,"start":1241}}],"fields":[{"decorators":[],"key":"Named","name":"whole","optional":false,"readonly":false,"span":{"end":1324,"start":1308},"ts_type":"EdgeItem"},{"decorators":[],"key":"Named","name":"patch","optional":false,"readonly":false,"span":{"end":1354,"start":1329},"ts_type":"Partial<EdgeItem>"},{"decorators":[],"key":"Named","name":"patches","optional":false,"readonly":false,"span":{"end":1388,"start":1359},"ts_type":"Partial<EdgeItem>[]"}],"heritage":[],"methods":[],"name":"GraphPatched","span":{"end":1390,"start":1279},"type_params":[]}
+interface GraphPatchedFirst: {"body_span":{"end":1512,"start":1458},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":1422,"start":1392}}],"fields":[{"decorators":[],"key":"Named","name":"patch","optional":false,"readonly":false,"span":{"end":1489,"start":1464},"ts_type":"Partial<EdgeItem>"},{"decorators":[],"key":"Named","name":"whole","optional":false,"readonly":false,"span":{"end":1510,"start":1494},"ts_type":"EdgeItem"}],"heritage":[],"methods":[],"name":"GraphPatchedFirst","span":{"end":1512,"start":1430},"type_params":[]}
 
 ## Registry reads
 

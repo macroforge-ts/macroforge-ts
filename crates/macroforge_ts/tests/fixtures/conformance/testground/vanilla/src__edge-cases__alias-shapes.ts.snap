@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/alias-shapes.ts
-sha256 c37bdc04c0dd4c5c20424546da6f506ce305d7920770af29cf41cf56f21da126
+sha256 22a2aab515209597347881bbb15c41ba2d0d67b60edb1727ed94afd408253512
 
 ## Changed
 
@@ -12,9 +12,9 @@ true
 
 ## Output
 
-import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemHasShape, edgeCardDecodeWithContext, edgeCardHasShape, edgeCardEncodeWithContext } from "./edge-types";
-import { structuralCompare as __mf_structuralCompare, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeDate as __mf_decodeDate, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, derivedEncoder as __mf_derivedEncoder, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeString as __mf_decodeString } from "@macroforge/core/endec";
+import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemDefaultValue, edgeItemDecodePartialWithContext, edgeItemEncodePartialWithContext, edgeItemHasShape, edgeCardDecodeWithContext, edgeCardHasShape, edgeCardEncodeWithContext } from "./edge-types";
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeDate as __mf_decodeDate, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeString as __mf_decodeString, requireKeys as __mf_requireKeys, decodeChecked as __mf_decodeChecked } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Type aliases of every body a derive has to dispatch on: objects, tuples,
@@ -32,36 +32,41 @@ export type AliasObject = {
 };
 
 export function aliasObjectToString(value: AliasObject): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("name: " + String(value.name));
     parts.push("count: " + String(value.count));
     parts.push("at: " + String(value.at));
-    return "AliasObject { " + parts.join(", ") + " }";
+        return "AliasObject { " + parts.join(", ") + " }";
+    });
 }
 
 export function aliasObjectClone(value: AliasObject): AliasObject {
-    return ({
+    return __mf_clonedWith(value, (): AliasObject => ({
 	name: value.name,
 	count: value.count,
 	..."at" in value ? { at: value.at == null ? value.at : new Date(value.at.getTime()) } : {}
-});
+}));
 }
 
 export function aliasObjectEquals(a: AliasObject, b: AliasObject): boolean {
     if (a === b) return true;
-    return a.name === b.name && a.count === b.count && (a.at == null || b.at == null ? a.at === b.at : a.at.getTime() === b.at.getTime());
+    return __mf_equalWithin(a, b, () => a.name === b.name && a.count === b.count && (a.at == null || b.at == null ? a.at === b.at : a.at.getTime() === b.at.getTime()));
 }
 
 export function aliasObjectHashCode(value: AliasObject): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (Number.isInteger(value.count) ? value.count | 0 : value.count.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (value.at == null ? 0 : value.at.getTime() | 0)) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function aliasObjectPartialCompare(a: AliasObject, b: AliasObject): number | null {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
     if (cmp0 === null) return null;
     if (cmp0 !== 0) return cmp0;
@@ -71,18 +76,21 @@ export function aliasObjectPartialCompare(a: AliasObject, b: AliasObject): numbe
     const cmp2 = (a.at == null || b.at == null ? __mf_structuralCompare(a.at, b.at) : (a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : a.at.getTime() === b.at.getTime() ? 0 : null));
     if (cmp2 === null) return null;
     if (cmp2 !== 0) return cmp2;
-    return 0;
+        return 0;
+    });
 }
 
 export function aliasObjectCompare(a: AliasObject, b: AliasObject): number {
     if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
     const cmp0 = a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
     if (cmp0 !== 0) return cmp0;
     const cmp1 = a.count < b.count ? -1 : a.count > b.count ? 1 : 0;
     if (cmp1 !== 0) return cmp1;
     const cmp2 = a.at == null || b.at == null ? __mf_structuralCompare(a.at, b.at) : a.at.getTime() < b.at.getTime() ? -1 : a.at.getTime() > b.at.getTime() ? 1 : 0;
     if (cmp2 !== 0) return cmp2;
-    return 0;
+        return 0;
+    });
 }
 
 export function aliasObjectDefaultValue(): AliasObject {
@@ -103,12 +111,9 @@ export function aliasObjectEncode(value: AliasObject, keepMetadata?: boolean): s
 export function aliasObjectEncodeWithContext(value: AliasObject, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "AliasObject",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "AliasObject" });
     aliasObjectEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -229,7 +234,7 @@ export function aliasObjectDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
         const __raw_name = obj["name"] as string;
 
         if (!(typeof __raw_name === "string")) {
@@ -238,7 +243,7 @@ export function aliasObjectDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.name = __raw_name;
         }
     }
-    if ((__fields === undefined || __fields.requires("count")) || (__fields.keeps("count") && obj["count"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
         const __raw_count = obj["count"] as number;
 
         if (!(typeof __raw_count === "number")) {
@@ -252,8 +257,12 @@ export function aliasObjectDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             const __raw_at = obj["at"] as string | Date;
 
             {
-                const __dateVal = typeof __raw_at === "string" ? new Date(__raw_at) : __raw_at as Date;
-                instance.at = __dateVal;
+                const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+                if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                    errors.push({ field: "at", message: "expected Date" });
+                } else {
+                    instance.at = __dateVal;
+                }
             }
         }
     }
@@ -479,7 +488,7 @@ export function aliasTupleDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     });
     ctx.trackForFreeze(tuple);
 
-    {
+    if ("0" in obj) {
         const __raw_e0 = obj["0"] as EdgeItem;
 
         ctx.pushScope("0");
@@ -495,21 +504,26 @@ export function aliasTupleDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "0", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    {
+    if ("1" in obj) {
         const __raw_e1 = obj["1"] as string | Date;
 
         {
-            const __dateVal = typeof __raw_e1 === "string" ? new Date(__raw_e1) : __raw_e1 as Date;
-            instance.e1 = __dateVal;
+            const __dateVal = (__raw_e1 instanceof Date ? __raw_e1 : typeof __raw_e1 === "string" ? new Date(__raw_e1) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "1", message: __raw_e1 == null ? "AliasTuple.1 is required" : "expected Date" });
+            } else {
+                instance.e1 = __dateVal;
+            }
         }
     }
-    {
+    if ("2" in obj) {
         const __raw_e2 = obj["2"] as string | null;
 
         if (!(typeof __raw_e2 === "string" || __raw_e2 === null)) {
@@ -644,7 +658,7 @@ export function aliasArrayDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     const errors: Array<{ field: string; message: string }> = [];
     const instance: any = {};
 
-    {
+    if ("_root" in obj) {
         const __raw__root = obj["_root"] as EdgeItem[];
         if (Array.isArray(__raw__root)) {
             ctx.pushScope("_root");
@@ -795,7 +809,7 @@ export function aliasDatesDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     const errors: Array<{ field: string; message: string }> = [];
     const instance: any = {};
 
-    {
+    if ("_root" in obj) {
         const __raw__root = obj["_root"] as Array<string | Date>;
         if (Array.isArray(__raw__root)) {
             ctx.pushScope("_root");
@@ -945,7 +959,7 @@ export function aliasRecordDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     const errors: Array<{ field: string; message: string }> = [];
     const instance: any = {};
 
-    {
+    if ("_root" in obj) {
         const __raw__root = obj["_root"] as Record<string, EdgeItem>;
         if (typeof __raw__root === "object" && __raw__root !== null) {
             ctx.pushScope("_root");
@@ -1099,7 +1113,7 @@ export function aliasMapDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     const errors: Array<{ field: string; message: string }> = [];
     const instance: any = {};
 
-    {
+    if ("_root" in obj) {
         const __raw__root = obj["_root"] as Record<string, EdgeItem>;
         if (typeof __raw__root === "object" && __raw__root !== null) {
             ctx.pushScope("_root");
@@ -1249,7 +1263,7 @@ export function aliasSetDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     const errors: Array<{ field: string; message: string }> = [];
     const instance: any = {};
 
-    {
+    if ("_root" in obj) {
         const __raw__root = obj["_root"] as Array<EdgeItem>;
         if (Array.isArray(__raw__root)) {
             ctx.pushScope("_root");
@@ -1310,32 +1324,36 @@ export const AliasSet: {
 export type AliasIntersection = EdgeItem & { extra: string };
 
 export function aliasIntersectionToString(value: AliasIntersection): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("id: " + String(value.id));
     parts.push("score: " + String(value.score));
     parts.push("extra: " + String(value.extra));
-    return "AliasIntersection { " + parts.join(", ") + " }";
+        return "AliasIntersection { " + parts.join(", ") + " }";
+    });
 }
 
 export function aliasIntersectionClone(value: AliasIntersection): AliasIntersection {
-    return ({
+    return __mf_clonedWith(value, (): AliasIntersection => ({
 	id: value.id,
 	score: value.score,
 	extra: value.extra
-});
+}));
 }
 
 export function aliasIntersectionEquals(a: AliasIntersection, b: AliasIntersection): boolean {
     if (a === b) return true;
-    return a.id === b.id && a.score === b.score && a.extra === b.extra;
+    return __mf_equalWithin(a, b, () => a.id === b.id && a.score === b.score && a.extra === b.extra);
 }
 
 export function aliasIntersectionHashCode(value: AliasIntersection): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (Number.isInteger(value.score) ? value.score | 0 : value.score.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + ((value.extra ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -1349,12 +1367,9 @@ export function aliasIntersectionEncode(value: AliasIntersection, keepMetadata?:
 export function aliasIntersectionEncodeWithContext(value: AliasIntersection, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "AliasIntersection",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "AliasIntersection" });
     aliasIntersectionEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1478,7 +1493,7 @@ export function aliasIntersectionDecodeWithContext(value: unknown, ctx: __mf_Dec
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -1487,7 +1502,7 @@ export function aliasIntersectionDecodeWithContext(value: unknown, ctx: __mf_Dec
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("score")) || (__fields.keeps("score") && obj["score"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
         const __raw_score = obj["score"] as number;
 
         if (!(typeof __raw_score === "number")) {
@@ -1496,7 +1511,7 @@ export function aliasIntersectionDecodeWithContext(value: unknown, ctx: __mf_Dec
             instance.score = __raw_score;
         }
     }
-    if ((__fields === undefined || __fields.requires("extra")) || (__fields.keeps("extra") && obj["extra"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("extra")) ? "extra" in obj : (__fields.keeps("extra") && obj["extra"] !== undefined)) {
         const __raw_extra = obj["extra"] as string;
 
         if (!(typeof __raw_extra === "string")) {
@@ -1572,29 +1587,33 @@ export const AliasIntersection: {
 export type AliasIntersectionOfObjects = { left: string } & { right: number };
 
 export function aliasIntersectionOfObjectsToString(value: AliasIntersectionOfObjects): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("left: " + String(value.left));
     parts.push("right: " + String(value.right));
-    return "AliasIntersectionOfObjects { " + parts.join(", ") + " }";
+        return "AliasIntersectionOfObjects { " + parts.join(", ") + " }";
+    });
 }
 
 export function aliasIntersectionOfObjectsClone(value: AliasIntersectionOfObjects): AliasIntersectionOfObjects {
-    return ({
+    return __mf_clonedWith(value, (): AliasIntersectionOfObjects => ({
 	left: value.left,
 	right: value.right
-});
+}));
 }
 
 export function aliasIntersectionOfObjectsEquals(a: AliasIntersectionOfObjects, b: AliasIntersectionOfObjects): boolean {
     if (a === b) return true;
-    return a.left === b.left && a.right === b.right;
+    return __mf_equalWithin(a, b, () => a.left === b.left && a.right === b.right);
 }
 
 export function aliasIntersectionOfObjectsHashCode(value: AliasIntersectionOfObjects): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + ((value.left ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (Number.isInteger(value.right) ? value.right | 0 : value.right.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -1608,12 +1627,9 @@ export function aliasIntersectionOfObjectsEncode(value: AliasIntersectionOfObjec
 export function aliasIntersectionOfObjectsEncodeWithContext(value: AliasIntersectionOfObjects, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "AliasIntersectionOfObjects",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "AliasIntersectionOfObjects" });
     aliasIntersectionOfObjectsEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -1729,7 +1745,7 @@ export function aliasIntersectionOfObjectsDecodeWithContext(value: unknown, ctx:
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("left")) || (__fields.keeps("left") && obj["left"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("left")) ? "left" in obj : (__fields.keeps("left") && obj["left"] !== undefined)) {
         const __raw_left = obj["left"] as string;
 
         if (!(typeof __raw_left === "string")) {
@@ -1738,7 +1754,7 @@ export function aliasIntersectionOfObjectsDecodeWithContext(value: unknown, ctx:
             instance.left = __raw_left;
         }
     }
-    if ((__fields === undefined || __fields.requires("right")) || (__fields.keeps("right") && obj["right"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("right")) ? "right" in obj : (__fields.keeps("right") && obj["right"] !== undefined)) {
         const __raw_right = obj["right"] as number;
 
         if (!(typeof __raw_right === "number")) {
@@ -1865,18 +1881,22 @@ export function aliasLiteralsEncodeWithContext(value: AliasLiterals, ctx: __mf_E
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
 
 /** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
 export function aliasLiteralsDecode(input: unknown): { success: true; value: AliasLiterals } | { success: false; errors: Array<{ field: string; message: string }> } {
-    switch (input) {
+
+    const data = __mf_textOrValue(input, aliasLiteralsHasShape);
+    switch (data) {
         case 'small':
         case 'medium':
         case 'large':
-            return { success: true, value: input as AliasLiterals };
+            return { success: true, value: data as AliasLiterals };
         default:
             return { success: false, errors: [{ field: "_root", message: "Invalid value for AliasLiterals: expected one of " + ['small', 'medium', 'large'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
     }
@@ -1989,7 +2009,9 @@ export function aliasMixedLiteralsEncodeWithContext(value: AliasMixedLiterals, c
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -1997,7 +2019,7 @@ export function aliasMixedLiteralsEncodeWithContext(value: AliasMixedLiterals, c
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasMixedLiteralsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasMixedLiterals } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, aliasMixedLiteralsHasShape);
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = aliasMixedLiteralsDecodeWithContext(data, ctx);
@@ -2153,7 +2175,9 @@ export function aliasNullableEncodeWithContext(value: AliasNullable, ctx: __mf_E
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -2352,7 +2376,9 @@ export function aliasOptionalEncodeWithContext(value: AliasOptional, ctx: __mf_E
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -2543,7 +2569,7 @@ export function aliasDateEncodeWithContext(value: AliasDate): unknown {
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasDateDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasDate } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, aliasDateHasShape);
 
         const ctx = __mf_DecodeContext.create();
         const result = aliasDateDecodeWithContext(data, ctx);
@@ -2597,12 +2623,16 @@ export function aliasDateDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
     const errors: Array<{ field: string; message: string }> = [];
     const instance: any = {};
 
-    {
+    if ("_root" in obj) {
         const __raw__root = obj["_root"] as string | Date;
 
         {
-            const __dateVal = typeof __raw__root === "string" ? new Date(__raw__root) : __raw__root as Date;
-            instance._root = __dateVal;
+            const __dateVal = (__raw__root instanceof Date ? __raw__root : typeof __raw__root === "string" ? new Date(__raw__root) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "_root", message: __raw__root == null ? "AliasDate._root is required" : "expected Date" });
+            } else {
+                instance._root = __dateVal;
+            }
         }
     }
 
@@ -2681,7 +2711,9 @@ export function aliasDateOrNullEncodeWithContext(value: AliasDateOrNull, ctx: __
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -2689,7 +2721,7 @@ export function aliasDateOrNullEncodeWithContext(value: AliasDateOrNull, ctx: __
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasDateOrNullDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasDateOrNull } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, aliasDateOrNullHasShape);
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = aliasDateOrNullDecodeWithContext(data, ctx);
@@ -2849,7 +2881,9 @@ export function aliasMembersEncodeWithContext(value: AliasMembers, ctx: __mf_Enc
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -3080,7 +3114,9 @@ export function aliasTaggedEncodeWithContext(value: AliasTagged, ctx: __mf_Encod
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "kind": (value as any)["kind"] ?? __typeName, ...fields };
+        const __tagged = { "kind": (value as any)["kind"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -3278,7 +3314,7 @@ export function aliasAdjacentEncodeWithContext(value: AliasAdjacent, ctx: __mf_E
     if (typeof __typeName !== "string") return __variant;
 
     const __outer: Record<string, unknown> = { "type": __typeName, "value": fields };
-    if (__idVal !== undefined) __outer.__id = __idVal;
+    if (__idVal !== undefined) __mf_encodedAs(ctx, __idVal, __outer);
     return __outer;
 }
 
@@ -3458,7 +3494,7 @@ export function aliasExternalEncodeWithContext(value: AliasExternal, ctx: __mf_E
     if (typeof __typeName !== "string") return __variant;
 
     const __outer: Record<string, unknown> = { [__typeName]: fields };
-    if (__idVal !== undefined) __outer.__id = __idVal;
+    if (__idVal !== undefined) __mf_encodedAs(ctx, __idVal, __outer);
     return __outer;
 }
 
@@ -3652,14 +3688,14 @@ export function aliasUntaggedEncodeWithContext(value: AliasUntagged, ctx: __mf_E
     if (typeof __typeName !== "string") return __variant;
 
     const __outer: Record<string, unknown> = { ...fields };
-    if (__idVal !== undefined) __outer.__id = __idVal;
+    if (__idVal !== undefined) __mf_encodedAs(ctx, __idVal, __outer);
     return __outer;
 }
 
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasUntaggedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasUntagged } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, aliasUntaggedHasShape);
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = aliasUntaggedDecodeWithContext(data, ctx);
@@ -3824,7 +3860,9 @@ export function aliasDeepEncodeWithContext(value: AliasDeep, ctx: __mf_EncodeCon
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -3832,7 +3870,7 @@ export function aliasDeepEncodeWithContext(value: AliasDeep, ctx: __mf_EncodeCon
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function aliasDeepDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasDeep } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, aliasDeepHasShape);
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = aliasDeepDecodeWithContext(data, ctx);
@@ -4028,7 +4066,8 @@ export interface AliasOperators {
 }
 
 export function aliasOperatorsToString(value: AliasOperators): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("indexed: " + __mf_structuralDebug(value.indexed));
     parts.push("keys: " + __mf_structuralDebug(value.keys));
     parts.push("template: " + String(value.template));
@@ -4042,11 +4081,12 @@ export function aliasOperatorsToString(value: AliasOperators): string {
     parts.push("nonNull: " + __mf_structuralDebug(value.nonNull));
     parts.push("inline: " + __mf_structuralDebug(value.inline));
     parts.push("inlineList: " + __mf_structuralDebug(value.inlineList));
-    return "AliasOperators { " + parts.join(", ") + " }";
+        return "AliasOperators { " + parts.join(", ") + " }";
+    });
 }
 
 export function aliasOperatorsClone(value: AliasOperators): AliasOperators {
-    return ({
+    return __mf_clonedWith(value, (): AliasOperators => ({
 	indexed: __mf_structuralClone(value.indexed),
 	keys: __mf_structuralClone(value.keys),
 	template: value.template,
@@ -4060,19 +4100,20 @@ export function aliasOperatorsClone(value: AliasOperators): AliasOperators {
 	nonNull: __mf_structuralClone(value.nonNull),
 	inline: __mf_structuralClone(value.inline),
 	inlineList: value.inlineList.map((__item0) => __mf_structuralClone(__item0))
-});
+}));
 }
 
 export function aliasOperatorsEquals(a: AliasOperators, b: AliasOperators): boolean {
     if (a === b) return true;
-    return __mf_structuralEquals(a.indexed, b.indexed) && __mf_structuralEquals(a.keys, b.keys) && a.template === b.template && a.literal === b.literal && a.truth === b.truth && a.zero === b.zero && __mf_structuralEquals(a.anything, b.anything) && __mf_structuralEquals(a.structure, b.structure) && __mf_structuralEquals(a.required, b.required) && __mf_structuralEquals(a.readonlyItem, b.readonlyItem) && __mf_structuralEquals(a.nonNull, b.nonNull) && __mf_structuralEquals(a.inline, b.inline) && a.inlineList.length === b.inlineList.length && a.inlineList.every((__item0, __index0) => {
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.indexed, b.indexed) && __mf_structuralEquals(a.keys, b.keys) && a.template === b.template && a.literal === b.literal && a.truth === b.truth && a.zero === b.zero && __mf_structuralEquals(a.anything, b.anything) && __mf_structuralEquals(a.structure, b.structure) && __mf_structuralEquals(a.required, b.required) && __mf_structuralEquals(a.readonlyItem, b.readonlyItem) && __mf_structuralEquals(a.nonNull, b.nonNull) && __mf_structuralEquals(a.inline, b.inline) && a.inlineList.length === b.inlineList.length && a.inlineList.every((__item0, __index0) => {
 	const __other0 = b.inlineList[__index0];
 	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
-});
+}));
 }
 
 export function aliasOperatorsHashCode(value: AliasOperators): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (__mf_structuralHash(value.indexed))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.keys))) | 0;
     hash = (hash * 31 + ((value.template ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
@@ -4086,7 +4127,8 @@ export function aliasOperatorsHashCode(value: AliasOperators): number {
     hash = (hash * 31 + (__mf_structuralHash(value.nonNull))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.inline))) | 0;
     hash = (hash * 31 + (value.inlineList.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -4100,12 +4142,9 @@ export function aliasOperatorsEncode(value: AliasOperators, keepMetadata?: boole
 export function aliasOperatorsEncodeWithContext(value: AliasOperators, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "AliasOperators",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "AliasOperators" });
     aliasOperatorsEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -4309,22 +4348,22 @@ export function aliasOperatorsDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("indexed")) || (__fields.keeps("indexed") && obj["indexed"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("indexed")) ? "indexed" in obj : (__fields.keeps("indexed") && obj["indexed"] !== undefined)) {
         const __raw_indexed = obj["indexed"] as EdgeItem['id'];
 
         instance.indexed = __raw_indexed;
     }
-    if ((__fields === undefined || __fields.requires("keys")) || (__fields.keeps("keys") && obj["keys"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("keys")) ? "keys" in obj : (__fields.keeps("keys") && obj["keys"] !== undefined)) {
         const __raw_keys = obj["keys"] as keyof EdgeItem;
 
         instance.keys = __raw_keys;
     }
-    if ((__fields === undefined || __fields.requires("template")) || (__fields.keeps("template") && obj["template"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("template")) ? "template" in obj : (__fields.keeps("template") && obj["template"] !== undefined)) {
         const __raw_template = obj["template"] as `item-${number}`;
 
         instance.template = __raw_template;
     }
-    if ((__fields === undefined || __fields.requires("literal")) || (__fields.keeps("literal") && obj["literal"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("literal")) ? "literal" in obj : (__fields.keeps("literal") && obj["literal"] !== undefined)) {
         const __raw_literal = obj["literal"] as 'fixed';
 
         if (!(__raw_literal === "fixed")) {
@@ -4333,7 +4372,7 @@ export function aliasOperatorsDecodeWithContext(value: unknown, ctx: __mf_Decode
             instance.literal = __raw_literal;
         }
     }
-    if ((__fields === undefined || __fields.requires("truth")) || (__fields.keeps("truth") && obj["truth"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("truth")) ? "truth" in obj : (__fields.keeps("truth") && obj["truth"] !== undefined)) {
         const __raw_truth = obj["truth"] as true;
 
         if (!(__raw_truth === true)) {
@@ -4342,7 +4381,7 @@ export function aliasOperatorsDecodeWithContext(value: unknown, ctx: __mf_Decode
             instance.truth = __raw_truth;
         }
     }
-    if ((__fields === undefined || __fields.requires("zero")) || (__fields.keeps("zero") && obj["zero"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("zero")) ? "zero" in obj : (__fields.keeps("zero") && obj["zero"] !== undefined)) {
         const __raw_zero = obj["zero"] as 0;
 
         if (!(__raw_zero === 0)) {
@@ -4351,22 +4390,22 @@ export function aliasOperatorsDecodeWithContext(value: unknown, ctx: __mf_Decode
             instance.zero = __raw_zero;
         }
     }
-    if ((__fields === undefined || __fields.requires("anything")) || (__fields.keeps("anything") && obj["anything"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("anything")) ? "anything" in obj : (__fields.keeps("anything") && obj["anything"] !== undefined)) {
         const __raw_anything = obj["anything"] as unknown;
 
         instance.anything = __raw_anything;
     }
-    if ((__fields === undefined || __fields.requires("structure")) || (__fields.keeps("structure") && obj["structure"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("structure")) ? "structure" in obj : (__fields.keeps("structure") && obj["structure"] !== undefined)) {
         const __raw_structure = obj["structure"] as object;
 
         instance.structure = __raw_structure;
     }
-    if ((__fields === undefined || __fields.requires("required")) || (__fields.keeps("required") && obj["required"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("required")) ? "required" in obj : (__fields.keeps("required") && obj["required"] !== undefined)) {
         const __raw_required = obj["required"] as Required<AliasObject>;
 
         ctx.pushScope("required");
         try {
-            const __result = aliasObjectDecodeWithContext(__raw_required, ctx);
+            const __result = aliasObjectDecodeWithContext(__mf_requireKeys(__raw_required, ctx, [["at", "at"]]), ctx);
             ctx.assignOrDefer(instance, "required", __result);
         } catch (__e) {
             if (__e instanceof __mf_DecodeError) {
@@ -4377,13 +4416,14 @@ export function aliasOperatorsDecodeWithContext(value: unknown, ctx: __mf_Decode
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "required", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("readonlyItem")) || (__fields.keeps("readonlyItem") && obj["readonlyItem"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("readonlyItem")) ? "readonlyItem" in obj : (__fields.keeps("readonlyItem") && obj["readonlyItem"] !== undefined)) {
         const __raw_readonlyItem = obj["readonlyItem"] as Readonly<EdgeItem>;
 
         ctx.pushScope("readonlyItem");
@@ -4399,13 +4439,14 @@ export function aliasOperatorsDecodeWithContext(value: unknown, ctx: __mf_Decode
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "readonlyItem", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("nonNull")) || (__fields.keeps("nonNull") && obj["nonNull"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("nonNull")) ? "nonNull" in obj : (__fields.keeps("nonNull") && obj["nonNull"] !== undefined)) {
         const __raw_nonNull = obj["nonNull"] as NonNullable<EdgeItem | null>;
 
         ctx.pushScope("nonNull");
@@ -4421,13 +4462,14 @@ export function aliasOperatorsDecodeWithContext(value: unknown, ctx: __mf_Decode
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "nonNull", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("inline")) || (__fields.keeps("inline") && obj["inline"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("inline")) ? "inline" in obj : (__fields.keeps("inline") && obj["inline"] !== undefined)) {
         const __raw_inline = obj["inline"] as { x: number; nested: { at: Date; item: EdgeItem } };
         if (typeof __raw_inline === "object" && __raw_inline !== null) {
             ctx.pushScope("inline");
@@ -4451,7 +4493,7 @@ export function aliasOperatorsDecodeWithContext(value: unknown, ctx: __mf_Decode
             errors.push({ field: "inline", message: __raw_inline == null ? "AliasOperators.inline is required" : "expected { x: number; nested: { at: Date; item: EdgeItem } }" });
         }
     }
-    if ((__fields === undefined || __fields.requires("inlineList")) || (__fields.keeps("inlineList") && obj["inlineList"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("inlineList")) ? "inlineList" in obj : (__fields.keeps("inlineList") && obj["inlineList"] !== undefined)) {
         const __raw_inlineList = obj["inlineList"] as { id: string }[];
         if (Array.isArray(__raw_inlineList)) {
             ctx.pushScope("inlineList");
@@ -4554,7 +4596,8 @@ export interface AliasHolder {
 }
 
 export function aliasHolderToString(value: AliasHolder): string {
-    const parts: string[] = [];
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
     parts.push("object: " + aliasObjectToString(value.object));
     parts.push("size: " + aliasLiteralsToString(value.size));
     parts.push("sizes: " + "[" + value.sizes.map(aliasLiteralsToString).join(", ") + "]");
@@ -4564,11 +4607,12 @@ export function aliasHolderToString(value: AliasHolder): string {
     parts.push("list: " + aliasArrayToString(value.list));
     parts.push("table: " + aliasRecordToString(value.table));
     parts.push("members: " + "[" + value.members.map(aliasMembersToString).join(", ") + "]");
-    return "AliasHolder { " + parts.join(", ") + " }";
+        return "AliasHolder { " + parts.join(", ") + " }";
+    });
 }
 
 export function aliasHolderClone(value: AliasHolder): AliasHolder {
-    return ({
+    return __mf_clonedWith(value, (): AliasHolder => ({
 	object: aliasObjectClone(value.object),
 	size: aliasLiteralsClone(value.size),
 	sizes: value.sizes.map((__item0) => aliasLiteralsClone(__item0)),
@@ -4578,12 +4622,12 @@ export function aliasHolderClone(value: AliasHolder): AliasHolder {
 	list: aliasArrayClone(value.list),
 	table: aliasRecordClone(value.table),
 	members: value.members.map((__item0) => aliasMembersClone(__item0))
-});
+}));
 }
 
 export function aliasHolderEquals(a: AliasHolder, b: AliasHolder): boolean {
     if (a === b) return true;
-    return aliasObjectEquals(a.object, b.object) && aliasLiteralsEquals(a.size, b.size) && a.sizes.length === b.sizes.length && a.sizes.every((__item0, __index0) => {
+    return __mf_equalWithin(a, b, () => aliasObjectEquals(a.object, b.object) && aliasLiteralsEquals(a.size, b.size) && a.sizes.length === b.sizes.length && a.sizes.every((__item0, __index0) => {
 	const __other0 = b.sizes[__index0];
 	return __other0 === undefined ? __item0 === undefined : aliasLiteralsEquals(__item0, __other0);
 }) && (a.shape == null || b.shape == null ? a.shape === b.shape : aliasTaggedEquals(a.shape, b.shape)) && a.shapes.length === b.shapes.length && a.shapes.every((__item0, __index0) => {
@@ -4592,11 +4636,12 @@ export function aliasHolderEquals(a: AliasHolder, b: AliasHolder): boolean {
 }) && (a.tuple == null || b.tuple == null ? a.tuple === b.tuple : aliasTupleEquals(a.tuple, b.tuple)) && aliasArrayEquals(a.list, b.list) && aliasRecordEquals(a.table, b.table) && a.members.length === b.members.length && a.members.every((__item0, __index0) => {
 	const __other0 = b.members[__index0];
 	return __other0 === undefined ? __item0 === undefined : aliasMembersEquals(__item0, __other0);
-});
+}));
 }
 
 export function aliasHolderHashCode(value: AliasHolder): number {
-    let hash = 17;
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
     hash = (hash * 31 + (aliasObjectHashCode(value.object))) | 0;
     hash = (hash * 31 + (aliasLiteralsHashCode(value.size))) | 0;
     hash = (hash * 31 + (value.sizes.reduce<number>((__hash0, __item0) => __hash0 * 31 + aliasLiteralsHashCode(__item0) | 0, 1))) | 0;
@@ -4606,7 +4651,8 @@ export function aliasHolderHashCode(value: AliasHolder): number {
     hash = (hash * 31 + (aliasArrayHashCode(value.list))) | 0;
     hash = (hash * 31 + (aliasRecordHashCode(value.table))) | 0;
     hash = (hash * 31 + (value.members.reduce<number>((__hash0, __item0) => __hash0 * 31 + aliasMembersHashCode(__item0) | 0, 1))) | 0;
-    return hash;
+        return hash;
+    });
 }
 
 export function aliasHolderDefaultValue(): AliasHolder {
@@ -4634,12 +4680,9 @@ export function aliasHolderEncode(value: AliasHolder, keepMetadata?: boolean): s
 export function aliasHolderEncodeWithContext(value: AliasHolder, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "AliasHolder",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "AliasHolder" });
     aliasHolderEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -4811,7 +4854,7 @@ export function aliasHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("object")) || (__fields.keeps("object") && obj["object"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("object")) ? "object" in obj : (__fields.keeps("object") && obj["object"] !== undefined)) {
         const __raw_object = obj["object"] as AliasObject;
 
         ctx.pushScope("object");
@@ -4827,13 +4870,14 @@ export function aliasHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "object", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("size")) || (__fields.keeps("size") && obj["size"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("size")) ? "size" in obj : (__fields.keeps("size") && obj["size"] !== undefined)) {
         const __raw_size = obj["size"] as AliasLiterals;
 
         ctx.pushScope("size");
@@ -4849,13 +4893,14 @@ export function aliasHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "size", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("sizes")) || (__fields.keeps("sizes") && obj["sizes"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("sizes")) ? "sizes" in obj : (__fields.keeps("sizes") && obj["sizes"] !== undefined)) {
         const __raw_sizes = obj["sizes"] as AliasLiterals[];
         if (Array.isArray(__raw_sizes)) {
             ctx.pushScope("sizes");
@@ -4879,7 +4924,7 @@ export function aliasHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             errors.push({ field: "sizes", message: __raw_sizes == null ? "AliasHolder.sizes is required" : "expected AliasLiterals[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("shape")) || (__fields.keeps("shape") && obj["shape"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("shape")) ? "shape" in obj : (__fields.keeps("shape") && obj["shape"] !== undefined)) {
         const __raw_shape = obj["shape"] as AliasTagged | null;
 
         if (__raw_shape === null) {
@@ -4898,14 +4943,15 @@ export function aliasHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "shape", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("shapes")) || (__fields.keeps("shapes") && obj["shapes"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("shapes")) ? "shapes" in obj : (__fields.keeps("shapes") && obj["shapes"] !== undefined)) {
         const __raw_shapes = obj["shapes"] as AliasTagged[];
         if (Array.isArray(__raw_shapes)) {
             ctx.pushScope("shapes");
@@ -4929,7 +4975,7 @@ export function aliasHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             errors.push({ field: "shapes", message: __raw_shapes == null ? "AliasHolder.shapes is required" : "expected AliasTagged[]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("tuple")) || (__fields.keeps("tuple") && obj["tuple"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("tuple")) ? "tuple" in obj : (__fields.keeps("tuple") && obj["tuple"] !== undefined)) {
         const __raw_tuple = obj["tuple"] as AliasTuple | null;
 
         if (__raw_tuple === null) {
@@ -4948,14 +4994,15 @@ export function aliasHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
                         });
                     }
                 } else {
-                    throw __e;
+
+                    errors.push({ field: "tuple", message: __e instanceof Error ? __e.message : String(__e) });
                 }
             } finally {
                 ctx.popScope();
             }
         }
     }
-    if ((__fields === undefined || __fields.requires("list")) || (__fields.keeps("list") && obj["list"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("list")) ? "list" in obj : (__fields.keeps("list") && obj["list"] !== undefined)) {
         const __raw_list = obj["list"] as AliasArray;
 
         ctx.pushScope("list");
@@ -4971,13 +5018,14 @@ export function aliasHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "list", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("table")) || (__fields.keeps("table") && obj["table"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("table")) ? "table" in obj : (__fields.keeps("table") && obj["table"] !== undefined)) {
         const __raw_table = obj["table"] as AliasRecord;
 
         ctx.pushScope("table");
@@ -4993,13 +5041,14 @@ export function aliasHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "table", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
         }
     }
-    if ((__fields === undefined || __fields.requires("members")) || (__fields.keeps("members") && obj["members"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("members")) ? "members" in obj : (__fields.keeps("members") && obj["members"] !== undefined)) {
         const __raw_members = obj["members"] as AliasMembers[];
         if (Array.isArray(__raw_members)) {
             ctx.pushScope("members");
@@ -5086,6 +5135,1279 @@ export const AliasHolder: {
   validateFields: aliasHolderValidateFields,
   hasShape: aliasHolderHasShape,
   is: aliasHolderIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type AliasOutcome =
+    | { ok: true; at: Date; tags: Set<string> }
+    | { ok: false; reason: string; retries?: number };
+
+export function aliasOutcomeToString(value: AliasOutcome): string {
+    return "AliasOutcome(" + __mf_structuralDebug(value) + ")";
+}
+
+export function aliasOutcomeClone(value: AliasOutcome): AliasOutcome {
+    return __mf_structuralClone(value);
+}
+
+export function aliasOutcomeEquals(a: AliasOutcome, b: AliasOutcome): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function aliasOutcomeHashCode(value: AliasOutcome): number {
+    return __mf_structuralHash(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function aliasOutcomeEncode(value: AliasOutcome, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = aliasOutcomeEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function aliasOutcomeEncodeWithContext(value: AliasOutcome, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === true && "at" in value && "tags" in value) {
+        const result: Record<string, unknown> = {};
+        result.ok = value.ok;
+        result.at = value.at.toISOString();
+        result.tags = Array.from(value.tags);
+        __variant = result;
+        __matched = true;
+    }
+    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === false && "reason" in value) {
+        const result: Record<string, unknown> = {};
+        result.ok = value.ok;
+        result.reason = value.reason;
+        if (value.retries !== undefined) {
+            result.retries = value.retries;
+        }
+        __variant = result;
+        __matched = true;
+    }
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+    }
+    return __variant;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasOutcomeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasOutcome } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = aliasOutcomeDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "AliasOutcome.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function aliasOutcomeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasOutcome | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "AliasOutcome.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as AliasOutcome | __mf_PendingRef;
+    }
+
+    
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === true && "at" in value && "tags" in value) {
+        return __mf_decodeObject(value, ctx, { ok: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === true, "true") as true), at: __mf_decodeDate, tags: (__raw0) => __mf_decodeSet(__raw0, ctx, __mf_decodeString) }) as AliasOutcome;
+    }
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === false && "reason" in value) {
+        return __mf_decodeObject(value, ctx, { ok: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === false, "false") as false), reason: __mf_decodeString, retries: __mf_decodeNumber }, ["retries"]) as AliasOutcome;
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "AliasOutcome.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function aliasOutcomeHasShape(value: unknown): boolean {
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === true && "at" in value && "tags" in value) return true;
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && value["ok"] === false && "reason" in value) return true;
+                return false;
+}
+export function aliasOutcomeIs(value: unknown): value is AliasOutcome {
+    return aliasOutcomeHasShape(value);
+}
+
+export const AliasOutcome: {
+  readonly toString: typeof aliasOutcomeToString;
+  readonly clone: typeof aliasOutcomeClone;
+  readonly equals: typeof aliasOutcomeEquals;
+  readonly hashCode: typeof aliasOutcomeHashCode;
+  readonly encode: typeof aliasOutcomeEncode;
+  readonly encodeWithContext: typeof aliasOutcomeEncodeWithContext;
+  readonly decode: typeof aliasOutcomeDecode;
+  readonly decodeWithContext: typeof aliasOutcomeDecodeWithContext;
+  readonly hasShape: typeof aliasOutcomeHasShape;
+  readonly is: typeof aliasOutcomeIs;
+} = {
+  toString: aliasOutcomeToString,
+  clone: aliasOutcomeClone,
+  equals: aliasOutcomeEquals,
+  hashCode: aliasOutcomeHashCode,
+  encode: aliasOutcomeEncode,
+  encodeWithContext: aliasOutcomeEncodeWithContext,
+  decode: aliasOutcomeDecode,
+  decodeWithContext: aliasOutcomeDecodeWithContext,
+  hasShape: aliasOutcomeHasShape,
+  is: aliasOutcomeIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @endec({ untagged: true }) */
+export type AliasLoose = { kind: 'a'; when: Date } | { kind: 'b'; counts: Map<string, number> };
+
+export function aliasLooseToString(value: AliasLoose): string {
+    return "AliasLoose(" + __mf_structuralDebug(value) + ")";
+}
+
+export function aliasLooseClone(value: AliasLoose): AliasLoose {
+    return __mf_structuralClone(value);
+}
+
+export function aliasLooseEquals(a: AliasLoose, b: AliasLoose): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function aliasLooseHashCode(value: AliasLoose): number {
+    return __mf_structuralHash(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function aliasLooseEncode(value: AliasLoose, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = aliasLooseEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function aliasLooseEncodeWithContext(value: AliasLoose, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'a' && "when" in value) {
+        const result: Record<string, unknown> = {};
+        result.kind = value.kind;
+        result.when = value.when.toISOString();
+        __variant = result;
+        __matched = true;
+    }
+    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'b' && "counts" in value) {
+        const result: Record<string, unknown> = {};
+        result.kind = value.kind;
+        result.counts = Object.fromEntries(value.counts.entries());
+        __variant = result;
+        __matched = true;
+    }
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (typeof __variant !== "object" || __variant === null) return __variant;
+    const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
+    if (typeof __typeName !== "string") return __variant;
+
+    const __outer: Record<string, unknown> = { ...fields };
+    if (__idVal !== undefined) __mf_encodedAs(ctx, __idVal, __outer);
+    return __outer;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasLooseDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasLoose } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = aliasLooseDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "AliasLoose.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function aliasLooseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasLoose | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "AliasLoose.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as AliasLoose | __mf_PendingRef;
+    }
+
+    
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'a' && "when" in value) {
+        return __mf_decodeObject(value, ctx, { kind: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'a', "'a'") as 'a'), when: __mf_decodeDate }) as AliasLoose;
+    }
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'b' && "counts" in value) {
+        return __mf_decodeObject(value, ctx, { kind: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'b', "'b'") as 'b'), counts: (__raw0) => __mf_decodeMap(__raw0, ctx, (__key1) => __key1, __mf_decodeNumber) }) as AliasLoose;
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "AliasLoose.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function aliasLooseHasShape(value: unknown): boolean {
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'a' && "when" in value) return true;
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'b' && "counts" in value) return true;
+                return false;
+}
+export function aliasLooseIs(value: unknown): value is AliasLoose {
+    return aliasLooseHasShape(value);
+}
+
+export const AliasLoose: {
+  readonly toString: typeof aliasLooseToString;
+  readonly clone: typeof aliasLooseClone;
+  readonly equals: typeof aliasLooseEquals;
+  readonly hashCode: typeof aliasLooseHashCode;
+  readonly encode: typeof aliasLooseEncode;
+  readonly encodeWithContext: typeof aliasLooseEncodeWithContext;
+  readonly decode: typeof aliasLooseDecode;
+  readonly decodeWithContext: typeof aliasLooseDecodeWithContext;
+  readonly hasShape: typeof aliasLooseHasShape;
+  readonly is: typeof aliasLooseIs;
+} = {
+  toString: aliasLooseToString,
+  clone: aliasLooseClone,
+  equals: aliasLooseEquals,
+  hashCode: aliasLooseHashCode,
+  encode: aliasLooseEncode,
+  encodeWithContext: aliasLooseEncodeWithContext,
+  decode: aliasLooseDecode,
+  decodeWithContext: aliasLooseDecodeWithContext,
+  hasShape: aliasLooseHasShape,
+  is: aliasLooseIs
+};
+
+/** @derive(Encode, Decode) */
+export type AliasName = string;
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export function aliasNameEncode(value: AliasName, keepMetadata?: boolean): string;
+export function aliasNameEncode(value: AliasName): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export function aliasNameEncodeWithContext(value: AliasName, ctx: __mf_EncodeContext): unknown;
+export function aliasNameEncodeWithContext(value: AliasName): unknown {
+    return value;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasName } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = __mf_textOrValue(input, (__spelled) => typeof __spelled === "string");
+
+        const ctx = __mf_DecodeContext.create();
+        const result = aliasNameDecodeWithContext(data, ctx);
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function aliasNameDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): AliasName {
+    const __decoded: unknown = value;
+    if (typeof __decoded !== "string") {
+        throw new __mf_DecodeError([{ field: "_root", message: "AliasName.decodeWithContext: expected string" }]);
+    }
+    return __decoded as AliasName;
+}
+
+export function aliasNameHasShape(value: unknown): boolean {
+    return typeof value === "string";
+}
+
+export function aliasNameIs(value: unknown): value is AliasName {
+    return typeof value === "string";
+}
+
+export const AliasName: {
+  readonly encode: typeof aliasNameEncode;
+  readonly encodeWithContext: typeof aliasNameEncodeWithContext;
+  readonly decode: typeof aliasNameDecode;
+  readonly decodeWithContext: typeof aliasNameDecodeWithContext;
+  readonly hasShape: typeof aliasNameHasShape;
+  readonly is: typeof aliasNameIs;
+} = {
+  encode: aliasNameEncode,
+  encodeWithContext: aliasNameEncodeWithContext,
+  decode: aliasNameDecode,
+  decodeWithContext: aliasNameDecodeWithContext,
+  hasShape: aliasNameHasShape,
+  is: aliasNameIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface AliasCarried {
+    tags: string | string[];
+    size: number | 'auto' | null;
+    when: Date | string;
+    lookup: Record<string, number> | number[];
+    anything: unknown;
+}
+
+export function aliasCarriedToString(value: AliasCarried): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("tags: " + __mf_structuralDebug(value.tags));
+    parts.push("size: " + __mf_structuralDebug(value.size));
+    parts.push("when: " + __mf_structuralDebug(value.when));
+    parts.push("lookup: " + __mf_structuralDebug(value.lookup));
+    parts.push("anything: " + __mf_structuralDebug(value.anything));
+        return "AliasCarried { " + parts.join(", ") + " }";
+    });
+}
+
+export function aliasCarriedClone(value: AliasCarried): AliasCarried {
+    return __mf_clonedWith(value, (): AliasCarried => ({
+	tags: __mf_structuralClone(value.tags),
+	size: __mf_structuralClone(value.size),
+	when: __mf_structuralClone(value.when),
+	lookup: __mf_structuralClone(value.lookup),
+	anything: __mf_structuralClone(value.anything)
+}));
+}
+
+export function aliasCarriedEquals(a: AliasCarried, b: AliasCarried): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.tags, b.tags) && __mf_structuralEquals(a.size, b.size) && __mf_structuralEquals(a.when, b.when) && __mf_structuralEquals(a.lookup, b.lookup) && __mf_structuralEquals(a.anything, b.anything));
+}
+
+export function aliasCarriedHashCode(value: AliasCarried): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (__mf_structuralHash(value.tags))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.size))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.when))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.lookup))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.anything))) | 0;
+        return hash;
+    });
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function aliasCarriedEncode(value: AliasCarried, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = aliasCarriedEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function aliasCarriedEncodeWithContext(value: AliasCarried, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "AliasCarried" });
+    aliasCarriedEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function aliasCarriedEncodePartialWithContext(value: Partial<AliasCarried>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AliasCarried>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "AliasCarried" };
+        aliasCarriedEncodeFields(value as AliasCarried, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function aliasCarriedEncodeFields(value: AliasCarried, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("tags")) {
+        if (value.tags !== undefined) {
+            result.tags = value.tags;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("size")) {
+        if (value.size !== undefined) {
+            result.size = value.size;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("when")) {
+        if (value.when !== undefined) {
+            result.when = value.when;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("lookup")) {
+        if (value.lookup !== undefined) {
+            result.lookup = value.lookup;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("anything")) {
+        if (value.anything !== undefined) {
+            result.anything = value.anything;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasCarriedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasCarried } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = aliasCarriedDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "AliasCarried.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function aliasCarriedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasCarried | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function aliasCarriedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<AliasCarried> | __mf_PendingRef;
+export function aliasCarriedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<AliasCarried> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "AliasCarried.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "AliasCarried.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "AliasCarried") as AliasCarried | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "AliasCarried.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
+        errors.push({ field: "tags", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("size")) && !("size" in obj)) {
+        errors.push({ field: "size", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("when")) && !("when" in obj)) {
+        errors.push({ field: "when", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("lookup")) && !("lookup" in obj)) {
+        errors.push({ field: "lookup", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("anything")) && !("anything" in obj)) {
+        errors.push({ field: "anything", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "AliasCarried");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
+        const __raw_tags = obj["tags"] as string | string[];
+        ctx.pushScope("tags");
+        try {
+            const __result = (__mf_decodeChecked(__raw_tags, (typeof __raw_tags === "string") || (Array.isArray(__raw_tags) && __raw_tags.every((__member0: unknown) => typeof __member0 === "string")), "string | string[]") as string | string[]);
+            ctx.assignOrDefer(instance, "tags", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "tags", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("size")) ? "size" in obj : (__fields.keeps("size") && obj["size"] !== undefined)) {
+        const __raw_size = obj["size"] as number | 'auto' | null;
+
+        if (!(typeof __raw_size === "number" || __raw_size === "auto" || __raw_size === null)) {
+            errors.push({ field: "size", message: "expected number | 'auto' | null" });
+        } else {
+            instance.size = __raw_size;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("when")) ? "when" in obj : (__fields.keeps("when") && obj["when"] !== undefined)) {
+        const __raw_when = obj["when"] as Date | string;
+        ctx.pushScope("when");
+        try {
+            const __result = (__mf_decodeChecked(__raw_when, (__raw_when instanceof Date) || (typeof __raw_when === "string"), "Date | string") as Date | string);
+            ctx.assignOrDefer(instance, "when", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "when" : "when." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "when", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("lookup")) ? "lookup" in obj : (__fields.keeps("lookup") && obj["lookup"] !== undefined)) {
+        const __raw_lookup = obj["lookup"] as Record<string, number> | number[];
+        ctx.pushScope("lookup");
+        try {
+            const __result = (__mf_decodeChecked(__raw_lookup, (typeof __raw_lookup === "object" && __raw_lookup !== null && !Array.isArray(__raw_lookup) && Object.values(__raw_lookup).every((__member0: unknown) => typeof __member0 === "number")) || (Array.isArray(__raw_lookup) && __raw_lookup.every((__member0: unknown) => typeof __member0 === "number")), "Record<string, number> | number[]") as Record<string, number> | number[]);
+            ctx.assignOrDefer(instance, "lookup", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "lookup" : "lookup." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "lookup", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("anything")) ? "anything" in obj : (__fields.keeps("anything") && obj["anything"] !== undefined)) {
+        const __raw_anything = obj["anything"] as unknown;
+
+        instance.anything = __raw_anything;
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as AliasCarried;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function aliasCarriedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof AliasCarried>): Partial<AliasCarried> | __mf_PendingRef {
+    return aliasCarriedDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function aliasCarriedValidateField<K extends keyof AliasCarried>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function aliasCarriedValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function aliasCarriedValidateFields(partial: { readonly [K in keyof AliasCarried]?: unknown }): Array<{ field: string; message: string }>;
+export function aliasCarriedValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function aliasCarriedHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "tags" in o && "size" in o && "when" in o && "lookup" in o && "anything" in o;
+}
+
+export function aliasCarriedIs(obj: unknown): obj is AliasCarried {
+    return aliasCarriedHasShape(obj) && aliasCarriedDecode(obj).success;
+}
+
+export const AliasCarried: {
+  readonly toString: typeof aliasCarriedToString;
+  readonly clone: typeof aliasCarriedClone;
+  readonly equals: typeof aliasCarriedEquals;
+  readonly hashCode: typeof aliasCarriedHashCode;
+  readonly encode: typeof aliasCarriedEncode;
+  readonly encodeWithContext: typeof aliasCarriedEncodeWithContext;
+  readonly encodePartialWithContext: typeof aliasCarriedEncodePartialWithContext;
+  readonly decode: typeof aliasCarriedDecode;
+  readonly decodeWithContext: typeof aliasCarriedDecodeWithContext;
+  readonly decodePartialWithContext: typeof aliasCarriedDecodePartialWithContext;
+  readonly validateField: typeof aliasCarriedValidateField;
+  readonly validateFields: typeof aliasCarriedValidateFields;
+  readonly hasShape: typeof aliasCarriedHasShape;
+  readonly is: typeof aliasCarriedIs;
+} = {
+  toString: aliasCarriedToString,
+  clone: aliasCarriedClone,
+  equals: aliasCarriedEquals,
+  hashCode: aliasCarriedHashCode,
+  encode: aliasCarriedEncode,
+  encodeWithContext: aliasCarriedEncodeWithContext,
+  encodePartialWithContext: aliasCarriedEncodePartialWithContext,
+  decode: aliasCarriedDecode,
+  decodeWithContext: aliasCarriedDecodeWithContext,
+  decodePartialWithContext: aliasCarriedDecodePartialWithContext,
+  validateField: aliasCarriedValidateField,
+  validateFields: aliasCarriedValidateFields,
+  hasShape: aliasCarriedHasShape,
+  is: aliasCarriedIs
+};
+
+/** @derive(Default, Encode, Decode) */
+export type AliasPicked = Pick<EdgeItem, 'id'>;
+
+export function aliasPickedDefaultValue(): AliasPicked {
+    return ({ id: "" }) as AliasPicked;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function aliasPickedEncode(value: AliasPicked, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = aliasPickedEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function aliasPickedEncodeWithContext(value: AliasPicked, ctx: __mf_EncodeContext): unknown {
+    return ((value: { value: Pick<EdgeItem, 'id'> }): unknown => {
+        const result: Record<string, unknown> = {};
+        result.value = edgeItemEncodePartialWithContext(value.value, ctx, { only: ["id"] });
+        return result.value;
+    })({ value });
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasPickedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasPicked } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = aliasPickedDecodeWithContext(data, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+export function aliasPickedIs(value: unknown): value is AliasPicked {
+    return aliasPickedHasShape(value);
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function aliasPickedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasPicked {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "AliasPicked.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as AliasPicked;
+    }
+    const obj: Record<string, unknown> = { _root: value };
+    const errors: Array<{ field: string; message: string }> = [];
+    const instance: any = {};
+
+    if ("_root" in obj) {
+        const __raw__root = obj["_root"] as Pick<EdgeItem, 'id'>;
+
+        ctx.pushScope("_root");
+        try {
+            const __result = edgeItemDecodePartialWithContext(__raw__root, ctx, { only: ["id"] });
+            ctx.assignOrDefer(instance, "_root", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "_root" : "_root." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "_root", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+
+    ctx.pushErrors(errors);
+    return instance._root as AliasPicked;
+}
+
+export function aliasPickedHasShape(value: unknown): boolean {
+    return value != null;
+}
+
+export const AliasPicked: {
+  readonly defaultValue: typeof aliasPickedDefaultValue;
+  readonly encode: typeof aliasPickedEncode;
+  readonly encodeWithContext: typeof aliasPickedEncodeWithContext;
+  readonly decode: typeof aliasPickedDecode;
+  readonly is: typeof aliasPickedIs;
+  readonly decodeWithContext: typeof aliasPickedDecodeWithContext;
+  readonly hasShape: typeof aliasPickedHasShape;
+} = {
+  defaultValue: aliasPickedDefaultValue,
+  encode: aliasPickedEncode,
+  encodeWithContext: aliasPickedEncodeWithContext,
+  decode: aliasPickedDecode,
+  is: aliasPickedIs,
+  decodeWithContext: aliasPickedDecodeWithContext,
+  hasShape: aliasPickedHasShape
+};
+
+/** @derive(Default, Encode, Decode) */
+export type AliasRequired = Required<EdgeItem>;
+
+export function aliasRequiredDefaultValue(): AliasRequired {
+    return edgeItemDefaultValue() as AliasRequired;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function aliasRequiredEncode(value: AliasRequired, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = aliasRequiredEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function aliasRequiredEncodeWithContext(value: AliasRequired, ctx: __mf_EncodeContext): unknown {
+    return ((value: { value: Required<EdgeItem> }): unknown => {
+        const result: Record<string, unknown> = {};
+        result.value = edgeItemEncodeWithContext(value.value, ctx);
+        return result.value;
+    })({ value });
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasRequiredDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasRequired } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = aliasRequiredDecodeWithContext(data, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+export function aliasRequiredIs(value: unknown): value is AliasRequired {
+    return aliasRequiredHasShape(value);
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function aliasRequiredDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasRequired {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "AliasRequired.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as AliasRequired;
+    }
+    const obj: Record<string, unknown> = { _root: value };
+    const errors: Array<{ field: string; message: string }> = [];
+    const instance: any = {};
+
+    if ("_root" in obj) {
+        const __raw__root = obj["_root"] as Required<EdgeItem>;
+
+        ctx.pushScope("_root");
+        try {
+            const __result = edgeItemDecodeWithContext(__raw__root, ctx);
+            ctx.assignOrDefer(instance, "_root", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "_root" : "_root." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "_root", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+
+    ctx.pushErrors(errors);
+    return instance._root as AliasRequired;
+}
+
+export function aliasRequiredHasShape(value: unknown): boolean {
+    return value != null;
+}
+
+export const AliasRequired: {
+  readonly defaultValue: typeof aliasRequiredDefaultValue;
+  readonly encode: typeof aliasRequiredEncode;
+  readonly encodeWithContext: typeof aliasRequiredEncodeWithContext;
+  readonly decode: typeof aliasRequiredDecode;
+  readonly is: typeof aliasRequiredIs;
+  readonly decodeWithContext: typeof aliasRequiredDecodeWithContext;
+  readonly hasShape: typeof aliasRequiredHasShape;
+} = {
+  defaultValue: aliasRequiredDefaultValue,
+  encode: aliasRequiredEncode,
+  encodeWithContext: aliasRequiredEncodeWithContext,
+  decode: aliasRequiredDecode,
+  is: aliasRequiredIs,
+  decodeWithContext: aliasRequiredDecodeWithContext,
+  hasShape: aliasRequiredHasShape
+};
+
+/** @derive(Default, Encode, Decode) */
+export type AliasInline = { x: number; label?: string; at: Date };
+
+export function aliasInlineDefaultValue(): AliasInline {
+    return {
+        x: 0,
+        at: new Date(),
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function aliasInlineEncode(value: AliasInline, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = aliasInlineEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function aliasInlineEncodeWithContext(value: AliasInline, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "AliasInline" });
+    aliasInlineEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function aliasInlineEncodePartialWithContext(value: Partial<AliasInline>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AliasInline>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "AliasInline" };
+        aliasInlineEncodeFields(value as AliasInline, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function aliasInlineEncodeFields(value: AliasInline, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("x")) {
+        if (value.x !== undefined) {
+            result.x = value.x;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("label")) {
+        if (value.label !== undefined) {
+            result.label = value.label;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("at")) {
+        if (value.at !== undefined) {
+            result.at = value.at.toISOString();
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function aliasInlineDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AliasInline } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = aliasInlineDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "AliasInline.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function aliasInlineDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasInline | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function aliasInlineDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<AliasInline> | __mf_PendingRef;
+export function aliasInlineDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<AliasInline> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "AliasInline.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "AliasInline.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "AliasInline") as AliasInline | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "AliasInline.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("x")) && !("x" in obj)) {
+        errors.push({ field: "x", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
+        errors.push({ field: "at", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "AliasInline");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
+        const __raw_x = obj["x"] as number;
+
+        if (!(typeof __raw_x === "number")) {
+            errors.push({ field: "x", message: __raw_x == null ? "AliasInline.x is required" : "expected number" });
+        } else {
+            instance.x = __raw_x;
+        }
+    }
+    if ((__fields === undefined || __fields.keeps("label"))) {
+        if (("label" in obj && obj["label"] !== undefined)) {
+            const __raw_label = obj["label"] as string;
+
+            if (!(typeof __raw_label === "string")) {
+                errors.push({ field: "label", message: "expected string" });
+            } else {
+                instance.label = __raw_label;
+            }
+        }
+    }
+    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+        const __raw_at = obj["at"] as string | Date;
+
+        {
+            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "at", message: __raw_at == null ? "AliasInline.at is required" : "expected Date" });
+            } else {
+                instance.at = __dateVal;
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as AliasInline;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function aliasInlineDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof AliasInline>): Partial<AliasInline> | __mf_PendingRef {
+    return aliasInlineDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function aliasInlineValidateField<K extends keyof AliasInline>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function aliasInlineValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function aliasInlineValidateFields(partial: { readonly [K in keyof AliasInline]?: unknown }): Array<{ field: string; message: string }>;
+export function aliasInlineValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function aliasInlineHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "x" in o && "at" in o;
+}
+
+export function aliasInlineIs(obj: unknown): obj is AliasInline {
+    return aliasInlineHasShape(obj) && aliasInlineDecode(obj).success;
+}
+
+export const AliasInline: {
+  readonly defaultValue: typeof aliasInlineDefaultValue;
+  readonly encode: typeof aliasInlineEncode;
+  readonly encodeWithContext: typeof aliasInlineEncodeWithContext;
+  readonly encodePartialWithContext: typeof aliasInlineEncodePartialWithContext;
+  readonly decode: typeof aliasInlineDecode;
+  readonly decodeWithContext: typeof aliasInlineDecodeWithContext;
+  readonly decodePartialWithContext: typeof aliasInlineDecodePartialWithContext;
+  readonly validateField: typeof aliasInlineValidateField;
+  readonly validateFields: typeof aliasInlineValidateFields;
+  readonly hasShape: typeof aliasInlineHasShape;
+  readonly is: typeof aliasInlineIs;
+} = {
+  defaultValue: aliasInlineDefaultValue,
+  encode: aliasInlineEncode,
+  encodeWithContext: aliasInlineEncodeWithContext,
+  encodePartialWithContext: aliasInlineEncodePartialWithContext,
+  decode: aliasInlineDecode,
+  decodeWithContext: aliasInlineDecodeWithContext,
+  decodePartialWithContext: aliasInlineDecodePartialWithContext,
+  validateField: aliasInlineValidateField,
+  validateFields: aliasInlineValidateFields,
+  hasShape: aliasInlineHasShape,
+  is: aliasInlineIs
 };
 
 ## DTS
@@ -6123,6 +7445,300 @@ export declare const AliasHolder: {
 	readonly hasShape: typeof aliasHolderHasShape;
 	readonly is: typeof aliasHolderIs;
 };
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type AliasOutcome = {
+	ok: true;
+	at: Date;
+	tags: Set<string>;
+} | {
+	ok: false;
+	reason: string;
+	retries?: number;
+};
+export declare function aliasOutcomeToString(value: AliasOutcome): string;
+export declare function aliasOutcomeClone(value: AliasOutcome): AliasOutcome;
+export declare function aliasOutcomeEquals(a: AliasOutcome, b: AliasOutcome): boolean;
+export declare function aliasOutcomeHashCode(value: AliasOutcome): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function aliasOutcomeEncode(value: AliasOutcome, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function aliasOutcomeEncodeWithContext(value: AliasOutcome, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasOutcomeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasOutcome;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function aliasOutcomeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasOutcome | __mf_PendingRef;
+export declare function aliasOutcomeHasShape(value: unknown): boolean;
+export declare function aliasOutcomeIs(value: unknown): value is AliasOutcome;
+export declare const AliasOutcome: {
+	readonly toString: typeof aliasOutcomeToString;
+	readonly clone: typeof aliasOutcomeClone;
+	readonly equals: typeof aliasOutcomeEquals;
+	readonly hashCode: typeof aliasOutcomeHashCode;
+	readonly encode: typeof aliasOutcomeEncode;
+	readonly encodeWithContext: typeof aliasOutcomeEncodeWithContext;
+	readonly decode: typeof aliasOutcomeDecode;
+	readonly decodeWithContext: typeof aliasOutcomeDecodeWithContext;
+	readonly hasShape: typeof aliasOutcomeHasShape;
+	readonly is: typeof aliasOutcomeIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+/** @endec({ untagged: true }) */
+export type AliasLoose = {
+	kind: "a";
+	when: Date;
+} | {
+	kind: "b";
+	counts: Map<string, number>;
+};
+export declare function aliasLooseToString(value: AliasLoose): string;
+export declare function aliasLooseClone(value: AliasLoose): AliasLoose;
+export declare function aliasLooseEquals(a: AliasLoose, b: AliasLoose): boolean;
+export declare function aliasLooseHashCode(value: AliasLoose): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function aliasLooseEncode(value: AliasLoose, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function aliasLooseEncodeWithContext(value: AliasLoose, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasLooseDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasLoose;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function aliasLooseDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasLoose | __mf_PendingRef;
+export declare function aliasLooseHasShape(value: unknown): boolean;
+export declare function aliasLooseIs(value: unknown): value is AliasLoose;
+export declare const AliasLoose: {
+	readonly toString: typeof aliasLooseToString;
+	readonly clone: typeof aliasLooseClone;
+	readonly equals: typeof aliasLooseEquals;
+	readonly hashCode: typeof aliasLooseHashCode;
+	readonly encode: typeof aliasLooseEncode;
+	readonly encodeWithContext: typeof aliasLooseEncodeWithContext;
+	readonly decode: typeof aliasLooseDecode;
+	readonly decodeWithContext: typeof aliasLooseDecodeWithContext;
+	readonly hasShape: typeof aliasLooseHasShape;
+	readonly is: typeof aliasLooseIs;
+};
+/** @derive(Encode, Decode) */
+export type AliasName = string;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export declare function aliasNameEncode(value: AliasName, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export declare function aliasNameEncodeWithContext(value: AliasName, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasNameDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasName;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function aliasNameDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): AliasName;
+export declare function aliasNameHasShape(value: unknown): boolean;
+export declare function aliasNameIs(value: unknown): value is AliasName;
+export declare const AliasName: {
+	readonly encode: typeof aliasNameEncode;
+	readonly encodeWithContext: typeof aliasNameEncodeWithContext;
+	readonly decode: typeof aliasNameDecode;
+	readonly decodeWithContext: typeof aliasNameDecodeWithContext;
+	readonly hasShape: typeof aliasNameHasShape;
+	readonly is: typeof aliasNameIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface AliasCarried {
+	tags: string | string[];
+	size: number | "auto" | null;
+	when: Date | string;
+	lookup: Record<string, number> | number[];
+	anything: unknown;
+}
+export declare function aliasCarriedToString(value: AliasCarried): string;
+export declare function aliasCarriedClone(value: AliasCarried): AliasCarried;
+export declare function aliasCarriedEquals(a: AliasCarried, b: AliasCarried): boolean;
+export declare function aliasCarriedHashCode(value: AliasCarried): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function aliasCarriedEncode(value: AliasCarried, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function aliasCarriedEncodeWithContext(value: AliasCarried, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function aliasCarriedEncodePartialWithContext(value: Partial<AliasCarried>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AliasCarried>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasCarriedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasCarried;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function aliasCarriedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasCarried | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function aliasCarriedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<AliasCarried> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function aliasCarriedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof AliasCarried>): Partial<AliasCarried> | __mf_PendingRef;
+export declare function aliasCarriedValidateField<K extends keyof AliasCarried>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function aliasCarriedValidateFields(partial: { readonly [K in keyof AliasCarried]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function aliasCarriedHasShape(obj: unknown): boolean;
+export declare function aliasCarriedIs(obj: unknown): obj is AliasCarried;
+export declare const AliasCarried: {
+	readonly toString: typeof aliasCarriedToString;
+	readonly clone: typeof aliasCarriedClone;
+	readonly equals: typeof aliasCarriedEquals;
+	readonly hashCode: typeof aliasCarriedHashCode;
+	readonly encode: typeof aliasCarriedEncode;
+	readonly encodeWithContext: typeof aliasCarriedEncodeWithContext;
+	readonly encodePartialWithContext: typeof aliasCarriedEncodePartialWithContext;
+	readonly decode: typeof aliasCarriedDecode;
+	readonly decodeWithContext: typeof aliasCarriedDecodeWithContext;
+	readonly decodePartialWithContext: typeof aliasCarriedDecodePartialWithContext;
+	readonly validateField: typeof aliasCarriedValidateField;
+	readonly validateFields: typeof aliasCarriedValidateFields;
+	readonly hasShape: typeof aliasCarriedHasShape;
+	readonly is: typeof aliasCarriedIs;
+};
+/** @derive(Default, Encode, Decode) */
+export type AliasPicked = Pick<EdgeItem, "id">;
+export declare function aliasPickedDefaultValue(): AliasPicked;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function aliasPickedEncode(value: AliasPicked, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function aliasPickedEncodeWithContext(value: AliasPicked, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasPickedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasPicked;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare function aliasPickedIs(value: unknown): value is AliasPicked;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function aliasPickedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasPicked;
+export declare function aliasPickedHasShape(value: unknown): boolean;
+export declare const AliasPicked: {
+	readonly defaultValue: typeof aliasPickedDefaultValue;
+	readonly encode: typeof aliasPickedEncode;
+	readonly encodeWithContext: typeof aliasPickedEncodeWithContext;
+	readonly decode: typeof aliasPickedDecode;
+	readonly is: typeof aliasPickedIs;
+	readonly decodeWithContext: typeof aliasPickedDecodeWithContext;
+	readonly hasShape: typeof aliasPickedHasShape;
+};
+/** @derive(Default, Encode, Decode) */
+export type AliasRequired = Required<EdgeItem>;
+export declare function aliasRequiredDefaultValue(): AliasRequired;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function aliasRequiredEncode(value: AliasRequired, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function aliasRequiredEncodeWithContext(value: AliasRequired, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasRequiredDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasRequired;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare function aliasRequiredIs(value: unknown): value is AliasRequired;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function aliasRequiredDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasRequired;
+export declare function aliasRequiredHasShape(value: unknown): boolean;
+export declare const AliasRequired: {
+	readonly defaultValue: typeof aliasRequiredDefaultValue;
+	readonly encode: typeof aliasRequiredEncode;
+	readonly encodeWithContext: typeof aliasRequiredEncodeWithContext;
+	readonly decode: typeof aliasRequiredDecode;
+	readonly is: typeof aliasRequiredIs;
+	readonly decodeWithContext: typeof aliasRequiredDecodeWithContext;
+	readonly hasShape: typeof aliasRequiredHasShape;
+};
+/** @derive(Default, Encode, Decode) */
+export type AliasInline = {
+	x: number;
+	label?: string;
+	at: Date;
+};
+export declare function aliasInlineDefaultValue(): AliasInline;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function aliasInlineEncode(value: AliasInline, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function aliasInlineEncodeWithContext(value: AliasInline, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function aliasInlineEncodePartialWithContext(value: Partial<AliasInline>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AliasInline>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function aliasInlineDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: AliasInline;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function aliasInlineDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): AliasInline | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function aliasInlineDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<AliasInline> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function aliasInlineDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof AliasInline>): Partial<AliasInline> | __mf_PendingRef;
+export declare function aliasInlineValidateField<K extends keyof AliasInline>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function aliasInlineValidateFields(partial: { readonly [K in keyof AliasInline]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function aliasInlineHasShape(obj: unknown): boolean;
+export declare function aliasInlineIs(obj: unknown): obj is AliasInline;
+export declare const AliasInline: {
+	readonly defaultValue: typeof aliasInlineDefaultValue;
+	readonly encode: typeof aliasInlineEncode;
+	readonly encodeWithContext: typeof aliasInlineEncodeWithContext;
+	readonly encodePartialWithContext: typeof aliasInlineEncodePartialWithContext;
+	readonly decode: typeof aliasInlineDecode;
+	readonly decodeWithContext: typeof aliasInlineDecodeWithContext;
+	readonly decodePartialWithContext: typeof aliasInlineDecodePartialWithContext;
+	readonly validateField: typeof aliasInlineValidateField;
+	readonly validateFields: typeof aliasInlineValidateFields;
+	readonly hasShape: typeof aliasInlineHasShape;
+	readonly is: typeof aliasInlineIs;
+};
 
 ## Diagnostics
 
@@ -6130,214 +7746,258 @@ export declare const AliasHolder: {
 
 ## Mapping
 
-original 0..469 -> expanded 1255..1724
-original 469..590 -> expanded 14851..14972
-original 590..690 -> expanded 22637..22737
-original 690..786 -> expanded 28429..28525
-original 786..901 -> expanded 34232..34347
-original 901..1010 -> expanded 40038..40147
-original 1010..1111 -> expanded 46162..46263
-original 1111..1236 -> expanded 51855..51980
-original 1236..1378 -> expanded 64122..64264
-original 1378..1545 -> expanded 76265..76432
-original 1545..1696 -> expanded 81529..81680
-original 1696..1804 -> expanded 87548..87656
-original 1804..1917 -> expanded 94952..95065
-original 1917..2010 -> expanded 102371..102464
-original 2010..2116 -> expanded 107112..107218
-original 2116..2227 -> expanded 112816..112927
-original 2227..2486 -> expanded 121044..121303
-original 2486..2647 -> expanded 129263..129424
-original 2647..2801 -> expanded 136489..136643
-original 2801..2956 -> expanded 144203..144358
-original 2956..3108 -> expanded 150829..150981
-original 3108..3609 -> expanded 159783..160284
-original 3609..4003 -> expanded 185152..185546
-original 4003..4004 -> expanded 209920..209921
-generated 0..1255 <- imports
-generated 1724..2019 <- Debug
-generated 2019..2240 <- Clone
-generated 2240..2489 <- PartialEq
-generated 2489..2964 <- Hash
-generated 2964..3685 <- PartialOrd
-generated 3685..4204 <- Ord
-generated 4204..4320 <- Default
-generated 4320..6823 <- Encode
-generated 6823..13200 <- Decode
-generated 13200..14851 <- __convenience_const
-generated 14972..15101 <- Debug
-generated 15101..15259 <- Clone
-generated 15259..15466 <- PartialEq
-generated 15466..15749 <- Hash
-generated 15749..17202 <- Encode
-generated 17202..21789 <- Decode
-generated 21789..22637 <- __convenience_const
-generated 22737..22866 <- Debug
-generated 22866..23000 <- Clone
-generated 23000..23310 <- PartialEq
-generated 23310..23484 <- Hash
-generated 23484..24466 <- Encode
-generated 24466..27581 <- Decode
-generated 27581..28429 <- __convenience_const
-generated 28525..28654 <- Debug
-generated 28654..28786 <- Clone
-generated 28786..29096 <- PartialEq
-generated 29096..29265 <- Hash
-generated 29265..30298 <- Encode
-generated 30298..33384 <- Decode
-generated 33384..34232 <- __convenience_const
-generated 34347..34479 <- Debug
-generated 34479..34590 <- Clone
-generated 34590..34740 <- PartialEq
-generated 34740..34848 <- Hash
-generated 34848..35905 <- Encode
-generated 35905..39169 <- Decode
-generated 39169..40038 <- __convenience_const
-generated 40147..40270 <- Debug
-generated 40270..40500 <- Clone
-generated 40500..40833 <- PartialEq
-generated 40833..41116 <- Hash
-generated 41116..42147 <- Encode
-generated 42147..45356 <- Decode
-generated 45356..46162 <- __convenience_const
-generated 46263..46386 <- Debug
-generated 46386..46531 <- Clone
-generated 46531..46794 <- PartialEq
-generated 46794..46971 <- Hash
-generated 46971..47954 <- Encode
-generated 47954..51049 <- Decode
-generated 51049..51855 <- __convenience_const
-generated 51980..52295 <- Debug
-generated 52295..52458 <- Clone
-generated 52458..52658 <- PartialEq
-generated 52658..53185 <- Hash
-generated 53185..55768 <- Encode
-generated 55768..62579 <- Decode
-generated 62579..64122 <- __convenience_const
-generated 64264..64561 <- Debug
-generated 64561..64734 <- Clone
-generated 64734..64942 <- PartialEq
-generated 64942..65369 <- Hash
-generated 65369..67937 <- Encode
-generated 67937..74461 <- Decode
-generated 74461..76265 <- __convenience_const
-generated 76432..76556 <- Debug
-generated 76556..76651 <- Clone
-generated 76651..76787 <- PartialEq
-generated 76787..76899 <- Hash
-generated 76899..77040 <- PartialOrd
-generated 77040..77167 <- Ord
-generated 77167..77251 <- Default
-generated 77251..78532 <- Encode
-generated 78532..80324 <- Decode
-generated 80324..81529 <- __convenience_const
-generated 81680..81819 <- Debug
-generated 81819..81929 <- Clone
-generated 81929..82080 <- PartialEq
-generated 82080..82202 <- Hash
-generated 82202..82295 <- Default
-generated 82295..83601 <- Encode
-generated 83601..86420 <- Decode
-generated 86420..87548 <- __convenience_const
-generated 87656..87794 <- Debug
-generated 87794..87911 <- Clone
-generated 87911..88067 <- PartialEq
-generated 88067..88179 <- Hash
-generated 88179..89848 <- Encode
-generated 89848..94041 <- Decode
-generated 94041..94952 <- __convenience_const
-generated 95065..95203 <- Debug
-generated 95203..95320 <- Clone
-generated 95320..95476 <- PartialEq
-generated 95476..95588 <- Hash
-generated 95588..97257 <- Encode
-generated 97257..101460 <- Decode
-generated 101460..102371 <- __convenience_const
-generated 102464..102576 <- Debug
-generated 102576..102679 <- Clone
-generated 102679..102823 <- PartialEq
-generated 102823..102920 <- Hash
-generated 102920..103918 <- Encode
-generated 103918..106285 <- Decode
-generated 106285..107112 <- __convenience_const
-generated 107218..107362 <- Debug
-generated 107362..107485 <- Clone
-generated 107485..107647 <- PartialEq
-generated 107647..107763 <- Hash
-generated 107763..109054 <- Encode
-generated 109054..111863 <- Decode
-generated 111863..112816 <- __convenience_const
-generated 112927..113062 <- Debug
-generated 113062..113176 <- Clone
-generated 113176..113329 <- PartialEq
-generated 113329..113439 <- Hash
-generated 113439..115365 <- Encode
-generated 115365..120154 <- Decode
-generated 120154..121044 <- __convenience_const
-generated 121303..121435 <- Debug
-generated 121435..121546 <- Clone
-generated 121546..121696 <- PartialEq
-generated 121696..121804 <- Hash
-generated 121804..124074 <- Encode
-generated 124074..128152 <- Decode
-generated 128152..129263 <- __convenience_const
-generated 129424..129562 <- Debug
-generated 129562..129679 <- Clone
-generated 129679..129835 <- PartialEq
-generated 129835..129947 <- Hash
-generated 129947..131981 <- Encode
-generated 131981..135578 <- Decode
-generated 135578..136489 <- __convenience_const
-generated 136643..136781 <- Debug
-generated 136781..136898 <- Clone
-generated 136898..137054 <- PartialEq
-generated 137054..137166 <- Hash
-generated 137166..139187 <- Encode
-generated 139187..143292 <- Decode
-generated 143292..144203 <- __convenience_const
-generated 144358..144496 <- Debug
-generated 144496..144613 <- Clone
-generated 144613..144769 <- PartialEq
-generated 144769..144881 <- Hash
-generated 144881..146891 <- Encode
-generated 146891..149918 <- Decode
-generated 149918..150829 <- __convenience_const
-generated 150981..151107 <- Debug
-generated 151107..151212 <- Clone
-generated 151212..151356 <- PartialEq
-generated 151356..151460 <- Hash
-generated 151460..153379 <- Encode
-generated 153379..158956 <- Decode
-generated 158956..159783 <- __convenience_const
-generated 160284..161272 <- Debug
-generated 161272..161926 <- Clone
-generated 161926..162778 <- PartialEq
-generated 162778..164041 <- Hash
-generated 164041..168542 <- Encode
-generated 168542..183696 <- Decode
-generated 183696..185152 <- __convenience_const
-generated 185546..186440 <- Debug
-generated 186440..187036 <- Clone
-generated 187036..188166 <- PartialEq
-generated 188166..189117 <- Hash
-generated 189117..189424 <- Default
-generated 189424..193340 <- Encode
-generated 193340..208453 <- Decode
-generated 208453..209920 <- __convenience_const
+original 0..469 -> expanded 1697..2166
+original 469..590 -> expanded 15870..15991
+original 590..690 -> expanded 24064..24164
+original 690..786 -> expanded 29876..29972
+original 786..901 -> expanded 35699..35814
+original 901..1010 -> expanded 41525..41634
+original 1010..1111 -> expanded 47669..47770
+original 1111..1236 -> expanded 53382..53507
+original 1236..1378 -> expanded 65881..66023
+original 1378..1545 -> expanded 78251..78418
+original 1545..1696 -> expanded 83694..83845
+original 1696..1804 -> expanded 89874..89982
+original 1804..1917 -> expanded 97393..97506
+original 1917..2010 -> expanded 104927..105020
+original 2010..2116 -> expanded 110020..110126
+original 2116..2227 -> expanded 115882..115993
+original 2227..2486 -> expanded 124225..124484
+original 2486..2647 -> expanded 132559..132720
+original 2647..2801 -> expanded 139800..139954
+original 2801..2956 -> expanded 147529..147684
+original 2956..3108 -> expanded 154211..154363
+original 3108..3609 -> expanded 163317..163818
+original 3609..4003 -> expanded 189405..189799
+original 4003..4196 -> expanded 214991..215184
+original 4196..4390 -> expanded 222276..222470
+original 4390..4454 -> expanded 229251..229315
+original 4454..4709 -> expanded 232411..232666
+original 4709..4798 -> expanded 248537..248626
+original 4798..4887 -> expanded 253387..253476
+original 4887..4995 -> expanded 258263..258371
+original 4995..4996 -> expanded 268703..268704
+generated 0..1697 <- imports
+generated 2166..2523 <- Debug
+generated 2523..2787 <- Clone
+generated 2787..3066 <- PartialEq
+generated 3066..3601 <- Hash
+generated 3601..4379 <- PartialOrd
+generated 4379..4955 <- Ord
+generated 4955..5071 <- Default
+generated 5071..7560 <- Encode
+generated 7560..14219 <- Decode
+generated 14219..15870 <- __convenience_const
+generated 15991..16120 <- Debug
+generated 16120..16278 <- Clone
+generated 16278..16485 <- PartialEq
+generated 16485..16768 <- Hash
+generated 16768..18221 <- Encode
+generated 18221..23216 <- Decode
+generated 23216..24064 <- __convenience_const
+generated 24164..24293 <- Debug
+generated 24293..24427 <- Clone
+generated 24427..24737 <- PartialEq
+generated 24737..24911 <- Hash
+generated 24911..25893 <- Encode
+generated 25893..29028 <- Decode
+generated 29028..29876 <- __convenience_const
+generated 29972..30101 <- Debug
+generated 30101..30233 <- Clone
+generated 30233..30543 <- PartialEq
+generated 30543..30712 <- Hash
+generated 30712..31745 <- Encode
+generated 31745..34851 <- Decode
+generated 34851..35699 <- __convenience_const
+generated 35814..35946 <- Debug
+generated 35946..36057 <- Clone
+generated 36057..36207 <- PartialEq
+generated 36207..36315 <- Hash
+generated 36315..37372 <- Encode
+generated 37372..40656 <- Decode
+generated 40656..41525 <- __convenience_const
+generated 41634..41757 <- Debug
+generated 41757..41987 <- Clone
+generated 41987..42320 <- PartialEq
+generated 42320..42603 <- Hash
+generated 42603..43634 <- Encode
+generated 43634..46863 <- Decode
+generated 46863..47669 <- __convenience_const
+generated 47770..47893 <- Debug
+generated 47893..48038 <- Clone
+generated 48038..48301 <- PartialEq
+generated 48301..48478 <- Hash
+generated 48478..49461 <- Encode
+generated 49461..52576 <- Decode
+generated 52576..53382 <- __convenience_const
+generated 53507..53884 <- Debug
+generated 53884..54096 <- Clone
+generated 54096..54326 <- PartialEq
+generated 54326..54913 <- Hash
+generated 54913..57482 <- Encode
+generated 57482..64338 <- Decode
+generated 64338..65881 <- __convenience_const
+generated 66023..66382 <- Debug
+generated 66382..66613 <- Clone
+generated 66613..66851 <- PartialEq
+generated 66851..67338 <- Hash
+generated 67338..69892 <- Encode
+generated 69892..76447 <- Decode
+generated 76447..78251 <- __convenience_const
+generated 78418..78542 <- Debug
+generated 78542..78637 <- Clone
+generated 78637..78773 <- PartialEq
+generated 78773..78885 <- Hash
+generated 78885..79026 <- PartialOrd
+generated 79026..79153 <- Ord
+generated 79153..79237 <- Default
+generated 79237..80633 <- Encode
+generated 80633..82489 <- Decode
+generated 82489..83694 <- __convenience_const
+generated 83845..83984 <- Debug
+generated 83984..84094 <- Clone
+generated 84094..84245 <- PartialEq
+generated 84245..84367 <- Hash
+generated 84367..84460 <- Default
+generated 84460..85881 <- Encode
+generated 85881..88746 <- Decode
+generated 88746..89874 <- __convenience_const
+generated 89982..90120 <- Debug
+generated 90120..90237 <- Clone
+generated 90237..90393 <- PartialEq
+generated 90393..90505 <- Hash
+generated 90505..92289 <- Encode
+generated 92289..96482 <- Decode
+generated 96482..97393 <- __convenience_const
+generated 97506..97644 <- Debug
+generated 97644..97761 <- Clone
+generated 97761..97917 <- PartialEq
+generated 97917..98029 <- Hash
+generated 98029..99813 <- Encode
+generated 99813..104016 <- Decode
+generated 104016..104927 <- __convenience_const
+generated 105020..105132 <- Debug
+generated 105132..105235 <- Clone
+generated 105235..105379 <- PartialEq
+generated 105379..105476 <- Hash
+generated 105476..106474 <- Encode
+generated 106474..109193 <- Decode
+generated 109193..110020 <- __convenience_const
+generated 110126..110270 <- Debug
+generated 110270..110393 <- Clone
+generated 110393..110555 <- PartialEq
+generated 110555..110671 <- Hash
+generated 110671..112077 <- Encode
+generated 112077..114929 <- Decode
+generated 114929..115882 <- __convenience_const
+generated 115993..116128 <- Debug
+generated 116128..116242 <- Clone
+generated 116242..116395 <- PartialEq
+generated 116395..116505 <- Hash
+generated 116505..118546 <- Encode
+generated 118546..123335 <- Decode
+generated 123335..124225 <- __convenience_const
+generated 124484..124616 <- Debug
+generated 124616..124727 <- Clone
+generated 124727..124877 <- PartialEq
+generated 124877..124985 <- Hash
+generated 124985..127370 <- Encode
+generated 127370..131448 <- Decode
+generated 131448..132559 <- __convenience_const
+generated 132720..132858 <- Debug
+generated 132858..132975 <- Clone
+generated 132975..133131 <- PartialEq
+generated 133131..133243 <- Hash
+generated 133243..135292 <- Encode
+generated 135292..138889 <- Decode
+generated 138889..139800 <- __convenience_const
+generated 139954..140092 <- Debug
+generated 140092..140209 <- Clone
+generated 140209..140365 <- PartialEq
+generated 140365..140477 <- Hash
+generated 140477..142513 <- Encode
+generated 142513..146618 <- Decode
+generated 146618..147529 <- __convenience_const
+generated 147684..147822 <- Debug
+generated 147822..147939 <- Clone
+generated 147939..148095 <- PartialEq
+generated 148095..148207 <- Hash
+generated 148207..150232 <- Encode
+generated 150232..153300 <- Decode
+generated 153300..154211 <- __convenience_const
+generated 154363..154489 <- Debug
+generated 154489..154594 <- Clone
+generated 154594..154738 <- PartialEq
+generated 154738..154842 <- Hash
+generated 154842..156876 <- Encode
+generated 156876..162490 <- Decode
+generated 162490..163317 <- __convenience_const
+generated 163818..164868 <- Debug
+generated 164868..165568 <- Clone
+generated 165568..166450 <- PartialEq
+generated 166450..167773 <- Hash
+generated 167773..172260 <- Encode
+generated 172260..187949 <- Decode
+generated 187949..189405 <- __convenience_const
+generated 189799..190755 <- Debug
+generated 190755..191394 <- Clone
+generated 191394..192554 <- PartialEq
+generated 192554..193565 <- Hash
+generated 193565..193872 <- Default
+generated 193872..197774 <- Encode
+generated 197774..213524 <- Decode
+generated 213524..214991 <- __convenience_const
+generated 215184..215319 <- Debug
+generated 215319..215433 <- Clone
+generated 215433..215586 <- PartialEq
+generated 215586..215696 <- Hash
+generated 215696..217919 <- Encode
+generated 217919..221386 <- Decode
+generated 221386..222276 <- __convenience_const
+generated 222470..222599 <- Debug
+generated 222599..222707 <- Clone
+generated 222707..222854 <- PartialEq
+generated 222854..222960 <- Hash
+generated 222960..225039 <- Encode
+generated 225039..228403 <- Decode
+generated 228403..229251 <- __convenience_const
+generated 229315..230047 <- Encode
+generated 230047..231876 <- Decode
+generated 231876..232411 <- __convenience_const
+generated 232666..233204 <- Debug
+generated 233204..233556 <- Clone
+generated 233556..233925 <- PartialEq
+generated 233925..234418 <- Hash
+generated 234418..237244 <- Encode
+generated 237244..247139 <- Decode
+generated 247139..248537 <- __convenience_const
+generated 248626..248726 <- Default
+generated 248726..249722 <- Encode
+generated 249722..252728 <- Decode
+generated 252728..253387 <- __convenience_const
+generated 253476..253592 <- Default
+generated 253592..254571 <- Encode
+generated 254571..257574 <- Decode
+generated 257574..258263 <- __convenience_const
+generated 258371..258489 <- Default
+generated 258489..260966 <- Encode
+generated 260966..267544 <- Decode
+generated 267544..268703 <- __convenience_const
 
 ## Metadata
 
-interface AliasOperators: {"body_span":{"end":3610,"start":3205},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":3172,"start":3111}}],"fields":[{"decorators":[],"name":"indexed","optional":false,"readonly":false,"span":{"end":3235,"start":3211},"ts_type":"EdgeItem['id']"},{"decorators":[],"name":"keys","optional":false,"readonly":false,"span":{"end":3261,"start":3240},"ts_type":"keyof EdgeItem"},{"decorators":[],"name":"template","optional":false,"readonly":false,"span":{"end":3293,"start":3266},"ts_type":"`item-${number}`"},{"decorators":[],"name":"literal","optional":false,"readonly":false,"span":{"end":3315,"start":3298},"ts_type":"'fixed'"},{"decorators":[],"name":"truth","optional":false,"readonly":false,"span":{"end":3332,"start":3320},"ts_type":"true"},{"decorators":[],"name":"zero","optional":false,"readonly":false,"span":{"end":3345,"start":3337},"ts_type":"0"},{"decorators":[],"name":"anything","optional":false,"readonly":false,"span":{"end":3368,"start":3350},"ts_type":"unknown"},{"decorators":[],"name":"structure","optional":false,"readonly":false,"span":{"end":3391,"start":3373},"ts_type":"object"},{"decorators":[],"name":"required","optional":false,"readonly":false,"span":{"end":3428,"start":3396},"ts_type":"Required<AliasObject>"},{"decorators":[],"name":"readonlyItem","optional":false,"readonly":false,"span":{"end":3466,"start":3433},"ts_type":"Readonly<EdgeItem>"},{"decorators":[],"name":"nonNull","optional":false,"readonly":false,"span":{"end":3509,"start":3471},"ts_type":"NonNullable<EdgeItem | null>"},{"decorators":[],"name":"inline","optional":false,"readonly":false,"span":{"end":3574,"start":3514},"ts_type":"{ x: number; nested: { at: Date; item: EdgeItem } }"},{"decorators":[],"name":"inlineList","optional":false,"readonly":false,"span":{"end":3608,"start":3579},"ts_type":"{ id: string }[]"}],"heritage":[],"methods":[],"name":"AliasOperators","span":{"end":3610,"start":3180},"type_params":[]}
-interface AliasHolder: {"body_span":{"end":4004,"start":3712},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":3682,"start":3612}}],"fields":[{"decorators":[],"name":"object","optional":false,"readonly":false,"span":{"end":3738,"start":3718},"ts_type":"AliasObject"},{"decorators":[],"name":"size","optional":false,"readonly":false,"span":{"end":3763,"start":3743},"ts_type":"AliasLiterals"},{"decorators":[],"name":"sizes","optional":false,"readonly":false,"span":{"end":3791,"start":3768},"ts_type":"AliasLiterals[]"},{"decorators":[],"name":"shape","optional":false,"readonly":false,"span":{"end":3822,"start":3796},"ts_type":"AliasTagged | null"},{"decorators":[],"name":"shapes","optional":false,"readonly":false,"span":{"end":3849,"start":3827},"ts_type":"AliasTagged[]"},{"decorators":[],"name":"tuple","optional":false,"readonly":false,"span":{"end":3879,"start":3854},"ts_type":"AliasTuple | null"},{"decorators":[{"args_src":"[]","name":"default","span":{"end":3903,"start":3884}}],"name":"list","optional":false,"readonly":false,"span":{"end":3925,"start":3908},"ts_type":"AliasArray"},{"decorators":[{"args_src":"{}","name":"default","span":{"end":3949,"start":3930}}],"name":"table","optional":false,"readonly":false,"span":{"end":3973,"start":3954},"ts_type":"AliasRecord"},{"decorators":[],"name":"members","optional":false,"readonly":false,"span":{"end":4002,"start":3978},"ts_type":"AliasMembers[]"}],"heritage":[],"methods":[],"name":"AliasHolder","span":{"end":4004,"start":3690},"type_params":[]}
-type AliasObject: {"body":{"Object":{"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":433,"start":420},"ts_type":"string"},{"decorators":[],"name":"count","optional":false,"readonly":false,"span":{"end":452,"start":438},"ts_type":"number"},{"decorators":[],"name":"at","optional":true,"readonly":false,"span":{"end":467,"start":457},"ts_type":"Date"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":387,"start":296}}],"name":"AliasObject","span":{"end":470,"start":395},"type_params":[]}
+interface AliasOperators: {"body_span":{"end":3610,"start":3205},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":3172,"start":3111}}],"fields":[{"decorators":[],"key":"Named","name":"indexed","optional":false,"readonly":false,"span":{"end":3235,"start":3211},"ts_type":"EdgeItem['id']"},{"decorators":[],"key":"Named","name":"keys","optional":false,"readonly":false,"span":{"end":3261,"start":3240},"ts_type":"keyof EdgeItem"},{"decorators":[],"key":"Named","name":"template","optional":false,"readonly":false,"span":{"end":3293,"start":3266},"ts_type":"`item-${number}`"},{"decorators":[],"key":"Named","name":"literal","optional":false,"readonly":false,"span":{"end":3315,"start":3298},"ts_type":"'fixed'"},{"decorators":[],"key":"Named","name":"truth","optional":false,"readonly":false,"span":{"end":3332,"start":3320},"ts_type":"true"},{"decorators":[],"key":"Named","name":"zero","optional":false,"readonly":false,"span":{"end":3345,"start":3337},"ts_type":"0"},{"decorators":[],"key":"Named","name":"anything","optional":false,"readonly":false,"span":{"end":3368,"start":3350},"ts_type":"unknown"},{"decorators":[],"key":"Named","name":"structure","optional":false,"readonly":false,"span":{"end":3391,"start":3373},"ts_type":"object"},{"decorators":[],"key":"Named","name":"required","optional":false,"readonly":false,"span":{"end":3428,"start":3396},"ts_type":"Required<AliasObject>"},{"decorators":[],"key":"Named","name":"readonlyItem","optional":false,"readonly":false,"span":{"end":3466,"start":3433},"ts_type":"Readonly<EdgeItem>"},{"decorators":[],"key":"Named","name":"nonNull","optional":false,"readonly":false,"span":{"end":3509,"start":3471},"ts_type":"NonNullable<EdgeItem | null>"},{"decorators":[],"key":"Named","name":"inline","optional":false,"readonly":false,"span":{"end":3574,"start":3514},"ts_type":"{ x: number; nested: { at: Date; item: EdgeItem } }"},{"decorators":[],"key":"Named","name":"inlineList","optional":false,"readonly":false,"span":{"end":3608,"start":3579},"ts_type":"{ id: string }[]"}],"heritage":[],"methods":[],"name":"AliasOperators","span":{"end":3610,"start":3180},"type_params":[]}
+interface AliasHolder: {"body_span":{"end":4004,"start":3712},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":3682,"start":3612}}],"fields":[{"decorators":[],"key":"Named","name":"object","optional":false,"readonly":false,"span":{"end":3738,"start":3718},"ts_type":"AliasObject"},{"decorators":[],"key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":3763,"start":3743},"ts_type":"AliasLiterals"},{"decorators":[],"key":"Named","name":"sizes","optional":false,"readonly":false,"span":{"end":3791,"start":3768},"ts_type":"AliasLiterals[]"},{"decorators":[],"key":"Named","name":"shape","optional":false,"readonly":false,"span":{"end":3822,"start":3796},"ts_type":"AliasTagged | null"},{"decorators":[],"key":"Named","name":"shapes","optional":false,"readonly":false,"span":{"end":3849,"start":3827},"ts_type":"AliasTagged[]"},{"decorators":[],"key":"Named","name":"tuple","optional":false,"readonly":false,"span":{"end":3879,"start":3854},"ts_type":"AliasTuple | null"},{"decorators":[{"args_src":"[]","name":"default","span":{"end":3903,"start":3884}}],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":3925,"start":3908},"ts_type":"AliasArray"},{"decorators":[{"args_src":"{}","name":"default","span":{"end":3949,"start":3930}}],"key":"Named","name":"table","optional":false,"readonly":false,"span":{"end":3973,"start":3954},"ts_type":"AliasRecord"},{"decorators":[],"key":"Named","name":"members","optional":false,"readonly":false,"span":{"end":4002,"start":3978},"ts_type":"AliasMembers[]"}],"heritage":[],"methods":[],"name":"AliasHolder","span":{"end":4004,"start":3690},"type_params":[]}
+interface AliasCarried: {"body_span":{"end":4710,"start":4549},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":4518,"start":4457}}],"fields":[{"decorators":[],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":4579,"start":4555},"ts_type":"string | string[]"},{"decorators":[],"key":"Named","name":"size","optional":false,"readonly":false,"span":{"end":4613,"start":4584},"ts_type":"number | 'auto' | null"},{"decorators":[],"key":"Named","name":"when","optional":false,"readonly":false,"span":{"end":4638,"start":4618},"ts_type":"Date | string"},{"decorators":[],"key":"Named","name":"lookup","optional":false,"readonly":false,"span":{"end":4685,"start":4643},"ts_type":"Record<string, number> | number[]"},{"decorators":[],"key":"Named","name":"anything","optional":false,"readonly":false,"span":{"end":4708,"start":4690},"ts_type":"unknown"}],"heritage":[],"methods":[],"name":"AliasCarried","span":{"end":4710,"start":4526},"type_params":[]}
+type AliasObject: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":433,"start":420},"ts_type":"string"},{"decorators":[],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":452,"start":438},"ts_type":"number"},{"decorators":[],"key":"Named","name":"at","optional":true,"readonly":false,"span":{"end":467,"start":457},"ts_type":"Date"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":387,"start":296}}],"name":"AliasObject","span":{"end":470,"start":395},"type_params":[]}
 type AliasTuple: {"body":{"Tuple":["EdgeItem","Date","string | null"]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":533,"start":472}}],"name":"AliasTuple","span":{"end":591,"start":541},"type_params":[]}
 type AliasArray: {"body":{"Alias":"EdgeItem[]"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":654,"start":593}}],"name":"AliasArray","span":{"end":691,"start":662},"type_params":[]}
 type AliasDates: {"body":{"Alias":"Date[]"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":754,"start":693}}],"name":"AliasDates","span":{"end":787,"start":762},"type_params":[]}
 type AliasRecord: {"body":{"Alias":"Record<string, EdgeItem>"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":850,"start":789}}],"name":"AliasRecord","span":{"end":902,"start":858},"type_params":[]}
 type AliasMap: {"body":{"Alias":"Map<string, EdgeItem>"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":965,"start":904}}],"name":"AliasMap","span":{"end":1011,"start":973},"type_params":[]}
 type AliasSet: {"body":{"Alias":"Set<EdgeItem>"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1074,"start":1013}}],"name":"AliasSet","span":{"end":1112,"start":1082},"type_params":[]}
-type AliasIntersection: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"extra","optional":false,"readonly":false,"span":{"end":1234,"start":1221},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1175,"start":1114}}],"name":"AliasIntersection","span":{"end":1237,"start":1183},"type_params":[]}
-type AliasIntersectionOfObjects: {"body":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"left","optional":false,"readonly":false,"span":{"end":1356,"start":1344},"ts_type":"string"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"right","optional":false,"readonly":false,"span":{"end":1376,"start":1363},"ts_type":"number"}]}}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1300,"start":1239}}],"name":"AliasIntersectionOfObjects","span":{"end":1379,"start":1308},"type_params":[]}
+type AliasIntersection: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"extra","optional":false,"readonly":false,"span":{"end":1234,"start":1221},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1175,"start":1114}}],"name":"AliasIntersection","span":{"end":1237,"start":1183},"type_params":[]}
+type AliasIntersectionOfObjects: {"body":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"left","optional":false,"readonly":false,"span":{"end":1356,"start":1344},"ts_type":"string"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"right","optional":false,"readonly":false,"span":{"end":1376,"start":1363},"ts_type":"number"}]}}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1300,"start":1239}}],"name":"AliasIntersectionOfObjects","span":{"end":1379,"start":1308},"type_params":[]}
 type AliasLiterals: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":1516,"start":1501}}],"kind":{"Literal":"'small'"}},{"decorators":[],"kind":{"Literal":"'medium'"}},{"decorators":[],"kind":{"Literal":"'large'"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1472,"start":1381}}],"name":"AliasLiterals","span":{"end":1546,"start":1480},"type_params":[]}
 type AliasMixedLiterals: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":1667,"start":1652}}],"kind":{"Literal":"'auto'"}},{"decorators":[],"kind":{"Literal":"0"}},{"decorators":[],"kind":{"Literal":"1"}},{"decorators":[],"kind":{"Literal":"true"}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1618,"start":1548}}],"name":"AliasMixedLiterals","span":{"end":1697,"start":1626},"type_params":[]}
 type AliasNullable: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1760,"start":1699}}],"name":"AliasNullable","span":{"end":1805,"start":1768},"type_params":[]}
@@ -6345,11 +8005,17 @@ type AliasOptional: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"EdgeIt
 type AliasDate: {"body":{"Alias":"Date"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1981,"start":1920}}],"name":"AliasDate","span":{"end":2011,"start":1989},"type_params":[]}
 type AliasDateOrNull: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"Date"}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2074,"start":2013}}],"name":"AliasDateOrNull","span":{"end":2117,"start":2082},"type_params":[]}
 type AliasMembers: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"EdgeCard"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2180,"start":2119}}],"name":"AliasMembers","span":{"end":2228,"start":2188},"type_params":[]}
-type AliasTagged: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":2372,"start":2357},"ts_type":"'circle'"},{"decorators":[],"name":"radius","optional":false,"readonly":false,"span":{"end":2387,"start":2373},"ts_type":"number"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":2413,"start":2398},"ts_type":"'square'"},{"decorators":[],"name":"side","optional":false,"readonly":false,"span":{"end":2427,"start":2414},"ts_type":"number"},{"decorators":[],"name":"at","optional":false,"readonly":false,"span":{"end":2436,"start":2428},"ts_type":"Date"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":2461,"start":2447},"ts_type":"'group'"},{"decorators":[],"name":"members","optional":false,"readonly":false,"span":{"end":2484,"start":2462},"ts_type":"AliasTagged[]"}]}}}]},"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":2322,"start":2292}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2291,"start":2230}}],"name":"AliasTagged","span":{"end":2487,"start":2330},"type_params":[]}
+type AliasTagged: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2372,"start":2357},"ts_type":"'circle'"},{"decorators":[],"key":"Named","name":"radius","optional":false,"readonly":false,"span":{"end":2387,"start":2373},"ts_type":"number"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2413,"start":2398},"ts_type":"'square'"},{"decorators":[],"key":"Named","name":"side","optional":false,"readonly":false,"span":{"end":2427,"start":2414},"ts_type":"number"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":2436,"start":2428},"ts_type":"Date"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2461,"start":2447},"ts_type":"'group'"},{"decorators":[],"key":"Named","name":"members","optional":false,"readonly":false,"span":{"end":2484,"start":2462},"ts_type":"AliasTagged[]"}]}}}]},"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":2322,"start":2292}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2291,"start":2230}}],"name":"AliasTagged","span":{"end":2487,"start":2330},"type_params":[]}
 type AliasAdjacent: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"EdgeCard"}}]},"decorators":[{"args_src":"{ tag: \"type\", content: \"value\" }","name":"endec","span":{"end":2599,"start":2551}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2550,"start":2489}}],"name":"AliasAdjacent","span":{"end":2648,"start":2607},"type_params":[]}
 type AliasExternal: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"EdgeCard"}}]},"decorators":[{"args_src":"{ externallyTagged: true }","name":"endec","span":{"end":2753,"start":2712}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2711,"start":2650}}],"name":"AliasExternal","span":{"end":2802,"start":2761},"type_params":[]}
 type AliasUntagged: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"EdgeCard"}},{"decorators":[],"kind":{"TypeRef":"string"}}]},"decorators":[{"args_src":"{ untagged: true }","name":"endec","span":{"end":2899,"start":2866}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2865,"start":2804}}],"name":"AliasUntagged","span":{"end":2957,"start":2907},"type_params":[]}
 type AliasDeep: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"TypeRef":"boolean"}},{"decorators":[],"kind":{"TypeRef":"null"}},{"decorators":[],"kind":{"TypeRef":"EdgeItem"}},{"decorators":[],"kind":{"TypeRef":"AliasArray"}},{"decorators":[],"kind":{"TypeRef":"Date"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":3020,"start":2959}}],"name":"AliasDeep","span":{"end":3109,"start":3028},"type_params":[]}
+type AliasOutcome: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"ok","optional":false,"readonly":false,"span":{"end":4112,"start":4103},"ts_type":"true"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":4122,"start":4113},"ts_type":"Date"},{"decorators":[],"key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":4140,"start":4123},"ts_type":"Set<string>"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"ok","optional":false,"readonly":false,"span":{"end":4161,"start":4151},"ts_type":"false"},{"decorators":[],"key":"Named","name":"reason","optional":false,"readonly":false,"span":{"end":4177,"start":4162},"ts_type":"string"},{"decorators":[],"key":"Named","name":"retries","optional":true,"readonly":false,"span":{"end":4194,"start":4178},"ts_type":"number"}]}}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":4067,"start":4006}}],"name":"AliasOutcome","span":{"end":4197,"start":4075},"type_params":[]}
+type AliasLoose: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":4332,"start":4322},"ts_type":"'a'"},{"decorators":[],"key":"Named","name":"when","optional":false,"readonly":false,"span":{"end":4343,"start":4333},"ts_type":"Date"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":4360,"start":4350},"ts_type":"'b'"},{"decorators":[],"key":"Named","name":"counts","optional":false,"readonly":false,"span":{"end":4388,"start":4361},"ts_type":"Map<string, number>"}]}}}]},"decorators":[{"args_src":"{ untagged: true }","name":"endec","span":{"end":4294,"start":4261}},{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":4260,"start":4199}}],"name":"AliasLoose","span":{"end":4391,"start":4302},"type_params":[]}
+type AliasName: {"body":{"Alias":"string"},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":4423,"start":4393}}],"name":"AliasName","span":{"end":4455,"start":4431},"type_params":[]}
+type AliasPicked: {"body":{"Alias":"Pick<EdgeItem, 'id'>"},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":4751,"start":4712}}],"name":"AliasPicked","span":{"end":4799,"start":4759},"type_params":[]}
+type AliasRequired: {"body":{"Alias":"Required<EdgeItem>"},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":4840,"start":4801}}],"name":"AliasRequired","span":{"end":4888,"start":4848},"type_params":[]}
+type AliasInline: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":4968,"start":4958},"ts_type":"number"},{"decorators":[],"key":"Named","name":"label","optional":true,"readonly":false,"span":{"end":4984,"start":4969},"ts_type":"string"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":4993,"start":4985},"ts_type":"Date"}]}},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":4929,"start":4890}}],"name":"AliasInline","span":{"end":4996,"start":4937},"type_params":[]}
 
 ## Registry reads
 
@@ -6362,21 +8028,28 @@ Name("AliasDateOrNull")
 Name("AliasDates")
 Name("AliasDeep")
 Name("AliasExternal")
+Name("AliasInline")
 Name("AliasIntersection")
 Name("AliasIntersectionOfObjects")
 Name("AliasLiterals")
+Name("AliasLoose")
 Name("AliasMap")
 Name("AliasMembers")
 Name("AliasMixedLiterals")
+Name("AliasName")
 Name("AliasNullable")
 Name("AliasObject")
 Name("AliasOptional")
+Name("AliasOutcome")
+Name("AliasPicked")
 Name("AliasRecord")
+Name("AliasRequired")
 Name("AliasSet")
 Name("AliasTagged")
 Name("AliasTuple")
 Name("AliasUntagged")
 Name("Date")
+Name("Date | string")
 Name("Date[]")
 Name("EdgeCard")
 Name("EdgeItem")
@@ -6385,19 +8058,26 @@ Name("EdgeItem[]")
 Name("Map")
 Name("Map<string, EdgeItem>")
 Name("NonNullable")
+Name("Pick")
+Name("Pick<EdgeItem, 'id'>")
 Name("Readonly")
 Name("Record")
 Name("Record<string, EdgeItem>")
+Name("Record<string, number> | number")
 Name("Required")
+Name("Required<EdgeItem>")
 Name("Set")
 Name("Set<EdgeItem>")
 Name("`item-${number}`")
 Name("boolean")
+Name("false")
 Name("keyof EdgeItem")
 Name("null")
 Name("number")
+Name("number | 'auto'")
 Name("object")
 Name("string")
+Name("string | string")
 Name("true")
 Name("undefined")
 Name("unknown")

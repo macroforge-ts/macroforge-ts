@@ -10,6 +10,7 @@ import {
     svelteTestInstance
 } from '$lib/demo/all-macros-test';
 import { collectSvelteBuildtime } from '$lib/demo/buildtime-demo';
+import { RuneCounter } from '$lib/demo/rune-counter.svelte';
 
 const buildtimeResults = collectSvelteBuildtime();
 
@@ -25,6 +26,10 @@ const derivedSummary = MacroUser.toString(derivedUser);
 const derivedUserJson = JSON.parse(MacroUser.encode(derivedUser));
 const derivedJsonPretty = JSON.stringify(derivedUserJson, null, 2);
 const showcaseJsonPretty = JSON.stringify(showcaseUserJson, null, 2);
+
+// A class of runes, read by the derives as its state changes.
+const counter = new RuneCounter();
+const untouchedCounter = new RuneCounter();
 
 // Test results state
 let testsComplete = $state(false);
@@ -70,6 +75,29 @@ function runAllMacroTests() {
             showcases the local
             <code>macroforge</code> transformer running inside Vite via
             <code>@macroforge/vite-plugin</code>.
+        </p>
+    </section>
+
+    <section data-testid="rune-counter">
+        <h2>Derives Over A Class Of Runes</h2>
+        <button onclick={() => counter.increment()} data-testid="rune-increment">
+            Increment
+        </button>
+        <p>
+            <code data-testid="rune-debug">{RuneCounter.toString(counter)}</code>
+        </p>
+        <p>
+            <code data-testid="rune-json">{RuneCounter.encode(counter)}</code>
+        </p>
+        <p>
+            Equal to an untouched counter:
+            <code data-testid="rune-equals">{RuneCounter.equals(counter, untouchedCounter)}</code>
+        </p>
+        <p>
+            Hashes like an untouched counter:
+            <code data-testid="rune-hash">
+                {RuneCounter.hashCode(counter) === RuneCounter.hashCode(untouchedCounter)}
+            </code>
         </p>
     </section>
 

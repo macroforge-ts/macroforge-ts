@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Untagged unions whose primitive arms carry their own validators.
@@ -24,7 +24,7 @@ export type Contact = /** @endec(email) */ string | number;
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function contactDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Contact } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, contactHasShape);
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = contactDecodeWithContext(data, ctx);
@@ -208,7 +208,7 @@ export function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("digits")) || (__fields.keeps("digits") && obj["digits"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("digits")) ? "digits" in obj : (__fields.keeps("digits") && obj["digits"] !== undefined)) {
         const __raw_digits = obj["digits"] as string;
 
         if (!(typeof __raw_digits === "string")) {
@@ -274,7 +274,7 @@ export type Reachable =
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function reachableDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Reachable } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, reachableHasShape);
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = reachableDecodeWithContext(data, ctx);
@@ -415,7 +415,7 @@ export type Fallback = 'none' | /** @endec(email) */ string;
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function fallbackDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Fallback } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, fallbackHasShape);
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = fallbackDecodeWithContext(data, ctx);
@@ -633,24 +633,24 @@ export declare const Fallback: {
 
 ## Mapping
 
-original 0..159 -> expanded 350..509
-original 159..230 -> expanded 3566..3637
-original 230..343 -> expanded 9499..9612
-original 343..428 -> expanded 14390..14475
-original 428..429 -> expanded 17754..17755
-generated 0..350 <- imports
-generated 509..3233 <- Decode
-generated 3233..3566 <- __convenience_const
-generated 3637..8866 <- Decode
-generated 8866..9499 <- __convenience_const
-generated 9612..14039 <- Decode
-generated 14039..14390 <- __convenience_const
-generated 14475..17412 <- Decode
-generated 17412..17754 <- __convenience_const
+original 0..159 -> expanded 383..542
+original 159..230 -> expanded 3634..3705
+original 230..343 -> expanded 9584..9697
+original 343..428 -> expanded 14512..14597
+original 428..429 -> expanded 17912..17913
+generated 0..383 <- imports
+generated 542..3301 <- Decode
+generated 3301..3634 <- __convenience_const
+generated 3705..8951 <- Decode
+generated 8951..9584 <- __convenience_const
+generated 9697..14161 <- Decode
+generated 14161..14512 <- __convenience_const
+generated 14597..17570 <- Decode
+generated 17570..17912 <- __convenience_const
 
 ## Metadata
 
-interface Phone: {"body_span":{"end":231,"start":208},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":184,"start":162}}],"fields":[{"decorators":[],"name":"digits","optional":false,"readonly":false,"span":{"end":229,"start":214},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Phone","span":{"end":231,"start":192},"type_params":[]}
+interface Phone: {"body_span":{"end":231,"start":208},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":184,"start":162}}],"fields":[{"decorators":[],"key":"Named","name":"digits","optional":false,"readonly":false,"span":{"end":229,"start":214},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Phone","span":{"end":231,"start":192},"type_params":[]}
 type Contact: {"body":{"Union":[{"decorators":[{"args_src":"email","name":"endec","span":{"end":143,"start":123}}],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"TypeRef":"number"}}]},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":100,"start":78}}],"name":"Contact","span":{"end":160,"start":108},"type_params":[]}
 type Reachable: {"body":{"Union":[{"decorators":[{"args_src":"nonEmpty, maxLength(32)","name":"endec","span":{"end":324,"start":286}}],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"TypeRef":"Phone"}}]},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":255,"start":233}}],"name":"Reachable","span":{"end":344,"start":263},"type_params":[]}
 type Fallback: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"'none'"}},{"decorators":[{"args_src":"email","name":"endec","span":{"end":421,"start":401}}],"kind":{"TypeRef":"string"}}]},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":368,"start":346}}],"name":"Fallback","span":{"end":429,"start":376},"type_params":[]}

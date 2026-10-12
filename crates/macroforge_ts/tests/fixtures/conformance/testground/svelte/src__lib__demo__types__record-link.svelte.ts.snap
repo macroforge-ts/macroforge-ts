@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import type { Encoder as __mf_Encoder, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 export type RecordLink<T> = /** @default */ string | T;
 
@@ -22,14 +22,14 @@ export function recordLinkDefaultValue<T>(): RecordLink<T> {
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export function recordLinkEncode<T>(value: RecordLink<T>, keepMetadata?: boolean): string {
+export function recordLinkEncode<T>(value: RecordLink<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string {
     const ctx = __mf_EncodeContext.create();
-    const __raw = recordLinkEncodeWithContext(value, ctx);
+    const __raw = recordLinkEncodeWithContext(value, ctx, __encodeT);
     return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export function recordLinkEncodeWithContext<T>(value: RecordLink<T>, ctx: __mf_EncodeContext): unknown {
+export function recordLinkEncodeWithContext<T>(value: RecordLink<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown {
     let __variant: unknown;
     let __matched = false;
     const __encoder = __mf_derivedEncoder(value);
@@ -44,18 +44,20 @@ export function recordLinkEncodeWithContext<T>(value: RecordLink<T>, ctx: __mf_E
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
 
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-export function recordLinkDecode<T>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: RecordLink<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+export function recordLinkDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: RecordLink<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = input;
+        const data = __mf_textOrValue(input, recordLinkHasShape);
 
         const ctx = __mf_DecodeContext.create();
-        const resultOrRef = recordLinkDecodeWithContext<T>(data, ctx);
+        const resultOrRef = recordLinkDecodeWithContext<T>(data, ctx, __decodeT);
 
         if (__mf_PendingRef.is(resultOrRef)) {
             return ({
@@ -102,7 +104,7 @@ export function recordLinkDecode<T>(input: unknown, opts?: __mf_DecodeOptions): 
     }
 }
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function recordLinkDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext): RecordLink<T> | __mf_PendingRef {
+export function recordLinkDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): RecordLink<T> | __mf_PendingRef {
     if (typeof value === "object" && value !== null && "__ref" in value) {
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "RecordLink.decodeWithContext: __ref must be a number" }]);
@@ -113,6 +115,9 @@ export function recordLinkDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeC
     
     if (typeof value === "string") {
         return value as RecordLink<T>;
+    }
+    if (__decodeT !== undefined && value !== null && value !== undefined) {
+        return __decodeT(value, ctx) as RecordLink<T> | __mf_PendingRef;
     }
     return value as RecordLink<T>;
 
@@ -152,11 +157,11 @@ export const RecordLink: {
 export type RecordLink<T> = string | T;
 export declare function recordLinkDefaultValue<T>(): RecordLink<T>;
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export declare function recordLinkEncode<T>(value: RecordLink<T>, keepMetadata?: boolean): string;
+export declare function recordLinkEncode<T>(value: RecordLink<T>, keepMetadata?: boolean, __encodeT?: __mf_Encoder<T>): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export declare function recordLinkEncodeWithContext<T>(value: RecordLink<T>, ctx: __mf_EncodeContext): unknown;
+export declare function recordLinkEncodeWithContext<T>(value: RecordLink<T>, ctx: __mf_EncodeContext, __encodeT?: __mf_Encoder<T>): unknown;
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-export declare function recordLinkDecode<T>(input: unknown, opts?: __mf_DecodeOptions): {
+export declare function recordLinkDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): {
 	success: true;
 	value: RecordLink<T>;
 } | {
@@ -167,7 +172,7 @@ export declare function recordLinkDecode<T>(input: unknown, opts?: __mf_DecodeOp
 	}>;
 };
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export declare function recordLinkDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext): RecordLink<T> | __mf_PendingRef;
+export declare function recordLinkDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): RecordLink<T> | __mf_PendingRef;
 export declare function recordLinkHasShape(value: unknown): boolean;
 export declare function recordLinkIs<T>(value: unknown): value is RecordLink<T>;
 export declare const RecordLink: {
@@ -186,13 +191,13 @@ export declare const RecordLink: {
 
 ## Mapping
 
-original 39..95 -> expanded 397..453
-original 95..96 -> expanded 4941..4942
-generated 0..397 <- imports
-generated 453..532 <- Default
-generated 532..1810 <- Encode
-generated 1810..4297 <- Decode
-generated 4297..4941 <- __convenience_const
+original 39..95 -> expanded 509..565
+original 95..96 -> expanded 5499..5500
+generated 0..509 <- imports
+generated 565..644 <- Default
+generated 644..2106 <- Encode
+generated 2106..4855 <- Decode
+generated 4855..5499 <- __convenience_const
 
 ## Metadata
 

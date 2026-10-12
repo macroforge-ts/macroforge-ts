@@ -12,8 +12,10 @@ true
 
 ## Output
 
+import { productDecodeWithContext, productEncodeWithContext } from "./product.svelte";
 import { recordLinkDecodeWithContext, recordLinkHasShape, recordLinkEncodeWithContext, recordLinkDefaultValue } from "./record-link.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { serviceDecodeWithContext, serviceEncodeWithContext } from "./service.svelte";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -49,10 +51,10 @@ export function itemEncodeWithContext(value: Item, ctx: __mf_EncodeContext): unk
     }
     if (!__matched && value !== null && typeof value === "object") {
         const __refTag = (value as any)["__type"];
-        if (!__matched && __refTag === "RecordLink") { __variant = recordLinkEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && __refTag === "RecordLink") { __variant = recordLinkEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && recordLinkHasShape(value)) { __variant = recordLinkEncodeWithContext(value as any, ctx); __matched = true; }
-        if (!__matched && recordLinkHasShape(value)) { __variant = recordLinkEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "RecordLink") { __variant = ((__member: RecordLink<Product>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Product>(__member, ctx, (__arg0) => productEncodeWithContext(__arg0, ctx)))(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "RecordLink") { __variant = ((__member: RecordLink<Service>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Service>(__member, ctx, (__arg0) => serviceEncodeWithContext(__arg0, ctx)))(value as any, ctx); __matched = true; }
+        if (!__matched && recordLinkHasShape(value)) { __variant = ((__member: RecordLink<Product>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Product>(__member, ctx, (__arg0) => productEncodeWithContext(__arg0, ctx)))(value as any, ctx); __matched = true; }
+        if (!__matched && recordLinkHasShape(value)) { __variant = ((__member: RecordLink<Service>, ctx: __mf_EncodeContext) => recordLinkEncodeWithContext<Service>(__member, ctx, (__arg0) => serviceEncodeWithContext(__arg0, ctx)))(value as any, ctx); __matched = true; }
     }
     
     if (!__matched) {
@@ -61,7 +63,9 @@ export function itemEncodeWithContext(value: Item, ctx: __mf_EncodeContext): unk
 
     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
         const { __type: __typeName, ...fields } = __variant as any;
-        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
     }
     return __variant;
 }
@@ -133,10 +137,10 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
         const __typeName = (value as any)["__type"];
         if (typeof __typeName === "string") {
             if (__typeName === "RecordLink<Product>") {
-                return recordLinkDecodeWithContext(value, ctx) as Item;
+                return ((__member: unknown, ctx: __mf_DecodeContext) => recordLinkDecodeWithContext<Product>(__member, ctx, (__raw0) => productDecodeWithContext(__raw0, ctx)))(value, ctx) as Item;
             }
             if (__typeName === "RecordLink<Service>") {
-                return recordLinkDecodeWithContext(value, ctx) as Item;
+                return ((__member: unknown, ctx: __mf_DecodeContext) => recordLinkDecodeWithContext<Service>(__member, ctx, (__raw0) => serviceDecodeWithContext(__raw0, ctx)))(value, ctx) as Item;
             }
 
             throw new __mf_DecodeError([{
@@ -152,22 +156,22 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
 
     if (__shapeMatches.length === 1) {
         if (__shapeMatches[0] === "RecordLink<Product>") {
-            return recordLinkDecodeWithContext(value, ctx) as Item;
+            return ((__member: unknown, ctx: __mf_DecodeContext) => recordLinkDecodeWithContext<Product>(__member, ctx, (__raw0) => productDecodeWithContext(__raw0, ctx)))(value, ctx) as Item;
         }
         if (__shapeMatches[0] === "RecordLink<Service>") {
-            return recordLinkDecodeWithContext(value, ctx) as Item;
+            return ((__member: unknown, ctx: __mf_DecodeContext) => recordLinkDecodeWithContext<Service>(__member, ctx, (__raw0) => serviceDecodeWithContext(__raw0, ctx)))(value, ctx) as Item;
         }
     }
 
     if (__shapeMatches.length > 1) {
         if (__shapeMatches.includes("RecordLink<Product>")) {
             try {
-                return recordLinkDecodeWithContext(value, ctx) as Item;
+                return ((__member: unknown, ctx: __mf_DecodeContext) => recordLinkDecodeWithContext<Product>(__member, ctx, (__raw0) => productDecodeWithContext(__raw0, ctx)))(value, ctx) as Item;
             } catch {                        }
         }
         if (__shapeMatches.includes("RecordLink<Service>")) {
             try {
-                return recordLinkDecodeWithContext(value, ctx) as Item;
+                return ((__member: unknown, ctx: __mf_DecodeContext) => recordLinkDecodeWithContext<Service>(__member, ctx, (__raw0) => serviceDecodeWithContext(__raw0, ctx)))(value, ctx) as Item;
             } catch {                        }
         }
 
@@ -448,15 +452,15 @@ export declare const Item: {
 
 ## Mapping
 
-original 0..213 -> expanded 697..910
-original 262..340 -> expanded 910..988
-original 340..341 -> expanded 12988..12989
-generated 0..697 <- imports
-generated 988..1049 <- Default
-generated 1049..2951 <- Encode
-generated 2951..7746 <- Decode
-generated 7746..12274 <- Gigaform
-generated 12274..12988 <- __convenience_const
+original 0..213 -> expanded 900..1113
+original 262..340 -> expanded 1113..1191
+original 340..341 -> expanded 14604..14605
+generated 0..900 <- imports
+generated 1191..1252 <- Default
+generated 1252..3817 <- Encode
+generated 3817..9362 <- Decode
+generated 9362..13890 <- Gigaform
+generated 13890..14604 <- __convenience_const
 
 ## Metadata
 

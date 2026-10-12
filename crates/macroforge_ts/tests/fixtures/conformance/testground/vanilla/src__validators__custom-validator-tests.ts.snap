@@ -127,7 +127,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("evenNumber")) || (__fields.keeps("evenNumber") && obj["evenNumber"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("evenNumber")) ? "evenNumber" in obj : (__fields.keeps("evenNumber") && obj["evenNumber"] !== undefined)) {
         const __raw_evenNumber = obj["evenNumber"] as number;
 
         if (!(typeof __raw_evenNumber === "number")) {
@@ -309,7 +309,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("username")) || (__fields.keeps("username") && obj["username"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("username")) ? "username" in obj : (__fields.keeps("username") && obj["username"] !== undefined)) {
         const __raw_username = obj["username"] as string;
 
         if (!(typeof __raw_username === "string")) {
@@ -492,7 +492,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("count")) || (__fields.keeps("count") && obj["count"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
         const __raw_count = obj["count"] as number;
 
         if (!(typeof __raw_count === "number")) {
@@ -673,7 +673,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("evenNumber")) || (__fields.keeps("evenNumber") && obj["evenNumber"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("evenNumber")) ? "evenNumber" in obj : (__fields.keeps("evenNumber") && obj["evenNumber"] !== undefined)) {
         const __raw_evenNumber = obj["evenNumber"] as number;
 
         if (!(typeof __raw_evenNumber === "number")) {
@@ -980,30 +980,30 @@ export declare function customWithMessageValidatorIs(value: unknown): value is C
 ## Mapping
 
 original 0..536 -> expanded 452..988
-original 536..537 -> expanded 7373..7374
-original 537..709 -> expanded 9351..9523
-original 709..710 -> expanded 15890..15891
-original 710..1016 -> expanded 17868..18174
-original 1016..1017 -> expanded 24569..24570
-original 1017..1206 -> expanded 26577..26766
-original 1206..1207 -> expanded 33125..33126
-original 1207..1208 -> expanded 35178..35179
+original 536..537 -> expanded 7394..7395
+original 537..709 -> expanded 9372..9544
+original 709..710 -> expanded 15930..15931
+original 710..1016 -> expanded 17908..18214
+original 1016..1017 -> expanded 24625..24626
+original 1017..1206 -> expanded 26633..26822
+original 1206..1207 -> expanded 33202..33203
+original 1207..1208 -> expanded 35255..35256
 generated 0..452 <- imports
-generated 988..7373 <- Decode
-generated 7374..9351 <- Decode
-generated 9523..15890 <- Decode
-generated 15891..17868 <- Decode
-generated 18174..24569 <- Decode
-generated 24570..26577 <- Decode
-generated 26766..33125 <- Decode
-generated 33126..35178 <- Decode
+generated 988..7394 <- Decode
+generated 7395..9372 <- Decode
+generated 9544..15930 <- Decode
+generated 15931..17908 <- Decode
+generated 18214..24625 <- Decode
+generated 24626..26633 <- Decode
+generated 26822..33202 <- Decode
+generated 33203..35255 <- Decode
 
 ## Metadata
 
-class CustomNumberValidator: {"body_span":{"end":538,"start":459},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":423,"start":401}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"custom(isEven)\"] }","name":"endec","span":{"end":512,"start":465}}],"initializer":null,"name":"evenNumber","optional":false,"readonly":false,"span":{"end":536,"start":517},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomNumberValidator","span":{"end":538,"start":431},"superclass":null,"type_params":[]}
-class CustomStringValidator: {"body_span":{"end":711,"start":625},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":589,"start":567}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"custom(isValidUsername)\"] }","name":"endec","span":{"end":687,"start":631}}],"initializer":null,"name":"username","optional":false,"readonly":false,"span":{"end":709,"start":692},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomStringValidator","span":{"end":711,"start":597},"superclass":null,"type_params":[]}
-class ImportedCustomValidator: {"body_span":{"end":1018,"start":886},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":848,"start":826}}],"fields":[{"decorators":[{"args_src":"{ validate: ['custom({ function: \"isMultipleOfThree\", source: \"./shared-validators\" })'] }","name":"endec","span":{"end":997,"start":892}}],"initializer":null,"name":"count","optional":false,"readonly":false,"span":{"end":1016,"start":1002},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ImportedCustomValidator","span":{"end":1018,"start":856},"superclass":null,"type_params":[]}
-class CustomWithMessageValidator: {"body_span":{"end":1208,"start":1083},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1042,"start":1020}}],"fields":[{"decorators":[{"args_src":"{ validate: [{ validate: \"custom(isEven)\", message: \"Number must be even\" }] }","name":"endec","span":{"end":1182,"start":1089}}],"initializer":null,"name":"evenNumber","optional":false,"readonly":false,"span":{"end":1206,"start":1187},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomWithMessageValidator","span":{"end":1208,"start":1050},"superclass":null,"type_params":[]}
+class CustomNumberValidator: {"body_span":{"end":538,"start":459},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":423,"start":401}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"custom(isEven)\"] }","name":"endec","span":{"end":512,"start":465}}],"initializer":null,"key":"Named","name":"evenNumber","optional":false,"readonly":false,"span":{"end":536,"start":517},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomNumberValidator","span":{"end":538,"start":431},"superclass":null,"type_params":[]}
+class CustomStringValidator: {"body_span":{"end":711,"start":625},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":589,"start":567}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"custom(isValidUsername)\"] }","name":"endec","span":{"end":687,"start":631}}],"initializer":null,"key":"Named","name":"username","optional":false,"readonly":false,"span":{"end":709,"start":692},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomStringValidator","span":{"end":711,"start":597},"superclass":null,"type_params":[]}
+class ImportedCustomValidator: {"body_span":{"end":1018,"start":886},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":848,"start":826}}],"fields":[{"decorators":[{"args_src":"{ validate: ['custom({ function: \"isMultipleOfThree\", source: \"./shared-validators\" })'] }","name":"endec","span":{"end":997,"start":892}}],"initializer":null,"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":1016,"start":1002},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ImportedCustomValidator","span":{"end":1018,"start":856},"superclass":null,"type_params":[]}
+class CustomWithMessageValidator: {"body_span":{"end":1208,"start":1083},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1042,"start":1020}}],"fields":[{"decorators":[{"args_src":"{ validate: [{ validate: \"custom(isEven)\", message: \"Number must be even\" }] }","name":"endec","span":{"end":1182,"start":1089}}],"initializer":null,"key":"Named","name":"evenNumber","optional":false,"readonly":false,"span":{"end":1206,"start":1187},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomWithMessageValidator","span":{"end":1208,"start":1050},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

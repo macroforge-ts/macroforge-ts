@@ -27,7 +27,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeDate as __mf_decodeDate, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeNumberKey as __mf_decodeNumberKey, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, decodeObject as __mf_decodeObject, decodeChecked as __mf_decodeChecked } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeDate as __mf_decodeDate, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeNumberKey as __mf_decodeNumberKey, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, decodeObject as __mf_decodeObject, decodeChecked as __mf_decodeChecked } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Item {
@@ -45,12 +45,9 @@ export function itemEncode(value: Item, keepMetadata?: boolean): string {
 export function itemEncodeWithContext(value: Item, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Item",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Item" });
     itemEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -158,7 +155,7 @@ export function itemDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -244,12 +241,9 @@ export function nestedEncode(value: Nested, keepMetadata?: boolean): string {
 export function nestedEncodeWithContext(value: Nested, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Nested",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Nested" });
     nestedEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -405,7 +399,7 @@ export function nestedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("grid")) || (__fields.keeps("grid") && obj["grid"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("grid")) ? "grid" in obj : (__fields.keeps("grid") && obj["grid"] !== undefined)) {
         const __raw_grid = obj["grid"] as Array<Array<string | Date>>;
         if (Array.isArray(__raw_grid)) {
             ctx.pushScope("grid");
@@ -429,7 +423,7 @@ export function nestedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
             errors.push({ field: "grid", message: __raw_grid == null ? "Nested.grid is required" : "expected Date[][]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("setsByName")) || (__fields.keeps("setsByName") && obj["setsByName"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("setsByName")) ? "setsByName" in obj : (__fields.keeps("setsByName") && obj["setsByName"] !== undefined)) {
         const __raw_setsByName = obj["setsByName"] as Record<string, Array<Item>>;
         if (typeof __raw_setsByName === "object" && __raw_setsByName !== null) {
             ctx.pushScope("setsByName");
@@ -453,7 +447,7 @@ export function nestedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
             errors.push({ field: "setsByName", message: __raw_setsByName == null ? "Nested.setsByName is required" : "expected Map<string, Set<Item>>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("byNumber")) || (__fields.keeps("byNumber") && obj["byNumber"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("byNumber")) ? "byNumber" in obj : (__fields.keeps("byNumber") && obj["byNumber"] !== undefined)) {
         const __raw_byNumber = obj["byNumber"] as Record<string, Item | null>;
         if (typeof __raw_byNumber === "object" && __raw_byNumber !== null) {
             ctx.pushScope("byNumber");
@@ -477,7 +471,7 @@ export function nestedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
             errors.push({ field: "byNumber", message: __raw_byNumber == null ? "Nested.byNumber is required" : "expected Map<number, Item | null>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("pairs")) || (__fields.keeps("pairs") && obj["pairs"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("pairs")) ? "pairs" in obj : (__fields.keeps("pairs") && obj["pairs"] !== undefined)) {
         const __raw_pairs = obj["pairs"] as [string, Item][];
         if (Array.isArray(__raw_pairs)) {
             ctx.pushScope("pairs");
@@ -501,7 +495,7 @@ export function nestedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
             errors.push({ field: "pairs", message: __raw_pairs == null ? "Nested.pairs is required" : "expected [string, Item][]" });
         }
     }
-    if ((__fields === undefined || __fields.requires("patches")) || (__fields.keeps("patches") && obj["patches"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("patches")) ? "patches" in obj : (__fields.keeps("patches") && obj["patches"] !== undefined)) {
         const __raw_patches = obj["patches"] as Array<Pick<Item, 'id'>>;
         if (Array.isArray(__raw_patches)) {
             ctx.pushScope("patches");
@@ -525,7 +519,7 @@ export function nestedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
             errors.push({ field: "patches", message: __raw_patches == null ? "Nested.patches is required" : "expected Array<Pick<Item, 'id'>>" });
         }
     }
-    if ((__fields === undefined || __fields.requires("inline")) || (__fields.keeps("inline") && obj["inline"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("inline")) ? "inline" in obj : (__fields.keeps("inline") && obj["inline"] !== undefined)) {
         const __raw_inline = obj["inline"] as { at: Date; item?: Item };
         if (typeof __raw_inline === "object" && __raw_inline !== null) {
             ctx.pushScope("inline");
@@ -549,7 +543,7 @@ export function nestedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
             errors.push({ field: "inline", message: __raw_inline == null ? "Nested.inline is required" : "expected { at: Date; item?: Item }" });
         }
     }
-    if ((__fields === undefined || __fields.requires("sizes")) || (__fields.keeps("sizes") && obj["sizes"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("sizes")) ? "sizes" in obj : (__fields.keeps("sizes") && obj["sizes"] !== undefined)) {
         const __raw_sizes = obj["sizes"] as ('small' | 'large')[];
         if (Array.isArray(__raw_sizes)) {
             ctx.pushScope("sizes");
@@ -719,22 +713,22 @@ export {};
 
 ## Mapping
 
-original 30..65 -> expanded 827..862
-original 65..67 -> expanded 8977..8979
-original 97..358 -> expanded 8979..9240
-original 358..359 -> expanded 28179..28180
-generated 0..827 <- imports
-generated 862..2934 <- Encode
-generated 2934..8070 <- Decode
-generated 8070..8977 <- __convenience_const
-generated 9240..12968 <- Encode
-generated 12968..27230 <- Decode
-generated 27230..28179 <- __convenience_const
+original 30..65 -> expanded 899..934
+original 65..67 -> expanded 9048..9050
+original 97..358 -> expanded 9050..9311
+original 358..359 -> expanded 28358..28359
+generated 0..899 <- imports
+generated 934..2992 <- Encode
+generated 2992..8141 <- Decode
+generated 8141..9048 <- __convenience_const
+generated 9311..13025 <- Encode
+generated 13025..27409 <- Decode
+generated 27409..28358 <- __convenience_const
 
 ## Metadata
 
-interface Item: {"body_span":{"end":66,"start":47},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":64,"start":53},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Item","span":{"end":66,"start":32},"type_params":[]}
-interface Nested: {"body_span":{"end":359,"start":116},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":98,"start":68}}],"fields":[{"decorators":[],"name":"grid","optional":false,"readonly":false,"span":{"end":137,"start":122},"ts_type":"Date[][]"},{"decorators":[],"name":"setsByName","optional":false,"readonly":false,"span":{"end":177,"start":142},"ts_type":"Map<string, Set<Item>>"},{"decorators":[],"name":"byNumber","optional":false,"readonly":false,"span":{"end":217,"start":182},"ts_type":"Map<number, Item | null>"},{"decorators":[],"name":"pairs","optional":false,"readonly":false,"span":{"end":246,"start":222},"ts_type":"[string, Item][]"},{"decorators":[],"name":"patches","optional":false,"readonly":false,"span":{"end":284,"start":251},"ts_type":"Array<Pick<Item, 'id'>>"},{"decorators":[],"name":"inline","optional":false,"readonly":false,"span":{"end":323,"start":289},"ts_type":"{ at: Date; item?: Item }"},{"decorators":[],"name":"sizes","optional":false,"readonly":false,"span":{"end":357,"start":328},"ts_type":"('small' | 'large')[]"}],"heritage":[],"methods":[],"name":"Nested","span":{"end":359,"start":99},"type_params":[]}
+interface Item: {"body_span":{"end":66,"start":47},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":64,"start":53},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Item","span":{"end":66,"start":32},"type_params":[]}
+interface Nested: {"body_span":{"end":359,"start":116},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":98,"start":68}}],"fields":[{"decorators":[],"key":"Named","name":"grid","optional":false,"readonly":false,"span":{"end":137,"start":122},"ts_type":"Date[][]"},{"decorators":[],"key":"Named","name":"setsByName","optional":false,"readonly":false,"span":{"end":177,"start":142},"ts_type":"Map<string, Set<Item>>"},{"decorators":[],"key":"Named","name":"byNumber","optional":false,"readonly":false,"span":{"end":217,"start":182},"ts_type":"Map<number, Item | null>"},{"decorators":[],"key":"Named","name":"pairs","optional":false,"readonly":false,"span":{"end":246,"start":222},"ts_type":"[string, Item][]"},{"decorators":[],"key":"Named","name":"patches","optional":false,"readonly":false,"span":{"end":284,"start":251},"ts_type":"Array<Pick<Item, 'id'>>"},{"decorators":[],"key":"Named","name":"inline","optional":false,"readonly":false,"span":{"end":323,"start":289},"ts_type":"{ at: Date; item?: Item }"},{"decorators":[],"key":"Named","name":"sizes","optional":false,"readonly":false,"span":{"end":357,"start":328},"ts_type":"('small' | 'large')[]"}],"heritage":[],"methods":[],"name":"Nested","span":{"end":359,"start":99},"type_params":[]}
 
 ## Registry reads
 

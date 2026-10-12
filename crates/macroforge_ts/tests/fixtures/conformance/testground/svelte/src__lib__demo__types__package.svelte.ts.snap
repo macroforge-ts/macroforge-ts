@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -45,12 +45,9 @@ export function packageEncode(value: Package, keepMetadata?: boolean): string {
 export function packageEncodeWithContext(value: Package, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "Package",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Package" });
     packageEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -166,7 +163,7 @@ export function packageDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("id")) || (__fields.keeps("id") && obj["id"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as string;
 
         if (!(typeof __raw_id === "string")) {
@@ -175,7 +172,7 @@ export function packageDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.id = __raw_id;
         }
     }
-    if ((__fields === undefined || __fields.requires("date")) || (__fields.keeps("date") && obj["date"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("date")) ? "date" in obj : (__fields.keeps("date") && obj["date"] !== undefined)) {
         const __raw_date = obj["date"] as string;
 
         if (!(typeof __raw_date === "string")) {
@@ -468,21 +465,21 @@ export declare const Package: {
 
 ## Mapping
 
-original 0..58 -> expanded 683..741
-original 107..139 -> expanded 741..773
-original 167..188 -> expanded 773..794
-original 233..253 -> expanded 794..814
-original 253..254 -> expanded 14494..14495
-generated 0..683 <- imports
-generated 814..920 <- Default
-generated 920..3191 <- Encode
-generated 3191..9024 <- Decode
-generated 9024..13255 <- Gigaform
-generated 13255..14494 <- __convenience_const
+original 0..58 -> expanded 755..813
+original 107..139 -> expanded 813..845
+original 167..188 -> expanded 845..866
+original 233..253 -> expanded 866..886
+original 253..254 -> expanded 14580..14581
+generated 0..755 <- imports
+generated 886..992 <- Default
+generated 992..3249 <- Encode
+generated 3249..9110 <- Decode
+generated 9110..13341 <- Gigaform
+generated 13341..14580 <- __convenience_const
 
 ## Metadata
 
-interface Package: {"body_span":{"end":254,"start":134},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":168,"start":140}}],"name":"id","optional":false,"readonly":false,"span":{"end":184,"start":173},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Date\" }","name":"dateTimeController","span":{"end":234,"start":189}}],"name":"date","optional":false,"readonly":false,"span":{"end":252,"start":239},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Package","span":{"end":254,"start":116},"type_params":[]}
+interface Package: {"body_span":{"end":254,"start":134},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":168,"start":140}}],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":184,"start":173},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Date\" }","name":"dateTimeController","span":{"end":234,"start":189}}],"key":"Named","name":"date","optional":false,"readonly":false,"span":{"end":252,"start":239},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Package","span":{"end":254,"start":116},"type_params":[]}
 
 ## Registry reads
 

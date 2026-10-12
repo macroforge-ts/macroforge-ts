@@ -19,7 +19,7 @@ true
 ## Output
 
 import { metadataDecodeWithContext, metadataEncodeWithContext, metadataDefaultValue } from "./metadata.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Metadata } from './metadata.svelte';
 
@@ -45,12 +45,9 @@ export function userEncode(value: User, keepMetadata?: boolean): string {
 export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
-        return { __ref: existingId };
+        return __mf_encodedReference(ctx, existingId);
     }
-    const result: Record<string, unknown> = {
-        "__type": "User",
-        __id: ctx.register(value),
-    };
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "User" });
     userEncodeFields(value, ctx, result, undefined);
     return result;
 }
@@ -158,7 +155,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     ctx.trackForFreeze(instance);
 
-    if ((__fields === undefined || __fields.requires("metadata")) || (__fields.keeps("metadata") && obj["metadata"] !== undefined)) {
+    if ((__fields === undefined || __fields.requires("metadata")) ? "metadata" in obj : (__fields.keeps("metadata") && obj["metadata"] !== undefined)) {
         const __raw_metadata = obj["metadata"] as Metadata;
 
         ctx.pushScope("metadata");
@@ -174,7 +171,8 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
                     });
                 }
             } else {
-                throw __e;
+
+                errors.push({ field: "metadata", message: __e instanceof Error ? __e.message : String(__e) });
             }
         } finally {
             ctx.popScope();
@@ -297,18 +295,18 @@ export declare const User: {
 
 ## Mapping
 
-original 0..47 -> expanded 636..683
-original 86..136 -> expanded 683..733
-original 136..137 -> expanded 9589..9590
-generated 0..636 <- imports
-generated 733..841 <- Default
-generated 841..2968 <- Encode
-generated 2968..8591 <- Decode
-generated 8591..9589 <- __convenience_const
+original 0..47 -> expanded 708..755
+original 86..136 -> expanded 755..805
+original 136..137 -> expanded 9751..9752
+generated 0..708 <- imports
+generated 805..913 <- Default
+generated 913..3026 <- Encode
+generated 3026..8753 <- Decode
+generated 8753..9751 <- __convenience_const
 
 ## Metadata
 
-interface User: {"body_span":{"end":137,"start":110},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":87,"start":48}}],"fields":[{"decorators":[],"name":"metadata","optional":false,"readonly":false,"span":{"end":135,"start":116},"ts_type":"Metadata"}],"heritage":[],"methods":[],"name":"User","span":{"end":137,"start":95},"type_params":[]}
+interface User: {"body_span":{"end":137,"start":110},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":87,"start":48}}],"fields":[{"decorators":[],"key":"Named","name":"metadata","optional":false,"readonly":false,"span":{"end":135,"start":116},"ts_type":"Metadata"}],"heritage":[],"methods":[],"name":"User","span":{"end":137,"start":95},"type_params":[]}
 
 ## Registry reads
 
