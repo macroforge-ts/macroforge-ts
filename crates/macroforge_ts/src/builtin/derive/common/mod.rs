@@ -43,6 +43,7 @@
 mod args;
 mod field_options;
 mod ordering;
+mod property;
 mod registry_helpers;
 mod type_names;
 mod type_utils;
@@ -53,20 +54,24 @@ mod tests;
 
 pub(crate) use args::find_named_value;
 pub use args::{
-    bigint_literal, extract_named_string, has_flag, js_string, parse_string_literal, regex_literal,
+    bigint_literal, extract_named_string, has_flag, js_string, js_string_text,
+    parse_string_literal, regex_literal,
 };
 pub use field_options::{CompareFieldOptions, DefaultFieldOptions};
 pub use ordering::{OrdField, Ordering, generate_field_order, generate_value_order};
+pub use property::{Member, is_identifier_name, local_name_part, property_key};
 pub use registry_helpers::{
-    collection_element_type, fields_from_definition, flatten_intersection_fields,
-    get_effective_fields, resolved_type_has_derive, standalone_fn_name, type_has_derive,
+    ClassUse, Declared, class_instance_fields, collection_element_type, derive_class_fields,
+    derive_interface_fields, fields_from_definition, flatten_intersection_fields,
+    get_effective_fields, interface_instance_fields, resolved_type_has_derive, standalone_fn_name,
+    type_has_derive,
 };
 pub(crate) use type_names::TypeNames;
 pub use type_utils::{
     EnumValueKinds, array_element_type, detect_primitive_encodable_union, get_type_default,
     get_type_default_with_registry, has_known_default, is_generic_type, is_nullable_type,
     is_numeric_type, is_primitive_type, parse_generic_type, primitive_compare_statements,
-    primitive_keyword_test, tuple_compare_statements, tuple_element,
+    primitive_keyword_test, tuple_body, tuple_compare_statements, tuple_element,
 };
 pub use value_type::{
     Builtin, ClassifiedType, ValueType, classify_value_type, derived_function, field_value_type,

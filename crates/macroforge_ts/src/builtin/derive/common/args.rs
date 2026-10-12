@@ -149,8 +149,13 @@ fn hex_char(digits: &str, len: usize) -> Option<char> {
 
 /// `text` as a double-quoted JavaScript string literal.
 pub fn js_string(text: &str) -> String {
-    let mut literal = String::with_capacity(text.len() + 2);
-    literal.push('"');
+    format!("\"{}\"", js_string_text(text))
+}
+
+/// `text` as it reads between the quotes of a double-quoted JavaScript
+/// string literal.
+pub fn js_string_text(text: &str) -> String {
+    let mut literal = String::with_capacity(text.len());
     for c in text.chars() {
         match c {
             '"' => literal.push_str("\\\""),
@@ -163,7 +168,6 @@ pub fn js_string(text: &str) -> String {
             c => literal.push(c),
         }
     }
-    literal.push('"');
     literal
 }
 

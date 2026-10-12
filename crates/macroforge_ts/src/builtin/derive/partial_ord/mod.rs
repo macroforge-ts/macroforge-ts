@@ -9,7 +9,7 @@
 //!
 //! | Type | Generated Code | Description |
 //! |------|----------------|-------------|
-//! | Class | `{className}PartialCompare(a, b)` + `static partialCompare(a, b)` | Standalone function + static wrapper method |
+//! | Class | `{className}PartialCompare(a, b)` + `static partialCompare(a, b)` | Static method + standalone function that runs it |
 //! | Enum | `{enumName}PartialCompare(a, b): number \| null` | Standalone function returning `number \| null` |
 //! | Interface | `{ifaceName}PartialCompare(a, b): number \| null` | Standalone function returning `number \| null` |
 //! | Type Alias | `{typeName}PartialCompare(a, b): number \| null` | Standalone function returning `number \| null` |
@@ -90,19 +90,19 @@
 //!     unit: string;
 //!
 //!     static partialCompare(a: Temperature, b: Temperature): number | null {
-//!         return temperaturePartialCompare(a, b);
+//!         if (a === b) return 0;
+//!         const cmp0 = a.value < b.value ? -1 : a.value > b.value ? 1 : a.value === b.value ? 0 : null;
+//!         if (cmp0 === null) return null;
+//!         if (cmp0 !== 0) return cmp0;
+//!         const cmp1 = a.unit < b.unit ? -1 : a.unit > b.unit ? 1 : 0;
+//!         if (cmp1 === null) return null;
+//!         if (cmp1 !== 0) return cmp1;
+//!         return 0;
 //!     }
 //! }
 //!
 //! export function temperaturePartialCompare(a: Temperature, b: Temperature): number | null {
-//!     if (a === b) return 0;
-//!     const cmp0 = a.value < b.value ? -1 : a.value > b.value ? 1 : a.value === b.value ? 0 : null;
-//!     if (cmp0 === null) return null;
-//!     if (cmp0 !== 0) return cmp0;
-//!     const cmp1 = a.unit < b.unit ? -1 : a.unit > b.unit ? 1 : 0;
-//!     if (cmp1 === null) return null;
-//!     if (cmp1 !== 0) return cmp1;
-//!     return 0;
+//!     return Temperature.partialCompare(a, b);
 //! }
 //! ```
 //!

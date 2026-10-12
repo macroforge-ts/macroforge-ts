@@ -6,6 +6,7 @@ use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
 use crate::ts_syn::ts_ident;
 
+use super::property::Member;
 use super::registry_helpers::collection_element_type;
 use super::value_type::{
     Builtin, ValueType, classify_value_type, derived_function, field_value_type, rendered,
@@ -36,8 +37,8 @@ pub fn generate_field_order(
     generate_value_order(
         ordering,
         &field_value_type(&field.ts_type, field.optional),
-        &rendered(ts_template! { @{self_var}.@{&field.name} }),
-        &rendered(ts_template! { @{other_var}.@{&field.name} }),
+        &rendered(ts_template! { @{self_var}@{Member::of(&field.name)} }),
+        &rendered(ts_template! { @{other_var}@{Member::of(&field.name)} }),
         resolved,
         registry,
     )

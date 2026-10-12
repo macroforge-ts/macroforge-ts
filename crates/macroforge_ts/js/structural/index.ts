@@ -254,14 +254,21 @@ function cloneWithin(value: unknown, seen: Map<object, unknown>): unknown {
 }
 
 /**
+ * A new object with `prototype` and `fields` as its own properties: an
+ * instance of the class whose prototype it is, made without running its
+ * constructor. `fields` is whatever the caller holds for the instance's
+ * fields, private ones included, which no type over the instance can name.
+ */
+export function instanceOf<T extends object>(prototype: T, fields: object): T {
+  return Object.assign(Object.create(prototype), fields);
+}
+
+/**
  * A new object with `value`'s prototype and `fields` as its own properties:
  * an instance of `value`'s class, made without running its constructor.
  */
-export function instanceWith<T extends object>(
-  value: T,
-  fields: { [Key in keyof T]?: T[Key] | undefined },
-): T {
-  return Object.assign(Object.create(Object.getPrototypeOf(value)), fields);
+export function instanceWith<T extends object>(value: T, fields: object): T {
+  return instanceOf(Object.getPrototypeOf(value), fields);
 }
 
 /**

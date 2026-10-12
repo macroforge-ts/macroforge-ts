@@ -8,7 +8,7 @@
 //!
 //! | Type | Generated Code | Description |
 //! |------|----------------|-------------|
-//! | Class | `classNameEquals(a, b)` + `static equals(a, b)` | Standalone function + static wrapper method |
+//! | Class | `classNameEquals(a, b)` + `static equals(a, b)` | Static method + standalone function that runs it |
 //! | Enum | `enumNameEquals(a: EnumName, b: EnumName): boolean` | Standalone function using strict equality |
 //! | Interface | `interfaceNameEquals(a: InterfaceName, b: InterfaceName): boolean` | Standalone function comparing fields |
 //! | Type Alias | `typeNameEquals(a: TypeName, b: TypeName): boolean` | Standalone function with type-appropriate comparison |
@@ -62,13 +62,13 @@
 //!     cachedScore: number;
 //!
 //!     static equals(a: User, b: User): boolean {
-//!         return userEquals(a, b);
+//!         if (a === b) return true;
+//!         return a.id === b.id && a.name === b.name;
 //!     }
 //! }
 //!
 //! export function userEquals(a: User, b: User): boolean {
-//!     if (a === b) return true;
-//!     return a.id === b.id && a.name === b.name;
+//!     return User.equals(a, b);
 //! }
 //! ```
 //!

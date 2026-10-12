@@ -1,5 +1,5 @@
 use crate::builtin::derive::common::{
-    Builtin, ValueType, classify_value_type, collection_element_type, derived_function,
+    Builtin, Member, ValueType, classify_value_type, collection_element_type, derived_function,
     field_value_type, rendered, structural_helper, tuple_element,
 };
 use crate::macros::ts_template;
@@ -60,8 +60,8 @@ pub fn generate_field_equality_for_interface(
 ) -> String {
     generate_value_equality(
         &field_value_type(&field.ts_type, field.optional),
-        &rendered(ts_template! { @{self_var}.@{&field.name} }),
-        &rendered(ts_template! { @{other_var}.@{&field.name} }),
+        &rendered(ts_template! { @{self_var}@{Member::of(&field.name)} }),
+        &rendered(ts_template! { @{other_var}@{Member::of(&field.name)} }),
         resolved,
         registry,
     )
@@ -111,6 +111,24 @@ fn value_equality(
     let classified = classify_value_type(ts_type, resolved);
     let element = || resolved.and_then(collection_element_type);
     let item = ts_ident!("__item{}", depth);
+    // A collection is compared inside a callback, where the type checker no
+    // longer knows a nullable one was found present. Its two values are
+    // handed to a function of their own, whose parameters are the present
+    // ones.
+    let present = (classified.nullable
+        && matches!(
+            classified.kind,
+            ValueType::Array(_)
+                | ValueType::Map { .. }
+                | ValueType::Set(_)
+                | ValueType::Builtin(Builtin::TypedArray)
+        ))
+    .then(|| (format!("__left{depth}"), format!("__right{depth}")));
+    let (nullable_left, nullable_right) = (left, right);
+    let (left, right) = match &present {
+        Some((present_left, present_right)) => (present_left.as_str(), present_right.as_str()),
+        None => (left, right),
+    };
     let equality = match classified.kind {
         // `===` and the structural helper already treat `null` and `undefined`.
         ValueType::Primitive(_) | ValueType::Opaque => {
@@ -163,12 +181,17 @@ fn value_equality(
         }
         ValueType::Builtin(builtin) => builtin_equality(builtin, left, right),
     };
-    if classified.nullable {
+    if !classified.nullable {
+        return equality;
+    }
+    if present.is_some() {
+        rendered(ts_template! {
+            (@{nullable_left} == null || @{nullable_right} == null ? @{nullable_left} === @{nullable_right} : ((@{left}, @{right}) => @{equality})(@{nullable_left}, @{nullable_right}))
+        })
+    } else {
         rendered(ts_template! {
             (@{left} == null || @{right} == null ? @{left} === @{right} : @{equality})
         })
-    } else {
-        equality
     }
 }
 

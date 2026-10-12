@@ -6,11 +6,23 @@
 //!
 //! ## Available Macros
 //!
-//! For **classes**, each macro generates a standalone function (e.g. `userClone`,
-//! `userEncode`) plus a static wrapper method on the class that delegates to it.
+//! For **classes**, each macro generates a static method on the class, where the
+//! code reaches the class's `private` and `protected` fields, plus a standalone
+//! function (e.g. `userClone`, `userEncode`) that runs it.
 //! **Enums, interfaces, and type aliases** get standalone functions only (e.g.
 //! `statusDefaultValue`, `pointEquals`), since methods cannot be attached to them.
 //! The tables below show the class-side static methods.
+//!
+//! A derive works over every field an instance holds. For a class that is its
+//! `private`, `protected` and `readonly` fields, its constructor parameter
+//! properties and, when the project was scanned, the fields of its
+//! superclasses; for an interface, those of the interfaces it extends. A field
+//! keyed by a string or a number, such as `'content-type'`, is a field like any
+//! other. What no derive can reach is an expansion error: a `#private` field,
+//! a `private` field of a superclass, a superclass or extended interface the
+//! project does not declare, and a generic one. `Clone`, `Default` and `Decode`
+//! build an instance without running its constructor, so they also reject a
+//! class with a field set up by a Svelte rune such as `$state`.
 //!
 //! ### Equality & Hashing
 //!

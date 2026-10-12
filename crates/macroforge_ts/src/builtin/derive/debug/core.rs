@@ -2,11 +2,12 @@ use convert_case::{Case, Casing};
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::{ClassUse, derive_class_fields, derive_interface_fields};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::ts_syn::ts_ident;
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
-use crate::builtin::derive::common::{is_primitive_union, structural_call};
+use crate::builtin::derive::common::{is_primitive_union, rendered, structural_call};
 
 use super::debug_generation::{debug_value_expr, push_statements};
 use super::types::DebugField;
@@ -23,12 +24,12 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
     match &input.data {
         Data::Class(class) => {
+            let class_fields = derive_class_fields(&input, class, "Debug", ClassUse::Reads)?;
             let class_name = input.name();
             let class_names = TypeNames::new(class_name, class.type_params());
             let class_ident = class_names.full_type_ident();
 
-            let debug_fields: Vec<DebugField> = class
-                .fields()
+            let debug_fields: Vec<DebugField> = class_fields
                 .iter()
                 .filter_map(|field| {
                     DebugField::shown(
@@ -40,43 +41,20 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 })
                 .collect();
 
-            // Generate function name (always prefix style)
-            let fn_name_ident = class_names.generic_function("ToString");
-            let fn_name_expr: Expr = ts_ident!(class_names.function("ToString")).into();
-
             let push_stmts = push_statements(&debug_fields, resolved_fields, type_registry);
-
-            // Generate standalone function with value parameter
-            let standalone = if debug_fields.is_empty() {
+            let body = if debug_fields.is_empty() {
                 ts_template! {
-                    export function @{fn_name_ident}(value: @{class_ident.clone()}): string {
-                        return "@{class_name} {}";
-                    }
+                    return "@{class_name} {}";
                 }
             } else {
                 ts_template! {
-                    export function @{fn_name_ident}(value: @{class_ident.clone()}): string {
-                        const parts: string[] = [];
-                        {$typescript TsStream::from_string(push_stmts)}
-                        return "@{class_name} { " + parts.join(", ") + " }";
-                    }
+                    const parts: string[] = [];
+                    {$typescript TsStream::from_string(push_stmts)}
+                    return "@{class_name} { " + parts.join(", ") + " }";
                 }
             };
-
-            // Generate static wrapper method that delegates to standalone function
-            let class_body = ts_template!(Within {
-                static @{class_names.generic_method("toString")}(value: @{class_ident.clone()}): string {
-                    return @{fn_name_expr}(value);
-                }
-            });
-
-            // Combine standalone function with class body using {$typescript}
-            // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
-            // The body! output has /* @macroforge:body */ marker for class body insertion
-            Ok(ts_template! {
-                {$typescript standalone}
-                {$typescript class_body}
-            })
+            let value = rendered(ts_template! { value: @{class_ident} });
+            Ok(class_names.class_function("toString", "ToString", &value, "value", "string", body))
         }
         Data::Enum(enum_data) => {
             let enum_name = input.name();
@@ -105,12 +83,12 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             })
         }
         Data::Interface(interface) => {
+            let interface_fields = derive_interface_fields(&input, interface, "Debug")?;
             let interface_name = input.name();
             let interface_names = TypeNames::new(input.name(), interface.type_params());
             let interface_ident = interface_names.full_type_ident();
 
-            let debug_fields: Vec<DebugField> = interface
-                .fields()
+            let debug_fields: Vec<DebugField> = interface_fields
                 .iter()
                 .filter_map(|field| {
                     DebugField::shown(

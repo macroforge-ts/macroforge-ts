@@ -2,6 +2,7 @@ use convert_case::{Case, Casing};
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::{ClassUse, derive_class_fields, derive_interface_fields};
 use crate::builtin::derive::common::{
     CompareFieldOptions, fixed_tuple, is_primitive_union, rendered, structural_call,
 };
@@ -27,13 +28,13 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
 
     match &input.data {
         Data::Class(class) => {
+            let class_fields = derive_class_fields(&input, class, "PartialEq", ClassUse::Reads)?;
             let class_name = input.name();
             let class_names = TypeNames::new(class_name, class.type_params());
             let class_ident = class_names.full_type_ident();
 
             // Collect fields that should be included in equality comparison
-            let eq_fields: Vec<EqField> = class
-                .fields()
+            let eq_fields: Vec<EqField> = class_fields
                 .iter()
                 .filter_map(|field| {
                     let opts = CompareFieldOptions::from_decorators(&field.decorators, "partialEq");
@@ -47,10 +48,6 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                     })
                 })
                 .collect();
-
-            // Generate function name (always prefix style)
-            let fn_name_ident = class_names.generic_function("Equals");
-            let fn_name_expr: Expr = ts_ident!(class_names.function("Equals")).into();
 
             let comparison_src = if eq_fields.is_empty() {
                 "true".to_string()
@@ -71,24 +68,12 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                 )
             })?;
 
-            // Generate standalone function with two parameters
-            let standalone = ts_template! {
-                export function @{fn_name_ident}(a: @{class_ident}, b: @{class_ident}): boolean {
-                    if (a === b) return true;
-                    return @{comparison_expr};
-                }
+            let body = ts_template! {
+                if (a === b) return true;
+                return @{comparison_expr};
             };
-
-            // Generate static wrapper method that delegates to standalone function
-            let class_body = ts_template!(Within {
-                static @{class_names.generic_method("equals")}(a: @{class_ident}, b: @{class_ident}): boolean {
-                    return @{fn_name_expr}(a, b);
-                }
-            });
-
-            // Combine standalone function with class body
-            // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
-            Ok(standalone.merge(class_body))
+            let both = rendered(ts_template! { a: @{&class_ident}, b: @{&class_ident} });
+            Ok(class_names.class_function("equals", "Equals", &both, "a, b", "boolean", body))
         }
         Data::Enum(_) => {
             // Enums: direct comparison with ===
@@ -102,12 +87,12 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
             })
         }
         Data::Interface(interface) => {
+            let interface_fields = derive_interface_fields(&input, interface, "PartialEq")?;
             let interface_names = TypeNames::new(input.name(), interface.type_params());
             let interface_ident = interface_names.full_type_ident();
 
             // Collect fields for comparison
-            let eq_fields: Vec<EqField> = interface
-                .fields()
+            let eq_fields: Vec<EqField> = interface_fields
                 .iter()
                 .filter_map(|field| {
                     let opts = CompareFieldOptions::from_decorators(&field.decorators, "partialEq");

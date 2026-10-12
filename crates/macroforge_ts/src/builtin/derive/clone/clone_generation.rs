@@ -1,6 +1,6 @@
 use crate::builtin::derive::common::{
-    Builtin, ValueType, classify_value_type, collection_element_type, derived_function, rendered,
-    structural_helper, tuple_element,
+    Builtin, Member, ValueType, classify_value_type, collection_element_type, derived_function,
+    rendered, structural_helper, tuple_element,
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
@@ -23,7 +23,7 @@ pub(crate) fn generate_clone_expr(
     resolved: Option<&ResolvedTypeRef>,
     registry: &TypeRegistry,
 ) -> String {
-    let field = rendered(ts_template! { @{var}.@{field_name} });
+    let field = rendered(ts_template! { @{var}@{Member::of(field_name)} });
     generate_value_clone(ts_type, &field, resolved, registry)
 }
 

@@ -16,7 +16,7 @@ use super::class::class_default;
 use super::object::object_default;
 use super::type_alias::type_alias_default;
 use super::values::DefaultSources;
-use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::{TypeNames, derive_interface_fields};
 
 #[ts_macro_derive(
     Default,
@@ -70,7 +70,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
         }
         Data::Interface(interface) => object_default(
             &TypeNames::new(input.name(), interface.type_params()),
-            interface.fields(),
+            &derive_interface_fields(&input, interface, "Default")?,
             input.decorator_span(),
             &sources,
         ),

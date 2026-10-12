@@ -2,7 +2,10 @@ use convert_case::{Case, Casing};
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
-use crate::builtin::derive::common::{CompareFieldOptions, fixed_tuple, structural_call};
+use crate::builtin::derive::common::{ClassUse, derive_class_fields, derive_interface_fields};
+use crate::builtin::derive::common::{
+    CompareFieldOptions, EnumValueKinds, fixed_tuple, rendered, structural_call,
+};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::ts_syn::abi::ir::TypeBody;
 use crate::ts_syn::abi::ir::type_registry::TypeRegistry;
@@ -25,13 +28,13 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
 
     match &input.data {
         Data::Class(class) => {
+            let class_fields = derive_class_fields(&input, class, "Hash", ClassUse::Reads)?;
             let class_name = input.name();
             let class_names = TypeNames::new(class_name, class.type_params());
             let class_ident = class_names.full_type_ident();
 
             // Collect fields that should be included in hash
-            let hash_fields: Vec<HashField> = class
-                .fields()
+            let hash_fields: Vec<HashField> = class_fields
                 .iter()
                 .filter_map(|field| {
                     let opts = CompareFieldOptions::from_decorators(&field.decorators, "hash");
@@ -47,10 +50,6 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                 .collect();
 
             let has_fields = !hash_fields.is_empty();
-
-            // Generate function name (always prefix style)
-            let fn_name_ident = class_names.generic_function("HashCode");
-            let fn_name_expr: Expr = ts_ident!(class_names.function("HashCode")).into();
 
             // Generate hash expressions for each field
             let hash_exprs: Vec<Expr> = hash_fields
@@ -72,65 +71,46 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                 })
                 .collect::<Result<_, MacroforgeError>>()?;
 
-            // Generate standalone function with value parameter
-            let standalone = ts_template! {
-                export function @{fn_name_ident}(value: @{class_ident.clone()}): number {
-                    let hash = 17;
-                    {#if has_fields}
-                        {#for hash_expr in hash_exprs}
-                            hash = (hash * 31 + (@{hash_expr})) | 0;
-                        {/for}
-                    {/if}
-                    return hash;
-                }
+            let body = ts_template! {
+                let hash = 17;
+                {#if has_fields}
+                    {#for hash_expr in hash_exprs}
+                        hash = (hash * 31 + (@{hash_expr})) | 0;
+                    {/for}
+                {/if}
+                return hash;
             };
-
-            // Generate static wrapper method that delegates to standalone function
-            let class_body = ts_template!(Within {
-                static @{class_names.generic_method("hashCode")}(value: @{class_ident.clone()}): number {
-                    return @{fn_name_expr}(value);
-                }
-            });
-
-            // Combine standalone function with class body using {$typescript} for proper composition
-            // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
-            Ok(ts_template! {
-                {$typescript standalone}
-                {$typescript class_body}
-            })
+            let value = rendered(ts_template! { value: @{class_ident} });
+            Ok(class_names.class_function("hashCode", "HashCode", &value, "value", "number", body))
         }
         Data::Enum(enum_data) => {
             let enum_name = input.name();
             let fn_name_ident = ts_ident!("{}HashCode", enum_name.to_case(Case::Camel));
 
-            // Check if all variants are string values
-            let is_string_enum = enum_data.variants().iter().all(|v| v.value.is_string());
-
-            if is_string_enum {
-                // String enum: hash the string value
-                Ok(ts_template! {
-                    export function @{fn_name_ident}(value: @{ts_ident!(enum_name)}): number {
-                        let hash = 0;
-                        for (let i = 0; i < value.length; i++) {
-                            hash = (hash * 31 + value.charCodeAt(i)) | 0;
-                        }
-                        return hash;
-                    }
-                })
-            } else {
-                // Numeric enum: use the number value directly
-                Ok(ts_template! {
-                    export function @{fn_name_ident}(value: @{ts_ident!(enum_name)}): number {
-                        return value as number;
-                    }
-                })
-            }
+            // A member is a string or a number, hashed as a field of that
+            // type is: an enum of both tells them apart first.
+            let value_kinds = EnumValueKinds::of(enum_data.variants());
+            let string_hash = primitive_hash_expr("string", "value");
+            let number_hash = primitive_hash_expr("number", "value");
+            Ok(ts_template! {
+                export function @{fn_name_ident}(value: @{ts_ident!(enum_name)}): number {
+                    {#if value_kinds.strings && value_kinds.numbers}
+                        return typeof value === "string" ? @{string_hash} : @{number_hash};
+                    {:else}
+                        {#if value_kinds.strings}
+                            return @{string_hash};
+                        {:else}
+                            return @{number_hash};
+                        {/if}
+                    {/if}
+                }
+            })
         }
         Data::Interface(interface) => {
+            let interface_fields = derive_interface_fields(&input, interface, "Hash")?;
             let interface_names = TypeNames::new(input.name(), interface.type_params());
 
-            let hash_fields: Vec<HashField> = interface
-                .fields()
+            let hash_fields: Vec<HashField> = interface_fields
                 .iter()
                 .filter_map(|field| {
                     let opts = CompareFieldOptions::from_decorators(&field.decorators, "hash");

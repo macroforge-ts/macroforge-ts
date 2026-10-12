@@ -8,7 +8,7 @@
 //!
 //! | Type | Generated Code | Description |
 //! |------|----------------|-------------|
-//! | Class | `{className}Clone(value)` + `static clone(value)` | Standalone function + static wrapper method |
+//! | Class | `{className}Clone(value)` + `static clone(value)` | Static method + standalone function that runs it |
 //! | Enum | `{enumName}Clone(value): EnumName` | Standalone function (enums are primitives, returns value as-is) |
 //! | Interface | `{ifaceName}Clone(value): InterfaceName` | Standalone function creating a new object literal |
 //! | Type Alias | `{typeName}Clone(value): TypeName` | Standalone function cloning by the alias's shape |
@@ -51,12 +51,12 @@
 //!     y: number;
 //!
 //!     static clone(value: Point): Point {
-//!         return pointClone(value);
+//!         return __mf_instanceWith(value, { x: value.x, y: value.y });
 //!     }
 //! }
 //!
 //! export function pointClone(value: Point): Point {
-//!     return __mf_instanceWith(value, { x: value.x, y: value.y });
+//!     return Point.clone(value);
 //! }
 //! ```
 //!

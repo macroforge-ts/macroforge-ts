@@ -1,4 +1,6 @@
+mod inheritance;
 mod intersection;
+mod property;
 mod registry;
 mod types;
 mod value_type;

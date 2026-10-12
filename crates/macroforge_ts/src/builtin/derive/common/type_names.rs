@@ -3,7 +3,7 @@
 use crate::ast::Ident;
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::TypeParamIR;
-use crate::ts_syn::ts_ident;
+use crate::ts_syn::{TsStream, ts_ident};
 
 use super::value_type::rendered;
 
@@ -63,6 +63,37 @@ impl TypeNames {
         ts_ident!(format!("{name}{}", self.generic_decl))
     }
 
+    /// A function a class derives, written where it reaches every field of
+    /// the class, a private one included: `body` as the static method
+    /// `method`, and the standalone `{camelName}{suffix}` that runs it.
+    /// `params` is what both take, and `arguments` hands it on.
+    pub fn class_function(
+        &self,
+        method: &str,
+        suffix: &str,
+        params: &str,
+        arguments: &str,
+        return_type: &str,
+        body: TsStream,
+    ) -> TsStream {
+        let function = self.generic_function(suffix);
+        let static_method = self.generic_method(method);
+        let class = ts_ident!(self.type_name.as_str());
+        let call = ts_ident!(format!("{method}{}", self.generic_args));
+        let standalone = ts_template! {
+            export function @{function}(@{params}): @{return_type} {
+                return @{class}.@{call}(@{arguments});
+            }
+        };
+        let class_body = ts_template!(Within {
+            static @{static_method}(@{params}): @{return_type} {
+                {$typescript body}
+            }
+        });
+        // The standalone function comes first, so it lands below the class.
+        standalone.merge(class_body)
+    }
+
     /// The key a `validateField` validates, declared after the type's own
     /// parameters.
     pub fn key_param(&self) -> KeyParam {
@@ -95,19 +126,6 @@ impl TypeNames {
     /// The type applied to its parameters, as an identifier.
     pub fn full_type_ident(&self) -> Ident {
         ts_ident!(self.full_type.as_str())
-    }
-
-    /// The type an instance is filled in under, field by field, outside its
-    /// constructor: the type itself, or its writable form when a field is
-    /// `readonly`, which only a constructor may otherwise assign.
-    pub fn fillable_type_ident(&self, has_readonly_field: bool) -> Ident {
-        if !has_readonly_field {
-            return self.full_type_ident();
-        }
-        let full = self.full_type.as_str();
-        ts_ident!(rendered(
-            ts_template! { { -readonly [Key in keyof @{full}]: @{full}[Key] } }
-        ))
     }
 }
 

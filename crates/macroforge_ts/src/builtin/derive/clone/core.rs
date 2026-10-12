@@ -4,9 +4,10 @@ use std::collections::HashMap;
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::{ClassUse, derive_class_fields, derive_interface_fields};
 use crate::builtin::derive::common::{
-    field_value_type, fixed_tuple, is_primitive_union, js_string, rendered, structural_call,
-    structural_helper,
+    field_value_type, fixed_tuple, is_primitive_union, js_string, property_key, rendered,
+    structural_call, structural_helper,
 };
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::ts_syn::abi::ir::TypeBody;
@@ -21,9 +22,9 @@ use super::clone_generation::{generate_clone_expr, generate_value_clone, tuple_c
 ///
 /// This macro implementation handles four TypeScript data types:
 ///
-/// - **Classes**: Generates a static `clone(value)` wrapper method plus a standalone
-///   `{className}Clone` function that copies all fields onto a new object with
-///   the value's prototype, without running the constructor
+/// - **Classes**: Generates a static `clone(value)` method that copies all fields
+///   onto a new object with the value's prototype, without running the
+///   constructor, plus a standalone `{className}Clone` function that runs it
 /// - **Enums**: Generates a standalone function that returns the value unchanged
 /// - **Interfaces**: Generates a standalone function that creates a new object literal
 /// - **Type Aliases**: Generates a standalone function with appropriate copying strategy
@@ -52,39 +53,30 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
     match &input.data {
         Data::Class(class) => {
+            let class_fields = derive_class_fields(&input, class, "Clone", ClassUse::Builds)?;
             let class_name = class.inner.name.clone();
             let class_names = TypeNames::new(&class_name, class.type_params());
             let class_ident = class_names.full_type_ident();
 
-            // Generate identifier for function name (Ident for declaration, Expr for call)
-            let fn_name_ident = class_names.generic_function("Clone");
-            let fn_name_expr: Expr = ts_ident!(class_names.function("Clone")).into();
-
             let literal = object_clone_literal(
-                class.fields().iter().map(CloneField::from),
+                class_fields.iter().map(CloneField::from),
                 resolved_fields,
                 type_registry,
             );
             let fields = parse_clone_expr(&literal, &input)?;
             let instance_with: Expr = ts_ident!(structural_helper("instanceWith")).into();
-
-            // Generate standalone function with value parameter
-            let standalone = ts_template! {
-                export function @{fn_name_ident}(value: @{class_ident}): @{class_ident} {
-                    return @{instance_with}(value, @{fields});
-                }
+            let body = ts_template! {
+                return @{instance_with}(value, @{fields});
             };
-
-            // Generate static wrapper method that delegates to standalone function
-            let class_body = ts_template!(Within {
-                static @{class_names.generic_method("clone")}(value: @{class_ident}): @{class_ident} {
-                    return @{fn_name_expr}(value);
-                }
-            });
-
-            // Combine standalone function with class body using {$typescript}
-            // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
-            Ok(standalone.merge(class_body))
+            let value = rendered(ts_template! { value: @{&class_ident} });
+            Ok(class_names.class_function(
+                "clone",
+                "Clone",
+                &value,
+                "value",
+                &class_names.full_type,
+                body,
+            ))
         }
         Data::Enum(_) => {
             // Enums are primitive values, cloning is just returning the value
@@ -97,12 +89,13 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             })
         }
         Data::Interface(interface) => {
+            let interface_fields = derive_interface_fields(&input, interface, "Clone")?;
             let interface_names = TypeNames::new(input.name(), interface.type_params());
             let interface_ident = interface_names.full_type_ident();
             let fn_name_ident = interface_names.generic_function("Clone");
 
             let literal = object_clone_literal(
-                interface.fields().iter().map(CloneField::from),
+                interface_fields.iter().map(CloneField::from),
                 resolved_fields,
                 type_registry,
             );
@@ -186,11 +179,12 @@ fn object_clone_literal<'a>(
             let resolved = resolved_fields.and_then(|fields| fields.get(name));
             let ts_type = field_value_type(field.ts_type, field.optional);
             let clone = generate_clone_expr(name, &ts_type, "value", resolved, registry);
+            let property = property_key(name);
             if field.optional {
                 let key = js_string(name);
-                rendered(ts_template! { ...(@{key} in value ? { @{name}: @{clone} } : {}) })
+                rendered(ts_template! { ...(@{key} in value ? { @{property}: @{clone} } : {}) })
             } else {
-                rendered(ts_template! { @{name}: @{clone} })
+                rendered(ts_template! { @{property}: @{clone} })
             }
         })
         .collect();

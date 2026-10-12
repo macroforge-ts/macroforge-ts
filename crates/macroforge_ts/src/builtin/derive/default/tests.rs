@@ -7,7 +7,10 @@ fn default_value_method(source: &str) -> String {
         .code
         .find("static defaultValue()")
         .expect("Default adds defaultValue");
-    let end = start + result.code[start..].find("return instance;").unwrap();
+    let end = start
+        + result.code[start..]
+            .find("return __mf_instanceOf(")
+            .unwrap();
     result.code[start..end].to_string()
 }
 
@@ -26,10 +29,10 @@ fn fields_default_to_their_initializers() {
     let method = default_value_method(
         "/** @derive(Default) */\nexport class Settings {\n  theme: string = \"dark\";\n  retries?: number = 3;\n  label?: string;\n  count: number;\n}\n",
     );
-    assert!(method.contains(r#"instance.theme = "dark";"#), "{method}");
-    assert!(method.contains("instance.retries = 3;"), "{method}");
-    assert!(!method.contains("instance.label"), "{method}");
-    assert!(method.contains("instance.count = 0;"), "{method}");
+    assert!(method.contains(r#"theme: "dark","#), "{method}");
+    assert!(method.contains("retries: 3,"), "{method}");
+    assert!(!method.contains("label"), "{method}");
+    assert!(method.contains("count: 0,"), "{method}");
 }
 
 #[test]
@@ -37,7 +40,7 @@ fn an_explicit_default_wins_over_the_initializer() {
     let method = default_value_method(
         "/** @derive(Default) */\nexport class Settings {\n  /** @default(7) */\n  limit: number = 5;\n}\n",
     );
-    assert!(method.contains("instance.limit = 7;"), "{method}");
+    assert!(method.contains("limit: 7,"), "{method}");
 }
 
 #[test]
@@ -45,7 +48,7 @@ fn an_initializer_stands_in_for_a_missing_default() {
     let method = default_value_method(
         "class Clock { now(): number { return 0; } }\n/** @derive(Default) */\nexport class Settings {\n  clock: Clock = new Clock();\n}\n",
     );
-    assert!(method.contains("instance.clock = new Clock();"), "{method}");
+    assert!(method.contains("clock: new Clock(),"), "{method}");
 }
 
 #[test]
@@ -77,7 +80,7 @@ fn a_function_initializer_keeps_its_own_this() {
         "/** @derive(Default) */\nexport class Settings {\n  theme: string = \"dark\";\n  describe = function (this: Settings): string { return this.theme; };\n}\n",
     );
     assert!(
-        method.contains("instance.describe = (function(this: Settings)"),
+        method.contains("describe: (function(this: Settings)"),
         "{method}"
     );
 }
@@ -95,9 +98,6 @@ fn a_function_typed_field_needs_a_default() {
     let method = default_value_method(
         "/** @derive(Default) */\nexport class Greeter {\n  greet: () => string = () => \"hi\";\n  /** @default(() => 1) */\n  count: () => number;\n}\n",
     );
-    assert!(
-        method.contains("instance.greet = () => \"hi\";"),
-        "{method}"
-    );
-    assert!(method.contains("instance.count = () => 1;"), "{method}");
+    assert!(method.contains("greet: () => \"hi\","), "{method}");
+    assert!(method.contains("count: () => 1,"), "{method}");
 }

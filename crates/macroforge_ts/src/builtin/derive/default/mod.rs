@@ -71,11 +71,12 @@
 //!     notifications: boolean; // Uses type default: false
 //!
 //!     static defaultValue(): UserSettings {
-//!         const instance: UserSettings = Object.create(UserSettings.prototype);
-//!         instance.theme = 'light';
-//!         instance.pageSize = 10;
-//!         instance.notifications = false;
-//!         return instance;
+//!         const fields: { theme: string; pageSize: number; notifications: boolean } = {
+//!             theme: 'light',
+//!             pageSize: 10,
+//!             notifications: false
+//!         };
+//!         return __mf_instanceOf(UserSettings.prototype, fields);
 //!     }
 //! }
 //!

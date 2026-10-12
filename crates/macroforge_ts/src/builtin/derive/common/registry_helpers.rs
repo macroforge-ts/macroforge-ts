@@ -2,12 +2,14 @@ use std::collections::HashSet;
 
 use convert_case::{Case, Casing};
 
-use crate::ts_syn::DataTypeAlias;
 use crate::ts_syn::abi::InterfaceFieldIR;
+use crate::ts_syn::abi::ir::class::{ClassIR, FieldIR, Visibility};
+use crate::ts_syn::abi::ir::interface::InterfaceIR;
 use crate::ts_syn::abi::ir::type_alias::{TypeMember, TypeMemberKind};
 use crate::ts_syn::abi::ir::type_registry::{
-    ResolvedTypeRef, TypeDefinitionIR, TypeRegistry, TypeRegistryEntry,
+    FileImportEntry, ResolvedTypeRef, TypeDefinitionIR, TypeRegistry, TypeRegistryEntry,
 };
+use crate::ts_syn::{DataClass, DataInterface, DataTypeAlias, DeriveInput, MacroforgeError};
 
 /// Check if a type in the registry has `@derive(MacroName)` applied.
 /// Works for classes, interfaces, enums, and type aliases.
@@ -201,4 +203,280 @@ pub fn get_effective_fields(
     } else {
         None
     }
+}
+
+/// Where the names in a declaration resolve: the registry, and the file the
+/// declaration is in with its imports.
+#[derive(Clone, Copy)]
+pub struct Declared<'a> {
+    pub registry: &'a TypeRegistry,
+    pub file_path: &'a str,
+    pub file_imports: &'a [FileImportEntry],
+}
+
+impl<'a> Declared<'a> {
+    fn resolve(&self, name: &str) -> Option<&'a TypeRegistryEntry> {
+        self.registry
+            .resolve_in_file(name, self.file_path, self.file_imports)
+    }
+
+    /// The same registry, read from the file that declares `entry`.
+    fn at(&self, entry: &'a TypeRegistryEntry) -> Self {
+        Self {
+            registry: self.registry,
+            file_path: &entry.file_path,
+            file_imports: &entry.file_imports,
+        }
+    }
+}
+
+/// Every field an instance of `class` holds: those of its superclasses,
+/// outermost first, then its own.
+///
+/// The superclasses are read from the registry. With none, as when a file is
+/// expanded on its own without a scan of its project, no type beyond the one
+/// at hand is known, and the class's own fields are all there is to give.
+///
+/// The error names what keeps a derive from one of them: a `#private` field,
+/// which only its class's constructor can set, and a derive runs none; a
+/// superclass the registry does not hold, or one with type parameters, whose
+/// fields cannot be read off; a `private` field of a superclass, which the
+/// subclass cannot touch.
+pub fn class_instance_fields(
+    class: &ClassIR,
+    declared: Declared<'_>,
+) -> Result<Vec<FieldIR>, String> {
+    let mut fields = match &class.superclass {
+        Some(superclass) => superclass_fields(
+            superclass,
+            &class.name,
+            declared,
+            &mut vec![class.name.clone()],
+        )?,
+        None => Vec::new(),
+    };
+    for field in &class.fields {
+        if field.name.starts_with('#') {
+            return Err(format!(
+                "field '{}' of class '{}' can only be set by the class's own constructor, which a derive does not run; declare it `private {}` for a derive to read and build it",
+                field.name,
+                class.name,
+                field.name.trim_start_matches('#')
+            ));
+        }
+        fields.push(field.clone());
+    }
+    Ok(fields)
+}
+
+fn superclass_fields(
+    name: &str,
+    subclass: &str,
+    declared: Declared<'_>,
+    visiting: &mut Vec<String>,
+) -> Result<Vec<FieldIR>, String> {
+    let Some(entry) = declared.resolve(name) else {
+        // Asked only once a name fails to resolve: the answer depends on
+        // the whole registry, which a lookup by name does not.
+        if declared.registry.is_empty() {
+            return Ok(Vec::new());
+        }
+        return Err(format!(
+            "class '{subclass}' extends '{name}', which this project does not declare, so the fields it gives an instance are unknown"
+        ));
+    };
+    let TypeDefinitionIR::Class(base) = &entry.definition else {
+        return Err(format!(
+            "class '{subclass}' extends '{name}', which is not a class"
+        ));
+    };
+    if !base.type_params.is_empty() {
+        return Err(format!(
+            "class '{subclass}' extends the generic class '{name}', whose fields depend on type arguments a derive on '{subclass}' cannot read off"
+        ));
+    }
+    if visiting.contains(&base.name) {
+        return Err(format!("class '{name}' extends itself"));
+    }
+    visiting.push(base.name.clone());
+    let mut fields = match &base.superclass {
+        Some(superclass) => {
+            superclass_fields(superclass, &base.name, declared.at(entry), visiting)?
+        }
+        None => Vec::new(),
+    };
+    for field in &base.fields {
+        if field.name.starts_with('#') || field.visibility == Visibility::Private {
+            return Err(format!(
+                "field '{}' of class '{name}' is private to it, so a derive on its subclass '{subclass}' cannot reach it; declare it `protected`",
+                field.name
+            ));
+        }
+        fields.push(field.clone());
+    }
+    Ok(fields)
+}
+
+/// Every field a value of `interface` has: those of the types it extends,
+/// in the order it names them, then its own. A field it declares again takes
+/// the place of the one it inherits. Like a class's superclasses, the
+/// extended types are read from the registry, and left out when it is empty.
+///
+/// The error names a type it extends whose fields cannot be read off: one
+/// the registry does not hold, a generic one, or one that is no object type.
+pub fn interface_instance_fields(
+    interface: &InterfaceIR,
+    declared: Declared<'_>,
+) -> Result<Vec<InterfaceFieldIR>, String> {
+    let mut fields = Vec::new();
+    extend_with_inherited(
+        &mut fields,
+        interface,
+        declared,
+        &mut vec![interface.name.clone()],
+    )?;
+    Ok(fields)
+}
+
+fn extend_with_inherited(
+    fields: &mut Vec<InterfaceFieldIR>,
+    interface: &InterfaceIR,
+    declared: Declared<'_>,
+    visiting: &mut Vec<String>,
+) -> Result<(), String> {
+    let declare = |fields: &mut Vec<InterfaceFieldIR>, field: &InterfaceFieldIR| match fields
+        .iter_mut()
+        .find(|known| known.name == field.name)
+    {
+        Some(known) => *known = field.clone(),
+        None => fields.push(field.clone()),
+    };
+    for name in &interface.heritage {
+        let Some(entry) = declared.resolve(name) else {
+            if declared.registry.is_empty() {
+                continue;
+            }
+            return Err(format!(
+                "interface '{}' extends '{name}', which this project does not declare, so the fields it gives a value are unknown",
+                interface.name
+            ));
+        };
+        if visiting.contains(name) {
+            return Err(format!("interface '{name}' extends itself"));
+        }
+        let generic = match &entry.definition {
+            TypeDefinitionIR::Interface(base) => !base.type_params.is_empty(),
+            TypeDefinitionIR::TypeAlias(base) => !base.type_params.is_empty(),
+            TypeDefinitionIR::Class(base) => !base.type_params.is_empty(),
+            TypeDefinitionIR::Enum(_) => false,
+        };
+        if generic {
+            return Err(format!(
+                "interface '{}' extends the generic type '{name}', whose fields depend on type arguments a derive cannot read off",
+                interface.name
+            ));
+        }
+        match &entry.definition {
+            TypeDefinitionIR::Interface(base) => {
+                visiting.push(name.clone());
+                extend_with_inherited(fields, base, declared.at(entry), visiting)?;
+                visiting.pop();
+            }
+            definition => {
+                let Some(inherited) = fields_from_definition(definition, declared.registry) else {
+                    return Err(format!(
+                        "interface '{}' extends '{name}', which is not an object type",
+                        interface.name
+                    ));
+                };
+                for field in &inherited {
+                    declare(fields, field);
+                }
+            }
+        }
+    }
+    for field in &interface.fields {
+        declare(fields, field);
+    }
+    Ok(())
+}
+
+/// What a derive does with a class's instances.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum ClassUse {
+    /// It reads the fields of instances it is given.
+    Reads,
+    /// It also makes instances, without running the class's constructor.
+    Builds,
+}
+
+/// The Svelte rune a field's initializer sets up, if it is one. Such a field
+/// is state the class's constructor wires into the instance.
+fn rune_of(initializer: &str) -> Option<&'static str> {
+    ["$state", "$derived", "$props", "$bindable"]
+        .into_iter()
+        .find(|rune| {
+            initializer
+                .trim_start()
+                .strip_prefix(rune)
+                .is_some_and(|rest| rest.starts_with(['(', '.', '<']))
+        })
+}
+
+/// The fields a derive on `class` works over, inherited ones included, or
+/// the error saying which one `derive` cannot reach, or cannot set up in an
+/// instance it builds.
+pub fn derive_class_fields(
+    input: &DeriveInput,
+    class: &DataClass,
+    derive: &str,
+    class_use: ClassUse,
+) -> Result<Vec<FieldIR>, MacroforgeError> {
+    let file_imports = input.context.import_registry.file_import_entries();
+    let declared = Declared {
+        registry: &input.context.type_registry,
+        file_path: input.context.file_name.as_str(),
+        file_imports: &file_imports,
+    };
+    let failure = |message: String| {
+        MacroforgeError::new(
+            input.decorator_span(),
+            format!("@derive({derive}): {message}"),
+        )
+    };
+    let fields = class_instance_fields(&class.inner, declared).map_err(failure)?;
+    if class_use == ClassUse::Builds {
+        let rune_field = fields.iter().find_map(|field| {
+            let rune = rune_of(field.initializer.as_deref()?)?;
+            Some((field, rune))
+        });
+        if let Some((field, rune)) = rune_field {
+            return Err(failure(format!(
+                "field '{}' of class '{}' is set up by `{rune}`, which only the class's constructor can do, and a derive builds an instance without running it",
+                field.name, class.inner.name
+            )));
+        }
+    }
+    Ok(fields)
+}
+
+/// The fields a derive on `interface` works over, inherited ones included,
+/// or the error saying which type it extends `derive` cannot read.
+pub fn derive_interface_fields(
+    input: &DeriveInput,
+    interface: &DataInterface,
+    derive: &str,
+) -> Result<Vec<InterfaceFieldIR>, MacroforgeError> {
+    let file_imports = input.context.import_registry.file_import_entries();
+    let declared = Declared {
+        registry: &input.context.type_registry,
+        file_path: input.context.file_name.as_str(),
+        file_imports: &file_imports,
+    };
+    interface_instance_fields(&interface.inner, declared).map_err(|message| {
+        MacroforgeError::new(
+            input.decorator_span(),
+            format!("@derive({derive}): {message}"),
+        )
+    })
 }

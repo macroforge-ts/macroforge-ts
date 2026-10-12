@@ -6,7 +6,7 @@ use convert_case::{Case, Casing};
 use crate::ast::Expr;
 use crate::builtin::derive::common::{
     DefaultFieldOptions, TypeNames, flatten_intersection_fields, get_type_default_with_registry,
-    rendered,
+    property_key, rendered,
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_alias::TypeMember;
@@ -222,7 +222,7 @@ fn build_object_default(
         .map(|f| {
             let opts = DefaultFieldOptions::from_decorators(&f.decorators);
             let value = resolve_default_value(opts.value, &f.ts_type, sources);
-            rendered(ts_template! { @{&f.name}: @{value} })
+            rendered(ts_template! { @{property_key(&f.name)}: @{value} })
         })
         .collect();
     let props = props.join(", ");
@@ -248,7 +248,9 @@ fn build_intersection_default(
             for f in fields {
                 let opts = DefaultFieldOptions::from_decorators(&f.decorators);
                 let value = resolve_default_value(opts.value, &f.ts_type, sources);
-                parts.push(rendered(ts_template! { @{&f.name}: @{value} }));
+                parts.push(rendered(
+                    ts_template! { @{property_key(&f.name)}: @{value} },
+                ));
             }
         }
         // Literals and nested intersections fall through :

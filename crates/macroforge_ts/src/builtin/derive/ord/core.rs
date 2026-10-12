@@ -2,9 +2,10 @@ use convert_case::{Case, Casing};
 
 use crate::ast::{Expr, Ident};
 use crate::builtin::derive::common::TypeNames;
+use crate::builtin::derive::common::{ClassUse, derive_class_fields, derive_interface_fields};
 use crate::builtin::derive::common::{
     CompareFieldOptions, EnumValueKinds, OrdField, Ordering, generate_field_order,
-    generate_value_order, structural_call, tuple_compare_statements,
+    generate_value_order, rendered, structural_call, tuple_compare_statements,
 };
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input, ts_ident};
@@ -21,13 +22,13 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
 
     match &input.data {
         Data::Class(class) => {
+            let class_fields = derive_class_fields(&input, class, "Ord", ClassUse::Reads)?;
             let class_name = input.name();
             let class_names = TypeNames::new(class_name, class.type_params());
             let class_ident = class_names.full_type_ident();
 
             // Collect fields for comparison
-            let ord_fields: Vec<OrdField> = class
-                .fields()
+            let ord_fields: Vec<OrdField> = class_fields
                 .iter()
                 .filter_map(|field| {
                     let opts = CompareFieldOptions::from_decorators(&field.decorators, "ord");
@@ -42,12 +43,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                 })
                 .collect();
 
-            // Generate function name (always prefix style)
-            let fn_name_ident = class_names.generic_function("Compare");
-            let fn_name_expr: Expr = ts_ident!(class_names.function("Compare")).into();
-
-            // Generate standalone function with two parameters
-            let standalone = if !ord_fields.is_empty() {
+            let body = if !ord_fields.is_empty() {
                 let compare_steps: Vec<(Ident, Expr)> = ord_fields
                     .iter()
                     .enumerate()
@@ -76,34 +72,21 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                     .collect::<Result<_, MacroforgeError>>()?;
 
                 ts_template! {
-                    export function @{fn_name_ident}(a: @{class_ident}, b: @{class_ident}): number {
-                        if (a === b) return 0;
-                        {#for (cmp_ident, cmp_expr) in &compare_steps}
-                            const @{cmp_ident.clone()} = @{cmp_expr.clone()};
-                            if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
-                        {/for}
-                        return 0;
-                    }
+                    if (a === b) return 0;
+                    {#for (cmp_ident, cmp_expr) in &compare_steps}
+                        const @{cmp_ident.clone()} = @{cmp_expr.clone()};
+                        if (@{cmp_ident.clone()} !== 0) return @{cmp_ident.clone()};
+                    {/for}
+                    return 0;
                 }
             } else {
                 ts_template! {
-                    export function @{fn_name_ident}(a: @{class_ident}, b: @{class_ident}): number {
-                        if (a === b) return 0;
-                        return 0;
-                    }
+                    return 0;
                 }
             };
 
-            // Generate static wrapper method that delegates to standalone function
-            let class_body = ts_template!(Within {
-                static @{class_names.generic_method("compare")}(a: @{class_ident}, b: @{class_ident}): number {
-                    return @{fn_name_expr}(a, b);
-                }
-            });
-
-            // Combine standalone function with class body
-            // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
-            Ok(standalone.merge(class_body))
+            let both = rendered(ts_template! { a: @{&class_ident}, b: @{&class_ident} });
+            Ok(class_names.class_function("compare", "Compare", &both, "a, b", "number", body))
         }
         Data::Enum(enum_data) => {
             let enum_name = input.name();
@@ -119,20 +102,24 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                     {/if}
                     {#if value_kinds.strings}
                         if (typeof a === "string" && typeof b === "string") {
-                            const cmp = a.localeCompare(b);
-                            return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
+                            return a < b ? -1 : a > b ? 1 : 0;
                         }
                     {/if}
-                    return 0;
+                    {#if value_kinds.strings && value_kinds.numbers}
+                        // A number and a string: numbers order first.
+                        return typeof a === "number" ? -1 : 1;
+                    {:else}
+                        return 0;
+                    {/if}
                 }
             })
         }
         Data::Interface(interface) => {
+            let interface_fields = derive_interface_fields(&input, interface, "Ord")?;
             let interface_names = TypeNames::new(input.name(), interface.type_params());
             let interface_ident = interface_names.full_type_ident();
 
-            let ord_fields: Vec<OrdField> = interface
-                .fields()
+            let ord_fields: Vec<OrdField> = interface_fields
                 .iter()
                 .filter_map(|field| {
                     let opts = CompareFieldOptions::from_decorators(&field.decorators, "ord");

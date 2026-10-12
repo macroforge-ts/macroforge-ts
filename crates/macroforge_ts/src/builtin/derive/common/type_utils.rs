@@ -3,6 +3,7 @@ use convert_case::{Case, Casing};
 use super::value_type::rendered;
 use crate::builtin::derive::endec::{TypeCategory, get_foreign_types};
 use crate::macros::ts_template;
+use crate::ts_syn::abi::ir::type_registry::TypeDefinitionIR;
 use crate::ts_syn::abi::ir::{
     EnumVariantIR, FileImportEntry, TypeRegistry, alias_default_member, is_primitive_keyword,
     resolve_generic_aliases, split_top_level_commas, split_top_level_union,
@@ -235,6 +236,26 @@ pub fn array_element_type(ts_type: &str) -> Option<&str> {
     (trimmed.ends_with('>') && matches!(base, "Array" | "ReadonlyArray")).then_some(element)
 }
 
+/// The text between the brackets of a tuple type, `readonly` or not. `None`
+/// for any other type, an array of tuples such as `[A, B][]` included.
+pub fn tuple_body(ts_type: &str) -> Option<&str> {
+    let trimmed = ts_type.trim();
+    let tuple = trimmed
+        .strip_prefix("readonly ")
+        .map_or(trimmed, str::trim_start);
+    let body = tuple.strip_prefix('[')?.strip_suffix(']')?;
+    // The bracket that opens the type has to be the one that closes it.
+    let mut depth = 0usize;
+    for byte in body.bytes() {
+        match byte {
+            b'[' => depth += 1,
+            b']' => depth = depth.checked_sub(1)?,
+            _ => {}
+        }
+    }
+    (depth == 0).then_some(body)
+}
+
 /// Returns whether a type can have a default value generated for it.
 ///
 /// Primitives and collections have built-in defaults, and custom types are
@@ -293,11 +314,67 @@ pub fn get_type_default_with_registry(
         return get_type_default_with_registry(&member, registry, caller_file_path, file_imports);
     }
     let resolved = resolve_generic_aliases(ts_type, registry, caller_file_path, file_imports);
-    get_type_default_resolved(&resolved)
+    get_type_default_resolved(
+        &resolved,
+        &Names {
+            registry,
+            file_path: caller_file_path,
+            file_imports,
+        },
+    )
 }
 
-fn get_type_default_resolved(ts_type: &str) -> String {
+/// What resolves the names in a type whose default is being written.
+struct Names<'a> {
+    registry: &'a TypeRegistry,
+    file_path: &'a str,
+    file_imports: &'a [FileImportEntry],
+}
+
+/// The keys of `Record<K, V>` when `K` is a finite set of them, each as it
+/// is written in an object literal: a union of literals, an alias of one, or
+/// an enum. `None` for a key type such as `string`, which names no key.
+fn record_keys(key_type: &str, names: &Names<'_>) -> Option<Vec<String>> {
+    let key_type = key_type.trim();
+    let literal_key = |member: &str| {
+        let member = member.trim();
+        let is_literal = member.starts_with(['"', '\''])
+            || member.parse::<f64>().is_ok()
+            || matches!(member, "true" | "false");
+        is_literal.then(|| member.to_string())
+    };
+    let members = split_top_level_union(key_type).unwrap_or_else(|| vec![key_type]);
+    if let Some(keys) = members.iter().map(|member| literal_key(member)).collect() {
+        return Some(keys);
+    }
+    let entry = names
+        .registry
+        .resolve_in_file(key_type, names.file_path, names.file_imports)?;
+    match &entry.definition {
+        TypeDefinitionIR::Enum(declared) => Some(
+            declared
+                .variants
+                .iter()
+                .map(|variant| {
+                    let member = super::Member::of(&variant.name);
+                    rendered(ts_template! { [@{key_type}@{member}] })
+                })
+                .collect(),
+        ),
+        TypeDefinitionIR::TypeAlias(alias) => alias
+            .body
+            .as_union()?
+            .iter()
+            .map(|member| member.as_literal().and_then(literal_key))
+            .collect(),
+        TypeDefinitionIR::Class(_) | TypeDefinitionIR::Interface(_) => None,
+    }
+}
+
+fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
     let t = ts_type.trim();
+    // A readonly tuple or array defaults as the mutable one does.
+    let t = t.strip_prefix("readonly ").map_or(t, str::trim_start);
 
     // Check for foreign type default first
     let foreign_types = get_foreign_types();
@@ -323,16 +400,13 @@ fn get_type_default_resolved(ts_type: &str) -> String {
 
     // A tuple of fixed length defaults element by element. One with an
     // optional or rest element defaults to its required prefix.
-    if let Some(elements) = t
-        .strip_prefix('[')
-        .and_then(|inner| inner.strip_suffix(']'))
-    {
+    if let Some(elements) = tuple_body(t) {
         let defaults: Vec<String> = split_top_level_commas(elements)
             .into_iter()
             .filter(|source| !source.is_empty())
             .map(tuple_element)
             .take_while(|element| !element.rest && !element.optional)
-            .map(|element| get_type_default_resolved(element.ts_type))
+            .map(|element| get_type_default_resolved(element.ts_type, names))
             .collect();
         let defaults = defaults.join(", ");
         return rendered(ts_template! { [@{defaults}] });
@@ -350,7 +424,7 @@ fn get_type_default_resolved(ts_type: &str) -> String {
         // 1. If any member is a primitive, use that primitive's default
         for part in &parts {
             if is_primitive_type(part) {
-                return get_type_default_resolved(part);
+                return get_type_default_resolved(part, names);
             }
         }
         // 2. If any member is a literal, use the first literal
@@ -362,11 +436,11 @@ fn get_type_default_resolved(ts_type: &str) -> String {
                 || p.parse::<f64>().is_ok()
                 || matches!(p, "true" | "false")
             {
-                return get_type_default_resolved(p);
+                return get_type_default_resolved(p, names);
             }
         }
         // 3. Union of only custom types: default via first member
-        return get_type_default_resolved(parts[0]);
+        return get_type_default_resolved(parts[0], names);
     }
 
     match t {
@@ -405,6 +479,30 @@ fn get_type_default_resolved(ts_type: &str) -> String {
         t if t.starts_with("WeakMap<") => "new WeakMap()".to_string(),
         t if t.starts_with("WeakSet<") => "new WeakSet()".to_string(),
         t if t.starts_with("Promise<") => "Promise.resolve()".to_string(),
+        // A record over a finite set of keys has each of them.
+        t if t.starts_with("Record<") && t.ends_with('>') => {
+            let arguments = split_top_level_commas(&t["Record<".len()..t.len() - 1]);
+            let keys = match arguments.as_slice() {
+                [key_type, _] => record_keys(key_type, names),
+                _ => None,
+            };
+            match (keys, arguments.get(1)) {
+                (Some(keys), Some(value_type)) => {
+                    let value = get_type_default_resolved(value_type, names);
+                    let members: Vec<String> = keys
+                        .iter()
+                        .map(|key| rendered(ts_template! { @{key}: @{&value} }))
+                        .collect();
+                    let members = members.join(", ");
+                    rendered(ts_template! { ({ @{members} }) })
+                }
+                _ => "({})".to_string(),
+            }
+        }
+        // A readonly view of a type defaults as the type does.
+        t if t.starts_with("Readonly<") && t.ends_with('>') => {
+            get_type_default_resolved(&t["Readonly<".len()..t.len() - 1], names)
+        }
         // Built-in generic utility types (all produce object-like values)
         t if crate::ts_syn::type_normalize::is_ts_object_utility_type(
             crate::ts_syn::type_normalize::base_type_name(t),
