@@ -17,32 +17,65 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { FieldSelection as __mf_FieldSelection, DecodeOptions as __mf_DecodeOptions, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
+import { instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export class Account {
     name: string = "";
     balance: number = 0;
 
     static defaultValue(): Account {
-
-        const instance: Account = Object.create(Account.prototype);
-        instance.name = "";
-        instance.balance = 0;
-        return instance;
+        const fields: { name: string; balance: number } = {
+            name: "",
+            balance: 0,
+        };
+        return __mf_instanceOf(Account.prototype, fields);
     }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+    const result: Record<string, unknown> = {
+        "__type": "Account",
+        __id: ctx.register(value),
+    };
+    Account.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<Account>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Account>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Account" };
+        Account.#encodeFields(value as Account, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: Account, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("name")) {
+        if (value.name !== undefined) {
+            result.name = value.name;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("balance")) {
+        if (value.balance !== undefined) {
+            result.balance = value.balance;
+        }
+    }
+}
 
     /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
     static encode(value: Account, keepMetadata?: boolean): string {
         return accountEncode(value, keepMetadata);
     }
 
-    /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-    static encodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown> {
-        return accountEncodeWithContext(value, ctx);
-    }
-
 constructor(props: { name: string; balance: number }) {
+
     this.name = props.name;
     this.balance = props.balance;
 }
@@ -113,7 +146,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Account.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Account | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Account") as Account | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -128,10 +161,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("balance")) && !("balance" in obj)) {
         errors.push({ field: "balance", message: "missing required field" });
     }
-    const instance = Object.create(Account.prototype) as Account;
+
+    const instance: any = Object.create(Account.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Account");
     }
 
     ctx.trackForFreeze(instance);
@@ -199,44 +233,14 @@ export function accountEncode(value: Account, keepMetadata?: boolean): string {
     const __raw = accountEncodeWithContext(value, ctx);
     return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
-
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function accountEncodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return accountEncodePartialWithContext(value, ctx);
+    return Account.encodeWithContext(value, ctx);
 }
 
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export function accountEncodePartialWithContext(value: Partial<Account>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Account>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
-    }
-
-    const result: Record<string, unknown> = {
-        "__type": "Account",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("name")) {
-
-        if (value.name !== undefined) {
-            result.name = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("balance")) {
-
-        if (value.balance !== undefined) {
-            result.balance = value.balance;
-        }
-    }
-
-    return result;
+    return Account.encodePartialWithContext(value, ctx, fields);
 }
 
 /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
@@ -267,13 +271,16 @@ export function accountIs(value: unknown): value is Account {
 ## DTS
 
 export declare class Account {
+	#private;
 	name: string;
 	balance: number;
 	static defaultValue(): Account;
-	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-	static encode(value: Account, keepMetadata?: boolean): string;
 	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 	static encodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext(value: Partial<Account>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Account>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: Account, keepMetadata?: boolean): string;
 	constructor(props: {
 		name: string;
 		balance: number;
@@ -309,7 +316,7 @@ export declare function accountDefaultValue(): Account;
 export declare function accountEncode(value: Account, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function accountEncodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function accountEncodePartialWithContext(value: Partial<Account>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Account>): Record<string, unknown>;
 /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function accountDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -337,20 +344,21 @@ export declare function accountIs(value: unknown): value is Account;
 
 ## Mapping
 
-original 39..111 -> expanded 483..555
-original 111..112 -> expanded 6924..6925
-original 112..113 -> expanded 10737..10738
-generated 0..483 <- imports
-generated 555..751 <- Default
-generated 751..1386 <- Encode
-generated 1386..6924 <- Decode
-generated 6925..7012 <- Default
-generated 7012..8970 <- Encode
-generated 8970..10737 <- Decode
+original 39..111 -> expanded 601..673
+original 111..112 -> expanded 8479..8480
+original 112..113 -> expanded 11664..11665
+generated 0..601 <- imports
+generated 673..893 <- Default
+generated 893..2602 <- Encode
+generated 2602..2923 <- Encode
+generated 2923..8479 <- Decode
+generated 8480..8567 <- Default
+generated 8567..9897 <- Encode
+generated 9897..11664 <- Decode
 
 ## Metadata
 
-class Account: {"body_span":{"end":113,"start":62},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":40,"start":1}}],"fields":[{"decorators":[],"initializer":"\"\"","name":"name","optional":false,"readonly":false,"span":{"end":86,"start":68},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"0","name":"balance","optional":false,"readonly":false,"span":{"end":111,"start":91},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Account","span":{"end":113,"start":48},"type_params":[]}
+class Account: {"body_span":{"end":113,"start":62},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":40,"start":1}}],"fields":[{"decorators":[],"initializer":"\"\"","name":"name","optional":false,"readonly":false,"span":{"end":86,"start":68},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":"0","name":"balance","optional":false,"readonly":false,"span":{"end":111,"start":91},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Account","span":{"end":113,"start":48},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

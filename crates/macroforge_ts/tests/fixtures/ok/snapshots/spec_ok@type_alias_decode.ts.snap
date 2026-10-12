@@ -90,7 +90,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Settings.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Settings | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Settings") as Settings | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -109,7 +109,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Settings");
     }
 
     ctx.trackForFreeze(instance);
@@ -223,10 +223,10 @@ export {};
 ## Mapping
 
 original 22..84 -> expanded 350..412
-original 84..85 -> expanded 7031..7032
+original 84..85 -> expanded 7055..7056
 generated 0..350 <- imports
-generated 412..6360 <- Decode
-generated 6360..7031 <- __convenience_const
+generated 412..6384 <- Decode
+generated 6384..7055 <- __convenience_const
 
 ## Metadata
 

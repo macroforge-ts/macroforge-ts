@@ -29,8 +29,8 @@ export function pointEquals(a: Point, b: Point): boolean {
 
 export function pointHashCode(value: Point): number {
     let hash = 17;
-    hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     return hash;
 }
 
@@ -59,10 +59,10 @@ export {};
 ## Mapping
 
 original 31..81 -> expanded 0..50
-original 81..82 -> expanded 736..737
+original 81..82 -> expanded 752..753
 generated 50..181 <- PartialEq
-generated 181..580 <- Hash
-generated 580..736 <- __convenience_const
+generated 181..596 <- Hash
+generated 596..752 <- __convenience_const
 
 ## Metadata
 

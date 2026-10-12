@@ -29,11 +29,7 @@ export function colorEquals(a: Color, b: Color): boolean {
 }
 
 export function colorHashCode(value: Color): number {
-    let hash = 0;
-    for (let i = 0; i < value.length; i++) {
-        hash = (hash * 31 + value.charCodeAt(i)) | 0;
-    }
-    return hash;
+    return (value ?? "").split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0);
 }
 
 namespace Color {
@@ -63,10 +59,10 @@ export {};
 ## Mapping
 
 original 31..102 -> expanded 0..71
-original 102..103 -> expanded 491..492
+original 102..103 -> expanded 447..448
 generated 71..153 <- PartialEq
-generated 153..350 <- Hash
-generated 350..491 <- __convenience_const
+generated 153..306 <- Hash
+generated 306..447 <- __convenience_const
 
 ## Metadata
 

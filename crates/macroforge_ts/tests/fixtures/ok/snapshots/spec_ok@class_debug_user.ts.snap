@@ -25,14 +25,14 @@ class User {
     name: string;
 
     static toString(value: User): string {
-        return userToString(value);
+        const parts: string[] = [];
+        parts.push("name: " + String(value.name));
+        return "User { " + parts.join(", ") + " }";
     }
 }
 
 export function userToString(value: User): string {
-    const parts: string[] = [];
-    parts.push("name: " + String(value.name));
-    return "User { " + parts.join(", ") + " }";
+    return User.toString(value);
 }
 
 ## DTS
@@ -52,14 +52,14 @@ export {};
 
 original 0..41 -> expanded 0..41
 original 62..94 -> expanded 41..73
-original 94..95 -> expanded 159..160
-original 95..96 -> expanded 342..343
-generated 73..159 <- Debug
-generated 160..342 <- Debug
+original 94..95 -> expanded 262..263
+original 95..96 -> expanded 351..352
+generated 73..262 <- Debug
+generated 263..351 <- Debug
 
 ## Metadata
 
-class User: {"body_span":{"end":96,"start":75},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":94,"start":81},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":96,"start":64},"type_params":[]}
+class User: {"body_span":{"end":96,"start":75},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":94,"start":81},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":96,"start":64},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

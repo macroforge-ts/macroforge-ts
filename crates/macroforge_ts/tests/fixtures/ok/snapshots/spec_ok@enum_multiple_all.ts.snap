@@ -17,7 +17,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
 
 enum Status {
@@ -42,11 +42,7 @@ export function statusEquals(a: Status, b: Status): boolean {
 }
 
 export function statusHashCode(value: Status): number {
-    let hash = 0;
-    for (let i = 0; i < value.length; i++) {
-        hash = (hash * 31 + value.charCodeAt(i)) | 0;
-    }
-    return hash;
+    return (value ?? "").split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0);
 }
 
 /** Encodes this enum value to a JSON string.  */
@@ -74,7 +70,7 @@ export function statusDecodeWithContext(data: unknown): Status {
     if (Status["Inactive"] === data) {
         return Status["Inactive"];
     }
-    throw new Error("Invalid Status value: " + JSON.stringify(data));
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid Status value: " + JSON.stringify(data) }]);
 }
 
 export function statusIs(value: unknown): value is Status {
@@ -137,16 +133,16 @@ export {};
 
 ## Mapping
 
-original 61..126 -> expanded 194..259
-original 126..127 -> expanded 2802..2803
-generated 0..194 <- imports
-generated 259..494 <- Debug
-generated 494..568 <- Clone
-generated 568..653 <- PartialEq
-generated 653..852 <- Hash
-generated 852..1262 <- Encode
-generated 1262..2186 <- Decode
-generated 2186..2802 <- __convenience_const
+original 61..126 -> expanded 227..292
+original 126..127 -> expanded 2833..2834
+generated 0..227 <- imports
+generated 292..527 <- Debug
+generated 527..601 <- Clone
+generated 601..686 <- PartialEq
+generated 686..841 <- Hash
+generated 841..1251 <- Encode
+generated 1251..2217 <- Decode
+generated 2217..2833 <- __convenience_const
 
 ## Metadata
 

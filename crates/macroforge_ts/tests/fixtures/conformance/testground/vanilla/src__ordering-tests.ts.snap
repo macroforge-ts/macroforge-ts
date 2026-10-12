@@ -287,41 +287,41 @@ export class Version {
     minor: number = 0;
 
     static equals(a: Version, b: Version): boolean {
-        return versionEquals(a, b);
+        if (a === b) return true;
+        return a.major === b.major && a.minor === b.minor;
     }
 
     static partialCompare(a: Version, b: Version): number | null {
-        return versionPartialCompare(a, b);
+        if (a === b) return 0;
+        const cmp0 = (a.major < b.major ? -1 : a.major > b.major ? 1 : a.major === b.major ? 0 : null);
+        if (cmp0 === null) return null;
+        if (cmp0 !== 0) return cmp0;
+        const cmp1 = (a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : a.minor === b.minor ? 0 : null);
+        if (cmp1 === null) return null;
+        if (cmp1 !== 0) return cmp1;
+        return 0;
     }
 
     static compare(a: Version, b: Version): number {
-        return versionCompare(a, b);
+        if (a === b) return 0;
+        const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : 0;
+        if (cmp0 !== 0) return cmp0;
+        const cmp1 = a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : 0;
+        if (cmp1 !== 0) return cmp1;
+        return 0;
     }
 }
 
 export function versionEquals(a: Version, b: Version): boolean {
-    if (a === b) return true;
-    return a.major === b.major && a.minor === b.minor;
+    return Version.equals(a, b);
 }
 
 export function versionPartialCompare(a: Version, b: Version): number | null {
-    if (a === b) return 0;
-    const cmp0 = (a.major < b.major ? -1 : a.major > b.major ? 1 : a.major === b.major ? 0 : null);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = (a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : a.minor === b.minor ? 0 : null);
-    if (cmp1 === null) return null;
-    if (cmp1 !== 0) return cmp1;
-    return 0;
+    return Version.partialCompare(a, b);
 }
 
 export function versionCompare(a: Version, b: Version): number {
-    if (a === b) return 0;
-    const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : 0;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : 0;
-    if (cmp1 !== 0) return cmp1;
-    return 0;
+    return Version.compare(a, b);
 }
 
 /** @derive(PartialEq, Eq, PartialOrd, Ord) */
@@ -329,64 +329,64 @@ export class Release {
     versions: Version[] = [];
 
     static equals(a: Release, b: Release): boolean {
-        return releaseEquals(a, b);
+        if (a === b) return true;
+        return a.versions.length === b.versions.length && a.versions.every((__item0, __index0) => {
+        	const __other0 = b.versions[__index0];
+        	return __other0 === undefined ? __item0 === undefined : versionEquals(__item0, __other0);
+        });
     }
 
     static partialCompare(a: Release, b: Release): number | null {
-        return releasePartialCompare(a, b);
+        if (a === b) return 0;
+        const cmp0 = (() => {
+            const __left0 = a.versions;
+            const __right0 = b.versions;
+            const __shared0 = Math.min(__left0.length, __right0.length);
+            for (let __index0 = 0; __index0 < __shared0; __index0++) {
+                const __item0 = __left0[__index0];
+                const __other0 = __right0[__index0];
+                const __order0 = __item0 === undefined || __other0 === undefined
+                    ? __mf_structuralCompare(__item0, __other0)
+                    : versionPartialCompare(__item0, __other0);
+                if (__order0 !== 0) return __order0;
+            }
+            return __left0.length < __right0.length ? -1
+                : __left0.length > __right0.length ? 1 : 0;
+        })();
+        if (cmp0 === null) return null;
+        if (cmp0 !== 0) return cmp0;
+        return 0;
     }
 
     static compare(a: Release, b: Release): number {
-        return releaseCompare(a, b);
+        if (a === b) return 0;
+        const cmp0 = (() => {
+        	const __left0 = a.versions;
+        	const __right0 = b.versions;
+        	const __shared0 = Math.min(__left0.length, __right0.length);
+        	for (let __index0 = 0; __index0 < __shared0; __index0++) {
+        		const __item0 = __left0[__index0];
+        		const __other0 = __right0[__index0];
+        		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : versionCompare(__item0, __other0);
+        		if (__order0 !== 0) return __order0;
+        	}
+        	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
+        })();
+        if (cmp0 !== 0) return cmp0;
+        return 0;
     }
 }
 
 export function releaseEquals(a: Release, b: Release): boolean {
-    if (a === b) return true;
-    return a.versions.length === b.versions.length && a.versions.every((__item0, __index0) => {
-	const __other0 = b.versions[__index0];
-	return __other0 === undefined ? __item0 === undefined : versionEquals(__item0, __other0);
-});
+    return Release.equals(a, b);
 }
 
 export function releasePartialCompare(a: Release, b: Release): number | null {
-    if (a === b) return 0;
-    const cmp0 = (() => {
-        const __left0 = a.versions;
-        const __right0 = b.versions;
-        const __shared0 = Math.min(__left0.length, __right0.length);
-        for (let __index0 = 0; __index0 < __shared0; __index0++) {
-            const __item0 = __left0[__index0];
-            const __other0 = __right0[__index0];
-            const __order0 = __item0 === undefined || __other0 === undefined
-                ? __mf_structuralCompare(__item0, __other0)
-                : versionPartialCompare(__item0, __other0);
-            if (__order0 !== 0) return __order0;
-        }
-        return __left0.length < __right0.length ? -1
-            : __left0.length > __right0.length ? 1 : 0;
-    })();
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    return 0;
+    return Release.partialCompare(a, b);
 }
 
 export function releaseCompare(a: Release, b: Release): number {
-    if (a === b) return 0;
-    const cmp0 = (() => {
-	const __left0 = a.versions;
-	const __right0 = b.versions;
-	const __shared0 = Math.min(__left0.length, __right0.length);
-	for (let __index0 = 0; __index0 < __shared0; __index0++) {
-		const __item0 = __left0[__index0];
-		const __other0 = __right0[__index0];
-		const __order0 = __item0 === undefined || __other0 === undefined ? __mf_structuralCompare(__item0, __other0) : versionCompare(__item0, __other0);
-		if (__order0 !== 0) return __order0;
-	}
-	return __left0.length < __right0.length ? -1 : __left0.length > __right0.length ? 1 : 0;
-})();
-    if (cmp0 !== 0) return cmp0;
-    return 0;
+    return Release.compare(a, b);
 }
 
 ## DTS
@@ -470,10 +470,10 @@ original 235..352 -> expanded 2593..2710
 original 352..450 -> expanded 5539..5637
 original 450..535 -> expanded 7208..7293
 original 535..653 -> expanded 10216..10334
-original 653..654 -> expanded 10645..10646
-original 654..756 -> expanded 11573..11675
-original 756..757 -> expanded 11986..11987
-original 757..758 -> expanded 13925..13926
+original 653..654 -> expanded 11301..11302
+original 654..756 -> expanded 11628..11730
+original 756..757 -> expanded 13856..13857
+original 757..758 -> expanded 14183..14184
 generated 0..134 <- imports
 generated 369..675 <- PartialEq
 generated 675..1610 <- PartialOrd
@@ -491,23 +491,23 @@ generated 7293..7614 <- PartialEq
 generated 7614..8837 <- PartialOrd
 generated 8837..9970 <- Ord
 generated 9970..10216 <- __convenience_const
-generated 10334..10430 <- PartialEq
-generated 10430..10548 <- PartialOrd
-generated 10548..10645 <- Ord
-generated 10646..10799 <- PartialEq
-generated 10799..11260 <- PartialOrd
-generated 11260..11573 <- Ord
-generated 11675..11771 <- PartialEq
-generated 11771..11889 <- PartialOrd
-generated 11889..11986 <- Ord
-generated 11987..12316 <- PartialEq
-generated 12316..13214 <- PartialOrd
-generated 13214..13925 <- Ord
+generated 10334..10487 <- PartialEq
+generated 10487..10972 <- PartialOrd
+generated 10972..11301 <- Ord
+generated 11302..11403 <- PartialEq
+generated 11403..11526 <- PartialOrd
+generated 11526..11628 <- Ord
+generated 11730..12083 <- PartialEq
+generated 12083..13049 <- PartialOrd
+generated 13049..13856 <- Ord
+generated 13857..13958 <- PartialEq
+generated 13958..14081 <- PartialOrd
+generated 14081..14183 <- Ord
 
 ## Metadata
 
-class Version: {"body_span":{"end":655,"start":606},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":584,"start":538}}],"fields":[{"decorators":[],"initializer":"0","name":"major","optional":false,"readonly":false,"span":{"end":630,"start":612},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"0","name":"minor","optional":false,"readonly":false,"span":{"end":653,"start":635},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Version","span":{"end":655,"start":592},"type_params":[]}
-class Release: {"body_span":{"end":758,"start":725},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":703,"start":657}}],"fields":[{"decorators":[],"initializer":"[]","name":"versions","optional":false,"readonly":false,"span":{"end":756,"start":731},"ts_type":"Version[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Release","span":{"end":758,"start":711},"type_params":[]}
+class Version: {"body_span":{"end":655,"start":606},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":584,"start":538}}],"fields":[{"decorators":[],"initializer":"0","name":"major","optional":false,"readonly":false,"span":{"end":630,"start":612},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"0","name":"minor","optional":false,"readonly":false,"span":{"end":653,"start":635},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Version","span":{"end":655,"start":592},"superclass":null,"type_params":[]}
+class Release: {"body_span":{"end":758,"start":725},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":703,"start":657}}],"fields":[{"decorators":[],"initializer":"[]","name":"versions","optional":false,"readonly":false,"span":{"end":756,"start":731},"ts_type":"Version[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Release","span":{"end":758,"start":711},"superclass":null,"type_params":[]}
 interface Scores: {"body_span":{"end":236,"start":211},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":186,"start":140}}],"fields":[{"decorators":[],"name":"values","optional":false,"readonly":false,"span":{"end":234,"start":217},"ts_type":"number[]"}],"heritage":[],"methods":[],"name":"Scores","span":{"end":236,"start":194},"type_params":[]}
 type Entry: {"body":{"Tuple":["name: string","rank: number","...tags: string[]"]},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":284,"start":238}}],"name":"Entry","span":{"end":353,"start":292},"type_params":[]}
 type Span: {"body":{"Tuple":["start: number","end?: number"]},"decorators":[{"args_src":"PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":401,"start":355}}],"name":"Span","span":{"end":451,"start":409},"type_params":[]}

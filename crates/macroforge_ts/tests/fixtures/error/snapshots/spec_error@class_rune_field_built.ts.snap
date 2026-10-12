@@ -1,0 +1,68 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/class_rune_field_built.ts
+---
+## Input
+
+/** @derive(Debug, Clone) */
+class Counter {
+    count: number = $state(0);
+    label: string = '';
+}
+
+## Changed
+
+true
+
+## Output
+
+class Counter {
+    count: number = $state(0);
+    label: string = '';
+
+    static toString(value: Counter): string {
+        const parts: string[] = [];
+        parts.push("count: " + String(value.count));
+        parts.push("label: " + String(value.label));
+        return "Counter { " + parts.join(", ") + " }";
+    }
+}
+
+export function counterToString(value: Counter): string {
+    return Counter.toString(value);
+}
+
+## DTS
+
+declare class Counter {
+	count: number;
+	label: string;
+	static toString(value: Counter): string;
+}
+export declare function counterToString(value: Counter): string;
+export {};
+
+## Diagnostics
+
+Error [5..26]: @derive(Clone): field 'count' of class 'Counter' is set up by `$state`, which only the class's constructor can do, and a derive builds an instance without running it
+
+## Mapping
+
+original 28..100 -> expanded 0..72
+original 100..101 -> expanded 322..323
+original 101..102 -> expanded 420..421
+generated 72..322 <- Debug
+generated 323..420 <- Debug
+
+## Metadata
+
+class Counter: {"body_span":{"end":102,"start":44},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":29,"start":1}}],"fields":[{"decorators":[],"initializer":"$state(0)","name":"count","optional":false,"readonly":false,"span":{"end":76,"start":50},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":"''","name":"label","optional":false,"readonly":false,"span":{"end":100,"start":81},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Counter","span":{"end":102,"start":30},"superclass":null,"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

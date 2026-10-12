@@ -13,7 +13,7 @@ true
 ## Output
 
 import { coordinatesDecodeWithContext, coordinatesEncodeWithContext, coordinatesDefaultValue } from "./coordinates.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -69,101 +69,88 @@ export function siteEncode(value: Site, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function siteEncodeWithContext(value: Site, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return siteEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function siteEncodePartialWithContext(value: Partial<Site>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Site>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Site",
-        __id,
+        __id: ctx.register(value),
     };
+    siteEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function siteEncodePartialWithContext(value: Partial<Site>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Site>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Site" };
+        siteEncodeFields(value as Site, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function siteEncodeFields(value: Site, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
-
         if (value.id !== undefined) {
             result.id = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("addressLine1")) {
-
         if (value.addressLine1 !== undefined) {
             result.addressLine1 = value.addressLine1;
         }
     }
     if (__fields === undefined || __fields.keeps("addressLine2")) {
         if (value.addressLine2 !== undefined) {
-
             result.addressLine2 = value.addressLine2;
         }
     }
     if (__fields === undefined || __fields.keeps("sublocalityLevel1")) {
         if (value.sublocalityLevel1 !== undefined) {
-
             result.sublocalityLevel1 = value.sublocalityLevel1;
         }
     }
     if (__fields === undefined || __fields.keeps("locality")) {
-
         if (value.locality !== undefined) {
             result.locality = value.locality;
         }
     }
     if (__fields === undefined || __fields.keeps("administrativeAreaLevel3")) {
         if (value.administrativeAreaLevel3 !== undefined) {
-
             result.administrativeAreaLevel3 = value.administrativeAreaLevel3;
         }
     }
     if (__fields === undefined || __fields.keeps("administrativeAreaLevel2")) {
         if (value.administrativeAreaLevel2 !== undefined) {
-
             result.administrativeAreaLevel2 = value.administrativeAreaLevel2;
         }
     }
     if (__fields === undefined || __fields.keeps("administrativeAreaLevel1")) {
-
         if (value.administrativeAreaLevel1 !== undefined) {
             result.administrativeAreaLevel1 = value.administrativeAreaLevel1;
         }
     }
     if (__fields === undefined || __fields.keeps("country")) {
-
         if (value.country !== undefined) {
             result.country = value.country;
         }
     }
     if (__fields === undefined || __fields.keeps("postalCode")) {
-
         if (value.postalCode !== undefined) {
             result.postalCode = value.postalCode;
         }
     }
     if (__fields === undefined || __fields.keeps("postalCodeSuffix")) {
         if (value.postalCodeSuffix !== undefined) {
-
             result.postalCodeSuffix = value.postalCodeSuffix;
         }
     }
     if (__fields === undefined || __fields.keeps("coordinates")) {
-
         if (value.coordinates !== undefined) {
             result.coordinates = coordinatesEncodeWithContext(value.coordinates, ctx);
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -231,7 +218,7 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Site.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Site | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Site") as Site | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -280,7 +267,7 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Site");
     }
 
     ctx.trackForFreeze(instance);
@@ -1000,7 +987,7 @@ export declare function siteDefaultValue(): Site;
 export declare function siteEncode(value: Site, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function siteEncodeWithContext(value: Site, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function siteEncodePartialWithContext(value: Partial<Site>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Site>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function siteDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -1116,20 +1103,20 @@ export declare const Site: {
 
 ## Mapping
 
-original 0..116 -> expanded 766..882
-original 165..210 -> expanded 882..927
-original 251..353 -> expanded 927..1029
-original 394..511 -> expanded 1029..1146
-original 552..595 -> expanded 1146..1189
-original 636..662 -> expanded 1189..1215
-original 703..796 -> expanded 1215..1308
-original 796..797 -> expanded 43703..43704
-generated 0..766 <- imports
-generated 1308..1742 <- Default
-generated 1742..5719 <- Encode
-generated 5719..24613 <- Decode
-generated 24613..42545 <- Gigaform
-generated 42545..43703 <- __convenience_const
+original 0..116 -> expanded 807..923
+original 165..210 -> expanded 923..968
+original 251..353 -> expanded 968..1070
+original 394..511 -> expanded 1070..1187
+original 552..595 -> expanded 1187..1230
+original 636..662 -> expanded 1230..1256
+original 703..796 -> expanded 1256..1349
+original 796..797 -> expanded 44067..44068
+generated 0..807 <- imports
+generated 1349..1783 <- Default
+generated 1783..6067 <- Encode
+generated 6067..24977 <- Decode
+generated 24977..42909 <- Gigaform
+generated 42909..44067 <- __convenience_const
 
 ## Metadata
 

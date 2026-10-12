@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, isMultipleOf as __mf_isMultipleOf } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, isMultipleOf as __mf_isMultipleOf, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * One class per validator in the endec validators documentation, each holding
@@ -26,6 +26,7 @@ export class DocEmail {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -95,7 +96,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocEmail.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocEmail | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocEmail") as DocEmail | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -107,10 +108,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocEmail.prototype) as DocEmail;
+
+    const instance: any = Object.create(DocEmail.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocEmail");
     }
 
     ctx.trackForFreeze(instance);
@@ -205,6 +207,7 @@ export class DocUrl {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -274,7 +277,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocUrl.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocUrl | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocUrl") as DocUrl | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -286,10 +289,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocUrl.prototype) as DocUrl;
+
+    const instance: any = Object.create(DocUrl.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocUrl");
     }
 
     ctx.trackForFreeze(instance);
@@ -384,6 +388,7 @@ export class DocUuid {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -453,7 +458,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocUuid.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocUuid | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocUuid") as DocUuid | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -465,10 +470,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocUuid.prototype) as DocUuid;
+
+    const instance: any = Object.create(DocUuid.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocUuid");
     }
 
     ctx.trackForFreeze(instance);
@@ -563,6 +569,7 @@ export class DocPattern {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -632,7 +639,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocPattern.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocPattern | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocPattern") as DocPattern | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -644,10 +651,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocPattern.prototype) as DocPattern;
+
+    const instance: any = Object.create(DocPattern.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocPattern");
     }
 
     ctx.trackForFreeze(instance);
@@ -742,6 +750,7 @@ export class DocPatternWithSlash {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -811,7 +820,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocPatternWithSlash.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocPatternWithSlash | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocPatternWithSlash") as DocPatternWithSlash | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -823,10 +832,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocPatternWithSlash.prototype) as DocPatternWithSlash;
+
+    const instance: any = Object.create(DocPatternWithSlash.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocPatternWithSlash");
     }
 
     ctx.trackForFreeze(instance);
@@ -921,6 +931,7 @@ export class DocMinLength {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -990,7 +1001,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocMinLength.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocMinLength | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocMinLength") as DocMinLength | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1002,10 +1013,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocMinLength.prototype) as DocMinLength;
+
+    const instance: any = Object.create(DocMinLength.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocMinLength");
     }
 
     ctx.trackForFreeze(instance);
@@ -1100,6 +1112,7 @@ export class DocMaxLength {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -1169,7 +1182,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocMaxLength.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocMaxLength | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocMaxLength") as DocMaxLength | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1181,10 +1194,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocMaxLength.prototype) as DocMaxLength;
+
+    const instance: any = Object.create(DocMaxLength.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocMaxLength");
     }
 
     ctx.trackForFreeze(instance);
@@ -1279,6 +1293,7 @@ export class DocLength {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -1348,7 +1363,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocLength.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocLength | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocLength") as DocLength | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1360,10 +1375,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocLength.prototype) as DocLength;
+
+    const instance: any = Object.create(DocLength.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocLength");
     }
 
     ctx.trackForFreeze(instance);
@@ -1458,6 +1474,7 @@ export class DocLengthRange {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -1527,7 +1544,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocLengthRange.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocLengthRange | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocLengthRange") as DocLengthRange | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1539,10 +1556,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocLengthRange.prototype) as DocLengthRange;
+
+    const instance: any = Object.create(DocLengthRange.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocLengthRange");
     }
 
     ctx.trackForFreeze(instance);
@@ -1637,6 +1655,7 @@ export class DocNonEmpty {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -1706,7 +1725,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocNonEmpty.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocNonEmpty | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocNonEmpty") as DocNonEmpty | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1718,10 +1737,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocNonEmpty.prototype) as DocNonEmpty;
+
+    const instance: any = Object.create(DocNonEmpty.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocNonEmpty");
     }
 
     ctx.trackForFreeze(instance);
@@ -1816,6 +1836,7 @@ export class DocTrimmed {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -1885,7 +1906,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocTrimmed.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocTrimmed | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocTrimmed") as DocTrimmed | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1897,10 +1918,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocTrimmed.prototype) as DocTrimmed;
+
+    const instance: any = Object.create(DocTrimmed.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocTrimmed");
     }
 
     ctx.trackForFreeze(instance);
@@ -1995,6 +2017,7 @@ export class DocLowercase {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -2064,7 +2087,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocLowercase.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocLowercase | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocLowercase") as DocLowercase | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -2076,10 +2099,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocLowercase.prototype) as DocLowercase;
+
+    const instance: any = Object.create(DocLowercase.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocLowercase");
     }
 
     ctx.trackForFreeze(instance);
@@ -2174,6 +2198,7 @@ export class DocUppercase {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -2243,7 +2268,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocUppercase.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocUppercase | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocUppercase") as DocUppercase | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -2255,10 +2280,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocUppercase.prototype) as DocUppercase;
+
+    const instance: any = Object.create(DocUppercase.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocUppercase");
     }
 
     ctx.trackForFreeze(instance);
@@ -2353,6 +2379,7 @@ export class DocCapitalized {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -2422,7 +2449,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocCapitalized.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocCapitalized | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocCapitalized") as DocCapitalized | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -2434,10 +2461,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocCapitalized.prototype) as DocCapitalized;
+
+    const instance: any = Object.create(DocCapitalized.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocCapitalized");
     }
 
     ctx.trackForFreeze(instance);
@@ -2532,6 +2560,7 @@ export class DocUncapitalized {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -2601,7 +2630,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocUncapitalized.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocUncapitalized | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocUncapitalized") as DocUncapitalized | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -2613,10 +2642,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocUncapitalized.prototype) as DocUncapitalized;
+
+    const instance: any = Object.create(DocUncapitalized.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocUncapitalized");
     }
 
     ctx.trackForFreeze(instance);
@@ -2711,6 +2741,7 @@ export class DocStartsWith {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -2780,7 +2811,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocStartsWith.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocStartsWith | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocStartsWith") as DocStartsWith | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -2792,10 +2823,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocStartsWith.prototype) as DocStartsWith;
+
+    const instance: any = Object.create(DocStartsWith.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocStartsWith");
     }
 
     ctx.trackForFreeze(instance);
@@ -2890,6 +2922,7 @@ export class DocStartsWithQuote {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -2959,7 +2992,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocStartsWithQuote.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocStartsWithQuote | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocStartsWithQuote") as DocStartsWithQuote | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -2971,10 +3004,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocStartsWithQuote.prototype) as DocStartsWithQuote;
+
+    const instance: any = Object.create(DocStartsWithQuote.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocStartsWithQuote");
     }
 
     ctx.trackForFreeze(instance);
@@ -3069,6 +3103,7 @@ export class DocEndsWith {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -3138,7 +3173,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocEndsWith.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocEndsWith | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocEndsWith") as DocEndsWith | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -3150,10 +3185,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocEndsWith.prototype) as DocEndsWith;
+
+    const instance: any = Object.create(DocEndsWith.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocEndsWith");
     }
 
     ctx.trackForFreeze(instance);
@@ -3248,6 +3284,7 @@ export class DocIncludes {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -3317,7 +3354,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocIncludes.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocIncludes | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocIncludes") as DocIncludes | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -3329,10 +3366,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocIncludes.prototype) as DocIncludes;
+
+    const instance: any = Object.create(DocIncludes.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocIncludes");
     }
 
     ctx.trackForFreeze(instance);
@@ -3427,6 +3465,7 @@ export class DocGreaterThan {
     value: number;
 
 constructor(props: { value: number }) {
+
     this.value = props.value;
 }
 
@@ -3496,7 +3535,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocGreaterThan.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocGreaterThan | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocGreaterThan") as DocGreaterThan | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -3508,10 +3547,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocGreaterThan.prototype) as DocGreaterThan;
+
+    const instance: any = Object.create(DocGreaterThan.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocGreaterThan");
     }
 
     ctx.trackForFreeze(instance);
@@ -3606,6 +3646,7 @@ export class DocGreaterThanOrEqualTo {
     value: number;
 
 constructor(props: { value: number }) {
+
     this.value = props.value;
 }
 
@@ -3675,7 +3716,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocGreaterThanOrEqualTo.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocGreaterThanOrEqualTo | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocGreaterThanOrEqualTo") as DocGreaterThanOrEqualTo | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -3687,10 +3728,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocGreaterThanOrEqualTo.prototype) as DocGreaterThanOrEqualTo;
+
+    const instance: any = Object.create(DocGreaterThanOrEqualTo.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocGreaterThanOrEqualTo");
     }
 
     ctx.trackForFreeze(instance);
@@ -3785,6 +3827,7 @@ export class DocLessThan {
     value: number;
 
 constructor(props: { value: number }) {
+
     this.value = props.value;
 }
 
@@ -3854,7 +3897,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocLessThan.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocLessThan | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocLessThan") as DocLessThan | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -3866,10 +3909,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocLessThan.prototype) as DocLessThan;
+
+    const instance: any = Object.create(DocLessThan.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocLessThan");
     }
 
     ctx.trackForFreeze(instance);
@@ -3964,6 +4008,7 @@ export class DocLessThanOrEqualTo {
     value: number;
 
 constructor(props: { value: number }) {
+
     this.value = props.value;
 }
 
@@ -4033,7 +4078,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocLessThanOrEqualTo.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocLessThanOrEqualTo | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocLessThanOrEqualTo") as DocLessThanOrEqualTo | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -4045,10 +4090,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocLessThanOrEqualTo.prototype) as DocLessThanOrEqualTo;
+
+    const instance: any = Object.create(DocLessThanOrEqualTo.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocLessThanOrEqualTo");
     }
 
     ctx.trackForFreeze(instance);
@@ -4143,6 +4189,7 @@ export class DocBetween {
     value: number;
 
 constructor(props: { value: number }) {
+
     this.value = props.value;
 }
 
@@ -4212,7 +4259,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocBetween.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocBetween | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocBetween") as DocBetween | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -4224,10 +4271,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocBetween.prototype) as DocBetween;
+
+    const instance: any = Object.create(DocBetween.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocBetween");
     }
 
     ctx.trackForFreeze(instance);
@@ -4322,6 +4370,7 @@ export class DocInt {
     value: number;
 
 constructor(props: { value: number }) {
+
     this.value = props.value;
 }
 
@@ -4391,7 +4440,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocInt.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocInt | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocInt") as DocInt | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -4403,10 +4452,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocInt.prototype) as DocInt;
+
+    const instance: any = Object.create(DocInt.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocInt");
     }
 
     ctx.trackForFreeze(instance);
@@ -4501,6 +4551,7 @@ export class DocNonNegativeInt {
     value: number;
 
 constructor(props: { value: number }) {
+
     this.value = props.value;
 }
 
@@ -4570,7 +4621,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocNonNegativeInt.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocNonNegativeInt | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocNonNegativeInt") as DocNonNegativeInt | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -4582,10 +4633,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocNonNegativeInt.prototype) as DocNonNegativeInt;
+
+    const instance: any = Object.create(DocNonNegativeInt.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocNonNegativeInt");
     }
 
     ctx.trackForFreeze(instance);
@@ -4680,6 +4732,7 @@ export class DocUint8 {
     value: number;
 
 constructor(props: { value: number }) {
+
     this.value = props.value;
 }
 
@@ -4749,7 +4802,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocUint8.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocUint8 | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocUint8") as DocUint8 | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -4761,10 +4814,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocUint8.prototype) as DocUint8;
+
+    const instance: any = Object.create(DocUint8.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocUint8");
     }
 
     ctx.trackForFreeze(instance);
@@ -4859,6 +4913,7 @@ export class DocMultipleOfDecimal {
     value: number;
 
 constructor(props: { value: number }) {
+
     this.value = props.value;
 }
 
@@ -4928,7 +4983,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocMultipleOfDecimal.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocMultipleOfDecimal | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocMultipleOfDecimal") as DocMultipleOfDecimal | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -4940,10 +4995,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocMultipleOfDecimal.prototype) as DocMultipleOfDecimal;
+
+    const instance: any = Object.create(DocMultipleOfDecimal.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocMultipleOfDecimal");
     }
 
     ctx.trackForFreeze(instance);
@@ -5038,6 +5094,7 @@ export class DocMultipleOfInteger {
     value: number;
 
 constructor(props: { value: number }) {
+
     this.value = props.value;
 }
 
@@ -5107,7 +5164,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocMultipleOfInteger.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocMultipleOfInteger | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocMultipleOfInteger") as DocMultipleOfInteger | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -5119,10 +5176,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocMultipleOfInteger.prototype) as DocMultipleOfInteger;
+
+    const instance: any = Object.create(DocMultipleOfInteger.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocMultipleOfInteger");
     }
 
     ctx.trackForFreeze(instance);
@@ -5217,6 +5275,7 @@ export class DocPositive {
     value: number;
 
 constructor(props: { value: number }) {
+
     this.value = props.value;
 }
 
@@ -5286,7 +5345,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocPositive.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocPositive | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocPositive") as DocPositive | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -5298,10 +5357,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocPositive.prototype) as DocPositive;
+
+    const instance: any = Object.create(DocPositive.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocPositive");
     }
 
     ctx.trackForFreeze(instance);
@@ -5396,6 +5456,7 @@ export class DocNonNegative {
     value: number;
 
 constructor(props: { value: number }) {
+
     this.value = props.value;
 }
 
@@ -5465,7 +5526,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocNonNegative.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocNonNegative | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocNonNegative") as DocNonNegative | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -5477,10 +5538,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocNonNegative.prototype) as DocNonNegative;
+
+    const instance: any = Object.create(DocNonNegative.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocNonNegative");
     }
 
     ctx.trackForFreeze(instance);
@@ -5575,6 +5637,7 @@ export class DocNegative {
     value: number;
 
 constructor(props: { value: number }) {
+
     this.value = props.value;
 }
 
@@ -5644,7 +5707,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocNegative.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocNegative | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocNegative") as DocNegative | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -5656,10 +5719,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocNegative.prototype) as DocNegative;
+
+    const instance: any = Object.create(DocNegative.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocNegative");
     }
 
     ctx.trackForFreeze(instance);
@@ -5754,6 +5818,7 @@ export class DocNonPositive {
     value: number;
 
 constructor(props: { value: number }) {
+
     this.value = props.value;
 }
 
@@ -5823,7 +5888,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocNonPositive.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocNonPositive | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocNonPositive") as DocNonPositive | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -5835,10 +5900,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocNonPositive.prototype) as DocNonPositive;
+
+    const instance: any = Object.create(DocNonPositive.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocNonPositive");
     }
 
     ctx.trackForFreeze(instance);
@@ -5933,6 +5999,7 @@ export class DocFinite {
     value: number;
 
 constructor(props: { value: number }) {
+
     this.value = props.value;
 }
 
@@ -6002,7 +6069,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocFinite.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocFinite | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocFinite") as DocFinite | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -6014,10 +6081,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocFinite.prototype) as DocFinite;
+
+    const instance: any = Object.create(DocFinite.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocFinite");
     }
 
     ctx.trackForFreeze(instance);
@@ -6112,6 +6180,7 @@ export class DocNonNaN {
     value: number;
 
 constructor(props: { value: number }) {
+
     this.value = props.value;
 }
 
@@ -6181,7 +6250,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocNonNaN.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocNonNaN | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocNonNaN") as DocNonNaN | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -6193,10 +6262,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocNonNaN.prototype) as DocNonNaN;
+
+    const instance: any = Object.create(DocNonNaN.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocNonNaN");
     }
 
     ctx.trackForFreeze(instance);
@@ -6291,6 +6361,7 @@ export class DocPositiveBigInt {
     value: bigint;
 
 constructor(props: { value: bigint }) {
+
     this.value = props.value;
 }
 
@@ -6360,7 +6431,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocPositiveBigInt.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocPositiveBigInt | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocPositiveBigInt") as DocPositiveBigInt | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -6372,10 +6443,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocPositiveBigInt.prototype) as DocPositiveBigInt;
+
+    const instance: any = Object.create(DocPositiveBigInt.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocPositiveBigInt");
     }
 
     ctx.trackForFreeze(instance);
@@ -6469,6 +6541,7 @@ export class DocNonNegativeBigInt {
     value: bigint;
 
 constructor(props: { value: bigint }) {
+
     this.value = props.value;
 }
 
@@ -6538,7 +6611,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocNonNegativeBigInt.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocNonNegativeBigInt | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocNonNegativeBigInt") as DocNonNegativeBigInt | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -6550,10 +6623,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocNonNegativeBigInt.prototype) as DocNonNegativeBigInt;
+
+    const instance: any = Object.create(DocNonNegativeBigInt.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocNonNegativeBigInt");
     }
 
     ctx.trackForFreeze(instance);
@@ -6647,6 +6721,7 @@ export class DocNegativeBigInt {
     value: bigint;
 
 constructor(props: { value: bigint }) {
+
     this.value = props.value;
 }
 
@@ -6716,7 +6791,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocNegativeBigInt.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocNegativeBigInt | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocNegativeBigInt") as DocNegativeBigInt | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -6728,10 +6803,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocNegativeBigInt.prototype) as DocNegativeBigInt;
+
+    const instance: any = Object.create(DocNegativeBigInt.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocNegativeBigInt");
     }
 
     ctx.trackForFreeze(instance);
@@ -6825,6 +6901,7 @@ export class DocNonPositiveBigInt {
     value: bigint;
 
 constructor(props: { value: bigint }) {
+
     this.value = props.value;
 }
 
@@ -6894,7 +6971,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocNonPositiveBigInt.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocNonPositiveBigInt | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocNonPositiveBigInt") as DocNonPositiveBigInt | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -6906,10 +6983,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocNonPositiveBigInt.prototype) as DocNonPositiveBigInt;
+
+    const instance: any = Object.create(DocNonPositiveBigInt.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocNonPositiveBigInt");
     }
 
     ctx.trackForFreeze(instance);
@@ -7003,6 +7081,7 @@ export class DocGreaterThanBigInt {
     value: bigint;
 
 constructor(props: { value: bigint }) {
+
     this.value = props.value;
 }
 
@@ -7072,7 +7151,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocGreaterThanBigInt.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocGreaterThanBigInt | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocGreaterThanBigInt") as DocGreaterThanBigInt | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -7084,10 +7163,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocGreaterThanBigInt.prototype) as DocGreaterThanBigInt;
+
+    const instance: any = Object.create(DocGreaterThanBigInt.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocGreaterThanBigInt");
     }
 
     ctx.trackForFreeze(instance);
@@ -7181,6 +7261,7 @@ export class DocGreaterThanOrEqualToBigInt {
     value: bigint;
 
 constructor(props: { value: bigint }) {
+
     this.value = props.value;
 }
 
@@ -7250,7 +7331,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocGreaterThanOrEqualToBigInt.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocGreaterThanOrEqualToBigInt | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocGreaterThanOrEqualToBigInt") as DocGreaterThanOrEqualToBigInt | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -7262,10 +7343,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocGreaterThanOrEqualToBigInt.prototype) as DocGreaterThanOrEqualToBigInt;
+
+    const instance: any = Object.create(DocGreaterThanOrEqualToBigInt.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocGreaterThanOrEqualToBigInt");
     }
 
     ctx.trackForFreeze(instance);
@@ -7359,6 +7441,7 @@ export class DocLessThanBigInt {
     value: bigint;
 
 constructor(props: { value: bigint }) {
+
     this.value = props.value;
 }
 
@@ -7428,7 +7511,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocLessThanBigInt.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocLessThanBigInt | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocLessThanBigInt") as DocLessThanBigInt | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -7440,10 +7523,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocLessThanBigInt.prototype) as DocLessThanBigInt;
+
+    const instance: any = Object.create(DocLessThanBigInt.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocLessThanBigInt");
     }
 
     ctx.trackForFreeze(instance);
@@ -7537,6 +7621,7 @@ export class DocLessThanOrEqualToBigInt {
     value: bigint;
 
 constructor(props: { value: bigint }) {
+
     this.value = props.value;
 }
 
@@ -7606,7 +7691,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocLessThanOrEqualToBigInt.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocLessThanOrEqualToBigInt | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocLessThanOrEqualToBigInt") as DocLessThanOrEqualToBigInt | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -7618,10 +7703,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocLessThanOrEqualToBigInt.prototype) as DocLessThanOrEqualToBigInt;
+
+    const instance: any = Object.create(DocLessThanOrEqualToBigInt.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocLessThanOrEqualToBigInt");
     }
 
     ctx.trackForFreeze(instance);
@@ -7715,6 +7801,7 @@ export class DocBetweenBigInt {
     value: bigint;
 
 constructor(props: { value: bigint }) {
+
     this.value = props.value;
 }
 
@@ -7784,7 +7871,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocBetweenBigInt.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocBetweenBigInt | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocBetweenBigInt") as DocBetweenBigInt | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -7796,10 +7883,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocBetweenBigInt.prototype) as DocBetweenBigInt;
+
+    const instance: any = Object.create(DocBetweenBigInt.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocBetweenBigInt");
     }
 
     ctx.trackForFreeze(instance);
@@ -7893,6 +7981,7 @@ export class DocValidDate {
     value: Date;
 
 constructor(props: { value: Date }) {
+
     this.value = props.value;
 }
 
@@ -7962,7 +8051,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocValidDate.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocValidDate | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocValidDate") as DocValidDate | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -7974,10 +8063,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocValidDate.prototype) as DocValidDate;
+
+    const instance: any = Object.create(DocValidDate.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocValidDate");
     }
 
     ctx.trackForFreeze(instance);
@@ -8070,6 +8160,7 @@ export class DocGreaterThanDate {
     value: Date;
 
 constructor(props: { value: Date }) {
+
     this.value = props.value;
 }
 
@@ -8139,7 +8230,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocGreaterThanDate.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocGreaterThanDate | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocGreaterThanDate") as DocGreaterThanDate | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -8151,10 +8242,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocGreaterThanDate.prototype) as DocGreaterThanDate;
+
+    const instance: any = Object.create(DocGreaterThanDate.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocGreaterThanDate");
     }
 
     ctx.trackForFreeze(instance);
@@ -8247,6 +8339,7 @@ export class DocGreaterThanOrEqualToDate {
     value: Date;
 
 constructor(props: { value: Date }) {
+
     this.value = props.value;
 }
 
@@ -8316,7 +8409,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocGreaterThanOrEqualToDate.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocGreaterThanOrEqualToDate | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocGreaterThanOrEqualToDate") as DocGreaterThanOrEqualToDate | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -8328,10 +8421,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocGreaterThanOrEqualToDate.prototype) as DocGreaterThanOrEqualToDate;
+
+    const instance: any = Object.create(DocGreaterThanOrEqualToDate.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocGreaterThanOrEqualToDate");
     }
 
     ctx.trackForFreeze(instance);
@@ -8424,6 +8518,7 @@ export class DocLessThanDate {
     value: Date;
 
 constructor(props: { value: Date }) {
+
     this.value = props.value;
 }
 
@@ -8493,7 +8588,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocLessThanDate.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocLessThanDate | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocLessThanDate") as DocLessThanDate | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -8505,10 +8600,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocLessThanDate.prototype) as DocLessThanDate;
+
+    const instance: any = Object.create(DocLessThanDate.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocLessThanDate");
     }
 
     ctx.trackForFreeze(instance);
@@ -8601,6 +8697,7 @@ export class DocLessThanOrEqualToDate {
     value: Date;
 
 constructor(props: { value: Date }) {
+
     this.value = props.value;
 }
 
@@ -8670,7 +8767,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocLessThanOrEqualToDate.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocLessThanOrEqualToDate | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocLessThanOrEqualToDate") as DocLessThanOrEqualToDate | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -8682,10 +8779,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocLessThanOrEqualToDate.prototype) as DocLessThanOrEqualToDate;
+
+    const instance: any = Object.create(DocLessThanOrEqualToDate.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocLessThanOrEqualToDate");
     }
 
     ctx.trackForFreeze(instance);
@@ -8778,6 +8876,7 @@ export class DocBetweenDate {
     value: Date;
 
 constructor(props: { value: Date }) {
+
     this.value = props.value;
 }
 
@@ -8847,7 +8946,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocBetweenDate.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocBetweenDate | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocBetweenDate") as DocBetweenDate | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -8859,10 +8958,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocBetweenDate.prototype) as DocBetweenDate;
+
+    const instance: any = Object.create(DocBetweenDate.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocBetweenDate");
     }
 
     ctx.trackForFreeze(instance);
@@ -8955,6 +9055,7 @@ export class DocMinItems {
     value: number[];
 
 constructor(props: { value: number[] }) {
+
     this.value = props.value;
 }
 
@@ -9024,7 +9125,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocMinItems.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocMinItems | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocMinItems") as DocMinItems | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -9036,22 +9137,38 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocMinItems.prototype) as DocMinItems;
+
+    const instance: any = Object.create(DocMinItems.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocMinItems");
     }
 
     ctx.trackForFreeze(instance);
 
     if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number[];
-
         if (Array.isArray(__raw_value)) {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocMinItems.value is required" }); } else {
                 if (__raw_value.length < 2) { errors.push({ field: "value", message: "DocMinItems.value must have at least 2 items" }); }
             }
-            instance.value = __raw_value as number[];
+            ctx.pushScope("value");
+            try {
+                instance.value = __mf_decodeArray(__raw_value, ctx, __mf_decodeNumber);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "value" : "value." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "value", message: __raw_value == null ? "DocMinItems.value is required" : "expected number[]" });
         }
@@ -9134,6 +9251,7 @@ export class DocMaxItems {
     value: number[];
 
 constructor(props: { value: number[] }) {
+
     this.value = props.value;
 }
 
@@ -9203,7 +9321,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocMaxItems.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocMaxItems | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocMaxItems") as DocMaxItems | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -9215,22 +9333,38 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocMaxItems.prototype) as DocMaxItems;
+
+    const instance: any = Object.create(DocMaxItems.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocMaxItems");
     }
 
     ctx.trackForFreeze(instance);
 
     if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number[];
-
         if (Array.isArray(__raw_value)) {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocMaxItems.value is required" }); } else {
                 if (__raw_value.length > 2) { errors.push({ field: "value", message: "DocMaxItems.value must have at most 2 items" }); }
             }
-            instance.value = __raw_value as number[];
+            ctx.pushScope("value");
+            try {
+                instance.value = __mf_decodeArray(__raw_value, ctx, __mf_decodeNumber);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "value" : "value." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "value", message: __raw_value == null ? "DocMaxItems.value is required" : "expected number[]" });
         }
@@ -9313,6 +9447,7 @@ export class DocItemsCount {
     value: number[];
 
 constructor(props: { value: number[] }) {
+
     this.value = props.value;
 }
 
@@ -9382,7 +9517,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocItemsCount.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocItemsCount | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocItemsCount") as DocItemsCount | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -9394,22 +9529,38 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocItemsCount.prototype) as DocItemsCount;
+
+    const instance: any = Object.create(DocItemsCount.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocItemsCount");
     }
 
     ctx.trackForFreeze(instance);
 
     if ((__fields === undefined || __fields.requires("value")) || (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number[];
-
         if (Array.isArray(__raw_value)) {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocItemsCount.value is required" }); } else {
                 if (__raw_value.length !== 2) { errors.push({ field: "value", message: "DocItemsCount.value must have exactly 2 items" }); }
             }
-            instance.value = __raw_value as number[];
+            ctx.pushScope("value");
+            try {
+                instance.value = __mf_decodeArray(__raw_value, ctx, __mf_decodeNumber);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "value" : "value." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "value", message: __raw_value == null ? "DocItemsCount.value is required" : "expected number[]" });
         }
@@ -9492,6 +9643,7 @@ export class DocNullableMaxLength {
     value: string | null;
 
 constructor(props: { value: string | null }) {
+
     this.value = props.value;
 }
 
@@ -9561,7 +9713,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocNullableMaxLength.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocNullableMaxLength | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocNullableMaxLength") as DocNullableMaxLength | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -9573,10 +9725,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocNullableMaxLength.prototype) as DocNullableMaxLength;
+
+    const instance: any = Object.create(DocNullableMaxLength.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocNullableMaxLength");
     }
 
     ctx.trackForFreeze(instance);
@@ -9670,6 +9823,7 @@ export class DocNullableDate {
     value: Date | null;
 
 constructor(props: { value: Date | null }) {
+
     this.value = props.value;
 }
 
@@ -9739,7 +9893,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocNullableDate.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocNullableDate | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocNullableDate") as DocNullableDate | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -9751,10 +9905,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocNullableDate.prototype) as DocNullableDate;
+
+    const instance: any = Object.create(DocNullableDate.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocNullableDate");
     }
 
     ctx.trackForFreeze(instance);
@@ -9849,6 +10004,7 @@ export class DocMessageEscaping {
     value: string;
 
 constructor(props: { value: string }) {
+
     this.value = props.value;
 }
 
@@ -9918,7 +10074,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DocMessageEscaping.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DocMessageEscaping | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DocMessageEscaping") as DocMessageEscaping | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -9930,10 +10086,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(DocMessageEscaping.prototype) as DocMessageEscaping;
+
+    const instance: any = Object.create(DocMessageEscaping.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DocMessageEscaping");
     }
 
     ctx.trackForFreeze(instance);
@@ -12948,291 +13105,291 @@ export declare function docMessageEscapingIs(value: unknown): value is DocMessag
 
 ## Mapping
 
-original 0..320 -> expanded 385..705
-original 320..321 -> expanded 6598..6599
-original 321..428 -> expanded 8381..8488
-original 428..429 -> expanded 14262..14263
-original 429..538 -> expanded 16015..16124
-original 538..539 -> expanded 22100..22101
-original 539..668 -> expanded 23868..23997
-original 668..669 -> expanded 29916..29917
-original 669..802 -> expanded 31729..31862
-original 802..803 -> expanded 37979..37980
-original 803..925 -> expanded 39927..40049
-original 925..926 -> expanded 45997..45998
-original 926..1048 -> expanded 47840..47962
-original 1048..1049 -> expanded 53907..53908
-original 1049..1165 -> expanded 55750..55866
-original 1165..1166 -> expanded 61742..61743
-original 1166..1290 -> expanded 63540..63664
-original 1290..1291 -> expanded 69743..69744
-original 1291..1408 -> expanded 71616..71733
-original 1408..1409 -> expanded 77620..77621
-original 1409..1524 -> expanded 79448..79563
-original 1524..1525 -> expanded 85437..85438
-original 1525..1644 -> expanded 87250..87369
-original 1644..1645 -> expanded 93320..93321
-original 1645..1764 -> expanded 95163..95282
-original 1764..1765 -> expanded 101233..101234
-original 1765..1888 -> expanded 103076..103199
-original 1888..1889 -> expanded 109290..109291
-original 1889..2016 -> expanded 111163..111290
-original 2016..2017 -> expanded 117437..117438
-original 2017..2145 -> expanded 119340..119468
-original 2145..2146 -> expanded 125435..125436
-original 2146..2281 -> expanded 127293..127428
-original 2281..2282 -> expanded 133526..133527
-original 2282..2406 -> expanded 135459..135583
-original 2406..2407 -> expanded 141488..141489
-original 2407..2531 -> expanded 143316..143440
-original 2531..2532 -> expanded 149342..149343
-original 2532..2658 -> expanded 151170..151296
-original 2658..2659 -> expanded 157249..157250
-original 2659..2803 -> expanded 159122..159266
-original 2803..2804 -> expanded 165477..165478
-original 2804..2924 -> expanded 167485..167605
-original 2924..2925 -> expanded 173474..173475
-original 2925..3063 -> expanded 175302..175440
-original 3063..3064 -> expanded 181567..181568
-original 3064..3186 -> expanded 183530..183652
-original 3186..3187 -> expanded 189556..189557
-original 3187..3294 -> expanded 191369..191476
-original 3294..3295 -> expanded 197259..197260
-original 3295..3424 -> expanded 199012..199141
-original 3424..3425 -> expanded 205280..205281
-original 3425..3536 -> expanded 207198..207309
-original 3536..3537 -> expanded 213229..213230
-original 3537..3670 -> expanded 215012..215145
-original 3670..3671 -> expanded 221317..221318
-original 3671..3802 -> expanded 223280..223411
-original 3802..3803 -> expanded 229571..229572
-original 3803..3920 -> expanded 231534..231651
-original 3920..3921 -> expanded 237511..237512
-original 3921..4044 -> expanded 239339..239462
-original 4044..4045 -> expanded 245406..245407
-original 4045..4162 -> expanded 247279..247396
-original 4162..4163 -> expanded 253256..253257
-original 4163..4286 -> expanded 255084..255207
-original 4286..4287 -> expanded 261151..261152
-original 4287..4400 -> expanded 263024..263137
-original 4400..4401 -> expanded 268980..268981
-original 4401..4514 -> expanded 270778..270891
-original 4514..4515 -> expanded 276725..276726
-original 4515..4644 -> expanded 278523..278652
-original 4644..4645 -> expanded 284656..284657
-original 4645..4780 -> expanded 286574..286709
-original 4780..4781 -> expanded 292794..292795
-original 4781..4910 -> expanded 294757..294886
-original 4910..4911 -> expanded 300890..300891
-original 4911..5046 -> expanded 302808..302943
-original 5046..5047 -> expanded 309028..309029
-original 5047..5185 -> expanded 310991..311129
-original 5185..5186 -> expanded 317223..317224
-original 5186..5342 -> expanded 319186..319342
-original 5342..5343 -> expanded 325685..325686
-original 5343..5475 -> expanded 327783..327915
-original 5475..5476 -> expanded 333928..333929
-original 5476..5626 -> expanded 335846..335996
-original 5626..5627 -> expanded 342258..342259
-original 5627..5761 -> expanded 344311..344445
-original 5761..5762 -> expanded 350500..350501
-original 5762..5879 -> expanded 352403..352520
-original 5879..5880 -> expanded 358387..358388
-original 5880..6023 -> expanded 360230..360373
-original 6023..6024 -> expanded 366453..366454
-original 6024..6185 -> expanded 368386..368547
-original 6185..6186 -> expanded 374858..374859
-original 6186..6323 -> expanded 376926..377063
-original 6323..6324 -> expanded 383074..383075
-original 6324..6479 -> expanded 384962..385117
-original 6479..6480 -> expanded 391359..391360
-original 6480..6629 -> expanded 393382..393531
-original 6629..6630 -> expanded 399729..399730
-original 6630..6752 -> expanded 401602..401724
-original 6752..6753 -> expanded 407646..407647
-original 6753..6875 -> expanded 409474..409596
-original 6875..6876 -> expanded 415515..415516
-original 6876..7002 -> expanded 417343..417469
-original 7002..7003 -> expanded 423444..423445
-original 7003..7140 -> expanded 425302..425439
-original 7140..7141 -> expanded 431278..431279
-original 7141..7290 -> expanded 433241..433390
-original 7290..7291 -> expanded 439232..439233
-original 7291..7463 -> expanded 441120..441292
-original 7463..7464 -> expanded 447291..447292
-original 7464..7465 -> expanded 449224..449225
-generated 0..385 <- imports
-generated 705..6598 <- Decode
-generated 6599..8381 <- Decode
-generated 8488..14262 <- Decode
-generated 14263..16015 <- Decode
-generated 16124..22100 <- Decode
-generated 22101..23868 <- Decode
-generated 23997..29916 <- Decode
-generated 29917..31729 <- Decode
-generated 31862..37979 <- Decode
-generated 37980..39927 <- Decode
-generated 40049..45997 <- Decode
-generated 45998..47840 <- Decode
-generated 47962..53907 <- Decode
-generated 53908..55750 <- Decode
-generated 55866..61742 <- Decode
-generated 61743..63540 <- Decode
-generated 63664..69743 <- Decode
-generated 69744..71616 <- Decode
-generated 71733..77620 <- Decode
-generated 77621..79448 <- Decode
-generated 79563..85437 <- Decode
-generated 85438..87250 <- Decode
-generated 87369..93320 <- Decode
-generated 93321..95163 <- Decode
-generated 95282..101233 <- Decode
-generated 101234..103076 <- Decode
-generated 103199..109290 <- Decode
-generated 109291..111163 <- Decode
-generated 111290..117437 <- Decode
-generated 117438..119340 <- Decode
-generated 119468..125435 <- Decode
-generated 125436..127293 <- Decode
-generated 127428..133526 <- Decode
-generated 133527..135459 <- Decode
-generated 135583..141488 <- Decode
-generated 141489..143316 <- Decode
-generated 143440..149342 <- Decode
-generated 149343..151170 <- Decode
-generated 151296..157249 <- Decode
-generated 157250..159122 <- Decode
-generated 159266..165477 <- Decode
-generated 165478..167485 <- Decode
-generated 167605..173474 <- Decode
-generated 173475..175302 <- Decode
-generated 175440..181567 <- Decode
-generated 181568..183530 <- Decode
-generated 183652..189556 <- Decode
-generated 189557..191369 <- Decode
-generated 191476..197259 <- Decode
-generated 197260..199012 <- Decode
-generated 199141..205280 <- Decode
-generated 205281..207198 <- Decode
-generated 207309..213229 <- Decode
-generated 213230..215012 <- Decode
-generated 215145..221317 <- Decode
-generated 221318..223280 <- Decode
-generated 223411..229571 <- Decode
-generated 229572..231534 <- Decode
-generated 231651..237511 <- Decode
-generated 237512..239339 <- Decode
-generated 239462..245406 <- Decode
-generated 245407..247279 <- Decode
-generated 247396..253256 <- Decode
-generated 253257..255084 <- Decode
-generated 255207..261151 <- Decode
-generated 261152..263024 <- Decode
-generated 263137..268980 <- Decode
-generated 268981..270778 <- Decode
-generated 270891..276725 <- Decode
-generated 276726..278523 <- Decode
-generated 278652..284656 <- Decode
-generated 284657..286574 <- Decode
-generated 286709..292794 <- Decode
-generated 292795..294757 <- Decode
-generated 294886..300890 <- Decode
-generated 300891..302808 <- Decode
-generated 302943..309028 <- Decode
-generated 309029..310991 <- Decode
-generated 311129..317223 <- Decode
-generated 317224..319186 <- Decode
-generated 319342..325685 <- Decode
-generated 325686..327783 <- Decode
-generated 327915..333928 <- Decode
-generated 333929..335846 <- Decode
-generated 335996..342258 <- Decode
-generated 342259..344311 <- Decode
-generated 344445..350500 <- Decode
-generated 350501..352403 <- Decode
-generated 352520..358387 <- Decode
-generated 358388..360230 <- Decode
-generated 360373..366453 <- Decode
-generated 366454..368386 <- Decode
-generated 368547..374858 <- Decode
-generated 374859..376926 <- Decode
-generated 377063..383074 <- Decode
-generated 383075..384962 <- Decode
-generated 385117..391359 <- Decode
-generated 391360..393382 <- Decode
-generated 393531..399729 <- Decode
-generated 399730..401602 <- Decode
-generated 401724..407646 <- Decode
-generated 407647..409474 <- Decode
-generated 409596..415515 <- Decode
-generated 415516..417343 <- Decode
-generated 417469..423444 <- Decode
-generated 423445..425302 <- Decode
-generated 425439..431278 <- Decode
-generated 431279..433241 <- Decode
-generated 433390..439232 <- Decode
-generated 439233..441120 <- Decode
-generated 441292..447291 <- Decode
-generated 447292..449224 <- Decode
+original 0..320 -> expanded 453..773
+original 320..321 -> expanded 6685..6686
+original 321..428 -> expanded 8468..8575
+original 428..429 -> expanded 14366..14367
+original 429..538 -> expanded 16119..16228
+original 538..539 -> expanded 22222..22223
+original 539..668 -> expanded 23990..24119
+original 668..669 -> expanded 30059..30060
+original 669..802 -> expanded 31872..32005
+original 802..803 -> expanded 38152..38153
+original 803..925 -> expanded 40100..40222
+original 925..926 -> expanded 46193..46194
+original 926..1048 -> expanded 48036..48158
+original 1048..1049 -> expanded 54126..54127
+original 1049..1165 -> expanded 55969..56085
+original 1165..1166 -> expanded 61981..61982
+original 1166..1290 -> expanded 63779..63903
+original 1290..1291 -> expanded 70007..70008
+original 1291..1408 -> expanded 71880..71997
+original 1408..1409 -> expanded 77906..77907
+original 1409..1524 -> expanded 79734..79849
+original 1524..1525 -> expanded 85744..85745
+original 1525..1644 -> expanded 87557..87676
+original 1644..1645 -> expanded 93650..93651
+original 1645..1764 -> expanded 95493..95612
+original 1764..1765 -> expanded 101586..101587
+original 1765..1888 -> expanded 103429..103552
+original 1888..1889 -> expanded 109668..109669
+original 1889..2016 -> expanded 111541..111668
+original 2016..2017 -> expanded 117842..117843
+original 2017..2145 -> expanded 119745..119873
+original 2145..2146 -> expanded 125864..125865
+original 2146..2281 -> expanded 127722..127857
+original 2281..2282 -> expanded 133984..133985
+original 2282..2406 -> expanded 135917..136041
+original 2406..2407 -> expanded 141968..141969
+original 2407..2531 -> expanded 143796..143920
+original 2531..2532 -> expanded 149844..149845
+original 2532..2658 -> expanded 151672..151798
+original 2658..2659 -> expanded 157776..157777
+original 2659..2803 -> expanded 159649..159793
+original 2803..2804 -> expanded 166038..166039
+original 2804..2924 -> expanded 168046..168166
+original 2924..2925 -> expanded 174057..174058
+original 2925..3063 -> expanded 175885..176023
+original 3063..3064 -> expanded 182181..182182
+original 3064..3186 -> expanded 184144..184266
+original 3186..3187 -> expanded 190191..190192
+original 3187..3294 -> expanded 192004..192111
+original 3294..3295 -> expanded 197911..197912
+original 3295..3424 -> expanded 199664..199793
+original 3424..3425 -> expanded 205960..205961
+original 3425..3536 -> expanded 207878..207989
+original 3536..3537 -> expanded 213928..213929
+original 3537..3670 -> expanded 215711..215844
+original 3670..3671 -> expanded 222047..222048
+original 3671..3802 -> expanded 224010..224141
+original 3802..3803 -> expanded 230332..230333
+original 3803..3920 -> expanded 232295..232412
+original 3920..3921 -> expanded 238294..238295
+original 3921..4044 -> expanded 240122..240245
+original 4044..4045 -> expanded 246214..246215
+original 4045..4162 -> expanded 248087..248204
+original 4162..4163 -> expanded 254086..254087
+original 4163..4286 -> expanded 255914..256037
+original 4286..4287 -> expanded 262006..262007
+original 4287..4400 -> expanded 263879..263992
+original 4400..4401 -> expanded 269855..269856
+original 4401..4514 -> expanded 271653..271766
+original 4514..4515 -> expanded 277620..277621
+original 4515..4644 -> expanded 279418..279547
+original 4644..4645 -> expanded 285579..285580
+original 4645..4780 -> expanded 287497..287632
+original 4780..4781 -> expanded 293748..293749
+original 4781..4910 -> expanded 295711..295840
+original 4910..4911 -> expanded 301872..301873
+original 4911..5046 -> expanded 303790..303925
+original 5046..5047 -> expanded 310041..310042
+original 5047..5185 -> expanded 312004..312142
+original 5185..5186 -> expanded 318267..318268
+original 5186..5342 -> expanded 320230..320386
+original 5342..5343 -> expanded 326769..326770
+original 5343..5475 -> expanded 328867..328999
+original 5475..5476 -> expanded 335040..335041
+original 5476..5626 -> expanded 336958..337108
+original 5626..5627 -> expanded 343407..343408
+original 5627..5761 -> expanded 345460..345594
+original 5761..5762 -> expanded 351676..351677
+original 5762..5879 -> expanded 353579..353696
+original 5879..5880 -> expanded 359586..359587
+original 5880..6023 -> expanded 361429..361572
+original 6023..6024 -> expanded 367681..367682
+original 6024..6185 -> expanded 369614..369775
+original 6185..6186 -> expanded 376124..376125
+original 6186..6323 -> expanded 378192..378329
+original 6323..6324 -> expanded 384366..384367
+original 6324..6479 -> expanded 386254..386409
+original 6479..6480 -> expanded 392686..392687
+original 6480..6629 -> expanded 394709..394858
+original 6629..6630 -> expanded 401081..401082
+original 6630..6752 -> expanded 402954..403076
+original 6752..6753 -> expanded 409622..409623
+original 6753..6875 -> expanded 411450..411572
+original 6875..6876 -> expanded 418115..418116
+original 6876..7002 -> expanded 419943..420069
+original 7002..7003 -> expanded 426670..426671
+original 7003..7140 -> expanded 428528..428665
+original 7140..7141 -> expanded 434535..434536
+original 7141..7290 -> expanded 436498..436647
+original 7290..7291 -> expanded 442515..442516
+original 7291..7463 -> expanded 444403..444575
+original 7463..7464 -> expanded 450603..450604
+original 7464..7465 -> expanded 452536..452537
+generated 0..453 <- imports
+generated 773..6685 <- Decode
+generated 6686..8468 <- Decode
+generated 8575..14366 <- Decode
+generated 14367..16119 <- Decode
+generated 16228..22222 <- Decode
+generated 22223..23990 <- Decode
+generated 24119..30059 <- Decode
+generated 30060..31872 <- Decode
+generated 32005..38152 <- Decode
+generated 38153..40100 <- Decode
+generated 40222..46193 <- Decode
+generated 46194..48036 <- Decode
+generated 48158..54126 <- Decode
+generated 54127..55969 <- Decode
+generated 56085..61981 <- Decode
+generated 61982..63779 <- Decode
+generated 63903..70007 <- Decode
+generated 70008..71880 <- Decode
+generated 71997..77906 <- Decode
+generated 77907..79734 <- Decode
+generated 79849..85744 <- Decode
+generated 85745..87557 <- Decode
+generated 87676..93650 <- Decode
+generated 93651..95493 <- Decode
+generated 95612..101586 <- Decode
+generated 101587..103429 <- Decode
+generated 103552..109668 <- Decode
+generated 109669..111541 <- Decode
+generated 111668..117842 <- Decode
+generated 117843..119745 <- Decode
+generated 119873..125864 <- Decode
+generated 125865..127722 <- Decode
+generated 127857..133984 <- Decode
+generated 133985..135917 <- Decode
+generated 136041..141968 <- Decode
+generated 141969..143796 <- Decode
+generated 143920..149844 <- Decode
+generated 149845..151672 <- Decode
+generated 151798..157776 <- Decode
+generated 157777..159649 <- Decode
+generated 159793..166038 <- Decode
+generated 166039..168046 <- Decode
+generated 168166..174057 <- Decode
+generated 174058..175885 <- Decode
+generated 176023..182181 <- Decode
+generated 182182..184144 <- Decode
+generated 184266..190191 <- Decode
+generated 190192..192004 <- Decode
+generated 192111..197911 <- Decode
+generated 197912..199664 <- Decode
+generated 199793..205960 <- Decode
+generated 205961..207878 <- Decode
+generated 207989..213928 <- Decode
+generated 213929..215711 <- Decode
+generated 215844..222047 <- Decode
+generated 222048..224010 <- Decode
+generated 224141..230332 <- Decode
+generated 230333..232295 <- Decode
+generated 232412..238294 <- Decode
+generated 238295..240122 <- Decode
+generated 240245..246214 <- Decode
+generated 246215..248087 <- Decode
+generated 248204..254086 <- Decode
+generated 254087..255914 <- Decode
+generated 256037..262006 <- Decode
+generated 262007..263879 <- Decode
+generated 263992..269855 <- Decode
+generated 269856..271653 <- Decode
+generated 271766..277620 <- Decode
+generated 277621..279418 <- Decode
+generated 279547..285579 <- Decode
+generated 285580..287497 <- Decode
+generated 287632..293748 <- Decode
+generated 293749..295711 <- Decode
+generated 295840..301872 <- Decode
+generated 301873..303790 <- Decode
+generated 303925..310041 <- Decode
+generated 310042..312004 <- Decode
+generated 312142..318267 <- Decode
+generated 318268..320230 <- Decode
+generated 320386..326769 <- Decode
+generated 326770..328867 <- Decode
+generated 328999..335040 <- Decode
+generated 335041..336958 <- Decode
+generated 337108..343407 <- Decode
+generated 343408..345460 <- Decode
+generated 345594..351676 <- Decode
+generated 351677..353579 <- Decode
+generated 353696..359586 <- Decode
+generated 359587..361429 <- Decode
+generated 361572..367681 <- Decode
+generated 367682..369614 <- Decode
+generated 369775..376124 <- Decode
+generated 376125..378192 <- Decode
+generated 378329..384366 <- Decode
+generated 384367..386254 <- Decode
+generated 386409..392686 <- Decode
+generated 392687..394709 <- Decode
+generated 394858..401081 <- Decode
+generated 401082..402954 <- Decode
+generated 403076..409622 <- Decode
+generated 409623..411450 <- Decode
+generated 411572..418115 <- Decode
+generated 418116..419943 <- Decode
+generated 420069..426670 <- Decode
+generated 426671..428528 <- Decode
+generated 428665..434535 <- Decode
+generated 434536..436498 <- Decode
+generated 436647..442515 <- Decode
+generated 442516..444403 <- Decode
+generated 444575..450603 <- Decode
+generated 450604..452536 <- Decode
 
 ## Metadata
 
-class DocEmail: {"body_span":{"end":322,"start":257},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":234,"start":212}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"email\"] }","name":"endec","span":{"end":301,"start":263}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":320,"start":306},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocEmail","span":{"end":322,"start":242},"type_params":[]}
-class DocUrl: {"body_span":{"end":430,"start":367},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":346,"start":324}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"url\"] }","name":"endec","span":{"end":409,"start":373}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":428,"start":414},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocUrl","span":{"end":430,"start":354},"type_params":[]}
-class DocUuid: {"body_span":{"end":540,"start":476},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":454,"start":432}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uuid\"] }","name":"endec","span":{"end":519,"start":482}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":538,"start":524},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocUuid","span":{"end":540,"start":462},"type_params":[]}
-class DocPattern: {"body_span":{"end":670,"start":589},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":564,"start":542}}],"fields":[{"decorators":[{"args_src":"{ validate: ['pattern(\"^[A-Z]{3}$\")'] }","name":"endec","span":{"end":649,"start":595}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":668,"start":654},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocPattern","span":{"end":670,"start":572},"type_params":[]}
-class DocPatternWithSlash: {"body_span":{"end":804,"start":728},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":694,"start":672}}],"fields":[{"decorators":[{"args_src":"{ validate: ['pattern(\"^a/b$\")'] }","name":"endec","span":{"end":783,"start":734}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":802,"start":788},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocPatternWithSlash","span":{"end":804,"start":702},"type_params":[]}
-class DocMinLength: {"body_span":{"end":927,"start":855},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":828,"start":806}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minLength(3)\"] }","name":"endec","span":{"end":906,"start":861}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":925,"start":911},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocMinLength","span":{"end":927,"start":836},"type_params":[]}
-class DocMaxLength: {"body_span":{"end":1050,"start":978},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":951,"start":929}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"maxLength(3)\"] }","name":"endec","span":{"end":1029,"start":984}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1048,"start":1034},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocMaxLength","span":{"end":1050,"start":959},"type_params":[]}
-class DocLength: {"body_span":{"end":1167,"start":1098},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1074,"start":1052}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"length(3)\"] }","name":"endec","span":{"end":1146,"start":1104}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1165,"start":1151},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocLength","span":{"end":1167,"start":1082},"type_params":[]}
-class DocLengthRange: {"body_span":{"end":1292,"start":1220},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1191,"start":1169}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"length(2, 4)\"] }","name":"endec","span":{"end":1271,"start":1226}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1290,"start":1276},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocLengthRange","span":{"end":1292,"start":1199},"type_params":[]}
-class DocNonEmpty: {"body_span":{"end":1410,"start":1342},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1316,"start":1294}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1389,"start":1348}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1408,"start":1394},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNonEmpty","span":{"end":1410,"start":1324},"type_params":[]}
-class DocTrimmed: {"body_span":{"end":1526,"start":1459},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1434,"start":1412}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"trimmed\"] }","name":"endec","span":{"end":1505,"start":1465}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1524,"start":1510},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocTrimmed","span":{"end":1526,"start":1442},"type_params":[]}
-class DocLowercase: {"body_span":{"end":1646,"start":1577},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1550,"start":1528}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lowercase\"] }","name":"endec","span":{"end":1625,"start":1583}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1644,"start":1630},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocLowercase","span":{"end":1646,"start":1558},"type_params":[]}
-class DocUppercase: {"body_span":{"end":1766,"start":1697},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1670,"start":1648}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uppercase\"] }","name":"endec","span":{"end":1745,"start":1703}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1764,"start":1750},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocUppercase","span":{"end":1766,"start":1678},"type_params":[]}
-class DocCapitalized: {"body_span":{"end":1890,"start":1819},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1790,"start":1768}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"capitalized\"] }","name":"endec","span":{"end":1869,"start":1825}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1888,"start":1874},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocCapitalized","span":{"end":1890,"start":1798},"type_params":[]}
-class DocUncapitalized: {"body_span":{"end":2018,"start":1945},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1914,"start":1892}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uncapitalized\"] }","name":"endec","span":{"end":1997,"start":1951}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":2016,"start":2002},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocUncapitalized","span":{"end":2018,"start":1922},"type_params":[]}
-class DocStartsWith: {"body_span":{"end":2147,"start":2070},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2042,"start":2020}}],"fields":[{"decorators":[{"args_src":"{ validate: ['startsWith(\"pre\")'] }","name":"endec","span":{"end":2126,"start":2076}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":2145,"start":2131},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocStartsWith","span":{"end":2147,"start":2050},"type_params":[]}
-class DocStartsWithQuote: {"body_span":{"end":2283,"start":2204},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2171,"start":2149}}],"fields":[{"decorators":[{"args_src":"{ validate: ['startsWith(\"a\\\\\"b\")'] }","name":"endec","span":{"end":2262,"start":2210}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":2281,"start":2267},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocStartsWithQuote","span":{"end":2283,"start":2179},"type_params":[]}
-class DocEndsWith: {"body_span":{"end":2408,"start":2333},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2307,"start":2285}}],"fields":[{"decorators":[{"args_src":"{ validate: ['endsWith(\"fix\")'] }","name":"endec","span":{"end":2387,"start":2339}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":2406,"start":2392},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocEndsWith","span":{"end":2408,"start":2315},"type_params":[]}
-class DocIncludes: {"body_span":{"end":2533,"start":2458},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2432,"start":2410}}],"fields":[{"decorators":[{"args_src":"{ validate: ['includes(\"mid\")'] }","name":"endec","span":{"end":2512,"start":2464}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":2531,"start":2517},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocIncludes","span":{"end":2533,"start":2440},"type_params":[]}
-class DocGreaterThan: {"body_span":{"end":2660,"start":2586},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2557,"start":2535}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThan(5)\"] }","name":"endec","span":{"end":2639,"start":2592}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":2658,"start":2644},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocGreaterThan","span":{"end":2660,"start":2565},"type_params":[]}
-class DocGreaterThanOrEqualTo: {"body_span":{"end":2805,"start":2722},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2684,"start":2662}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanOrEqualTo(5)\"] }","name":"endec","span":{"end":2784,"start":2728}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":2803,"start":2789},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocGreaterThanOrEqualTo","span":{"end":2805,"start":2692},"type_params":[]}
-class DocLessThan: {"body_span":{"end":2926,"start":2855},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2829,"start":2807}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThan(5)\"] }","name":"endec","span":{"end":2905,"start":2861}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":2924,"start":2910},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocLessThan","span":{"end":2926,"start":2837},"type_params":[]}
-class DocLessThanOrEqualTo: {"body_span":{"end":3065,"start":2985},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2950,"start":2928}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanOrEqualTo(5)\"] }","name":"endec","span":{"end":3044,"start":2991}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":3063,"start":3049},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocLessThanOrEqualTo","span":{"end":3065,"start":2958},"type_params":[]}
-class DocBetween: {"body_span":{"end":3188,"start":3114},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":3089,"start":3067}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"between(1, 10)\"] }","name":"endec","span":{"end":3167,"start":3120}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":3186,"start":3172},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocBetween","span":{"end":3188,"start":3097},"type_params":[]}
-class DocInt: {"body_span":{"end":3296,"start":3233},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":3212,"start":3190}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"int\"] }","name":"endec","span":{"end":3275,"start":3239}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":3294,"start":3280},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocInt","span":{"end":3296,"start":3220},"type_params":[]}
-class DocNonNegativeInt: {"body_span":{"end":3426,"start":3352},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":3320,"start":3298}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNegativeInt\"] }","name":"endec","span":{"end":3405,"start":3358}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":3424,"start":3410},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNonNegativeInt","span":{"end":3426,"start":3328},"type_params":[]}
-class DocUint8: {"body_span":{"end":3538,"start":3473},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":3450,"start":3428}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uint8\"] }","name":"endec","span":{"end":3517,"start":3479}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":3536,"start":3522},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocUint8","span":{"end":3538,"start":3458},"type_params":[]}
-class DocMultipleOfDecimal: {"body_span":{"end":3672,"start":3597},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":3562,"start":3540}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"multipleOf(0.1)\"] }","name":"endec","span":{"end":3651,"start":3603}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":3670,"start":3656},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocMultipleOfDecimal","span":{"end":3672,"start":3570},"type_params":[]}
-class DocMultipleOfInteger: {"body_span":{"end":3804,"start":3731},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":3696,"start":3674}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"multipleOf(5)\"] }","name":"endec","span":{"end":3783,"start":3737}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":3802,"start":3788},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocMultipleOfInteger","span":{"end":3804,"start":3704},"type_params":[]}
-class DocPositive: {"body_span":{"end":3922,"start":3854},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":3828,"start":3806}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"positive\"] }","name":"endec","span":{"end":3901,"start":3860}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":3920,"start":3906},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocPositive","span":{"end":3922,"start":3836},"type_params":[]}
-class DocNonNegative: {"body_span":{"end":4046,"start":3975},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":3946,"start":3924}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNegative\"] }","name":"endec","span":{"end":4025,"start":3981}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":4044,"start":4030},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNonNegative","span":{"end":4046,"start":3954},"type_params":[]}
-class DocNegative: {"body_span":{"end":4164,"start":4096},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":4070,"start":4048}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"negative\"] }","name":"endec","span":{"end":4143,"start":4102}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":4162,"start":4148},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNegative","span":{"end":4164,"start":4078},"type_params":[]}
-class DocNonPositive: {"body_span":{"end":4288,"start":4217},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":4188,"start":4166}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonPositive\"] }","name":"endec","span":{"end":4267,"start":4223}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":4286,"start":4272},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNonPositive","span":{"end":4288,"start":4196},"type_params":[]}
-class DocFinite: {"body_span":{"end":4402,"start":4336},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":4312,"start":4290}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"finite\"] }","name":"endec","span":{"end":4381,"start":4342}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":4400,"start":4386},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocFinite","span":{"end":4402,"start":4320},"type_params":[]}
-class DocNonNaN: {"body_span":{"end":4516,"start":4450},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":4426,"start":4404}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNaN\"] }","name":"endec","span":{"end":4495,"start":4456}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":4514,"start":4500},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNonNaN","span":{"end":4516,"start":4434},"type_params":[]}
-class DocPositiveBigInt: {"body_span":{"end":4646,"start":4572},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":4540,"start":4518}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"positiveBigInt\"] }","name":"endec","span":{"end":4625,"start":4578}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":4644,"start":4630},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocPositiveBigInt","span":{"end":4646,"start":4548},"type_params":[]}
-class DocNonNegativeBigInt: {"body_span":{"end":4782,"start":4705},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":4670,"start":4648}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNegativeBigInt\"] }","name":"endec","span":{"end":4761,"start":4711}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":4780,"start":4766},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNonNegativeBigInt","span":{"end":4782,"start":4678},"type_params":[]}
-class DocNegativeBigInt: {"body_span":{"end":4912,"start":4838},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":4806,"start":4784}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"negativeBigInt\"] }","name":"endec","span":{"end":4891,"start":4844}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":4910,"start":4896},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNegativeBigInt","span":{"end":4912,"start":4814},"type_params":[]}
-class DocNonPositiveBigInt: {"body_span":{"end":5048,"start":4971},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":4936,"start":4914}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonPositiveBigInt\"] }","name":"endec","span":{"end":5027,"start":4977}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":5046,"start":5032},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNonPositiveBigInt","span":{"end":5048,"start":4944},"type_params":[]}
-class DocGreaterThanBigInt: {"body_span":{"end":5187,"start":5107},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":5072,"start":5050}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanBigInt(5)\"] }","name":"endec","span":{"end":5166,"start":5113}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":5185,"start":5171},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocGreaterThanBigInt","span":{"end":5187,"start":5080},"type_params":[]}
-class DocGreaterThanOrEqualToBigInt: {"body_span":{"end":5344,"start":5255},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":5211,"start":5189}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanOrEqualToBigInt(5)\"] }","name":"endec","span":{"end":5323,"start":5261}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":5342,"start":5328},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocGreaterThanOrEqualToBigInt","span":{"end":5344,"start":5219},"type_params":[]}
-class DocLessThanBigInt: {"body_span":{"end":5477,"start":5400},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":5368,"start":5346}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanBigInt(5)\"] }","name":"endec","span":{"end":5456,"start":5406}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":5475,"start":5461},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocLessThanBigInt","span":{"end":5477,"start":5376},"type_params":[]}
-class DocLessThanOrEqualToBigInt: {"body_span":{"end":5628,"start":5542},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":5501,"start":5479}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanOrEqualToBigInt(5)\"] }","name":"endec","span":{"end":5607,"start":5548}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":5626,"start":5612},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocLessThanOrEqualToBigInt","span":{"end":5628,"start":5509},"type_params":[]}
-class DocBetweenBigInt: {"body_span":{"end":5763,"start":5683},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":5652,"start":5630}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"betweenBigInt(1, 10)\"] }","name":"endec","span":{"end":5742,"start":5689}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":5761,"start":5747},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocBetweenBigInt","span":{"end":5763,"start":5660},"type_params":[]}
-class DocValidDate: {"body_span":{"end":5881,"start":5814},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":5787,"start":5765}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":5862,"start":5820}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":5879,"start":5867},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocValidDate","span":{"end":5881,"start":5795},"type_params":[]}
-class DocGreaterThanDate: {"body_span":{"end":6025,"start":5938},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":5905,"start":5883}}],"fields":[{"decorators":[{"args_src":"{ validate: ['greaterThanDate(\"2020-01-01\")'] }","name":"endec","span":{"end":6006,"start":5944}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":6023,"start":6011},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocGreaterThanDate","span":{"end":6025,"start":5913},"type_params":[]}
-class DocGreaterThanOrEqualToDate: {"body_span":{"end":6187,"start":6091},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":6049,"start":6027}}],"fields":[{"decorators":[{"args_src":"{ validate: ['greaterThanOrEqualToDate(\"2020-01-01\")'] }","name":"endec","span":{"end":6168,"start":6097}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":6185,"start":6173},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocGreaterThanOrEqualToDate","span":{"end":6187,"start":6057},"type_params":[]}
-class DocLessThanDate: {"body_span":{"end":6325,"start":6241},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":6211,"start":6189}}],"fields":[{"decorators":[{"args_src":"{ validate: ['lessThanDate(\"2020-01-01\")'] }","name":"endec","span":{"end":6306,"start":6247}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":6323,"start":6311},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocLessThanDate","span":{"end":6325,"start":6219},"type_params":[]}
-class DocLessThanOrEqualToDate: {"body_span":{"end":6481,"start":6388},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":6349,"start":6327}}],"fields":[{"decorators":[{"args_src":"{ validate: ['lessThanOrEqualToDate(\"2020-01-01\")'] }","name":"endec","span":{"end":6462,"start":6394}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":6479,"start":6467},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocLessThanOrEqualToDate","span":{"end":6481,"start":6357},"type_params":[]}
-class DocBetweenDate: {"body_span":{"end":6631,"start":6534},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":6505,"start":6483}}],"fields":[{"decorators":[{"args_src":"{ validate: ['betweenDate(\"2020-01-01\", \"2020-12-31\")'] }","name":"endec","span":{"end":6612,"start":6540}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":6629,"start":6617},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocBetweenDate","span":{"end":6631,"start":6513},"type_params":[]}
-class DocMinItems: {"body_span":{"end":6754,"start":6681},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":6655,"start":6633}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minItems(2)\"] }","name":"endec","span":{"end":6731,"start":6687}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":6752,"start":6736},"ts_type":"number[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocMinItems","span":{"end":6754,"start":6663},"type_params":[]}
-class DocMaxItems: {"body_span":{"end":6877,"start":6804},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":6778,"start":6756}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"maxItems(2)\"] }","name":"endec","span":{"end":6854,"start":6810}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":6875,"start":6859},"ts_type":"number[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocMaxItems","span":{"end":6877,"start":6786},"type_params":[]}
-class DocItemsCount: {"body_span":{"end":7004,"start":6929},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":6901,"start":6879}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"itemsCount(2)\"] }","name":"endec","span":{"end":6981,"start":6935}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":7002,"start":6986},"ts_type":"number[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocItemsCount","span":{"end":7004,"start":6909},"type_params":[]}
-class DocNullableMaxLength: {"body_span":{"end":7142,"start":7063},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":7028,"start":7006}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"maxLength(3)\"] }","name":"endec","span":{"end":7114,"start":7069}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":7140,"start":7119},"ts_type":"string | null","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNullableMaxLength","span":{"end":7142,"start":7036},"type_params":[]}
-class DocNullableDate: {"body_span":{"end":7292,"start":7196},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":7166,"start":7144}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanDate(\\\"2020-01-01\\\")\"] }","name":"endec","span":{"end":7266,"start":7202}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":7290,"start":7271},"ts_type":"Date | null","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNullableDate","span":{"end":7292,"start":7174},"type_params":[]}
-class DocMessageEscaping: {"body_span":{"end":7465,"start":7349},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":7316,"start":7294}}],"fields":[{"decorators":[{"args_src":"{ validate: [{ validate: \"nonEmpty\", message: \"say \\\"hi\\\"\\nthen stop\" }] }","name":"endec","span":{"end":7444,"start":7355}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":7463,"start":7449},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocMessageEscaping","span":{"end":7465,"start":7324},"type_params":[]}
+class DocEmail: {"body_span":{"end":322,"start":257},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":234,"start":212}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"email\"] }","name":"endec","span":{"end":301,"start":263}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":320,"start":306},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocEmail","span":{"end":322,"start":242},"superclass":null,"type_params":[]}
+class DocUrl: {"body_span":{"end":430,"start":367},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":346,"start":324}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"url\"] }","name":"endec","span":{"end":409,"start":373}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":428,"start":414},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocUrl","span":{"end":430,"start":354},"superclass":null,"type_params":[]}
+class DocUuid: {"body_span":{"end":540,"start":476},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":454,"start":432}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uuid\"] }","name":"endec","span":{"end":519,"start":482}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":538,"start":524},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocUuid","span":{"end":540,"start":462},"superclass":null,"type_params":[]}
+class DocPattern: {"body_span":{"end":670,"start":589},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":564,"start":542}}],"fields":[{"decorators":[{"args_src":"{ validate: ['pattern(\"^[A-Z]{3}$\")'] }","name":"endec","span":{"end":649,"start":595}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":668,"start":654},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocPattern","span":{"end":670,"start":572},"superclass":null,"type_params":[]}
+class DocPatternWithSlash: {"body_span":{"end":804,"start":728},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":694,"start":672}}],"fields":[{"decorators":[{"args_src":"{ validate: ['pattern(\"^a/b$\")'] }","name":"endec","span":{"end":783,"start":734}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":802,"start":788},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocPatternWithSlash","span":{"end":804,"start":702},"superclass":null,"type_params":[]}
+class DocMinLength: {"body_span":{"end":927,"start":855},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":828,"start":806}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minLength(3)\"] }","name":"endec","span":{"end":906,"start":861}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":925,"start":911},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocMinLength","span":{"end":927,"start":836},"superclass":null,"type_params":[]}
+class DocMaxLength: {"body_span":{"end":1050,"start":978},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":951,"start":929}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"maxLength(3)\"] }","name":"endec","span":{"end":1029,"start":984}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1048,"start":1034},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocMaxLength","span":{"end":1050,"start":959},"superclass":null,"type_params":[]}
+class DocLength: {"body_span":{"end":1167,"start":1098},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1074,"start":1052}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"length(3)\"] }","name":"endec","span":{"end":1146,"start":1104}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1165,"start":1151},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocLength","span":{"end":1167,"start":1082},"superclass":null,"type_params":[]}
+class DocLengthRange: {"body_span":{"end":1292,"start":1220},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1191,"start":1169}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"length(2, 4)\"] }","name":"endec","span":{"end":1271,"start":1226}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1290,"start":1276},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocLengthRange","span":{"end":1292,"start":1199},"superclass":null,"type_params":[]}
+class DocNonEmpty: {"body_span":{"end":1410,"start":1342},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1316,"start":1294}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1389,"start":1348}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1408,"start":1394},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNonEmpty","span":{"end":1410,"start":1324},"superclass":null,"type_params":[]}
+class DocTrimmed: {"body_span":{"end":1526,"start":1459},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1434,"start":1412}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"trimmed\"] }","name":"endec","span":{"end":1505,"start":1465}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1524,"start":1510},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocTrimmed","span":{"end":1526,"start":1442},"superclass":null,"type_params":[]}
+class DocLowercase: {"body_span":{"end":1646,"start":1577},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1550,"start":1528}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lowercase\"] }","name":"endec","span":{"end":1625,"start":1583}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1644,"start":1630},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocLowercase","span":{"end":1646,"start":1558},"superclass":null,"type_params":[]}
+class DocUppercase: {"body_span":{"end":1766,"start":1697},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1670,"start":1648}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uppercase\"] }","name":"endec","span":{"end":1745,"start":1703}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1764,"start":1750},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocUppercase","span":{"end":1766,"start":1678},"superclass":null,"type_params":[]}
+class DocCapitalized: {"body_span":{"end":1890,"start":1819},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1790,"start":1768}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"capitalized\"] }","name":"endec","span":{"end":1869,"start":1825}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1888,"start":1874},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocCapitalized","span":{"end":1890,"start":1798},"superclass":null,"type_params":[]}
+class DocUncapitalized: {"body_span":{"end":2018,"start":1945},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1914,"start":1892}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uncapitalized\"] }","name":"endec","span":{"end":1997,"start":1951}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":2016,"start":2002},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocUncapitalized","span":{"end":2018,"start":1922},"superclass":null,"type_params":[]}
+class DocStartsWith: {"body_span":{"end":2147,"start":2070},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2042,"start":2020}}],"fields":[{"decorators":[{"args_src":"{ validate: ['startsWith(\"pre\")'] }","name":"endec","span":{"end":2126,"start":2076}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":2145,"start":2131},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocStartsWith","span":{"end":2147,"start":2050},"superclass":null,"type_params":[]}
+class DocStartsWithQuote: {"body_span":{"end":2283,"start":2204},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2171,"start":2149}}],"fields":[{"decorators":[{"args_src":"{ validate: ['startsWith(\"a\\\\\"b\")'] }","name":"endec","span":{"end":2262,"start":2210}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":2281,"start":2267},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocStartsWithQuote","span":{"end":2283,"start":2179},"superclass":null,"type_params":[]}
+class DocEndsWith: {"body_span":{"end":2408,"start":2333},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2307,"start":2285}}],"fields":[{"decorators":[{"args_src":"{ validate: ['endsWith(\"fix\")'] }","name":"endec","span":{"end":2387,"start":2339}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":2406,"start":2392},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocEndsWith","span":{"end":2408,"start":2315},"superclass":null,"type_params":[]}
+class DocIncludes: {"body_span":{"end":2533,"start":2458},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2432,"start":2410}}],"fields":[{"decorators":[{"args_src":"{ validate: ['includes(\"mid\")'] }","name":"endec","span":{"end":2512,"start":2464}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":2531,"start":2517},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocIncludes","span":{"end":2533,"start":2440},"superclass":null,"type_params":[]}
+class DocGreaterThan: {"body_span":{"end":2660,"start":2586},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2557,"start":2535}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThan(5)\"] }","name":"endec","span":{"end":2639,"start":2592}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":2658,"start":2644},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocGreaterThan","span":{"end":2660,"start":2565},"superclass":null,"type_params":[]}
+class DocGreaterThanOrEqualTo: {"body_span":{"end":2805,"start":2722},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2684,"start":2662}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanOrEqualTo(5)\"] }","name":"endec","span":{"end":2784,"start":2728}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":2803,"start":2789},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocGreaterThanOrEqualTo","span":{"end":2805,"start":2692},"superclass":null,"type_params":[]}
+class DocLessThan: {"body_span":{"end":2926,"start":2855},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2829,"start":2807}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThan(5)\"] }","name":"endec","span":{"end":2905,"start":2861}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":2924,"start":2910},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocLessThan","span":{"end":2926,"start":2837},"superclass":null,"type_params":[]}
+class DocLessThanOrEqualTo: {"body_span":{"end":3065,"start":2985},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2950,"start":2928}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanOrEqualTo(5)\"] }","name":"endec","span":{"end":3044,"start":2991}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":3063,"start":3049},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocLessThanOrEqualTo","span":{"end":3065,"start":2958},"superclass":null,"type_params":[]}
+class DocBetween: {"body_span":{"end":3188,"start":3114},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":3089,"start":3067}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"between(1, 10)\"] }","name":"endec","span":{"end":3167,"start":3120}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":3186,"start":3172},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocBetween","span":{"end":3188,"start":3097},"superclass":null,"type_params":[]}
+class DocInt: {"body_span":{"end":3296,"start":3233},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":3212,"start":3190}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"int\"] }","name":"endec","span":{"end":3275,"start":3239}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":3294,"start":3280},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocInt","span":{"end":3296,"start":3220},"superclass":null,"type_params":[]}
+class DocNonNegativeInt: {"body_span":{"end":3426,"start":3352},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":3320,"start":3298}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNegativeInt\"] }","name":"endec","span":{"end":3405,"start":3358}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":3424,"start":3410},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNonNegativeInt","span":{"end":3426,"start":3328},"superclass":null,"type_params":[]}
+class DocUint8: {"body_span":{"end":3538,"start":3473},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":3450,"start":3428}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uint8\"] }","name":"endec","span":{"end":3517,"start":3479}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":3536,"start":3522},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocUint8","span":{"end":3538,"start":3458},"superclass":null,"type_params":[]}
+class DocMultipleOfDecimal: {"body_span":{"end":3672,"start":3597},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":3562,"start":3540}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"multipleOf(0.1)\"] }","name":"endec","span":{"end":3651,"start":3603}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":3670,"start":3656},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocMultipleOfDecimal","span":{"end":3672,"start":3570},"superclass":null,"type_params":[]}
+class DocMultipleOfInteger: {"body_span":{"end":3804,"start":3731},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":3696,"start":3674}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"multipleOf(5)\"] }","name":"endec","span":{"end":3783,"start":3737}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":3802,"start":3788},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocMultipleOfInteger","span":{"end":3804,"start":3704},"superclass":null,"type_params":[]}
+class DocPositive: {"body_span":{"end":3922,"start":3854},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":3828,"start":3806}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"positive\"] }","name":"endec","span":{"end":3901,"start":3860}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":3920,"start":3906},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocPositive","span":{"end":3922,"start":3836},"superclass":null,"type_params":[]}
+class DocNonNegative: {"body_span":{"end":4046,"start":3975},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":3946,"start":3924}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNegative\"] }","name":"endec","span":{"end":4025,"start":3981}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":4044,"start":4030},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNonNegative","span":{"end":4046,"start":3954},"superclass":null,"type_params":[]}
+class DocNegative: {"body_span":{"end":4164,"start":4096},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":4070,"start":4048}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"negative\"] }","name":"endec","span":{"end":4143,"start":4102}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":4162,"start":4148},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNegative","span":{"end":4164,"start":4078},"superclass":null,"type_params":[]}
+class DocNonPositive: {"body_span":{"end":4288,"start":4217},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":4188,"start":4166}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonPositive\"] }","name":"endec","span":{"end":4267,"start":4223}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":4286,"start":4272},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNonPositive","span":{"end":4288,"start":4196},"superclass":null,"type_params":[]}
+class DocFinite: {"body_span":{"end":4402,"start":4336},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":4312,"start":4290}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"finite\"] }","name":"endec","span":{"end":4381,"start":4342}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":4400,"start":4386},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocFinite","span":{"end":4402,"start":4320},"superclass":null,"type_params":[]}
+class DocNonNaN: {"body_span":{"end":4516,"start":4450},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":4426,"start":4404}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNaN\"] }","name":"endec","span":{"end":4495,"start":4456}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":4514,"start":4500},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNonNaN","span":{"end":4516,"start":4434},"superclass":null,"type_params":[]}
+class DocPositiveBigInt: {"body_span":{"end":4646,"start":4572},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":4540,"start":4518}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"positiveBigInt\"] }","name":"endec","span":{"end":4625,"start":4578}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":4644,"start":4630},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocPositiveBigInt","span":{"end":4646,"start":4548},"superclass":null,"type_params":[]}
+class DocNonNegativeBigInt: {"body_span":{"end":4782,"start":4705},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":4670,"start":4648}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNegativeBigInt\"] }","name":"endec","span":{"end":4761,"start":4711}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":4780,"start":4766},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNonNegativeBigInt","span":{"end":4782,"start":4678},"superclass":null,"type_params":[]}
+class DocNegativeBigInt: {"body_span":{"end":4912,"start":4838},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":4806,"start":4784}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"negativeBigInt\"] }","name":"endec","span":{"end":4891,"start":4844}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":4910,"start":4896},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNegativeBigInt","span":{"end":4912,"start":4814},"superclass":null,"type_params":[]}
+class DocNonPositiveBigInt: {"body_span":{"end":5048,"start":4971},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":4936,"start":4914}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonPositiveBigInt\"] }","name":"endec","span":{"end":5027,"start":4977}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":5046,"start":5032},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNonPositiveBigInt","span":{"end":5048,"start":4944},"superclass":null,"type_params":[]}
+class DocGreaterThanBigInt: {"body_span":{"end":5187,"start":5107},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":5072,"start":5050}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanBigInt(5)\"] }","name":"endec","span":{"end":5166,"start":5113}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":5185,"start":5171},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocGreaterThanBigInt","span":{"end":5187,"start":5080},"superclass":null,"type_params":[]}
+class DocGreaterThanOrEqualToBigInt: {"body_span":{"end":5344,"start":5255},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":5211,"start":5189}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanOrEqualToBigInt(5)\"] }","name":"endec","span":{"end":5323,"start":5261}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":5342,"start":5328},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocGreaterThanOrEqualToBigInt","span":{"end":5344,"start":5219},"superclass":null,"type_params":[]}
+class DocLessThanBigInt: {"body_span":{"end":5477,"start":5400},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":5368,"start":5346}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanBigInt(5)\"] }","name":"endec","span":{"end":5456,"start":5406}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":5475,"start":5461},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocLessThanBigInt","span":{"end":5477,"start":5376},"superclass":null,"type_params":[]}
+class DocLessThanOrEqualToBigInt: {"body_span":{"end":5628,"start":5542},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":5501,"start":5479}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanOrEqualToBigInt(5)\"] }","name":"endec","span":{"end":5607,"start":5548}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":5626,"start":5612},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocLessThanOrEqualToBigInt","span":{"end":5628,"start":5509},"superclass":null,"type_params":[]}
+class DocBetweenBigInt: {"body_span":{"end":5763,"start":5683},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":5652,"start":5630}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"betweenBigInt(1, 10)\"] }","name":"endec","span":{"end":5742,"start":5689}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":5761,"start":5747},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocBetweenBigInt","span":{"end":5763,"start":5660},"superclass":null,"type_params":[]}
+class DocValidDate: {"body_span":{"end":5881,"start":5814},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":5787,"start":5765}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":5862,"start":5820}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":5879,"start":5867},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocValidDate","span":{"end":5881,"start":5795},"superclass":null,"type_params":[]}
+class DocGreaterThanDate: {"body_span":{"end":6025,"start":5938},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":5905,"start":5883}}],"fields":[{"decorators":[{"args_src":"{ validate: ['greaterThanDate(\"2020-01-01\")'] }","name":"endec","span":{"end":6006,"start":5944}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":6023,"start":6011},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocGreaterThanDate","span":{"end":6025,"start":5913},"superclass":null,"type_params":[]}
+class DocGreaterThanOrEqualToDate: {"body_span":{"end":6187,"start":6091},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":6049,"start":6027}}],"fields":[{"decorators":[{"args_src":"{ validate: ['greaterThanOrEqualToDate(\"2020-01-01\")'] }","name":"endec","span":{"end":6168,"start":6097}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":6185,"start":6173},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocGreaterThanOrEqualToDate","span":{"end":6187,"start":6057},"superclass":null,"type_params":[]}
+class DocLessThanDate: {"body_span":{"end":6325,"start":6241},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":6211,"start":6189}}],"fields":[{"decorators":[{"args_src":"{ validate: ['lessThanDate(\"2020-01-01\")'] }","name":"endec","span":{"end":6306,"start":6247}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":6323,"start":6311},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocLessThanDate","span":{"end":6325,"start":6219},"superclass":null,"type_params":[]}
+class DocLessThanOrEqualToDate: {"body_span":{"end":6481,"start":6388},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":6349,"start":6327}}],"fields":[{"decorators":[{"args_src":"{ validate: ['lessThanOrEqualToDate(\"2020-01-01\")'] }","name":"endec","span":{"end":6462,"start":6394}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":6479,"start":6467},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocLessThanOrEqualToDate","span":{"end":6481,"start":6357},"superclass":null,"type_params":[]}
+class DocBetweenDate: {"body_span":{"end":6631,"start":6534},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":6505,"start":6483}}],"fields":[{"decorators":[{"args_src":"{ validate: ['betweenDate(\"2020-01-01\", \"2020-12-31\")'] }","name":"endec","span":{"end":6612,"start":6540}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":6629,"start":6617},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocBetweenDate","span":{"end":6631,"start":6513},"superclass":null,"type_params":[]}
+class DocMinItems: {"body_span":{"end":6754,"start":6681},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":6655,"start":6633}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minItems(2)\"] }","name":"endec","span":{"end":6731,"start":6687}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":6752,"start":6736},"ts_type":"number[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocMinItems","span":{"end":6754,"start":6663},"superclass":null,"type_params":[]}
+class DocMaxItems: {"body_span":{"end":6877,"start":6804},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":6778,"start":6756}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"maxItems(2)\"] }","name":"endec","span":{"end":6854,"start":6810}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":6875,"start":6859},"ts_type":"number[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocMaxItems","span":{"end":6877,"start":6786},"superclass":null,"type_params":[]}
+class DocItemsCount: {"body_span":{"end":7004,"start":6929},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":6901,"start":6879}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"itemsCount(2)\"] }","name":"endec","span":{"end":6981,"start":6935}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":7002,"start":6986},"ts_type":"number[]","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocItemsCount","span":{"end":7004,"start":6909},"superclass":null,"type_params":[]}
+class DocNullableMaxLength: {"body_span":{"end":7142,"start":7063},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":7028,"start":7006}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"maxLength(3)\"] }","name":"endec","span":{"end":7114,"start":7069}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":7140,"start":7119},"ts_type":"string | null","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNullableMaxLength","span":{"end":7142,"start":7036},"superclass":null,"type_params":[]}
+class DocNullableDate: {"body_span":{"end":7292,"start":7196},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":7166,"start":7144}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanDate(\\\"2020-01-01\\\")\"] }","name":"endec","span":{"end":7266,"start":7202}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":7290,"start":7271},"ts_type":"Date | null","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocNullableDate","span":{"end":7292,"start":7174},"superclass":null,"type_params":[]}
+class DocMessageEscaping: {"body_span":{"end":7465,"start":7349},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":7316,"start":7294}}],"fields":[{"decorators":[{"args_src":"{ validate: [{ validate: \"nonEmpty\", message: \"say \\\"hi\\\"\\nthen stop\" }] }","name":"endec","span":{"end":7444,"start":7355}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":7463,"start":7449},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"DocMessageEscaping","span":{"end":7465,"start":7324},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

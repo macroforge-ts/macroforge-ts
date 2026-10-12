@@ -90,7 +90,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Point.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Point | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Point") as Point | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -109,7 +109,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Point");
     }
 
     ctx.trackForFreeze(instance);
@@ -223,10 +223,10 @@ export {};
 ## Mapping
 
 original 22..72 -> expanded 350..400
-original 72..73 -> expanded 6713..6714
+original 72..73 -> expanded 6731..6732
 generated 0..350 <- imports
-generated 400..6087 <- Decode
-generated 6087..6713 <- __convenience_const
+generated 400..6105 <- Decode
+generated 6105..6731 <- __convenience_const
 
 ## Metadata
 

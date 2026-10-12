@@ -13,7 +13,7 @@ true
 ## Output
 
 import { itemDecodeWithContext, itemEncodeWithContext } from "./item.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -53,53 +53,48 @@ export function billedItemEncode(value: BilledItem, keepMetadata?: boolean): str
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function billedItemEncodeWithContext(value: BilledItem, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return billedItemEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function billedItemEncodePartialWithContext(value: Partial<BilledItem>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof BilledItem>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "BilledItem",
-        __id,
+        __id: ctx.register(value),
     };
+    billedItemEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function billedItemEncodePartialWithContext(value: Partial<BilledItem>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof BilledItem>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "BilledItem" };
+        billedItemEncodeFields(value as BilledItem, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function billedItemEncodeFields(value: BilledItem, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("item")) {
-
         if (value.item !== undefined) {
             result.item = itemEncodeWithContext(value.item, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("quantity")) {
-
         if (value.quantity !== undefined) {
             result.quantity = value.quantity;
         }
     }
     if (__fields === undefined || __fields.keeps("taxed")) {
-
         if (value.taxed !== undefined) {
             result.taxed = value.taxed;
         }
     }
     if (__fields === undefined || __fields.keeps("upsale")) {
-
         if (value.upsale !== undefined) {
             result.upsale = value.upsale;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -167,7 +162,7 @@ export function billedItemDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "BilledItem.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as BilledItem | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "BilledItem") as BilledItem | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -192,7 +187,7 @@ export function billedItemDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "BilledItem");
     }
 
     ctx.trackForFreeze(instance);
@@ -535,7 +530,7 @@ export declare function billedItemDefaultValue(): BilledItem;
 export declare function billedItemEncode(value: BilledItem, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function billedItemEncodeWithContext(value: BilledItem, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function billedItemEncodePartialWithContext(value: Partial<BilledItem>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof BilledItem>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function billedItemDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -627,20 +622,20 @@ export declare const BilledItem: {
 
 ## Mapping
 
-original 0..102 -> expanded 720..822
-original 151..186 -> expanded 822..857
-original 297..302 -> expanded 857..862
-original 321..342 -> expanded 862..883
-original 406..433 -> expanded 883..910
-original 477..502 -> expanded 910..935
-original 547..570 -> expanded 935..958
-original 570..571 -> expanded 20109..20110
-generated 0..720 <- imports
-generated 958..1120 <- Default
-generated 1120..3462 <- Encode
-generated 3462..11099 <- Decode
-generated 11099..18789 <- Gigaform
-generated 18789..20109 <- __convenience_const
+original 0..102 -> expanded 761..863
+original 151..186 -> expanded 863..898
+original 297..302 -> expanded 898..903
+original 321..342 -> expanded 903..924
+original 406..433 -> expanded 924..951
+original 477..502 -> expanded 951..976
+original 547..570 -> expanded 976..999
+original 570..571 -> expanded 20523..20524
+generated 0..761 <- imports
+generated 999..1161 <- Default
+generated 1161..3848 <- Encode
+generated 3848..11513 <- Decode
+generated 11513..19203 <- Gigaform
+generated 19203..20523 <- __convenience_const
 
 ## Metadata
 

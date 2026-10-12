@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Validator form model for E2E testing in Svelte.
@@ -39,6 +39,7 @@ export class UserRegistrationForm {
     website: string;
 
 constructor(props: { email: string; password: string; username: string; age: number; website: string }) {
+
     this.email = props.email;
     this.password = props.password;
     this.username = props.username;
@@ -112,7 +113,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "UserRegistrationForm.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as UserRegistrationForm | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "UserRegistrationForm") as UserRegistrationForm | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -136,10 +137,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("website")) && !("website" in obj)) {
         errors.push({ field: "website", message: "missing required field" });
     }
-    const instance = Object.create(UserRegistrationForm.prototype) as UserRegistrationForm;
+
+    const instance: any = Object.create(UserRegistrationForm.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "UserRegistrationForm");
     }
 
     ctx.trackForFreeze(instance);
@@ -357,6 +359,7 @@ export class ProductForm {
     sku: string;
 
 constructor(props: { name: string; price: number; quantity: number; tags: Array<string>; sku: string }) {
+
     this.name = props.name;
     this.price = props.price;
     this.quantity = props.quantity;
@@ -430,7 +433,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "ProductForm.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as ProductForm | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "ProductForm") as ProductForm | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -454,10 +457,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("sku")) && !("sku" in obj)) {
         errors.push({ field: "sku", message: "missing required field" });
     }
-    const instance = Object.create(ProductForm.prototype) as ProductForm;
+
+    const instance: any = Object.create(ProductForm.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "ProductForm");
     }
 
     ctx.trackForFreeze(instance);
@@ -503,13 +507,28 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     }
     if ((__fields === undefined || __fields.requires("tags")) || (__fields.keeps("tags") && obj["tags"] !== undefined)) {
         const __raw_tags = obj["tags"] as Array<string>;
-
         if (Array.isArray(__raw_tags)) {
             if (__raw_tags == null) { errors.push({ field: "tags", message: "ProductForm.tags is required" }); } else {
                 if (__raw_tags.length < 1) { errors.push({ field: "tags", message: "ProductForm.tags must have at least 1 items" }); }
                 if (__raw_tags.length > 5) { errors.push({ field: "tags", message: "ProductForm.tags must have at most 5 items" }); }
             }
-            instance.tags = __raw_tags as string[];
+            ctx.pushScope("tags");
+            try {
+                instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "tags", message: __raw_tags == null ? "ProductForm.tags is required" : "expected Array<string>" });
         }
@@ -669,6 +688,7 @@ export class EventForm {
     maxAttendees: number;
 
 constructor(props: { title: string; startDate: Date; endDate: Date; maxAttendees: number }) {
+
     this.title = props.title;
     this.startDate = props.startDate;
     this.endDate = props.endDate;
@@ -741,7 +761,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "EventForm.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as EventForm | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "EventForm") as EventForm | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -762,10 +782,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("maxAttendees")) && !("maxAttendees" in obj)) {
         errors.push({ field: "maxAttendees", message: "missing required field" });
     }
-    const instance = Object.create(EventForm.prototype) as EventForm;
+
+    const instance: any = Object.create(EventForm.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "EventForm");
     }
 
     ctx.trackForFreeze(instance);
@@ -1170,43 +1191,43 @@ export declare function validateEvent(data: unknown): ValidationResult<EventForm
 
 ## Mapping
 
-original 0..204 -> expanded 350..554
-original 226..267 -> expanded 554..595
-original 305..330 -> expanded 595..620
-original 392..420 -> expanded 620..648
-original 529..557 -> expanded 648..676
-original 613..636 -> expanded 676..699
-original 672..694 -> expanded 699..721
-original 694..695 -> expanded 16252..16253
-original 695..697 -> expanded 18215..18217
-original 719..751 -> expanded 18217..18249
-original 810..834 -> expanded 18249..18273
-original 896..921 -> expanded 18273..18298
-original 972..1000 -> expanded 18298..18326
-original 1059..1090 -> expanded 18326..18357
-original 1127..1145 -> expanded 18357..18375
-original 1145..1146 -> expanded 32455..32456
-original 1146..1148 -> expanded 34283..34285
-original 1170..1200 -> expanded 34285..34315
-original 1252..1277 -> expanded 34315..34340
-original 1354..1381 -> expanded 34340..34367
-original 1423..1448 -> expanded 34367..34392
-original 1504..1531 -> expanded 34392..34419
-original 1531..1532 -> expanded 46778..46779
-original 1532..2731 -> expanded 48576..49775
-generated 0..350 <- imports
-generated 721..16252 <- Decode
-generated 16253..18215 <- Decode
-generated 18375..32455 <- Decode
-generated 32456..34283 <- Decode
-generated 34419..46778 <- Decode
-generated 46779..48576 <- Decode
+original 0..204 -> expanded 418..622
+original 226..267 -> expanded 622..663
+original 305..330 -> expanded 663..688
+original 392..420 -> expanded 688..716
+original 529..557 -> expanded 716..744
+original 613..636 -> expanded 744..767
+original 672..694 -> expanded 767..789
+original 694..695 -> expanded 16351..16352
+original 695..697 -> expanded 18314..18316
+original 719..751 -> expanded 18316..18348
+original 810..834 -> expanded 18348..18372
+original 896..921 -> expanded 18372..18397
+original 972..1000 -> expanded 18397..18425
+original 1059..1090 -> expanded 18425..18456
+original 1127..1145 -> expanded 18456..18474
+original 1145..1146 -> expanded 33175..33176
+original 1146..1148 -> expanded 35003..35005
+original 1170..1200 -> expanded 35005..35035
+original 1252..1277 -> expanded 35035..35060
+original 1354..1381 -> expanded 35060..35087
+original 1423..1448 -> expanded 35087..35112
+original 1504..1531 -> expanded 35112..35139
+original 1531..1532 -> expanded 47518..47519
+original 1532..2731 -> expanded 49316..50515
+generated 0..418 <- imports
+generated 789..16351 <- Decode
+generated 16352..18314 <- Decode
+generated 18474..33175 <- Decode
+generated 33176..35003 <- Decode
+generated 35139..47518 <- Decode
+generated 47519..49316 <- Decode
 
 ## Metadata
 
-class UserRegistrationForm: {"body_span":{"end":696,"start":262},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":227,"start":205}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"email\"] }","name":"endec","span":{"end":306,"start":268}}],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":325,"start":311},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minLength(8)\", \"maxLength(50)\"] }","name":"endec","span":{"end":393,"start":331}}],"initializer":null,"name":"password","optional":false,"readonly":false,"span":{"end":415,"start":398},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minLength(3)\", \"maxLength(20)\", \"lowercase\", \"pattern(\\\"^[a-z][a-z0-9_]+$\\\")\"] }","name":"endec","span":{"end":530,"start":421}}],"initializer":null,"name":"username","optional":false,"readonly":false,"span":{"end":552,"start":535},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"between(18, 120)\"] }","name":"endec","span":{"end":614,"start":558}}],"initializer":null,"name":"age","optional":false,"readonly":false,"span":{"end":631,"start":619},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"url\"] }","name":"endec","span":{"end":673,"start":637}}],"initializer":null,"name":"website","optional":false,"readonly":false,"span":{"end":694,"start":678},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UserRegistrationForm","span":{"end":696,"start":235},"type_params":[]}
-class ProductForm: {"body_span":{"end":1147,"start":746},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":720,"start":698}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"maxLength(100)\"] }","name":"endec","span":{"end":811,"start":752}}],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":829,"start":816},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"positive\", \"lessThan(1000000)\"] }","name":"endec","span":{"end":897,"start":835}}],"initializer":null,"name":"price","optional":false,"readonly":false,"span":{"end":916,"start":902},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"nonNegative\"] }","name":"endec","span":{"end":973,"start":922}}],"initializer":null,"name":"quantity","optional":false,"readonly":false,"span":{"end":995,"start":978},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minItems(1)\", \"maxItems(5)\"] }","name":"endec","span":{"end":1060,"start":1001}}],"initializer":null,"name":"tags","optional":false,"readonly":false,"span":{"end":1085,"start":1065},"ts_type":"Array<string>","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"uuid\"] }","name":"endec","span":{"end":1128,"start":1091}}],"initializer":null,"name":"sku","optional":false,"readonly":false,"span":{"end":1145,"start":1133},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ProductForm","span":{"end":1147,"start":728},"type_params":[]}
-class EventForm: {"body_span":{"end":1533,"start":1195},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1171,"start":1149}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"trimmed\"] }","name":"endec","span":{"end":1253,"start":1201}}],"initializer":null,"name":"title","optional":false,"readonly":false,"span":{"end":1272,"start":1258},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"validDate\", \"greaterThanDate(\\\"2020-01-01\\\")\"] }","name":"endec","span":{"end":1355,"start":1278}}],"initializer":null,"name":"startDate","optional":false,"readonly":false,"span":{"end":1376,"start":1360},"ts_type":"Date","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":1424,"start":1382}}],"initializer":null,"name":"endDate","optional":false,"readonly":false,"span":{"end":1443,"start":1429},"ts_type":"Date","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"between(1, 1000)\"] }","name":"endec","span":{"end":1505,"start":1449}}],"initializer":null,"name":"maxAttendees","optional":false,"readonly":false,"span":{"end":1531,"start":1510},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EventForm","span":{"end":1533,"start":1179},"type_params":[]}
+class UserRegistrationForm: {"body_span":{"end":696,"start":262},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":227,"start":205}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"email\"] }","name":"endec","span":{"end":306,"start":268}}],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":325,"start":311},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minLength(8)\", \"maxLength(50)\"] }","name":"endec","span":{"end":393,"start":331}}],"initializer":null,"name":"password","optional":false,"readonly":false,"span":{"end":415,"start":398},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minLength(3)\", \"maxLength(20)\", \"lowercase\", \"pattern(\\\"^[a-z][a-z0-9_]+$\\\")\"] }","name":"endec","span":{"end":530,"start":421}}],"initializer":null,"name":"username","optional":false,"readonly":false,"span":{"end":552,"start":535},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"between(18, 120)\"] }","name":"endec","span":{"end":614,"start":558}}],"initializer":null,"name":"age","optional":false,"readonly":false,"span":{"end":631,"start":619},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"url\"] }","name":"endec","span":{"end":673,"start":637}}],"initializer":null,"name":"website","optional":false,"readonly":false,"span":{"end":694,"start":678},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UserRegistrationForm","span":{"end":696,"start":235},"superclass":null,"type_params":[]}
+class ProductForm: {"body_span":{"end":1147,"start":746},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":720,"start":698}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"maxLength(100)\"] }","name":"endec","span":{"end":811,"start":752}}],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":829,"start":816},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"positive\", \"lessThan(1000000)\"] }","name":"endec","span":{"end":897,"start":835}}],"initializer":null,"name":"price","optional":false,"readonly":false,"span":{"end":916,"start":902},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"nonNegative\"] }","name":"endec","span":{"end":973,"start":922}}],"initializer":null,"name":"quantity","optional":false,"readonly":false,"span":{"end":995,"start":978},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minItems(1)\", \"maxItems(5)\"] }","name":"endec","span":{"end":1060,"start":1001}}],"initializer":null,"name":"tags","optional":false,"readonly":false,"span":{"end":1085,"start":1065},"ts_type":"Array<string>","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"uuid\"] }","name":"endec","span":{"end":1128,"start":1091}}],"initializer":null,"name":"sku","optional":false,"readonly":false,"span":{"end":1145,"start":1133},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ProductForm","span":{"end":1147,"start":728},"superclass":null,"type_params":[]}
+class EventForm: {"body_span":{"end":1533,"start":1195},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1171,"start":1149}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"trimmed\"] }","name":"endec","span":{"end":1253,"start":1201}}],"initializer":null,"name":"title","optional":false,"readonly":false,"span":{"end":1272,"start":1258},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"validDate\", \"greaterThanDate(\\\"2020-01-01\\\")\"] }","name":"endec","span":{"end":1355,"start":1278}}],"initializer":null,"name":"startDate","optional":false,"readonly":false,"span":{"end":1376,"start":1360},"ts_type":"Date","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":1424,"start":1382}}],"initializer":null,"name":"endDate","optional":false,"readonly":false,"span":{"end":1443,"start":1429},"ts_type":"Date","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"between(1, 1000)\"] }","name":"endec","span":{"end":1505,"start":1449}}],"initializer":null,"name":"maxAttendees","optional":false,"readonly":false,"span":{"end":1531,"start":1510},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EventForm","span":{"end":1533,"start":1179},"superclass":null,"type_params":[]}
 type ValidationResult: {"body":{"Alias":"ValidationOutcome<T, Array<string>>"},"decorators":[],"name":"ValidationResult","span":{"end":1686,"start":1623},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
 
 ## Registry reads

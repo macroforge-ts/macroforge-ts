@@ -36,6 +36,7 @@ export class CustomNumberValidator {
     evenNumber: number;
 
 constructor(props: { evenNumber: number }) {
+
     this.evenNumber = props.evenNumber;
 }
 
@@ -105,7 +106,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "CustomNumberValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as CustomNumberValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "CustomNumberValidator") as CustomNumberValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -117,10 +118,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("evenNumber")) && !("evenNumber" in obj)) {
         errors.push({ field: "evenNumber", message: "missing required field" });
     }
-    const instance = Object.create(CustomNumberValidator.prototype) as CustomNumberValidator;
+
+    const instance: any = Object.create(CustomNumberValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "CustomNumberValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -216,6 +218,7 @@ export class CustomStringValidator {
     username: string;
 
 constructor(props: { username: string }) {
+
     this.username = props.username;
 }
 
@@ -285,7 +288,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "CustomStringValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as CustomStringValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "CustomStringValidator") as CustomStringValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -297,10 +300,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("username")) && !("username" in obj)) {
         errors.push({ field: "username", message: "missing required field" });
     }
-    const instance = Object.create(CustomStringValidator.prototype) as CustomStringValidator;
+
+    const instance: any = Object.create(CustomStringValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "CustomStringValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -397,6 +401,7 @@ export class ImportedCustomValidator {
     count: number;
 
 constructor(props: { count: number }) {
+
     this.count = props.count;
 }
 
@@ -466,7 +471,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "ImportedCustomValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as ImportedCustomValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "ImportedCustomValidator") as ImportedCustomValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -478,10 +483,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
         errors.push({ field: "count", message: "missing required field" });
     }
-    const instance = Object.create(ImportedCustomValidator.prototype) as ImportedCustomValidator;
+
+    const instance: any = Object.create(ImportedCustomValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "ImportedCustomValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -576,6 +582,7 @@ export class CustomWithMessageValidator {
     evenNumber: number;
 
 constructor(props: { evenNumber: number }) {
+
     this.evenNumber = props.evenNumber;
 }
 
@@ -645,7 +652,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "CustomWithMessageValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as CustomWithMessageValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "CustomWithMessageValidator") as CustomWithMessageValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -657,10 +664,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("evenNumber")) && !("evenNumber" in obj)) {
         errors.push({ field: "evenNumber", message: "missing required field" });
     }
-    const instance = Object.create(CustomWithMessageValidator.prototype) as CustomWithMessageValidator;
+
+    const instance: any = Object.create(CustomWithMessageValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "CustomWithMessageValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -972,30 +980,30 @@ export declare function customWithMessageValidatorIs(value: unknown): value is C
 ## Mapping
 
 original 0..536 -> expanded 452..988
-original 536..537 -> expanded 7341..7342
-original 537..709 -> expanded 9319..9491
-original 709..710 -> expanded 15826..15827
-original 710..1016 -> expanded 17804..18110
-original 1016..1017 -> expanded 24471..24472
-original 1017..1206 -> expanded 26479..26668
-original 1206..1207 -> expanded 32990..32991
-original 1207..1208 -> expanded 35043..35044
+original 536..537 -> expanded 7373..7374
+original 537..709 -> expanded 9351..9523
+original 709..710 -> expanded 15890..15891
+original 710..1016 -> expanded 17868..18174
+original 1016..1017 -> expanded 24569..24570
+original 1017..1206 -> expanded 26577..26766
+original 1206..1207 -> expanded 33125..33126
+original 1207..1208 -> expanded 35178..35179
 generated 0..452 <- imports
-generated 988..7341 <- Decode
-generated 7342..9319 <- Decode
-generated 9491..15826 <- Decode
-generated 15827..17804 <- Decode
-generated 18110..24471 <- Decode
-generated 24472..26479 <- Decode
-generated 26668..32990 <- Decode
-generated 32991..35043 <- Decode
+generated 988..7373 <- Decode
+generated 7374..9351 <- Decode
+generated 9523..15890 <- Decode
+generated 15891..17868 <- Decode
+generated 18174..24569 <- Decode
+generated 24570..26577 <- Decode
+generated 26766..33125 <- Decode
+generated 33126..35178 <- Decode
 
 ## Metadata
 
-class CustomNumberValidator: {"body_span":{"end":538,"start":459},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":423,"start":401}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"custom(isEven)\"] }","name":"endec","span":{"end":512,"start":465}}],"initializer":null,"name":"evenNumber","optional":false,"readonly":false,"span":{"end":536,"start":517},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomNumberValidator","span":{"end":538,"start":431},"type_params":[]}
-class CustomStringValidator: {"body_span":{"end":711,"start":625},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":589,"start":567}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"custom(isValidUsername)\"] }","name":"endec","span":{"end":687,"start":631}}],"initializer":null,"name":"username","optional":false,"readonly":false,"span":{"end":709,"start":692},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomStringValidator","span":{"end":711,"start":597},"type_params":[]}
-class ImportedCustomValidator: {"body_span":{"end":1018,"start":886},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":848,"start":826}}],"fields":[{"decorators":[{"args_src":"{ validate: ['custom({ function: \"isMultipleOfThree\", source: \"./shared-validators\" })'] }","name":"endec","span":{"end":997,"start":892}}],"initializer":null,"name":"count","optional":false,"readonly":false,"span":{"end":1016,"start":1002},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ImportedCustomValidator","span":{"end":1018,"start":856},"type_params":[]}
-class CustomWithMessageValidator: {"body_span":{"end":1208,"start":1083},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1042,"start":1020}}],"fields":[{"decorators":[{"args_src":"{ validate: [{ validate: \"custom(isEven)\", message: \"Number must be even\" }] }","name":"endec","span":{"end":1182,"start":1089}}],"initializer":null,"name":"evenNumber","optional":false,"readonly":false,"span":{"end":1206,"start":1187},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomWithMessageValidator","span":{"end":1208,"start":1050},"type_params":[]}
+class CustomNumberValidator: {"body_span":{"end":538,"start":459},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":423,"start":401}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"custom(isEven)\"] }","name":"endec","span":{"end":512,"start":465}}],"initializer":null,"name":"evenNumber","optional":false,"readonly":false,"span":{"end":536,"start":517},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomNumberValidator","span":{"end":538,"start":431},"superclass":null,"type_params":[]}
+class CustomStringValidator: {"body_span":{"end":711,"start":625},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":589,"start":567}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"custom(isValidUsername)\"] }","name":"endec","span":{"end":687,"start":631}}],"initializer":null,"name":"username","optional":false,"readonly":false,"span":{"end":709,"start":692},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomStringValidator","span":{"end":711,"start":597},"superclass":null,"type_params":[]}
+class ImportedCustomValidator: {"body_span":{"end":1018,"start":886},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":848,"start":826}}],"fields":[{"decorators":[{"args_src":"{ validate: ['custom({ function: \"isMultipleOfThree\", source: \"./shared-validators\" })'] }","name":"endec","span":{"end":997,"start":892}}],"initializer":null,"name":"count","optional":false,"readonly":false,"span":{"end":1016,"start":1002},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ImportedCustomValidator","span":{"end":1018,"start":856},"superclass":null,"type_params":[]}
+class CustomWithMessageValidator: {"body_span":{"end":1208,"start":1083},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1042,"start":1020}}],"fields":[{"decorators":[{"args_src":"{ validate: [{ validate: \"custom(isEven)\", message: \"Number must be even\" }] }","name":"endec","span":{"end":1182,"start":1089}}],"initializer":null,"name":"evenNumber","optional":false,"readonly":false,"span":{"end":1206,"start":1187},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomWithMessageValidator","span":{"end":1208,"start":1050},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

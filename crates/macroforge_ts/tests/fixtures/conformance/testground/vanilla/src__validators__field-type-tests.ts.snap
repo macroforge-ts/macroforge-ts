@@ -101,7 +101,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Profile.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Profile | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Profile") as Profile | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -141,7 +141,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Profile");
     }
 
     ctx.trackForFreeze(instance);
@@ -366,7 +366,7 @@ export function taggedIs(value: unknown): value is Tagged {
 }
 
 export function taggedHashCode(value: Tagged): number {
-    return Number.isInteger(value) ? value | 0 : value.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
+    return Number.isInteger(value) ? value | 0 : value.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
 }
 
 export function taggedToString(value: Tagged): string {
@@ -474,7 +474,7 @@ export function centsIs(value: unknown): value is Cents {
 }
 
 export function centsHashCode(value: Cents): number {
-    return value.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
+    return value.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
 }
 
 export function centsToString(value: Cents): string {
@@ -641,27 +641,27 @@ export {};
 
 original 0..373 -> expanded 510..883
 original 389..428 -> expanded 927..966
-original 428..535 -> expanded 12591..12698
-original 535..601 -> expanded 16118..16184
-original 617..618 -> expanded 16228..16229
-original 618..619 -> expanded 19881..19882
+original 428..535 -> expanded 12613..12720
+original 535..601 -> expanded 16148..16214
+original 617..618 -> expanded 16258..16259
+original 618..619 -> expanded 19919..19920
 generated 0..420 <- imports
 generated 420..465 <- $Newtype
 generated 465..510 <- $Newtype
 generated 883..927 <- $Newtype
-generated 966..11928 <- Decode
-generated 11928..12591 <- __convenience_const
-generated 12698..13406 <- Encode
-generated 13406..15189 <- Decode
-generated 15189..15375 <- Hash
-generated 15375..15478 <- Debug
-generated 15478..16118 <- __convenience_const
-generated 16184..16228 <- $Newtype
-generated 16229..16969 <- Encode
-generated 16969..19012 <- Decode
-generated 19012..19158 <- Hash
-generated 19158..19258 <- Debug
-generated 19258..19881 <- __convenience_const
+generated 966..11950 <- Decode
+generated 11950..12613 <- __convenience_const
+generated 12720..13428 <- Encode
+generated 13428..15211 <- Decode
+generated 15211..15405 <- Hash
+generated 15405..15508 <- Debug
+generated 15508..16148 <- __convenience_const
+generated 16214..16258 <- $Newtype
+generated 16259..16999 <- Encode
+generated 16999..19042 <- Decode
+generated 19042..19196 <- Hash
+generated 19196..19296 <- Debug
+generated 19296..19919 <- __convenience_const
 
 ## Metadata
 

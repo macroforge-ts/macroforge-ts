@@ -13,8 +13,8 @@ true
 ## Output
 
 import { instanceWith as __mf_instanceWith } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { FieldSelection as __mf_FieldSelection, DecodeOptions as __mf_DecodeOptions, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Comprehensive test class demonstrating all available macros.
  * Used for Playwright e2e tests to verify macro expansion works at runtime.
@@ -37,32 +37,105 @@ export class AllMacrosTestClass {
     score: number;
 
     static toString(value: AllMacrosTestClass): string {
-        return allMacrosTestClassToString(value);
+        const parts: string[] = [];
+        parts.push("identifier: " + String(value.id));
+        parts.push("name: " + String(value.name));
+        parts.push("email: " + String(value.email));
+        parts.push("isActive: " + String(value.isActive));
+        parts.push("score: " + String(value.score));
+        return "AllMacrosTestClass { " + parts.join(", ") + " }";
     }
 
     static clone(value: AllMacrosTestClass): AllMacrosTestClass {
-        return allMacrosTestClassClone(value);
+        return __mf_instanceWith(value, ({
+        	id: value.id,
+        	name: value.name,
+        	email: value.email,
+        	secretToken: value.secretToken,
+        	isActive: value.isActive,
+        	score: value.score
+        }));
     }
 
     static equals(a: AllMacrosTestClass, b: AllMacrosTestClass): boolean {
-        return allMacrosTestClassEquals(a, b);
+        if (a === b) return true;
+        return a.id === b.id && a.name === b.name && a.email === b.email && a.secretToken === b.secretToken && a.isActive === b.isActive && a.score === b.score;
     }
 
     static hashCode(value: AllMacrosTestClass): number {
-        return allMacrosTestClassHashCode(value);
+        let hash = 17;
+        hash = (hash * 31 + (Number.isInteger(value.id) ? value.id | 0 : value.id.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + ((value.email ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + ((value.secretToken ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        hash = (hash * 31 + (value.isActive ? 1231 : 1237)) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.score) ? value.score | 0 : value.score.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
     }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: AllMacrosTestClass, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+    const result: Record<string, unknown> = {
+        "__type": "AllMacrosTestClass",
+        __id: ctx.register(value),
+    };
+    AllMacrosTestClass.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<AllMacrosTestClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AllMacrosTestClass>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "AllMacrosTestClass" };
+        AllMacrosTestClass.#encodeFields(value as AllMacrosTestClass, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: AllMacrosTestClass, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("id")) {
+        if (value.id !== undefined) {
+            result.id = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("name")) {
+        if (value.name !== undefined) {
+            result.name = value.name;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("email")) {
+        if (value.email !== undefined) {
+            result.email = value.email;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("secretToken")) {
+        if (value.secretToken !== undefined) {
+            result.secretToken = value.secretToken;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("isActive")) {
+        if (value.isActive !== undefined) {
+            result.isActive = value.isActive;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("score")) {
+        if (value.score !== undefined) {
+            result.score = value.score;
+        }
+    }
+}
 
     /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
     static encode(value: AllMacrosTestClass, keepMetadata?: boolean): string {
         return allMacrosTestClassEncode(value, keepMetadata);
     }
 
-    /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-    static encodeWithContext(value: AllMacrosTestClass, ctx: __mf_EncodeContext): Record<string, unknown> {
-        return allMacrosTestClassEncodeWithContext(value, ctx);
-    }
-
 constructor(props: { id: number; name: string; email: string; secretToken: string; isActive: boolean; score: number }) {
+
     this.id = props.id;
     this.name = props.name;
     this.email = props.email;
@@ -137,7 +210,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "AllMacrosTestClass.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as AllMacrosTestClass | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "AllMacrosTestClass") as AllMacrosTestClass | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -164,10 +237,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("score")) && !("score" in obj)) {
         errors.push({ field: "score", message: "missing required field" });
     }
-    const instance = Object.create(AllMacrosTestClass.prototype) as AllMacrosTestClass;
+
+    const instance: any = Object.create(AllMacrosTestClass.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "AllMacrosTestClass");
     }
 
     ctx.trackForFreeze(instance);
@@ -262,40 +336,19 @@ static is(obj: unknown): obj is AllMacrosTestClass {
 }
 
 export function allMacrosTestClassToString(value: AllMacrosTestClass): string {
-    const parts: string[] = [];
-    parts.push("identifier: " + String(value.id));
-    parts.push("name: " + String(value.name));
-    parts.push("email: " + String(value.email));
-    parts.push("isActive: " + String(value.isActive));
-    parts.push("score: " + String(value.score));
-    return "AllMacrosTestClass { " + parts.join(", ") + " }";
+    return AllMacrosTestClass.toString(value);
 }
 
 export function allMacrosTestClassClone(value: AllMacrosTestClass): AllMacrosTestClass {
-    return __mf_instanceWith(value, ({
-	id: value.id,
-	name: value.name,
-	email: value.email,
-	secretToken: value.secretToken,
-	isActive: value.isActive,
-	score: value.score
-}));
+    return AllMacrosTestClass.clone(value);
 }
 
 export function allMacrosTestClassEquals(a: AllMacrosTestClass, b: AllMacrosTestClass): boolean {
-    if (a === b) return true;
-    return a.id === b.id && a.name === b.name && a.email === b.email && a.secretToken === b.secretToken && a.isActive === b.isActive && a.score === b.score;
+    return AllMacrosTestClass.equals(a, b);
 }
 
 export function allMacrosTestClassHashCode(value: AllMacrosTestClass): number {
-    let hash = 17;
-    hash = (hash * 31 + (Number.isInteger(value.id) ? value.id | 0 : value.id.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + ((value.name ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + ((value.email ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + ((value.secretToken ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + (value.isActive ? 1231 : 1237)) | 0;
-    hash = (hash * 31 + (Number.isInteger(value.score) ? value.score | 0 : value.score.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+    return AllMacrosTestClass.hashCode(value);
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -304,68 +357,14 @@ export function allMacrosTestClassEncode(value: AllMacrosTestClass, keepMetadata
     const __raw = allMacrosTestClassEncodeWithContext(value, ctx);
     return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
-
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function allMacrosTestClassEncodeWithContext(value: AllMacrosTestClass, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return allMacrosTestClassEncodePartialWithContext(value, ctx);
+    return AllMacrosTestClass.encodeWithContext(value, ctx);
 }
 
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export function allMacrosTestClassEncodePartialWithContext(value: Partial<AllMacrosTestClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AllMacrosTestClass>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
-    }
-
-    const result: Record<string, unknown> = {
-        "__type": "AllMacrosTestClass",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("id")) {
-
-        if (value.id !== undefined) {
-            result.id = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("name")) {
-
-        if (value.name !== undefined) {
-            result.name = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("email")) {
-
-        if (value.email !== undefined) {
-            result.email = value.email;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("secretToken")) {
-
-        if (value.secretToken !== undefined) {
-            result.secretToken = value.secretToken;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("isActive")) {
-
-        if (value.isActive !== undefined) {
-            result.isActive = value.isActive;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("score")) {
-
-        if (value.score !== undefined) {
-            result.score = value.score;
-        }
-    }
-
-    return result;
+    return AllMacrosTestClass.encodePartialWithContext(value, ctx, fields);
 }
 
 /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
@@ -411,6 +410,7 @@ export const testInstance = new AllMacrosTestClass({
 */
 /** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export declare class AllMacrosTestClass {
+	#private;
 	/** @debug({ rename: "identifier" }) */
 	id: number;
 	name: string;
@@ -423,10 +423,12 @@ export declare class AllMacrosTestClass {
 	static clone(value: AllMacrosTestClass): AllMacrosTestClass;
 	static equals(a: AllMacrosTestClass, b: AllMacrosTestClass): boolean;
 	static hashCode(value: AllMacrosTestClass): number;
-	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-	static encode(value: AllMacrosTestClass, keepMetadata?: boolean): string;
 	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 	static encodeWithContext(value: AllMacrosTestClass, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext(value: Partial<AllMacrosTestClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AllMacrosTestClass>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: AllMacrosTestClass, keepMetadata?: boolean): string;
 	constructor(props: {
 		id: number;
 		name: string;
@@ -469,7 +471,7 @@ export declare function allMacrosTestClassHashCode(value: AllMacrosTestClass): n
 export declare function allMacrosTestClassEncode(value: AllMacrosTestClass, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function allMacrosTestClassEncodeWithContext(value: AllMacrosTestClass, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function allMacrosTestClassEncodePartialWithContext(value: Partial<AllMacrosTestClass>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AllMacrosTestClass>): Record<string, unknown>;
 /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function allMacrosTestClassDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -498,26 +500,27 @@ export declare const testInstance: unknown;
 
 ## Mapping
 
-original 0..449 -> expanded 564..1013
-original 449..450 -> expanded 10679..10680
-original 450..695 -> expanded 17161..17406
-generated 0..564 <- imports
-generated 1013..1127 <- Debug
-generated 1127..1247 <- Clone
-generated 1247..1376 <- PartialEq
-generated 1376..1490 <- Hash
-generated 1490..2169 <- Encode
-generated 2169..10679 <- Decode
-generated 10680..11108 <- Debug
-generated 11108..11379 <- Clone
-generated 11379..11667 <- PartialEq
-generated 11667..12509 <- Hash
-generated 12509..15229 <- Encode
-generated 15229..17161 <- Decode
+original 0..449 -> expanded 605..1054
+original 449..450 -> expanded 14313..14314
+original 450..695 -> expanded 18227..18472
+generated 0..605 <- imports
+generated 1054..1491 <- Debug
+generated 1491..1803 <- Clone
+generated 1803..2080 <- PartialEq
+generated 2080..2975 <- Hash
+generated 2975..5431 <- Encode
+generated 5431..5774 <- Encode
+generated 5774..14313 <- Decode
+generated 14314..14444 <- Debug
+generated 14444..14580 <- Clone
+generated 14580..14725 <- PartialEq
+generated 14725..14855 <- Hash
+generated 14855..16295 <- Encode
+generated 16295..18227 <- Decode
 
 ## Metadata
 
-class AllMacrosTestClass: {"body_span":{"end":451,"start":245},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":212,"start":151}}],"fields":[{"decorators":[{"args_src":"{ rename: \"identifier\" }","name":"debug","span":{"end":290,"start":251}}],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":306,"start":295},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":325,"start":312},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":345,"start":331},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":380,"start":351}}],"initializer":null,"name":"secretToken","optional":false,"readonly":false,"span":{"end":405,"start":385},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"isActive","optional":false,"readonly":false,"span":{"end":429,"start":411},"ts_type":"boolean","visibility":"Public"},{"decorators":[],"initializer":null,"name":"score","optional":false,"readonly":false,"span":{"end":449,"start":435},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"AllMacrosTestClass","span":{"end":451,"start":220},"type_params":[]}
+class AllMacrosTestClass: {"body_span":{"end":451,"start":245},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":212,"start":151}}],"fields":[{"decorators":[{"args_src":"{ rename: \"identifier\" }","name":"debug","span":{"end":290,"start":251}}],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":306,"start":295},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":325,"start":312},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":345,"start":331},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":380,"start":351}}],"initializer":null,"name":"secretToken","optional":false,"readonly":false,"span":{"end":405,"start":385},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"isActive","optional":false,"readonly":false,"span":{"end":429,"start":411},"ts_type":"boolean","visibility":"Public"},{"decorators":[],"initializer":null,"name":"score","optional":false,"readonly":false,"span":{"end":449,"start":435},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"AllMacrosTestClass","span":{"end":451,"start":220},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

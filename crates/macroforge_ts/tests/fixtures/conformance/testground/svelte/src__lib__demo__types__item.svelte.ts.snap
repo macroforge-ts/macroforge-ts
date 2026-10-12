@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { recordLinkDecodeWithContext, recordLinkHasShape, recordLinkDefaultValue } from "./record-link.svelte";
+import { recordLinkDecodeWithContext, recordLinkHasShape, recordLinkEncodeWithContext, recordLinkDefaultValue } from "./record-link.svelte";
 import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
@@ -46,6 +46,13 @@ export function itemEncodeWithContext(value: Item, ctx: __mf_EncodeContext): unk
     if (__encoder) {
         __variant = __encoder(value, ctx);
         __matched = true;
+    }
+    if (!__matched && value !== null && typeof value === "object") {
+        const __refTag = (value as any)["__type"];
+        if (!__matched && __refTag === "RecordLink") { __variant = recordLinkEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "RecordLink") { __variant = recordLinkEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && recordLinkHasShape(value)) { __variant = recordLinkEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && recordLinkHasShape(value)) { __variant = recordLinkEncodeWithContext(value as any, ctx); __matched = true; }
     }
     
     if (!__matched) {
@@ -441,15 +448,15 @@ export declare const Item: {
 
 ## Mapping
 
-original 0..213 -> expanded 668..881
-original 262..340 -> expanded 881..959
-original 340..341 -> expanded 12293..12294
-generated 0..668 <- imports
-generated 959..1020 <- Default
-generated 1020..2256 <- Encode
-generated 2256..7051 <- Decode
-generated 7051..11579 <- Gigaform
-generated 11579..12293 <- __convenience_const
+original 0..213 -> expanded 697..910
+original 262..340 -> expanded 910..988
+original 340..341 -> expanded 12988..12989
+generated 0..697 <- imports
+generated 988..1049 <- Default
+generated 1049..2951 <- Encode
+generated 2951..7746 <- Decode
+generated 7746..12274 <- Gigaform
+generated 12274..12988 <- __convenience_const
 
 ## Metadata
 

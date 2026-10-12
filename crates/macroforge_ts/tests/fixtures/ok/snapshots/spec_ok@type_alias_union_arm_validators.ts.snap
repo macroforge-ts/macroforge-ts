@@ -195,7 +195,7 @@ export function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Phone.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Phone | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Phone") as Phone | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -211,7 +211,7 @@ export function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Phone");
     }
 
     ctx.trackForFreeze(instance);
@@ -492,16 +492,16 @@ export {};
 original 22..75 -> expanded 350..403
 original 75..77 -> expanded 3453..3455
 original 99..137 -> expanded 3455..3493
-original 137..139 -> expanded 9330..9332
-original 161..239 -> expanded 9332..9410
-original 239..240 -> expanded 14181..14182
+original 137..139 -> expanded 9348..9350
+original 161..239 -> expanded 9350..9428
+original 239..240 -> expanded 14199..14200
 generated 0..350 <- imports
 generated 403..3127 <- Decode
 generated 3127..3453 <- __convenience_const
-generated 3493..8704 <- Decode
-generated 8704..9330 <- __convenience_const
-generated 9410..13837 <- Decode
-generated 13837..14181 <- __convenience_const
+generated 3493..8722 <- Decode
+generated 8722..9348 <- __convenience_const
+generated 9428..13855 <- Decode
+generated 13855..14199 <- __convenience_const
 
 ## Metadata
 

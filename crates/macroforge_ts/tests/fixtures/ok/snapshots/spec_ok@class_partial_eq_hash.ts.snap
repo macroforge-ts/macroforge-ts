@@ -25,23 +25,23 @@ class User {
     name: string;
 
     static equals(a: User, b: User): boolean {
-        return userEquals(a, b);
+        if (a === b) return true;
+        return a.name === b.name;
     }
 
     static hashCode(value: User): number {
-        return userHashCode(value);
+        let hash = 17;
+        hash = (hash * 31 + ((value.name ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
     }
 }
 
 export function userEquals(a: User, b: User): boolean {
-    if (a === b) return true;
-    return a.name === b.name;
+    return User.equals(a, b);
 }
 
 export function userHashCode(value: User): number {
-    let hash = 17;
-    hash = (hash * 31 + ((value.name ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    return hash;
+    return User.hashCode(value);
 }
 
 ## DTS
@@ -63,16 +63,16 @@ export {};
 
 original 0..41 -> expanded 0..41
 original 72..104 -> expanded 41..73
-original 104..105 -> expanded 246..247
-original 105..106 -> expanded 568..569
-generated 73..160 <- PartialEq
-generated 160..246 <- Hash
-generated 247..366 <- PartialEq
-generated 366..568 <- Hash
+original 104..105 -> expanded 412..413
+original 105..106 -> expanded 590..591
+generated 73..195 <- PartialEq
+generated 195..412 <- Hash
+generated 413..502 <- PartialEq
+generated 502..590 <- Hash
 
 ## Metadata
 
-class User: {"body_span":{"end":106,"start":85},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":73,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":104,"start":91},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":106,"start":74},"type_params":[]}
+class User: {"body_span":{"end":106,"start":85},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":73,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":104,"start":91},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":106,"start":74},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

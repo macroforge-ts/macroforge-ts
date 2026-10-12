@@ -31,9 +31,9 @@ export function vectorEquals(a: Vector, b: Vector): boolean {
 
 export function vectorHashCode(value: Vector): number {
     let hash = 17;
-    hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + (Number.isInteger(value.z) ? value.z | 0 : value.z.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.z) ? value.z | 0 : value.z.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     return hash;
 }
 
@@ -63,10 +63,10 @@ export {};
 ## Mapping
 
 original 31..95 -> expanded 0..64
-original 95..96 -> expanded 928..929
+original 95..96 -> expanded 952..953
 generated 64..213 <- PartialEq
-generated 213..767 <- Hash
-generated 767..928 <- __convenience_const
+generated 213..791 <- Hash
+generated 791..952 <- __convenience_const
 
 ## Metadata
 

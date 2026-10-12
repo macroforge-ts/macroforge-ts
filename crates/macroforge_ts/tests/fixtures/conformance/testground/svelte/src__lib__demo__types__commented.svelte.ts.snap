@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -42,41 +42,38 @@ export function commentedEncode(value: Commented, keepMetadata?: boolean): strin
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function commentedEncodeWithContext(value: Commented, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return commentedEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function commentedEncodePartialWithContext(value: Partial<Commented>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Commented>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Commented",
-        __id,
+        __id: ctx.register(value),
     };
+    commentedEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function commentedEncodePartialWithContext(value: Partial<Commented>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Commented>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Commented" };
+        commentedEncodeFields(value as Commented, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function commentedEncodeFields(value: Commented, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("comment")) {
-
         if (value.comment !== undefined) {
             result.comment = value.comment;
         }
     }
     if (__fields === undefined || __fields.keeps("replyTo")) {
         if (value.replyTo !== undefined) {
-
             result.replyTo = value.replyTo;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -144,7 +141,7 @@ export function commentedDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Commented.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Commented | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Commented") as Commented | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -163,7 +160,7 @@ export function commentedDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Commented");
     }
 
     ctx.trackForFreeze(instance);
@@ -399,7 +396,7 @@ export declare function commentedDefaultValue(): Commented;
 export declare function commentedEncode(value: Commented, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function commentedEncodeWithContext(value: Commented, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function commentedEncodePartialWithContext(value: Partial<Commented>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Commented>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function commentedDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -485,16 +482,16 @@ export declare const Commented: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..141 -> expanded 700..734
-original 182..233 -> expanded 734..785
-original 233..234 -> expanded 15567..15568
-generated 0..642 <- imports
-generated 785..905 <- Default
-generated 905..2895 <- Encode
-generated 2895..9809 <- Decode
-generated 9809..14274 <- Gigaform
-generated 14274..15567 <- __convenience_const
+original 0..58 -> expanded 683..741
+original 107..141 -> expanded 741..775
+original 182..233 -> expanded 775..826
+original 233..234 -> expanded 15977..15978
+generated 0..683 <- imports
+generated 826..946 <- Default
+generated 946..3279 <- Encode
+generated 3279..10219 <- Decode
+generated 10219..14684 <- Gigaform
+generated 14684..15977 <- __convenience_const
 
 ## Metadata
 

@@ -401,12 +401,8 @@ describe('Decode macro expansion', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('new Map('),
+            result.code.includes('__mf_decodeMap('),
             'Should construct Map from object'
-        );
-        assert.ok(
-            result.code.includes('Object.entries'),
-            'Should use Object.entries'
         );
     });
 
@@ -420,15 +416,15 @@ describe('Decode macro expansion', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('new Set('),
+            result.code.includes('__mf_decodeSet('),
             'Should construct Set from array'
         );
     });
 
-    test('rejects classes with custom constructors', () => {
+    test('keeps the constructor of a class that has one', () => {
         const code = `
       /** @derive(Decode) */
-      class Invalid {
+      class Named {
         name: string;
         constructor(name: string) {
           this.name = name;
@@ -437,13 +433,15 @@ describe('Decode macro expansion', () => {
     `;
         const result = expandSync(code, 'test.ts');
 
-        assert.ok(
-            result.diagnostics.length > 0,
-            'Should report error for custom constructor'
+        assert.deepStrictEqual(result.diagnostics, [], 'Should expand without diagnostics');
+        assert.strictEqual(
+            result.code.split('constructor(').length - 1,
+            1,
+            'Should not add a second constructor'
         );
         assert.ok(
-            result.diagnostics.some((d) => d.message.includes('constructor')),
-            'Error should mention constructor'
+            result.code.includes('Object.create(Named.prototype)'),
+            'Should build the instance without the constructor'
         );
     });
 
@@ -829,7 +827,11 @@ describe('Edge cases', () => {
             result.code.includes('Object.fromEntries'),
             'Should handle Map encoding'
         );
-        assert.ok(result.code.includes('.entries()'), 'Should iterate Map entries');
+        assert.ok(
+            result.code.includes('Array.from(value.data, ') &&
+                result.code.includes('Array.from(__item0)'),
+            'Should encode each Set held in the Map'
+        );
     });
 });
 
@@ -910,14 +912,14 @@ describe('Recursive collection decoding', () => {
 
         // Should call activityDecode (result-returning) for each array element
         assert.ok(
-            result.code.includes('activityDecode(item)'),
+            result.code.includes('activityDecodeWithContext(__raw0, ctx)'),
             'Should recursively decode Activity elements via result-returning function'
         );
-        // Should NOT have a raw `as Activity[]` cast in the Account decoder
-        // (the Activity[] field should go through .map with decoding)
+        // The array goes through the shared decoder, which settles an element
+        // that refers ahead of its object, not through a raw `as Activity[]`.
         assert.ok(
-            result.code.includes('__arr'),
-            'Should use __arr intermediate for PendingRef support'
+            result.code.includes('__mf_decodeArray('),
+            'Should decode the array element by element'
         );
         // Activity.timestamp should be parsed as Date
         assert.ok(
@@ -945,7 +947,7 @@ describe('Recursive collection decoding', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('tagDecode(item)'),
+            result.code.includes('tagDecodeWithContext(__raw0, ctx)'),
             'Class template should call tagDecode for Tag[] elements'
         );
     });
@@ -966,7 +968,7 @@ describe('Recursive collection decoding', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('itemDecode(item)'),
+            result.code.includes('itemDecodeWithContext(__raw0, ctx)'),
             'Type alias template should call itemDecode for Item[] elements'
         );
     });
@@ -981,9 +983,7 @@ describe('Recursive collection decoding', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes(
-                'typeof item === "string" ? new Date(item) : item as Date'
-            ),
+            result.code.includes('__mf_decodeArray(__raw_dates, ctx, __mf_decodeDate)'),
             'Should map Date[] elements from ISO strings'
         );
     });
@@ -1004,11 +1004,11 @@ describe('Recursive collection decoding', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('permissionDecode(item)'),
+            result.code.includes('permissionDecodeWithContext(__raw0, ctx)'),
             'Should call permissionDecode for Set<Permission> elements'
         );
         assert.ok(
-            result.code.includes('new Set('),
+            result.code.includes('__mf_decodeSet('),
             'Should wrap result in new Set()'
         );
     });
@@ -1029,11 +1029,11 @@ describe('Recursive collection decoding', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('scoreDecode(v)'),
+            result.code.includes('scoreDecodeWithContext(__raw0, ctx)'),
             'Should call scoreDecode for Map values'
         );
         assert.ok(
-            result.code.includes('new Map('),
+            result.code.includes('__mf_decodeMap('),
             'Should wrap result in new Map()'
         );
     });
@@ -1062,12 +1062,12 @@ describe('Recursive collection decoding', () => {
 
         // Dashboard.reports should recursively decode Report
         assert.ok(
-            result.code.includes('reportDecode(item)'),
+            result.code.includes('reportDecodeWithContext(__raw0, ctx)'),
             'Dashboard should recursively decode Report[] elements'
         );
         // Report.metrics should recursively decode Metric
         assert.ok(
-            result.code.includes('metricDecode(item)'),
+            result.code.includes('metricDecodeWithContext(__raw0, ctx)'),
             'Report should recursively decode Metric[] elements'
         );
         // Metric.recordedAt should parse Date
@@ -1105,18 +1105,18 @@ describe('Recursive collection decoding', () => {
 
         // Array<Address>
         assert.ok(
-            result.code.includes('addressDecode(item)'),
+            result.code.includes('addressDecodeWithContext(__raw0, ctx)'),
             'Array<Address> should recursively decode'
         );
         // Set<Address>
         assert.ok(
-            result.code.includes('new Set(') &&
-                result.code.includes('addressDecode(item)'),
+            result.code.includes('__mf_decodeSet(') &&
+                result.code.includes('addressDecodeWithContext(__raw0, ctx)'),
             'Set<Address> should recursively decode into Set'
         );
         // Map<string, Address>
         assert.ok(
-            result.code.includes('addressDecode(v)'),
+            result.code.includes('addressDecodeWithContext(__raw0, ctx)'),
             'Map<string, Address> should recursively decode values'
         );
     });
@@ -1243,12 +1243,12 @@ describe('Built-in type endec', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('Array.from(s)') &&
+            result.code.includes('Array.from(value.urls, ') &&
                 result.code.includes('v.toString()'),
             'Should encode Set<URL> with Array.from and toString()'
         );
         assert.ok(
-            result.code.includes('new Set(') &&
+            result.code.includes('__mf_decodeSet(') &&
                 result.code.includes('new URL(v as string)'),
             'Should decode Set<URL> with new Set and new URL()'
         );
@@ -1262,12 +1262,12 @@ describe('Built-in type endec', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('m.entries()') &&
+            result.code.includes('Array.from(value.endpoints, ') &&
                 result.code.includes('v.toString()'),
             'Should encode Map<string, URL> by mapping entries'
         );
         assert.ok(
-            result.code.includes('new Map(') &&
+            result.code.includes('__mf_decodeMap(') &&
                 result.code.includes('new URL(v as string)'),
             'Should decode Map<string, URL> with new Map and new URL()'
         );
@@ -1366,12 +1366,12 @@ describe('Built-in type endec', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('Object.entries(obj)') &&
+            result.code.includes('Object.entries(value.links)') &&
                 result.code.includes('v.toString()'),
             'Should encode Record<string, URL> by mapping entries'
         );
         assert.ok(
-            result.code.includes('Object.entries(raw as Record<string, unknown>)') &&
+            result.code.includes('__mf_decodeRecord(') &&
                 result.code.includes('new URL(v as string)'),
             'Should decode Record<string, URL> with Object.entries and new URL()'
         );
@@ -1457,7 +1457,7 @@ describe('Encode metadata stripping', () => {
             'encodeWithContext should still have __type marker'
         );
         assert.ok(
-            result.code.includes('__id = ctx.register(value)'),
+            result.code.includes('__id: ctx.register(value)'),
             'encodeWithContext should still register __id'
         );
     });

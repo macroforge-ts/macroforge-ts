@@ -12,10 +12,10 @@ true
 
 ## Output
 
-import { applicationsDecode, applicationsEncodeWithContext } from "./applications.svelte";
-import { pageDecode, pageEncodeWithContext } from "./page.svelte";
-import { tableDecode, tableEncodeWithContext } from "./table.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { applicationsDecodeWithContext, applicationsEncodeWithContext } from "./applications.svelte";
+import { pageDecodeWithContext, pageEncodeWithContext } from "./page.svelte";
+import { tableDecodeWithContext, tableEncodeWithContext } from "./table.svelte";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -50,53 +50,43 @@ export function appPermissionsEncode(value: AppPermissions, keepMetadata?: boole
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function appPermissionsEncodeWithContext(value: AppPermissions, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return appPermissionsEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function appPermissionsEncodePartialWithContext(value: Partial<AppPermissions>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AppPermissions>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "AppPermissions",
-        __id,
+        __id: ctx.register(value),
     };
+    appPermissionsEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function appPermissionsEncodePartialWithContext(value: Partial<AppPermissions>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AppPermissions>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "AppPermissions" };
+        appPermissionsEncodeFields(value as AppPermissions, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function appPermissionsEncodeFields(value: AppPermissions, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("applications")) {
-
         if (value.applications !== undefined) {
-            result.applications = value.applications.map(
-                (item) => applicationsEncodeWithContext(item, ctx)
-            );
+            result.applications = value.applications.map((__item0) => applicationsEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("pages")) {
-
         if (value.pages !== undefined) {
-            result.pages = value.pages.map(
-                (item) => pageEncodeWithContext(item, ctx)
-            );
+            result.pages = value.pages.map((__item0) => pageEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("data")) {
-
         if (value.data !== undefined) {
-            result.data = value.data.map(
-                (item) => tableEncodeWithContext(item, ctx)
-            );
+            result.data = value.data.map((__item0) => tableEncodeWithContext(__item0, ctx));
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -164,7 +154,7 @@ export function appPermissionsDecodeWithContext(value: unknown, ctx: __mf_Decode
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "AppPermissions.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as AppPermissions | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "AppPermissions") as AppPermissions | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -186,112 +176,79 @@ export function appPermissionsDecodeWithContext(value: unknown, ctx: __mf_Decode
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "AppPermissions");
     }
 
     ctx.trackForFreeze(instance);
 
     if ((__fields === undefined || __fields.requires("applications")) || (__fields.keeps("applications") && obj["applications"] !== undefined)) {
         const __raw_applications = obj["applications"] as Array<Applications>;
-
         if (Array.isArray(__raw_applications)) {
-            const __arr = __raw_applications.map((item: Applications | { __ref: number }, idx) => {
-                if (typeof item === "object" && item !== null && "__ref" in item) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (__mf_PendingRef.is(result)) {
-                        return { __pendingIdx: idx, __refId: result.id };
-                    }
-                    return result;
-                }
-                const __elemResult = applicationsDecode(item);
-                if (!__elemResult.success) {
-                    for (const __err of __elemResult.errors) {
+            ctx.pushScope("applications");
+            try {
+                instance.applications = __mf_decodeArray(__raw_applications, ctx, (__raw0) => applicationsDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
                         errors.push({
-                            field: __err.field === "_root"
-                                ? "applications[" + idx + "]"
-                                : "applications[" + idx + "]." + __err.field,
+                            field: __err.field === "_root" ? "applications" : "applications." + __err.field,
                             message: __err.message
                         });
                     }
+                } else {
+                    throw __e;
                 }
-                return __elemResult.success ? __elemResult.value : item;
-            });
-            instance.applications = __arr;
-            __arr.forEach((item, idx) => {
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.applications, idx, (item as any).__refId);
-                }
-            });
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "applications", message: __raw_applications == null ? "AppPermissions.applications is required" : "expected Array<Applications>" });
         }
     }
     if ((__fields === undefined || __fields.requires("pages")) || (__fields.keeps("pages") && obj["pages"] !== undefined)) {
         const __raw_pages = obj["pages"] as Array<Page>;
-
         if (Array.isArray(__raw_pages)) {
-            const __arr = __raw_pages.map((item: Page | { __ref: number }, idx) => {
-                if (typeof item === "object" && item !== null && "__ref" in item) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (__mf_PendingRef.is(result)) {
-                        return { __pendingIdx: idx, __refId: result.id };
-                    }
-                    return result;
-                }
-                const __elemResult = pageDecode(item);
-                if (!__elemResult.success) {
-                    for (const __err of __elemResult.errors) {
+            ctx.pushScope("pages");
+            try {
+                instance.pages = __mf_decodeArray(__raw_pages, ctx, (__raw0) => pageDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
                         errors.push({
-                            field: __err.field === "_root"
-                                ? "pages[" + idx + "]"
-                                : "pages[" + idx + "]." + __err.field,
+                            field: __err.field === "_root" ? "pages" : "pages." + __err.field,
                             message: __err.message
                         });
                     }
+                } else {
+                    throw __e;
                 }
-                return __elemResult.success ? __elemResult.value : item;
-            });
-            instance.pages = __arr;
-            __arr.forEach((item, idx) => {
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.pages, idx, (item as any).__refId);
-                }
-            });
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "pages", message: __raw_pages == null ? "AppPermissions.pages is required" : "expected Array<Page>" });
         }
     }
     if ((__fields === undefined || __fields.requires("data")) || (__fields.keeps("data") && obj["data"] !== undefined)) {
         const __raw_data = obj["data"] as Array<Table>;
-
         if (Array.isArray(__raw_data)) {
-            const __arr = __raw_data.map((item: Table | { __ref: number }, idx) => {
-                if (typeof item === "object" && item !== null && "__ref" in item) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (__mf_PendingRef.is(result)) {
-                        return { __pendingIdx: idx, __refId: result.id };
-                    }
-                    return result;
-                }
-                const __elemResult = tableDecode(item);
-                if (!__elemResult.success) {
-                    for (const __err of __elemResult.errors) {
+            ctx.pushScope("data");
+            try {
+                instance.data = __mf_decodeArray(__raw_data, ctx, (__raw0) => tableDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
                         errors.push({
-                            field: __err.field === "_root"
-                                ? "data[" + idx + "]"
-                                : "data[" + idx + "]." + __err.field,
+                            field: __err.field === "_root" ? "data" : "data." + __err.field,
                             message: __err.message
                         });
                     }
+                } else {
+                    throw __e;
                 }
-                return __elemResult.success ? __elemResult.value : item;
-            });
-            instance.data = __arr;
-            __arr.forEach((item, idx) => {
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.data, idx, (item as any).__refId);
-                }
-            });
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "data", message: __raw_data == null ? "AppPermissions.data is required" : "expected Array<Table>" });
         }
@@ -629,7 +586,7 @@ export declare function appPermissionsDefaultValue(): AppPermissions;
 export declare function appPermissionsEncode(value: AppPermissions, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function appPermissionsEncodeWithContext(value: AppPermissions, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function appPermissionsEncodePartialWithContext(value: Partial<AppPermissions>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof AppPermissions>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function appPermissionsDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -718,15 +675,15 @@ export declare const AppPermissions: {
 
 ## Mapping
 
-original 0..206 -> expanded 892..1098
-original 255..378 -> expanded 1098..1221
-original 378..379 -> expanded 26110..26111
-generated 0..892 <- imports
-generated 1221..1370 <- Default
-generated 1370..3820 <- Encode
-generated 3820..14465 <- Decode
-generated 14465..24682 <- Gigaform
-generated 24682..26110 <- __convenience_const
+original 0..206 -> expanded 999..1205
+original 255..378 -> expanded 1205..1328
+original 378..379 -> expanded 24687..24688
+generated 0..999 <- imports
+generated 1328..1477 <- Default
+generated 1477..4221 <- Encode
+generated 4221..13042 <- Decode
+generated 13042..23259 <- Gigaform
+generated 23259..24687 <- __convenience_const
 
 ## Metadata
 

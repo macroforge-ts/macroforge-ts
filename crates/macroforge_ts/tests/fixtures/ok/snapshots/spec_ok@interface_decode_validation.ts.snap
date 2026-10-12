@@ -102,7 +102,7 @@ export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "UserProfile.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as UserProfile | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "UserProfile") as UserProfile | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -121,7 +121,7 @@ export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "UserProfile");
     }
 
     ctx.trackForFreeze(instance);
@@ -298,10 +298,10 @@ original 22..51 -> expanded 350..379
 original 71..96 -> expanded 379..404
 original 138..166 -> expanded 404..432
 original 189..209 -> expanded 432..452
-original 209..210 -> expanded 10714..10715
+original 209..210 -> expanded 10744..10745
 generated 0..350 <- imports
-generated 452..9998 <- Decode
-generated 9998..10714 <- __convenience_const
+generated 452..10028 <- Decode
+generated 10028..10744 <- __convenience_const
 
 ## Metadata
 

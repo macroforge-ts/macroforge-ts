@@ -25,6 +25,7 @@ export class GreaterThanBigIntValidator {
     value: bigint;
 
 constructor(props: { value: bigint }) {
+
     this.value = props.value;
 }
 
@@ -94,7 +95,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "GreaterThanBigIntValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as GreaterThanBigIntValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "GreaterThanBigIntValidator") as GreaterThanBigIntValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -106,10 +107,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(GreaterThanBigIntValidator.prototype) as GreaterThanBigIntValidator;
+
+    const instance: any = Object.create(GreaterThanBigIntValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "GreaterThanBigIntValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -204,6 +206,7 @@ export class GreaterThanOrEqualToBigIntValidator {
     value: bigint;
 
 constructor(props: { value: bigint }) {
+
     this.value = props.value;
 }
 
@@ -273,7 +276,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "GreaterThanOrEqualToBigIntValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as GreaterThanOrEqualToBigIntValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "GreaterThanOrEqualToBigIntValidator") as GreaterThanOrEqualToBigIntValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -285,10 +288,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(GreaterThanOrEqualToBigIntValidator.prototype) as GreaterThanOrEqualToBigIntValidator;
+
+    const instance: any = Object.create(GreaterThanOrEqualToBigIntValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "GreaterThanOrEqualToBigIntValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -383,6 +387,7 @@ export class LessThanBigIntValidator {
     value: bigint;
 
 constructor(props: { value: bigint }) {
+
     this.value = props.value;
 }
 
@@ -452,7 +457,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "LessThanBigIntValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as LessThanBigIntValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "LessThanBigIntValidator") as LessThanBigIntValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -464,10 +469,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(LessThanBigIntValidator.prototype) as LessThanBigIntValidator;
+
+    const instance: any = Object.create(LessThanBigIntValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "LessThanBigIntValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -562,6 +568,7 @@ export class LessThanOrEqualToBigIntValidator {
     value: bigint;
 
 constructor(props: { value: bigint }) {
+
     this.value = props.value;
 }
 
@@ -631,7 +638,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "LessThanOrEqualToBigIntValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as LessThanOrEqualToBigIntValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "LessThanOrEqualToBigIntValidator") as LessThanOrEqualToBigIntValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -643,10 +650,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(LessThanOrEqualToBigIntValidator.prototype) as LessThanOrEqualToBigIntValidator;
+
+    const instance: any = Object.create(LessThanOrEqualToBigIntValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "LessThanOrEqualToBigIntValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -741,6 +749,7 @@ export class BetweenBigIntValidator {
     value: bigint;
 
 constructor(props: { value: bigint }) {
+
     this.value = props.value;
 }
 
@@ -810,7 +819,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "BetweenBigIntValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as BetweenBigIntValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "BetweenBigIntValidator") as BetweenBigIntValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -822,10 +831,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(BetweenBigIntValidator.prototype) as BetweenBigIntValidator;
+
+    const instance: any = Object.create(BetweenBigIntValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "BetweenBigIntValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -920,6 +930,7 @@ export class PositiveBigIntValidator {
     value: bigint;
 
 constructor(props: { value: bigint }) {
+
     this.value = props.value;
 }
 
@@ -989,7 +1000,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "PositiveBigIntValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as PositiveBigIntValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "PositiveBigIntValidator") as PositiveBigIntValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1001,10 +1012,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(PositiveBigIntValidator.prototype) as PositiveBigIntValidator;
+
+    const instance: any = Object.create(PositiveBigIntValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "PositiveBigIntValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -1099,6 +1111,7 @@ export class NonNegativeBigIntValidator {
     value: bigint;
 
 constructor(props: { value: bigint }) {
+
     this.value = props.value;
 }
 
@@ -1168,7 +1181,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "NonNegativeBigIntValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as NonNegativeBigIntValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "NonNegativeBigIntValidator") as NonNegativeBigIntValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1180,10 +1193,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(NonNegativeBigIntValidator.prototype) as NonNegativeBigIntValidator;
+
+    const instance: any = Object.create(NonNegativeBigIntValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "NonNegativeBigIntValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -1278,6 +1292,7 @@ export class NegativeBigIntValidator {
     value: bigint;
 
 constructor(props: { value: bigint }) {
+
     this.value = props.value;
 }
 
@@ -1347,7 +1362,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "NegativeBigIntValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as NegativeBigIntValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "NegativeBigIntValidator") as NegativeBigIntValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1359,10 +1374,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(NegativeBigIntValidator.prototype) as NegativeBigIntValidator;
+
+    const instance: any = Object.create(NegativeBigIntValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "NegativeBigIntValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -1457,6 +1473,7 @@ export class NonPositiveBigIntValidator {
     value: bigint;
 
 constructor(props: { value: bigint }) {
+
     this.value = props.value;
 }
 
@@ -1526,7 +1543,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "NonPositiveBigIntValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as NonPositiveBigIntValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "NonPositiveBigIntValidator") as NonPositiveBigIntValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1538,10 +1555,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) && !("value" in obj)) {
         errors.push({ field: "value", message: "missing required field" });
     }
-    const instance = Object.create(NonPositiveBigIntValidator.prototype) as NonPositiveBigIntValidator;
+
+    const instance: any = Object.create(NonPositiveBigIntValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "NonPositiveBigIntValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -2110,55 +2128,55 @@ export declare function nonPositiveBigIntValidatorIs(value: unknown): value is N
 ## Mapping
 
 original 0..261 -> expanded 350..611
-original 261..262 -> expanded 6849..6850
-original 262..464 -> expanded 8902..9104
-original 464..465 -> expanded 15591..15592
-original 465..634 -> expanded 17779..17948
-original 634..635 -> expanded 24123..24124
-original 635..831 -> expanded 26131..26327
-original 831..832 -> expanded 32751..32752
-original 832..1001 -> expanded 34894..35063
-original 1001..1002 -> expanded 41274..41275
-original 1002..1165 -> expanded 43267..43430
-original 1165..1166 -> expanded 49578..49579
-original 1166..1338 -> expanded 51586..51758
-original 1338..1339 -> expanded 57987..57988
-original 1339..1502 -> expanded 60040..60203
-original 1502..1503 -> expanded 66351..66352
-original 1503..1675 -> expanded 68359..68531
-original 1675..1676 -> expanded 74760..74761
-original 1676..1677 -> expanded 76813..76814
+original 261..262 -> expanded 6886..6887
+original 262..464 -> expanded 8939..9141
+original 464..465 -> expanded 15674..15675
+original 465..634 -> expanded 17862..18031
+original 634..635 -> expanded 24240..24241
+original 635..831 -> expanded 26248..26444
+original 831..832 -> expanded 32911..32912
+original 832..1001 -> expanded 35054..35223
+original 1001..1002 -> expanded 41467..41468
+original 1002..1165 -> expanded 43460..43623
+original 1165..1166 -> expanded 49805..49806
+original 1166..1338 -> expanded 51813..51985
+original 1338..1339 -> expanded 58251..58252
+original 1339..1502 -> expanded 60304..60467
+original 1502..1503 -> expanded 66649..66650
+original 1503..1675 -> expanded 68657..68829
+original 1675..1676 -> expanded 75095..75096
+original 1676..1677 -> expanded 77148..77149
 generated 0..350 <- imports
-generated 611..6849 <- Decode
-generated 6850..8902 <- Decode
-generated 9104..15591 <- Decode
-generated 15592..17779 <- Decode
-generated 17948..24123 <- Decode
-generated 24124..26131 <- Decode
-generated 26327..32751 <- Decode
-generated 32752..34894 <- Decode
-generated 35063..41274 <- Decode
-generated 41275..43267 <- Decode
-generated 43430..49578 <- Decode
-generated 49579..51586 <- Decode
-generated 51758..57987 <- Decode
-generated 57988..60040 <- Decode
-generated 60203..66351 <- Decode
-generated 66352..68359 <- Decode
-generated 68531..74760 <- Decode
-generated 74761..76813 <- Decode
+generated 611..6886 <- Decode
+generated 6887..8939 <- Decode
+generated 9141..15674 <- Decode
+generated 15675..17862 <- Decode
+generated 18031..24240 <- Decode
+generated 24241..26248 <- Decode
+generated 26444..32911 <- Decode
+generated 32912..35054 <- Decode
+generated 35223..41467 <- Decode
+generated 41468..43460 <- Decode
+generated 43623..49805 <- Decode
+generated 49806..51813 <- Decode
+generated 51985..58251 <- Decode
+generated 58252..60304 <- Decode
+generated 60467..66649 <- Decode
+generated 66650..68657 <- Decode
+generated 68829..75095 <- Decode
+generated 75096..77148 <- Decode
 
 ## Metadata
 
-class GreaterThanBigIntValidator: {"body_span":{"end":263,"start":183},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":142,"start":120}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanBigInt(0)\"] }","name":"endec","span":{"end":242,"start":189}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":261,"start":247},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanBigIntValidator","span":{"end":263,"start":150},"type_params":[]}
-class GreaterThanOrEqualToBigIntValidator: {"body_span":{"end":466,"start":377},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":327,"start":305}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanOrEqualToBigInt(0)\"] }","name":"endec","span":{"end":445,"start":383}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":464,"start":450},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanOrEqualToBigIntValidator","span":{"end":466,"start":335},"type_params":[]}
-class LessThanBigIntValidator: {"body_span":{"end":636,"start":556},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":518,"start":496}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanBigInt(1000)\"] }","name":"endec","span":{"end":615,"start":562}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":634,"start":620},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanBigIntValidator","span":{"end":636,"start":526},"type_params":[]}
-class LessThanOrEqualToBigIntValidator: {"body_span":{"end":833,"start":744},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":697,"start":675}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanOrEqualToBigInt(1000)\"] }","name":"endec","span":{"end":812,"start":750}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":831,"start":817},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanOrEqualToBigIntValidator","span":{"end":833,"start":705},"type_params":[]}
-class BetweenBigIntValidator: {"body_span":{"end":1003,"start":921},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":884,"start":862}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"betweenBigInt(0, 1000)\"] }","name":"endec","span":{"end":982,"start":927}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1001,"start":987},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"BetweenBigIntValidator","span":{"end":1003,"start":892},"type_params":[]}
-class PositiveBigIntValidator: {"body_span":{"end":1167,"start":1093},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1055,"start":1033}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"positiveBigInt\"] }","name":"endec","span":{"end":1146,"start":1099}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1165,"start":1151},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"PositiveBigIntValidator","span":{"end":1167,"start":1063},"type_params":[]}
-class NonNegativeBigIntValidator: {"body_span":{"end":1340,"start":1263},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1222,"start":1200}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNegativeBigInt\"] }","name":"endec","span":{"end":1319,"start":1269}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1338,"start":1324},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonNegativeBigIntValidator","span":{"end":1340,"start":1230},"type_params":[]}
-class NegativeBigIntValidator: {"body_span":{"end":1504,"start":1430},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1392,"start":1370}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"negativeBigInt\"] }","name":"endec","span":{"end":1483,"start":1436}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1502,"start":1488},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NegativeBigIntValidator","span":{"end":1504,"start":1400},"type_params":[]}
-class NonPositiveBigIntValidator: {"body_span":{"end":1677,"start":1600},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1559,"start":1537}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonPositiveBigInt\"] }","name":"endec","span":{"end":1656,"start":1606}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1675,"start":1661},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonPositiveBigIntValidator","span":{"end":1677,"start":1567},"type_params":[]}
+class GreaterThanBigIntValidator: {"body_span":{"end":263,"start":183},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":142,"start":120}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanBigInt(0)\"] }","name":"endec","span":{"end":242,"start":189}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":261,"start":247},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanBigIntValidator","span":{"end":263,"start":150},"superclass":null,"type_params":[]}
+class GreaterThanOrEqualToBigIntValidator: {"body_span":{"end":466,"start":377},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":327,"start":305}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"greaterThanOrEqualToBigInt(0)\"] }","name":"endec","span":{"end":445,"start":383}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":464,"start":450},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanOrEqualToBigIntValidator","span":{"end":466,"start":335},"superclass":null,"type_params":[]}
+class LessThanBigIntValidator: {"body_span":{"end":636,"start":556},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":518,"start":496}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanBigInt(1000)\"] }","name":"endec","span":{"end":615,"start":562}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":634,"start":620},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanBigIntValidator","span":{"end":636,"start":526},"superclass":null,"type_params":[]}
+class LessThanOrEqualToBigIntValidator: {"body_span":{"end":833,"start":744},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":697,"start":675}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lessThanOrEqualToBigInt(1000)\"] }","name":"endec","span":{"end":812,"start":750}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":831,"start":817},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanOrEqualToBigIntValidator","span":{"end":833,"start":705},"superclass":null,"type_params":[]}
+class BetweenBigIntValidator: {"body_span":{"end":1003,"start":921},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":884,"start":862}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"betweenBigInt(0, 1000)\"] }","name":"endec","span":{"end":982,"start":927}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1001,"start":987},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"BetweenBigIntValidator","span":{"end":1003,"start":892},"superclass":null,"type_params":[]}
+class PositiveBigIntValidator: {"body_span":{"end":1167,"start":1093},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1055,"start":1033}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"positiveBigInt\"] }","name":"endec","span":{"end":1146,"start":1099}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1165,"start":1151},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"PositiveBigIntValidator","span":{"end":1167,"start":1063},"superclass":null,"type_params":[]}
+class NonNegativeBigIntValidator: {"body_span":{"end":1340,"start":1263},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1222,"start":1200}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonNegativeBigInt\"] }","name":"endec","span":{"end":1319,"start":1269}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1338,"start":1324},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonNegativeBigIntValidator","span":{"end":1340,"start":1230},"superclass":null,"type_params":[]}
+class NegativeBigIntValidator: {"body_span":{"end":1504,"start":1430},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1392,"start":1370}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"negativeBigInt\"] }","name":"endec","span":{"end":1483,"start":1436}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1502,"start":1488},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NegativeBigIntValidator","span":{"end":1504,"start":1400},"superclass":null,"type_params":[]}
+class NonPositiveBigIntValidator: {"body_span":{"end":1677,"start":1600},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1559,"start":1537}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonPositiveBigInt\"] }","name":"endec","span":{"end":1656,"start":1606}}],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":1675,"start":1661},"ts_type":"bigint","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonPositiveBigIntValidator","span":{"end":1677,"start":1567},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

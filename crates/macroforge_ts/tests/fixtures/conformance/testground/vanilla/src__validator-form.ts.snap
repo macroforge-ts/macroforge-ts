@@ -14,7 +14,7 @@ true
 
 import { centsDecodeWithContext, metersDecodeWithContext, usernameDecodeWithContext } from "./validators/newtype-validator-tests.ts";
 import { contactDecodeWithContext } from "./validators/union-arm-validator-tests.ts";
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Validator form model for E2E testing.
@@ -43,6 +43,7 @@ export class UserRegistrationForm {
     website: string;
 
 constructor(props: { email: string; password: string; username: string; age: number; website: string }) {
+
     this.email = props.email;
     this.password = props.password;
     this.username = props.username;
@@ -116,7 +117,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "UserRegistrationForm.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as UserRegistrationForm | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "UserRegistrationForm") as UserRegistrationForm | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -140,10 +141,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("website")) && !("website" in obj)) {
         errors.push({ field: "website", message: "missing required field" });
     }
-    const instance = Object.create(UserRegistrationForm.prototype) as UserRegistrationForm;
+
+    const instance: any = Object.create(UserRegistrationForm.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "UserRegistrationForm");
     }
 
     ctx.trackForFreeze(instance);
@@ -361,6 +363,7 @@ export class ProductForm {
     sku: string;
 
 constructor(props: { name: string; price: number; quantity: number; tags: Array<string>; sku: string }) {
+
     this.name = props.name;
     this.price = props.price;
     this.quantity = props.quantity;
@@ -434,7 +437,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "ProductForm.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as ProductForm | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "ProductForm") as ProductForm | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -458,10 +461,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("sku")) && !("sku" in obj)) {
         errors.push({ field: "sku", message: "missing required field" });
     }
-    const instance = Object.create(ProductForm.prototype) as ProductForm;
+
+    const instance: any = Object.create(ProductForm.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "ProductForm");
     }
 
     ctx.trackForFreeze(instance);
@@ -507,13 +511,28 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     }
     if ((__fields === undefined || __fields.requires("tags")) || (__fields.keeps("tags") && obj["tags"] !== undefined)) {
         const __raw_tags = obj["tags"] as Array<string>;
-
         if (Array.isArray(__raw_tags)) {
             if (__raw_tags == null) { errors.push({ field: "tags", message: "ProductForm.tags is required" }); } else {
                 if (__raw_tags.length < 1) { errors.push({ field: "tags", message: "ProductForm.tags must have at least 1 items" }); }
                 if (__raw_tags.length > 5) { errors.push({ field: "tags", message: "ProductForm.tags must have at most 5 items" }); }
             }
-            instance.tags = __raw_tags as string[];
+            ctx.pushScope("tags");
+            try {
+                instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "tags", message: __raw_tags == null ? "ProductForm.tags is required" : "expected Array<string>" });
         }
@@ -673,6 +692,7 @@ export class EventForm {
     maxAttendees: number;
 
 constructor(props: { title: string; startDate: Date; endDate: Date; maxAttendees: number }) {
+
     this.title = props.title;
     this.startDate = props.startDate;
     this.endDate = props.endDate;
@@ -745,7 +765,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "EventForm.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as EventForm | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "EventForm") as EventForm | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -766,10 +786,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("maxAttendees")) && !("maxAttendees" in obj)) {
         errors.push({ field: "maxAttendees", message: "missing required field" });
     }
-    const instance = Object.create(EventForm.prototype) as EventForm;
+
+    const instance: any = Object.create(EventForm.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "EventForm");
     }
 
     ctx.trackForFreeze(instance);
@@ -946,6 +967,7 @@ export class MeasurementForm {
     contact: Contact;
 
 constructor(props: { runner: Username; distance: Meters; cents: Cents; contact: Contact }) {
+
     this.runner = props.runner;
     this.distance = props.distance;
     this.cents = props.cents;
@@ -1018,7 +1040,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "MeasurementForm.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as MeasurementForm | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "MeasurementForm") as MeasurementForm | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1039,10 +1061,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("contact")) && !("contact" in obj)) {
         errors.push({ field: "contact", message: "missing required field" });
     }
-    const instance = Object.create(MeasurementForm.prototype) as MeasurementForm;
+
+    const instance: any = Object.create(MeasurementForm.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "MeasurementForm");
     }
 
     ctx.trackForFreeze(instance);
@@ -1501,31 +1524,31 @@ export declare function validateMeasurement(data: unknown): ValidationResult<Mea
 
 ## Mapping
 
-original 0..840 -> expanded 570..1410
-original 840..841 -> expanded 16941..16942
-original 841..1291 -> expanded 18904..19354
-original 1291..1292 -> expanded 33434..33435
-original 1292..1677 -> expanded 35262..35647
-original 1677..1678 -> expanded 48006..48007
-original 1678..1821 -> expanded 49804..49947
-original 1821..1822 -> expanded 58607..58608
-original 1822..2740 -> expanded 60495..61413
-generated 0..570 <- imports
-generated 1410..16941 <- Decode
-generated 16942..18904 <- Decode
-generated 19354..33434 <- Decode
-generated 33435..35262 <- Decode
-generated 35647..48006 <- Decode
-generated 48007..49804 <- Decode
-generated 49947..58607 <- Decode
-generated 58608..60495 <- Decode
+original 0..840 -> expanded 638..1478
+original 840..841 -> expanded 17040..17041
+original 841..1291 -> expanded 19003..19453
+original 1291..1292 -> expanded 34154..34155
+original 1292..1677 -> expanded 35982..36367
+original 1677..1678 -> expanded 48746..48747
+original 1678..1821 -> expanded 50544..50687
+original 1821..1822 -> expanded 59373..59374
+original 1822..2740 -> expanded 61261..62179
+generated 0..638 <- imports
+generated 1478..17040 <- Decode
+generated 17041..19003 <- Decode
+generated 19453..34154 <- Decode
+generated 34155..35982 <- Decode
+generated 36367..48746 <- Decode
+generated 48747..50544 <- Decode
+generated 50687..59373 <- Decode
+generated 59374..61261 <- Decode
 
 ## Metadata
 
-class UserRegistrationForm: {"body_span":{"end":842,"start":408},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":373,"start":351}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"email\"] }","name":"endec","span":{"end":452,"start":414}}],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":471,"start":457},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minLength(8)\", \"maxLength(50)\"] }","name":"endec","span":{"end":539,"start":477}}],"initializer":null,"name":"password","optional":false,"readonly":false,"span":{"end":561,"start":544},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minLength(3)\", \"maxLength(20)\", \"lowercase\", \"pattern(\\\"^[a-z][a-z0-9_]+$\\\")\"] }","name":"endec","span":{"end":676,"start":567}}],"initializer":null,"name":"username","optional":false,"readonly":false,"span":{"end":698,"start":681},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"between(18, 120)\"] }","name":"endec","span":{"end":760,"start":704}}],"initializer":null,"name":"age","optional":false,"readonly":false,"span":{"end":777,"start":765},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"url\"] }","name":"endec","span":{"end":819,"start":783}}],"initializer":null,"name":"website","optional":false,"readonly":false,"span":{"end":840,"start":824},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UserRegistrationForm","span":{"end":842,"start":381},"type_params":[]}
-class ProductForm: {"body_span":{"end":1293,"start":892},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":866,"start":844}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"maxLength(100)\"] }","name":"endec","span":{"end":957,"start":898}}],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":975,"start":962},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"positive\", \"lessThan(1000000)\"] }","name":"endec","span":{"end":1043,"start":981}}],"initializer":null,"name":"price","optional":false,"readonly":false,"span":{"end":1062,"start":1048},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"nonNegative\"] }","name":"endec","span":{"end":1119,"start":1068}}],"initializer":null,"name":"quantity","optional":false,"readonly":false,"span":{"end":1141,"start":1124},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minItems(1)\", \"maxItems(5)\"] }","name":"endec","span":{"end":1206,"start":1147}}],"initializer":null,"name":"tags","optional":false,"readonly":false,"span":{"end":1231,"start":1211},"ts_type":"Array<string>","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"uuid\"] }","name":"endec","span":{"end":1274,"start":1237}}],"initializer":null,"name":"sku","optional":false,"readonly":false,"span":{"end":1291,"start":1279},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ProductForm","span":{"end":1293,"start":874},"type_params":[]}
-class EventForm: {"body_span":{"end":1679,"start":1341},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1317,"start":1295}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"trimmed\"] }","name":"endec","span":{"end":1399,"start":1347}}],"initializer":null,"name":"title","optional":false,"readonly":false,"span":{"end":1418,"start":1404},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"validDate\", \"greaterThanDate(\\\"2020-01-01\\\")\"] }","name":"endec","span":{"end":1501,"start":1424}}],"initializer":null,"name":"startDate","optional":false,"readonly":false,"span":{"end":1522,"start":1506},"ts_type":"Date","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":1570,"start":1528}}],"initializer":null,"name":"endDate","optional":false,"readonly":false,"span":{"end":1589,"start":1575},"ts_type":"Date","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"between(1, 1000)\"] }","name":"endec","span":{"end":1651,"start":1595}}],"initializer":null,"name":"maxAttendees","optional":false,"readonly":false,"span":{"end":1677,"start":1656},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EventForm","span":{"end":1679,"start":1325},"type_params":[]}
-class MeasurementForm: {"body_span":{"end":1823,"start":1733},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1703,"start":1681}}],"fields":[{"decorators":[],"initializer":null,"name":"runner","optional":false,"readonly":false,"span":{"end":1756,"start":1739},"ts_type":"Username","visibility":"Public"},{"decorators":[],"initializer":null,"name":"distance","optional":false,"readonly":false,"span":{"end":1779,"start":1762},"ts_type":"Meters","visibility":"Public"},{"decorators":[],"initializer":null,"name":"cents","optional":false,"readonly":false,"span":{"end":1798,"start":1785},"ts_type":"Cents","visibility":"Public"},{"decorators":[],"initializer":null,"name":"contact","optional":false,"readonly":false,"span":{"end":1821,"start":1804},"ts_type":"Contact","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MeasurementForm","span":{"end":1823,"start":1711},"type_params":[]}
+class UserRegistrationForm: {"body_span":{"end":842,"start":408},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":373,"start":351}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"email\"] }","name":"endec","span":{"end":452,"start":414}}],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":471,"start":457},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minLength(8)\", \"maxLength(50)\"] }","name":"endec","span":{"end":539,"start":477}}],"initializer":null,"name":"password","optional":false,"readonly":false,"span":{"end":561,"start":544},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minLength(3)\", \"maxLength(20)\", \"lowercase\", \"pattern(\\\"^[a-z][a-z0-9_]+$\\\")\"] }","name":"endec","span":{"end":676,"start":567}}],"initializer":null,"name":"username","optional":false,"readonly":false,"span":{"end":698,"start":681},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"between(18, 120)\"] }","name":"endec","span":{"end":760,"start":704}}],"initializer":null,"name":"age","optional":false,"readonly":false,"span":{"end":777,"start":765},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"url\"] }","name":"endec","span":{"end":819,"start":783}}],"initializer":null,"name":"website","optional":false,"readonly":false,"span":{"end":840,"start":824},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UserRegistrationForm","span":{"end":842,"start":381},"superclass":null,"type_params":[]}
+class ProductForm: {"body_span":{"end":1293,"start":892},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":866,"start":844}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"maxLength(100)\"] }","name":"endec","span":{"end":957,"start":898}}],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":975,"start":962},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"positive\", \"lessThan(1000000)\"] }","name":"endec","span":{"end":1043,"start":981}}],"initializer":null,"name":"price","optional":false,"readonly":false,"span":{"end":1062,"start":1048},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"nonNegative\"] }","name":"endec","span":{"end":1119,"start":1068}}],"initializer":null,"name":"quantity","optional":false,"readonly":false,"span":{"end":1141,"start":1124},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minItems(1)\", \"maxItems(5)\"] }","name":"endec","span":{"end":1206,"start":1147}}],"initializer":null,"name":"tags","optional":false,"readonly":false,"span":{"end":1231,"start":1211},"ts_type":"Array<string>","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"uuid\"] }","name":"endec","span":{"end":1274,"start":1237}}],"initializer":null,"name":"sku","optional":false,"readonly":false,"span":{"end":1291,"start":1279},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ProductForm","span":{"end":1293,"start":874},"superclass":null,"type_params":[]}
+class EventForm: {"body_span":{"end":1679,"start":1341},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1317,"start":1295}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"trimmed\"] }","name":"endec","span":{"end":1399,"start":1347}}],"initializer":null,"name":"title","optional":false,"readonly":false,"span":{"end":1418,"start":1404},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"validDate\", \"greaterThanDate(\\\"2020-01-01\\\")\"] }","name":"endec","span":{"end":1501,"start":1424}}],"initializer":null,"name":"startDate","optional":false,"readonly":false,"span":{"end":1522,"start":1506},"ts_type":"Date","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":1570,"start":1528}}],"initializer":null,"name":"endDate","optional":false,"readonly":false,"span":{"end":1589,"start":1575},"ts_type":"Date","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"between(1, 1000)\"] }","name":"endec","span":{"end":1651,"start":1595}}],"initializer":null,"name":"maxAttendees","optional":false,"readonly":false,"span":{"end":1677,"start":1656},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EventForm","span":{"end":1679,"start":1325},"superclass":null,"type_params":[]}
+class MeasurementForm: {"body_span":{"end":1823,"start":1733},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1703,"start":1681}}],"fields":[{"decorators":[],"initializer":null,"name":"runner","optional":false,"readonly":false,"span":{"end":1756,"start":1739},"ts_type":"Username","visibility":"Public"},{"decorators":[],"initializer":null,"name":"distance","optional":false,"readonly":false,"span":{"end":1779,"start":1762},"ts_type":"Meters","visibility":"Public"},{"decorators":[],"initializer":null,"name":"cents","optional":false,"readonly":false,"span":{"end":1798,"start":1785},"ts_type":"Cents","visibility":"Public"},{"decorators":[],"initializer":null,"name":"contact","optional":false,"readonly":false,"span":{"end":1821,"start":1804},"ts_type":"Contact","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MeasurementForm","span":{"end":1823,"start":1711},"superclass":null,"type_params":[]}
 type ValidationResult: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"success","optional":false,"readonly":false,"span":{"end":1962,"start":1948},"ts_type":"true"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":1980,"start":1971},"ts_type":"T"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"success","optional":false,"readonly":false,"span":{"end":2010,"start":1995},"ts_type":"false"},{"decorators":[],"name":"errors","optional":false,"readonly":false,"span":{"end":2060,"start":2011},"ts_type":"Array<{ field: string; message: string }>"}]}}}]},"decorators":[],"name":"ValidationResult","span":{"end":2063,"start":1905},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
 
 ## Registry reads

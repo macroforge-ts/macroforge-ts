@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -45,53 +45,48 @@ export function metadataEncode(value: Metadata, keepMetadata?: boolean): string 
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function metadataEncodeWithContext(value: Metadata, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return metadataEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function metadataEncodePartialWithContext(value: Partial<Metadata>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Metadata>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Metadata",
-        __id,
+        __id: ctx.register(value),
     };
+    metadataEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function metadataEncodePartialWithContext(value: Partial<Metadata>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Metadata>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Metadata" };
+        metadataEncodeFields(value as Metadata, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function metadataEncodeFields(value: Metadata, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("createdAt")) {
-
         if (value.createdAt !== undefined) {
             result.createdAt = value.createdAt;
         }
     }
     if (__fields === undefined || __fields.keeps("lastLogin")) {
         if (value.lastLogin !== undefined) {
-
             result.lastLogin = value.lastLogin;
         }
     }
     if (__fields === undefined || __fields.keeps("isActive")) {
-
         if (value.isActive !== undefined) {
             result.isActive = value.isActive;
         }
     }
     if (__fields === undefined || __fields.keeps("roles")) {
-
         if (value.roles !== undefined) {
             result.roles = value.roles;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -159,7 +154,7 @@ export function metadataDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Metadata.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Metadata | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Metadata") as Metadata | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -184,7 +179,7 @@ export function metadataDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Metadata");
     }
 
     ctx.trackForFreeze(instance);
@@ -218,9 +213,24 @@ export function metadataDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     }
     if ((__fields === undefined || __fields.requires("roles")) || (__fields.keeps("roles") && obj["roles"] !== undefined)) {
         const __raw_roles = obj["roles"] as Array<string>;
-
         if (Array.isArray(__raw_roles)) {
-            instance.roles = __raw_roles as string[];
+            ctx.pushScope("roles");
+            try {
+                instance.roles = __mf_decodeArray(__raw_roles, ctx, __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "roles" : "roles." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "roles", message: __raw_roles == null ? "Metadata.roles is required" : "expected Array<string>" });
         }
@@ -498,7 +508,7 @@ export declare function metadataDefaultValue(): Metadata;
 export declare function metadataEncode(value: Metadata, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function metadataEncodeWithContext(value: Metadata, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function metadataEncodePartialWithContext(value: Partial<Metadata>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Metadata>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function metadataDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -590,15 +600,15 @@ export declare const Metadata: {
 
 ## Mapping
 
-original 0..58 -> expanded 664..722
-original 107..239 -> expanded 722..854
-original 239..240 -> expanded 19408..19409
-generated 0..664 <- imports
-generated 854..1020 <- Default
-generated 1020..3346 <- Encode
-generated 3346..10644 <- Decode
-generated 10644..18142 <- Gigaform
-generated 18142..19408 <- __convenience_const
+original 0..58 -> expanded 773..831
+original 107..239 -> expanded 831..963
+original 239..240 -> expanded 20479..20480
+generated 0..773 <- imports
+generated 963..1129 <- Default
+generated 1129..3791 <- Encode
+generated 3791..11715 <- Decode
+generated 11715..19213 <- Gigaform
+generated 19213..20479 <- __convenience_const
 
 ## Metadata
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Nested values encoded and decoded through an interface and an object type
@@ -34,35 +34,33 @@ export function pointEncode(value: Point, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return pointEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Point",
-        __id,
+        __id: ctx.register(value),
     };
+    pointEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Point" };
+        pointEncodeFields(value as Point, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function pointEncodeFields(value: Point, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("x")) {
-
         if (value.x !== undefined) {
             result.x = value.x;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -130,7 +128,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Point.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Point | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Point") as Point | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -146,7 +144,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Point");
     }
 
     ctx.trackForFreeze(instance);
@@ -246,51 +244,43 @@ export function routeEncode(value: Route, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function routeEncodeWithContext(value: Route, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return routeEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function routeEncodePartialWithContext(value: Partial<Route>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Route>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Route",
-        __id,
+        __id: ctx.register(value),
     };
+    routeEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function routeEncodePartialWithContext(value: Partial<Route>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Route>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Route" };
+        routeEncodeFields(value as Route, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function routeEncodeFields(value: Route, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("stops")) {
-
         if (value.stops !== undefined) {
-            result.stops = value.stops.map(
-                (item) => pointEncodeWithContext(item, ctx)
-            );
+            result.stops = value.stops.map((__item0) => pointEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("named")) {
-
         if (value.named !== undefined) {
-            result.named = Object.fromEntries(
-                Object.entries(value.named).map(([k, v]) => [k, pointEncodeWithContext(v, ctx)])
-            );
+            result.named = Object.fromEntries(Object.entries(value.named).map(([__key0, __item0]) => [__key0, pointEncodeWithContext(__item0, ctx)]));
         }
     }
     if (__fields === undefined || __fields.keeps("visits")) {
-
         if (value.visits !== undefined) {
             result.visits = Object.fromEntries(value.visits.entries());
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -358,7 +348,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Route.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Route | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Route") as Route | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -377,66 +367,55 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Route");
     }
 
     ctx.trackForFreeze(instance);
 
     if ((__fields === undefined || __fields.requires("stops")) || (__fields.keeps("stops") && obj["stops"] !== undefined)) {
         const __raw_stops = obj["stops"] as Point[];
-
         if (Array.isArray(__raw_stops)) {
-            const __arr = __raw_stops.map((item: Point | { __ref: number }, idx) => {
-                if (typeof item === "object" && item !== null && "__ref" in item) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (__mf_PendingRef.is(result)) {
-                        return { __pendingIdx: idx, __refId: result.id };
-                    }
-                    return result;
-                }
-                const __elemResult = pointDecode(item);
-                if (!__elemResult.success) {
-                    for (const __err of __elemResult.errors) {
+            ctx.pushScope("stops");
+            try {
+                instance.stops = __mf_decodeArray(__raw_stops, ctx, (__raw0) => pointDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
                         errors.push({
-                            field: __err.field === "_root"
-                                ? "stops[" + idx + "]"
-                                : "stops[" + idx + "]." + __err.field,
+                            field: __err.field === "_root" ? "stops" : "stops." + __err.field,
                             message: __err.message
                         });
                     }
+                } else {
+                    throw __e;
                 }
-                return __elemResult.success ? __elemResult.value : item;
-            });
-            instance.stops = __arr;
-            __arr.forEach((item, idx) => {
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.stops, idx, (item as any).__refId);
-                }
-            });
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "stops", message: __raw_stops == null ? "Route.stops is required" : "expected Point[]" });
         }
     }
     if ((__fields === undefined || __fields.requires("named")) || (__fields.keeps("named") && obj["named"] !== undefined)) {
         const __raw_named = obj["named"] as Record<string, Point>;
-
         if (typeof __raw_named === "object" && __raw_named !== null) {
-            instance.named = Object.fromEntries(
-                Object.entries(__raw_named).map(([k, v]) => {
-                    const __vResult = pointDecode(v);
-                    if (!__vResult.success) {
-                        for (const __err of __vResult.errors) {
-                            errors.push({
-                                field: __err.field === "_root"
-                                    ? "named." + k
-                                    : "named." + k + "." + __err.field,
-                                message: __err.message
-                            });
-                        }
+            ctx.pushScope("named");
+            try {
+                instance.named = (__mf_decodeRecord(__raw_named, ctx, (__raw0) => pointDecodeWithContext(__raw0, ctx)) as Record<string, Point>);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "named" : "named." + __err.field,
+                            message: __err.message
+                        });
                     }
-                    return [k, __vResult.success ? __vResult.value : v];
-                })
-            ) as Record<string, Point>;
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "named", message: __raw_named == null ? "Route.named is required" : "expected Record<string, Point>" });
         }
@@ -444,11 +423,24 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.keeps("visits"))) {
         if (("visits" in obj && obj["visits"] !== undefined)) {
             const __raw_visits = obj["visits"] as Record<string, number>;
-
             if (typeof __raw_visits === "object" && __raw_visits !== null) {
-                instance.visits = new Map(
-                    Object.entries(__raw_visits).map(([k, v]) => [k as string, v as number])
-                );
+                ctx.pushScope("visits");
+                try {
+                    instance.visits = __mf_decodeMap(__raw_visits, ctx, (__key0) => __key0, __mf_decodeNumber);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "visits" : "visits." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+                        throw __e;
+                    }
+                } finally {
+                    ctx.popScope();
+                }
             } else {
                 errors.push({ field: "visits", message: "expected Map<string, number>" });
             }
@@ -525,44 +517,40 @@ export function labeledEncode(value: Labeled, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function labeledEncodeWithContext(value: Labeled, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return labeledEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function labeledEncodePartialWithContext(value: Partial<Labeled>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Labeled>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Labeled",
-        __id,
+        __id: ctx.register(value),
     };
+    labeledEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function labeledEncodePartialWithContext(value: Partial<Labeled>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Labeled>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Labeled" };
+        labeledEncodeFields(value as Labeled, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function labeledEncodeFields(value: Labeled, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("label")) {
-
         if (value.label !== undefined) {
             result.label = value.label;
         }
     }
     if (__fields === undefined || __fields.keeps("origin")) {
-
         if (value.origin !== undefined) {
-            const __flattened = pointEncodeWithContext(value.origin, ctx);
-
+            const __flattened = pointEncodePartialWithContext(value.origin, ctx);
             const { ["__type"]: _, __id: __, ...rest } = __flattened as any;
             Object.assign(result, rest);
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -630,7 +618,7 @@ export function labeledDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Labeled.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Labeled | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Labeled") as Labeled | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -646,7 +634,7 @@ export function labeledDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Labeled");
     }
 
     ctx.trackForFreeze(instance);
@@ -661,16 +649,18 @@ export function labeledDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         }
     }
     if ((__fields === undefined || __fields.keeps("origin"))) {
-        try {
-            const __result = pointDecodeWithContext(obj, ctx);
-            ctx.assignOrDefer(instance, "origin", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push(__err);
+        if ((__fields === undefined || __fields.requires("origin")) || pointHasShape(obj)) {
+            try {
+                const __result = pointDecodePartialWithContext(obj, ctx, { except: [] });
+                ctx.assignOrDefer(instance, "origin", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push(__err);
+                    }
+                } else {
+                    throw __e;
                 }
-            } else {
-                throw __e;
             }
         }
     }
@@ -744,41 +734,38 @@ export function boxEncode<T>(value: Box<T>, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function boxEncodeWithContext<T>(value: Box<T>, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return boxEncodePartialWithContext<T>(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function boxEncodePartialWithContext<T>(value: Partial<Box<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Box<T>>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Box",
-        __id,
+        __id: ctx.register(value),
     };
+    boxEncodeFields<T>(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function boxEncodePartialWithContext<T>(value: Partial<Box<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Box<T>>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Box" };
+        boxEncodeFields<T>(value as Box<T>, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function boxEncodeFields<T>(value: Box<T>, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("label")) {
-
         if (value.label !== undefined) {
             result.label = value.label;
         }
     }
     if (__fields === undefined || __fields.keeps("value")) {
-
         if (value.value !== undefined) {
             result.value = value.value;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -846,7 +833,7 @@ export function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext,
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Box.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Box<T> | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Box") as Box<T> | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -865,7 +852,7 @@ export function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext,
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Box");
     }
 
     ctx.trackForFreeze(instance);
@@ -954,41 +941,38 @@ export function pairEncode<A, B>(value: Pair<A, B>, keepMetadata?: boolean): str
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function pairEncodeWithContext<A, B>(value: Pair<A, B>, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return pairEncodePartialWithContext<A, B>(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function pairEncodePartialWithContext<A, B>(value: Partial<Pair<A, B>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Pair<A, B>>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Pair",
-        __id,
+        __id: ctx.register(value),
     };
+    pairEncodeFields<A, B>(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function pairEncodePartialWithContext<A, B>(value: Partial<Pair<A, B>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Pair<A, B>>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Pair" };
+        pairEncodeFields<A, B>(value as Pair<A, B>, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function pairEncodeFields<A, B>(value: Pair<A, B>, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("first")) {
-
         if (value.first !== undefined) {
             result.first = value.first;
         }
     }
     if (__fields === undefined || __fields.keeps("second")) {
-
         if (value.second !== undefined) {
             result.second = value.second;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -1056,7 +1040,7 @@ export function pairDecodeWithContext<A, B>(value: unknown, ctx: __mf_DecodeCont
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Pair.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Pair<A, B> | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Pair") as Pair<A, B> | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1075,7 +1059,7 @@ export function pairDecodeWithContext<A, B>(value: unknown, ctx: __mf_DecodeCont
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Pair");
     }
 
     ctx.trackForFreeze(instance);
@@ -1163,6 +1147,11 @@ export function outcomeEncodeWithContext<T>(value: Outcome<T>, ctx: __mf_EncodeC
     if (__encoder) {
         __variant = __encoder(value, ctx);
         __matched = true;
+    }
+    if (!__matched && value !== null && typeof value === "object") {
+        const __refTag = (value as any)["__type"];
+        if (!__matched && __refTag === "Box") { __variant = boxEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && boxHasShape(value)) { __variant = boxEncodeWithContext(value as any, ctx); __matched = true; }
     }
     
     if (!__matched) {
@@ -1331,7 +1320,7 @@ export interface Point {
 export declare function pointEncode(value: Point, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function pointDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -1382,7 +1371,7 @@ export type Route = {
 export declare function routeEncode(value: Route, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function routeEncodeWithContext(value: Route, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function routeEncodePartialWithContext(value: Partial<Route>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Route>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function routeDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -1433,7 +1422,7 @@ export interface Labeled {
 export declare function labeledEncode(value: Labeled, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function labeledEncodeWithContext(value: Labeled, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function labeledEncodePartialWithContext(value: Partial<Labeled>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Labeled>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function labeledDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -1483,7 +1472,7 @@ export interface Box<T> {
 export declare function boxEncode<T>(value: Box<T>, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function boxEncodeWithContext<T>(value: Box<T>, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function boxEncodePartialWithContext<T>(value: Partial<Box<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Box<T>>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function boxDecode<T>(input: unknown, opts?: __mf_DecodeOptions): {
@@ -1545,7 +1534,7 @@ export declare function pairEncodeWithContext<
 	A,
 	B
 >(value: Pair<A, B>, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function pairEncodePartialWithContext<
 	A,
 	B
@@ -1647,32 +1636,32 @@ export declare const Outcome: {
 
 ## Mapping
 
-original 0..255 -> expanded 522..777
-original 255..400 -> expanded 9402..9547
-original 400..526 -> expanded 21226..21352
-original 526..619 -> expanded 30160..30253
-original 619..710 -> expanded 38701..38792
-original 710..784 -> expanded 47203..47277
-original 784..785 -> expanded 53235..53236
-generated 0..522 <- imports
-generated 777..2536 <- Encode
-generated 2536..8467 <- Decode
-generated 8467..9402 <- __convenience_const
-generated 9547..11872 <- Encode
-generated 11872..20291 <- Decode
-generated 20291..21226 <- __convenience_const
-generated 21352..23462 <- Encode
-generated 23462..29183 <- Decode
-generated 29183..30160 <- __convenience_const
-generated 30253..32194 <- Encode
-generated 32194..37808 <- Decode
-generated 37808..38701 <- __convenience_const
-generated 38792..40774 <- Encode
-generated 40774..46289 <- Decode
-generated 46289..47203 <- __convenience_const
-generated 47277..48540 <- Encode
-generated 48540..52726 <- Decode
-generated 52726..53235 <- __convenience_const
+original 0..255 -> expanded 695..950
+original 255..400 -> expanded 9917..10062
+original 400..526 -> expanded 21966..22092
+original 526..619 -> expanded 31434..31527
+original 619..710 -> expanded 40314..40405
+original 710..784 -> expanded 49174..49248
+original 784..785 -> expanded 55574..55575
+generated 0..695 <- imports
+generated 950..3033 <- Encode
+generated 3033..8982 <- Decode
+generated 8982..9917 <- __convenience_const
+generated 10062..12676 <- Encode
+generated 12676..21031 <- Decode
+generated 21031..21966 <- __convenience_const
+generated 22092..24540 <- Encode
+generated 24540..30457 <- Decode
+generated 30457..31434 <- __convenience_const
+generated 31527..33793 <- Encode
+generated 33793..39421 <- Decode
+generated 39421..40314 <- __convenience_const
+generated 40405..42729 <- Encode
+generated 42729..48260 <- Decode
+generated 48260..49174 <- __convenience_const
+generated 49248..50879 <- Encode
+generated 50879..55065 <- Decode
+generated 55065..55574 <- __convenience_const
 
 ## Metadata
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -45,41 +45,38 @@ export function personNameEncode(value: PersonName, keepMetadata?: boolean): str
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function personNameEncodeWithContext(value: PersonName, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return personNameEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function personNameEncodePartialWithContext(value: Partial<PersonName>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof PersonName>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "PersonName",
-        __id,
+        __id: ctx.register(value),
     };
+    personNameEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function personNameEncodePartialWithContext(value: Partial<PersonName>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof PersonName>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "PersonName" };
+        personNameEncodeFields(value as PersonName, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function personNameEncodeFields(value: PersonName, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("firstName")) {
-
         if (value.firstName !== undefined) {
             result.firstName = value.firstName;
         }
     }
     if (__fields === undefined || __fields.keeps("lastName")) {
-
         if (value.lastName !== undefined) {
             result.lastName = value.lastName;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -147,7 +144,7 @@ export function personNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "PersonName.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as PersonName | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "PersonName") as PersonName | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -166,7 +163,7 @@ export function personNameDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "PersonName");
     }
 
     ctx.trackForFreeze(instance);
@@ -417,7 +414,7 @@ export declare function personNameDefaultValue(): PersonName;
 export declare function personNameEncode(value: PersonName, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function personNameEncodeWithContext(value: PersonName, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function personNameEncodePartialWithContext(value: Partial<PersonName>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof PersonName>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function personNameDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -503,19 +500,19 @@ export declare const PersonName: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..142 -> expanded 700..735
-original 189..194 -> expanded 735..740
-original 235..263 -> expanded 740..768
-original 309..314 -> expanded 768..773
-original 355..379 -> expanded 773..797
-original 379..380 -> expanded 16835..16836
-generated 0..642 <- imports
-generated 797..920 <- Default
-generated 920..2932 <- Encode
-generated 2932..10973 <- Decode
-generated 10973..15515 <- Gigaform
-generated 15515..16835 <- __convenience_const
+original 0..58 -> expanded 683..741
+original 107..142 -> expanded 741..776
+original 189..194 -> expanded 776..781
+original 235..263 -> expanded 781..809
+original 309..314 -> expanded 809..814
+original 355..379 -> expanded 814..838
+original 379..380 -> expanded 17252..17253
+generated 0..683 <- imports
+generated 838..961 <- Default
+generated 961..3321 <- Encode
+generated 3321..11390 <- Decode
+generated 11390..15932 <- Gigaform
+generated 15932..17252 <- __convenience_const
 
 ## Metadata
 

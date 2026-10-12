@@ -14,7 +14,7 @@ true
 
 import { intervalDecodeWithContext, intervalEncodeWithContext, intervalDefaultValue } from "./interval.svelte";
 import { recurrenceEndDecodeWithContext, recurrenceEndEncodeWithContext } from "./recurrence-end.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -52,73 +52,53 @@ export function recurrenceRuleEncode(value: RecurrenceRule, keepMetadata?: boole
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function recurrenceRuleEncodeWithContext(value: RecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return recurrenceRuleEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function recurrenceRuleEncodePartialWithContext(value: Partial<RecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof RecurrenceRule>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "RecurrenceRule",
-        __id,
+        __id: ctx.register(value),
     };
+    recurrenceRuleEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function recurrenceRuleEncodePartialWithContext(value: Partial<RecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof RecurrenceRule>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "RecurrenceRule" };
+        recurrenceRuleEncodeFields(value as RecurrenceRule, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function recurrenceRuleEncodeFields(value: RecurrenceRule, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("interval")) {
-
         if (value.interval !== undefined) {
             result.interval = intervalEncodeWithContext(value.interval, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("recurrenceBegins")) {
-
         if (value.recurrenceBegins !== undefined) {
             result.recurrenceBegins = value.recurrenceBegins;
         }
     }
     if (__fields === undefined || __fields.keeps("recurrenceEnds")) {
         if (value.recurrenceEnds !== undefined) {
-
-            if (value.recurrenceEnds !== null) {
-                result.recurrenceEnds = recurrenceEndEncodeWithContext(value.recurrenceEnds, ctx);
-            } else {
-                result.recurrenceEnds = null;
-            }
+            result.recurrenceEnds = value.recurrenceEnds === null ? null : recurrenceEndEncodeWithContext(value.recurrenceEnds, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("cancelledInstances")) {
         if (value.cancelledInstances !== undefined) {
-
-            if (value.cancelledInstances !== null) {
-
-                result.cancelledInstances = value.cancelledInstances;
-            } else {
-                result.cancelledInstances = null;
-            }
+            result.cancelledInstances = value.cancelledInstances;
         }
     }
     if (__fields === undefined || __fields.keeps("additionalInstances")) {
         if (value.additionalInstances !== undefined) {
-
-            if (value.additionalInstances !== null) {
-
-                result.additionalInstances = value.additionalInstances;
-            } else {
-                result.additionalInstances = null;
-            }
+            result.additionalInstances = value.additionalInstances;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -186,7 +166,7 @@ export function recurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_Decode
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "RecurrenceRule.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as RecurrenceRule | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "RecurrenceRule") as RecurrenceRule | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -214,7 +194,7 @@ export function recurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_Decode
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "RecurrenceRule");
     }
 
     ctx.trackForFreeze(instance);
@@ -282,9 +262,24 @@ export function recurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_Decode
         if (__raw_cancelledInstances === null) {
             instance.cancelledInstances = null;
         } else {
-
             if (Array.isArray(__raw_cancelledInstances)) {
-                instance.cancelledInstances = __raw_cancelledInstances as string[];
+                ctx.pushScope("cancelledInstances");
+                try {
+                    instance.cancelledInstances = __mf_decodeArray(__raw_cancelledInstances, ctx, __mf_decodeString);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "cancelledInstances" : "cancelledInstances." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+                        throw __e;
+                    }
+                } finally {
+                    ctx.popScope();
+                }
             } else {
                 errors.push({ field: "cancelledInstances", message: __raw_cancelledInstances == null ? "RecurrenceRule.cancelledInstances is required" : "expected Array<string>" });
             }
@@ -296,9 +291,24 @@ export function recurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_Decode
         if (__raw_additionalInstances === null) {
             instance.additionalInstances = null;
         } else {
-
             if (Array.isArray(__raw_additionalInstances)) {
-                instance.additionalInstances = __raw_additionalInstances as string[];
+                ctx.pushScope("additionalInstances");
+                try {
+                    instance.additionalInstances = __mf_decodeArray(__raw_additionalInstances, ctx, __mf_decodeString);
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
+                            errors.push({
+                                field: __err.field === "_root" ? "additionalInstances" : "additionalInstances." + __err.field,
+                                message: __err.message
+                            });
+                        }
+                    } else {
+                        throw __e;
+                    }
+                } finally {
+                    ctx.popScope();
+                }
             } else {
                 errors.push({ field: "additionalInstances", message: __raw_additionalInstances == null ? "RecurrenceRule.additionalInstances is required" : "expected Array<string>" });
             }
@@ -614,7 +624,7 @@ export declare function recurrenceRuleDefaultValue(): RecurrenceRule;
 export declare function recurrenceRuleEncode(value: RecurrenceRule, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function recurrenceRuleEncodeWithContext(value: RecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function recurrenceRuleEncodePartialWithContext(value: Partial<RecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof RecurrenceRule>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function recurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -709,15 +719,15 @@ export declare const RecurrenceRule: {
 
 ## Mapping
 
-original 0..172 -> expanded 860..1032
-original 221..446 -> expanded 1032..1257
-original 446..447 -> expanded 25730..25731
-generated 0..860 <- imports
-generated 1257..1514 <- Default
-generated 1514..4706 <- Encode
-generated 4706..14726 <- Decode
-generated 14726..24302 <- Gigaform
-generated 24302..25730 <- __convenience_const
+original 0..172 -> expanded 969..1141
+original 221..446 -> expanded 1141..1366
+original 446..447 -> expanded 27269..27270
+generated 0..969 <- imports
+generated 1366..1623 <- Default
+generated 1623..4796 <- Encode
+generated 4796..16265 <- Decode
+generated 16265..25841 <- Gigaform
+generated 25841..27269 <- __convenience_const
 
 ## Metadata
 

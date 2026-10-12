@@ -34,7 +34,11 @@ export class User {
     }
 
     static toString(value: User): string {
-        return userToString(value);
+        const parts: string[] = [];
+        parts.push("identifier: " + String(value.id));
+        parts.push("name: " + String(value.name));
+        parts.push("email: " + String(value.email));
+        return "User { " + parts.join(", ") + " }";
     }
 
     toJSON(): Record<string, unknown> {
@@ -50,11 +54,7 @@ export class User {
 }
 
 export function userToString(value: User): string {
-    const parts: string[] = [];
-    parts.push("identifier: " + String(value.id));
-    parts.push("name: " + String(value.name));
-    parts.push("email: " + String(value.email));
-    return "User { " + parts.join(", ") + " }";
+    return User.toString(value);
 }
 
 const user = new User(1, 'John Doe', 'john@example.com', 'tok_live_secret');
@@ -88,15 +88,15 @@ export declare const derivedJson: unknown;
 ## Mapping
 
 original 0..512 -> expanded 0..512
-original 512..513 -> expanded 862..863
-original 513..686 -> expanded 1145..1318
-generated 512..598 <- Debug
-generated 598..862 <- JSON
-generated 863..1145 <- Debug
+original 512..513 -> expanded 1073..1074
+original 513..686 -> expanded 1162..1335
+generated 512..809 <- Debug
+generated 809..1073 <- JSON
+generated 1074..1162 <- Debug
 
 ## Metadata
 
-class User: {"body_span":{"end":514,"start":158},"decorators":[{"args_src":"Debug, JSON","name":"Derive","span":{"end":139,"start":112}}],"fields":[{"decorators":[{"args_src":"{ rename: \"identifier\" }","name":"debug","span":{"end":203,"start":164}}],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":219,"start":208},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":238,"start":225},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":257,"start":243},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":292,"start":263}}],"initializer":null,"name":"authToken","optional":false,"readonly":false,"span":{"end":315,"start":297},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":512,"start":393},"body_src":"\n        this.id = id;\n        this.name = name;\n        this.email = email;\n        this.authToken = authToken;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: number, name: string, email: string, authToken: string","return_type_src":"","span":{"end":512,"start":321},"type_params":[],"visibility":"Public"}],"name":"User","span":{"end":514,"start":147},"type_params":[]}
+class User: {"body_span":{"end":514,"start":158},"decorators":[{"args_src":"Debug, JSON","name":"Derive","span":{"end":139,"start":112}}],"fields":[{"decorators":[{"args_src":"{ rename: \"identifier\" }","name":"debug","span":{"end":203,"start":164}}],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":219,"start":208},"ts_type":"number","visibility":"Public"},{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":238,"start":225},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":257,"start":243},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":292,"start":263}}],"initializer":null,"name":"authToken","optional":false,"readonly":false,"span":{"end":315,"start":297},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":512,"start":393},"body_src":"\n        this.id = id;\n        this.name = name;\n        this.email = email;\n        this.authToken = authToken;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: number, name: string, email: string, authToken: string","return_type_src":"","span":{"end":512,"start":321},"type_params":[],"visibility":"Public"}],"name":"User","span":{"end":514,"start":147},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

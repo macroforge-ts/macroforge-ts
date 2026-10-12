@@ -1,0 +1,54 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/endec_map_object_key.ts
+---
+## Input
+
+/** @derive(Encode, Decode) */
+interface Index {
+    byPoint: Map<{ x: number; y: number }, string>;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { decodeMap as __mf_decodeMap } from "@macroforge/core/endec";
+
+interface Index {
+    byPoint: Map<{ x: number; y: number }, string>;
+}
+
+## DTS
+
+interface Index {
+	byPoint: Map<{
+		x: number;
+		y: number;
+	}, string>;
+}
+
+## Diagnostics
+
+Error [54..101]: @derive(Encode): a `Map` keyed by `{ x: number; y: number }` has no JSON encoding: a key has to be a string, a number, a bigint, a boolean, a `Date`, or an enum or alias of one of those
+Error [54..101]: @derive(Decode): a `Map` keyed by `{ x: number; y: number }` has no JSON encoding: a key has to be a string, a number, a bigint, a boolean, a `Date`, or an enum or alias of one of those
+
+## Mapping
+
+original 30..103 -> expanded 70..143
+generated 0..70 <- imports
+
+## Metadata
+
+interface Index: {"body_span":{"end":103,"start":48},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"name":"byPoint","optional":false,"readonly":false,"span":{"end":101,"start":54},"ts_type":"Map<{ x: number; y: number }, string>"}],"heritage":[],"methods":[],"name":"Index","span":{"end":103,"start":32},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

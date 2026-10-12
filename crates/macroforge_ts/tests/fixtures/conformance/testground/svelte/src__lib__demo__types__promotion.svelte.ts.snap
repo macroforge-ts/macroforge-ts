@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -41,41 +41,38 @@ export function promotionEncode(value: Promotion, keepMetadata?: boolean): strin
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function promotionEncodeWithContext(value: Promotion, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return promotionEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function promotionEncodePartialWithContext(value: Partial<Promotion>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Promotion>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Promotion",
-        __id,
+        __id: ctx.register(value),
     };
+    promotionEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function promotionEncodePartialWithContext(value: Partial<Promotion>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Promotion>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Promotion" };
+        promotionEncodeFields(value as Promotion, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function promotionEncodeFields(value: Promotion, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
-
         if (value.id !== undefined) {
             result.id = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("date")) {
-
         if (value.date !== undefined) {
             result.date = value.date;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -143,7 +140,7 @@ export function promotionDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Promotion.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Promotion | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Promotion") as Promotion | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -162,7 +159,7 @@ export function promotionDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Promotion");
     }
 
     ctx.trackForFreeze(instance);
@@ -383,7 +380,7 @@ export declare function promotionDefaultValue(): Promotion;
 export declare function promotionEncode(value: Promotion, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function promotionEncodeWithContext(value: Promotion, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function promotionEncodePartialWithContext(value: Partial<Promotion>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Promotion>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function promotionDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -469,15 +466,15 @@ export declare const Promotion: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..172 -> expanded 700..765
-original 172..173 -> expanded 14284..14285
-generated 0..642 <- imports
-generated 765..875 <- Default
-generated 875..2833 <- Encode
-generated 2833..8708 <- Decode
-generated 8708..12991 <- Gigaform
-generated 12991..14284 <- __convenience_const
+original 0..58 -> expanded 683..741
+original 107..172 -> expanded 741..806
+original 172..173 -> expanded 14694..14695
+generated 0..683 <- imports
+generated 806..916 <- Default
+generated 916..3217 <- Encode
+generated 3217..9118 <- Decode
+generated 9118..13401 <- Gigaform
+generated 13401..14694 <- __convenience_const
 
 ## Metadata
 

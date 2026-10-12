@@ -70,18 +70,18 @@ class MacroUser {
     }
 
     static toString(value: MacroUser): string {
-        return macroUserToString(value);
+        const parts: string[] = [];
+        parts.push("userId: " + String(value.id));
+        parts.push("name: " + String(value.name));
+        parts.push("role: " + String(value.role));
+        parts.push("favoriteMacro: " + String(value.favoriteMacro));
+        parts.push("since: " + String(value.since));
+        return "MacroUser { " + parts.join(", ") + " }";
     }
 }
 
 export function macroUserToString(value: MacroUser): string {
-    const parts: string[] = [];
-    parts.push("userId: " + String(value.id));
-    parts.push("name: " + String(value.name));
-    parts.push("role: " + String(value.role));
-    parts.push("favoriteMacro: " + String(value.favoriteMacro));
-    parts.push("since: " + String(value.since));
-    return "MacroUser { " + parts.join(", ") + " }";
+    return MacroUser.toString(value);
 }
 
 ## DTS
@@ -108,14 +108,14 @@ export {};
 original 21..44 -> expanded 0..23
 original 79..201 -> expanded 23..145
 original 230..625 -> expanded 145..540
-original 625..626 -> expanded 636..637
-original 626..627 -> expanded 1042..1043
-generated 540..636 <- Debug
-generated 637..1042 <- Debug
+original 625..626 -> expanded 963..964
+original 626..627 -> expanded 1067..1068
+generated 540..963 <- Debug
+generated 964..1067 <- Debug
 
 ## Metadata
 
-class MacroUser: {"body_span":{"end":627,"start":39},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":22,"start":1}}],"fields":[{"decorators":[{"args_src":"{ rename: \"userId\" }","name":"debug","span":{"end":80,"start":45}}],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":96,"start":85},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":115,"start":102},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"role","optional":false,"readonly":false,"span":{"end":133,"start":120},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"favoriteMacro","optional":false,"readonly":false,"span":{"end":177,"start":138},"ts_type":"'Derive' | 'JsonNative'","visibility":"Public"},{"decorators":[],"initializer":null,"name":"since","optional":false,"readonly":false,"span":{"end":196,"start":182},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":231,"start":202}}],"initializer":null,"name":"apiToken","optional":false,"readonly":false,"span":{"end":253,"start":236},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":625,"start":438},"body_src":"\n        this.id = id;\n        this.name = name;\n        this.role = role;\n        this.favoriteMacro = favoriteMacro;\n        this.since = since;\n        this.apiToken = apiToken;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: string,\n        name: string,\n        role: string,\n        favoriteMacro: 'Derive' | 'JsonNative',\n        since: string,\n        apiToken: string","return_type_src":"","span":{"end":625,"start":259},"type_params":[],"visibility":"Public"}],"name":"MacroUser","span":{"end":627,"start":23},"type_params":[]}
+class MacroUser: {"body_span":{"end":627,"start":39},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":22,"start":1}}],"fields":[{"decorators":[{"args_src":"{ rename: \"userId\" }","name":"debug","span":{"end":80,"start":45}}],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":96,"start":85},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":115,"start":102},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"role","optional":false,"readonly":false,"span":{"end":133,"start":120},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"favoriteMacro","optional":false,"readonly":false,"span":{"end":177,"start":138},"ts_type":"'Derive' | 'JsonNative'","visibility":"Public"},{"decorators":[],"initializer":null,"name":"since","optional":false,"readonly":false,"span":{"end":196,"start":182},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":231,"start":202}}],"initializer":null,"name":"apiToken","optional":false,"readonly":false,"span":{"end":253,"start":236},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":625,"start":438},"body_src":"\n        this.id = id;\n        this.name = name;\n        this.role = role;\n        this.favoriteMacro = favoriteMacro;\n        this.since = since;\n        this.apiToken = apiToken;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: string,\n        name: string,\n        role: string,\n        favoriteMacro: 'Derive' | 'JsonNative',\n        since: string,\n        apiToken: string","return_type_src":"","span":{"end":625,"start":259},"type_params":[],"visibility":"Public"}],"name":"MacroUser","span":{"end":627,"start":23},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

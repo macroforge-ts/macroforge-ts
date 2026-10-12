@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 
 enum Role {
     Admin = 'admin',
@@ -43,7 +43,7 @@ export function roleDecodeWithContext(data: unknown): Role {
     if (Role["Guest"] === data) {
         return Role["Guest"];
     }
-    throw new Error("Invalid Role value: " + JSON.stringify(data));
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid Role value: " + JSON.stringify(data) }]);
 }
 
 export function roleIs(value: unknown): value is Role {
@@ -90,11 +90,11 @@ export {};
 
 ## Mapping
 
-original 22..96 -> expanded 78..152
-original 96..97 -> expanded 1367..1368
-generated 0..78 <- imports
-generated 152..1161 <- Decode
-generated 1161..1367 <- __convenience_const
+original 22..96 -> expanded 111..185
+original 96..97 -> expanded 1442..1443
+generated 0..111 <- imports
+generated 185..1236 <- Decode
+generated 1236..1442 <- __convenience_const
 
 ## Metadata
 

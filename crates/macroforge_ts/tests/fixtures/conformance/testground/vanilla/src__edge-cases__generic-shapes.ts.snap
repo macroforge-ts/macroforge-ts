@@ -1,0 +1,2946 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/edge-cases/generic-shapes.ts
+sha256 113288bed9617b03ba6409c80207d13195617498be41c7f3c4778e44a0070c3a
+
+## Changed
+
+true
+
+## Output
+
+import { edgeItemDecodeWithContext, edgeItemEncodeWithContext } from "./edge-types";
+import { structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash, instanceWith as __mf_instanceWith, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * Generic types: parameters with constraints and defaults, parameters used
+ * in every position a field can hold one, and fields that instantiate
+ * another generic type, a derived one included.
+ */
+
+import type { EdgeItem } from './edge-types';
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface GenericBox<T> {
+    held: T;
+    list: T[];
+    maybe: T | null;
+    optional?: T;
+    byName: Map<string, T>;
+    set: Set<T>;
+    record: Record<string, T>;
+    pair: [T, T];
+}
+
+export function genericBoxToString<T>(value: GenericBox<T>): string {
+    const parts: string[] = [];
+    parts.push("held: " + __mf_structuralDebug(value.held));
+    parts.push("list: " + __mf_structuralDebug(value.list));
+    parts.push("maybe: " + __mf_structuralDebug(value.maybe));
+    parts.push("optional: " + __mf_structuralDebug(value.optional));
+    parts.push("byName: " + __mf_structuralDebug(value.byName));
+    parts.push("set: " + __mf_structuralDebug(value.set));
+    parts.push("record: " + __mf_structuralDebug(value.record));
+    parts.push("pair: " + __mf_structuralDebug(value.pair));
+    return "GenericBox { " + parts.join(", ") + " }";
+}
+
+export function genericBoxClone<T>(value: GenericBox<T>): GenericBox<T> {
+    return ({
+	held: __mf_structuralClone(value.held),
+	list: value.list.map((__item0) => __mf_structuralClone(__item0)),
+	maybe: __mf_structuralClone(value.maybe),
+	..."optional" in value ? { optional: __mf_structuralClone(value.optional) } : {},
+	byName: (() => {
+		const __copy0 = new Map(value.byName);
+		for (const [__key0, __item0] of value.byName) __copy0.set(__key0, __mf_structuralClone(__item0));
+		return __copy0;
+	})(),
+	set: new Set(Array.from(value.set, (__item0) => __mf_structuralClone(__item0))),
+	record: __mf_structuralClone(value.record),
+	pair: __mf_structuralClone(value.pair)
+});
+}
+
+export function genericBoxEquals<T>(a: GenericBox<T>, b: GenericBox<T>): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a.held, b.held) && a.list.length === b.list.length && a.list.every((__item0, __index0) => {
+	const __other0 = b.list[__index0];
+	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
+}) && __mf_structuralEquals(a.maybe, b.maybe) && __mf_structuralEquals(a.optional, b.optional) && a.byName.size === b.byName.size && Array.from(a.byName).every(([__key0, __item0]) => {
+	const __other0 = b.byName.get(__key0);
+	return b.byName.has(__key0) && (__other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0));
+}) && a.set.size === b.set.size && Array.from(a.set).every((__item0) => b.set.has(__item0) || Array.from(b.set).some((__other0) => __mf_structuralEquals(__item0, __other0))) && __mf_structuralEquals(a.record, b.record) && __mf_structuralEquals(a.pair, b.pair);
+}
+
+export function genericBoxHashCode<T>(value: GenericBox<T>): number {
+    let hash = 17;
+    hash = (hash * 31 + (__mf_structuralHash(value.held))) | 0;
+    hash = (hash * 31 + (value.list.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.maybe))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.optional))) | 0;
+    hash = (hash * 31 + (Array.from(value.byName).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + __mf_structuralHash(__item0) | 0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Array.from(value.set).reduce<number>((__hash0, __item0) => __hash0 + __mf_structuralHash(__item0) | 0, 0))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.record))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.pair))) | 0;
+    return hash;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function genericBoxEncode<T>(value: GenericBox<T>, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = genericBoxEncodeWithContext<T>(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function genericBoxEncodeWithContext<T>(value: GenericBox<T>, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+    const result: Record<string, unknown> = {
+        "__type": "GenericBox",
+        __id: ctx.register(value),
+    };
+    genericBoxEncodeFields<T>(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function genericBoxEncodePartialWithContext<T>(value: Partial<GenericBox<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericBox<T>>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "GenericBox" };
+        genericBoxEncodeFields<T>(value as GenericBox<T>, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function genericBoxEncodeFields<T>(value: GenericBox<T>, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("held")) {
+        if (value.held !== undefined) {
+            result.held = value.held;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("list")) {
+        if (value.list !== undefined) {
+            result.list = value.list;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("maybe")) {
+        if (value.maybe !== undefined) {
+            result.maybe = value.maybe;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("optional")) {
+        if (value.optional !== undefined) {
+            result.optional = value.optional;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("byName")) {
+        if (value.byName !== undefined) {
+            result.byName = Object.fromEntries(value.byName.entries());
+        }
+    }
+    if (__fields === undefined || __fields.keeps("set")) {
+        if (value.set !== undefined) {
+            result.set = Array.from(value.set);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("record")) {
+        if (value.record !== undefined) {
+            result.record = value.record;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("pair")) {
+        if (value.pair !== undefined) {
+            result.pair = value.pair;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericBoxDecode<T>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GenericBox<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = genericBoxDecodeWithContext<T>(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "GenericBox.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function genericBoxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext): GenericBox<T> | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function genericBoxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GenericBox<T>> | __mf_PendingRef;
+export function genericBoxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<GenericBox<T>> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GenericBox.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "GenericBox.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "GenericBox") as GenericBox<T> | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GenericBox.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("held")) && !("held" in obj)) {
+        errors.push({ field: "held", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("list")) && !("list" in obj)) {
+        errors.push({ field: "list", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
+        errors.push({ field: "maybe", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("byName")) && !("byName" in obj)) {
+        errors.push({ field: "byName", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("set")) && !("set" in obj)) {
+        errors.push({ field: "set", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("record")) && !("record" in obj)) {
+        errors.push({ field: "record", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
+        errors.push({ field: "pair", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "GenericBox");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("held")) || (__fields.keeps("held") && obj["held"] !== undefined)) {
+        const __raw_held = obj["held"] as T;
+
+        instance.held = __raw_held;
+    }
+    if ((__fields === undefined || __fields.requires("list")) || (__fields.keeps("list") && obj["list"] !== undefined)) {
+        const __raw_list = obj["list"] as T[];
+        if (Array.isArray(__raw_list)) {
+            instance.list = __raw_list as T[];
+        } else {
+            errors.push({ field: "list", message: __raw_list == null ? "GenericBox.list is required" : "expected T[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("maybe")) || (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+        const __raw_maybe = obj["maybe"] as T | null;
+
+        if (__raw_maybe === null) {
+            instance.maybe = null;
+        } else {
+            instance.maybe = __raw_maybe;
+        }
+    }
+    if ((__fields === undefined || __fields.keeps("optional"))) {
+        if (("optional" in obj && obj["optional"] !== undefined)) {
+            const __raw_optional = obj["optional"] as T;
+
+            instance.optional = __raw_optional;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("byName")) || (__fields.keeps("byName") && obj["byName"] !== undefined)) {
+        const __raw_byName = obj["byName"] as Record<string, T>;
+        if (typeof __raw_byName === "object" && __raw_byName !== null) {
+            ctx.pushScope("byName");
+            try {
+                instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => __raw0 as T);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "byName" : "byName." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "byName", message: __raw_byName == null ? "GenericBox.byName is required" : "expected Map<string, T>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("set")) || (__fields.keeps("set") && obj["set"] !== undefined)) {
+        const __raw_set = obj["set"] as Array<T>;
+        if (Array.isArray(__raw_set)) {
+            ctx.pushScope("set");
+            try {
+                instance.set = __mf_decodeSet(__raw_set, ctx, (__raw0) => __raw0 as T);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "set" : "set." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "set", message: __raw_set == null ? "GenericBox.set is required" : "expected Set<T>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("record")) || (__fields.keeps("record") && obj["record"] !== undefined)) {
+        const __raw_record = obj["record"] as Record<string, T>;
+        if (typeof __raw_record === "object" && __raw_record !== null) {
+            instance.record = __raw_record as Record<string, T>;
+        } else {
+            errors.push({ field: "record", message: __raw_record == null ? "GenericBox.record is required" : "expected Record<string, T>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("pair")) || (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+        const __raw_pair = obj["pair"] as [T, T];
+        if (Array.isArray(__raw_pair)) {
+            instance.pair = __raw_pair as [T, T];
+        } else {
+            errors.push({ field: "pair", message: __raw_pair == null ? "GenericBox.pair is required" : "expected [T, T]" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as GenericBox<T>;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function genericBoxDecodePartialWithContext<T>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GenericBox<T>>): Partial<GenericBox<T>> | __mf_PendingRef {
+    return genericBoxDecodeWithContext<T>(value, ctx, __mf_fieldRequirement(fields));
+}
+export function genericBoxValidateField<T, K extends keyof GenericBox<T> = keyof GenericBox<T>>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function genericBoxValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function genericBoxValidateFields<T>(partial: { readonly [K in keyof GenericBox<T>]?: unknown }): Array<{ field: string; message: string }>;
+export function genericBoxValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function genericBoxHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "held" in o && "list" in o && "maybe" in o && "byName" in o && "set" in o && "record" in o && "pair" in o;
+}
+
+export function genericBoxIs<T>(obj: unknown): obj is GenericBox<T> {
+    return genericBoxHasShape(obj) && genericBoxDecode(obj).success;
+}
+
+export const GenericBox: {
+  readonly toString: typeof genericBoxToString;
+  readonly clone: typeof genericBoxClone;
+  readonly equals: typeof genericBoxEquals;
+  readonly hashCode: typeof genericBoxHashCode;
+  readonly encode: typeof genericBoxEncode;
+  readonly encodeWithContext: typeof genericBoxEncodeWithContext;
+  readonly encodePartialWithContext: typeof genericBoxEncodePartialWithContext;
+  readonly decode: typeof genericBoxDecode;
+  readonly decodeWithContext: typeof genericBoxDecodeWithContext;
+  readonly decodePartialWithContext: typeof genericBoxDecodePartialWithContext;
+  readonly validateField: typeof genericBoxValidateField;
+  readonly validateFields: typeof genericBoxValidateFields;
+  readonly hasShape: typeof genericBoxHasShape;
+  readonly is: typeof genericBoxIs;
+} = {
+  toString: genericBoxToString,
+  clone: genericBoxClone,
+  equals: genericBoxEquals,
+  hashCode: genericBoxHashCode,
+  encode: genericBoxEncode,
+  encodeWithContext: genericBoxEncodeWithContext,
+  encodePartialWithContext: genericBoxEncodePartialWithContext,
+  decode: genericBoxDecode,
+  decodeWithContext: genericBoxDecodeWithContext,
+  decodePartialWithContext: genericBoxDecodePartialWithContext,
+  validateField: genericBoxValidateField,
+  validateFields: genericBoxValidateFields,
+  hasShape: genericBoxHasShape,
+  is: genericBoxIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface GenericPair<Left, Right = Left> {
+    left: Left;
+    right: Right;
+}
+
+export function genericPairToString<Left, Right = Left>(value: GenericPair<Left, Right>): string {
+    const parts: string[] = [];
+    parts.push("left: " + __mf_structuralDebug(value.left));
+    parts.push("right: " + __mf_structuralDebug(value.right));
+    return "GenericPair { " + parts.join(", ") + " }";
+}
+
+export function genericPairClone<Left, Right = Left>(value: GenericPair<Left, Right>): GenericPair<Left, Right> {
+    return ({
+	left: __mf_structuralClone(value.left),
+	right: __mf_structuralClone(value.right)
+});
+}
+
+export function genericPairEquals<Left, Right = Left>(a: GenericPair<Left, Right>, b: GenericPair<Left, Right>): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a.left, b.left) && __mf_structuralEquals(a.right, b.right);
+}
+
+export function genericPairHashCode<Left, Right = Left>(value: GenericPair<Left, Right>): number {
+    let hash = 17;
+    hash = (hash * 31 + (__mf_structuralHash(value.left))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.right))) | 0;
+    return hash;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function genericPairEncode<Left, Right = Left>(value: GenericPair<Left, Right>, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = genericPairEncodeWithContext<Left, Right>(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function genericPairEncodeWithContext<Left, Right = Left>(value: GenericPair<Left, Right>, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+    const result: Record<string, unknown> = {
+        "__type": "GenericPair",
+        __id: ctx.register(value),
+    };
+    genericPairEncodeFields<Left, Right>(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function genericPairEncodePartialWithContext<Left, Right = Left>(value: Partial<GenericPair<Left, Right>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericPair<Left, Right>>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "GenericPair" };
+        genericPairEncodeFields<Left, Right>(value as GenericPair<Left, Right>, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function genericPairEncodeFields<Left, Right = Left>(value: GenericPair<Left, Right>, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("left")) {
+        if (value.left !== undefined) {
+            result.left = value.left;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("right")) {
+        if (value.right !== undefined) {
+            result.right = value.right;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericPairDecode<Left, Right = Left>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GenericPair<Left, Right> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = genericPairDecodeWithContext<Left, Right>(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "GenericPair.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function genericPairDecodeWithContext<Left, Right = Left>(value: unknown, ctx: __mf_DecodeContext): GenericPair<Left, Right> | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function genericPairDecodeWithContext<Left, Right = Left>(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GenericPair<Left, Right>> | __mf_PendingRef;
+export function genericPairDecodeWithContext<Left, Right = Left>(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<GenericPair<Left, Right>> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GenericPair.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "GenericPair.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "GenericPair") as GenericPair<Left, Right> | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GenericPair.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("left")) && !("left" in obj)) {
+        errors.push({ field: "left", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("right")) && !("right" in obj)) {
+        errors.push({ field: "right", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "GenericPair");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("left")) || (__fields.keeps("left") && obj["left"] !== undefined)) {
+        const __raw_left = obj["left"] as Left;
+
+        instance.left = __raw_left;
+    }
+    if ((__fields === undefined || __fields.requires("right")) || (__fields.keeps("right") && obj["right"] !== undefined)) {
+        const __raw_right = obj["right"] as Right;
+
+        instance.right = __raw_right;
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as GenericPair<Left, Right>;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function genericPairDecodePartialWithContext<Left, Right = Left>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GenericPair<Left, Right>>): Partial<GenericPair<Left, Right>> | __mf_PendingRef {
+    return genericPairDecodeWithContext<Left, Right>(value, ctx, __mf_fieldRequirement(fields));
+}
+export function genericPairValidateField<Left, Right = Left, K extends keyof GenericPair<Left, Right> = keyof GenericPair<Left, Right>>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function genericPairValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function genericPairValidateFields<Left, Right = Left>(partial: { readonly [K in keyof GenericPair<Left, Right>]?: unknown }): Array<{ field: string; message: string }>;
+export function genericPairValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function genericPairHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "left" in o && "right" in o;
+}
+
+export function genericPairIs<Left, Right = Left>(obj: unknown): obj is GenericPair<Left, Right> {
+    return genericPairHasShape(obj) && genericPairDecode(obj).success;
+}
+
+export const GenericPair: {
+  readonly toString: typeof genericPairToString;
+  readonly clone: typeof genericPairClone;
+  readonly equals: typeof genericPairEquals;
+  readonly hashCode: typeof genericPairHashCode;
+  readonly encode: typeof genericPairEncode;
+  readonly encodeWithContext: typeof genericPairEncodeWithContext;
+  readonly encodePartialWithContext: typeof genericPairEncodePartialWithContext;
+  readonly decode: typeof genericPairDecode;
+  readonly decodeWithContext: typeof genericPairDecodeWithContext;
+  readonly decodePartialWithContext: typeof genericPairDecodePartialWithContext;
+  readonly validateField: typeof genericPairValidateField;
+  readonly validateFields: typeof genericPairValidateFields;
+  readonly hasShape: typeof genericPairHasShape;
+  readonly is: typeof genericPairIs;
+} = {
+  toString: genericPairToString,
+  clone: genericPairClone,
+  equals: genericPairEquals,
+  hashCode: genericPairHashCode,
+  encode: genericPairEncode,
+  encodeWithContext: genericPairEncodeWithContext,
+  encodePartialWithContext: genericPairEncodePartialWithContext,
+  decode: genericPairDecode,
+  decodeWithContext: genericPairDecodeWithContext,
+  decodePartialWithContext: genericPairDecodePartialWithContext,
+  validateField: genericPairValidateField,
+  validateFields: genericPairValidateFields,
+  hasShape: genericPairHasShape,
+  is: genericPairIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface GenericConstrained<Item extends EdgeItem, Name extends string = string> {
+    item: Item;
+    name: Name;
+    items: Item[];
+}
+
+export function genericConstrainedToString<Item extends EdgeItem, Name extends string = string>(value: GenericConstrained<Item, Name>): string {
+    const parts: string[] = [];
+    parts.push("item: " + __mf_structuralDebug(value.item));
+    parts.push("name: " + __mf_structuralDebug(value.name));
+    parts.push("items: " + __mf_structuralDebug(value.items));
+    return "GenericConstrained { " + parts.join(", ") + " }";
+}
+
+export function genericConstrainedClone<Item extends EdgeItem, Name extends string = string>(value: GenericConstrained<Item, Name>): GenericConstrained<Item, Name> {
+    return ({
+	item: __mf_structuralClone(value.item),
+	name: __mf_structuralClone(value.name),
+	items: value.items.map((__item0) => __mf_structuralClone(__item0))
+});
+}
+
+export function genericConstrainedEquals<Item extends EdgeItem, Name extends string = string>(a: GenericConstrained<Item, Name>, b: GenericConstrained<Item, Name>): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a.item, b.item) && __mf_structuralEquals(a.name, b.name) && a.items.length === b.items.length && a.items.every((__item0, __index0) => {
+	const __other0 = b.items[__index0];
+	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
+});
+}
+
+export function genericConstrainedHashCode<Item extends EdgeItem, Name extends string = string>(value: GenericConstrained<Item, Name>): number {
+    let hash = 17;
+    hash = (hash * 31 + (__mf_structuralHash(value.item))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.name))) | 0;
+    hash = (hash * 31 + (value.items.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
+    return hash;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function genericConstrainedEncode<Item extends EdgeItem, Name extends string = string>(value: GenericConstrained<Item, Name>, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = genericConstrainedEncodeWithContext<Item, Name>(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function genericConstrainedEncodeWithContext<Item extends EdgeItem, Name extends string = string>(value: GenericConstrained<Item, Name>, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+    const result: Record<string, unknown> = {
+        "__type": "GenericConstrained",
+        __id: ctx.register(value),
+    };
+    genericConstrainedEncodeFields<Item, Name>(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function genericConstrainedEncodePartialWithContext<Item extends EdgeItem, Name extends string = string>(value: Partial<GenericConstrained<Item, Name>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericConstrained<Item, Name>>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "GenericConstrained" };
+        genericConstrainedEncodeFields<Item, Name>(value as GenericConstrained<Item, Name>, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function genericConstrainedEncodeFields<Item extends EdgeItem, Name extends string = string>(value: GenericConstrained<Item, Name>, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("item")) {
+        if (value.item !== undefined) {
+            result.item = value.item;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("name")) {
+        if (value.name !== undefined) {
+            result.name = value.name;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("items")) {
+        if (value.items !== undefined) {
+            result.items = value.items;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericConstrainedDecode<Item extends EdgeItem, Name extends string = string>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GenericConstrained<Item, Name> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = genericConstrainedDecodeWithContext<Item, Name>(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "GenericConstrained.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function genericConstrainedDecodeWithContext<Item extends EdgeItem, Name extends string = string>(value: unknown, ctx: __mf_DecodeContext): GenericConstrained<Item, Name> | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function genericConstrainedDecodeWithContext<Item extends EdgeItem, Name extends string = string>(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GenericConstrained<Item, Name>> | __mf_PendingRef;
+export function genericConstrainedDecodeWithContext<Item extends EdgeItem, Name extends string = string>(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<GenericConstrained<Item, Name>> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GenericConstrained.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "GenericConstrained.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "GenericConstrained") as GenericConstrained<Item, Name> | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GenericConstrained.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("item")) && !("item" in obj)) {
+        errors.push({ field: "item", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
+        errors.push({ field: "name", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
+        errors.push({ field: "items", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "GenericConstrained");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("item")) || (__fields.keeps("item") && obj["item"] !== undefined)) {
+        const __raw_item = obj["item"] as Item;
+
+        instance.item = __raw_item;
+    }
+    if ((__fields === undefined || __fields.requires("name")) || (__fields.keeps("name") && obj["name"] !== undefined)) {
+        const __raw_name = obj["name"] as Name;
+
+        instance.name = __raw_name;
+    }
+    if ((__fields === undefined || __fields.requires("items")) || (__fields.keeps("items") && obj["items"] !== undefined)) {
+        const __raw_items = obj["items"] as Item[];
+        if (Array.isArray(__raw_items)) {
+            instance.items = __raw_items as Item[];
+        } else {
+            errors.push({ field: "items", message: __raw_items == null ? "GenericConstrained.items is required" : "expected Item[]" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as GenericConstrained<Item, Name>;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function genericConstrainedDecodePartialWithContext<Item extends EdgeItem, Name extends string = string>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GenericConstrained<Item, Name>>): Partial<GenericConstrained<Item, Name>> | __mf_PendingRef {
+    return genericConstrainedDecodeWithContext<Item, Name>(value, ctx, __mf_fieldRequirement(fields));
+}
+export function genericConstrainedValidateField<Item extends EdgeItem, Name extends string = string, K extends keyof GenericConstrained<Item, Name> = keyof GenericConstrained<Item, Name>>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function genericConstrainedValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function genericConstrainedValidateFields<Item extends EdgeItem, Name extends string = string>(partial: { readonly [K in keyof GenericConstrained<Item, Name>]?: unknown }): Array<{ field: string; message: string }>;
+export function genericConstrainedValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function genericConstrainedHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "item" in o && "name" in o && "items" in o;
+}
+
+export function genericConstrainedIs<Item extends EdgeItem, Name extends string = string>(obj: unknown): obj is GenericConstrained<Item, Name> {
+    return genericConstrainedHasShape(obj) && genericConstrainedDecode(obj).success;
+}
+
+export const GenericConstrained: {
+  readonly toString: typeof genericConstrainedToString;
+  readonly clone: typeof genericConstrainedClone;
+  readonly equals: typeof genericConstrainedEquals;
+  readonly hashCode: typeof genericConstrainedHashCode;
+  readonly encode: typeof genericConstrainedEncode;
+  readonly encodeWithContext: typeof genericConstrainedEncodeWithContext;
+  readonly encodePartialWithContext: typeof genericConstrainedEncodePartialWithContext;
+  readonly decode: typeof genericConstrainedDecode;
+  readonly decodeWithContext: typeof genericConstrainedDecodeWithContext;
+  readonly decodePartialWithContext: typeof genericConstrainedDecodePartialWithContext;
+  readonly validateField: typeof genericConstrainedValidateField;
+  readonly validateFields: typeof genericConstrainedValidateFields;
+  readonly hasShape: typeof genericConstrainedHasShape;
+  readonly is: typeof genericConstrainedIs;
+} = {
+  toString: genericConstrainedToString,
+  clone: genericConstrainedClone,
+  equals: genericConstrainedEquals,
+  hashCode: genericConstrainedHashCode,
+  encode: genericConstrainedEncode,
+  encodeWithContext: genericConstrainedEncodeWithContext,
+  encodePartialWithContext: genericConstrainedEncodePartialWithContext,
+  decode: genericConstrainedDecode,
+  decodeWithContext: genericConstrainedDecodeWithContext,
+  decodePartialWithContext: genericConstrainedDecodePartialWithContext,
+  validateField: genericConstrainedValidateField,
+  validateFields: genericConstrainedValidateFields,
+  hasShape: genericConstrainedHasShape,
+  is: genericConstrainedIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export class GenericStack<T> {
+    items: T[] = [];
+    top: T | null = null;
+    depth: number = 0;
+
+    static toString<T>(value: GenericStack<T>): string {
+        const parts: string[] = [];
+        parts.push("items: " + __mf_structuralDebug(value.items));
+        parts.push("top: " + __mf_structuralDebug(value.top));
+        parts.push("depth: " + String(value.depth));
+        return "GenericStack { " + parts.join(", ") + " }";
+    }
+
+    static clone<T>(value: GenericStack<T>): GenericStack<T> {
+        return __mf_instanceWith(value, ({
+        	items: value.items.map((__item0) => __mf_structuralClone(__item0)),
+        	top: __mf_structuralClone(value.top),
+        	depth: value.depth
+        }));
+    }
+
+    static equals<T>(a: GenericStack<T>, b: GenericStack<T>): boolean {
+        if (a === b) return true;
+        return a.items.length === b.items.length && a.items.every((__item0, __index0) => {
+        	const __other0 = b.items[__index0];
+        	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
+        }) && __mf_structuralEquals(a.top, b.top) && a.depth === b.depth;
+    }
+
+    static hashCode<T>(value: GenericStack<T>): number {
+        let hash = 17;
+        hash = (hash * 31 + (value.items.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
+        hash = (hash * 31 + (__mf_structuralHash(value.top))) | 0;
+        hash = (hash * 31 + (Number.isInteger(value.depth) ? value.depth | 0 : value.depth.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    }
+
+    static defaultValue<T>(): GenericStack<T> {
+        const fields: { items: T[]; top: T | null; depth: number } = {
+            items: [],
+            top: null,
+            depth: 0,
+        };
+        return __mf_instanceOf(GenericStack.prototype, fields);
+    }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext<T>(value: GenericStack<T>, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+    const result: Record<string, unknown> = {
+        "__type": "GenericStack",
+        __id: ctx.register(value),
+    };
+    GenericStack.#encodeFields<T>(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext<T>(value: Partial<GenericStack<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericStack<T>>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "GenericStack" };
+        GenericStack.#encodeFields<T>(value as GenericStack<T>, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields<T>(value: GenericStack<T>, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("items")) {
+        if (value.items !== undefined) {
+            result.items = value.items;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("top")) {
+        if (value.top !== undefined) {
+            result.top = value.top;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("depth")) {
+        if (value.depth !== undefined) {
+            result.depth = value.depth;
+        }
+    }
+}
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode<T>(value: GenericStack<T>, keepMetadata?: boolean): string {
+        return genericStackEncode(value, keepMetadata);
+    }
+
+constructor(props: { items: T[]; top: T | null; depth: number }) {
+
+    this.items = props.items;
+    this.top = props.top;
+    this.depth = props.depth;
+}
+
+/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static decode<T>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GenericStack<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = GenericStack.decodeWithContext<T>(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "GenericStack.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static decodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext): GenericStack<T> | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static decodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GenericStack<T>> | __mf_PendingRef;
+static decodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<GenericStack<T>> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GenericStack.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "GenericStack.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "GenericStack") as GenericStack<T> | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GenericStack.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
+        errors.push({ field: "items", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("top")) && !("top" in obj)) {
+        errors.push({ field: "top", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("depth")) && !("depth" in obj)) {
+        errors.push({ field: "depth", message: "missing required field" });
+    }
+
+    const instance: any = Object.create(GenericStack.prototype);
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "GenericStack");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("items")) || (__fields.keeps("items") && obj["items"] !== undefined)) {
+        const __raw_items = obj["items"] as T[];
+        if (Array.isArray(__raw_items)) {
+            instance.items = __raw_items as T[];
+        } else {
+            errors.push({ field: "items", message: __raw_items == null ? "GenericStack.items is required" : "expected T[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("top")) || (__fields.keeps("top") && obj["top"] !== undefined)) {
+        const __raw_top = obj["top"] as T | null;
+
+        if (__raw_top === null) {
+            instance.top = null;
+        } else {
+            instance.top = __raw_top;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("depth")) || (__fields.keeps("depth") && obj["depth"] !== undefined)) {
+        const __raw_depth = obj["depth"] as number;
+
+        if (!(typeof __raw_depth === "number")) {
+            errors.push({ field: "depth", message: __raw_depth == null ? "GenericStack.depth is required" : "expected number" });
+        } else {
+            instance.depth = __raw_depth;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance;
+}
+static validateField<T, K extends keyof GenericStack<T> = keyof GenericStack<T>>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static validateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static validateFields<T>(partial: { readonly [K in keyof GenericStack<T>]?: unknown }): Array<{ field: string; message: string }>;
+static validateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "items" in o && "top" in o && "depth" in o;
+}
+
+static is<T>(obj: unknown): obj is GenericStack<T> {
+    if (obj instanceof GenericStack) {
+        return true;
+    }
+    if (!GenericStack.hasShape(obj)) {
+        return false;
+    }
+    const result = GenericStack.decode(obj);
+    return result.success;
+}
+}
+
+export function genericStackToString<T>(value: GenericStack<T>): string {
+    return GenericStack.toString<T>(value);
+}
+
+export function genericStackClone<T>(value: GenericStack<T>): GenericStack<T> {
+    return GenericStack.clone<T>(value);
+}
+
+export function genericStackEquals<T>(a: GenericStack<T>, b: GenericStack<T>): boolean {
+    return GenericStack.equals<T>(a, b);
+}
+
+export function genericStackHashCode<T>(value: GenericStack<T>): number {
+    return GenericStack.hashCode<T>(value);
+}
+
+export function genericStackDefaultValue<T>(): GenericStack<T> {
+    return GenericStack.defaultValue<T>();
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function genericStackEncode<T>(value: GenericStack<T>, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = genericStackEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function genericStackEncodeWithContext<T>(value: GenericStack<T>, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return GenericStack.encodeWithContext<T>(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function genericStackEncodePartialWithContext<T>(value: Partial<GenericStack<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericStack<T>>): Record<string, unknown> {
+    return GenericStack.encodePartialWithContext<T>(value, ctx, fields);
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function genericStackDecode<T>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GenericStack<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return GenericStack.decode<T>(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function genericStackDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext): GenericStack<T> | __mf_PendingRef {
+    return GenericStack.decodeWithContext<T>(value, ctx);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function genericStackHasShape(value: unknown): boolean {
+    return GenericStack.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function genericStackDecodePartialWithContext<T>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GenericStack<T>>): Partial<GenericStack<T>> | __mf_PendingRef {
+    return GenericStack.decodeWithContext<T>(value, ctx, __mf_fieldRequirement(fields));
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function genericStackIs<T>(value: unknown): value is GenericStack<T> {
+    return GenericStack.is<T>(value);
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type GenericResult<Value, Failure> =
+    | { ok: true; value: Value }
+    | { ok: false; failure: Failure };
+
+export function genericResultToString<Value, Failure>(value: GenericResult<Value, Failure>): string {
+    return "GenericResult(" + __mf_structuralDebug(value) + ")";
+}
+
+export function genericResultClone<Value, Failure>(value: GenericResult<Value, Failure>): GenericResult<Value, Failure> {
+    return __mf_structuralClone(value);
+}
+
+export function genericResultEquals<Value, Failure>(a: GenericResult<Value, Failure>, b: GenericResult<Value, Failure>): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function genericResultHashCode<Value, Failure>(value: GenericResult<Value, Failure>): number {
+    return __mf_structuralHash(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function genericResultEncode<Value, Failure>(value: GenericResult<Value, Failure>, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = genericResultEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function genericResultEncodeWithContext<Value, Failure>(value: GenericResult<Value, Failure>, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    }
+    return __variant;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericResultDecode<Value, Failure>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GenericResult<Value, Failure> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = genericResultDecodeWithContext<Value, Failure>(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "GenericResult.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function genericResultDecodeWithContext<Value, Failure>(value: unknown, ctx: __mf_DecodeContext): GenericResult<Value, Failure> | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "GenericResult.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as GenericResult<Value, Failure> | __mf_PendingRef;
+    }
+
+    
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && "value" in value) {
+        const __result: Record<string, unknown> = {};
+        __result["ok"] = (value as any)["ok"];
+        __result["value"] = (value as any)["value"];
+        return __result as GenericResult<Value, Failure>;
+    }
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && "failure" in value) {
+        const __result: Record<string, unknown> = {};
+        __result["ok"] = (value as any)["ok"];
+        __result["failure"] = (value as any)["failure"];
+        return __result as GenericResult<Value, Failure>;
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "GenericResult.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function genericResultHasShape(value: unknown): boolean {
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && "value" in value) return true;
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && "ok" in value && "failure" in value) return true;
+                return false;
+}
+export function genericResultIs<Value, Failure>(value: unknown): value is GenericResult<Value, Failure> {
+    return genericResultHasShape(value);
+}
+
+export const GenericResult: {
+  readonly toString: typeof genericResultToString;
+  readonly clone: typeof genericResultClone;
+  readonly equals: typeof genericResultEquals;
+  readonly hashCode: typeof genericResultHashCode;
+  readonly encode: typeof genericResultEncode;
+  readonly encodeWithContext: typeof genericResultEncodeWithContext;
+  readonly decode: typeof genericResultDecode;
+  readonly decodeWithContext: typeof genericResultDecodeWithContext;
+  readonly hasShape: typeof genericResultHasShape;
+  readonly is: typeof genericResultIs;
+} = {
+  toString: genericResultToString,
+  clone: genericResultClone,
+  equals: genericResultEquals,
+  hashCode: genericResultHashCode,
+  encode: genericResultEncode,
+  encodeWithContext: genericResultEncodeWithContext,
+  decode: genericResultDecode,
+  decodeWithContext: genericResultDecodeWithContext,
+  hasShape: genericResultHasShape,
+  is: genericResultIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type GenericList<T> = T[];
+
+export function genericListToString<T>(value: GenericList<T>): string {
+    return "GenericList(" + __mf_structuralDebug(value) + ")";
+}
+
+export function genericListClone<T>(value: GenericList<T>): GenericList<T> {
+    return value.map((__item0) => __mf_structuralClone(__item0));
+}
+
+export function genericListEquals<T>(a: GenericList<T>, b: GenericList<T>): boolean {
+    if (a === b) return true;
+    return (a.length === b.length && a.every((__item0, __index0) => { const __other0 = b[__index0]; return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0); }));
+}
+
+export function genericListHashCode<T>(value: GenericList<T>): number {
+    return value.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function genericListEncode<T>(value: GenericList<T>, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = genericListEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function genericListEncodeWithContext<T>(value: GenericList<T>, ctx: __mf_EncodeContext): unknown;
+export function genericListEncodeWithContext<T>(value: GenericList<T>): unknown {
+    return ((value: { value: T[] }): unknown => {
+        const result: Record<string, unknown> = {};
+        result.value = value.value;
+        return result.value;
+    })({ value });
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericListDecode<T>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GenericList<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = genericListDecodeWithContext<T>(data, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+export function genericListIs<T>(value: unknown): value is GenericList<T> {
+    return genericListHasShape(value);
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function genericListDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext): GenericList<T> {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "GenericList.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as GenericList<T>;
+    }
+    const obj: Record<string, unknown> = { _root: value };
+    const errors: Array<{ field: string; message: string }> = [];
+    const instance: any = {};
+
+    {
+        const __raw__root = obj["_root"] as T[];
+        if (Array.isArray(__raw__root)) {
+            instance._root = __raw__root as T[];
+        } else {
+            errors.push({ field: "_root", message: __raw__root == null ? "GenericList._root is required" : "expected T[]" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+    return instance._root as GenericList<T>;
+}
+
+export function genericListHasShape(value: unknown): boolean {
+    return Array.isArray(value);
+}
+
+export const GenericList: {
+  readonly toString: typeof genericListToString;
+  readonly clone: typeof genericListClone;
+  readonly equals: typeof genericListEquals;
+  readonly hashCode: typeof genericListHashCode;
+  readonly encode: typeof genericListEncode;
+  readonly encodeWithContext: typeof genericListEncodeWithContext;
+  readonly decode: typeof genericListDecode;
+  readonly is: typeof genericListIs;
+  readonly decodeWithContext: typeof genericListDecodeWithContext;
+  readonly hasShape: typeof genericListHasShape;
+} = {
+  toString: genericListToString,
+  clone: genericListClone,
+  equals: genericListEquals,
+  hashCode: genericListHashCode,
+  encode: genericListEncode,
+  encodeWithContext: genericListEncodeWithContext,
+  decode: genericListDecode,
+  is: genericListIs,
+  decodeWithContext: genericListDecodeWithContext,
+  hasShape: genericListHasShape
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type GenericMaybe<T> = T | null;
+
+export function genericMaybeToString<T>(value: GenericMaybe<T>): string {
+    return "GenericMaybe(" + __mf_structuralDebug(value) + ")";
+}
+
+export function genericMaybeClone<T>(value: GenericMaybe<T>): GenericMaybe<T> {
+    return __mf_structuralClone(value);
+}
+
+export function genericMaybeEquals<T>(a: GenericMaybe<T>, b: GenericMaybe<T>): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function genericMaybeHashCode<T>(value: GenericMaybe<T>): number {
+    return __mf_structuralHash(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function genericMaybeEncode<T>(value: GenericMaybe<T>, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = genericMaybeEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function genericMaybeEncodeWithContext<T>(value: GenericMaybe<T>, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+    }
+    return __variant;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericMaybeDecode<T>(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GenericMaybe<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = genericMaybeDecodeWithContext<T>(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "GenericMaybe.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function genericMaybeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext): GenericMaybe<T> | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "GenericMaybe.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as GenericMaybe<T> | __mf_PendingRef;
+    }
+
+    
+    if (value === null) {
+        return value as GenericMaybe<T>;
+    }
+    return value as GenericMaybe<T>;
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "GenericMaybe.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function genericMaybeHasShape(value: unknown): boolean {
+                if (value === null) return true;
+                return true;
+}
+export function genericMaybeIs<T>(value: unknown): value is GenericMaybe<T> {
+    return genericMaybeHasShape(value);
+}
+
+export const GenericMaybe: {
+  readonly toString: typeof genericMaybeToString;
+  readonly clone: typeof genericMaybeClone;
+  readonly equals: typeof genericMaybeEquals;
+  readonly hashCode: typeof genericMaybeHashCode;
+  readonly encode: typeof genericMaybeEncode;
+  readonly encodeWithContext: typeof genericMaybeEncodeWithContext;
+  readonly decode: typeof genericMaybeDecode;
+  readonly decodeWithContext: typeof genericMaybeDecodeWithContext;
+  readonly hasShape: typeof genericMaybeHasShape;
+  readonly is: typeof genericMaybeIs;
+} = {
+  toString: genericMaybeToString,
+  clone: genericMaybeClone,
+  equals: genericMaybeEquals,
+  hashCode: genericMaybeHashCode,
+  encode: genericMaybeEncode,
+  encodeWithContext: genericMaybeEncodeWithContext,
+  decode: genericMaybeDecode,
+  decodeWithContext: genericMaybeDecodeWithContext,
+  hasShape: genericMaybeHasShape,
+  is: genericMaybeIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface GenericUses {
+    text: GenericBox<string>;
+    item: GenericBox<EdgeItem>;
+    nested: GenericBox<GenericBox<number>>;
+    pair: GenericPair<string, EdgeItem>;
+    same: GenericPair<number>;
+    stack: GenericStack<EdgeItem>;
+    stacks: GenericStack<string>[];
+    list: GenericList<EdgeItem>;
+    maybe: GenericMaybe<EdgeItem>;
+    boxes: Map<string, GenericBox<Date>>;
+}
+
+export function genericUsesToString(value: GenericUses): string {
+    const parts: string[] = [];
+    parts.push("text: " + genericBoxToString(value.text));
+    parts.push("item: " + genericBoxToString(value.item));
+    parts.push("nested: " + genericBoxToString(value.nested));
+    parts.push("pair: " + genericPairToString(value.pair));
+    parts.push("same: " + genericPairToString(value.same));
+    parts.push("stack: " + genericStackToString(value.stack));
+    parts.push("stacks: " + "[" + value.stacks.map(genericStackToString).join(", ") + "]");
+    parts.push("list: " + genericListToString(value.list));
+    parts.push("maybe: " + genericMaybeToString(value.maybe));
+    parts.push("boxes: " + __mf_structuralDebug(value.boxes));
+    return "GenericUses { " + parts.join(", ") + " }";
+}
+
+export function genericUsesClone(value: GenericUses): GenericUses {
+    return ({
+	text: genericBoxClone(value.text),
+	item: genericBoxClone(value.item),
+	nested: genericBoxClone(value.nested),
+	pair: genericPairClone(value.pair),
+	same: genericPairClone(value.same),
+	stack: genericStackClone(value.stack),
+	stacks: value.stacks.map((__item0) => genericStackClone(__item0)),
+	list: genericListClone(value.list),
+	maybe: genericMaybeClone(value.maybe),
+	boxes: (() => {
+		const __copy0 = new Map(value.boxes);
+		for (const [__key0, __item0] of value.boxes) __copy0.set(__key0, genericBoxClone(__item0));
+		return __copy0;
+	})()
+});
+}
+
+export function genericUsesEquals(a: GenericUses, b: GenericUses): boolean {
+    if (a === b) return true;
+    return genericBoxEquals(a.text, b.text) && genericBoxEquals(a.item, b.item) && genericBoxEquals(a.nested, b.nested) && genericPairEquals(a.pair, b.pair) && genericPairEquals(a.same, b.same) && genericStackEquals(a.stack, b.stack) && a.stacks.length === b.stacks.length && a.stacks.every((__item0, __index0) => {
+	const __other0 = b.stacks[__index0];
+	return __other0 === undefined ? __item0 === undefined : genericStackEquals(__item0, __other0);
+}) && genericListEquals(a.list, b.list) && genericMaybeEquals(a.maybe, b.maybe) && a.boxes.size === b.boxes.size && Array.from(a.boxes).every(([__key0, __item0]) => {
+	const __other0 = b.boxes.get(__key0);
+	return b.boxes.has(__key0) && (__other0 === undefined ? __item0 === undefined : genericBoxEquals(__item0, __other0));
+});
+}
+
+export function genericUsesHashCode(value: GenericUses): number {
+    let hash = 17;
+    hash = (hash * 31 + (genericBoxHashCode(value.text))) | 0;
+    hash = (hash * 31 + (genericBoxHashCode(value.item))) | 0;
+    hash = (hash * 31 + (genericBoxHashCode(value.nested))) | 0;
+    hash = (hash * 31 + (genericPairHashCode(value.pair))) | 0;
+    hash = (hash * 31 + (genericPairHashCode(value.same))) | 0;
+    hash = (hash * 31 + (genericStackHashCode(value.stack))) | 0;
+    hash = (hash * 31 + (value.stacks.reduce<number>((__hash0, __item0) => __hash0 * 31 + genericStackHashCode(__item0) | 0, 1))) | 0;
+    hash = (hash * 31 + (genericListHashCode(value.list))) | 0;
+    hash = (hash * 31 + (genericMaybeHashCode(value.maybe))) | 0;
+    hash = (hash * 31 + (Array.from(value.boxes).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + ((__key0 ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0) * 31 + genericBoxHashCode(__item0) | 0) | 0, 0))) | 0;
+    return hash;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function genericUsesEncode(value: GenericUses, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = genericUsesEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function genericUsesEncodeWithContext(value: GenericUses, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+    const result: Record<string, unknown> = {
+        "__type": "GenericUses",
+        __id: ctx.register(value),
+    };
+    genericUsesEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function genericUsesEncodePartialWithContext(value: Partial<GenericUses>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericUses>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "GenericUses" };
+        genericUsesEncodeFields(value as GenericUses, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function genericUsesEncodeFields(value: GenericUses, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("text")) {
+        if (value.text !== undefined) {
+            result.text = genericBoxEncodeWithContext(value.text, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("item")) {
+        if (value.item !== undefined) {
+            result.item = genericBoxEncodeWithContext(value.item, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("nested")) {
+        if (value.nested !== undefined) {
+            result.nested = genericBoxEncodeWithContext(value.nested, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("pair")) {
+        if (value.pair !== undefined) {
+            result.pair = genericPairEncodeWithContext(value.pair, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("same")) {
+        if (value.same !== undefined) {
+            result.same = genericPairEncodeWithContext(value.same, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("stack")) {
+        if (value.stack !== undefined) {
+            result.stack = genericStackEncodeWithContext(value.stack, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("stacks")) {
+        if (value.stacks !== undefined) {
+            result.stacks = value.stacks.map((__item0) => genericStackEncodeWithContext(__item0, ctx));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("list")) {
+        if (value.list !== undefined) {
+            result.list = value.list.map((__item0) => edgeItemEncodeWithContext(__item0, ctx));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("maybe")) {
+        if (value.maybe !== undefined) {
+            result.maybe = value.maybe === null ? null : edgeItemEncodeWithContext(value.maybe, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("boxes")) {
+        if (value.boxes !== undefined) {
+            result.boxes = Object.fromEntries(Array.from(value.boxes, ([__key0, __item0]) => [__key0, genericBoxEncodeWithContext(__item0, ctx)]));
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function genericUsesDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GenericUses } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = genericUsesDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "GenericUses.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function genericUsesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GenericUses | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function genericUsesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GenericUses> | __mf_PendingRef;
+export function genericUsesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<GenericUses> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GenericUses.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "GenericUses.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "GenericUses") as GenericUses | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "GenericUses.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("text")) && !("text" in obj)) {
+        errors.push({ field: "text", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("item")) && !("item" in obj)) {
+        errors.push({ field: "item", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("nested")) && !("nested" in obj)) {
+        errors.push({ field: "nested", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
+        errors.push({ field: "pair", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("same")) && !("same" in obj)) {
+        errors.push({ field: "same", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("stack")) && !("stack" in obj)) {
+        errors.push({ field: "stack", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("stacks")) && !("stacks" in obj)) {
+        errors.push({ field: "stacks", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("list")) && !("list" in obj)) {
+        errors.push({ field: "list", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
+        errors.push({ field: "maybe", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("boxes")) && !("boxes" in obj)) {
+        errors.push({ field: "boxes", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "GenericUses");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("text")) || (__fields.keeps("text") && obj["text"] !== undefined)) {
+        const __raw_text = obj["text"] as GenericBox<string>;
+
+        ctx.pushScope("text");
+        try {
+            const __result = genericBoxDecodeWithContext(__raw_text, ctx);
+            ctx.assignOrDefer(instance, "text", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "text" : "text." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("item")) || (__fields.keeps("item") && obj["item"] !== undefined)) {
+        const __raw_item = obj["item"] as GenericBox<EdgeItem>;
+
+        ctx.pushScope("item");
+        try {
+            const __result = genericBoxDecodeWithContext(__raw_item, ctx);
+            ctx.assignOrDefer(instance, "item", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "item" : "item." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("nested")) || (__fields.keeps("nested") && obj["nested"] !== undefined)) {
+        const __raw_nested = obj["nested"] as GenericBox<GenericBox<number>>;
+
+        ctx.pushScope("nested");
+        try {
+            const __result = genericBoxDecodeWithContext(__raw_nested, ctx);
+            ctx.assignOrDefer(instance, "nested", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "nested" : "nested." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("pair")) || (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+        const __raw_pair = obj["pair"] as GenericPair<string, EdgeItem>;
+
+        ctx.pushScope("pair");
+        try {
+            const __result = genericPairDecodeWithContext(__raw_pair, ctx);
+            ctx.assignOrDefer(instance, "pair", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("same")) || (__fields.keeps("same") && obj["same"] !== undefined)) {
+        const __raw_same = obj["same"] as GenericPair<number>;
+
+        ctx.pushScope("same");
+        try {
+            const __result = genericPairDecodeWithContext(__raw_same, ctx);
+            ctx.assignOrDefer(instance, "same", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "same" : "same." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("stack")) || (__fields.keeps("stack") && obj["stack"] !== undefined)) {
+        const __raw_stack = obj["stack"] as GenericStack<EdgeItem>;
+
+        ctx.pushScope("stack");
+        try {
+            const __result = genericStackDecodeWithContext(__raw_stack, ctx);
+            ctx.assignOrDefer(instance, "stack", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "stack" : "stack." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("stacks")) || (__fields.keeps("stacks") && obj["stacks"] !== undefined)) {
+        const __raw_stacks = obj["stacks"] as GenericStack<string>[];
+        if (Array.isArray(__raw_stacks)) {
+            ctx.pushScope("stacks");
+            try {
+                instance.stacks = __mf_decodeArray(__raw_stacks, ctx, (__raw0) => genericStackDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "stacks" : "stacks." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "stacks", message: __raw_stacks == null ? "GenericUses.stacks is required" : "expected GenericStack<string>[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("list")) || (__fields.keeps("list") && obj["list"] !== undefined)) {
+        const __raw_list = obj["list"] as EdgeItem[];
+        if (Array.isArray(__raw_list)) {
+            ctx.pushScope("list");
+            try {
+                instance.list = __mf_decodeArray(__raw_list, ctx, (__raw0) => edgeItemDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "list" : "list." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "list", message: __raw_list == null ? "GenericUses.list is required" : "expected EdgeItem[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("maybe")) || (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+        const __raw_maybe = obj["maybe"] as EdgeItem | null;
+
+        if (__raw_maybe === null) {
+            instance.maybe = null;
+        } else {
+            ctx.pushScope("maybe");
+            try {
+                const __result = edgeItemDecodeWithContext(__raw_maybe, ctx);
+                ctx.assignOrDefer(instance, "maybe", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+    if ((__fields === undefined || __fields.requires("boxes")) || (__fields.keeps("boxes") && obj["boxes"] !== undefined)) {
+        const __raw_boxes = obj["boxes"] as Record<string, GenericBox<Date>>;
+        if (typeof __raw_boxes === "object" && __raw_boxes !== null) {
+            ctx.pushScope("boxes");
+            try {
+                instance.boxes = __mf_decodeMap(__raw_boxes, ctx, (__key0) => __key0, (__raw0) => genericBoxDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "boxes" : "boxes." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "boxes", message: __raw_boxes == null ? "GenericUses.boxes is required" : "expected Map<string, GenericBox<Date>>" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as GenericUses;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function genericUsesDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GenericUses>): Partial<GenericUses> | __mf_PendingRef {
+    return genericUsesDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function genericUsesValidateField<K extends keyof GenericUses>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function genericUsesValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function genericUsesValidateFields(partial: { readonly [K in keyof GenericUses]?: unknown }): Array<{ field: string; message: string }>;
+export function genericUsesValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function genericUsesHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "text" in o && "item" in o && "nested" in o && "pair" in o && "same" in o && "stack" in o && "stacks" in o && "list" in o && "maybe" in o && "boxes" in o;
+}
+
+export function genericUsesIs(obj: unknown): obj is GenericUses {
+    return genericUsesHasShape(obj) && genericUsesDecode(obj).success;
+}
+
+export const GenericUses: {
+  readonly toString: typeof genericUsesToString;
+  readonly clone: typeof genericUsesClone;
+  readonly equals: typeof genericUsesEquals;
+  readonly hashCode: typeof genericUsesHashCode;
+  readonly encode: typeof genericUsesEncode;
+  readonly encodeWithContext: typeof genericUsesEncodeWithContext;
+  readonly encodePartialWithContext: typeof genericUsesEncodePartialWithContext;
+  readonly decode: typeof genericUsesDecode;
+  readonly decodeWithContext: typeof genericUsesDecodeWithContext;
+  readonly decodePartialWithContext: typeof genericUsesDecodePartialWithContext;
+  readonly validateField: typeof genericUsesValidateField;
+  readonly validateFields: typeof genericUsesValidateFields;
+  readonly hasShape: typeof genericUsesHasShape;
+  readonly is: typeof genericUsesIs;
+} = {
+  toString: genericUsesToString,
+  clone: genericUsesClone,
+  equals: genericUsesEquals,
+  hashCode: genericUsesHashCode,
+  encode: genericUsesEncode,
+  encodeWithContext: genericUsesEncodeWithContext,
+  encodePartialWithContext: genericUsesEncodePartialWithContext,
+  decode: genericUsesDecode,
+  decodeWithContext: genericUsesDecodeWithContext,
+  decodePartialWithContext: genericUsesDecodePartialWithContext,
+  validateField: genericUsesValidateField,
+  validateFields: genericUsesValidateFields,
+  hasShape: genericUsesHasShape,
+  is: genericUsesIs
+};
+
+## DTS
+
+/**
+* Generic types: parameters with constraints and defaults, parameters used
+* in every position a field can hold one, and fields that instantiate
+* another generic type, a derived one included.
+*/
+import type { EdgeItem } from "./edge-types";
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface GenericBox<T> {
+	held: T;
+	list: T[];
+	maybe: T | null;
+	optional?: T;
+	byName: Map<string, T>;
+	set: Set<T>;
+	record: Record<string, T>;
+	pair: [T, T];
+}
+export declare function genericBoxToString<T>(value: GenericBox<T>): string;
+export declare function genericBoxClone<T>(value: GenericBox<T>): GenericBox<T>;
+export declare function genericBoxEquals<T>(a: GenericBox<T>, b: GenericBox<T>): boolean;
+export declare function genericBoxHashCode<T>(value: GenericBox<T>): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function genericBoxEncode<T>(value: GenericBox<T>, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function genericBoxEncodeWithContext<T>(value: GenericBox<T>, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function genericBoxEncodePartialWithContext<T>(value: Partial<GenericBox<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericBox<T>>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericBoxDecode<T>(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GenericBox<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function genericBoxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext): GenericBox<T> | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function genericBoxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GenericBox<T>> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function genericBoxDecodePartialWithContext<T>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GenericBox<T>>): Partial<GenericBox<T>> | __mf_PendingRef;
+export declare function genericBoxValidateField<
+	T,
+	K extends keyof GenericBox<T> = keyof GenericBox<T>
+>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function genericBoxValidateFields<T>(partial: { readonly [K in keyof GenericBox<T>]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function genericBoxHasShape(obj: unknown): boolean;
+export declare function genericBoxIs<T>(obj: unknown): obj is GenericBox<T>;
+export declare const GenericBox: {
+	readonly toString: typeof genericBoxToString;
+	readonly clone: typeof genericBoxClone;
+	readonly equals: typeof genericBoxEquals;
+	readonly hashCode: typeof genericBoxHashCode;
+	readonly encode: typeof genericBoxEncode;
+	readonly encodeWithContext: typeof genericBoxEncodeWithContext;
+	readonly encodePartialWithContext: typeof genericBoxEncodePartialWithContext;
+	readonly decode: typeof genericBoxDecode;
+	readonly decodeWithContext: typeof genericBoxDecodeWithContext;
+	readonly decodePartialWithContext: typeof genericBoxDecodePartialWithContext;
+	readonly validateField: typeof genericBoxValidateField;
+	readonly validateFields: typeof genericBoxValidateFields;
+	readonly hasShape: typeof genericBoxHasShape;
+	readonly is: typeof genericBoxIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface GenericPair<
+	Left,
+	Right = Left
+> {
+	left: Left;
+	right: Right;
+}
+export declare function genericPairToString<
+	Left,
+	Right = Left
+>(value: GenericPair<Left, Right>): string;
+export declare function genericPairClone<
+	Left,
+	Right = Left
+>(value: GenericPair<Left, Right>): GenericPair<Left, Right>;
+export declare function genericPairEquals<
+	Left,
+	Right = Left
+>(a: GenericPair<Left, Right>, b: GenericPair<Left, Right>): boolean;
+export declare function genericPairHashCode<
+	Left,
+	Right = Left
+>(value: GenericPair<Left, Right>): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function genericPairEncode<
+	Left,
+	Right = Left
+>(value: GenericPair<Left, Right>, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function genericPairEncodeWithContext<
+	Left,
+	Right = Left
+>(value: GenericPair<Left, Right>, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function genericPairEncodePartialWithContext<
+	Left,
+	Right = Left
+>(value: Partial<GenericPair<Left, Right>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericPair<Left, Right>>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericPairDecode<
+	Left,
+	Right = Left
+>(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GenericPair<Left, Right>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function genericPairDecodeWithContext<
+	Left,
+	Right = Left
+>(value: unknown, ctx: __mf_DecodeContext): GenericPair<Left, Right> | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function genericPairDecodeWithContext<
+	Left,
+	Right = Left
+>(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GenericPair<Left, Right>> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function genericPairDecodePartialWithContext<
+	Left,
+	Right = Left
+>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GenericPair<Left, Right>>): Partial<GenericPair<Left, Right>> | __mf_PendingRef;
+export declare function genericPairValidateField<
+	Left,
+	Right = Left,
+	K extends keyof GenericPair<Left, Right> = keyof GenericPair<Left, Right>
+>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function genericPairValidateFields<
+	Left,
+	Right = Left
+>(partial: { readonly [K in keyof GenericPair<Left, Right>]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function genericPairHasShape(obj: unknown): boolean;
+export declare function genericPairIs<
+	Left,
+	Right = Left
+>(obj: unknown): obj is GenericPair<Left, Right>;
+export declare const GenericPair: {
+	readonly toString: typeof genericPairToString;
+	readonly clone: typeof genericPairClone;
+	readonly equals: typeof genericPairEquals;
+	readonly hashCode: typeof genericPairHashCode;
+	readonly encode: typeof genericPairEncode;
+	readonly encodeWithContext: typeof genericPairEncodeWithContext;
+	readonly encodePartialWithContext: typeof genericPairEncodePartialWithContext;
+	readonly decode: typeof genericPairDecode;
+	readonly decodeWithContext: typeof genericPairDecodeWithContext;
+	readonly decodePartialWithContext: typeof genericPairDecodePartialWithContext;
+	readonly validateField: typeof genericPairValidateField;
+	readonly validateFields: typeof genericPairValidateFields;
+	readonly hasShape: typeof genericPairHasShape;
+	readonly is: typeof genericPairIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface GenericConstrained<
+	Item extends EdgeItem,
+	Name extends string = string
+> {
+	item: Item;
+	name: Name;
+	items: Item[];
+}
+export declare function genericConstrainedToString<
+	Item extends EdgeItem,
+	Name extends string = string
+>(value: GenericConstrained<Item, Name>): string;
+export declare function genericConstrainedClone<
+	Item extends EdgeItem,
+	Name extends string = string
+>(value: GenericConstrained<Item, Name>): GenericConstrained<Item, Name>;
+export declare function genericConstrainedEquals<
+	Item extends EdgeItem,
+	Name extends string = string
+>(a: GenericConstrained<Item, Name>, b: GenericConstrained<Item, Name>): boolean;
+export declare function genericConstrainedHashCode<
+	Item extends EdgeItem,
+	Name extends string = string
+>(value: GenericConstrained<Item, Name>): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function genericConstrainedEncode<
+	Item extends EdgeItem,
+	Name extends string = string
+>(value: GenericConstrained<Item, Name>, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function genericConstrainedEncodeWithContext<
+	Item extends EdgeItem,
+	Name extends string = string
+>(value: GenericConstrained<Item, Name>, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function genericConstrainedEncodePartialWithContext<
+	Item extends EdgeItem,
+	Name extends string = string
+>(value: Partial<GenericConstrained<Item, Name>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericConstrained<Item, Name>>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericConstrainedDecode<
+	Item extends EdgeItem,
+	Name extends string = string
+>(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GenericConstrained<Item, Name>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function genericConstrainedDecodeWithContext<
+	Item extends EdgeItem,
+	Name extends string = string
+>(value: unknown, ctx: __mf_DecodeContext): GenericConstrained<Item, Name> | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function genericConstrainedDecodeWithContext<
+	Item extends EdgeItem,
+	Name extends string = string
+>(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GenericConstrained<Item, Name>> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function genericConstrainedDecodePartialWithContext<
+	Item extends EdgeItem,
+	Name extends string = string
+>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GenericConstrained<Item, Name>>): Partial<GenericConstrained<Item, Name>> | __mf_PendingRef;
+export declare function genericConstrainedValidateField<
+	Item extends EdgeItem,
+	Name extends string = string,
+	K extends keyof GenericConstrained<Item, Name> = keyof GenericConstrained<Item, Name>
+>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function genericConstrainedValidateFields<
+	Item extends EdgeItem,
+	Name extends string = string
+>(partial: { readonly [K in keyof GenericConstrained<Item, Name>]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function genericConstrainedHasShape(obj: unknown): boolean;
+export declare function genericConstrainedIs<
+	Item extends EdgeItem,
+	Name extends string = string
+>(obj: unknown): obj is GenericConstrained<Item, Name>;
+export declare const GenericConstrained: {
+	readonly toString: typeof genericConstrainedToString;
+	readonly clone: typeof genericConstrainedClone;
+	readonly equals: typeof genericConstrainedEquals;
+	readonly hashCode: typeof genericConstrainedHashCode;
+	readonly encode: typeof genericConstrainedEncode;
+	readonly encodeWithContext: typeof genericConstrainedEncodeWithContext;
+	readonly encodePartialWithContext: typeof genericConstrainedEncodePartialWithContext;
+	readonly decode: typeof genericConstrainedDecode;
+	readonly decodeWithContext: typeof genericConstrainedDecodeWithContext;
+	readonly decodePartialWithContext: typeof genericConstrainedDecodePartialWithContext;
+	readonly validateField: typeof genericConstrainedValidateField;
+	readonly validateFields: typeof genericConstrainedValidateFields;
+	readonly hasShape: typeof genericConstrainedHasShape;
+	readonly is: typeof genericConstrainedIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export declare class GenericStack<T> {
+	#private;
+	items: T[];
+	top: T | null;
+	depth: number;
+	static toString<T>(value: GenericStack<T>): string;
+	static clone<T>(value: GenericStack<T>): GenericStack<T>;
+	static equals<T>(a: GenericStack<T>, b: GenericStack<T>): boolean;
+	static hashCode<T>(value: GenericStack<T>): number;
+	static defaultValue<T>(): GenericStack<T>;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext<T>(value: GenericStack<T>, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext<T>(value: Partial<GenericStack<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericStack<T>>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode<T>(value: GenericStack<T>, keepMetadata?: boolean): string;
+	constructor(props: {
+		items: T[];
+		top: T | null;
+		depth: number;
+	});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode<T>(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: GenericStack<T>;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext): GenericStack<T> | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static decodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GenericStack<T>> | __mf_PendingRef;
+	static validateField<
+		T,
+		K extends keyof GenericStack<T> = keyof GenericStack<T>
+	>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields<T>(partial: { readonly [K in keyof GenericStack<T>]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is<T>(obj: unknown): obj is GenericStack<T>;
+}
+export declare function genericStackToString<T>(value: GenericStack<T>): string;
+export declare function genericStackClone<T>(value: GenericStack<T>): GenericStack<T>;
+export declare function genericStackEquals<T>(a: GenericStack<T>, b: GenericStack<T>): boolean;
+export declare function genericStackHashCode<T>(value: GenericStack<T>): number;
+export declare function genericStackDefaultValue<T>(): GenericStack<T>;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function genericStackEncode<T>(value: GenericStack<T>, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function genericStackEncodeWithContext<T>(value: GenericStack<T>, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function genericStackEncodePartialWithContext<T>(value: Partial<GenericStack<T>>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericStack<T>>): Record<string, unknown>;
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function genericStackDecode<T>(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GenericStack<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function genericStackDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext): GenericStack<T> | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function genericStackHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function genericStackDecodePartialWithContext<T>(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GenericStack<T>>): Partial<GenericStack<T>> | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function genericStackIs<T>(value: unknown): value is GenericStack<T>;
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type GenericResult<
+	Value,
+	Failure
+> = {
+	ok: true;
+	value: Value;
+} | {
+	ok: false;
+	failure: Failure;
+};
+export declare function genericResultToString<
+	Value,
+	Failure
+>(value: GenericResult<Value, Failure>): string;
+export declare function genericResultClone<
+	Value,
+	Failure
+>(value: GenericResult<Value, Failure>): GenericResult<Value, Failure>;
+export declare function genericResultEquals<
+	Value,
+	Failure
+>(a: GenericResult<Value, Failure>, b: GenericResult<Value, Failure>): boolean;
+export declare function genericResultHashCode<
+	Value,
+	Failure
+>(value: GenericResult<Value, Failure>): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function genericResultEncode<
+	Value,
+	Failure
+>(value: GenericResult<Value, Failure>, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function genericResultEncodeWithContext<
+	Value,
+	Failure
+>(value: GenericResult<Value, Failure>, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericResultDecode<
+	Value,
+	Failure
+>(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GenericResult<Value, Failure>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function genericResultDecodeWithContext<
+	Value,
+	Failure
+>(value: unknown, ctx: __mf_DecodeContext): GenericResult<Value, Failure> | __mf_PendingRef;
+export declare function genericResultHasShape(value: unknown): boolean;
+export declare function genericResultIs<
+	Value,
+	Failure
+>(value: unknown): value is GenericResult<Value, Failure>;
+export declare const GenericResult: {
+	readonly toString: typeof genericResultToString;
+	readonly clone: typeof genericResultClone;
+	readonly equals: typeof genericResultEquals;
+	readonly hashCode: typeof genericResultHashCode;
+	readonly encode: typeof genericResultEncode;
+	readonly encodeWithContext: typeof genericResultEncodeWithContext;
+	readonly decode: typeof genericResultDecode;
+	readonly decodeWithContext: typeof genericResultDecodeWithContext;
+	readonly hasShape: typeof genericResultHasShape;
+	readonly is: typeof genericResultIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type GenericList<T> = T[];
+export declare function genericListToString<T>(value: GenericList<T>): string;
+export declare function genericListClone<T>(value: GenericList<T>): GenericList<T>;
+export declare function genericListEquals<T>(a: GenericList<T>, b: GenericList<T>): boolean;
+export declare function genericListHashCode<T>(value: GenericList<T>): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function genericListEncode<T>(value: GenericList<T>, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function genericListEncodeWithContext<T>(value: GenericList<T>, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericListDecode<T>(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GenericList<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare function genericListIs<T>(value: unknown): value is GenericList<T>;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function genericListDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext): GenericList<T>;
+export declare function genericListHasShape(value: unknown): boolean;
+export declare const GenericList: {
+	readonly toString: typeof genericListToString;
+	readonly clone: typeof genericListClone;
+	readonly equals: typeof genericListEquals;
+	readonly hashCode: typeof genericListHashCode;
+	readonly encode: typeof genericListEncode;
+	readonly encodeWithContext: typeof genericListEncodeWithContext;
+	readonly decode: typeof genericListDecode;
+	readonly is: typeof genericListIs;
+	readonly decodeWithContext: typeof genericListDecodeWithContext;
+	readonly hasShape: typeof genericListHasShape;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type GenericMaybe<T> = T | null;
+export declare function genericMaybeToString<T>(value: GenericMaybe<T>): string;
+export declare function genericMaybeClone<T>(value: GenericMaybe<T>): GenericMaybe<T>;
+export declare function genericMaybeEquals<T>(a: GenericMaybe<T>, b: GenericMaybe<T>): boolean;
+export declare function genericMaybeHashCode<T>(value: GenericMaybe<T>): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function genericMaybeEncode<T>(value: GenericMaybe<T>, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function genericMaybeEncodeWithContext<T>(value: GenericMaybe<T>, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericMaybeDecode<T>(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GenericMaybe<T>;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function genericMaybeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext): GenericMaybe<T> | __mf_PendingRef;
+export declare function genericMaybeHasShape(value: unknown): boolean;
+export declare function genericMaybeIs<T>(value: unknown): value is GenericMaybe<T>;
+export declare const GenericMaybe: {
+	readonly toString: typeof genericMaybeToString;
+	readonly clone: typeof genericMaybeClone;
+	readonly equals: typeof genericMaybeEquals;
+	readonly hashCode: typeof genericMaybeHashCode;
+	readonly encode: typeof genericMaybeEncode;
+	readonly encodeWithContext: typeof genericMaybeEncodeWithContext;
+	readonly decode: typeof genericMaybeDecode;
+	readonly decodeWithContext: typeof genericMaybeDecodeWithContext;
+	readonly hasShape: typeof genericMaybeHasShape;
+	readonly is: typeof genericMaybeIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface GenericUses {
+	text: GenericBox<string>;
+	item: GenericBox<EdgeItem>;
+	nested: GenericBox<GenericBox<number>>;
+	pair: GenericPair<string, EdgeItem>;
+	same: GenericPair<number>;
+	stack: GenericStack<EdgeItem>;
+	stacks: GenericStack<string>[];
+	list: GenericList<EdgeItem>;
+	maybe: GenericMaybe<EdgeItem>;
+	boxes: Map<string, GenericBox<Date>>;
+}
+export declare function genericUsesToString(value: GenericUses): string;
+export declare function genericUsesClone(value: GenericUses): GenericUses;
+export declare function genericUsesEquals(a: GenericUses, b: GenericUses): boolean;
+export declare function genericUsesHashCode(value: GenericUses): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function genericUsesEncode(value: GenericUses, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function genericUsesEncodeWithContext(value: GenericUses, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function genericUsesEncodePartialWithContext(value: Partial<GenericUses>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof GenericUses>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function genericUsesDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: GenericUses;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function genericUsesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): GenericUses | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function genericUsesDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<GenericUses> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function genericUsesDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof GenericUses>): Partial<GenericUses> | __mf_PendingRef;
+export declare function genericUsesValidateField<K extends keyof GenericUses>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function genericUsesValidateFields(partial: { readonly [K in keyof GenericUses]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function genericUsesHasShape(obj: unknown): boolean;
+export declare function genericUsesIs(obj: unknown): obj is GenericUses;
+export declare const GenericUses: {
+	readonly toString: typeof genericUsesToString;
+	readonly clone: typeof genericUsesClone;
+	readonly equals: typeof genericUsesEquals;
+	readonly hashCode: typeof genericUsesHashCode;
+	readonly encode: typeof genericUsesEncode;
+	readonly encodeWithContext: typeof genericUsesEncodeWithContext;
+	readonly encodePartialWithContext: typeof genericUsesEncodePartialWithContext;
+	readonly decode: typeof genericUsesDecode;
+	readonly decodeWithContext: typeof genericUsesDecodeWithContext;
+	readonly decodePartialWithContext: typeof genericUsesDecodePartialWithContext;
+	readonly validateField: typeof genericUsesValidateField;
+	readonly validateFields: typeof genericUsesValidateFields;
+	readonly hasShape: typeof genericUsesHasShape;
+	readonly is: typeof genericUsesIs;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..509 -> expanded 1015..1524
+original 509..659 -> expanded 19909..20059
+original 659..866 -> expanded 30972..31179
+original 866..1040 -> expanded 44450..44624
+original 1040..1041 -> expanded 54930..54931
+original 1041..1220 -> expanded 58829..59008
+original 1220..1317 -> expanded 65407..65504
+original 1317..1420 -> expanded 70676..70779
+original 1420..1875 -> expanded 76042..76497
+original 1875..1876 -> expanded 101300..101301
+generated 0..1015 <- imports
+generated 1524..2187 <- Debug
+generated 2187..2867 <- Clone
+generated 2867..3854 <- PartialEq
+generated 3854..4807 <- Hash
+generated 4807..8168 <- Encode
+generated 8168..18569 <- Decode
+generated 18569..19909 <- __convenience_const
+generated 20059..20372 <- Debug
+generated 20372..20590 <- Clone
+generated 20590..20839 <- PartialEq
+generated 20839..21106 <- Hash
+generated 21106..23646 <- Encode
+generated 23646..29603 <- Decode
+generated 29603..30972 <- __convenience_const
+generated 31179..31606 <- Debug
+generated 31606..31943 <- Clone
+generated 31943..32460 <- PartialEq
+generated 32460..32905 <- Hash
+generated 32905..35827 <- Encode
+generated 35827..42878 <- Decode
+generated 42878..44450 <- __convenience_const
+generated 44624..44967 <- Debug
+generated 44967..45245 <- Clone
+generated 45245..45675 <- PartialEq
+generated 45675..46164 <- Hash
+generated 46164..46433 <- Default
+generated 46433..48363 <- Encode
+generated 48363..48700 <- Encode
+generated 48700..54930 <- Decode
+generated 54931..55052 <- Debug
+generated 55052..55176 <- Clone
+generated 55176..55309 <- PartialEq
+generated 55309..55430 <- Hash
+generated 55430..55541 <- Default
+generated 55541..56948 <- Encode
+generated 56948..58829 <- Decode
+generated 59008..59178 <- Debug
+generated 59178..59343 <- Clone
+generated 59343..59547 <- PartialEq
+generated 59547..59691 <- Hash
+generated 59691..61036 <- Encode
+generated 61036..64496 <- Decode
+generated 64496..65407 <- __convenience_const
+generated 65504..65642 <- Debug
+generated 65642..65788 <- Clone
+generated 65788..66110 <- PartialEq
+generated 66110..66292 <- Hash
+generated 66292..67307 <- Encode
+generated 67307..69807 <- Decode
+generated 69807..70676 <- __convenience_const
+generated 70779..70920 <- Debug
+generated 70920..71043 <- Clone
+generated 71043..71205 <- PartialEq
+generated 71205..71321 <- Hash
+generated 71321..72609 <- Encode
+generated 72609..75152 <- Decode
+generated 75152..76042 <- __convenience_const
+generated 76497..77295 <- Debug
+generated 77295..77930 <- Clone
+generated 77930..78819 <- PartialEq
+generated 78819..79819 <- Hash
+generated 79819..83915 <- Encode
+generated 83915..99931 <- Decode
+generated 99931..101300 <- __convenience_const
+
+## Metadata
+
+class GenericStack: {"body_span":{"end":1042,"start":969},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":939,"start":869}}],"fields":[{"decorators":[],"initializer":"[]","name":"items","optional":false,"readonly":false,"span":{"end":991,"start":975},"ts_type":"T[]","visibility":"Public"},{"decorators":[],"initializer":"null","name":"top","optional":false,"readonly":false,"span":{"end":1017,"start":996},"ts_type":"T | null","visibility":"Public"},{"decorators":[],"initializer":"0","name":"depth","optional":false,"readonly":false,"span":{"end":1040,"start":1022},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GenericStack","span":{"end":1042,"start":947},"superclass":null,"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+interface GenericBox: {"body_span":{"end":510,"start":346},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":314,"start":253}}],"fields":[{"decorators":[],"name":"held","optional":false,"readonly":false,"span":{"end":360,"start":352},"ts_type":"T"},{"decorators":[],"name":"list","optional":false,"readonly":false,"span":{"end":375,"start":365},"ts_type":"T[]"},{"decorators":[],"name":"maybe","optional":false,"readonly":false,"span":{"end":396,"start":380},"ts_type":"T | null"},{"decorators":[],"name":"optional","optional":true,"readonly":false,"span":{"end":414,"start":401},"ts_type":"T"},{"decorators":[],"name":"byName","optional":false,"readonly":false,"span":{"end":442,"start":419},"ts_type":"Map<string, T>"},{"decorators":[],"name":"set","optional":false,"readonly":false,"span":{"end":459,"start":447},"ts_type":"Set<T>"},{"decorators":[],"name":"record","optional":false,"readonly":false,"span":{"end":490,"start":464},"ts_type":"Record<string, T>"},{"decorators":[],"name":"pair","optional":false,"readonly":false,"span":{"end":508,"start":495},"ts_type":"[T, T]"}],"heritage":[],"methods":[],"name":"GenericBox","span":{"end":510,"start":322},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+interface GenericPair: {"body_span":{"end":660,"start":623},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":573,"start":512}}],"fields":[{"decorators":[],"name":"left","optional":false,"readonly":false,"span":{"end":640,"start":629},"ts_type":"Left"},{"decorators":[],"name":"right","optional":false,"readonly":false,"span":{"end":658,"start":645},"ts_type":"Right"}],"heritage":[],"methods":[],"name":"GenericPair","span":{"end":660,"start":581},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"Left"},{"constraint":null,"default":"Left","is_const":false,"name":"Right"}]}
+interface GenericConstrained: {"body_span":{"end":867,"start":813},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":723,"start":662}}],"fields":[{"decorators":[],"name":"item","optional":false,"readonly":false,"span":{"end":830,"start":819},"ts_type":"Item"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":846,"start":835},"ts_type":"Name"},{"decorators":[],"name":"items","optional":false,"readonly":false,"span":{"end":865,"start":851},"ts_type":"Item[]"}],"heritage":[],"methods":[],"name":"GenericConstrained","span":{"end":867,"start":731},"type_params":[{"constraint":"EdgeItem","default":null,"is_const":false,"name":"Item"},{"constraint":"string","default":"string","is_const":false,"name":"Name"}]}
+interface GenericUses: {"body_span":{"end":1876,"start":1514},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1484,"start":1423}}],"fields":[{"decorators":[],"name":"text","optional":false,"readonly":false,"span":{"end":1545,"start":1520},"ts_type":"GenericBox<string>"},{"decorators":[],"name":"item","optional":false,"readonly":false,"span":{"end":1577,"start":1550},"ts_type":"GenericBox<EdgeItem>"},{"decorators":[],"name":"nested","optional":false,"readonly":false,"span":{"end":1621,"start":1582},"ts_type":"GenericBox<GenericBox<number>>"},{"decorators":[],"name":"pair","optional":false,"readonly":false,"span":{"end":1662,"start":1626},"ts_type":"GenericPair<string, EdgeItem>"},{"decorators":[],"name":"same","optional":false,"readonly":false,"span":{"end":1693,"start":1667},"ts_type":"GenericPair<number>"},{"decorators":[],"name":"stack","optional":false,"readonly":false,"span":{"end":1728,"start":1698},"ts_type":"GenericStack<EdgeItem>"},{"decorators":[],"name":"stacks","optional":false,"readonly":false,"span":{"end":1764,"start":1733},"ts_type":"GenericStack<string>[]"},{"decorators":[],"name":"list","optional":false,"readonly":false,"span":{"end":1797,"start":1769},"ts_type":"GenericList<EdgeItem>"},{"decorators":[],"name":"maybe","optional":false,"readonly":false,"span":{"end":1832,"start":1802},"ts_type":"GenericMaybe<EdgeItem>"},{"decorators":[],"name":"boxes","optional":false,"readonly":false,"span":{"end":1874,"start":1837},"ts_type":"Map<string, GenericBox<Date>>"}],"heritage":[],"methods":[],"name":"GenericUses","span":{"end":1876,"start":1492},"type_params":[]}
+type GenericResult: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"ok","optional":false,"readonly":false,"span":{"end":1167,"start":1158},"ts_type":"true"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":1180,"start":1168},"ts_type":"Value"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"ok","optional":false,"readonly":false,"span":{"end":1201,"start":1191},"ts_type":"false"},{"decorators":[],"name":"failure","optional":false,"readonly":false,"span":{"end":1218,"start":1202},"ts_type":"Failure"}]}}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1105,"start":1044}}],"name":"GenericResult","span":{"end":1221,"start":1113},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"Value"},{"constraint":null,"default":null,"is_const":false,"name":"Failure"}]}
+type GenericList: {"body":{"Alias":"T[]"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1284,"start":1223}}],"name":"GenericList","span":{"end":1318,"start":1292},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+type GenericMaybe: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"T"}},{"decorators":[],"kind":{"TypeRef":"null"}}]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1381,"start":1320}}],"name":"GenericMaybe","span":{"end":1421,"start":1389},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+
+## Registry reads
+
+Name("EdgeItem")
+Name("GenericBox")
+Name("GenericList")
+Name("GenericMaybe")
+Name("GenericPair")
+Name("GenericResult")
+Name("GenericStack")
+Name("Item")
+Name("Left")
+Name("Map")
+Name("Name")
+Name("Record")
+Name("Right")
+Name("Set")
+Name("T")
+Name("T[]")
+Name("[T, T]")
+Name("null")
+
+## Buildtime dependencies
+
+(none)

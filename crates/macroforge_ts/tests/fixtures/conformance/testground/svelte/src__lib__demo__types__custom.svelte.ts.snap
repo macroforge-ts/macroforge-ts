@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { directionHueDecode, directionHueEncodeWithContext } from "./direction-hue.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { directionHueDecodeWithContext, directionHueEncodeWithContext } from "./direction-hue.svelte";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -42,37 +42,33 @@ export function customEncode(value: Custom, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function customEncodeWithContext(value: Custom, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return customEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function customEncodePartialWithContext(value: Partial<Custom>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Custom>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Custom",
-        __id,
+        __id: ctx.register(value),
     };
+    customEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function customEncodePartialWithContext(value: Partial<Custom>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Custom>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Custom" };
+        customEncodeFields(value as Custom, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function customEncodeFields(value: Custom, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("mappings")) {
-
         if (value.mappings !== undefined) {
-            result.mappings = value.mappings.map(
-                (item) => directionHueEncodeWithContext(item, ctx)
-            );
+            result.mappings = value.mappings.map((__item0) => directionHueEncodeWithContext(__item0, ctx));
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -140,7 +136,7 @@ export function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Custom.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Custom | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Custom") as Custom | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -156,42 +152,31 @@ export function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Custom");
     }
 
     ctx.trackForFreeze(instance);
 
     if ((__fields === undefined || __fields.requires("mappings")) || (__fields.keeps("mappings") && obj["mappings"] !== undefined)) {
         const __raw_mappings = obj["mappings"] as Array<DirectionHue>;
-
         if (Array.isArray(__raw_mappings)) {
-            const __arr = __raw_mappings.map((item: DirectionHue | { __ref: number }, idx) => {
-                if (typeof item === "object" && item !== null && "__ref" in item) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (__mf_PendingRef.is(result)) {
-                        return { __pendingIdx: idx, __refId: result.id };
-                    }
-                    return result;
-                }
-                const __elemResult = directionHueDecode(item);
-                if (!__elemResult.success) {
-                    for (const __err of __elemResult.errors) {
+            ctx.pushScope("mappings");
+            try {
+                instance.mappings = __mf_decodeArray(__raw_mappings, ctx, (__raw0) => directionHueDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
                         errors.push({
-                            field: __err.field === "_root"
-                                ? "mappings[" + idx + "]"
-                                : "mappings[" + idx + "]." + __err.field,
+                            field: __err.field === "_root" ? "mappings" : "mappings." + __err.field,
                             message: __err.message
                         });
                     }
+                } else {
+                    throw __e;
                 }
-                return __elemResult.success ? __elemResult.value : item;
-            });
-            instance.mappings = __arr;
-            __arr.forEach((item, idx) => {
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.mappings, idx, (item as any).__refId);
-                }
-            });
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "mappings", message: __raw_mappings == null ? "Custom.mappings is required" : "expected Array<DirectionHue>" });
         }
@@ -399,7 +384,7 @@ export declare function customDefaultValue(): Custom;
 export declare function customEncode(value: Custom, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function customEncodeWithContext(value: Custom, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function customEncodePartialWithContext(value: Partial<Custom>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Custom>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function customDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -482,15 +467,15 @@ export declare const Custom: {
 
 ## Mapping
 
-original 0..119 -> expanded 756..875
-original 168..231 -> expanded 875..938
-original 231..232 -> expanded 15534..15535
-generated 0..756 <- imports
-generated 938..1030 <- Default
-generated 1030..2913 <- Encode
-generated 2913..9488 <- Decode
-generated 9488..14322 <- Gigaform
-generated 14322..15534 <- __convenience_const
+original 0..119 -> expanded 841..960
+original 168..231 -> expanded 960..1023
+original 231..232 -> expanded 15318..15319
+generated 0..841 <- imports
+generated 1023..1115 <- Default
+generated 1115..3302 <- Encode
+generated 3302..9272 <- Decode
+generated 9272..14106 <- Gigaform
+generated 14106..15318 <- __convenience_const
 
 ## Metadata
 

@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
-import type { FieldSelection as __mf_FieldSelection } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 
     
     export interface CardLabels {
@@ -35,35 +35,33 @@ export function cardLabelsEncode(value: CardLabels, keepMetadata?: boolean): str
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function cardLabelsEncodeWithContext(value: CardLabels, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return cardLabelsEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function cardLabelsEncodePartialWithContext(value: Partial<CardLabels>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof CardLabels>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "CardLabels",
-        __id,
+        __id: ctx.register(value),
     };
+    cardLabelsEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function cardLabelsEncodePartialWithContext(value: Partial<CardLabels>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof CardLabels>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "CardLabels" };
+        cardLabelsEncodeFields(value as CardLabels, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function cardLabelsEncodeFields(value: CardLabels, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("heading")) {
-
         if (value.heading !== undefined) {
             result.heading = value.heading;
         }
     }
-
-    return result;
 }
 
 export const CardLabels: {
@@ -88,7 +86,7 @@ export declare function cardLabelsDefaultValue(): CardLabels;
 export declare function cardLabelsEncode(value: CardLabels, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function cardLabelsEncodeWithContext(value: CardLabels, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function cardLabelsEncodePartialWithContext(value: Partial<CardLabels>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof CardLabels>): Record<string, unknown>;
 export declare const CardLabels: {
 	readonly defaultValue: typeof cardLabelsDefaultValue;
@@ -103,13 +101,13 @@ export declare const CardLabels: {
 
 ## Mapping
 
-original 0..5 -> expanded 302..307
-original 36..101 -> expanded 307..372
-original 101..102 -> expanded 2768..2769
-generated 0..302 <- imports
-generated 372..471 <- Default
-generated 471..2304 <- Encode
-generated 2304..2768 <- __convenience_const
+original 0..5 -> expanded 386..391
+original 36..101 -> expanded 391..456
+original 101..102 -> expanded 3201..3202
+generated 0..386 <- imports
+generated 456..555 <- Default
+generated 555..2737 <- Encode
+generated 2737..3201 <- __convenience_const
 
 ## Metadata
 

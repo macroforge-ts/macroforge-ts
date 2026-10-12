@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -39,35 +39,33 @@ export function yearlyRecurrenceRuleEncode(value: YearlyRecurrenceRule, keepMeta
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function yearlyRecurrenceRuleEncodeWithContext(value: YearlyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return yearlyRecurrenceRuleEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function yearlyRecurrenceRuleEncodePartialWithContext(value: Partial<YearlyRecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof YearlyRecurrenceRule>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "YearlyRecurrenceRule",
-        __id,
+        __id: ctx.register(value),
     };
+    yearlyRecurrenceRuleEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function yearlyRecurrenceRuleEncodePartialWithContext(value: Partial<YearlyRecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof YearlyRecurrenceRule>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "YearlyRecurrenceRule" };
+        yearlyRecurrenceRuleEncodeFields(value as YearlyRecurrenceRule, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function yearlyRecurrenceRuleEncodeFields(value: YearlyRecurrenceRule, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("quantityOfYears")) {
-
         if (value.quantityOfYears !== undefined) {
             result.quantityOfYears = value.quantityOfYears;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -135,7 +133,7 @@ export function yearlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "YearlyRecurrenceRule.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as YearlyRecurrenceRule | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "YearlyRecurrenceRule") as YearlyRecurrenceRule | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -151,7 +149,7 @@ export function yearlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "YearlyRecurrenceRule");
     }
 
     ctx.trackForFreeze(instance);
@@ -337,7 +335,7 @@ export declare function yearlyRecurrenceRuleDefaultValue(): YearlyRecurrenceRule
 export declare function yearlyRecurrenceRuleEncode(value: YearlyRecurrenceRule, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function yearlyRecurrenceRuleEncodeWithContext(value: YearlyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function yearlyRecurrenceRuleEncodePartialWithContext(value: Partial<YearlyRecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof YearlyRecurrenceRule>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function yearlyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -420,15 +418,15 @@ export declare const YearlyRecurrenceRule: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..178 -> expanded 700..771
-original 178..179 -> expanded 14273..14274
-generated 0..642 <- imports
-generated 771..897 <- Default
-generated 897..2862 <- Encode
-generated 2862..8673 <- Decode
-generated 8673..12683 <- Gigaform
-generated 12683..14273 <- __convenience_const
+original 0..58 -> expanded 683..741
+original 107..178 -> expanded 741..812
+original 178..179 -> expanded 14761..14762
+generated 0..683 <- imports
+generated 812..938 <- Default
+generated 938..3302 <- Encode
+generated 3302..9161 <- Decode
+generated 9161..13171 <- Gigaform
+generated 13171..14761 <- __convenience_const
 
 ## Metadata
 

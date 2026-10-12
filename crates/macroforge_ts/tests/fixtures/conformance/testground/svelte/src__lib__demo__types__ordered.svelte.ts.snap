@@ -14,7 +14,7 @@ true
 
 import { accountDecodeWithContext, accountEncodeWithContext } from "./account.svelte";
 import { orderDecodeWithContext, orderEncodeWithContext } from "./order.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -52,57 +52,48 @@ export function orderedEncode(value: Ordered, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function orderedEncodeWithContext(value: Ordered, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return orderedEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function orderedEncodePartialWithContext(value: Partial<Ordered>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Ordered>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Ordered",
-        __id,
+        __id: ctx.register(value),
     };
+    orderedEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function orderedEncodePartialWithContext(value: Partial<Ordered>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Ordered>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Ordered" };
+        orderedEncodeFields(value as Ordered, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function orderedEncodeFields(value: Ordered, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
-
         if (value.id !== undefined) {
             result.id = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("in")) {
-
         if (value.in !== undefined) {
-            result.in = typeof value.in === "string"
-                ? value.in
-                : accountEncodeWithContext(value.in, ctx);
+            result.in = (typeof value.in === "string" ? value.in : accountEncodeWithContext(value.in, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("out")) {
-
         if (value.out !== undefined) {
-            result.out = typeof value.out === "string"
-                ? value.out
-                : orderEncodeWithContext(value.out, ctx);
+            result.out = (typeof value.out === "string" ? value.out : orderEncodeWithContext(value.out, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("date")) {
-
         if (value.date !== undefined) {
             result.date = value.date;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -170,7 +161,7 @@ export function orderedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Ordered.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Ordered | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Ordered") as Ordered | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -195,7 +186,7 @@ export function orderedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Ordered");
     }
 
     ctx.trackForFreeze(instance);
@@ -530,7 +521,7 @@ export declare function orderedDefaultValue(): Ordered;
 export declare function orderedEncode(value: Ordered, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function orderedEncodeWithContext(value: Ordered, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function orderedEncodePartialWithContext(value: Partial<Ordered>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Ordered>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function orderedDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -622,17 +613,17 @@ export declare const Ordered: {
 
 ## Mapping
 
-original 0..153 -> expanded 810..963
-original 202..250 -> expanded 963..1011
-original 269..300 -> expanded 1011..1042
-original 319..364 -> expanded 1042..1087
-original 364..365 -> expanded 19337..19338
-generated 0..810 <- imports
-generated 1087..1226 <- Default
-generated 1226..3672 <- Encode
-generated 3672..11804 <- Decode
-generated 11804..18098 <- Gigaform
-generated 18098..19337 <- __convenience_const
+original 0..153 -> expanded 851..1004
+original 202..250 -> expanded 1004..1052
+original 269..300 -> expanded 1052..1083
+original 319..364 -> expanded 1083..1128
+original 364..365 -> expanded 19670..19671
+generated 0..851 <- imports
+generated 1128..1267 <- Default
+generated 1267..3983 <- Encode
+generated 3983..12137 <- Decode
+generated 12137..18431 <- Gigaform
+generated 18431..19670 <- __convenience_const
 
 ## Metadata
 

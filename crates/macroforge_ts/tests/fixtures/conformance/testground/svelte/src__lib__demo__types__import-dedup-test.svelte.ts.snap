@@ -107,7 +107,7 @@ export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_Decode
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "UserWithDecode.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as UserWithDecode | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "UserWithDecode") as UserWithDecode | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -129,7 +129,7 @@ export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_Decode
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "UserWithDecode");
     }
 
     ctx.trackForFreeze(instance);
@@ -314,7 +314,7 @@ export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_Deco
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "FullFeaturedType.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as FullFeaturedType | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "FullFeaturedType") as FullFeaturedType | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -336,7 +336,7 @@ export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_Deco
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "FullFeaturedType");
     }
 
     ctx.trackForFreeze(instance);
@@ -511,7 +511,7 @@ export function typeADecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "TypeA.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as TypeA | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "TypeA") as TypeA | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -527,7 +527,7 @@ export function typeADecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "TypeA");
     }
 
     ctx.trackForFreeze(instance);
@@ -660,7 +660,7 @@ export function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "TypeB.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as TypeB | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "TypeB") as TypeB | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -676,7 +676,7 @@ export function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "TypeB");
     }
 
     ctx.trackForFreeze(instance);
@@ -978,34 +978,34 @@ export declare function verifyImports(): void;
 
 original 0..745 -> expanded 350..1095
 original 767..857 -> expanded 1095..1185
-original 857..921 -> expanded 8623..8687
-original 958..1034 -> expanded 8687..8763
-original 1034..1084 -> expanded 9640..9690
-original 1129..1221 -> expanded 9690..9782
-original 1221..1291 -> expanded 18323..18393
-original 1313..1360 -> expanded 18393..18440
-original 1360..1362 -> expanded 24284..24286
-original 1384..1431 -> expanded 24286..24333
-original 1431..1433 -> expanded 30177..30179
-original 1470..1517 -> expanded 30179..30226
-original 1517..2163 -> expanded 30831..31477
+original 857..921 -> expanded 8659..8723
+original 958..1034 -> expanded 8723..8799
+original 1034..1084 -> expanded 9676..9726
+original 1129..1221 -> expanded 9726..9818
+original 1221..1291 -> expanded 18399..18469
+original 1313..1360 -> expanded 18469..18516
+original 1360..1362 -> expanded 24378..24380
+original 1384..1431 -> expanded 24380..24427
+original 1431..1433 -> expanded 30289..30291
+original 1470..1517 -> expanded 30291..30338
+original 1517..2163 -> expanded 30943..31589
 generated 0..350 <- imports
-generated 1185..7855 <- Decode
-generated 7855..8623 <- __convenience_const
-generated 8763..8941 <- PartialEq
-generated 8941..9408 <- PartialOrd
-generated 9408..9640 <- __convenience_const
-generated 9782..16518 <- Decode
-generated 16518..16715 <- PartialEq
-generated 16715..17325 <- PartialOrd
-generated 17325..18323 <- __convenience_const
-generated 18440..23651 <- Decode
-generated 23651..24284 <- __convenience_const
-generated 24333..29544 <- Decode
-generated 29544..30177 <- __convenience_const
-generated 30226..30352 <- PartialEq
-generated 30352..30644 <- PartialOrd
-generated 30644..30831 <- __convenience_const
+generated 1185..7891 <- Decode
+generated 7891..8659 <- __convenience_const
+generated 8799..8977 <- PartialEq
+generated 8977..9444 <- PartialOrd
+generated 9444..9676 <- __convenience_const
+generated 9818..16594 <- Decode
+generated 16594..16791 <- PartialEq
+generated 16791..17401 <- PartialOrd
+generated 17401..18399 <- __convenience_const
+generated 18516..23745 <- Decode
+generated 23745..24378 <- __convenience_const
+generated 24427..29656 <- Decode
+generated 29656..30289 <- __convenience_const
+generated 30338..30464 <- PartialEq
+generated 30464..30756 <- PartialOrd
+generated 30756..30943 <- __convenience_const
 
 ## Metadata
 

@@ -29,6 +29,7 @@ class User {
     age: number;
 
 constructor(props: { name: string; age: number }) {
+
     this.name = props.name;
     this.age = props.age;
 }
@@ -99,7 +100,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "User.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as User | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "User") as User | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -114,10 +115,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("age")) && !("age" in obj)) {
         errors.push({ field: "age", message: "missing required field" });
     }
-    const instance = Object.create(User.prototype) as User;
+
+    const instance: any = Object.create(User.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "User");
     }
 
     ctx.trackForFreeze(instance);
@@ -264,15 +266,15 @@ export {};
 
 original 0..41 -> expanded 350..391
 original 63..112 -> expanded 391..440
-original 112..113 -> expanded 5846..5847
-original 113..114 -> expanded 7569..7570
+original 112..113 -> expanded 5861..5862
+original 113..114 -> expanded 7584..7585
 generated 0..350 <- imports
-generated 440..5846 <- Decode
-generated 5847..7569 <- Decode
+generated 440..5861 <- Decode
+generated 5862..7584 <- Decode
 
 ## Metadata
 
-class User: {"body_span":{"end":114,"start":76},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":95,"start":82},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"age","optional":false,"readonly":false,"span":{"end":112,"start":100},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":114,"start":65},"type_params":[]}
+class User: {"body_span":{"end":114,"start":76},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":95,"start":82},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"age","optional":false,"readonly":false,"span":{"end":112,"start":100},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":114,"start":65},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

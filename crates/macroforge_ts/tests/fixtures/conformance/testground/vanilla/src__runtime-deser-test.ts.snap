@@ -13,7 +13,7 @@ true
 ## Output
 
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 /** @derive(Decode) */
 export interface Inner {
     name: string;
@@ -86,7 +86,7 @@ export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Inner.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Inner | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Inner") as Inner | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -108,7 +108,7 @@ export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Inner");
     }
 
     ctx.trackForFreeze(instance);
@@ -258,7 +258,7 @@ export function containerDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Container.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Container | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Container") as Container | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -274,42 +274,31 @@ export function containerDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Container");
     }
 
     ctx.trackForFreeze(instance);
 
     if ((__fields === undefined || __fields.requires("items")) || (__fields.keeps("items") && obj["items"] !== undefined)) {
         const __raw_items = obj["items"] as Inner[];
-
         if (Array.isArray(__raw_items)) {
-            const __arr = __raw_items.map((item: Inner | { __ref: number }, idx) => {
-                if (typeof item === "object" && item !== null && "__ref" in item) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (__mf_PendingRef.is(result)) {
-                        return { __pendingIdx: idx, __refId: result.id };
-                    }
-                    return result;
-                }
-                const __elemResult = innerDecode(item);
-                if (!__elemResult.success) {
-                    for (const __err of __elemResult.errors) {
+            ctx.pushScope("items");
+            try {
+                instance.items = __mf_decodeArray(__raw_items, ctx, (__raw0) => innerDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
                         errors.push({
-                            field: __err.field === "_root"
-                                ? "items[" + idx + "]"
-                                : "items[" + idx + "]." + __err.field,
+                            field: __err.field === "_root" ? "items" : "items." + __err.field,
                             message: __err.message
                         });
                     }
+                } else {
+                    throw __e;
                 }
-                return __elemResult.success ? __elemResult.value : item;
-            });
-            instance.items = __arr;
-            __arr.forEach((item, idx) => {
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.items, idx, (item as any).__refId);
-                }
-            });
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "items", message: __raw_items == null ? "Container.items is required" : "expected Inner[]" });
         }
@@ -542,14 +531,14 @@ export {};
 
 ## Mapping
 
-original 0..107 -> expanded 350..457
-original 107..182 -> expanded 7479..7554
-original 182..2159 -> expanded 14823..16800
-generated 0..350 <- imports
-generated 457..6846 <- Decode
-generated 6846..7479 <- __convenience_const
-generated 7554..14130 <- Decode
-generated 14130..14823 <- __convenience_const
+original 0..107 -> expanded 383..490
+original 107..182 -> expanded 7530..7605
+original 182..2159 -> expanded 14282..16259
+generated 0..383 <- imports
+generated 490..6897 <- Decode
+generated 6897..7530 <- __convenience_const
+generated 7605..13589 <- Decode
+generated 13589..14282 <- __convenience_const
 
 ## Metadata
 

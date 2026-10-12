@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, fieldRequirement as __mf_fieldRequirement, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, fieldRequirement as __mf_fieldRequirement, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
 /**
@@ -50,11 +50,7 @@ export function statusEquals(a: Status, b: Status): boolean {
 }
 
 export function statusHashCode(value: Status): number {
-    let hash = 0;
-    for (let i = 0; i < value.length; i++) {
-        hash = (hash * 31 + value.charCodeAt(i)) | 0;
-    }
-    return hash;
+    return (value ?? "").split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0);
 }
 
 /** Encodes this enum value to a JSON string.  */
@@ -85,7 +81,7 @@ export function statusDecodeWithContext(data: unknown): Status {
     if (Status["Pending"] === data) {
         return Status["Pending"];
     }
-    throw new Error("Invalid Status value: " + JSON.stringify(data));
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid Status value: " + JSON.stringify(data) }]);
 }
 
 export function statusIs(value: unknown): value is Status {
@@ -138,7 +134,7 @@ export function priorityEquals(a: Priority, b: Priority): boolean {
 }
 
 export function priorityHashCode(value: Priority): number {
-    return value as number;
+    return (Number.isInteger(value) ? value | 0 : value.toString().split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0));
 }
 
 /** Encodes this enum value to a JSON string.  */
@@ -172,7 +168,7 @@ export function priorityDecodeWithContext(data: unknown): Priority {
     if (Priority["Critical"] === data) {
         return Priority["Critical"];
     }
-    throw new Error("Invalid Priority value: " + JSON.stringify(data));
+    throw new __mf_DecodeError([{ field: "_root", message: "Invalid Priority value: " + JSON.stringify(data) }]);
 }
 
 export function priorityIs(value: unknown): value is Priority {
@@ -223,7 +219,7 @@ export function colorEquals(a: Color, b: Color): boolean {
 }
 
 export function colorHashCode(value: Color): number {
-    return value as number;
+    return (Number.isInteger(value) ? value | 0 : value.toString().split("").reduce<number>((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0));
 }
 
 export namespace Color {
@@ -261,8 +257,8 @@ export function pointEquals(a: Point, b: Point): boolean {
 
 export function pointHashCode(value: Point): number {
     let hash = 17;
-    hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     return hash;
 }
 
@@ -275,41 +271,38 @@ export function pointEncode(value: Point, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return pointEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Point",
-        __id,
+        __id: ctx.register(value),
     };
+    pointEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Point" };
+        pointEncodeFields(value as Point, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function pointEncodeFields(value: Point, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("x")) {
-
         if (value.x !== undefined) {
             result.x = value.x;
         }
     }
     if (__fields === undefined || __fields.keeps("y")) {
-
         if (value.y !== undefined) {
             result.y = value.y;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -377,7 +370,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Point.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Point | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Point") as Point | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -396,7 +389,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Point");
     }
 
     ctx.trackForFreeze(instance);
@@ -518,10 +511,10 @@ export function userProfileEquals(a: UserProfile, b: UserProfile): boolean {
 
 export function userProfileHashCode(value: UserProfile): number {
     let hash = 17;
-    hash = (hash * 31 + ((value.id ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + ((value.username ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + ((value.email ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + (Number.isInteger(value.age) ? value.age | 0 : value.age.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.username ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.email ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.age) ? value.age | 0 : value.age.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (value.isVerified ? 1231 : 1237)) | 0;
     return hash;
 }
@@ -535,59 +528,53 @@ export function userProfileEncode(value: UserProfile, keepMetadata?: boolean): s
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function userProfileEncodeWithContext(value: UserProfile, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return userProfileEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function userProfileEncodePartialWithContext(value: Partial<UserProfile>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof UserProfile>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "UserProfile",
-        __id,
+        __id: ctx.register(value),
     };
+    userProfileEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function userProfileEncodePartialWithContext(value: Partial<UserProfile>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof UserProfile>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "UserProfile" };
+        userProfileEncodeFields(value as UserProfile, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function userProfileEncodeFields(value: UserProfile, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
-
         if (value.id !== undefined) {
             result.id = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("username")) {
-
         if (value.username !== undefined) {
             result.username = value.username;
         }
     }
     if (__fields === undefined || __fields.keeps("email")) {
-
         if (value.email !== undefined) {
             result.email = value.email;
         }
     }
     if (__fields === undefined || __fields.keeps("age")) {
-
         if (value.age !== undefined) {
             result.age = value.age;
         }
     }
     if (__fields === undefined || __fields.keeps("isVerified")) {
-
         if (value.isVerified !== undefined) {
             result.isVerified = value.isVerified;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -655,7 +642,7 @@ export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "UserProfile.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as UserProfile | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "UserProfile") as UserProfile | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -683,7 +670,7 @@ export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "UserProfile");
     }
 
     ctx.trackForFreeze(instance);
@@ -826,9 +813,9 @@ export function coordinate3DEquals(a: Coordinate3D, b: Coordinate3D): boolean {
 
 export function coordinate3DHashCode(value: Coordinate3D): number {
     let hash = 17;
-    hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + (Number.isInteger(value.z) ? value.z | 0 : value.z.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.z) ? value.z | 0 : value.z.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     return hash;
 }
 
@@ -1045,7 +1032,7 @@ export declare function pointHashCode(value: Point): number;
 export declare function pointEncode(value: Point, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function pointEncodePartialWithContext(value: Partial<Point>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Point>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function pointDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -1106,7 +1093,7 @@ export declare function userProfileHashCode(value: UserProfile): number;
 export declare function userProfileEncode(value: UserProfile, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function userProfileEncodeWithContext(value: UserProfile, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function userProfileEncodePartialWithContext(value: Partial<UserProfile>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof UserProfile>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function userProfileDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -1190,56 +1177,56 @@ export declare function demoTypeFunctions();
 
 ## Mapping
 
-original 0..527 -> expanded 568..1095
-original 527..675 -> expanded 3789..3937
-original 675..766 -> expanded 6764..6855
-original 766..950 -> expanded 7462..7646
-original 950..1143 -> expanded 17276..17469
-original 1143..1267 -> expanded 30728..30852
-original 1267..1364 -> expanded 32351..32448
-original 1364..3696 -> expanded 33049..35381
-generated 0..568 <- imports
-generated 1095..1330 <- Debug
-generated 1330..1404 <- Clone
-generated 1404..1489 <- PartialEq
-generated 1489..1688 <- Hash
-generated 1688..2098 <- Encode
-generated 2098..3166 <- Decode
-generated 3166..3789 <- __convenience_const
-generated 3937..4184 <- Debug
-generated 4184..4264 <- Clone
-generated 4264..4355 <- PartialEq
-generated 4355..4446 <- Hash
-generated 4446..4868 <- Encode
-generated 4868..6103 <- Decode
-generated 6103..6764 <- __convenience_const
-generated 6855..7084 <- Debug
-generated 7084..7166 <- PartialEq
-generated 7166..7251 <- Hash
-generated 7251..7462 <- __convenience_const
-generated 7646..7866 <- Debug
-generated 7866..7962 <- Clone
-generated 7962..8093 <- PartialEq
-generated 8093..8492 <- Hash
-generated 8492..10394 <- Encode
-generated 10394..16081 <- Decode
-generated 16081..17276 <- __convenience_const
-generated 17469..17876 <- Debug
-generated 17876..18075 <- Clone
-generated 18075..18315 <- PartialEq
-generated 18315..18978 <- Hash
-generated 18978..21461 <- Encode
-generated 21461..29359 <- Decode
-generated 29359..30728 <- __convenience_const
-generated 30852..31134 <- Debug
-generated 31134..31264 <- Clone
-generated 31264..31431 <- PartialEq
-generated 31431..31997 <- Hash
-generated 31997..32351 <- __convenience_const
-generated 32448..32560 <- Debug
-generated 32560..32684 <- PartialEq
-generated 32684..32788 <- Hash
-generated 32788..33049 <- __convenience_const
+original 0..527 -> expanded 609..1136
+original 527..675 -> expanded 3828..3976
+original 675..766 -> expanded 6956..7047
+original 766..950 -> expanded 7765..7949
+original 950..1143 -> expanded 17936..18129
+original 1143..1267 -> expanded 31800..31924
+original 1267..1364 -> expanded 33447..33544
+original 1364..3696 -> expanded 34145..36477
+generated 0..609 <- imports
+generated 1136..1371 <- Debug
+generated 1371..1445 <- Clone
+generated 1445..1530 <- PartialEq
+generated 1530..1685 <- Hash
+generated 1685..2095 <- Encode
+generated 2095..3205 <- Decode
+generated 3205..3828 <- __convenience_const
+generated 3976..4223 <- Debug
+generated 4223..4303 <- Clone
+generated 4303..4394 <- PartialEq
+generated 4394..4596 <- Hash
+generated 4596..5018 <- Encode
+generated 5018..6295 <- Decode
+generated 6295..6956 <- __convenience_const
+generated 7047..7276 <- Debug
+generated 7276..7358 <- PartialEq
+generated 7358..7554 <- Hash
+generated 7554..7765 <- __convenience_const
+generated 7949..8169 <- Debug
+generated 8169..8265 <- Clone
+generated 8265..8396 <- PartialEq
+generated 8396..8811 <- Hash
+generated 8811..11036 <- Encode
+generated 11036..16741 <- Decode
+generated 16741..17936 <- __convenience_const
+generated 18129..18536 <- Debug
+generated 18536..18735 <- Clone
+generated 18735..18975 <- PartialEq
+generated 18975..19670 <- Hash
+generated 19670..22503 <- Encode
+generated 22503..30431 <- Decode
+generated 30431..31800 <- __convenience_const
+generated 31924..32206 <- Debug
+generated 32206..32336 <- Clone
+generated 32336..32503 <- PartialEq
+generated 32503..33093 <- Hash
+generated 33093..33447 <- __convenience_const
+generated 33544..33656 <- Debug
+generated 33656..33780 <- PartialEq
+generated 33780..33884 <- Hash
+generated 33884..34145 <- __convenience_const
 
 ## Metadata
 

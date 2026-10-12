@@ -22,7 +22,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, decodeNumber as __mf_decodeNumber, decodeBoolean as __mf_decodeBoolean, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export type PropValue =
@@ -59,7 +59,6 @@ export function propValueEncodeWithContext(value: PropValue, ctx: __mf_EncodeCon
     }
     if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "String") {
         const result: Record<string, unknown> = {};
-
         result.type = value.type;
         result.value = value.value;
         __variant = result;
@@ -67,7 +66,6 @@ export function propValueEncodeWithContext(value: PropValue, ctx: __mf_EncodeCon
     }
     if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "Number") {
         const result: Record<string, unknown> = {};
-
         result.type = value.type;
         result.value = value.value;
         __variant = result;
@@ -75,7 +73,6 @@ export function propValueEncodeWithContext(value: PropValue, ctx: __mf_EncodeCon
     }
     if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "Boolean") {
         const result: Record<string, unknown> = {};
-
         result.type = value.type;
         result.value = value.value;
         __variant = result;
@@ -83,7 +80,6 @@ export function propValueEncodeWithContext(value: PropValue, ctx: __mf_EncodeCon
     }
     if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "Json") {
         const result: Record<string, unknown> = {};
-
         result.type = value.type;
         result.value = value.value;
         __variant = result;
@@ -91,7 +87,6 @@ export function propValueEncodeWithContext(value: PropValue, ctx: __mf_EncodeCon
     }
     if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "Asset") {
         const result: Record<string, unknown> = {};
-
         result.type = value.type;
         result.value = value.value;
         __variant = result;
@@ -99,7 +94,6 @@ export function propValueEncodeWithContext(value: PropValue, ctx: __mf_EncodeCon
     }
     if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "Page") {
         const result: Record<string, unknown> = {};
-
         result.type = value.type;
         result.value = value.value;
         __variant = result;
@@ -107,7 +101,6 @@ export function propValueEncodeWithContext(value: PropValue, ctx: __mf_EncodeCon
     }
     if (!__matched && typeof value === "object" && value !== null && "type" in value && value["type"] === "Expression") {
         const result: Record<string, unknown> = {};
-
         result.type = value.type;
         result.value = value.value;
         __variant = result;
@@ -193,39 +186,25 @@ export function propValueDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
         const __typeName = (value as any)["type"];
         if (typeof __typeName === "string") {
             if (__typeName === "String") {
-                const __result: Record<string, unknown> = { "type": "String" };
-                __result["value"] = (value as any)["value"] ?? null;
-                return __result as PropValue;
+                return { "type": "String", ...__mf_decodeObject(value, ctx, { value: __mf_decodeString }) } as PropValue;
             }
             if (__typeName === "Number") {
-                const __result: Record<string, unknown> = { "type": "Number" };
-                __result["value"] = (value as any)["value"] ?? null;
-                return __result as PropValue;
+                return { "type": "Number", ...__mf_decodeObject(value, ctx, { value: __mf_decodeNumber }) } as PropValue;
             }
             if (__typeName === "Boolean") {
-                const __result: Record<string, unknown> = { "type": "Boolean" };
-                __result["value"] = (value as any)["value"] ?? null;
-                return __result as PropValue;
+                return { "type": "Boolean", ...__mf_decodeObject(value, ctx, { value: __mf_decodeBoolean }) } as PropValue;
             }
             if (__typeName === "Json") {
-                const __result: Record<string, unknown> = { "type": "Json" };
-                __result["value"] = (value as any)["value"] ?? null;
-                return __result as PropValue;
+                return { "type": "Json", ...__mf_decodeObject(value, ctx, { value: __mf_decodeString }) } as PropValue;
             }
             if (__typeName === "Asset") {
-                const __result: Record<string, unknown> = { "type": "Asset" };
-                __result["value"] = (value as any)["value"] ?? null;
-                return __result as PropValue;
+                return { "type": "Asset", ...__mf_decodeObject(value, ctx, { value: __mf_decodeString }) } as PropValue;
             }
             if (__typeName === "Page") {
-                const __result: Record<string, unknown> = { "type": "Page" };
-                __result["value"] = (value as any)["value"] ?? null;
-                return __result as PropValue;
+                return { "type": "Page", ...__mf_decodeObject(value, ctx, { value: __mf_decodeString }) } as PropValue;
             }
             if (__typeName === "Expression") {
-                const __result: Record<string, unknown> = { "type": "Expression" };
-                __result["value"] = (value as any)["value"] ?? null;
-                return __result as PropValue;
+                return { "type": "Expression", ...__mf_decodeObject(value, ctx, { value: __mf_decodeString }) } as PropValue;
             }
         }
     }
@@ -401,13 +380,13 @@ export declare const PropValue: {
 
 ## Mapping
 
-original 88..410 -> expanded 397..719
-original 410..411 -> expanded 11565..11566
-generated 0..397 <- imports
-generated 719..821 <- Default
-generated 821..4289 <- Encode
-generated 4289..10390 <- Decode
-generated 10390..11565 <- __convenience_const
+original 88..410 -> expanded 539..861
+original 410..411 -> expanded 11190..11191
+generated 0..539 <- imports
+generated 861..963 <- Default
+generated 963..4424 <- Encode
+generated 4424..10015 <- Decode
+generated 10015..11190 <- __convenience_const
 
 ## Metadata
 

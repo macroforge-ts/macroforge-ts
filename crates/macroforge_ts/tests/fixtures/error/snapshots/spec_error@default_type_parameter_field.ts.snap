@@ -36,7 +36,7 @@ original 23..65 -> expanded 0..42
 
 ## Metadata
 
-class Holder: {"body_span":{"end":65,"start":48},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":24,"start":1}}],"fields":[{"decorators":[],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":63,"start":54},"ts_type":"T","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Holder","span":{"end":65,"start":32},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+class Holder: {"body_span":{"end":65,"start":48},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":24,"start":1}}],"fields":[{"decorators":[],"initializer":null,"name":"value","optional":false,"readonly":false,"span":{"end":63,"start":54},"ts_type":"T","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Holder","span":{"end":65,"start":32},"superclass":null,"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
 
 ## Registry reads
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Array validator test classes for comprehensive decoder validation testing.
@@ -25,6 +25,7 @@ export class MaxItemsValidator {
     items: Array<string>;
 
 constructor(props: { items: Array<string> }) {
+
     this.items = props.items;
 }
 
@@ -94,7 +95,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "MaxItemsValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as MaxItemsValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "MaxItemsValidator") as MaxItemsValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -106,22 +107,38 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
         errors.push({ field: "items", message: "missing required field" });
     }
-    const instance = Object.create(MaxItemsValidator.prototype) as MaxItemsValidator;
+
+    const instance: any = Object.create(MaxItemsValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "MaxItemsValidator");
     }
 
     ctx.trackForFreeze(instance);
 
     if ((__fields === undefined || __fields.requires("items")) || (__fields.keeps("items") && obj["items"] !== undefined)) {
         const __raw_items = obj["items"] as Array<string>;
-
         if (Array.isArray(__raw_items)) {
             if (__raw_items == null) { errors.push({ field: "items", message: "MaxItemsValidator.items is required" }); } else {
                 if (__raw_items.length > 5) { errors.push({ field: "items", message: "MaxItemsValidator.items must have at most 5 items" }); }
             }
-            instance.items = __raw_items as string[];
+            ctx.pushScope("items");
+            try {
+                instance.items = __mf_decodeArray(__raw_items, ctx, __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "items" : "items." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "items", message: __raw_items == null ? "MaxItemsValidator.items is required" : "expected Array<string>" });
         }
@@ -205,6 +222,7 @@ export class MinItemsValidator {
     items: Array<string>;
 
 constructor(props: { items: Array<string> }) {
+
     this.items = props.items;
 }
 
@@ -274,7 +292,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "MinItemsValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as MinItemsValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "MinItemsValidator") as MinItemsValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -286,22 +304,38 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
         errors.push({ field: "items", message: "missing required field" });
     }
-    const instance = Object.create(MinItemsValidator.prototype) as MinItemsValidator;
+
+    const instance: any = Object.create(MinItemsValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "MinItemsValidator");
     }
 
     ctx.trackForFreeze(instance);
 
     if ((__fields === undefined || __fields.requires("items")) || (__fields.keeps("items") && obj["items"] !== undefined)) {
         const __raw_items = obj["items"] as Array<string>;
-
         if (Array.isArray(__raw_items)) {
             if (__raw_items == null) { errors.push({ field: "items", message: "MinItemsValidator.items is required" }); } else {
                 if (__raw_items.length < 2) { errors.push({ field: "items", message: "MinItemsValidator.items must have at least 2 items" }); }
             }
-            instance.items = __raw_items as string[];
+            ctx.pushScope("items");
+            try {
+                instance.items = __mf_decodeArray(__raw_items, ctx, __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "items" : "items." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "items", message: __raw_items == null ? "MinItemsValidator.items is required" : "expected Array<string>" });
         }
@@ -385,6 +419,7 @@ export class ItemsCountValidator {
     items: Array<string>;
 
 constructor(props: { items: Array<string> }) {
+
     this.items = props.items;
 }
 
@@ -454,7 +489,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "ItemsCountValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as ItemsCountValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "ItemsCountValidator") as ItemsCountValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -466,22 +501,38 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
         errors.push({ field: "items", message: "missing required field" });
     }
-    const instance = Object.create(ItemsCountValidator.prototype) as ItemsCountValidator;
+
+    const instance: any = Object.create(ItemsCountValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "ItemsCountValidator");
     }
 
     ctx.trackForFreeze(instance);
 
     if ((__fields === undefined || __fields.requires("items")) || (__fields.keeps("items") && obj["items"] !== undefined)) {
         const __raw_items = obj["items"] as Array<string>;
-
         if (Array.isArray(__raw_items)) {
             if (__raw_items == null) { errors.push({ field: "items", message: "ItemsCountValidator.items is required" }); } else {
                 if (__raw_items.length !== 3) { errors.push({ field: "items", message: "ItemsCountValidator.items must have exactly 3 items" }); }
             }
-            instance.items = __raw_items as string[];
+            ctx.pushScope("items");
+            try {
+                instance.items = __mf_decodeArray(__raw_items, ctx, __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "items" : "items." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "items", message: __raw_items == null ? "ItemsCountValidator.items is required" : "expected Array<string>" });
         }
@@ -726,26 +777,26 @@ export declare function itemsCountValidatorIs(value: unknown): value is ItemsCou
 
 ## Mapping
 
-original 0..240 -> expanded 350..590
-original 240..241 -> expanded 6684..6685
-original 241..396 -> expanded 8602..8757
-original 396..397 -> expanded 14854..14855
-original 397..558 -> expanded 16772..16933
-original 558..559 -> expanded 23083..23084
-original 559..560 -> expanded 25031..25032
-generated 0..350 <- imports
-generated 590..6684 <- Decode
-generated 6685..8602 <- Decode
-generated 8757..14854 <- Decode
-generated 14855..16772 <- Decode
-generated 16933..23083 <- Decode
-generated 23084..25031 <- Decode
+original 0..240 -> expanded 418..658
+original 240..241 -> expanded 7382..7383
+original 241..396 -> expanded 9300..9455
+original 396..397 -> expanded 16182..16183
+original 397..558 -> expanded 18100..18261
+original 558..559 -> expanded 25043..25044
+original 559..560 -> expanded 26991..26992
+generated 0..418 <- imports
+generated 658..7382 <- Decode
+generated 7383..9300 <- Decode
+generated 9455..16182 <- Decode
+generated 16183..18100 <- Decode
+generated 18261..25043 <- Decode
+generated 25044..26991 <- Decode
 
 ## Metadata
 
-class MaxItemsValidator: {"body_span":{"end":242,"start":164},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":132,"start":110}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"maxItems(5)\"] }","name":"endec","span":{"end":214,"start":170}}],"initializer":null,"name":"items","optional":false,"readonly":false,"span":{"end":240,"start":219},"ts_type":"Array<string>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MaxItemsValidator","span":{"end":242,"start":140},"type_params":[]}
-class MinItemsValidator: {"body_span":{"end":398,"start":320},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":288,"start":266}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minItems(2)\"] }","name":"endec","span":{"end":370,"start":326}}],"initializer":null,"name":"items","optional":false,"readonly":false,"span":{"end":396,"start":375},"ts_type":"Array<string>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MinItemsValidator","span":{"end":398,"start":296},"type_params":[]}
-class ItemsCountValidator: {"body_span":{"end":560,"start":480},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":446,"start":424}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"itemsCount(3)\"] }","name":"endec","span":{"end":532,"start":486}}],"initializer":null,"name":"items","optional":false,"readonly":false,"span":{"end":558,"start":537},"ts_type":"Array<string>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ItemsCountValidator","span":{"end":560,"start":454},"type_params":[]}
+class MaxItemsValidator: {"body_span":{"end":242,"start":164},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":132,"start":110}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"maxItems(5)\"] }","name":"endec","span":{"end":214,"start":170}}],"initializer":null,"name":"items","optional":false,"readonly":false,"span":{"end":240,"start":219},"ts_type":"Array<string>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MaxItemsValidator","span":{"end":242,"start":140},"superclass":null,"type_params":[]}
+class MinItemsValidator: {"body_span":{"end":398,"start":320},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":288,"start":266}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minItems(2)\"] }","name":"endec","span":{"end":370,"start":326}}],"initializer":null,"name":"items","optional":false,"readonly":false,"span":{"end":396,"start":375},"ts_type":"Array<string>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MinItemsValidator","span":{"end":398,"start":296},"superclass":null,"type_params":[]}
+class ItemsCountValidator: {"body_span":{"end":560,"start":480},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":446,"start":424}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"itemsCount(3)\"] }","name":"endec","span":{"end":532,"start":486}}],"initializer":null,"name":"items","optional":false,"readonly":false,"span":{"end":558,"start":537},"ts_type":"Array<string>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ItemsCountValidator","span":{"end":560,"start":454},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

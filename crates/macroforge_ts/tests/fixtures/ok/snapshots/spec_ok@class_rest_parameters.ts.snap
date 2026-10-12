@@ -54,16 +54,16 @@ class EventEmitter {
     }
 
     static clone(value: EventEmitter): EventEmitter {
-        return eventEmitterClone(value);
+        return __mf_instanceWith(value, ({ listeners: (() => {
+        	const __copy0 = new Map(value.listeners);
+        	for (const [__key0, __item0] of value.listeners) __copy0.set(__key0, [...__item0]);
+        	return __copy0;
+        })() }));
     }
 }
 
 export function eventEmitterClone(value: EventEmitter): EventEmitter {
-    return __mf_instanceWith(value, ({ listeners: (() => {
-	const __copy0 = new Map(value.listeners);
-	for (const [__key0, __item0] of value.listeners) __copy0.set(__key0, [...__item0]);
-	return __copy0;
-})() }));
+    return EventEmitter.clone(value);
 }
 
 ## DTS
@@ -86,15 +86,15 @@ export {};
 
 original 0..41 -> expanded 81..122
 original 62..555 -> expanded 122..615
-original 555..556 -> expanded 717..718
-original 556..557 -> expanded 1006..1007
+original 555..556 -> expanded 926..927
+original 556..557 -> expanded 1039..1040
 generated 0..81 <- imports
-generated 615..717 <- Clone
-generated 718..1006 <- Clone
+generated 615..926 <- Clone
+generated 927..1039 <- Clone
 
 ## Metadata
 
-class EventEmitter: {"body_span":{"end":557,"start":83},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"listeners","optional":false,"readonly":false,"span":{"end":124,"start":89},"ts_type":"Map<string, Function[]>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":187,"start":144},"body_src":"\n        this.listeners = new Map();\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"","return_type_src":"","span":{"end":187,"start":130},"type_params":[],"visibility":"Public"},{"body_span":{"end":393,"start":264},"body_src":"\n        const existing = this.listeners.get(event) || [];\n        this.listeners.set(event, [...existing, ...callbacks]);\n    ","decorators":[],"is_async":false,"is_static":false,"name":"on","params_src":"event: string, ...callbacks: Array<(...args: any[]) => void>","return_type_src":"void","span":{"end":393,"start":193},"type_params":[],"visibility":"Public"},{"body_span":{"end":555,"start":441},"body_src":"\n        const callbacks = this.listeners.get(event) || [];\n        callbacks.forEach((cb) => cb(...args));\n    ","decorators":[],"is_async":false,"is_static":false,"name":"emit","params_src":"event: string, ...args: any[]","return_type_src":"void","span":{"end":555,"start":399},"type_params":[],"visibility":"Public"}],"name":"EventEmitter","span":{"end":557,"start":64},"type_params":[]}
+class EventEmitter: {"body_span":{"end":557,"start":83},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"initializer":null,"name":"listeners","optional":false,"readonly":false,"span":{"end":124,"start":89},"ts_type":"Map<string, Function[]>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":187,"start":144},"body_src":"\n        this.listeners = new Map();\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"","return_type_src":"","span":{"end":187,"start":130},"type_params":[],"visibility":"Public"},{"body_span":{"end":393,"start":264},"body_src":"\n        const existing = this.listeners.get(event) || [];\n        this.listeners.set(event, [...existing, ...callbacks]);\n    ","decorators":[],"is_async":false,"is_static":false,"name":"on","params_src":"event: string, ...callbacks: Array<(...args: any[]) => void>","return_type_src":"void","span":{"end":393,"start":193},"type_params":[],"visibility":"Public"},{"body_span":{"end":555,"start":441},"body_src":"\n        const callbacks = this.listeners.get(event) || [];\n        callbacks.forEach((cb) => cb(...args));\n    ","decorators":[],"is_async":false,"is_static":false,"name":"emit","params_src":"event: string, ...args: any[]","return_type_src":"void","span":{"end":555,"start":399},"type_params":[],"visibility":"Public"}],"name":"EventEmitter","span":{"end":557,"start":64},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

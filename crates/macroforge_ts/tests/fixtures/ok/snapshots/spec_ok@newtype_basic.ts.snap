@@ -387,7 +387,7 @@ export function centsIs(value: unknown): value is Cents {
 }
 
 export function centsHashCode(value: Cents): number {
-    return value.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
+    return value.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
 }
 
 export function centsToString(value: Cents): string {
@@ -564,7 +564,7 @@ original 312..335 -> expanded 9621..9644
 original 360..363 -> expanded 9699..9702
 original 439..460 -> expanded 9702..9723
 original 476..477 -> expanded 9767..9768
-original 477..478 -> expanded 13643..13644
+original 477..478 -> expanded 13651..13652
 generated 0..264 <- imports
 generated 264..309 <- $Newtype
 generated 309..354 <- $Newtype
@@ -587,9 +587,9 @@ generated 9644..9699 <- $Newtype
 generated 9723..9767 <- $Newtype
 generated 9768..10508 <- Encode
 generated 10508..12774 <- Decode
-generated 12774..12920 <- Hash
-generated 12920..13020 <- Debug
-generated 13020..13643 <- __convenience_const
+generated 12774..12928 <- Hash
+generated 12928..13028 <- Debug
+generated 13028..13651 <- __convenience_const
 
 ## Metadata
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Comprehensive test class for Svelte testground.
@@ -65,65 +65,58 @@ export function svelteAllMacrosTestEncode(value: SvelteAllMacrosTest, keepMetada
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function svelteAllMacrosTestEncodeWithContext(value: SvelteAllMacrosTest, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return svelteAllMacrosTestEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function svelteAllMacrosTestEncodePartialWithContext(value: Partial<SvelteAllMacrosTest>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SvelteAllMacrosTest>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "SvelteAllMacrosTest",
-        __id,
+        __id: ctx.register(value),
     };
+    svelteAllMacrosTestEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function svelteAllMacrosTestEncodePartialWithContext(value: Partial<SvelteAllMacrosTest>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SvelteAllMacrosTest>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "SvelteAllMacrosTest" };
+        svelteAllMacrosTestEncodeFields(value as SvelteAllMacrosTest, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function svelteAllMacrosTestEncodeFields(value: SvelteAllMacrosTest, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
-
         if (value.id !== undefined) {
             result.id = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("title")) {
-
         if (value.title !== undefined) {
             result.title = value.title;
         }
     }
     if (__fields === undefined || __fields.keeps("content")) {
-
         if (value.content !== undefined) {
             result.content = value.content;
         }
     }
     if (__fields === undefined || __fields.keeps("apiKey")) {
-
         if (value.apiKey !== undefined) {
             result.apiKey = value.apiKey;
         }
     }
     if (__fields === undefined || __fields.keeps("count")) {
-
         if (value.count !== undefined) {
             result.count = value.count;
         }
     }
     if (__fields === undefined || __fields.keeps("enabled")) {
-
         if (value.enabled !== undefined) {
             result.enabled = value.enabled;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -191,7 +184,7 @@ export function svelteAllMacrosTestDecodeWithContext(value: unknown, ctx: __mf_D
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "SvelteAllMacrosTest.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as SvelteAllMacrosTest | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "SvelteAllMacrosTest") as SvelteAllMacrosTest | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -222,7 +215,7 @@ export function svelteAllMacrosTestDecodeWithContext(value: unknown, ctx: __mf_D
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "SvelteAllMacrosTest");
     }
 
     ctx.trackForFreeze(instance);
@@ -314,11 +307,11 @@ export function svelteAllMacrosTestIs(obj: unknown): obj is SvelteAllMacrosTest 
 
 export function svelteAllMacrosTestHashCode(value: SvelteAllMacrosTest): number {
     let hash = 17;
-    hash = (hash * 31 + ((value.id ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + ((value.title ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + ((value.content ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + ((value.apiKey ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
-    hash = (hash * 31 + (Number.isInteger(value.count) ? value.count | 0 : value.count.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.title ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.content ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.apiKey ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.count) ? value.count | 0 : value.count.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
     hash = (hash * 31 + (value.enabled ? 1231 : 1237)) | 0;
     return hash;
 }
@@ -366,7 +359,7 @@ export declare function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: Sve
 export declare function svelteAllMacrosTestEncode(value: SvelteAllMacrosTest, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function svelteAllMacrosTestEncodeWithContext(value: SvelteAllMacrosTest, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function svelteAllMacrosTestEncodePartialWithContext(value: Partial<SvelteAllMacrosTest>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof SvelteAllMacrosTest>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function svelteAllMacrosTestDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -407,18 +400,18 @@ export declare const svelteTestInstance: unknown;
 
 ## Mapping
 
-original 0..60 -> expanded 483..543
-original 121..165 -> expanded 543..587
-original 200..261 -> expanded 587..648
-original 290..353 -> expanded 648..711
-original 353..886 -> expanded 13969..14502
-generated 0..483 <- imports
-generated 711..1142 <- Debug
-generated 1142..1384 <- Clone
-generated 1384..1669 <- PartialEq
-generated 1669..4387 <- Encode
-generated 4387..13175 <- Decode
-generated 13175..13969 <- Hash
+original 0..60 -> expanded 524..584
+original 121..165 -> expanded 584..628
+original 200..261 -> expanded 628..689
+original 290..353 -> expanded 689..752
+original 353..886 -> expanded 14485..15018
+generated 0..524 <- imports
+generated 752..1183 <- Debug
+generated 1183..1425 <- Clone
+generated 1425..1710 <- PartialEq
+generated 1710..4817 <- Encode
+generated 4817..13651 <- Decode
+generated 13651..14485 <- Hash
 
 ## Metadata
 

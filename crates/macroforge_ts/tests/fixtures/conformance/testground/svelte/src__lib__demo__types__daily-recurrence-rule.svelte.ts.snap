@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -39,35 +39,33 @@ export function dailyRecurrenceRuleEncode(value: DailyRecurrenceRule, keepMetada
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function dailyRecurrenceRuleEncodeWithContext(value: DailyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return dailyRecurrenceRuleEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function dailyRecurrenceRuleEncodePartialWithContext(value: Partial<DailyRecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DailyRecurrenceRule>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "DailyRecurrenceRule",
-        __id,
+        __id: ctx.register(value),
     };
+    dailyRecurrenceRuleEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function dailyRecurrenceRuleEncodePartialWithContext(value: Partial<DailyRecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DailyRecurrenceRule>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "DailyRecurrenceRule" };
+        dailyRecurrenceRuleEncodeFields(value as DailyRecurrenceRule, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function dailyRecurrenceRuleEncodeFields(value: DailyRecurrenceRule, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("quantityOfDays")) {
-
         if (value.quantityOfDays !== undefined) {
             result.quantityOfDays = value.quantityOfDays;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -135,7 +133,7 @@ export function dailyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_D
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "DailyRecurrenceRule.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as DailyRecurrenceRule | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "DailyRecurrenceRule") as DailyRecurrenceRule | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -151,7 +149,7 @@ export function dailyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_D
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "DailyRecurrenceRule");
     }
 
     ctx.trackForFreeze(instance);
@@ -337,7 +335,7 @@ export declare function dailyRecurrenceRuleDefaultValue(): DailyRecurrenceRule;
 export declare function dailyRecurrenceRuleEncode(value: DailyRecurrenceRule, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function dailyRecurrenceRuleEncodeWithContext(value: DailyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function dailyRecurrenceRuleEncodePartialWithContext(value: Partial<DailyRecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof DailyRecurrenceRule>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function dailyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -420,15 +418,15 @@ export declare const DailyRecurrenceRule: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..176 -> expanded 700..769
-original 176..177 -> expanded 14129..14130
-generated 0..642 <- imports
-generated 769..892 <- Default
-generated 892..2843 <- Encode
-generated 2843..8608 <- Decode
-generated 8608..12566 <- Gigaform
-generated 12566..14129 <- __convenience_const
+original 0..58 -> expanded 683..741
+original 107..176 -> expanded 741..810
+original 176..177 -> expanded 14610..14611
+generated 0..683 <- imports
+generated 810..933 <- Default
+generated 933..3278 <- Encode
+generated 3278..9089 <- Decode
+generated 9089..13047 <- Gigaform
+generated 13047..14610 <- __convenience_const
 
 ## Metadata
 

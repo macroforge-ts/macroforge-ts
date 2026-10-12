@@ -13,7 +13,7 @@ true
 ## Output
 
 import { slugDecodeWithContext, slugEncodeWithContext, slugDecode, stampedDecode, slugDefaultValue } from "./stamp";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedLiteral as __mf_decodedLiteral } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedLiteral as __mf_decodedLiteral, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { DateTime } from "effect";
 import { __foreign__dateTimeDateTimeDefault, __foreign__dateTimeDateTimeHasShape, __foreign__dateTimeDateTimeEncode, __foreign__dateTimeDateTimeDecode } from "#macroforge/config";
@@ -46,35 +46,33 @@ export function noteEncode(value: Note, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function noteEncodeWithContext(value: Note, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return noteEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function noteEncodePartialWithContext(value: Partial<Note>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Note>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Note",
-        __id,
+        __id: ctx.register(value),
     };
+    noteEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function noteEncodePartialWithContext(value: Partial<Note>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Note>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Note" };
+        noteEncodeFields(value as Note, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function noteEncodeFields(value: Note, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("text")) {
-
         if (value.text !== undefined) {
             result.text = value.text;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -142,7 +140,7 @@ export function noteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Note.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Note | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Note") as Note | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -158,7 +156,7 @@ export function noteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Note");
     }
 
     ctx.trackForFreeze(instance);
@@ -249,35 +247,33 @@ export function labelEncode(value: Label, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function labelEncodeWithContext(value: Label, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return labelEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function labelEncodePartialWithContext(value: Partial<Label>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Label>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Label",
-        __id,
+        __id: ctx.register(value),
     };
+    labelEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function labelEncodePartialWithContext(value: Partial<Label>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Label>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Label" };
+        labelEncodeFields(value as Label, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function labelEncodeFields(value: Label, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("slug")) {
-
         if (value.slug !== undefined) {
             result.slug = slugEncodeWithContext(value.slug, ctx);
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -345,7 +341,7 @@ export function labelDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Label.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Label | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Label") as Label | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -361,7 +357,7 @@ export function labelDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Label");
     }
 
     ctx.trackForFreeze(instance);
@@ -478,79 +474,58 @@ export function stampedEntryEncode(value: StampedEntry, keepMetadata?: boolean):
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function stampedEntryEncodeWithContext(value: StampedEntry, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return stampedEntryEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function stampedEntryEncodePartialWithContext(value: Partial<StampedEntry>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof StampedEntry>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "StampedEntry",
-        __id,
+        __id: ctx.register(value),
     };
+    stampedEntryEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function stampedEntryEncodePartialWithContext(value: Partial<StampedEntry>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof StampedEntry>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "StampedEntry" };
+        stampedEntryEncodeFields(value as StampedEntry, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function stampedEntryEncodeFields(value: StampedEntry, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("at")) {
-
         if (value.at !== undefined) {
-            result.at = __foreign__dateTimeDateTimeHasShape(value.at)
-                ? __foreign__dateTimeDateTimeEncode(value.at)
-                : noteEncodeWithContext(value.at, ctx);
+            result.at = (__foreign__dateTimeDateTimeHasShape(value.at) ? __foreign__dateTimeDateTimeEncode(value.at) : noteEncodeWithContext(value.at, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("previous")) {
         if (value.previous !== undefined) {
-
-            if (value.previous !== null) {
-                result.previous = __foreign__dateTimeDateTimeHasShape(value.previous)
-                    ? __foreign__dateTimeDateTimeEncode(value.previous)
-                    : noteEncodeWithContext(value.previous, ctx);
-            } else {
-                result.previous = null;
-            }
+            result.previous = value.previous === null ? null : (__foreign__dateTimeDateTimeHasShape(value.previous) ? __foreign__dateTimeDateTimeEncode(value.previous) : noteEncodeWithContext(value.previous, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("history")) {
-
         if (value.history !== undefined) {
-            result.history = value.history.map(
-                (item) => __foreign__dateTimeDateTimeHasShape(item)
-                    ? __foreign__dateTimeDateTimeEncode(item)
-                    : noteEncodeWithContext(item, ctx)
-            );
+            result.history = value.history.map((__item0) => (__foreign__dateTimeDateTimeHasShape(__item0) ? __foreign__dateTimeDateTimeEncode(__item0) : noteEncodeWithContext(__item0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("slug")) {
-
         if (value.slug !== undefined) {
             result.slug = slugEncodeWithContext(value.slug, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("label")) {
-
         if (value.label !== undefined) {
             result.label = labelEncodeWithContext(value.label, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("since")) {
-
         if (value.since !== undefined) {
-            result.since = __foreign__dateTimeDateTimeHasShape(value.since)
-                ? __foreign__dateTimeDateTimeEncode(value.since)
-                : noteEncodeWithContext(value.since, ctx);
+            result.since = (__foreign__dateTimeDateTimeHasShape(value.since) ? __foreign__dateTimeDateTimeEncode(value.since) : noteEncodeWithContext(value.since, ctx));
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -618,7 +593,7 @@ export function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "StampedEntry.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as StampedEntry | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "StampedEntry") as StampedEntry | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -649,7 +624,7 @@ export function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "StampedEntry");
     }
 
     ctx.trackForFreeze(instance);
@@ -712,38 +687,24 @@ export function stampedEntryDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
     }
     if ((__fields === undefined || __fields.requires("history")) || (__fields.keeps("history") && obj["history"] !== undefined)) {
         const __raw_history = obj["history"] as Array<DateTime.DateTime | Note>;
-
         if (Array.isArray(__raw_history)) {
-            const __arr = __raw_history.map((item: DateTime.DateTime | Note | { __ref: number }, idx) => {
-                if (__foreign__dateTimeDateTimeHasShape(item)) {
-                    return __foreign__dateTimeDateTimeDecode(item);
-                }
-                if (typeof item === "object" && item !== null && "__ref" in item) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (__mf_PendingRef.is(result)) {
-                        return { __pendingIdx: idx, __refId: result.id };
-                    }
-                    return result;
-                }
-                const __elemResult = noteDecode(item);
-                if (!__elemResult.success) {
-                    for (const __err of __elemResult.errors) {
+            ctx.pushScope("history");
+            try {
+                instance.history = __mf_decodeArray(__raw_history, ctx, (__raw0) => (__foreign__dateTimeDateTimeHasShape(__raw0) ? __foreign__dateTimeDateTimeDecode(__raw0) : noteDecodeWithContext(__raw0, ctx)));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
                         errors.push({
-                            field: __err.field === "_root"
-                                ? "history[" + idx + "]"
-                                : "history[" + idx + "]." + __err.field,
+                            field: __err.field === "_root" ? "history" : "history." + __err.field,
                             message: __err.message
                         });
                     }
+                } else {
+                    throw __e;
                 }
-                return __elemResult.success ? __elemResult.value : item;
-            });
-            instance.history = __arr;
-            __arr.forEach((item, idx) => {
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.history, idx, (item as any).__refId);
-                }
-            });
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "history", message: __raw_history == null ? "StampedEntry.history is required" : "expected Array<DateTime.DateTime | Note>" });
         }
@@ -892,7 +853,7 @@ export declare function noteDefaultValue(): Note;
 export declare function noteEncode(value: Note, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function noteEncodeWithContext(value: Note, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function noteEncodePartialWithContext(value: Partial<Note>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Note>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function noteDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -942,7 +903,7 @@ export declare function labelDefaultValue(): Label;
 export declare function labelEncode(value: Label, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function labelEncodeWithContext(value: Label, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function labelEncodePartialWithContext(value: Partial<Label>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Label>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function labelDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -997,7 +958,7 @@ export declare function stampedEntryDefaultValue(): StampedEntry;
 export declare function stampedEntryEncode(value: StampedEntry, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function stampedEntryEncodeWithContext(value: StampedEntry, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function stampedEntryEncodePartialWithContext(value: Partial<StampedEntry>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof StampedEntry>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function stampedEntryDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -1046,29 +1007,29 @@ export declare const StampedEntry: {
 
 ## Mapping
 
-original 0..341 -> expanded 854..1195
-original 380..424 -> expanded 1195..1239
-original 424..426 -> expanded 9232..9234
-original 465..508 -> expanded 9234..9277
-original 508..510 -> expanded 17772..17774
-original 549..680 -> expanded 17774..17905
-original 703..724 -> expanded 17905..17926
-original 759..782 -> expanded 17926..17949
-original 825..853 -> expanded 17949..17977
-original 853..854 -> expanded 35959..35960
-generated 0..854 <- imports
-generated 1239..1323 <- Default
-generated 1323..3084 <- Encode
-generated 3084..8234 <- Decode
-generated 8234..9232 <- __convenience_const
-generated 9277..9379 <- Default
-generated 9379..11178 <- Encode
-generated 11178..16751 <- Decode
-generated 16751..17772 <- __convenience_const
-generated 17977..18363 <- Default
-generated 18363..21878 <- Encode
-generated 21878..34777 <- Decode
-generated 34777..35959 <- __convenience_const
+original 0..341 -> expanded 928..1269
+original 380..424 -> expanded 1269..1313
+original 424..426 -> expanded 9641..9643
+original 465..508 -> expanded 9643..9686
+original 508..510 -> expanded 18522..18524
+original 549..680 -> expanded 18524..18655
+original 703..724 -> expanded 18655..18676
+original 759..782 -> expanded 18676..18699
+original 825..853 -> expanded 18699..18727
+original 853..854 -> expanded 36155..36156
+generated 0..928 <- imports
+generated 1313..1397 <- Default
+generated 1397..3477 <- Encode
+generated 3477..8643 <- Decode
+generated 8643..9641 <- __convenience_const
+generated 9686..9788 <- Default
+generated 9788..11910 <- Encode
+generated 11910..17501 <- Decode
+generated 17501..18522 <- __convenience_const
+generated 18727..19113 <- Default
+generated 19113..22738 <- Encode
+generated 22738..34973 <- Decode
+generated 34973..36155 <- __convenience_const
 
 ## Metadata
 

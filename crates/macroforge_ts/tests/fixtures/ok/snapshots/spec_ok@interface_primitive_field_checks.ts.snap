@@ -115,7 +115,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Profile.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Profile | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Profile") as Profile | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -155,7 +155,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Profile");
     }
 
     ctx.trackForFreeze(instance);
@@ -380,7 +380,7 @@ export function taggedIs(value: unknown): value is Tagged {
 }
 
 export function taggedHashCode(value: Tagged): number {
-    return Number.isInteger(value) ? value | 0 : value.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
+    return Number.isInteger(value) ? value | 0 : value.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
 }
 
 export function taggedToString(value: Tagged): string {
@@ -575,23 +575,23 @@ export {};
 
 original 22..216 -> expanded 465..659
 original 232..267 -> expanded 703..738
-original 267..269 -> expanded 12362..12364
-original 312..367 -> expanded 12364..12419
-original 367..369 -> expanded 15832..15834
-original 391..417 -> expanded 15834..15860
-original 417..418 -> expanded 17893..17894
+original 267..269 -> expanded 12384..12386
+original 312..367 -> expanded 12386..12441
+original 367..369 -> expanded 15862..15864
+original 391..417 -> expanded 15864..15890
+original 417..418 -> expanded 17923..17924
 generated 0..420 <- imports
 generated 420..465 <- $Newtype
 generated 659..703 <- $Newtype
-generated 738..11706 <- Decode
-generated 11706..12362 <- __convenience_const
-generated 12419..13127 <- Encode
-generated 13127..14910 <- Decode
-generated 14910..15096 <- Hash
-generated 15096..15199 <- Debug
-generated 15199..15832 <- __convenience_const
-generated 15860..17585 <- Decode
-generated 17585..17893 <- __convenience_const
+generated 738..11728 <- Decode
+generated 11728..12384 <- __convenience_const
+generated 12441..13149 <- Encode
+generated 13149..14932 <- Decode
+generated 14932..15126 <- Hash
+generated 15126..15229 <- Debug
+generated 15229..15862 <- __convenience_const
+generated 15890..17615 <- Decode
+generated 17615..17923 <- __convenience_const
 
 ## Metadata
 

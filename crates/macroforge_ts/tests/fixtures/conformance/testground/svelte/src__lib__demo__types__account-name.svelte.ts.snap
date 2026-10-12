@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { companyNameDecodeWithContext, companyNameHasShape, companyNameDefaultValue } from "./company-name.svelte";
-import { personNameDecodeWithContext, personNameHasShape, personNameDefaultValue } from "./person-name.svelte";
+import { companyNameDecodeWithContext, companyNameHasShape, companyNameEncodeWithContext, companyNameDefaultValue } from "./company-name.svelte";
+import { personNameDecodeWithContext, personNameHasShape, personNameEncodeWithContext, personNameDefaultValue } from "./person-name.svelte";
 import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
@@ -46,6 +46,13 @@ export function accountNameEncodeWithContext(value: AccountName, ctx: __mf_Encod
     if (__encoder) {
         __variant = __encoder(value, ctx);
         __matched = true;
+    }
+    if (!__matched && value !== null && typeof value === "object") {
+        const __refTag = (value as any)["__type"];
+        if (!__matched && __refTag === "CompanyName") { __variant = companyNameEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "PersonName") { __variant = personNameEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && companyNameHasShape(value)) { __variant = companyNameEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && personNameHasShape(value)) { __variant = personNameEncodeWithContext(value as any, ctx); __matched = true; }
     }
     
     if (!__matched) {
@@ -440,15 +447,15 @@ export declare const AccountName: {
 
 ## Mapping
 
-original 0..173 -> expanded 784..957
-original 355..423 -> expanded 957..1025
-original 423..424 -> expanded 12622..12623
-generated 0..784 <- imports
-generated 1025..1123 <- Default
-generated 1123..2394 <- Encode
-generated 2394..7222 <- Decode
-generated 7222..11775 <- Gigaform
-generated 11775..12622 <- __convenience_const
+original 0..173 -> expanded 843..1016
+original 355..423 -> expanded 1016..1084
+original 423..424 -> expanded 13351..13352
+generated 0..843 <- imports
+generated 1084..1182 <- Default
+generated 1182..3123 <- Encode
+generated 3123..7951 <- Decode
+generated 7951..12504 <- Gigaform
+generated 12504..13351 <- __convenience_const
 
 ## Metadata
 

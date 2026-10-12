@@ -12,10 +12,10 @@ true
 
 ## Output
 
-import { dailyRecurrenceRuleDecodeWithContext, dailyRecurrenceRuleHasShape, dailyRecurrenceRuleDefaultValue } from "./daily-recurrence-rule.svelte";
-import { monthlyRecurrenceRuleDecodeWithContext, monthlyRecurrenceRuleHasShape, monthlyRecurrenceRuleDefaultValue } from "./monthly-recurrence-rule.svelte";
-import { weeklyRecurrenceRuleDecodeWithContext, weeklyRecurrenceRuleHasShape, weeklyRecurrenceRuleDefaultValue } from "./weekly-recurrence-rule.svelte";
-import { yearlyRecurrenceRuleDecodeWithContext, yearlyRecurrenceRuleHasShape, yearlyRecurrenceRuleDefaultValue } from "./yearly-recurrence-rule.svelte";
+import { dailyRecurrenceRuleDecodeWithContext, dailyRecurrenceRuleHasShape, dailyRecurrenceRuleEncodeWithContext, dailyRecurrenceRuleDefaultValue } from "./daily-recurrence-rule.svelte";
+import { monthlyRecurrenceRuleDecodeWithContext, monthlyRecurrenceRuleHasShape, monthlyRecurrenceRuleEncodeWithContext, monthlyRecurrenceRuleDefaultValue } from "./monthly-recurrence-rule.svelte";
+import { weeklyRecurrenceRuleDecodeWithContext, weeklyRecurrenceRuleHasShape, weeklyRecurrenceRuleEncodeWithContext, weeklyRecurrenceRuleDefaultValue } from "./weekly-recurrence-rule.svelte";
+import { yearlyRecurrenceRuleDecodeWithContext, yearlyRecurrenceRuleHasShape, yearlyRecurrenceRuleEncodeWithContext, yearlyRecurrenceRuleDefaultValue } from "./yearly-recurrence-rule.svelte";
 import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
@@ -54,6 +54,17 @@ export function intervalEncodeWithContext(value: Interval, ctx: __mf_EncodeConte
     if (__encoder) {
         __variant = __encoder(value, ctx);
         __matched = true;
+    }
+    if (!__matched && value !== null && typeof value === "object") {
+        const __refTag = (value as any)["__type"];
+        if (!__matched && __refTag === "DailyRecurrenceRule") { __variant = dailyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "WeeklyRecurrenceRule") { __variant = weeklyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "MonthlyRecurrenceRule") { __variant = monthlyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "YearlyRecurrenceRule") { __variant = yearlyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && dailyRecurrenceRuleHasShape(value)) { __variant = dailyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && weeklyRecurrenceRuleHasShape(value)) { __variant = weeklyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && monthlyRecurrenceRuleHasShape(value)) { __variant = monthlyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && yearlyRecurrenceRuleHasShape(value)) { __variant = yearlyRecurrenceRuleEncodeWithContext(value as any, ctx); __matched = true; }
     }
     
     if (!__matched) {
@@ -532,15 +543,15 @@ export declare const Interval: {
 
 ## Mapping
 
-original 0..367 -> expanded 1168..1535
-original 416..564 -> expanded 1535..1683
-original 564..565 -> expanded 17004..17005
-generated 0..1168 <- imports
-generated 1683..1783 <- Default
-generated 1783..3039 <- Encode
-generated 3039..9594 <- Decode
-generated 9594..16214 <- Gigaform
-generated 16214..17004 <- __convenience_const
+original 0..367 -> expanded 1324..1691
+original 416..564 -> expanded 1691..1839
+original 564..565 -> expanded 18526..18527
+generated 0..1324 <- imports
+generated 1839..1939 <- Default
+generated 1939..4561 <- Encode
+generated 4561..11116 <- Decode
+generated 11116..17736 <- Gigaform
+generated 17736..18526 <- __convenience_const
 
 ## Metadata
 

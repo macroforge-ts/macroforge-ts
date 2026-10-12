@@ -17,24 +17,56 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { FieldSelection as __mf_FieldSelection, DecodeOptions as __mf_DecodeOptions, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 class Config {
     host: string;
     port: number;
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: Config, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+    const result: Record<string, unknown> = {
+        "__type": "Config",
+        __id: ctx.register(value),
+    };
+    Config.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<Config>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Config>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Config" };
+        Config.#encodeFields(value as Config, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: Config, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("host")) {
+        if (value.host !== undefined) {
+            result.host = value.host;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("port")) {
+        if (value.port !== undefined) {
+            result.port = value.port;
+        }
+    }
+}
 
     /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
     static encode(value: Config, keepMetadata?: boolean): string {
         return configEncode(value, keepMetadata);
     }
 
-    /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-    static encodeWithContext(value: Config, ctx: __mf_EncodeContext): Record<string, unknown> {
-        return configEncodeWithContext(value, ctx);
-    }
-
 constructor(props: { host: string; port: number }) {
+
     this.host = props.host;
     this.port = props.port;
 }
@@ -105,7 +137,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Config.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Config | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Config") as Config | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -120,10 +152,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("port")) && !("port" in obj)) {
         errors.push({ field: "port", message: "missing required field" });
     }
-    const instance = Object.create(Config.prototype) as Config;
+
+    const instance: any = Object.create(Config.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Config");
     }
 
     ctx.trackForFreeze(instance);
@@ -187,44 +220,14 @@ export function configEncode(value: Config, keepMetadata?: boolean): string {
     const __raw = configEncodeWithContext(value, ctx);
     return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
-
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function configEncodeWithContext(value: Config, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return configEncodePartialWithContext(value, ctx);
+    return Config.encodeWithContext(value, ctx);
 }
 
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export function configEncodePartialWithContext(value: Partial<Config>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Config>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
-    }
-
-    const result: Record<string, unknown> = {
-        "__type": "Config",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("host")) {
-
-        if (value.host !== undefined) {
-            result.host = value.host;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("port")) {
-
-        if (value.port !== undefined) {
-            result.port = value.port;
-        }
-    }
-
-    return result;
+    return Config.encodePartialWithContext(value, ctx, fields);
 }
 
 /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
@@ -255,12 +258,15 @@ export function configIs(value: unknown): value is Config {
 ## DTS
 
 declare class Config {
+	#private;
 	host: string;
 	port: number;
-	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-	static encode(value: Config, keepMetadata?: boolean): string;
 	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 	static encodeWithContext(value: Config, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext(value: Partial<Config>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Config>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: Config, keepMetadata?: boolean): string;
 	constructor(props: {
 		host: string;
 		port: number;
@@ -295,7 +301,7 @@ declare class Config {
 export declare function configEncode(value: Config, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function configEncodeWithContext(value: Config, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function configEncodePartialWithContext(value: Partial<Config>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Config>): Record<string, unknown>;
 /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function configDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -324,18 +330,19 @@ export {};
 
 ## Mapping
 
-original 30..82 -> expanded 483..535
-original 82..83 -> expanded 6630..6631
-original 83..84 -> expanded 10319..10320
-generated 0..483 <- imports
-generated 535..1166 <- Encode
-generated 1166..6630 <- Decode
-generated 6631..8567 <- Encode
-generated 8567..10319 <- Decode
+original 30..82 -> expanded 524..576
+original 82..83 -> expanded 8064..8065
+original 83..84 -> expanded 11137..11138
+generated 0..524 <- imports
+generated 576..2264 <- Encode
+generated 2264..2583 <- Encode
+generated 2583..8064 <- Decode
+generated 8065..9385 <- Encode
+generated 9385..11137 <- Decode
 
 ## Metadata
 
-class Config: {"body_span":{"end":84,"start":45},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"initializer":null,"name":"host","optional":false,"readonly":false,"span":{"end":64,"start":51},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"port","optional":false,"readonly":false,"span":{"end":82,"start":69},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Config","span":{"end":84,"start":32},"type_params":[]}
+class Config: {"body_span":{"end":84,"start":45},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"initializer":null,"name":"host","optional":false,"readonly":false,"span":{"end":64,"start":51},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"port","optional":false,"readonly":false,"span":{"end":82,"start":69},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Config","span":{"end":84,"start":32},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

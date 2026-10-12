@@ -12,12 +12,12 @@ true
 
 ## Output
 
-import { commentedDecodeWithContext, commentedHasShape, commentedDefaultValue } from "./commented.svelte";
-import { createdDecodeWithContext, createdHasShape, createdDefaultValue } from "./created.svelte";
-import { editedDecodeWithContext, editedHasShape, editedDefaultValue } from "./edited.svelte";
-import { paidDecodeWithContext, paidHasShape, paidDefaultValue } from "./paid.svelte";
-import { sentDecodeWithContext, sentHasShape, sentDefaultValue } from "./sent.svelte";
-import { viewedDecodeWithContext, viewedHasShape, viewedDefaultValue } from "./viewed.svelte";
+import { commentedDecodeWithContext, commentedHasShape, commentedEncodeWithContext, commentedDefaultValue } from "./commented.svelte";
+import { createdDecodeWithContext, createdHasShape, createdEncodeWithContext, createdDefaultValue } from "./created.svelte";
+import { editedDecodeWithContext, editedHasShape, editedEncodeWithContext, editedDefaultValue } from "./edited.svelte";
+import { paidDecodeWithContext, paidHasShape, paidEncodeWithContext, paidDefaultValue } from "./paid.svelte";
+import { sentDecodeWithContext, sentHasShape, sentEncodeWithContext, sentDefaultValue } from "./sent.svelte";
+import { viewedDecodeWithContext, viewedHasShape, viewedEncodeWithContext, viewedDefaultValue } from "./viewed.svelte";
 import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
@@ -60,6 +60,21 @@ export function activityTypeEncodeWithContext(value: ActivityType, ctx: __mf_Enc
     if (__encoder) {
         __variant = __encoder(value, ctx);
         __matched = true;
+    }
+    if (!__matched && value !== null && typeof value === "object") {
+        const __refTag = (value as any)["__type"];
+        if (!__matched && __refTag === "Created") { __variant = createdEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Edited") { __variant = editedEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Sent") { __variant = sentEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Viewed") { __variant = viewedEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Commented") { __variant = commentedEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Paid") { __variant = paidEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && createdHasShape(value)) { __variant = createdEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && editedHasShape(value)) { __variant = editedEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && sentHasShape(value)) { __variant = sentEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && viewedHasShape(value)) { __variant = viewedEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && commentedHasShape(value)) { __variant = commentedEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && paidHasShape(value)) { __variant = paidEncodeWithContext(value as any, ctx); __matched = true; }
     }
     
     if (!__matched) {
@@ -622,15 +637,15 @@ export declare const ActivityType: {
 
 ## Mapping
 
-original 0..341 -> expanded 1126..1467
-original 390..512 -> expanded 1467..1589
-original 512..513 -> expanded 18140..18141
-generated 0..1126 <- imports
-generated 1589..1685 <- Default
-generated 1685..2961 <- Encode
-generated 2961..10202 <- Decode
-generated 10202..17274 <- Gigaform
-generated 17274..18140 <- __convenience_const
+original 0..341 -> expanded 1276..1617
+original 390..512 -> expanded 1617..1739
+original 512..513 -> expanded 19940..19941
+generated 0..1276 <- imports
+generated 1739..1835 <- Default
+generated 1835..4761 <- Encode
+generated 4761..12002 <- Decode
+generated 12002..19074 <- Gigaform
+generated 19074..19940 <- __convenience_const
 
 ## Metadata
 

@@ -26,6 +26,7 @@ export class EmailValidator {
     email: string;
 
 constructor(props: { email: string }) {
+
     this.email = props.email;
 }
 
@@ -95,7 +96,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "EmailValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as EmailValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "EmailValidator") as EmailValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -107,10 +108,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
         errors.push({ field: "email", message: "missing required field" });
     }
-    const instance = Object.create(EmailValidator.prototype) as EmailValidator;
+
+    const instance: any = Object.create(EmailValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "EmailValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -206,6 +208,7 @@ export class UrlValidator {
     url: string;
 
 constructor(props: { url: string }) {
+
     this.url = props.url;
 }
 
@@ -275,7 +278,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "UrlValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as UrlValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "UrlValidator") as UrlValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -287,10 +290,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("url")) && !("url" in obj)) {
         errors.push({ field: "url", message: "missing required field" });
     }
-    const instance = Object.create(UrlValidator.prototype) as UrlValidator;
+
+    const instance: any = Object.create(UrlValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "UrlValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -386,6 +390,7 @@ export class UuidValidator {
     id: string;
 
 constructor(props: { id: string }) {
+
     this.id = props.id;
 }
 
@@ -455,7 +460,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "UuidValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as UuidValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "UuidValidator") as UuidValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -467,10 +472,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
         errors.push({ field: "id", message: "missing required field" });
     }
-    const instance = Object.create(UuidValidator.prototype) as UuidValidator;
+
+    const instance: any = Object.create(UuidValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "UuidValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -566,6 +572,7 @@ export class MaxLengthValidator {
     shortText: string;
 
 constructor(props: { shortText: string }) {
+
     this.shortText = props.shortText;
 }
 
@@ -635,7 +642,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "MaxLengthValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as MaxLengthValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "MaxLengthValidator") as MaxLengthValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -647,10 +654,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("shortText")) && !("shortText" in obj)) {
         errors.push({ field: "shortText", message: "missing required field" });
     }
-    const instance = Object.create(MaxLengthValidator.prototype) as MaxLengthValidator;
+
+    const instance: any = Object.create(MaxLengthValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "MaxLengthValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -746,6 +754,7 @@ export class MinLengthValidator {
     longText: string;
 
 constructor(props: { longText: string }) {
+
     this.longText = props.longText;
 }
 
@@ -815,7 +824,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "MinLengthValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as MinLengthValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "MinLengthValidator") as MinLengthValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -827,10 +836,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("longText")) && !("longText" in obj)) {
         errors.push({ field: "longText", message: "missing required field" });
     }
-    const instance = Object.create(MinLengthValidator.prototype) as MinLengthValidator;
+
+    const instance: any = Object.create(MinLengthValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "MinLengthValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -926,6 +936,7 @@ export class LengthValidator {
     fixedText: string;
 
 constructor(props: { fixedText: string }) {
+
     this.fixedText = props.fixedText;
 }
 
@@ -995,7 +1006,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "LengthValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as LengthValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "LengthValidator") as LengthValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1007,10 +1018,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("fixedText")) && !("fixedText" in obj)) {
         errors.push({ field: "fixedText", message: "missing required field" });
     }
-    const instance = Object.create(LengthValidator.prototype) as LengthValidator;
+
+    const instance: any = Object.create(LengthValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "LengthValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -1106,6 +1118,7 @@ export class LengthRangeValidator {
     rangedText: string;
 
 constructor(props: { rangedText: string }) {
+
     this.rangedText = props.rangedText;
 }
 
@@ -1175,7 +1188,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "LengthRangeValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as LengthRangeValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "LengthRangeValidator") as LengthRangeValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1187,10 +1200,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("rangedText")) && !("rangedText" in obj)) {
         errors.push({ field: "rangedText", message: "missing required field" });
     }
-    const instance = Object.create(LengthRangeValidator.prototype) as LengthRangeValidator;
+
+    const instance: any = Object.create(LengthRangeValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "LengthRangeValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -1286,6 +1300,7 @@ export class PatternValidator {
     code: string;
 
 constructor(props: { code: string }) {
+
     this.code = props.code;
 }
 
@@ -1355,7 +1370,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "PatternValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as PatternValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "PatternValidator") as PatternValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1367,10 +1382,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("code")) && !("code" in obj)) {
         errors.push({ field: "code", message: "missing required field" });
     }
-    const instance = Object.create(PatternValidator.prototype) as PatternValidator;
+
+    const instance: any = Object.create(PatternValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "PatternValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -1466,6 +1482,7 @@ export class NonEmptyValidator {
     required: string;
 
 constructor(props: { required: string }) {
+
     this.required = props.required;
 }
 
@@ -1535,7 +1552,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "NonEmptyValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as NonEmptyValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "NonEmptyValidator") as NonEmptyValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1547,10 +1564,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("required")) && !("required" in obj)) {
         errors.push({ field: "required", message: "missing required field" });
     }
-    const instance = Object.create(NonEmptyValidator.prototype) as NonEmptyValidator;
+
+    const instance: any = Object.create(NonEmptyValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "NonEmptyValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -1646,6 +1664,7 @@ export class TrimmedValidator {
     trimmed: string;
 
 constructor(props: { trimmed: string }) {
+
     this.trimmed = props.trimmed;
 }
 
@@ -1715,7 +1734,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "TrimmedValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as TrimmedValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "TrimmedValidator") as TrimmedValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1727,10 +1746,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("trimmed")) && !("trimmed" in obj)) {
         errors.push({ field: "trimmed", message: "missing required field" });
     }
-    const instance = Object.create(TrimmedValidator.prototype) as TrimmedValidator;
+
+    const instance: any = Object.create(TrimmedValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "TrimmedValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -1826,6 +1846,7 @@ export class LowercaseValidator {
     lower: string;
 
 constructor(props: { lower: string }) {
+
     this.lower = props.lower;
 }
 
@@ -1895,7 +1916,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "LowercaseValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as LowercaseValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "LowercaseValidator") as LowercaseValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1907,10 +1928,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("lower")) && !("lower" in obj)) {
         errors.push({ field: "lower", message: "missing required field" });
     }
-    const instance = Object.create(LowercaseValidator.prototype) as LowercaseValidator;
+
+    const instance: any = Object.create(LowercaseValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "LowercaseValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -2006,6 +2028,7 @@ export class UppercaseValidator {
     upper: string;
 
 constructor(props: { upper: string }) {
+
     this.upper = props.upper;
 }
 
@@ -2075,7 +2098,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "UppercaseValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as UppercaseValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "UppercaseValidator") as UppercaseValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -2087,10 +2110,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("upper")) && !("upper" in obj)) {
         errors.push({ field: "upper", message: "missing required field" });
     }
-    const instance = Object.create(UppercaseValidator.prototype) as UppercaseValidator;
+
+    const instance: any = Object.create(UppercaseValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "UppercaseValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -2186,6 +2210,7 @@ export class CapitalizedValidator {
     cap: string;
 
 constructor(props: { cap: string }) {
+
     this.cap = props.cap;
 }
 
@@ -2255,7 +2280,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "CapitalizedValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as CapitalizedValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "CapitalizedValidator") as CapitalizedValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -2267,10 +2292,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("cap")) && !("cap" in obj)) {
         errors.push({ field: "cap", message: "missing required field" });
     }
-    const instance = Object.create(CapitalizedValidator.prototype) as CapitalizedValidator;
+
+    const instance: any = Object.create(CapitalizedValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "CapitalizedValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -2366,6 +2392,7 @@ export class UncapitalizedValidator {
     uncap: string;
 
 constructor(props: { uncap: string }) {
+
     this.uncap = props.uncap;
 }
 
@@ -2435,7 +2462,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "UncapitalizedValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as UncapitalizedValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "UncapitalizedValidator") as UncapitalizedValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -2447,10 +2474,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("uncap")) && !("uncap" in obj)) {
         errors.push({ field: "uncap", message: "missing required field" });
     }
-    const instance = Object.create(UncapitalizedValidator.prototype) as UncapitalizedValidator;
+
+    const instance: any = Object.create(UncapitalizedValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "UncapitalizedValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -2546,6 +2574,7 @@ export class StartsWithValidator {
     secureUrl: string;
 
 constructor(props: { secureUrl: string }) {
+
     this.secureUrl = props.secureUrl;
 }
 
@@ -2615,7 +2644,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "StartsWithValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as StartsWithValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "StartsWithValidator") as StartsWithValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -2627,10 +2656,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("secureUrl")) && !("secureUrl" in obj)) {
         errors.push({ field: "secureUrl", message: "missing required field" });
     }
-    const instance = Object.create(StartsWithValidator.prototype) as StartsWithValidator;
+
+    const instance: any = Object.create(StartsWithValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "StartsWithValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -2726,6 +2756,7 @@ export class EndsWithValidator {
     filename: string;
 
 constructor(props: { filename: string }) {
+
     this.filename = props.filename;
 }
 
@@ -2795,7 +2826,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "EndsWithValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as EndsWithValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "EndsWithValidator") as EndsWithValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -2807,10 +2838,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("filename")) && !("filename" in obj)) {
         errors.push({ field: "filename", message: "missing required field" });
     }
-    const instance = Object.create(EndsWithValidator.prototype) as EndsWithValidator;
+
+    const instance: any = Object.create(EndsWithValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "EndsWithValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -2906,6 +2938,7 @@ export class IncludesValidator {
     emailLike: string;
 
 constructor(props: { emailLike: string }) {
+
     this.emailLike = props.emailLike;
 }
 
@@ -2975,7 +3008,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "IncludesValidator.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as IncludesValidator | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "IncludesValidator") as IncludesValidator | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -2987,10 +3020,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("emailLike")) && !("emailLike" in obj)) {
         errors.push({ field: "emailLike", message: "missing required field" });
     }
-    const instance = Object.create(IncludesValidator.prototype) as IncludesValidator;
+
+    const instance: any = Object.create(IncludesValidator.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "IncludesValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -3977,95 +4011,95 @@ export declare function includesValidatorIs(value: unknown): value is IncludesVa
 ## Mapping
 
 original 0..276 -> expanded 350..626
-original 276..277 -> expanded 6669..6670
-original 277..405 -> expanded 8542..8670
-original 405..406 -> expanded 14522..14523
-original 406..536 -> expanded 16365..16495
-original 536..537 -> expanded 22513..22514
-original 537..693 -> expanded 24371..24527
-original 693..694 -> expanded 30772..30773
-original 694..848 -> expanded 32705..32859
-original 848..849 -> expanded 39065..39066
-original 849..1003 -> expanded 40998..41152
-original 1003..1004 -> expanded 47322..47323
-original 1004..1190 -> expanded 49210..49396
-original 1190..1191 -> expanded 55816..55817
-original 1191..1346 -> expanded 57779..57934
-original 1346..1347 -> expanded 63967..63968
-original 1347..1495 -> expanded 65870..66018
-original 1495..1496 -> expanded 72163..72164
-original 1496..1640 -> expanded 74081..74225
-original 1640..1641 -> expanded 80323..80324
-original 1641..1789 -> expanded 82226..82374
-original 1789..1790 -> expanded 88475..88476
-original 1790..1938 -> expanded 90408..90556
-original 1938..1939 -> expanded 96657..96658
-original 1939..2091 -> expanded 98590..98742
-original 2091..2092 -> expanded 104907..104908
-original 2092..2252 -> expanded 106870..107030
-original 2252..2253 -> expanded 113327..113328
-original 2253..2420 -> expanded 115320..115487
-original 2420..2421 -> expanded 121778..121779
-original 2421..2578 -> expanded 123726..123883
-original 2578..2579 -> expanded 130058..130059
-original 2579..2733 -> expanded 131976..132130
-original 2733..2734 -> expanded 138314..138315
-original 2734..2735 -> expanded 140232..140233
+original 276..277 -> expanded 6694..6695
+original 277..405 -> expanded 8567..8695
+original 405..406 -> expanded 14570..14571
+original 406..536 -> expanded 16413..16543
+original 536..537 -> expanded 22585..22586
+original 537..693 -> expanded 24443..24599
+original 693..694 -> expanded 30873..30874
+original 694..848 -> expanded 32806..32960
+original 848..849 -> expanded 39195..39196
+original 849..1003 -> expanded 41128..41282
+original 1003..1004 -> expanded 47478..47479
+original 1004..1190 -> expanded 49366..49552
+original 1190..1191 -> expanded 56003..56004
+original 1191..1346 -> expanded 57966..58121
+original 1346..1347 -> expanded 64181..64182
+original 1347..1495 -> expanded 66084..66232
+original 1495..1496 -> expanded 72405..72406
+original 1496..1640 -> expanded 74323..74467
+original 1640..1641 -> expanded 80592..80593
+original 1641..1789 -> expanded 82495..82643
+original 1789..1790 -> expanded 88773..88774
+original 1790..1938 -> expanded 90706..90854
+original 1938..1939 -> expanded 96984..96985
+original 1939..2091 -> expanded 98917..99069
+original 2091..2092 -> expanded 105265..105266
+original 2092..2252 -> expanded 107228..107388
+original 2252..2253 -> expanded 113718..113719
+original 2253..2420 -> expanded 115711..115878
+original 2420..2421 -> expanded 122199..122200
+original 2421..2578 -> expanded 124147..124304
+original 2578..2579 -> expanded 130507..130508
+original 2579..2733 -> expanded 132425..132579
+original 2733..2734 -> expanded 138791..138792
+original 2734..2735 -> expanded 140709..140710
 generated 0..350 <- imports
-generated 626..6669 <- Decode
-generated 6670..8542 <- Decode
-generated 8670..14522 <- Decode
-generated 14523..16365 <- Decode
-generated 16495..22513 <- Decode
-generated 22514..24371 <- Decode
-generated 24527..30772 <- Decode
-generated 30773..32705 <- Decode
-generated 32859..39065 <- Decode
-generated 39066..40998 <- Decode
-generated 41152..47322 <- Decode
-generated 47323..49210 <- Decode
-generated 49396..55816 <- Decode
-generated 55817..57779 <- Decode
-generated 57934..63967 <- Decode
-generated 63968..65870 <- Decode
-generated 66018..72163 <- Decode
-generated 72164..74081 <- Decode
-generated 74225..80323 <- Decode
-generated 80324..82226 <- Decode
-generated 82374..88475 <- Decode
-generated 88476..90408 <- Decode
-generated 90556..96657 <- Decode
-generated 96658..98590 <- Decode
-generated 98742..104907 <- Decode
-generated 104908..106870 <- Decode
-generated 107030..113327 <- Decode
-generated 113328..115320 <- Decode
-generated 115487..121778 <- Decode
-generated 121779..123726 <- Decode
-generated 123883..130058 <- Decode
-generated 130059..131976 <- Decode
-generated 132130..138314 <- Decode
-generated 138315..140232 <- Decode
+generated 626..6694 <- Decode
+generated 6695..8567 <- Decode
+generated 8695..14570 <- Decode
+generated 14571..16413 <- Decode
+generated 16543..22585 <- Decode
+generated 22586..24443 <- Decode
+generated 24599..30873 <- Decode
+generated 30874..32806 <- Decode
+generated 32960..39195 <- Decode
+generated 39196..41128 <- Decode
+generated 41282..47478 <- Decode
+generated 47479..49366 <- Decode
+generated 49552..56003 <- Decode
+generated 56004..57966 <- Decode
+generated 58121..64181 <- Decode
+generated 64182..66084 <- Decode
+generated 66232..72405 <- Decode
+generated 72406..74323 <- Decode
+generated 74467..80592 <- Decode
+generated 80593..82495 <- Decode
+generated 82643..88773 <- Decode
+generated 88774..90706 <- Decode
+generated 90854..96984 <- Decode
+generated 96985..98917 <- Decode
+generated 99069..105265 <- Decode
+generated 105266..107228 <- Decode
+generated 107388..113718 <- Decode
+generated 113719..115711 <- Decode
+generated 115878..122199 <- Decode
+generated 122200..124147 <- Decode
+generated 124304..130507 <- Decode
+generated 130508..132425 <- Decode
+generated 132579..138791 <- Decode
+generated 138792..140709 <- Decode
 
 ## Metadata
 
-class EmailValidator: {"body_span":{"end":278,"start":213},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":184,"start":162}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"email\"] }","name":"endec","span":{"end":257,"start":219}}],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":276,"start":262},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EmailValidator","span":{"end":278,"start":192},"type_params":[]}
-class UrlValidator: {"body_span":{"end":407,"start":346},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":319,"start":297}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"url\"] }","name":"endec","span":{"end":388,"start":352}}],"initializer":null,"name":"url","optional":false,"readonly":false,"span":{"end":405,"start":393},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UrlValidator","span":{"end":407,"start":327},"type_params":[]}
-class UuidValidator: {"body_span":{"end":538,"start":477},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":449,"start":427}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uuid\"] }","name":"endec","span":{"end":520,"start":483}}],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":536,"start":525},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UuidValidator","span":{"end":538,"start":457},"type_params":[]}
-class MaxLengthValidator: {"body_span":{"end":695,"start":618},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":585,"start":563}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"maxLength(10)\"] }","name":"endec","span":{"end":670,"start":624}}],"initializer":null,"name":"shortText","optional":false,"readonly":false,"span":{"end":693,"start":675},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MaxLengthValidator","span":{"end":695,"start":593},"type_params":[]}
-class MinLengthValidator: {"body_span":{"end":850,"start":775},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":742,"start":720}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minLength(5)\"] }","name":"endec","span":{"end":826,"start":781}}],"initializer":null,"name":"longText","optional":false,"readonly":false,"span":{"end":848,"start":831},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MinLengthValidator","span":{"end":850,"start":750},"type_params":[]}
-class LengthValidator: {"body_span":{"end":1005,"start":932},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":902,"start":880}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"length(8)\"] }","name":"endec","span":{"end":980,"start":938}}],"initializer":null,"name":"fixedText","optional":false,"readonly":false,"span":{"end":1003,"start":985},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LengthValidator","span":{"end":1005,"start":910},"type_params":[]}
-class LengthRangeValidator: {"body_span":{"end":1192,"start":1114},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1079,"start":1057}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"length(5, 10)\"] }","name":"endec","span":{"end":1166,"start":1120}}],"initializer":null,"name":"rangedText","optional":false,"readonly":false,"span":{"end":1190,"start":1171},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LengthRangeValidator","span":{"end":1192,"start":1087},"type_params":[]}
-class PatternValidator: {"body_span":{"end":1348,"start":1268},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1237,"start":1215}}],"fields":[{"decorators":[{"args_src":"{ validate: ['pattern(\"^[A-Z]{3}$\")'] }","name":"endec","span":{"end":1328,"start":1274}}],"initializer":null,"name":"code","optional":false,"readonly":false,"span":{"end":1346,"start":1333},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"PatternValidator","span":{"end":1348,"start":1245},"type_params":[]}
-class NonEmptyValidator: {"body_span":{"end":1497,"start":1426},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1394,"start":1372}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1473,"start":1432}}],"initializer":null,"name":"required","optional":false,"readonly":false,"span":{"end":1495,"start":1478},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonEmptyValidator","span":{"end":1497,"start":1402},"type_params":[]}
-class TrimmedValidator: {"body_span":{"end":1642,"start":1573},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1542,"start":1520}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"trimmed\"] }","name":"endec","span":{"end":1619,"start":1579}}],"initializer":null,"name":"trimmed","optional":false,"readonly":false,"span":{"end":1640,"start":1624},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"TrimmedValidator","span":{"end":1642,"start":1550},"type_params":[]}
-class LowercaseValidator: {"body_span":{"end":1791,"start":1722},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1689,"start":1667}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lowercase\"] }","name":"endec","span":{"end":1770,"start":1728}}],"initializer":null,"name":"lower","optional":false,"readonly":false,"span":{"end":1789,"start":1775},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LowercaseValidator","span":{"end":1791,"start":1697},"type_params":[]}
-class UppercaseValidator: {"body_span":{"end":1940,"start":1871},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1838,"start":1816}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uppercase\"] }","name":"endec","span":{"end":1919,"start":1877}}],"initializer":null,"name":"upper","optional":false,"readonly":false,"span":{"end":1938,"start":1924},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UppercaseValidator","span":{"end":1940,"start":1846},"type_params":[]}
-class CapitalizedValidator: {"body_span":{"end":2093,"start":2024},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1989,"start":1967}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"capitalized\"] }","name":"endec","span":{"end":2074,"start":2030}}],"initializer":null,"name":"cap","optional":false,"readonly":false,"span":{"end":2091,"start":2079},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CapitalizedValidator","span":{"end":2093,"start":1997},"type_params":[]}
-class UncapitalizedValidator: {"body_span":{"end":2254,"start":2181},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2144,"start":2122}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uncapitalized\"] }","name":"endec","span":{"end":2233,"start":2187}}],"initializer":null,"name":"uncap","optional":false,"readonly":false,"span":{"end":2252,"start":2238},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UncapitalizedValidator","span":{"end":2254,"start":2152},"type_params":[]}
-class StartsWithValidator: {"body_span":{"end":2422,"start":2336},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2302,"start":2280}}],"fields":[{"decorators":[{"args_src":"{ validate: ['startsWith(\"https://\")'] }","name":"endec","span":{"end":2397,"start":2342}}],"initializer":null,"name":"secureUrl","optional":false,"readonly":false,"span":{"end":2420,"start":2402},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"StartsWithValidator","span":{"end":2422,"start":2310},"type_params":[]}
-class EndsWithValidator: {"body_span":{"end":2580,"start":2500},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2468,"start":2446}}],"fields":[{"decorators":[{"args_src":"{ validate: ['endsWith(\".json\")'] }","name":"endec","span":{"end":2556,"start":2506}}],"initializer":null,"name":"filename","optional":false,"readonly":false,"span":{"end":2578,"start":2561},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EndsWithValidator","span":{"end":2580,"start":2476},"type_params":[]}
-class IncludesValidator: {"body_span":{"end":2735,"start":2658},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2626,"start":2604}}],"fields":[{"decorators":[{"args_src":"{ validate: ['includes(\"@\")'] }","name":"endec","span":{"end":2710,"start":2664}}],"initializer":null,"name":"emailLike","optional":false,"readonly":false,"span":{"end":2733,"start":2715},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"IncludesValidator","span":{"end":2735,"start":2634},"type_params":[]}
+class EmailValidator: {"body_span":{"end":278,"start":213},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":184,"start":162}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"email\"] }","name":"endec","span":{"end":257,"start":219}}],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":276,"start":262},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EmailValidator","span":{"end":278,"start":192},"superclass":null,"type_params":[]}
+class UrlValidator: {"body_span":{"end":407,"start":346},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":319,"start":297}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"url\"] }","name":"endec","span":{"end":388,"start":352}}],"initializer":null,"name":"url","optional":false,"readonly":false,"span":{"end":405,"start":393},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UrlValidator","span":{"end":407,"start":327},"superclass":null,"type_params":[]}
+class UuidValidator: {"body_span":{"end":538,"start":477},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":449,"start":427}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uuid\"] }","name":"endec","span":{"end":520,"start":483}}],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":536,"start":525},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UuidValidator","span":{"end":538,"start":457},"superclass":null,"type_params":[]}
+class MaxLengthValidator: {"body_span":{"end":695,"start":618},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":585,"start":563}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"maxLength(10)\"] }","name":"endec","span":{"end":670,"start":624}}],"initializer":null,"name":"shortText","optional":false,"readonly":false,"span":{"end":693,"start":675},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MaxLengthValidator","span":{"end":695,"start":593},"superclass":null,"type_params":[]}
+class MinLengthValidator: {"body_span":{"end":850,"start":775},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":742,"start":720}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minLength(5)\"] }","name":"endec","span":{"end":826,"start":781}}],"initializer":null,"name":"longText","optional":false,"readonly":false,"span":{"end":848,"start":831},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MinLengthValidator","span":{"end":850,"start":750},"superclass":null,"type_params":[]}
+class LengthValidator: {"body_span":{"end":1005,"start":932},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":902,"start":880}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"length(8)\"] }","name":"endec","span":{"end":980,"start":938}}],"initializer":null,"name":"fixedText","optional":false,"readonly":false,"span":{"end":1003,"start":985},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LengthValidator","span":{"end":1005,"start":910},"superclass":null,"type_params":[]}
+class LengthRangeValidator: {"body_span":{"end":1192,"start":1114},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1079,"start":1057}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"length(5, 10)\"] }","name":"endec","span":{"end":1166,"start":1120}}],"initializer":null,"name":"rangedText","optional":false,"readonly":false,"span":{"end":1190,"start":1171},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LengthRangeValidator","span":{"end":1192,"start":1087},"superclass":null,"type_params":[]}
+class PatternValidator: {"body_span":{"end":1348,"start":1268},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1237,"start":1215}}],"fields":[{"decorators":[{"args_src":"{ validate: ['pattern(\"^[A-Z]{3}$\")'] }","name":"endec","span":{"end":1328,"start":1274}}],"initializer":null,"name":"code","optional":false,"readonly":false,"span":{"end":1346,"start":1333},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"PatternValidator","span":{"end":1348,"start":1245},"superclass":null,"type_params":[]}
+class NonEmptyValidator: {"body_span":{"end":1497,"start":1426},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1394,"start":1372}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1473,"start":1432}}],"initializer":null,"name":"required","optional":false,"readonly":false,"span":{"end":1495,"start":1478},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"NonEmptyValidator","span":{"end":1497,"start":1402},"superclass":null,"type_params":[]}
+class TrimmedValidator: {"body_span":{"end":1642,"start":1573},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1542,"start":1520}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"trimmed\"] }","name":"endec","span":{"end":1619,"start":1579}}],"initializer":null,"name":"trimmed","optional":false,"readonly":false,"span":{"end":1640,"start":1624},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"TrimmedValidator","span":{"end":1642,"start":1550},"superclass":null,"type_params":[]}
+class LowercaseValidator: {"body_span":{"end":1791,"start":1722},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1689,"start":1667}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"lowercase\"] }","name":"endec","span":{"end":1770,"start":1728}}],"initializer":null,"name":"lower","optional":false,"readonly":false,"span":{"end":1789,"start":1775},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LowercaseValidator","span":{"end":1791,"start":1697},"superclass":null,"type_params":[]}
+class UppercaseValidator: {"body_span":{"end":1940,"start":1871},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1838,"start":1816}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uppercase\"] }","name":"endec","span":{"end":1919,"start":1877}}],"initializer":null,"name":"upper","optional":false,"readonly":false,"span":{"end":1938,"start":1924},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UppercaseValidator","span":{"end":1940,"start":1846},"superclass":null,"type_params":[]}
+class CapitalizedValidator: {"body_span":{"end":2093,"start":2024},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1989,"start":1967}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"capitalized\"] }","name":"endec","span":{"end":2074,"start":2030}}],"initializer":null,"name":"cap","optional":false,"readonly":false,"span":{"end":2091,"start":2079},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CapitalizedValidator","span":{"end":2093,"start":1997},"superclass":null,"type_params":[]}
+class UncapitalizedValidator: {"body_span":{"end":2254,"start":2181},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2144,"start":2122}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"uncapitalized\"] }","name":"endec","span":{"end":2233,"start":2187}}],"initializer":null,"name":"uncap","optional":false,"readonly":false,"span":{"end":2252,"start":2238},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UncapitalizedValidator","span":{"end":2254,"start":2152},"superclass":null,"type_params":[]}
+class StartsWithValidator: {"body_span":{"end":2422,"start":2336},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2302,"start":2280}}],"fields":[{"decorators":[{"args_src":"{ validate: ['startsWith(\"https://\")'] }","name":"endec","span":{"end":2397,"start":2342}}],"initializer":null,"name":"secureUrl","optional":false,"readonly":false,"span":{"end":2420,"start":2402},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"StartsWithValidator","span":{"end":2422,"start":2310},"superclass":null,"type_params":[]}
+class EndsWithValidator: {"body_span":{"end":2580,"start":2500},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2468,"start":2446}}],"fields":[{"decorators":[{"args_src":"{ validate: ['endsWith(\".json\")'] }","name":"endec","span":{"end":2556,"start":2506}}],"initializer":null,"name":"filename","optional":false,"readonly":false,"span":{"end":2578,"start":2561},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EndsWithValidator","span":{"end":2580,"start":2476},"superclass":null,"type_params":[]}
+class IncludesValidator: {"body_span":{"end":2735,"start":2658},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":2626,"start":2604}}],"fields":[{"decorators":[{"args_src":"{ validate: ['includes(\"@\")'] }","name":"endec","span":{"end":2710,"start":2664}}],"initializer":null,"name":"emailLike","optional":false,"readonly":false,"span":{"end":2733,"start":2715},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"IncludesValidator","span":{"end":2735,"start":2634},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

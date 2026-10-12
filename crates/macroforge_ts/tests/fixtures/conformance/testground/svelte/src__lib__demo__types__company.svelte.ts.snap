@@ -13,10 +13,10 @@ true
 ## Output
 
 import { colorsConfigDecodeWithContext, colorsConfigEncodeWithContext, colorsConfigDefaultValue } from "./colors-config.svelte";
-import { phoneNumberDecode, phoneNumberEncodeWithContext } from "./phone-number.svelte";
+import { phoneNumberDecodeWithContext, phoneNumberEncodeWithContext } from "./phone-number.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { taxRateDecodeWithContext, taxRateEncodeWithContext } from "./tax-rate.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -117,209 +117,173 @@ export function companyEncode(value: Company, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function companyEncodeWithContext(value: Company, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return companyEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function companyEncodePartialWithContext(value: Partial<Company>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Company>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Company",
-        __id,
+        __id: ctx.register(value),
     };
+    companyEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function companyEncodePartialWithContext(value: Partial<Company>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Company>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Company" };
+        companyEncodeFields(value as Company, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function companyEncodeFields(value: Company, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
-
         if (value.id !== undefined) {
             result.id = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("legalName")) {
-
         if (value.legalName !== undefined) {
             result.legalName = value.legalName;
         }
     }
     if (__fields === undefined || __fields.keeps("headquarters")) {
-
         if (value.headquarters !== undefined) {
-            result.headquarters = typeof value.headquarters === "string"
-                ? value.headquarters
-                : siteEncodeWithContext(value.headquarters, ctx);
+            result.headquarters = (typeof value.headquarters === "string" ? value.headquarters : siteEncodeWithContext(value.headquarters, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("phones")) {
-
         if (value.phones !== undefined) {
-            result.phones = value.phones.map(
-                (item) => phoneNumberEncodeWithContext(item, ctx)
-            );
+            result.phones = value.phones.map((__item0) => phoneNumberEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("fax")) {
-
         if (value.fax !== undefined) {
             result.fax = value.fax;
         }
     }
     if (__fields === undefined || __fields.keeps("email")) {
-
         if (value.email !== undefined) {
             result.email = value.email;
         }
     }
     if (__fields === undefined || __fields.keeps("website")) {
-
         if (value.website !== undefined) {
             result.website = value.website;
         }
     }
     if (__fields === undefined || __fields.keeps("taxId")) {
-
         if (value.taxId !== undefined) {
             result.taxId = value.taxId;
         }
     }
     if (__fields === undefined || __fields.keeps("referenceNumber")) {
-
         if (value.referenceNumber !== undefined) {
             result.referenceNumber = value.referenceNumber;
         }
     }
     if (__fields === undefined || __fields.keeps("postalCodeLookup")) {
-
         if (value.postalCodeLookup !== undefined) {
             result.postalCodeLookup = value.postalCodeLookup;
         }
     }
     if (__fields === undefined || __fields.keeps("timeZone")) {
-
         if (value.timeZone !== undefined) {
             result.timeZone = value.timeZone;
         }
     }
     if (__fields === undefined || __fields.keeps("defaultTax")) {
-
         if (value.defaultTax !== undefined) {
-            result.defaultTax = typeof value.defaultTax === "string"
-                ? value.defaultTax
-                : taxRateEncodeWithContext(value.defaultTax, ctx);
+            result.defaultTax = (typeof value.defaultTax === "string" ? value.defaultTax : taxRateEncodeWithContext(value.defaultTax, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("defaultTaxLocation")) {
-
         if (value.defaultTaxLocation !== undefined) {
             result.defaultTaxLocation = value.defaultTaxLocation;
         }
     }
     if (__fields === undefined || __fields.keeps("defaultAreaCode")) {
-
         if (value.defaultAreaCode !== undefined) {
             result.defaultAreaCode = value.defaultAreaCode;
         }
     }
     if (__fields === undefined || __fields.keeps("defaultAccountType")) {
-
         if (value.defaultAccountType !== undefined) {
             result.defaultAccountType = value.defaultAccountType;
         }
     }
     if (__fields === undefined || __fields.keeps("lookupFormatting")) {
-
         if (value.lookupFormatting !== undefined) {
             result.lookupFormatting = value.lookupFormatting;
         }
     }
     if (__fields === undefined || __fields.keeps("accountNameFormat")) {
-
         if (value.accountNameFormat !== undefined) {
             result.accountNameFormat = value.accountNameFormat;
         }
     }
     if (__fields === undefined || __fields.keeps("merchantServiceProvider")) {
         if (value.merchantServiceProvider !== undefined) {
-
             result.merchantServiceProvider = value.merchantServiceProvider;
         }
     }
     if (__fields === undefined || __fields.keeps("dateDisplayStyle")) {
-
         if (value.dateDisplayStyle !== undefined) {
             result.dateDisplayStyle = value.dateDisplayStyle;
         }
     }
     if (__fields === undefined || __fields.keeps("hasAutoCommission")) {
-
         if (value.hasAutoCommission !== undefined) {
             result.hasAutoCommission = value.hasAutoCommission;
         }
     }
     if (__fields === undefined || __fields.keeps("hasAutoDaylightSavings")) {
-
         if (value.hasAutoDaylightSavings !== undefined) {
             result.hasAutoDaylightSavings = value.hasAutoDaylightSavings;
         }
     }
     if (__fields === undefined || __fields.keeps("hasAutoFmsTracking")) {
-
         if (value.hasAutoFmsTracking !== undefined) {
             result.hasAutoFmsTracking = value.hasAutoFmsTracking;
         }
     }
     if (__fields === undefined || __fields.keeps("hasNotifications")) {
-
         if (value.hasNotifications !== undefined) {
             result.hasNotifications = value.hasNotifications;
         }
     }
     if (__fields === undefined || __fields.keeps("hasRequiredLeadSource")) {
-
         if (value.hasRequiredLeadSource !== undefined) {
             result.hasRequiredLeadSource = value.hasRequiredLeadSource;
         }
     }
     if (__fields === undefined || __fields.keeps("hasRequiredEmail")) {
-
         if (value.hasRequiredEmail !== undefined) {
             result.hasRequiredEmail = value.hasRequiredEmail;
         }
     }
     if (__fields === undefined || __fields.keeps("hasSortServiceItemsAlphabetically")) {
-
         if (value.hasSortServiceItemsAlphabetically !== undefined) {
             result.hasSortServiceItemsAlphabetically = value.hasSortServiceItemsAlphabetically;
         }
     }
     if (__fields === undefined || __fields.keeps("hasAttachOrderToAppointmentEmails")) {
-
         if (value.hasAttachOrderToAppointmentEmails !== undefined) {
             result.hasAttachOrderToAppointmentEmails = value.hasAttachOrderToAppointmentEmails;
         }
     }
     if (__fields === undefined || __fields.keeps("scheduleInterval")) {
-
         if (value.scheduleInterval !== undefined) {
             result.scheduleInterval = value.scheduleInterval;
         }
     }
     if (__fields === undefined || __fields.keeps("colorsConfig")) {
-
         if (value.colorsConfig !== undefined) {
             result.colorsConfig = colorsConfigEncodeWithContext(value.colorsConfig, ctx);
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -387,7 +351,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Company.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Company | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Company") as Company | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -487,7 +451,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Company");
     }
 
     ctx.trackForFreeze(instance);
@@ -541,35 +505,24 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     }
     if ((__fields === undefined || __fields.requires("phones")) || (__fields.keeps("phones") && obj["phones"] !== undefined)) {
         const __raw_phones = obj["phones"] as Array<PhoneNumber>;
-
         if (Array.isArray(__raw_phones)) {
-            const __arr = __raw_phones.map((item: PhoneNumber | { __ref: number }, idx) => {
-                if (typeof item === "object" && item !== null && "__ref" in item) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (__mf_PendingRef.is(result)) {
-                        return { __pendingIdx: idx, __refId: result.id };
-                    }
-                    return result;
-                }
-                const __elemResult = phoneNumberDecode(item);
-                if (!__elemResult.success) {
-                    for (const __err of __elemResult.errors) {
+            ctx.pushScope("phones");
+            try {
+                instance.phones = __mf_decodeArray(__raw_phones, ctx, (__raw0) => phoneNumberDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
                         errors.push({
-                            field: __err.field === "_root"
-                                ? "phones[" + idx + "]"
-                                : "phones[" + idx + "]." + __err.field,
+                            field: __err.field === "_root" ? "phones" : "phones." + __err.field,
                             message: __err.message
                         });
                     }
+                } else {
+                    throw __e;
                 }
-                return __elemResult.success ? __elemResult.value : item;
-            });
-            instance.phones = __arr;
-            __arr.forEach((item, idx) => {
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.phones, idx, (item as any).__refId);
-                }
-            });
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "phones", message: __raw_phones == null ? "Company.phones is required" : "expected Array<PhoneNumber>" });
         }
@@ -2093,7 +2046,7 @@ export declare function companyDefaultValue(): Company;
 export declare function companyEncode(value: Company, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function companyEncodeWithContext(value: Company, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function companyEncodePartialWithContext(value: Partial<Company>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Company>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function companyDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -2260,28 +2213,28 @@ export declare const Company: {
 
 ## Mapping
 
-original 0..270 -> expanded 1048..1318
-original 319..367 -> expanded 1318..1366
-original 408..436 -> expanded 1366..1394
-original 455..525 -> expanded 1394..1464
-original 566..588 -> expanded 1464..1486
-original 629..653 -> expanded 1486..1510
-original 694..720 -> expanded 1510..1536
-original 761..814 -> expanded 1536..1589
-original 855..912 -> expanded 1589..1646
-original 931..970 -> expanded 1646..1685
-original 1011..1077 -> expanded 1685..1751
-original 1118..1155 -> expanded 1751..1788
-original 1196..1231 -> expanded 1788..1823
-original 1272..1352 -> expanded 1823..1903
-original 1393..1783 -> expanded 1903..2293
-original 1783..1784 -> expanded 96501..96502
-generated 0..1048 <- imports
-generated 2293..3243 <- Default
-generated 3243..10974 <- Encode
-generated 10974..51924 <- Decode
-generated 51924..95262 <- Gigaform
-generated 95262..96501 <- __convenience_const
+original 0..270 -> expanded 1133..1403
+original 319..367 -> expanded 1403..1451
+original 408..436 -> expanded 1451..1479
+original 455..525 -> expanded 1479..1549
+original 566..588 -> expanded 1549..1571
+original 629..653 -> expanded 1571..1595
+original 694..720 -> expanded 1595..1621
+original 761..814 -> expanded 1621..1674
+original 855..912 -> expanded 1674..1731
+original 931..970 -> expanded 1731..1770
+original 1011..1077 -> expanded 1770..1836
+original 1118..1155 -> expanded 1836..1873
+original 1196..1231 -> expanded 1873..1908
+original 1272..1352 -> expanded 1908..1988
+original 1393..1783 -> expanded 1988..2378
+original 1783..1784 -> expanded 96205..96206
+generated 0..1133 <- imports
+generated 2378..3328 <- Default
+generated 3328..11280 <- Encode
+generated 11280..51628 <- Decode
+generated 51628..94966 <- Gigaform
+generated 94966..96205 <- __convenience_const
 
 ## Metadata
 

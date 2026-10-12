@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -54,59 +54,53 @@ export function phoneNumberEncode(value: PhoneNumber, keepMetadata?: boolean): s
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function phoneNumberEncodeWithContext(value: PhoneNumber, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return phoneNumberEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function phoneNumberEncodePartialWithContext(value: Partial<PhoneNumber>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof PhoneNumber>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "PhoneNumber",
-        __id,
+        __id: ctx.register(value),
     };
+    phoneNumberEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function phoneNumberEncodePartialWithContext(value: Partial<PhoneNumber>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof PhoneNumber>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "PhoneNumber" };
+        phoneNumberEncodeFields(value as PhoneNumber, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function phoneNumberEncodeFields(value: PhoneNumber, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("main")) {
-
         if (value.main !== undefined) {
             result.main = value.main;
         }
     }
     if (__fields === undefined || __fields.keeps("phoneType")) {
-
         if (value.phoneType !== undefined) {
             result.phoneType = value.phoneType;
         }
     }
     if (__fields === undefined || __fields.keeps("number")) {
-
         if (value.number !== undefined) {
             result.number = value.number;
         }
     }
     if (__fields === undefined || __fields.keeps("canText")) {
-
         if (value.canText !== undefined) {
             result.canText = value.canText;
         }
     }
     if (__fields === undefined || __fields.keeps("canCall")) {
-
         if (value.canCall !== undefined) {
             result.canCall = value.canCall;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -174,7 +168,7 @@ export function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "PhoneNumber.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as PhoneNumber | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "PhoneNumber") as PhoneNumber | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -202,7 +196,7 @@ export function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "PhoneNumber");
     }
 
     ctx.trackForFreeze(instance);
@@ -579,7 +573,7 @@ export declare function phoneNumberDefaultValue(): PhoneNumber;
 export declare function phoneNumberEncode(value: PhoneNumber, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function phoneNumberEncodeWithContext(value: PhoneNumber, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function phoneNumberEncodePartialWithContext(value: Partial<PhoneNumber>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof PhoneNumber>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function phoneNumberDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -674,22 +668,22 @@ export declare const PhoneNumber: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..143 -> expanded 700..736
-original 186..210 -> expanded 736..760
-original 280..285 -> expanded 760..765
-original 326..354 -> expanded 765..793
-original 397..402 -> expanded 793..798
-original 443..468 -> expanded 798..823
-original 515..542 -> expanded 823..850
-original 589..613 -> expanded 850..874
-original 613..614 -> expanded 22959..22960
-generated 0..642 <- imports
-generated 874..1066 <- Default
-generated 1066..3569 <- Encode
-generated 3569..13491 <- Decode
-generated 13491..21612 <- Gigaform
-generated 21612..22959 <- __convenience_const
+original 0..58 -> expanded 683..741
+original 107..143 -> expanded 741..777
+original 186..210 -> expanded 777..801
+original 280..285 -> expanded 801..806
+original 326..354 -> expanded 806..834
+original 397..402 -> expanded 834..839
+original 443..468 -> expanded 839..864
+original 515..542 -> expanded 864..891
+original 589..613 -> expanded 891..915
+original 613..614 -> expanded 23380..23381
+generated 0..683 <- imports
+generated 915..1107 <- Default
+generated 1107..3960 <- Encode
+generated 3960..13912 <- Decode
+generated 13912..22033 <- Gigaform
+generated 22033..23380 <- __convenience_const
 
 ## Metadata
 

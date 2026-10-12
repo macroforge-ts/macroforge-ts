@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { weekdayDecode, weekdayEncodeWithContext } from "./weekday.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { weekdayDecodeWithContext, weekdayEncodeWithContext } from "./weekday.svelte";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -44,43 +44,38 @@ export function weeklyRecurrenceRuleEncode(value: WeeklyRecurrenceRule, keepMeta
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function weeklyRecurrenceRuleEncodeWithContext(value: WeeklyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return weeklyRecurrenceRuleEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function weeklyRecurrenceRuleEncodePartialWithContext(value: Partial<WeeklyRecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof WeeklyRecurrenceRule>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "WeeklyRecurrenceRule",
-        __id,
+        __id: ctx.register(value),
     };
+    weeklyRecurrenceRuleEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function weeklyRecurrenceRuleEncodePartialWithContext(value: Partial<WeeklyRecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof WeeklyRecurrenceRule>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "WeeklyRecurrenceRule" };
+        weeklyRecurrenceRuleEncodeFields(value as WeeklyRecurrenceRule, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function weeklyRecurrenceRuleEncodeFields(value: WeeklyRecurrenceRule, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("quantityOfWeeks")) {
-
         if (value.quantityOfWeeks !== undefined) {
             result.quantityOfWeeks = value.quantityOfWeeks;
         }
     }
     if (__fields === undefined || __fields.keeps("weekdays")) {
-
         if (value.weekdays !== undefined) {
-            result.weekdays = value.weekdays.map(
-                (item) => weekdayEncodeWithContext(item, ctx)
-            );
+            result.weekdays = value.weekdays.map((__item0) => weekdayEncodeWithContext(__item0, ctx));
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -148,7 +143,7 @@ export function weeklyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "WeeklyRecurrenceRule.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as WeeklyRecurrenceRule | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "WeeklyRecurrenceRule") as WeeklyRecurrenceRule | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -167,7 +162,7 @@ export function weeklyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "WeeklyRecurrenceRule");
     }
 
     ctx.trackForFreeze(instance);
@@ -183,35 +178,24 @@ export function weeklyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_
     }
     if ((__fields === undefined || __fields.requires("weekdays")) || (__fields.keeps("weekdays") && obj["weekdays"] !== undefined)) {
         const __raw_weekdays = obj["weekdays"] as Array<Weekday>;
-
         if (Array.isArray(__raw_weekdays)) {
-            const __arr = __raw_weekdays.map((item: Weekday | { __ref: number }, idx) => {
-                if (typeof item === "object" && item !== null && "__ref" in item) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (__mf_PendingRef.is(result)) {
-                        return { __pendingIdx: idx, __refId: result.id };
-                    }
-                    return result;
-                }
-                const __elemResult = weekdayDecode(item);
-                if (!__elemResult.success) {
-                    for (const __err of __elemResult.errors) {
+            ctx.pushScope("weekdays");
+            try {
+                instance.weekdays = __mf_decodeArray(__raw_weekdays, ctx, (__raw0) => weekdayDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
                         errors.push({
-                            field: __err.field === "_root"
-                                ? "weekdays[" + idx + "]"
-                                : "weekdays[" + idx + "]." + __err.field,
+                            field: __err.field === "_root" ? "weekdays" : "weekdays." + __err.field,
                             message: __err.message
                         });
                     }
+                } else {
+                    throw __e;
                 }
-                return __elemResult.success ? __elemResult.value : item;
-            });
-            instance.weekdays = __arr;
-            __arr.forEach((item, idx) => {
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.weekdays, idx, (item as any).__refId);
-                }
-            });
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "weekdays", message: __raw_weekdays == null ? "WeeklyRecurrenceRule.weekdays is required" : "expected Array<Weekday>" });
         }
@@ -453,7 +437,7 @@ export declare function weeklyRecurrenceRuleDefaultValue(): WeeklyRecurrenceRule
 export declare function weeklyRecurrenceRuleEncode(value: WeeklyRecurrenceRule, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function weeklyRecurrenceRuleEncodeWithContext(value: WeeklyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function weeklyRecurrenceRuleEncodePartialWithContext(value: Partial<WeeklyRecurrenceRule>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof WeeklyRecurrenceRule>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function weeklyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -539,15 +523,15 @@ export declare const WeeklyRecurrenceRule: {
 
 ## Mapping
 
-original 0..108 -> expanded 740..848
-original 157..258 -> expanded 848..949
-original 258..259 -> expanded 19344..19345
-generated 0..740 <- imports
-generated 949..1097 <- Default
-generated 1097..3314 <- Encode
-generated 3314..11079 <- Decode
-generated 11079..17754 <- Gigaform
-generated 17754..19344 <- __convenience_const
+original 0..108 -> expanded 825..933
+original 157..258 -> expanded 933..1034
+original 258..259 -> expanded 19230..19231
+generated 0..825 <- imports
+generated 1034..1182 <- Default
+generated 1182..3772 <- Encode
+generated 3772..10965 <- Decode
+generated 10965..17640 <- Gigaform
+generated 17640..19230 <- __convenience_const
 
 ## Metadata
 

@@ -1,0 +1,2687 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/edge-cases/newtype-shapes.ts
+sha256 a6d4bd15ff9d0c40849b445305b8433ac9f4109d1b6c91c359daa2dba8bc1fd7
+
+## Changed
+
+true
+
+## Output
+
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
+import { structuralDebug as __mf_structuralDebug, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
+declare const __mf_newtype_1: unique symbol;
+declare const __mf_newtype_2: unique symbol;
+declare const __mf_newtype_3: unique symbol;
+declare const __mf_newtype_4: unique symbol;
+declare const __mf_newtype_5: unique symbol;
+declare const __mf_newtype_7: unique symbol;
+declare const __mf_newtype_6: unique symbol;
+/**
+ * Newtypes over each primitive under every derive, and the fields and
+ * collections that hold one: as an element, a map's key or value, a record's
+ * value, nullable, optional and nested in another newtype.
+ */
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export type NewText = string & { readonly [__mf_newtype_1]: true };
+
+export function newTextToString(value: NewText): string {
+    return "NewText(" + String(value) + ")";
+}
+
+export function newTextClone(value: NewText): NewText {
+    return value;
+}
+
+export function newTextEquals(a: NewText, b: NewText): boolean {
+    if (a === b) return true;
+    return a === b;
+}
+
+export function newTextHashCode(value: NewText): number {
+    return (value ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
+}
+
+export function newTextPartialCompare(a: NewText, b: NewText): number | null {
+    return a < b ? -1 : a > b ? 1 : 0;
+}
+
+export function newTextCompare(a: NewText, b: NewText): number {
+    return a < b ? -1 : a > b ? 1 : 0;
+}
+
+export function newTextDefaultValue(): NewText {
+    return "" as NewText;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export function newTextEncode(value: NewText, keepMetadata?: boolean): string;
+export function newTextEncode(value: NewText): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export function newTextEncodeWithContext(value: NewText, ctx: __mf_EncodeContext): unknown;
+export function newTextEncodeWithContext(value: NewText): unknown {
+    return value;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function newTextDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewText } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = newTextDecodeWithContext(data, ctx);
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function newTextDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): NewText {
+    const __decoded: unknown = value;
+    if (typeof __decoded !== "string") {
+        throw new __mf_DecodeError([{ field: "_root", message: "NewText.decodeWithContext: expected string" }]);
+    }
+    return __decoded as NewText;
+}
+
+export function newTextHasShape(value: unknown): boolean {
+    return typeof value === "string";
+}
+
+export function newTextIs(value: unknown): value is NewText {
+    return typeof value === "string";
+}
+
+export const NewText: {
+  readonly toString: typeof newTextToString;
+  readonly clone: typeof newTextClone;
+  readonly equals: typeof newTextEquals;
+  readonly hashCode: typeof newTextHashCode;
+  readonly partialCompare: typeof newTextPartialCompare;
+  readonly compare: typeof newTextCompare;
+  readonly defaultValue: typeof newTextDefaultValue;
+  readonly encode: typeof newTextEncode;
+  readonly encodeWithContext: typeof newTextEncodeWithContext;
+  readonly decode: typeof newTextDecode;
+  readonly decodeWithContext: typeof newTextDecodeWithContext;
+  readonly hasShape: typeof newTextHasShape;
+  readonly is: typeof newTextIs;
+} = {
+  toString: newTextToString,
+  clone: newTextClone,
+  equals: newTextEquals,
+  hashCode: newTextHashCode,
+  partialCompare: newTextPartialCompare,
+  compare: newTextCompare,
+  defaultValue: newTextDefaultValue,
+  encode: newTextEncode,
+  encodeWithContext: newTextEncodeWithContext,
+  decode: newTextDecode,
+  decodeWithContext: newTextDecodeWithContext,
+  hasShape: newTextHasShape,
+  is: newTextIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export type NewCount = number & { readonly [__mf_newtype_2]: true };
+
+export function newCountToString(value: NewCount): string {
+    return "NewCount(" + String(value) + ")";
+}
+
+export function newCountClone(value: NewCount): NewCount {
+    return value;
+}
+
+export function newCountEquals(a: NewCount, b: NewCount): boolean {
+    if (a === b) return true;
+    return a === b;
+}
+
+export function newCountHashCode(value: NewCount): number {
+    return Number.isInteger(value) ? value | 0 : value.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
+}
+
+export function newCountPartialCompare(a: NewCount, b: NewCount): number | null {
+    return a < b ? -1 : a > b ? 1 : a === b ? 0 : null;
+}
+
+export function newCountCompare(a: NewCount, b: NewCount): number {
+    return a < b ? -1 : a > b ? 1 : 0;
+}
+
+export function newCountDefaultValue(): NewCount {
+    return 0 as NewCount;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export function newCountEncode(value: NewCount, keepMetadata?: boolean): string;
+export function newCountEncode(value: NewCount): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export function newCountEncodeWithContext(value: NewCount, ctx: __mf_EncodeContext): unknown;
+export function newCountEncodeWithContext(value: NewCount): unknown {
+    return value;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function newCountDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewCount } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = newCountDecodeWithContext(data, ctx);
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function newCountDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): NewCount {
+    const __decoded: unknown = value;
+    if (typeof __decoded !== "number") {
+        throw new __mf_DecodeError([{ field: "_root", message: "NewCount.decodeWithContext: expected number" }]);
+    }
+    return __decoded as NewCount;
+}
+
+export function newCountHasShape(value: unknown): boolean {
+    return typeof value === "number";
+}
+
+export function newCountIs(value: unknown): value is NewCount {
+    return typeof value === "number";
+}
+
+export const NewCount: {
+  readonly toString: typeof newCountToString;
+  readonly clone: typeof newCountClone;
+  readonly equals: typeof newCountEquals;
+  readonly hashCode: typeof newCountHashCode;
+  readonly partialCompare: typeof newCountPartialCompare;
+  readonly compare: typeof newCountCompare;
+  readonly defaultValue: typeof newCountDefaultValue;
+  readonly encode: typeof newCountEncode;
+  readonly encodeWithContext: typeof newCountEncodeWithContext;
+  readonly decode: typeof newCountDecode;
+  readonly decodeWithContext: typeof newCountDecodeWithContext;
+  readonly hasShape: typeof newCountHasShape;
+  readonly is: typeof newCountIs;
+} = {
+  toString: newCountToString,
+  clone: newCountClone,
+  equals: newCountEquals,
+  hashCode: newCountHashCode,
+  partialCompare: newCountPartialCompare,
+  compare: newCountCompare,
+  defaultValue: newCountDefaultValue,
+  encode: newCountEncode,
+  encodeWithContext: newCountEncodeWithContext,
+  decode: newCountDecode,
+  decodeWithContext: newCountDecodeWithContext,
+  hasShape: newCountHasShape,
+  is: newCountIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export type NewTotal = bigint & { readonly [__mf_newtype_3]: true };
+
+export function newTotalToString(value: NewTotal): string {
+    return "NewTotal(" + String(value) + ")";
+}
+
+export function newTotalClone(value: NewTotal): NewTotal {
+    return value;
+}
+
+export function newTotalEquals(a: NewTotal, b: NewTotal): boolean {
+    if (a === b) return true;
+    return a === b;
+}
+
+export function newTotalHashCode(value: NewTotal): number {
+    return value.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
+}
+
+export function newTotalPartialCompare(a: NewTotal, b: NewTotal): number | null {
+    return a < b ? -1 : a > b ? 1 : 0;
+}
+
+export function newTotalCompare(a: NewTotal, b: NewTotal): number {
+    return a < b ? -1 : a > b ? 1 : 0;
+}
+
+export function newTotalDefaultValue(): NewTotal {
+    return 0n as NewTotal;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export function newTotalEncode(value: NewTotal, keepMetadata?: boolean): string;
+export function newTotalEncode(value: NewTotal): string {
+    return __mf_encodedText(((v) => String(v))(value));
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export function newTotalEncodeWithContext(value: NewTotal, ctx: __mf_EncodeContext): unknown;
+export function newTotalEncodeWithContext(value: NewTotal): unknown {
+    return ((v) => String(v))(value);
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function newTotalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewTotal } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = newTotalDecodeWithContext(data, ctx);
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function newTotalDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): NewTotal {
+    let __decoded: unknown = value;
+    if (typeof value !== "bigint") {
+        try {
+            __decoded = ((v) => BigInt(v as string))(value);
+        } catch (__error) {
+            throw new __mf_DecodeError([{ field: "_root", message: "NewTotal.decodeWithContext: expected bigint, " + String(__error) }]);
+        }
+    }
+    if (typeof __decoded !== "bigint") {
+        throw new __mf_DecodeError([{ field: "_root", message: "NewTotal.decodeWithContext: expected bigint" }]);
+    }
+    return __decoded as NewTotal;
+}
+
+export function newTotalHasShape(value: unknown): boolean {
+    return typeof value === "bigint" || typeof value === "string";
+}
+
+export function newTotalIs(value: unknown): value is NewTotal {
+    return typeof value === "bigint";
+}
+
+export const NewTotal: {
+  readonly toString: typeof newTotalToString;
+  readonly clone: typeof newTotalClone;
+  readonly equals: typeof newTotalEquals;
+  readonly hashCode: typeof newTotalHashCode;
+  readonly partialCompare: typeof newTotalPartialCompare;
+  readonly compare: typeof newTotalCompare;
+  readonly defaultValue: typeof newTotalDefaultValue;
+  readonly encode: typeof newTotalEncode;
+  readonly encodeWithContext: typeof newTotalEncodeWithContext;
+  readonly decode: typeof newTotalDecode;
+  readonly decodeWithContext: typeof newTotalDecodeWithContext;
+  readonly hasShape: typeof newTotalHasShape;
+  readonly is: typeof newTotalIs;
+} = {
+  toString: newTotalToString,
+  clone: newTotalClone,
+  equals: newTotalEquals,
+  hashCode: newTotalHashCode,
+  partialCompare: newTotalPartialCompare,
+  compare: newTotalCompare,
+  defaultValue: newTotalDefaultValue,
+  encode: newTotalEncode,
+  encodeWithContext: newTotalEncodeWithContext,
+  decode: newTotalDecode,
+  decodeWithContext: newTotalDecodeWithContext,
+  hasShape: newTotalHasShape,
+  is: newTotalIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export type NewFlag = boolean & { readonly [__mf_newtype_4]: true };
+
+export function newFlagToString(value: NewFlag): string {
+    return "NewFlag(" + String(value) + ")";
+}
+
+export function newFlagClone(value: NewFlag): NewFlag {
+    return value;
+}
+
+export function newFlagEquals(a: NewFlag, b: NewFlag): boolean {
+    if (a === b) return true;
+    return a === b;
+}
+
+export function newFlagHashCode(value: NewFlag): number {
+    return value ? 1231 : 1237;
+}
+
+export function newFlagPartialCompare(a: NewFlag, b: NewFlag): number | null {
+    return a === b ? 0 : a ? 1 : -1;
+}
+
+export function newFlagCompare(a: NewFlag, b: NewFlag): number {
+    return a === b ? 0 : a ? 1 : -1;
+}
+
+export function newFlagDefaultValue(): NewFlag {
+    return false as NewFlag;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export function newFlagEncode(value: NewFlag, keepMetadata?: boolean): string;
+export function newFlagEncode(value: NewFlag): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export function newFlagEncodeWithContext(value: NewFlag, ctx: __mf_EncodeContext): unknown;
+export function newFlagEncodeWithContext(value: NewFlag): unknown {
+    return value;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function newFlagDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewFlag } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = newFlagDecodeWithContext(data, ctx);
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function newFlagDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): NewFlag {
+    const __decoded: unknown = value;
+    if (typeof __decoded !== "boolean") {
+        throw new __mf_DecodeError([{ field: "_root", message: "NewFlag.decodeWithContext: expected boolean" }]);
+    }
+    return __decoded as NewFlag;
+}
+
+export function newFlagHasShape(value: unknown): boolean {
+    return typeof value === "boolean";
+}
+
+export function newFlagIs(value: unknown): value is NewFlag {
+    return typeof value === "boolean";
+}
+
+export const NewFlag: {
+  readonly toString: typeof newFlagToString;
+  readonly clone: typeof newFlagClone;
+  readonly equals: typeof newFlagEquals;
+  readonly hashCode: typeof newFlagHashCode;
+  readonly partialCompare: typeof newFlagPartialCompare;
+  readonly compare: typeof newFlagCompare;
+  readonly defaultValue: typeof newFlagDefaultValue;
+  readonly encode: typeof newFlagEncode;
+  readonly encodeWithContext: typeof newFlagEncodeWithContext;
+  readonly decode: typeof newFlagDecode;
+  readonly decodeWithContext: typeof newFlagDecodeWithContext;
+  readonly hasShape: typeof newFlagHasShape;
+  readonly is: typeof newFlagIs;
+} = {
+  toString: newFlagToString,
+  clone: newFlagClone,
+  equals: newFlagEquals,
+  hashCode: newFlagHashCode,
+  partialCompare: newFlagPartialCompare,
+  compare: newFlagCompare,
+  defaultValue: newFlagDefaultValue,
+  encode: newFlagEncode,
+  encodeWithContext: newFlagEncodeWithContext,
+  decode: newFlagDecode,
+  decodeWithContext: newFlagDecodeWithContext,
+  hasShape: newFlagHasShape,
+  is: newFlagIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+/** @endec(nonEmpty, lowercase) */
+/** @default("slug") */
+export type NewSlug = string & { readonly [__mf_newtype_5]: true };
+
+export function newSlugToString(value: NewSlug): string {
+    return "NewSlug(" + String(value) + ")";
+}
+
+export function newSlugClone(value: NewSlug): NewSlug {
+    return value;
+}
+
+export function newSlugEquals(a: NewSlug, b: NewSlug): boolean {
+    if (a === b) return true;
+    return a === b;
+}
+
+export function newSlugHashCode(value: NewSlug): number {
+    return (value ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
+}
+
+export function newSlugPartialCompare(a: NewSlug, b: NewSlug): number | null {
+    return a < b ? -1 : a > b ? 1 : 0;
+}
+
+export function newSlugCompare(a: NewSlug, b: NewSlug): number {
+    return a < b ? -1 : a > b ? 1 : 0;
+}
+
+export function newSlugDefaultValue(): NewSlug {
+    return "slug" as NewSlug;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export function newSlugEncode(value: NewSlug, keepMetadata?: boolean): string;
+export function newSlugEncode(value: NewSlug): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export function newSlugEncodeWithContext(value: NewSlug, ctx: __mf_EncodeContext): unknown;
+export function newSlugEncodeWithContext(value: NewSlug): unknown {
+    return value;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function newSlugDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewSlug } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = newSlugDecodeWithContext(data, ctx);
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function newSlugDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NewSlug {
+    const __decoded: unknown = value;
+    if (typeof __decoded !== "string") {
+        throw new __mf_DecodeError([{ field: "_root", message: "NewSlug.decodeWithContext: expected string" }]);
+    }
+    const errors: Array<{ field: string; message: string }> = [];
+    if (__decoded.length === 0) { errors.push({ field: "_root", message: "NewSlug must not be empty" }); }
+    if (__decoded !== __decoded.toLowerCase()) { errors.push({ field: "_root", message: "NewSlug must be lowercase" }); }
+    ctx.pushErrors(errors);
+    return __decoded as NewSlug;
+}
+
+export function newSlugHasShape(value: unknown): boolean {
+    return typeof value === "string";
+}
+
+export function newSlugIs(value: unknown): value is NewSlug {
+    return typeof value === "string" && newSlugDecode(value).success;
+}
+
+export const NewSlug: {
+  readonly toString: typeof newSlugToString;
+  readonly clone: typeof newSlugClone;
+  readonly equals: typeof newSlugEquals;
+  readonly hashCode: typeof newSlugHashCode;
+  readonly partialCompare: typeof newSlugPartialCompare;
+  readonly compare: typeof newSlugCompare;
+  readonly defaultValue: typeof newSlugDefaultValue;
+  readonly encode: typeof newSlugEncode;
+  readonly encodeWithContext: typeof newSlugEncodeWithContext;
+  readonly decode: typeof newSlugDecode;
+  readonly decodeWithContext: typeof newSlugDecodeWithContext;
+  readonly hasShape: typeof newSlugHasShape;
+  readonly is: typeof newSlugIs;
+} = {
+  toString: newSlugToString,
+  clone: newSlugClone,
+  equals: newSlugEquals,
+  hashCode: newSlugHashCode,
+  partialCompare: newSlugPartialCompare,
+  compare: newSlugCompare,
+  defaultValue: newSlugDefaultValue,
+  encode: newSlugEncode,
+  encodeWithContext: newSlugEncodeWithContext,
+  decode: newSlugDecode,
+  decodeWithContext: newSlugDecodeWithContext,
+  hasShape: newSlugHasShape,
+  is: newSlugIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export type NewNested = number & { readonly [__mf_newtype_7]: true } & { readonly [__mf_newtype_6]: true };
+
+export function newNestedToString(value: NewNested): string {
+    return "NewNested(" + String(value) + ")";
+}
+
+export function newNestedClone(value: NewNested): NewNested {
+    return value;
+}
+
+export function newNestedEquals(a: NewNested, b: NewNested): boolean {
+    if (a === b) return true;
+    return a === b;
+}
+
+export function newNestedHashCode(value: NewNested): number {
+    return Number.isInteger(value) ? value | 0 : value.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
+}
+
+export function newNestedPartialCompare(a: NewNested, b: NewNested): number | null {
+    return a < b ? -1 : a > b ? 1 : a === b ? 0 : null;
+}
+
+export function newNestedCompare(a: NewNested, b: NewNested): number {
+    return a < b ? -1 : a > b ? 1 : 0;
+}
+
+export function newNestedDefaultValue(): NewNested {
+    return 0 as NewNested;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export function newNestedEncode(value: NewNested, keepMetadata?: boolean): string;
+export function newNestedEncode(value: NewNested): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export function newNestedEncodeWithContext(value: NewNested, ctx: __mf_EncodeContext): unknown;
+export function newNestedEncodeWithContext(value: NewNested): unknown {
+    return value;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function newNestedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewNested } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = newNestedDecodeWithContext(data, ctx);
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function newNestedDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): NewNested {
+    const __decoded: unknown = value;
+    if (typeof __decoded !== "number") {
+        throw new __mf_DecodeError([{ field: "_root", message: "NewNested.decodeWithContext: expected number" }]);
+    }
+    return __decoded as NewNested;
+}
+
+export function newNestedHasShape(value: unknown): boolean {
+    return typeof value === "number";
+}
+
+export function newNestedIs(value: unknown): value is NewNested {
+    return typeof value === "number";
+}
+
+export const NewNested: {
+  readonly toString: typeof newNestedToString;
+  readonly clone: typeof newNestedClone;
+  readonly equals: typeof newNestedEquals;
+  readonly hashCode: typeof newNestedHashCode;
+  readonly partialCompare: typeof newNestedPartialCompare;
+  readonly compare: typeof newNestedCompare;
+  readonly defaultValue: typeof newNestedDefaultValue;
+  readonly encode: typeof newNestedEncode;
+  readonly encodeWithContext: typeof newNestedEncodeWithContext;
+  readonly decode: typeof newNestedDecode;
+  readonly decodeWithContext: typeof newNestedDecodeWithContext;
+  readonly hasShape: typeof newNestedHasShape;
+  readonly is: typeof newNestedIs;
+} = {
+  toString: newNestedToString,
+  clone: newNestedClone,
+  equals: newNestedEquals,
+  hashCode: newNestedHashCode,
+  partialCompare: newNestedPartialCompare,
+  compare: newNestedCompare,
+  defaultValue: newNestedDefaultValue,
+  encode: newNestedEncode,
+  encodeWithContext: newNestedEncodeWithContext,
+  decode: newNestedDecode,
+  decodeWithContext: newNestedDecodeWithContext,
+  hasShape: newNestedHasShape,
+  is: newNestedIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export type NewPlain = string;
+
+export function newPlainToString(value: NewPlain): string {
+    return "NewPlain(" + String(value) + ")";
+}
+
+export function newPlainClone(value: NewPlain): NewPlain {
+    return value;
+}
+
+export function newPlainEquals(a: NewPlain, b: NewPlain): boolean {
+    if (a === b) return true;
+    return a === b;
+}
+
+export function newPlainHashCode(value: NewPlain): number {
+    return (value ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0);
+}
+
+export function newPlainPartialCompare(a: NewPlain, b: NewPlain): number | null {
+    return a < b ? -1 : a > b ? 1 : 0;
+}
+
+export function newPlainCompare(a: NewPlain, b: NewPlain): number {
+    return a < b ? -1 : a > b ? 1 : 0;
+}
+
+export function newPlainDefaultValue(): NewPlain {
+    return "" as NewPlain;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export function newPlainEncode(value: NewPlain, keepMetadata?: boolean): string;
+export function newPlainEncode(value: NewPlain): string {
+    return __mf_encodedText(value);
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export function newPlainEncodeWithContext(value: NewPlain, ctx: __mf_EncodeContext): unknown;
+export function newPlainEncodeWithContext(value: NewPlain): unknown {
+    return value;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function newPlainDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewPlain } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = newPlainDecodeWithContext(data, ctx);
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function newPlainDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): NewPlain {
+    const __decoded: unknown = value;
+    if (typeof __decoded !== "string") {
+        throw new __mf_DecodeError([{ field: "_root", message: "NewPlain.decodeWithContext: expected string" }]);
+    }
+    return __decoded as NewPlain;
+}
+
+export function newPlainHasShape(value: unknown): boolean {
+    return typeof value === "string";
+}
+
+export function newPlainIs(value: unknown): value is NewPlain {
+    return typeof value === "string";
+}
+
+export const NewPlain: {
+  readonly toString: typeof newPlainToString;
+  readonly clone: typeof newPlainClone;
+  readonly equals: typeof newPlainEquals;
+  readonly hashCode: typeof newPlainHashCode;
+  readonly partialCompare: typeof newPlainPartialCompare;
+  readonly compare: typeof newPlainCompare;
+  readonly defaultValue: typeof newPlainDefaultValue;
+  readonly encode: typeof newPlainEncode;
+  readonly encodeWithContext: typeof newPlainEncodeWithContext;
+  readonly decode: typeof newPlainDecode;
+  readonly decodeWithContext: typeof newPlainDecodeWithContext;
+  readonly hasShape: typeof newPlainHasShape;
+  readonly is: typeof newPlainIs;
+} = {
+  toString: newPlainToString,
+  clone: newPlainClone,
+  equals: newPlainEquals,
+  hashCode: newPlainHashCode,
+  partialCompare: newPlainPartialCompare,
+  compare: newPlainCompare,
+  defaultValue: newPlainDefaultValue,
+  encode: newPlainEncode,
+  encodeWithContext: newPlainEncodeWithContext,
+  decode: newPlainDecode,
+  decodeWithContext: newPlainDecodeWithContext,
+  hasShape: newPlainHasShape,
+  is: newPlainIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface NewHolder {
+    text: NewText;
+    count: NewCount;
+    flag: NewFlag;
+    slug: NewSlug;
+    nested: NewNested;
+    plain: NewPlain;
+    maybe: NewSlug | null;
+    later: NewCount | undefined;
+    optional?: NewText;
+    list: NewSlug[];
+    set: Set<NewText>;
+    bySlug: Map<NewSlug, NewCount>;
+    record: Record<string, NewCount>;
+    pair: [NewText, NewCount];
+}
+
+export function newHolderToString(value: NewHolder): string {
+    const parts: string[] = [];
+    parts.push("text: " + newTextToString(value.text));
+    parts.push("count: " + newCountToString(value.count));
+    parts.push("flag: " + newFlagToString(value.flag));
+    parts.push("slug: " + newSlugToString(value.slug));
+    parts.push("nested: " + newNestedToString(value.nested));
+    parts.push("plain: " + newPlainToString(value.plain));
+    parts.push("maybe: " + (value.maybe == null ? String(value.maybe) : newSlugToString(value.maybe)));
+    parts.push("later: " + (value.later == null ? String(value.later) : newCountToString(value.later)));
+    parts.push("optional: " + (value.optional == null ? String(value.optional) : newTextToString(value.optional)));
+    parts.push("list: " + "[" + value.list.map(newSlugToString).join(", ") + "]");
+    parts.push("set: " + __mf_structuralDebug(value.set));
+    parts.push("bySlug: " + __mf_structuralDebug(value.bySlug));
+    parts.push("record: " + __mf_structuralDebug(value.record));
+    parts.push("pair: " + __mf_structuralDebug(value.pair));
+    return "NewHolder { " + parts.join(", ") + " }";
+}
+
+export function newHolderClone(value: NewHolder): NewHolder {
+    return ({
+	text: newTextClone(value.text),
+	count: newCountClone(value.count),
+	flag: newFlagClone(value.flag),
+	slug: newSlugClone(value.slug),
+	nested: newNestedClone(value.nested),
+	plain: newPlainClone(value.plain),
+	maybe: value.maybe == null ? value.maybe : newSlugClone(value.maybe),
+	later: value.later == null ? value.later : newCountClone(value.later),
+	..."optional" in value ? { optional: value.optional == null ? value.optional : newTextClone(value.optional) } : {},
+	list: value.list.map((__item0) => newSlugClone(__item0)),
+	set: new Set(Array.from(value.set, (__item0) => newTextClone(__item0))),
+	bySlug: (() => {
+		const __copy0 = new Map(value.bySlug);
+		for (const [__key0, __item0] of value.bySlug) __copy0.set(__key0, newCountClone(__item0));
+		return __copy0;
+	})(),
+	record: __mf_structuralClone(value.record),
+	pair: __mf_structuralClone(value.pair)
+});
+}
+
+export function newHolderEquals(a: NewHolder, b: NewHolder): boolean {
+    if (a === b) return true;
+    return newTextEquals(a.text, b.text) && newCountEquals(a.count, b.count) && newFlagEquals(a.flag, b.flag) && newSlugEquals(a.slug, b.slug) && newNestedEquals(a.nested, b.nested) && newPlainEquals(a.plain, b.plain) && (a.maybe == null || b.maybe == null ? a.maybe === b.maybe : newSlugEquals(a.maybe, b.maybe)) && (a.later == null || b.later == null ? a.later === b.later : newCountEquals(a.later, b.later)) && (a.optional == null || b.optional == null ? a.optional === b.optional : newTextEquals(a.optional, b.optional)) && a.list.length === b.list.length && a.list.every((__item0, __index0) => {
+	const __other0 = b.list[__index0];
+	return __other0 === undefined ? __item0 === undefined : newSlugEquals(__item0, __other0);
+}) && a.set.size === b.set.size && Array.from(a.set).every((__item0) => b.set.has(__item0) || Array.from(b.set).some((__other0) => newTextEquals(__item0, __other0))) && a.bySlug.size === b.bySlug.size && Array.from(a.bySlug).every(([__key0, __item0]) => {
+	const __other0 = b.bySlug.get(__key0);
+	return b.bySlug.has(__key0) && (__other0 === undefined ? __item0 === undefined : newCountEquals(__item0, __other0));
+}) && __mf_structuralEquals(a.record, b.record) && __mf_structuralEquals(a.pair, b.pair);
+}
+
+export function newHolderHashCode(value: NewHolder): number {
+    let hash = 17;
+    hash = (hash * 31 + (newTextHashCode(value.text))) | 0;
+    hash = (hash * 31 + (newCountHashCode(value.count))) | 0;
+    hash = (hash * 31 + (newFlagHashCode(value.flag))) | 0;
+    hash = (hash * 31 + (newSlugHashCode(value.slug))) | 0;
+    hash = (hash * 31 + (newNestedHashCode(value.nested))) | 0;
+    hash = (hash * 31 + (newPlainHashCode(value.plain))) | 0;
+    hash = (hash * 31 + (value.maybe == null ? 0 : newSlugHashCode(value.maybe))) | 0;
+    hash = (hash * 31 + (value.later == null ? 0 : newCountHashCode(value.later))) | 0;
+    hash = (hash * 31 + (value.optional == null ? 0 : newTextHashCode(value.optional))) | 0;
+    hash = (hash * 31 + (value.list.reduce<number>((__hash0, __item0) => __hash0 * 31 + newSlugHashCode(__item0) | 0, 1))) | 0;
+    hash = (hash * 31 + (Array.from(value.set).reduce<number>((__hash0, __item0) => __hash0 + newTextHashCode(__item0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Array.from(value.bySlug).reduce<number>((__hash0, [__key0, __item0]) => __hash0 + (__mf_structuralHash(__key0) * 31 + newCountHashCode(__item0) | 0) | 0, 0))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.record))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.pair))) | 0;
+    return hash;
+}
+
+export function newHolderDefaultValue(): NewHolder {
+    return {
+        text: newTextDefaultValue(),
+        count: newCountDefaultValue(),
+        flag: newFlagDefaultValue(),
+        slug: newSlugDefaultValue(),
+        nested: newNestedDefaultValue(),
+        plain: newPlainDefaultValue(),
+        maybe: null,
+        later: undefined,
+        list: [],
+        set: new Set(),
+        bySlug: new Map(),
+        record: ({}),
+        pair: [newTextDefaultValue(), newCountDefaultValue()],
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function newHolderEncode(value: NewHolder, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = newHolderEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function newHolderEncodeWithContext(value: NewHolder, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+    const result: Record<string, unknown> = {
+        "__type": "NewHolder",
+        __id: ctx.register(value),
+    };
+    newHolderEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function newHolderEncodePartialWithContext(value: Partial<NewHolder>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NewHolder>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "NewHolder" };
+        newHolderEncodeFields(value as NewHolder, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function newHolderEncodeFields(value: NewHolder, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("text")) {
+        if (value.text !== undefined) {
+            result.text = newTextEncodeWithContext(value.text, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("count")) {
+        if (value.count !== undefined) {
+            result.count = newCountEncodeWithContext(value.count, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("flag")) {
+        if (value.flag !== undefined) {
+            result.flag = newFlagEncodeWithContext(value.flag, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("slug")) {
+        if (value.slug !== undefined) {
+            result.slug = newSlugEncodeWithContext(value.slug, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("nested")) {
+        if (value.nested !== undefined) {
+            result.nested = newNestedEncodeWithContext(value.nested, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("plain")) {
+        if (value.plain !== undefined) {
+            result.plain = newPlainEncodeWithContext(value.plain, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("maybe")) {
+        if (value.maybe !== undefined) {
+            result.maybe = value.maybe === null ? null : newSlugEncodeWithContext(value.maybe, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("later")) {
+        if (value.later !== undefined) {
+            result.later = newCountEncodeWithContext(value.later, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("optional")) {
+        if (value.optional !== undefined) {
+            result.optional = newTextEncodeWithContext(value.optional, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("list")) {
+        if (value.list !== undefined) {
+            result.list = value.list.map((__item0) => newSlugEncodeWithContext(__item0, ctx));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("set")) {
+        if (value.set !== undefined) {
+            result.set = Array.from(value.set, (__item0) => newTextEncodeWithContext(__item0, ctx));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("bySlug")) {
+        if (value.bySlug !== undefined) {
+            result.bySlug = Object.fromEntries(Array.from(value.bySlug, ([__key0, __item0]) => [__key0, newCountEncodeWithContext(__item0, ctx)]));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("record")) {
+        if (value.record !== undefined) {
+            result.record = Object.fromEntries(Object.entries(value.record).map(([__key0, __item0]) => [__key0, newCountEncodeWithContext(__item0, ctx)]));
+        }
+    }
+    if (__fields === undefined || __fields.keeps("pair")) {
+        if (value.pair !== undefined) {
+            result.pair = [newTextEncodeWithContext(value.pair[0], ctx), newCountEncodeWithContext(value.pair[1], ctx)];
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function newHolderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewHolder } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = newHolderDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "NewHolder.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NewHolder | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<NewHolder> | __mf_PendingRef;
+export function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<NewHolder> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "NewHolder.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "NewHolder.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "NewHolder") as NewHolder | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "NewHolder.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("text")) && !("text" in obj)) {
+        errors.push({ field: "text", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("count")) && !("count" in obj)) {
+        errors.push({ field: "count", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("flag")) && !("flag" in obj)) {
+        errors.push({ field: "flag", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("slug")) && !("slug" in obj)) {
+        errors.push({ field: "slug", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("nested")) && !("nested" in obj)) {
+        errors.push({ field: "nested", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("plain")) && !("plain" in obj)) {
+        errors.push({ field: "plain", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("maybe")) && !("maybe" in obj)) {
+        errors.push({ field: "maybe", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("list")) && !("list" in obj)) {
+        errors.push({ field: "list", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("set")) && !("set" in obj)) {
+        errors.push({ field: "set", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("bySlug")) && !("bySlug" in obj)) {
+        errors.push({ field: "bySlug", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("record")) && !("record" in obj)) {
+        errors.push({ field: "record", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("pair")) && !("pair" in obj)) {
+        errors.push({ field: "pair", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "NewHolder");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("text")) || (__fields.keeps("text") && obj["text"] !== undefined)) {
+        const __raw_text = obj["text"] as NewText;
+
+        ctx.pushScope("text");
+        try {
+            const __result = newTextDecodeWithContext(__raw_text, ctx);
+            ctx.assignOrDefer(instance, "text", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "text" : "text." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("count")) || (__fields.keeps("count") && obj["count"] !== undefined)) {
+        const __raw_count = obj["count"] as NewCount;
+
+        ctx.pushScope("count");
+        try {
+            const __result = newCountDecodeWithContext(__raw_count, ctx);
+            ctx.assignOrDefer(instance, "count", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "count" : "count." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("flag")) || (__fields.keeps("flag") && obj["flag"] !== undefined)) {
+        const __raw_flag = obj["flag"] as NewFlag;
+
+        ctx.pushScope("flag");
+        try {
+            const __result = newFlagDecodeWithContext(__raw_flag, ctx);
+            ctx.assignOrDefer(instance, "flag", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "flag" : "flag." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("slug")) || (__fields.keeps("slug") && obj["slug"] !== undefined)) {
+        const __raw_slug = obj["slug"] as NewSlug;
+
+        ctx.pushScope("slug");
+        try {
+            const __result = newSlugDecodeWithContext(__raw_slug, ctx);
+            ctx.assignOrDefer(instance, "slug", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "slug" : "slug." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("nested")) || (__fields.keeps("nested") && obj["nested"] !== undefined)) {
+        const __raw_nested = obj["nested"] as NewNested;
+
+        ctx.pushScope("nested");
+        try {
+            const __result = newNestedDecodeWithContext(__raw_nested, ctx);
+            ctx.assignOrDefer(instance, "nested", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "nested" : "nested." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("plain")) || (__fields.keeps("plain") && obj["plain"] !== undefined)) {
+        const __raw_plain = obj["plain"] as NewPlain;
+
+        ctx.pushScope("plain");
+        try {
+            const __result = newPlainDecodeWithContext(__raw_plain, ctx);
+            ctx.assignOrDefer(instance, "plain", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "plain" : "plain." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("maybe")) || (__fields.keeps("maybe") && obj["maybe"] !== undefined)) {
+        const __raw_maybe = obj["maybe"] as NewSlug | null;
+
+        if (__raw_maybe === null) {
+            instance.maybe = null;
+        } else {
+            ctx.pushScope("maybe");
+            try {
+                const __result = newSlugDecodeWithContext(__raw_maybe, ctx);
+                ctx.assignOrDefer(instance, "maybe", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "maybe" : "maybe." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+    if ((__fields === undefined || __fields.requires("later")) || (__fields.keeps("later") && obj["later"] !== undefined)) {
+        const __raw_later = obj["later"] as NewCount | undefined;
+        if (__raw_later === undefined) {
+            instance.later = undefined;
+        } else {
+
+            ctx.pushScope("later");
+            try {
+                const __result = newCountDecodeWithContext(__raw_later, ctx);
+                ctx.assignOrDefer(instance, "later", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "later" : "later." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+    if ((__fields === undefined || __fields.keeps("optional"))) {
+        if (("optional" in obj && obj["optional"] !== undefined)) {
+            const __raw_optional = obj["optional"] as NewText;
+
+            ctx.pushScope("optional");
+            try {
+                const __result = newTextDecodeWithContext(__raw_optional, ctx);
+                ctx.assignOrDefer(instance, "optional", __result);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "optional" : "optional." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        }
+    }
+    if ((__fields === undefined || __fields.requires("list")) || (__fields.keeps("list") && obj["list"] !== undefined)) {
+        const __raw_list = obj["list"] as NewSlug[];
+        if (Array.isArray(__raw_list)) {
+            ctx.pushScope("list");
+            try {
+                instance.list = __mf_decodeArray(__raw_list, ctx, (__raw0) => newSlugDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "list" : "list." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "list", message: __raw_list == null ? "NewHolder.list is required" : "expected NewSlug[]" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("set")) || (__fields.keeps("set") && obj["set"] !== undefined)) {
+        const __raw_set = obj["set"] as Array<NewText>;
+        if (Array.isArray(__raw_set)) {
+            ctx.pushScope("set");
+            try {
+                instance.set = __mf_decodeSet(__raw_set, ctx, (__raw0) => newTextDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "set" : "set." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "set", message: __raw_set == null ? "NewHolder.set is required" : "expected Set<NewText>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("bySlug")) || (__fields.keeps("bySlug") && obj["bySlug"] !== undefined)) {
+        const __raw_bySlug = obj["bySlug"] as Record<string, NewCount>;
+        if (typeof __raw_bySlug === "object" && __raw_bySlug !== null) {
+            ctx.pushScope("bySlug");
+            try {
+                instance.bySlug = __mf_decodeMap(__raw_bySlug, ctx, (__key0) => newSlugDecodeWithContext(__key0, ctx), (__raw0) => newCountDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "bySlug" : "bySlug." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "bySlug", message: __raw_bySlug == null ? "NewHolder.bySlug is required" : "expected Map<NewSlug, NewCount>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("record")) || (__fields.keeps("record") && obj["record"] !== undefined)) {
+        const __raw_record = obj["record"] as Record<string, NewCount>;
+        if (typeof __raw_record === "object" && __raw_record !== null) {
+            ctx.pushScope("record");
+            try {
+                instance.record = (__mf_decodeRecord(__raw_record, ctx, (__raw0) => newCountDecodeWithContext(__raw0, ctx)) as Record<string, NewCount>);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "record" : "record." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "record", message: __raw_record == null ? "NewHolder.record is required" : "expected Record<string, NewCount>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("pair")) || (__fields.keeps("pair") && obj["pair"] !== undefined)) {
+        const __raw_pair = obj["pair"] as [NewText, NewCount];
+        if (Array.isArray(__raw_pair)) {
+            ctx.pushScope("pair");
+            try {
+                instance.pair = (__mf_decodeTuple(__raw_pair, ctx, [(__raw0) => newTextDecodeWithContext(__raw0, ctx), (__raw0) => newCountDecodeWithContext(__raw0, ctx)], 2) as [NewText, NewCount]);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "pair" : "pair." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "pair", message: __raw_pair == null ? "NewHolder.pair is required" : "expected [NewText, NewCount]" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as NewHolder;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function newHolderDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NewHolder>): Partial<NewHolder> | __mf_PendingRef {
+    return newHolderDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function newHolderValidateField<K extends keyof NewHolder>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function newHolderValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function newHolderValidateFields(partial: { readonly [K in keyof NewHolder]?: unknown }): Array<{ field: string; message: string }>;
+export function newHolderValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function newHolderHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "text" in o && "count" in o && "flag" in o && "slug" in o && "nested" in o && "plain" in o && "maybe" in o && "list" in o && "set" in o && "bySlug" in o && "record" in o && "pair" in o;
+}
+
+export function newHolderIs(obj: unknown): obj is NewHolder {
+    return newHolderHasShape(obj) && newHolderDecode(obj).success;
+}
+
+export const NewHolder: {
+  readonly toString: typeof newHolderToString;
+  readonly clone: typeof newHolderClone;
+  readonly equals: typeof newHolderEquals;
+  readonly hashCode: typeof newHolderHashCode;
+  readonly defaultValue: typeof newHolderDefaultValue;
+  readonly encode: typeof newHolderEncode;
+  readonly encodeWithContext: typeof newHolderEncodeWithContext;
+  readonly encodePartialWithContext: typeof newHolderEncodePartialWithContext;
+  readonly decode: typeof newHolderDecode;
+  readonly decodeWithContext: typeof newHolderDecodeWithContext;
+  readonly decodePartialWithContext: typeof newHolderDecodePartialWithContext;
+  readonly validateField: typeof newHolderValidateField;
+  readonly validateFields: typeof newHolderValidateFields;
+  readonly hasShape: typeof newHolderHasShape;
+  readonly is: typeof newHolderIs;
+} = {
+  toString: newHolderToString,
+  clone: newHolderClone,
+  equals: newHolderEquals,
+  hashCode: newHolderHashCode,
+  defaultValue: newHolderDefaultValue,
+  encode: newHolderEncode,
+  encodeWithContext: newHolderEncodeWithContext,
+  encodePartialWithContext: newHolderEncodePartialWithContext,
+  decode: newHolderDecode,
+  decodeWithContext: newHolderDecodeWithContext,
+  decodePartialWithContext: newHolderDecodePartialWithContext,
+  validateField: newHolderValidateField,
+  validateFields: newHolderValidateFields,
+  hasShape: newHolderHasShape,
+  is: newHolderIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord) */
+export interface NewOrdered {
+    slug: NewSlug;
+    count: NewCount;
+    total: NewTotal;
+    flag: NewFlag;
+}
+
+export function newOrderedToString(value: NewOrdered): string {
+    const parts: string[] = [];
+    parts.push("slug: " + newSlugToString(value.slug));
+    parts.push("count: " + newCountToString(value.count));
+    parts.push("total: " + newTotalToString(value.total));
+    parts.push("flag: " + newFlagToString(value.flag));
+    return "NewOrdered { " + parts.join(", ") + " }";
+}
+
+export function newOrderedClone(value: NewOrdered): NewOrdered {
+    return ({
+	slug: newSlugClone(value.slug),
+	count: newCountClone(value.count),
+	total: newTotalClone(value.total),
+	flag: newFlagClone(value.flag)
+});
+}
+
+export function newOrderedEquals(a: NewOrdered, b: NewOrdered): boolean {
+    if (a === b) return true;
+    return newSlugEquals(a.slug, b.slug) && newCountEquals(a.count, b.count) && newTotalEquals(a.total, b.total) && newFlagEquals(a.flag, b.flag);
+}
+
+export function newOrderedPartialCompare(a: NewOrdered, b: NewOrdered): number | null {
+    if (a === b) return 0;
+    const cmp0 = newSlugPartialCompare(a.slug, b.slug);
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = newCountPartialCompare(a.count, b.count);
+    if (cmp1 === null) return null;
+    if (cmp1 !== 0) return cmp1;
+    const cmp2 = newTotalPartialCompare(a.total, b.total);
+    if (cmp2 === null) return null;
+    if (cmp2 !== 0) return cmp2;
+    const cmp3 = newFlagPartialCompare(a.flag, b.flag);
+    if (cmp3 === null) return null;
+    if (cmp3 !== 0) return cmp3;
+    return 0;
+}
+
+export function newOrderedCompare(a: NewOrdered, b: NewOrdered): number {
+    if (a === b) return 0;
+    const cmp0 = newSlugCompare(a.slug, b.slug);
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = newCountCompare(a.count, b.count);
+    if (cmp1 !== 0) return cmp1;
+    const cmp2 = newTotalCompare(a.total, b.total);
+    if (cmp2 !== 0) return cmp2;
+    const cmp3 = newFlagCompare(a.flag, b.flag);
+    if (cmp3 !== 0) return cmp3;
+    return 0;
+}
+
+export const NewOrdered: {
+  readonly toString: typeof newOrderedToString;
+  readonly clone: typeof newOrderedClone;
+  readonly equals: typeof newOrderedEquals;
+  readonly partialCompare: typeof newOrderedPartialCompare;
+  readonly compare: typeof newOrderedCompare;
+} = {
+  toString: newOrderedToString,
+  clone: newOrderedClone,
+  equals: newOrderedEquals,
+  partialCompare: newOrderedPartialCompare,
+  compare: newOrderedCompare
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface NewLedger {
+    total: NewTotal;
+    totals: NewTotal[];
+}
+
+export function newLedgerToString(value: NewLedger): string {
+    const parts: string[] = [];
+    parts.push("total: " + newTotalToString(value.total));
+    parts.push("totals: " + "[" + value.totals.map(newTotalToString).join(", ") + "]");
+    return "NewLedger { " + parts.join(", ") + " }";
+}
+
+export function newLedgerClone(value: NewLedger): NewLedger {
+    return ({
+	total: newTotalClone(value.total),
+	totals: value.totals.map((__item0) => newTotalClone(__item0))
+});
+}
+
+export function newLedgerEquals(a: NewLedger, b: NewLedger): boolean {
+    if (a === b) return true;
+    return newTotalEquals(a.total, b.total) && a.totals.length === b.totals.length && a.totals.every((__item0, __index0) => {
+	const __other0 = b.totals[__index0];
+	return __other0 === undefined ? __item0 === undefined : newTotalEquals(__item0, __other0);
+});
+}
+
+export function newLedgerHashCode(value: NewLedger): number {
+    let hash = 17;
+    hash = (hash * 31 + (newTotalHashCode(value.total))) | 0;
+    hash = (hash * 31 + (value.totals.reduce<number>((__hash0, __item0) => __hash0 * 31 + newTotalHashCode(__item0) | 0, 1))) | 0;
+    return hash;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function newLedgerEncode(value: NewLedger, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = newLedgerEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function newLedgerEncodeWithContext(value: NewLedger, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+    const result: Record<string, unknown> = {
+        "__type": "NewLedger",
+        __id: ctx.register(value),
+    };
+    newLedgerEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function newLedgerEncodePartialWithContext(value: Partial<NewLedger>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NewLedger>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "NewLedger" };
+        newLedgerEncodeFields(value as NewLedger, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function newLedgerEncodeFields(value: NewLedger, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("total")) {
+        if (value.total !== undefined) {
+            result.total = newTotalEncodeWithContext(value.total, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("totals")) {
+        if (value.totals !== undefined) {
+            result.totals = value.totals.map((__item0) => newTotalEncodeWithContext(__item0, ctx));
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function newLedgerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewLedger } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? JSON.parse(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = newLedgerDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "NewLedger.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function newLedgerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NewLedger | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function newLedgerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<NewLedger> | __mf_PendingRef;
+export function newLedgerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<NewLedger> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "NewLedger.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "NewLedger.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "NewLedger") as NewLedger | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "NewLedger.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = value as Record<string, unknown>;
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("total")) && !("total" in obj)) {
+        errors.push({ field: "total", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("totals")) && !("totals" in obj)) {
+        errors.push({ field: "totals", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "NewLedger");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("total")) || (__fields.keeps("total") && obj["total"] !== undefined)) {
+        const __raw_total = obj["total"] as NewTotal;
+
+        ctx.pushScope("total");
+        try {
+            const __result = newTotalDecodeWithContext(__raw_total, ctx);
+            ctx.assignOrDefer(instance, "total", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "total" : "total." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+                throw __e;
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("totals")) || (__fields.keeps("totals") && obj["totals"] !== undefined)) {
+        const __raw_totals = obj["totals"] as NewTotal[];
+        if (Array.isArray(__raw_totals)) {
+            ctx.pushScope("totals");
+            try {
+                instance.totals = __mf_decodeArray(__raw_totals, ctx, (__raw0) => newTotalDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "totals" : "totals." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "totals", message: __raw_totals == null ? "NewLedger.totals is required" : "expected NewTotal[]" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as NewLedger;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function newLedgerDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NewLedger>): Partial<NewLedger> | __mf_PendingRef {
+    return newLedgerDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function newLedgerValidateField<K extends keyof NewLedger>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function newLedgerValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function newLedgerValidateFields(partial: { readonly [K in keyof NewLedger]?: unknown }): Array<{ field: string; message: string }>;
+export function newLedgerValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function newLedgerHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "total" in o && "totals" in o;
+}
+
+export function newLedgerIs(obj: unknown): obj is NewLedger {
+    return newLedgerHasShape(obj) && newLedgerDecode(obj).success;
+}
+
+export const NewLedger: {
+  readonly toString: typeof newLedgerToString;
+  readonly clone: typeof newLedgerClone;
+  readonly equals: typeof newLedgerEquals;
+  readonly hashCode: typeof newLedgerHashCode;
+  readonly encode: typeof newLedgerEncode;
+  readonly encodeWithContext: typeof newLedgerEncodeWithContext;
+  readonly encodePartialWithContext: typeof newLedgerEncodePartialWithContext;
+  readonly decode: typeof newLedgerDecode;
+  readonly decodeWithContext: typeof newLedgerDecodeWithContext;
+  readonly decodePartialWithContext: typeof newLedgerDecodePartialWithContext;
+  readonly validateField: typeof newLedgerValidateField;
+  readonly validateFields: typeof newLedgerValidateFields;
+  readonly hasShape: typeof newLedgerHasShape;
+  readonly is: typeof newLedgerIs;
+} = {
+  toString: newLedgerToString,
+  clone: newLedgerClone,
+  equals: newLedgerEquals,
+  hashCode: newLedgerHashCode,
+  encode: newLedgerEncode,
+  encodeWithContext: newLedgerEncodeWithContext,
+  encodePartialWithContext: newLedgerEncodePartialWithContext,
+  decode: newLedgerDecode,
+  decodeWithContext: newLedgerDecodeWithContext,
+  decodePartialWithContext: newLedgerDecodePartialWithContext,
+  validateField: newLedgerValidateField,
+  validateFields: newLedgerValidateFields,
+  hasShape: newLedgerHasShape,
+  is: newLedgerIs
+};
+
+## DTS
+
+declare const __mf_newtype_1: unique symbol;
+declare const __mf_newtype_2: unique symbol;
+declare const __mf_newtype_3: unique symbol;
+declare const __mf_newtype_4: unique symbol;
+declare const __mf_newtype_5: unique symbol;
+declare const __mf_newtype_7: unique symbol;
+declare const __mf_newtype_6: unique symbol;
+/**
+* Newtypes over each primitive under every derive, and the fields and
+* collections that hold one: as an element, a map's key or value, a record's
+* value, nullable, optional and nested in another newtype.
+*/
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export type NewText = string & {
+	readonly [__mf_newtype_1]: true;
+};
+export declare function newTextToString(value: NewText): string;
+export declare function newTextClone(value: NewText): NewText;
+export declare function newTextEquals(a: NewText, b: NewText): boolean;
+export declare function newTextHashCode(value: NewText): number;
+export declare function newTextPartialCompare(a: NewText, b: NewText): number | null;
+export declare function newTextCompare(a: NewText, b: NewText): number;
+export declare function newTextDefaultValue(): NewText;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export declare function newTextEncode(value: NewText, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export declare function newTextEncodeWithContext(value: NewText, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function newTextDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NewText;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function newTextDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): NewText;
+export declare function newTextHasShape(value: unknown): boolean;
+export declare function newTextIs(value: unknown): value is NewText;
+export declare const NewText: {
+	readonly toString: typeof newTextToString;
+	readonly clone: typeof newTextClone;
+	readonly equals: typeof newTextEquals;
+	readonly hashCode: typeof newTextHashCode;
+	readonly partialCompare: typeof newTextPartialCompare;
+	readonly compare: typeof newTextCompare;
+	readonly defaultValue: typeof newTextDefaultValue;
+	readonly encode: typeof newTextEncode;
+	readonly encodeWithContext: typeof newTextEncodeWithContext;
+	readonly decode: typeof newTextDecode;
+	readonly decodeWithContext: typeof newTextDecodeWithContext;
+	readonly hasShape: typeof newTextHasShape;
+	readonly is: typeof newTextIs;
+};
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export type NewCount = number & {
+	readonly [__mf_newtype_2]: true;
+};
+export declare function newCountToString(value: NewCount): string;
+export declare function newCountClone(value: NewCount): NewCount;
+export declare function newCountEquals(a: NewCount, b: NewCount): boolean;
+export declare function newCountHashCode(value: NewCount): number;
+export declare function newCountPartialCompare(a: NewCount, b: NewCount): number | null;
+export declare function newCountCompare(a: NewCount, b: NewCount): number;
+export declare function newCountDefaultValue(): NewCount;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export declare function newCountEncode(value: NewCount, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export declare function newCountEncodeWithContext(value: NewCount, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function newCountDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NewCount;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function newCountDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): NewCount;
+export declare function newCountHasShape(value: unknown): boolean;
+export declare function newCountIs(value: unknown): value is NewCount;
+export declare const NewCount: {
+	readonly toString: typeof newCountToString;
+	readonly clone: typeof newCountClone;
+	readonly equals: typeof newCountEquals;
+	readonly hashCode: typeof newCountHashCode;
+	readonly partialCompare: typeof newCountPartialCompare;
+	readonly compare: typeof newCountCompare;
+	readonly defaultValue: typeof newCountDefaultValue;
+	readonly encode: typeof newCountEncode;
+	readonly encodeWithContext: typeof newCountEncodeWithContext;
+	readonly decode: typeof newCountDecode;
+	readonly decodeWithContext: typeof newCountDecodeWithContext;
+	readonly hasShape: typeof newCountHasShape;
+	readonly is: typeof newCountIs;
+};
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export type NewTotal = bigint & {
+	readonly [__mf_newtype_3]: true;
+};
+export declare function newTotalToString(value: NewTotal): string;
+export declare function newTotalClone(value: NewTotal): NewTotal;
+export declare function newTotalEquals(a: NewTotal, b: NewTotal): boolean;
+export declare function newTotalHashCode(value: NewTotal): number;
+export declare function newTotalPartialCompare(a: NewTotal, b: NewTotal): number | null;
+export declare function newTotalCompare(a: NewTotal, b: NewTotal): number;
+export declare function newTotalDefaultValue(): NewTotal;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export declare function newTotalEncode(value: NewTotal, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export declare function newTotalEncodeWithContext(value: NewTotal, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function newTotalDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NewTotal;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function newTotalDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): NewTotal;
+export declare function newTotalHasShape(value: unknown): boolean;
+export declare function newTotalIs(value: unknown): value is NewTotal;
+export declare const NewTotal: {
+	readonly toString: typeof newTotalToString;
+	readonly clone: typeof newTotalClone;
+	readonly equals: typeof newTotalEquals;
+	readonly hashCode: typeof newTotalHashCode;
+	readonly partialCompare: typeof newTotalPartialCompare;
+	readonly compare: typeof newTotalCompare;
+	readonly defaultValue: typeof newTotalDefaultValue;
+	readonly encode: typeof newTotalEncode;
+	readonly encodeWithContext: typeof newTotalEncodeWithContext;
+	readonly decode: typeof newTotalDecode;
+	readonly decodeWithContext: typeof newTotalDecodeWithContext;
+	readonly hasShape: typeof newTotalHasShape;
+	readonly is: typeof newTotalIs;
+};
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export type NewFlag = boolean & {
+	readonly [__mf_newtype_4]: true;
+};
+export declare function newFlagToString(value: NewFlag): string;
+export declare function newFlagClone(value: NewFlag): NewFlag;
+export declare function newFlagEquals(a: NewFlag, b: NewFlag): boolean;
+export declare function newFlagHashCode(value: NewFlag): number;
+export declare function newFlagPartialCompare(a: NewFlag, b: NewFlag): number | null;
+export declare function newFlagCompare(a: NewFlag, b: NewFlag): number;
+export declare function newFlagDefaultValue(): NewFlag;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export declare function newFlagEncode(value: NewFlag, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export declare function newFlagEncodeWithContext(value: NewFlag, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function newFlagDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NewFlag;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function newFlagDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): NewFlag;
+export declare function newFlagHasShape(value: unknown): boolean;
+export declare function newFlagIs(value: unknown): value is NewFlag;
+export declare const NewFlag: {
+	readonly toString: typeof newFlagToString;
+	readonly clone: typeof newFlagClone;
+	readonly equals: typeof newFlagEquals;
+	readonly hashCode: typeof newFlagHashCode;
+	readonly partialCompare: typeof newFlagPartialCompare;
+	readonly compare: typeof newFlagCompare;
+	readonly defaultValue: typeof newFlagDefaultValue;
+	readonly encode: typeof newFlagEncode;
+	readonly encodeWithContext: typeof newFlagEncodeWithContext;
+	readonly decode: typeof newFlagDecode;
+	readonly decodeWithContext: typeof newFlagDecodeWithContext;
+	readonly hasShape: typeof newFlagHasShape;
+	readonly is: typeof newFlagIs;
+};
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+/** @endec(nonEmpty, lowercase) */
+/** @default("slug") */
+export type NewSlug = string & {
+	readonly [__mf_newtype_5]: true;
+};
+export declare function newSlugToString(value: NewSlug): string;
+export declare function newSlugClone(value: NewSlug): NewSlug;
+export declare function newSlugEquals(a: NewSlug, b: NewSlug): boolean;
+export declare function newSlugHashCode(value: NewSlug): number;
+export declare function newSlugPartialCompare(a: NewSlug, b: NewSlug): number | null;
+export declare function newSlugCompare(a: NewSlug, b: NewSlug): number;
+export declare function newSlugDefaultValue(): NewSlug;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export declare function newSlugEncode(value: NewSlug, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export declare function newSlugEncodeWithContext(value: NewSlug, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function newSlugDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NewSlug;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function newSlugDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NewSlug;
+export declare function newSlugHasShape(value: unknown): boolean;
+export declare function newSlugIs(value: unknown): value is NewSlug;
+export declare const NewSlug: {
+	readonly toString: typeof newSlugToString;
+	readonly clone: typeof newSlugClone;
+	readonly equals: typeof newSlugEquals;
+	readonly hashCode: typeof newSlugHashCode;
+	readonly partialCompare: typeof newSlugPartialCompare;
+	readonly compare: typeof newSlugCompare;
+	readonly defaultValue: typeof newSlugDefaultValue;
+	readonly encode: typeof newSlugEncode;
+	readonly encodeWithContext: typeof newSlugEncodeWithContext;
+	readonly decode: typeof newSlugDecode;
+	readonly decodeWithContext: typeof newSlugDecodeWithContext;
+	readonly hasShape: typeof newSlugHasShape;
+	readonly is: typeof newSlugIs;
+};
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export type NewNested = number & {
+	readonly [__mf_newtype_7]: true;
+} & {
+	readonly [__mf_newtype_6]: true;
+};
+export declare function newNestedToString(value: NewNested): string;
+export declare function newNestedClone(value: NewNested): NewNested;
+export declare function newNestedEquals(a: NewNested, b: NewNested): boolean;
+export declare function newNestedHashCode(value: NewNested): number;
+export declare function newNestedPartialCompare(a: NewNested, b: NewNested): number | null;
+export declare function newNestedCompare(a: NewNested, b: NewNested): number;
+export declare function newNestedDefaultValue(): NewNested;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export declare function newNestedEncode(value: NewNested, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export declare function newNestedEncodeWithContext(value: NewNested, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function newNestedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NewNested;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function newNestedDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): NewNested;
+export declare function newNestedHasShape(value: unknown): boolean;
+export declare function newNestedIs(value: unknown): value is NewNested;
+export declare const NewNested: {
+	readonly toString: typeof newNestedToString;
+	readonly clone: typeof newNestedClone;
+	readonly equals: typeof newNestedEquals;
+	readonly hashCode: typeof newNestedHashCode;
+	readonly partialCompare: typeof newNestedPartialCompare;
+	readonly compare: typeof newNestedCompare;
+	readonly defaultValue: typeof newNestedDefaultValue;
+	readonly encode: typeof newNestedEncode;
+	readonly encodeWithContext: typeof newNestedEncodeWithContext;
+	readonly decode: typeof newNestedDecode;
+	readonly decodeWithContext: typeof newNestedDecodeWithContext;
+	readonly hasShape: typeof newNestedHasShape;
+	readonly is: typeof newNestedIs;
+};
+/** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
+export type NewPlain = string;
+export declare function newPlainToString(value: NewPlain): string;
+export declare function newPlainClone(value: NewPlain): NewPlain;
+export declare function newPlainEquals(a: NewPlain, b: NewPlain): boolean;
+export declare function newPlainHashCode(value: NewPlain): number;
+export declare function newPlainPartialCompare(a: NewPlain, b: NewPlain): number | null;
+export declare function newPlainCompare(a: NewPlain, b: NewPlain): number;
+export declare function newPlainDefaultValue(): NewPlain;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - Accepted for signature parity; primitives carry no metadata @returns JSON string representation  */
+export declare function newPlainEncode(value: NewPlain, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context, unused for primitives  */
+export declare function newPlainEncodeWithContext(value: NewPlain, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function newPlainDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NewPlain;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function newPlainDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): NewPlain;
+export declare function newPlainHasShape(value: unknown): boolean;
+export declare function newPlainIs(value: unknown): value is NewPlain;
+export declare const NewPlain: {
+	readonly toString: typeof newPlainToString;
+	readonly clone: typeof newPlainClone;
+	readonly equals: typeof newPlainEquals;
+	readonly hashCode: typeof newPlainHashCode;
+	readonly partialCompare: typeof newPlainPartialCompare;
+	readonly compare: typeof newPlainCompare;
+	readonly defaultValue: typeof newPlainDefaultValue;
+	readonly encode: typeof newPlainEncode;
+	readonly encodeWithContext: typeof newPlainEncodeWithContext;
+	readonly decode: typeof newPlainDecode;
+	readonly decodeWithContext: typeof newPlainDecodeWithContext;
+	readonly hasShape: typeof newPlainHasShape;
+	readonly is: typeof newPlainIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface NewHolder {
+	text: NewText;
+	count: NewCount;
+	flag: NewFlag;
+	slug: NewSlug;
+	nested: NewNested;
+	plain: NewPlain;
+	maybe: NewSlug | null;
+	later: NewCount | undefined;
+	optional?: NewText;
+	list: NewSlug[];
+	set: Set<NewText>;
+	bySlug: Map<NewSlug, NewCount>;
+	record: Record<string, NewCount>;
+	pair: [NewText, NewCount];
+}
+export declare function newHolderToString(value: NewHolder): string;
+export declare function newHolderClone(value: NewHolder): NewHolder;
+export declare function newHolderEquals(a: NewHolder, b: NewHolder): boolean;
+export declare function newHolderHashCode(value: NewHolder): number;
+export declare function newHolderDefaultValue(): NewHolder;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function newHolderEncode(value: NewHolder, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function newHolderEncodeWithContext(value: NewHolder, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function newHolderEncodePartialWithContext(value: Partial<NewHolder>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NewHolder>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function newHolderDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NewHolder;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NewHolder | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function newHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<NewHolder> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function newHolderDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NewHolder>): Partial<NewHolder> | __mf_PendingRef;
+export declare function newHolderValidateField<K extends keyof NewHolder>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function newHolderValidateFields(partial: { readonly [K in keyof NewHolder]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function newHolderHasShape(obj: unknown): boolean;
+export declare function newHolderIs(obj: unknown): obj is NewHolder;
+export declare const NewHolder: {
+	readonly toString: typeof newHolderToString;
+	readonly clone: typeof newHolderClone;
+	readonly equals: typeof newHolderEquals;
+	readonly hashCode: typeof newHolderHashCode;
+	readonly defaultValue: typeof newHolderDefaultValue;
+	readonly encode: typeof newHolderEncode;
+	readonly encodeWithContext: typeof newHolderEncodeWithContext;
+	readonly encodePartialWithContext: typeof newHolderEncodePartialWithContext;
+	readonly decode: typeof newHolderDecode;
+	readonly decodeWithContext: typeof newHolderDecodeWithContext;
+	readonly decodePartialWithContext: typeof newHolderDecodePartialWithContext;
+	readonly validateField: typeof newHolderValidateField;
+	readonly validateFields: typeof newHolderValidateFields;
+	readonly hasShape: typeof newHolderHasShape;
+	readonly is: typeof newHolderIs;
+};
+/** @derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord) */
+export interface NewOrdered {
+	slug: NewSlug;
+	count: NewCount;
+	total: NewTotal;
+	flag: NewFlag;
+}
+export declare function newOrderedToString(value: NewOrdered): string;
+export declare function newOrderedClone(value: NewOrdered): NewOrdered;
+export declare function newOrderedEquals(a: NewOrdered, b: NewOrdered): boolean;
+export declare function newOrderedPartialCompare(a: NewOrdered, b: NewOrdered): number | null;
+export declare function newOrderedCompare(a: NewOrdered, b: NewOrdered): number;
+export declare const NewOrdered: {
+	readonly toString: typeof newOrderedToString;
+	readonly clone: typeof newOrderedClone;
+	readonly equals: typeof newOrderedEquals;
+	readonly partialCompare: typeof newOrderedPartialCompare;
+	readonly compare: typeof newOrderedCompare;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export interface NewLedger {
+	total: NewTotal;
+	totals: NewTotal[];
+}
+export declare function newLedgerToString(value: NewLedger): string;
+export declare function newLedgerClone(value: NewLedger): NewLedger;
+export declare function newLedgerEquals(a: NewLedger, b: NewLedger): boolean;
+export declare function newLedgerHashCode(value: NewLedger): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function newLedgerEncode(value: NewLedger, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function newLedgerEncodeWithContext(value: NewLedger, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function newLedgerEncodePartialWithContext(value: Partial<NewLedger>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NewLedger>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function newLedgerDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NewLedger;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function newLedgerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NewLedger | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function newLedgerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<NewLedger> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function newLedgerDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NewLedger>): Partial<NewLedger> | __mf_PendingRef;
+export declare function newLedgerValidateField<K extends keyof NewLedger>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function newLedgerValidateFields(partial: { readonly [K in keyof NewLedger]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function newLedgerHasShape(obj: unknown): boolean;
+export declare function newLedgerIs(obj: unknown): obj is NewLedger;
+export declare const NewLedger: {
+	readonly toString: typeof newLedgerToString;
+	readonly clone: typeof newLedgerClone;
+	readonly equals: typeof newLedgerEquals;
+	readonly hashCode: typeof newLedgerHashCode;
+	readonly encode: typeof newLedgerEncode;
+	readonly encodeWithContext: typeof newLedgerEncodeWithContext;
+	readonly encodePartialWithContext: typeof newLedgerEncodePartialWithContext;
+	readonly decode: typeof newLedgerDecode;
+	readonly decodeWithContext: typeof newLedgerDecodeWithContext;
+	readonly decodePartialWithContext: typeof newLedgerDecodePartialWithContext;
+	readonly validateField: typeof newLedgerValidateField;
+	readonly validateFields: typeof newLedgerValidateFields;
+	readonly hasShape: typeof newLedgerHasShape;
+	readonly is: typeof newLedgerIs;
+};
+export {};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..332 -> expanded 1208..1540
+original 348..349 -> expanded 1584..1585
+original 349..466 -> expanded 5851..5968
+original 482..483 -> expanded 6012..6013
+original 483..600 -> expanded 10449..10566
+original 616..617 -> expanded 10610..10611
+original 617..733 -> expanded 15306..15422
+original 750..751 -> expanded 15467..15468
+original 751..926 -> expanded 19723..19898
+original 942..943 -> expanded 19942..19943
+original 943..1061 -> expanded 24567..24685
+original 1087..1088 -> expanded 24767..24768
+original 1088..1212 -> expanded 29269..29393
+original 1212..1670 -> expanded 33724..34182
+original 1670..1844 -> expanded 66266..66440
+original 1844..1983 -> expanded 68826..68965
+original 1983..1984 -> expanded 80844..80845
+generated 0..893 <- imports
+generated 893..938 <- $Newtype
+generated 938..983 <- $Newtype
+generated 983..1028 <- $Newtype
+generated 1028..1073 <- $Newtype
+generated 1073..1118 <- $Newtype
+generated 1118..1163 <- $Newtype
+generated 1163..1208 <- $Newtype
+generated 1540..1584 <- $Newtype
+generated 1585..1691 <- Debug
+generated 1691..1768 <- Clone
+generated 1768..1886 <- PartialEq
+generated 1886..2041 <- Hash
+generated 2041..2162 <- PartialOrd
+generated 2162..2269 <- Ord
+generated 2269..2347 <- Default
+generated 2347..3063 <- Encode
+generated 3063..4808 <- Decode
+generated 4808..5851 <- __convenience_const
+generated 5968..6012 <- $Newtype
+generated 6013..6122 <- Debug
+generated 6122..6202 <- Clone
+generated 6202..6323 <- PartialEq
+generated 6323..6521 <- Hash
+generated 6521..6662 <- PartialOrd
+generated 6662..6772 <- Ord
+generated 6772..6852 <- Default
+generated 6852..7576 <- Encode
+generated 7576..9379 <- Decode
+generated 9379..10449 <- __convenience_const
+generated 10566..10610 <- $Newtype
+generated 10611..10720 <- Debug
+generated 10720..10800 <- Clone
+generated 10800..10921 <- PartialEq
+generated 10921..11081 <- Hash
+generated 11081..11205 <- PartialOrd
+generated 11205..11315 <- Ord
+generated 11315..11396 <- Default
+generated 11396..12160 <- Encode
+generated 12160..14236 <- Decode
+generated 14236..15306 <- __convenience_const
+generated 15422..15467 <- $Newtype
+generated 15468..15574 <- Debug
+generated 15574..15651 <- Clone
+generated 15651..15769 <- PartialEq
+generated 15769..15862 <- Hash
+generated 15862..15981 <- PartialOrd
+generated 15981..16086 <- Ord
+generated 16086..16167 <- Default
+generated 16167..16883 <- Encode
+generated 16883..18680 <- Decode
+generated 18680..19723 <- __convenience_const
+generated 19898..19942 <- $Newtype
+generated 19943..20049 <- Debug
+generated 20049..20126 <- Clone
+generated 20126..20244 <- PartialEq
+generated 20244..20399 <- Hash
+generated 20399..20520 <- PartialOrd
+generated 20520..20627 <- Ord
+generated 20627..20709 <- Default
+generated 20709..21425 <- Encode
+generated 21425..23524 <- Decode
+generated 23524..24567 <- __convenience_const
+generated 24685..24767 <- $Newtype
+generated 24768..24880 <- Debug
+generated 24880..24963 <- Clone
+generated 24963..25087 <- PartialEq
+generated 25087..25287 <- Hash
+generated 25287..25431 <- PartialOrd
+generated 25431..25544 <- Ord
+generated 25544..25627 <- Default
+generated 25627..26359 <- Encode
+generated 26359..28172 <- Decode
+generated 28172..29269 <- __convenience_const
+generated 29393..29502 <- Debug
+generated 29502..29582 <- Clone
+generated 29582..29703 <- PartialEq
+generated 29703..29860 <- Hash
+generated 29860..29984 <- PartialOrd
+generated 29984..30094 <- Ord
+generated 30094..30175 <- Default
+generated 30175..30899 <- Encode
+generated 30899..32654 <- Decode
+generated 32654..33724 <- __convenience_const
+generated 34182..35338 <- Debug
+generated 35338..36286 <- Clone
+generated 36286..37622 <- PartialEq
+generated 37622..38940 <- Hash
+generated 38940..39447 <- Default
+generated 39447..44394 <- Encode
+generated 44394..64861 <- Decode
+generated 64861..66266 <- __convenience_const
+generated 66440..66823 <- Debug
+generated 66823..67046 <- Clone
+generated 67046..67300 <- PartialEq
+generated 67300..67938 <- PartialOrd
+generated 67938..68390 <- Ord
+generated 68390..68826 <- __convenience_const
+generated 68965..69262 <- Debug
+generated 69262..69444 <- Clone
+generated 69444..69808 <- PartialEq
+generated 69808..70102 <- Hash
+generated 70102..72512 <- Encode
+generated 72512..79533 <- Decode
+generated 79533..80844 <- __convenience_const
+
+## Metadata
+
+interface NewHolder: {"body_span":{"end":2182,"start":1824},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1796,"start":1726}}],"fields":[{"decorators":[],"name":"text","optional":false,"readonly":false,"span":{"end":1844,"start":1830},"ts_type":"NewText"},{"decorators":[],"name":"count","optional":false,"readonly":false,"span":{"end":1865,"start":1849},"ts_type":"NewCount"},{"decorators":[],"name":"flag","optional":false,"readonly":false,"span":{"end":1884,"start":1870},"ts_type":"NewFlag"},{"decorators":[],"name":"slug","optional":false,"readonly":false,"span":{"end":1903,"start":1889},"ts_type":"NewSlug"},{"decorators":[],"name":"nested","optional":false,"readonly":false,"span":{"end":1926,"start":1908},"ts_type":"NewNested"},{"decorators":[],"name":"plain","optional":false,"readonly":false,"span":{"end":1947,"start":1931},"ts_type":"NewPlain"},{"decorators":[],"name":"maybe","optional":false,"readonly":false,"span":{"end":1974,"start":1952},"ts_type":"NewSlug | null"},{"decorators":[],"name":"later","optional":false,"readonly":false,"span":{"end":2007,"start":1979},"ts_type":"NewCount | undefined"},{"decorators":[],"name":"optional","optional":true,"readonly":false,"span":{"end":2031,"start":2012},"ts_type":"NewText"},{"decorators":[],"name":"list","optional":false,"readonly":false,"span":{"end":2052,"start":2036},"ts_type":"NewSlug[]"},{"decorators":[],"name":"set","optional":false,"readonly":false,"span":{"end":2075,"start":2057},"ts_type":"Set<NewText>"},{"decorators":[],"name":"bySlug","optional":false,"readonly":false,"span":{"end":2111,"start":2080},"ts_type":"Map<NewSlug, NewCount>"},{"decorators":[],"name":"record","optional":false,"readonly":false,"span":{"end":2149,"start":2116},"ts_type":"Record<string, NewCount>"},{"decorators":[],"name":"pair","optional":false,"readonly":false,"span":{"end":2180,"start":2154},"ts_type":"[NewText, NewCount]"}],"heritage":[],"methods":[],"name":"NewHolder","span":{"end":2182,"start":1804},"type_params":[]}
+interface NewOrdered: {"body_span":{"end":2356,"start":2273},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":2244,"start":2184}}],"fields":[{"decorators":[],"name":"slug","optional":false,"readonly":false,"span":{"end":2293,"start":2279},"ts_type":"NewSlug"},{"decorators":[],"name":"count","optional":false,"readonly":false,"span":{"end":2314,"start":2298},"ts_type":"NewCount"},{"decorators":[],"name":"total","optional":false,"readonly":false,"span":{"end":2335,"start":2319},"ts_type":"NewTotal"},{"decorators":[],"name":"flag","optional":false,"readonly":false,"span":{"end":2354,"start":2340},"ts_type":"NewFlag"}],"heritage":[],"methods":[],"name":"NewOrdered","span":{"end":2356,"start":2252},"type_params":[]}
+interface NewLedger: {"body_span":{"end":2495,"start":2447},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2419,"start":2358}}],"fields":[{"decorators":[],"name":"total","optional":false,"readonly":false,"span":{"end":2469,"start":2453},"ts_type":"NewTotal"},{"decorators":[],"name":"totals","optional":false,"readonly":false,"span":{"end":2493,"start":2474},"ts_type":"NewTotal[]"}],"heritage":[],"methods":[],"name":"NewLedger","span":{"end":2495,"start":2427},"type_params":[]}
+type NewText: {"body":{"Newtype":{"Alias":"string"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":625,"start":534}}],"name":"NewText","span":{"end":693,"start":633},"type_params":[]}
+type NewCount: {"body":{"Newtype":{"Alias":"number"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":786,"start":695}}],"name":"NewCount","span":{"end":855,"start":794},"type_params":[]}
+type NewTotal: {"body":{"Newtype":{"Alias":"bigint"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":948,"start":857}}],"name":"NewTotal","span":{"end":1017,"start":956},"type_params":[]}
+type NewFlag: {"body":{"Newtype":{"Alias":"boolean"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1110,"start":1019}}],"name":"NewFlag","span":{"end":1179,"start":1118},"type_params":[]}
+type NewSlug: {"body":{"Newtype":{"Alias":"string"}},"decorators":[{"args_src":"\"slug\"","name":"default","span":{"end":1331,"start":1308}},{"args_src":"nonEmpty, lowercase","name":"endec","span":{"end":1307,"start":1273}},{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1272,"start":1181}}],"name":"NewSlug","span":{"end":1399,"start":1339},"type_params":[]}
+type NewNested: {"body":{"Newtype":{"Newtype":{"Alias":"number"}}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1492,"start":1401}}],"name":"NewNested","span":{"end":1600,"start":1500},"type_params":[]}
+type NewPlain: {"body":{"Alias":"string"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1693,"start":1602}}],"name":"NewPlain","span":{"end":1724,"start":1701},"type_params":[]}
+
+## Registry reads
+
+Name("Map")
+Name("NewCount")
+Name("NewFlag")
+Name("NewNested")
+Name("NewPlain")
+Name("NewSlug")
+Name("NewText")
+Name("NewTotal")
+Name("Record")
+Name("Record<string, NewCount>")
+Name("Set")
+Name("[NewText, NewCount]")
+Name("bigint")
+Name("boolean")
+Name("number")
+Name("string")
+
+## Buildtime dependencies
+
+(none)

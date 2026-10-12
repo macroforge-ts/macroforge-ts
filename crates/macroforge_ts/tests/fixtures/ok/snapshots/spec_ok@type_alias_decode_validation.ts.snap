@@ -96,7 +96,7 @@ export function contactInfoDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "ContactInfo.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as ContactInfo | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "ContactInfo") as ContactInfo | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -115,7 +115,7 @@ export function contactInfoDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "ContactInfo");
     }
 
     ctx.trackForFreeze(instance);
@@ -264,10 +264,10 @@ export {};
 ## Mapping
 
 original 22..167 -> expanded 350..495
-original 167..168 -> expanded 9909..9910
+original 167..168 -> expanded 9939..9940
 generated 0..350 <- imports
-generated 495..9193 <- Decode
-generated 9193..9909 <- __convenience_const
+generated 495..9223 <- Decode
+generated 9223..9939 <- __convenience_const
 
 ## Metadata
 

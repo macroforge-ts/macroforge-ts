@@ -13,12 +13,12 @@ true
 ## Output
 
 import { colorsDecodeWithContext, colorsEncodeWithContext, colorsDecode } from "./colors.svelte";
-import { employeeDecode, employeeEncodeWithContext } from "./employee.svelte";
+import { employeeDecodeWithContext, employeeEncodeWithContext } from "./employee.svelte";
 import { recurrenceRuleDecodeWithContext, recurrenceRuleEncodeWithContext } from "./recurrence-rule.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { statusDecodeWithContext, statusEncodeWithContext } from "./status.svelte";
 import { __foreign__dateTimeDateTimeDefault, __foreign__optionOptionDefault, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeDecode, __foreign__optionOptionDecode } from "#macroforge/config";
-import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -100,123 +100,98 @@ export function appointmentEncode(value: Appointment, keepMetadata?: boolean): s
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function appointmentEncodeWithContext(value: Appointment, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return appointmentEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function appointmentEncodePartialWithContext(value: Partial<Appointment>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Appointment>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Appointment",
-        __id,
+        __id: ctx.register(value),
     };
+    appointmentEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function appointmentEncodePartialWithContext(value: Partial<Appointment>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Appointment>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Appointment" };
+        appointmentEncodeFields(value as Appointment, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function appointmentEncodeFields(value: Appointment, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
-
         if (value.id !== undefined) {
             result.id = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("title")) {
-
         if (value.title !== undefined) {
             result.title = value.title;
         }
     }
     if (__fields === undefined || __fields.keeps("status")) {
-
         if (value.status !== undefined) {
             result.status = statusEncodeWithContext(value.status, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("begins")) {
-
         if (value.begins !== undefined) {
             result.begins = __foreign__dateTimeDateTimeEncode(value.begins);
         }
     }
     if (__fields === undefined || __fields.keeps("duration")) {
-
         if (value.duration !== undefined) {
             result.duration = value.duration;
         }
     }
     if (__fields === undefined || __fields.keeps("timeZone")) {
-
         if (value.timeZone !== undefined) {
             result.timeZone = value.timeZone;
         }
     }
     if (__fields === undefined || __fields.keeps("offsetMs")) {
-
         if (value.offsetMs !== undefined) {
             result.offsetMs = value.offsetMs;
         }
     }
     if (__fields === undefined || __fields.keeps("allDay")) {
-
         if (value.allDay !== undefined) {
             result.allDay = value.allDay;
         }
     }
     if (__fields === undefined || __fields.keeps("multiDay")) {
-
         if (value.multiDay !== undefined) {
             result.multiDay = value.multiDay;
         }
     }
     if (__fields === undefined || __fields.keeps("employees")) {
-
         if (value.employees !== undefined) {
-            result.employees = value.employees.map(
-                (item) => typeof item === "string"
-                    ? item
-                    : employeeEncodeWithContext(item, ctx)
-            );
+            result.employees = value.employees.map((__item0) => (typeof __item0 === "string" ? __item0 : employeeEncodeWithContext(__item0, ctx)));
         }
     }
     if (__fields === undefined || __fields.keeps("location")) {
-
         if (value.location !== undefined) {
-            result.location = typeof value.location === "string"
-                ? value.location
-                : siteEncodeWithContext(value.location, ctx);
+            result.location = (typeof value.location === "string" ? value.location : siteEncodeWithContext(value.location, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("description")) {
-
         if (value.description !== undefined) {
             result.description = __foreign__optionOptionEncode(value.description);
         }
     }
     if (__fields === undefined || __fields.keeps("colors")) {
-
         if (value.colors !== undefined) {
             result.colors = colorsEncodeWithContext(value.colors, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("recurrenceRule")) {
         if (value.recurrenceRule !== undefined) {
-
-            if (value.recurrenceRule !== null) {
-                result.recurrenceRule = recurrenceRuleEncodeWithContext(value.recurrenceRule, ctx);
-            } else {
-                result.recurrenceRule = null;
-            }
+            result.recurrenceRule = value.recurrenceRule === null ? null : recurrenceRuleEncodeWithContext(value.recurrenceRule, ctx);
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -284,7 +259,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Appointment.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Appointment | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Appointment") as Appointment | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -339,7 +314,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Appointment");
     }
 
     ctx.trackForFreeze(instance);
@@ -441,38 +416,24 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     }
     if ((__fields === undefined || __fields.requires("employees")) || (__fields.keeps("employees") && obj["employees"] !== undefined)) {
         const __raw_employees = obj["employees"] as Array<string | Employee>;
-
         if (Array.isArray(__raw_employees)) {
-            const __arr = __raw_employees.map((item: string | Employee | { __ref: number }, idx) => {
-                if (typeof item === "string") {
-                    return item;
-                }
-                if (typeof item === "object" && item !== null && "__ref" in item) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (__mf_PendingRef.is(result)) {
-                        return { __pendingIdx: idx, __refId: result.id };
-                    }
-                    return result;
-                }
-                const __elemResult = employeeDecode(item);
-                if (!__elemResult.success) {
-                    for (const __err of __elemResult.errors) {
+            ctx.pushScope("employees");
+            try {
+                instance.employees = __mf_decodeArray(__raw_employees, ctx, (__raw0) => (typeof __raw0 === "string" ? __raw0 : employeeDecodeWithContext(__raw0, ctx)));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
                         errors.push({
-                            field: __err.field === "_root"
-                                ? "employees[" + idx + "]"
-                                : "employees[" + idx + "]." + __err.field,
+                            field: __err.field === "_root" ? "employees" : "employees." + __err.field,
                             message: __err.message
                         });
                     }
+                } else {
+                    throw __e;
                 }
-                return __elemResult.success ? __elemResult.value : item;
-            });
-            instance.employees = __arr;
-            __arr.forEach((item, idx) => {
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.employees, idx, (item as any).__refId);
-                }
-            });
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "employees", message: __raw_employees == null ? "Appointment.employees is required" : "expected Array<string | Employee>" });
         }
@@ -1260,7 +1221,7 @@ export declare function appointmentDefaultValue(): Appointment;
 export declare function appointmentEncode(value: Appointment, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function appointmentEncodeWithContext(value: Appointment, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function appointmentEncodePartialWithContext(value: Partial<Appointment>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Appointment>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function appointmentDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -1382,33 +1343,33 @@ export declare const Appointment: {
 
 ## Mapping
 
-original 0..359 -> expanded 1380..1739
-original 408..444 -> expanded 1739..1775
-original 472..493 -> expanded 1775..1796
-original 535..540 -> expanded 1796..1801
-original 581..605 -> expanded 1801..1825
-original 784..789 -> expanded 1825..1830
-original 817..842 -> expanded 1830..1855
-original 889..925 -> expanded 1855..1891
-original 980..1007 -> expanded 1891..1918
-original 1053..1080 -> expanded 1918..1945
-original 1108..1135 -> expanded 1945..1972
-original 1181..1207 -> expanded 1972..1998
-original 1255..1283 -> expanded 1998..2026
-original 1372..1418 -> expanded 2026..2072
-original 1471..1476 -> expanded 2072..2077
-original 1495..1529 -> expanded 2077..2111
-original 1581..1626 -> expanded 2111..2156
-original 1654..1659 -> expanded 2156..2161
-original 1732..1757 -> expanded 2161..2186
-original 1785..1830 -> expanded 2186..2231
-original 1830..1831 -> expanded 49865..49866
-generated 0..1380 <- imports
-generated 2231..2783 <- Default
-generated 2783..7393 <- Encode
-generated 7393..25458 <- Decode
-generated 25458..48518 <- Gigaform
-generated 48518..49865 <- __convenience_const
+original 0..359 -> expanded 1465..1824
+original 408..444 -> expanded 1824..1860
+original 472..493 -> expanded 1860..1881
+original 535..540 -> expanded 1881..1886
+original 581..605 -> expanded 1886..1910
+original 784..789 -> expanded 1910..1915
+original 817..842 -> expanded 1915..1940
+original 889..925 -> expanded 1940..1976
+original 980..1007 -> expanded 1976..2003
+original 1053..1080 -> expanded 2003..2030
+original 1108..1135 -> expanded 2030..2057
+original 1181..1207 -> expanded 2057..2083
+original 1255..1283 -> expanded 2083..2111
+original 1372..1418 -> expanded 2111..2157
+original 1471..1476 -> expanded 2157..2162
+original 1495..1529 -> expanded 2162..2196
+original 1581..1626 -> expanded 2196..2241
+original 1654..1659 -> expanded 2241..2246
+original 1732..1757 -> expanded 2246..2271
+original 1785..1830 -> expanded 2271..2316
+original 1830..1831 -> expanded 49450..49451
+generated 0..1465 <- imports
+generated 2316..2868 <- Default
+generated 2868..7637 <- Encode
+generated 7637..25043 <- Decode
+generated 25043..48103 <- Gigaform
+generated 48103..49450 <- __convenience_const
 
 ## Metadata
 

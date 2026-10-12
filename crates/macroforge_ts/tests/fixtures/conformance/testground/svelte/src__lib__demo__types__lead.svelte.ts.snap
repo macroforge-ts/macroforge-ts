@@ -16,12 +16,13 @@ import { accountNameDecodeWithContext, accountNameEncodeWithContext, accountName
 import { emailDecodeWithContext, emailEncodeWithContext, emailDefaultValue } from "./email.svelte";
 import { leadStageDecodeWithContext, leadStageEncodeWithContext } from "./lead-stage.svelte";
 import { nextStepDecodeWithContext, nextStepEncodeWithContext } from "./next-step.svelte";
-import { phoneNumberDecode, phoneNumberEncodeWithContext } from "./phone-number.svelte";
+import { phoneNumberDecodeWithContext, phoneNumberEncodeWithContext } from "./phone-number.svelte";
 import { priorityDecodeWithContext, priorityEncodeWithContext } from "./priority.svelte";
-import { representsDecode, representsEncodeWithContext } from "./represents.svelte";
+import { representsDecodeWithContext, representsEncodeWithContext } from "./represents.svelte";
 import { sectorDecodeWithContext, sectorEncodeWithContext } from "./sector.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { taxRateEncodeWithContext } from "./tax-rate.svelte";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -163,236 +164,188 @@ export function leadEncode(value: Lead, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function leadEncodeWithContext(value: Lead, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return leadEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function leadEncodePartialWithContext(value: Partial<Lead>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Lead>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Lead",
-        __id,
+        __id: ctx.register(value),
     };
+    leadEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function leadEncodePartialWithContext(value: Partial<Lead>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Lead>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Lead" };
+        leadEncodeFields(value as Lead, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function leadEncodeFields(value: Lead, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
-
         if (value.id !== undefined) {
             result.id = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("number")) {
         if (value.number !== undefined) {
-
             result.number = value.number;
         }
     }
     if (__fields === undefined || __fields.keeps("accepted")) {
-
         if (value.accepted !== undefined) {
             result.accepted = value.accepted;
         }
     }
     if (__fields === undefined || __fields.keeps("probability")) {
-
         if (value.probability !== undefined) {
             result.probability = value.probability;
         }
     }
     if (__fields === undefined || __fields.keeps("priority")) {
-
         if (value.priority !== undefined) {
             result.priority = priorityEncodeWithContext(value.priority, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("dueDate")) {
         if (value.dueDate !== undefined) {
-
             result.dueDate = value.dueDate;
         }
     }
     if (__fields === undefined || __fields.keeps("closeDate")) {
         if (value.closeDate !== undefined) {
-
             result.closeDate = value.closeDate;
         }
     }
     if (__fields === undefined || __fields.keeps("value")) {
-
         if (value.value !== undefined) {
             result.value = value.value;
         }
     }
     if (__fields === undefined || __fields.keeps("stage")) {
-
         if (value.stage !== undefined) {
             result.stage = leadStageEncodeWithContext(value.stage, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("status")) {
-
         if (value.status !== undefined) {
             result.status = value.status;
         }
     }
     if (__fields === undefined || __fields.keeps("description")) {
         if (value.description !== undefined) {
-
             result.description = value.description;
         }
     }
     if (__fields === undefined || __fields.keeps("nextStep")) {
-
         if (value.nextStep !== undefined) {
             result.nextStep = nextStepEncodeWithContext(value.nextStep, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("favorite")) {
-
         if (value.favorite !== undefined) {
             result.favorite = value.favorite;
         }
     }
     if (__fields === undefined || __fields.keeps("dateAdded")) {
         if (value.dateAdded !== undefined) {
-
             result.dateAdded = value.dateAdded;
         }
     }
     if (__fields === undefined || __fields.keeps("taxRate")) {
         if (value.taxRate !== undefined) {
-
-            if (value.taxRate !== null) {
-                result.taxRate = value.taxRate;
-            } else {
-                result.taxRate = null;
-            }
+            result.taxRate = value.taxRate === null ? null : (typeof value.taxRate === "string" ? value.taxRate : taxRateEncodeWithContext(value.taxRate, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("sector")) {
-
         if (value.sector !== undefined) {
             result.sector = sectorEncodeWithContext(value.sector, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("leadName")) {
-
         if (value.leadName !== undefined) {
             result.leadName = accountNameEncodeWithContext(value.leadName, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("phones")) {
-
         if (value.phones !== undefined) {
-            result.phones = value.phones.map(
-                (item) => phoneNumberEncodeWithContext(item, ctx)
-            );
+            result.phones = value.phones.map((__item0) => phoneNumberEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("email")) {
-
         if (value.email !== undefined) {
             result.email = emailEncodeWithContext(value.email, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("leadSource")) {
         if (value.leadSource !== undefined) {
-
             result.leadSource = value.leadSource;
         }
     }
     if (__fields === undefined || __fields.keeps("site")) {
-
         if (value.site !== undefined) {
-            result.site = typeof value.site === "string"
-                ? value.site
-                : siteEncodeWithContext(value.site, ctx);
+            result.site = (typeof value.site === "string" ? value.site : siteEncodeWithContext(value.site, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("memo")) {
-
         if (value.memo !== undefined) {
             result.memo = value.memo;
         }
     }
     if (__fields === undefined || __fields.keeps("needsReview")) {
-
         if (value.needsReview !== undefined) {
             result.needsReview = value.needsReview;
         }
     }
     if (__fields === undefined || __fields.keeps("hasAlert")) {
-
         if (value.hasAlert !== undefined) {
             result.hasAlert = value.hasAlert;
         }
     }
     if (__fields === undefined || __fields.keeps("salesRep")) {
         if (value.salesRep !== undefined) {
-
-            if (value.salesRep !== null) {
-
-                result.salesRep = value.salesRep.map(
-                    (item) => representsEncodeWithContext(item, ctx)
-                );
-            } else {
-                result.salesRep = null;
-            }
+            result.salesRep = value.salesRep === null ? null : value.salesRep.map((__item0) => representsEncodeWithContext(__item0, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("color")) {
         if (value.color !== undefined) {
-
             result.color = value.color;
         }
     }
     if (__fields === undefined || __fields.keeps("accountType")) {
-
         if (value.accountType !== undefined) {
             result.accountType = value.accountType;
         }
     }
     if (__fields === undefined || __fields.keeps("subtype")) {
-
         if (value.subtype !== undefined) {
             result.subtype = value.subtype;
         }
     }
     if (__fields === undefined || __fields.keeps("isTaxExempt")) {
-
         if (value.isTaxExempt !== undefined) {
             result.isTaxExempt = value.isTaxExempt;
         }
     }
     if (__fields === undefined || __fields.keeps("paymentTerms")) {
-
         if (value.paymentTerms !== undefined) {
             result.paymentTerms = value.paymentTerms;
         }
     }
     if (__fields === undefined || __fields.keeps("tags")) {
-
         if (value.tags !== undefined) {
             result.tags = value.tags;
         }
     }
     if (__fields === undefined || __fields.keeps("customFields")) {
-
         if (value.customFields !== undefined) {
             result.customFields = value.customFields;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -460,7 +413,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Lead.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Lead | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Lead") as Lead | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -569,7 +522,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Lead");
     }
 
     ctx.trackForFreeze(instance);
@@ -797,35 +750,24 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
     }
     if ((__fields === undefined || __fields.requires("phones")) || (__fields.keeps("phones") && obj["phones"] !== undefined)) {
         const __raw_phones = obj["phones"] as Array<PhoneNumber>;
-
         if (Array.isArray(__raw_phones)) {
-            const __arr = __raw_phones.map((item: PhoneNumber | { __ref: number }, idx) => {
-                if (typeof item === "object" && item !== null && "__ref" in item) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (__mf_PendingRef.is(result)) {
-                        return { __pendingIdx: idx, __refId: result.id };
-                    }
-                    return result;
-                }
-                const __elemResult = phoneNumberDecode(item);
-                if (!__elemResult.success) {
-                    for (const __err of __elemResult.errors) {
+            ctx.pushScope("phones");
+            try {
+                instance.phones = __mf_decodeArray(__raw_phones, ctx, (__raw0) => phoneNumberDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
                         errors.push({
-                            field: __err.field === "_root"
-                                ? "phones[" + idx + "]"
-                                : "phones[" + idx + "]." + __err.field,
+                            field: __err.field === "_root" ? "phones" : "phones." + __err.field,
                             message: __err.message
                         });
                     }
+                } else {
+                    throw __e;
                 }
-                return __elemResult.success ? __elemResult.value : item;
-            });
-            instance.phones = __arr;
-            __arr.forEach((item, idx) => {
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.phones, idx, (item as any).__refId);
-                }
-            });
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "phones", message: __raw_phones == null ? "Lead.phones is required" : "expected Array<PhoneNumber>" });
         }
@@ -923,35 +865,24 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         if (__raw_salesRep === null) {
             instance.salesRep = null;
         } else {
-
             if (Array.isArray(__raw_salesRep)) {
-                const __arr = __raw_salesRep.map((item: Represents | { __ref: number }, idx) => {
-                    if (typeof item === "object" && item !== null && "__ref" in item) {
-                        const result = ctx.getOrDefer(item.__ref);
-                        if (__mf_PendingRef.is(result)) {
-                            return { __pendingIdx: idx, __refId: result.id };
-                        }
-                        return result;
-                    }
-                    const __elemResult = representsDecode(item);
-                    if (!__elemResult.success) {
-                        for (const __err of __elemResult.errors) {
+                ctx.pushScope("salesRep");
+                try {
+                    instance.salesRep = __mf_decodeArray(__raw_salesRep, ctx, (__raw0) => representsDecodeWithContext(__raw0, ctx));
+                } catch (__e) {
+                    if (__e instanceof __mf_DecodeError) {
+                        for (const __err of __e.errors) {
                             errors.push({
-                                field: __err.field === "_root"
-                                    ? "salesRep[" + idx + "]"
-                                    : "salesRep[" + idx + "]." + __err.field,
+                                field: __err.field === "_root" ? "salesRep" : "salesRep." + __err.field,
                                 message: __err.message
                             });
                         }
+                    } else {
+                        throw __e;
                     }
-                    return __elemResult.success ? __elemResult.value : item;
-                });
-                instance.salesRep = __arr;
-                __arr.forEach((item, idx) => {
-                    if (item && typeof item === "object" && "__pendingIdx" in item) {
-                        ctx.addPatch(instance.salesRep, idx, (item as any).__refId);
-                    }
-                });
+                } finally {
+                    ctx.popScope();
+                }
             } else {
                 errors.push({ field: "salesRep", message: __raw_salesRep == null ? "Lead.salesRep is required" : "expected Array<Represents>" });
             }
@@ -1013,33 +944,48 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
     }
     if ((__fields === undefined || __fields.requires("tags")) || (__fields.keeps("tags") && obj["tags"] !== undefined)) {
         const __raw_tags = obj["tags"] as Array<string>;
-
         if (Array.isArray(__raw_tags)) {
-            instance.tags = __raw_tags as string[];
+            ctx.pushScope("tags");
+            try {
+                instance.tags = __mf_decodeArray(__raw_tags, ctx, __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "tags" : "tags." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "tags", message: __raw_tags == null ? "Lead.tags is required" : "expected Array<string>" });
         }
     }
     if ((__fields === undefined || __fields.requires("customFields")) || (__fields.keeps("customFields") && obj["customFields"] !== undefined)) {
         const __raw_customFields = obj["customFields"] as Array<[string, string]>;
-
         if (Array.isArray(__raw_customFields)) {
-            const __arr = __raw_customFields.map((item: [string, string] | { __ref: number }, idx) => {
-                if (typeof item === "object" && item !== null && "__ref" in item) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (__mf_PendingRef.is(result)) {
-                        return { __pendingIdx: idx, __refId: result.id };
+            ctx.pushScope("customFields");
+            try {
+                instance.customFields = __mf_decodeArray(__raw_customFields, ctx, (__raw0) => (__mf_decodeTuple(__raw0, ctx, [__mf_decodeString, __mf_decodeString], 2) as [string, string]));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "customFields" : "customFields." + __err.field,
+                            message: __err.message
+                        });
                     }
-                    return result;
+                } else {
+                    throw __e;
                 }
-                return item as [string, string];
-            });
-            instance.customFields = __arr;
-            __arr.forEach((item, idx) => {
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.customFields, idx, (item as any).__refId);
-                }
-            });
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "customFields", message: __raw_customFields == null ? "Lead.customFields is required" : "expected Array<[string, string]>" });
         }
@@ -2459,7 +2405,7 @@ export declare function leadDefaultValue(): Lead;
 export declare function leadEncode(value: Lead, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function leadEncodeWithContext(value: Lead, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function leadEncodePartialWithContext(value: Partial<Lead>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Lead>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function leadDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -2635,57 +2581,57 @@ export declare const Lead: {
 
 ## Mapping
 
-original 0..572 -> expanded 1500..2072
-original 621..650 -> expanded 2072..2101
-original 678..699 -> expanded 2101..2122
-original 727..759 -> expanded 2122..2154
-original 787..815 -> expanded 2154..2182
-original 883..913 -> expanded 2182..2212
-original 1106..1111 -> expanded 2212..2217
-original 1136..1165 -> expanded 2217..2246
-original 1214..1247 -> expanded 2246..2279
-original 1298..1333 -> expanded 2279..2314
-original 1397..1421 -> expanded 2314..2338
-original 1718..1723 -> expanded 2338..2343
-original 1746..1773 -> expanded 2343..2370
-original 1816..1821 -> expanded 2370..2375
-original 1862..1887 -> expanded 2375..2400
-original 1939..1976 -> expanded 2400..2437
-original 2004..2009 -> expanded 2437..2442
-original 2042..2071 -> expanded 2442..2471
-original 2118..2146 -> expanded 2471..2499
-original 2174..2209 -> expanded 2499..2534
-original 2309..2354 -> expanded 2534..2579
-original 2535..2540 -> expanded 2579..2584
-original 2570..2595 -> expanded 2584..2609
-original 2727..2759 -> expanded 2609..2641
-original 2812..2849 -> expanded 2641..2678
-original 2897..2920 -> expanded 2678..2701
-original 2991..3027 -> expanded 2701..2737
-original 3076..3081 -> expanded 2737..2742
-original 3100..3130 -> expanded 2742..2772
-original 3175..3180 -> expanded 2772..2777
-original 3221..3244 -> expanded 2777..2800
-original 3295..3326 -> expanded 2800..2831
-original 3374..3402 -> expanded 2831..2859
-original 3491..3536 -> expanded 2859..2904
-original 3564..3595 -> expanded 2904..2935
-original 3667..3672 -> expanded 2935..2940
-original 3713..3743 -> expanded 2940..2970
-original 3810..3815 -> expanded 2970..2975
-original 3856..3882 -> expanded 2975..3001
-original 3931..3962 -> expanded 3001..3032
-original 4035..4040 -> expanded 3032..3037
-original 4081..4112 -> expanded 3037..3068
-original 4153..4183 -> expanded 3068..3098
-original 4243..4288 -> expanded 3098..3143
-original 4288..4289 -> expanded 97410..97411
-generated 0..1500 <- imports
-generated 3143..4005 <- Default
-generated 4005..11744 <- Encode
-generated 11744..48231 <- Decode
-generated 48231..96252 <- Gigaform
-generated 96252..97410 <- __convenience_const
+original 0..572 -> expanded 1726..2298
+original 621..650 -> expanded 2298..2327
+original 678..699 -> expanded 2327..2348
+original 727..759 -> expanded 2348..2380
+original 787..815 -> expanded 2380..2408
+original 883..913 -> expanded 2408..2438
+original 1106..1111 -> expanded 2438..2443
+original 1136..1165 -> expanded 2443..2472
+original 1214..1247 -> expanded 2472..2505
+original 1298..1333 -> expanded 2505..2540
+original 1397..1421 -> expanded 2540..2564
+original 1718..1723 -> expanded 2564..2569
+original 1746..1773 -> expanded 2569..2596
+original 1816..1821 -> expanded 2596..2601
+original 1862..1887 -> expanded 2601..2626
+original 1939..1976 -> expanded 2626..2663
+original 2004..2009 -> expanded 2663..2668
+original 2042..2071 -> expanded 2668..2697
+original 2118..2146 -> expanded 2697..2725
+original 2174..2209 -> expanded 2725..2760
+original 2309..2354 -> expanded 2760..2805
+original 2535..2540 -> expanded 2805..2810
+original 2570..2595 -> expanded 2810..2835
+original 2727..2759 -> expanded 2835..2867
+original 2812..2849 -> expanded 2867..2904
+original 2897..2920 -> expanded 2904..2927
+original 2991..3027 -> expanded 2927..2963
+original 3076..3081 -> expanded 2963..2968
+original 3100..3130 -> expanded 2968..2998
+original 3175..3180 -> expanded 2998..3003
+original 3221..3244 -> expanded 3003..3026
+original 3295..3326 -> expanded 3026..3057
+original 3374..3402 -> expanded 3057..3085
+original 3491..3536 -> expanded 3085..3130
+original 3564..3595 -> expanded 3130..3161
+original 3667..3672 -> expanded 3161..3166
+original 3713..3743 -> expanded 3166..3196
+original 3810..3815 -> expanded 3196..3201
+original 3856..3882 -> expanded 3201..3227
+original 3931..3962 -> expanded 3227..3258
+original 4035..4040 -> expanded 3258..3263
+original 4081..4112 -> expanded 3263..3294
+original 4153..4183 -> expanded 3294..3324
+original 4243..4288 -> expanded 3324..3369
+original 4288..4289 -> expanded 97046..97047
+generated 0..1726 <- imports
+generated 3369..4231 <- Default
+generated 4231..12078 <- Encode
+generated 12078..47867 <- Decode
+generated 47867..95888 <- Gigaform
+generated 95888..97046 <- __convenience_const
 
 ## Metadata
 

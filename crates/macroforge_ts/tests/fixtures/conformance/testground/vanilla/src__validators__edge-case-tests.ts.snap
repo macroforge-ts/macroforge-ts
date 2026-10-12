@@ -25,6 +25,7 @@ export class MultipleValidatorsTest {
     text: string;
 
 constructor(props: { text: string }) {
+
     this.text = props.text;
 }
 
@@ -94,7 +95,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "MultipleValidatorsTest.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as MultipleValidatorsTest | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "MultipleValidatorsTest") as MultipleValidatorsTest | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -106,10 +107,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("text")) && !("text" in obj)) {
         errors.push({ field: "text", message: "missing required field" });
     }
-    const instance = Object.create(MultipleValidatorsTest.prototype) as MultipleValidatorsTest;
+
+    const instance: any = Object.create(MultipleValidatorsTest.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "MultipleValidatorsTest");
     }
 
     ctx.trackForFreeze(instance);
@@ -211,6 +213,7 @@ export class CustomMessageTest {
     email: string;
 
 constructor(props: { email: string }) {
+
     this.email = props.email;
 }
 
@@ -280,7 +283,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "CustomMessageTest.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as CustomMessageTest | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "CustomMessageTest") as CustomMessageTest | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -292,10 +295,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
         errors.push({ field: "email", message: "missing required field" });
     }
-    const instance = Object.create(CustomMessageTest.prototype) as CustomMessageTest;
+
+    const instance: any = Object.create(CustomMessageTest.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "CustomMessageTest");
     }
 
     ctx.trackForFreeze(instance);
@@ -391,6 +395,7 @@ export class MixedValidatorsTest {
     email: string;
 
 constructor(props: { email: string }) {
+
     this.email = props.email;
 }
 
@@ -460,7 +465,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "MixedValidatorsTest.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as MixedValidatorsTest | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "MixedValidatorsTest") as MixedValidatorsTest | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -472,10 +477,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("email")) && !("email" in obj)) {
         errors.push({ field: "email", message: "missing required field" });
     }
-    const instance = Object.create(MixedValidatorsTest.prototype) as MixedValidatorsTest;
+
+    const instance: any = Object.create(MixedValidatorsTest.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "MixedValidatorsTest");
     }
 
     ctx.trackForFreeze(instance);
@@ -574,6 +580,7 @@ export class CombinedStringValidatorsTest {
     username: string;
 
 constructor(props: { username: string }) {
+
     this.username = props.username;
 }
 
@@ -643,7 +650,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "CombinedStringValidatorsTest.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as CombinedStringValidatorsTest | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "CombinedStringValidatorsTest") as CombinedStringValidatorsTest | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -655,10 +662,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("username")) && !("username" in obj)) {
         errors.push({ field: "username", message: "missing required field" });
     }
-    const instance = Object.create(CombinedStringValidatorsTest.prototype) as CombinedStringValidatorsTest;
+
+    const instance: any = Object.create(CombinedStringValidatorsTest.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "CombinedStringValidatorsTest");
     }
 
     ctx.trackForFreeze(instance);
@@ -760,6 +768,7 @@ export class CombinedNumberValidatorsTest {
     score: number;
 
 constructor(props: { score: number }) {
+
     this.score = props.score;
 }
 
@@ -829,7 +838,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "CombinedNumberValidatorsTest.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as CombinedNumberValidatorsTest | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "CombinedNumberValidatorsTest") as CombinedNumberValidatorsTest | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -841,10 +850,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("score")) && !("score" in obj)) {
         errors.push({ field: "score", message: "missing required field" });
     }
-    const instance = Object.create(CombinedNumberValidatorsTest.prototype) as CombinedNumberValidatorsTest;
+
+    const instance: any = Object.create(CombinedNumberValidatorsTest.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "CombinedNumberValidatorsTest");
     }
 
     ctx.trackForFreeze(instance);
@@ -1212,35 +1222,35 @@ export declare function combinedNumberValidatorsTestIs(value: unknown): value is
 ## Mapping
 
 original 0..274 -> expanded 350..624
-original 274..275 -> expanded 7604..7605
-original 275..480 -> expanded 9597..9802
-original 480..481 -> expanded 15887..15888
-original 481..702 -> expanded 17805..18026
-original 702..703 -> expanded 24510..24511
-original 703..904 -> expanded 26458..26659
-original 904..905 -> expanded 34086..34087
-original 905..1094 -> expanded 36169..36358
-original 1094..1095 -> expanded 43512..43513
-original 1095..1096 -> expanded 45595..45596
+original 274..275 -> expanded 7637..7638
+original 275..480 -> expanded 9630..9835
+original 480..481 -> expanded 15948..15949
+original 481..702 -> expanded 17866..18087
+original 702..703 -> expanded 24601..24602
+original 703..904 -> expanded 26549..26750
+original 904..905 -> expanded 34216..34217
+original 905..1094 -> expanded 36299..36488
+original 1094..1095 -> expanded 43681..43682
+original 1095..1096 -> expanded 45764..45765
 generated 0..350 <- imports
-generated 624..7604 <- Decode
-generated 7605..9597 <- Decode
-generated 9802..15887 <- Decode
-generated 15888..17805 <- Decode
-generated 18026..24510 <- Decode
-generated 24511..26458 <- Decode
-generated 26659..34086 <- Decode
-generated 34087..36169 <- Decode
-generated 36358..43512 <- Decode
-generated 43513..45595 <- Decode
+generated 624..7637 <- Decode
+generated 7638..9630 <- Decode
+generated 9835..15948 <- Decode
+generated 15949..17866 <- Decode
+generated 18087..24601 <- Decode
+generated 24602..26549 <- Decode
+generated 26750..34216 <- Decode
+generated 34217..36299 <- Decode
+generated 36488..43681 <- Decode
+generated 43682..45764 <- Decode
 
 ## Metadata
 
-class MultipleValidatorsTest: {"body_span":{"end":276,"start":180},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":143,"start":121}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"maxLength(100)\", \"trimmed\"] }","name":"endec","span":{"end":256,"start":186}}],"initializer":null,"name":"text","optional":false,"readonly":false,"span":{"end":274,"start":261},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MultipleValidatorsTest","span":{"end":276,"start":151},"type_params":[]}
-class CustomMessageTest: {"body_span":{"end":482,"start":356},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":324,"start":302}}],"fields":[{"decorators":[{"args_src":"{ validate: [{ validate: \"email\", message: \"Please enter a valid email address\" }] }","name":"endec","span":{"end":461,"start":362}}],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":480,"start":466},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomMessageTest","span":{"end":482,"start":332},"type_params":[]}
-class MixedValidatorsTest: {"body_span":{"end":704,"start":580},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":546,"start":524}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", { validate: \"email\", message: \"Invalid email format\" }] }","name":"endec","span":{"end":683,"start":586}}],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":702,"start":688},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MixedValidatorsTest","span":{"end":704,"start":554},"type_params":[]}
-class CombinedStringValidatorsTest: {"body_span":{"end":906,"start":801},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":758,"start":736}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minLength(3)\", \"maxLength(20)\", \"lowercase\"] }","name":"endec","span":{"end":882,"start":807}}],"initializer":null,"name":"username","optional":false,"readonly":false,"span":{"end":904,"start":887},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CombinedStringValidatorsTest","span":{"end":906,"start":766},"type_params":[]}
-class CombinedNumberValidatorsTest: {"body_span":{"end":1096,"start":1003},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":960,"start":938}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"int\", \"positive\", \"lessThan(1000)\"] }","name":"endec","span":{"end":1075,"start":1009}}],"initializer":null,"name":"score","optional":false,"readonly":false,"span":{"end":1094,"start":1080},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CombinedNumberValidatorsTest","span":{"end":1096,"start":968},"type_params":[]}
+class MultipleValidatorsTest: {"body_span":{"end":276,"start":180},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":143,"start":121}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"maxLength(100)\", \"trimmed\"] }","name":"endec","span":{"end":256,"start":186}}],"initializer":null,"name":"text","optional":false,"readonly":false,"span":{"end":274,"start":261},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MultipleValidatorsTest","span":{"end":276,"start":151},"superclass":null,"type_params":[]}
+class CustomMessageTest: {"body_span":{"end":482,"start":356},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":324,"start":302}}],"fields":[{"decorators":[{"args_src":"{ validate: [{ validate: \"email\", message: \"Please enter a valid email address\" }] }","name":"endec","span":{"end":461,"start":362}}],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":480,"start":466},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomMessageTest","span":{"end":482,"start":332},"superclass":null,"type_params":[]}
+class MixedValidatorsTest: {"body_span":{"end":704,"start":580},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":546,"start":524}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", { validate: \"email\", message: \"Invalid email format\" }] }","name":"endec","span":{"end":683,"start":586}}],"initializer":null,"name":"email","optional":false,"readonly":false,"span":{"end":702,"start":688},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MixedValidatorsTest","span":{"end":704,"start":554},"superclass":null,"type_params":[]}
+class CombinedStringValidatorsTest: {"body_span":{"end":906,"start":801},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":758,"start":736}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minLength(3)\", \"maxLength(20)\", \"lowercase\"] }","name":"endec","span":{"end":882,"start":807}}],"initializer":null,"name":"username","optional":false,"readonly":false,"span":{"end":904,"start":887},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CombinedStringValidatorsTest","span":{"end":906,"start":766},"superclass":null,"type_params":[]}
+class CombinedNumberValidatorsTest: {"body_span":{"end":1096,"start":1003},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":960,"start":938}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"int\", \"positive\", \"lessThan(1000)\"] }","name":"endec","span":{"end":1075,"start":1009}}],"initializer":null,"name":"score","optional":false,"readonly":false,"span":{"end":1094,"start":1080},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CombinedNumberValidatorsTest","span":{"end":1096,"start":968},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

@@ -12,23 +12,23 @@ true
 
 ## Output
 
-import { accountDecodeWithContext, accountHasShape, accountDefaultValue } from "./account.svelte";
-import { appointmentDecodeWithContext, appointmentHasShape, appointmentDefaultValue } from "./appointment.svelte";
-import { companyDecodeWithContext, companyHasShape, companyDefaultValue } from "./company.svelte";
-import { employeeDecodeWithContext, employeeHasShape, employeeDefaultValue } from "./employee.svelte";
-import { leadDecodeWithContext, leadHasShape, leadDefaultValue } from "./lead.svelte";
-import { orderDecodeWithContext, orderHasShape, orderDefaultValue } from "./order.svelte";
-import { orderedDecodeWithContext, orderedHasShape, orderedDefaultValue } from "./ordered.svelte";
-import { packageDecodeWithContext, packageHasShape, packageDefaultValue } from "./package.svelte";
-import { paymentDecodeWithContext, paymentHasShape, paymentDefaultValue } from "./payment.svelte";
-import { productDecodeWithContext, productHasShape, productDefaultValue } from "./product.svelte";
-import { promotionDecodeWithContext, promotionHasShape, promotionDefaultValue } from "./promotion.svelte";
-import { representsDecodeWithContext, representsHasShape, representsDefaultValue } from "./represents.svelte";
-import { routeDecodeWithContext, routeHasShape, routeDefaultValue } from "./route.svelte";
-import { serviceDecodeWithContext, serviceHasShape, serviceDefaultValue } from "./service.svelte";
-import { siteDecodeWithContext, siteHasShape, siteDefaultValue } from "./site.svelte";
-import { taxRateDecodeWithContext, taxRateHasShape, taxRateDefaultValue } from "./tax-rate.svelte";
-import { userDecodeWithContext, userHasShape, userDefaultValue } from "./user.svelte";
+import { accountDecodeWithContext, accountHasShape, accountEncodeWithContext, accountDefaultValue } from "./account.svelte";
+import { appointmentDecodeWithContext, appointmentHasShape, appointmentEncodeWithContext, appointmentDefaultValue } from "./appointment.svelte";
+import { companyDecodeWithContext, companyHasShape, companyEncodeWithContext, companyDefaultValue } from "./company.svelte";
+import { employeeDecodeWithContext, employeeHasShape, employeeEncodeWithContext, employeeDefaultValue } from "./employee.svelte";
+import { leadDecodeWithContext, leadHasShape, leadEncodeWithContext, leadDefaultValue } from "./lead.svelte";
+import { orderDecodeWithContext, orderHasShape, orderEncodeWithContext, orderDefaultValue } from "./order.svelte";
+import { orderedDecodeWithContext, orderedHasShape, orderedEncodeWithContext, orderedDefaultValue } from "./ordered.svelte";
+import { packageDecodeWithContext, packageHasShape, packageEncodeWithContext, packageDefaultValue } from "./package.svelte";
+import { paymentDecodeWithContext, paymentHasShape, paymentEncodeWithContext, paymentDefaultValue } from "./payment.svelte";
+import { productDecodeWithContext, productHasShape, productEncodeWithContext, productDefaultValue } from "./product.svelte";
+import { promotionDecodeWithContext, promotionHasShape, promotionEncodeWithContext, promotionDefaultValue } from "./promotion.svelte";
+import { representsDecodeWithContext, representsHasShape, representsEncodeWithContext, representsDefaultValue } from "./represents.svelte";
+import { routeDecodeWithContext, routeHasShape, routeEncodeWithContext, routeDefaultValue } from "./route.svelte";
+import { serviceDecodeWithContext, serviceHasShape, serviceEncodeWithContext, serviceDefaultValue } from "./service.svelte";
+import { siteDecodeWithContext, siteHasShape, siteEncodeWithContext, siteDefaultValue } from "./site.svelte";
+import { taxRateDecodeWithContext, taxRateHasShape, taxRateEncodeWithContext, taxRateDefaultValue } from "./tax-rate.svelte";
+import { userDecodeWithContext, userHasShape, userEncodeWithContext, userDefaultValue } from "./user.svelte";
 import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
@@ -93,6 +93,43 @@ export function targetEncodeWithContext(value: Target, ctx: __mf_EncodeContext):
     if (__encoder) {
         __variant = __encoder(value, ctx);
         __matched = true;
+    }
+    if (!__matched && value !== null && typeof value === "object") {
+        const __refTag = (value as any)["__type"];
+        if (!__matched && __refTag === "Account") { __variant = accountEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "User") { __variant = userEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Employee") { __variant = employeeEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Appointment") { __variant = appointmentEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Lead") { __variant = leadEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "TaxRate") { __variant = taxRateEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Site") { __variant = siteEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Route") { __variant = routeEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Company") { __variant = companyEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Product") { __variant = productEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Service") { __variant = serviceEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Order") { __variant = orderEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Payment") { __variant = paymentEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Package") { __variant = packageEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Promotion") { __variant = promotionEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Represents") { __variant = representsEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Ordered") { __variant = orderedEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && accountHasShape(value)) { __variant = accountEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && userHasShape(value)) { __variant = userEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && employeeHasShape(value)) { __variant = employeeEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && appointmentHasShape(value)) { __variant = appointmentEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && leadHasShape(value)) { __variant = leadEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && taxRateHasShape(value)) { __variant = taxRateEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && siteHasShape(value)) { __variant = siteEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && routeHasShape(value)) { __variant = routeEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && companyHasShape(value)) { __variant = companyEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && productHasShape(value)) { __variant = productEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && serviceHasShape(value)) { __variant = serviceEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && orderHasShape(value)) { __variant = orderEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && paymentHasShape(value)) { __variant = paymentEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && packageHasShape(value)) { __variant = packageEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && promotionHasShape(value)) { __variant = promotionEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && representsHasShape(value)) { __variant = representsEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && orderedHasShape(value)) { __variant = orderedEncodeWithContext(value as any, ctx); __matched = true; }
     }
     
     if (!__matched) {
@@ -1117,15 +1154,15 @@ export declare const Target: {
 
 ## Mapping
 
-original 0..887 -> expanded 2228..3115
-original 936..1209 -> expanded 3115..3388
-original 1209..1210 -> expanded 32988..32989
-generated 0..2228 <- imports
-generated 3388..3472 <- Default
-generated 3472..4718 <- Encode
-generated 4718..18606 <- Decode
-generated 18606..32236 <- Gigaform
-generated 32236..32988 <- __convenience_const
+original 0..887 -> expanded 2667..3554
+original 936..1209 -> expanded 3554..3827
+original 1209..1210 -> expanded 37927..37928
+generated 0..2667 <- imports
+generated 3827..3911 <- Default
+generated 3911..9657 <- Encode
+generated 9657..23545 <- Decode
+generated 23545..37175 <- Gigaform
+generated 37175..37927 <- __convenience_const
 
 ## Metadata
 

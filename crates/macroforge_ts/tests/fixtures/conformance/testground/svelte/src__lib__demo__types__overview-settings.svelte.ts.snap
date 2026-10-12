@@ -12,10 +12,10 @@ true
 
 ## Output
 
-import { columnConfigDecode, columnConfigEncodeWithContext } from "./column-config.svelte";
+import { columnConfigDecodeWithContext, columnConfigEncodeWithContext } from "./column-config.svelte";
 import { overviewDisplayDecodeWithContext, overviewDisplayEncodeWithContext } from "./overview-display.svelte";
 import { rowHeightDecodeWithContext, rowHeightEncodeWithContext } from "./row-height.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -54,55 +54,48 @@ export function overviewSettingsEncode(value: OverviewSettings, keepMetadata?: b
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function overviewSettingsEncodeWithContext(value: OverviewSettings, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return overviewSettingsEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function overviewSettingsEncodePartialWithContext(value: Partial<OverviewSettings>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OverviewSettings>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "OverviewSettings",
-        __id,
+        __id: ctx.register(value),
     };
+    overviewSettingsEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function overviewSettingsEncodePartialWithContext(value: Partial<OverviewSettings>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OverviewSettings>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "OverviewSettings" };
+        overviewSettingsEncodeFields(value as OverviewSettings, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function overviewSettingsEncodeFields(value: OverviewSettings, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("rowHeight")) {
-
         if (value.rowHeight !== undefined) {
             result.rowHeight = rowHeightEncodeWithContext(value.rowHeight, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("cardOrRow")) {
-
         if (value.cardOrRow !== undefined) {
             result.cardOrRow = overviewDisplayEncodeWithContext(value.cardOrRow, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("perPage")) {
-
         if (value.perPage !== undefined) {
             result.perPage = value.perPage;
         }
     }
     if (__fields === undefined || __fields.keeps("columnConfigs")) {
-
         if (value.columnConfigs !== undefined) {
-            result.columnConfigs = value.columnConfigs.map(
-                (item) => columnConfigEncodeWithContext(item, ctx)
-            );
+            result.columnConfigs = value.columnConfigs.map((__item0) => columnConfigEncodeWithContext(__item0, ctx));
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -170,7 +163,7 @@ export function overviewSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "OverviewSettings.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as OverviewSettings | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "OverviewSettings") as OverviewSettings | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -195,7 +188,7 @@ export function overviewSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "OverviewSettings");
     }
 
     ctx.trackForFreeze(instance);
@@ -255,35 +248,24 @@ export function overviewSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
     }
     if ((__fields === undefined || __fields.requires("columnConfigs")) || (__fields.keeps("columnConfigs") && obj["columnConfigs"] !== undefined)) {
         const __raw_columnConfigs = obj["columnConfigs"] as Array<ColumnConfig>;
-
         if (Array.isArray(__raw_columnConfigs)) {
-            const __arr = __raw_columnConfigs.map((item: ColumnConfig | { __ref: number }, idx) => {
-                if (typeof item === "object" && item !== null && "__ref" in item) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (__mf_PendingRef.is(result)) {
-                        return { __pendingIdx: idx, __refId: result.id };
-                    }
-                    return result;
-                }
-                const __elemResult = columnConfigDecode(item);
-                if (!__elemResult.success) {
-                    for (const __err of __elemResult.errors) {
+            ctx.pushScope("columnConfigs");
+            try {
+                instance.columnConfigs = __mf_decodeArray(__raw_columnConfigs, ctx, (__raw0) => columnConfigDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
                         errors.push({
-                            field: __err.field === "_root"
-                                ? "columnConfigs[" + idx + "]"
-                                : "columnConfigs[" + idx + "]." + __err.field,
+                            field: __err.field === "_root" ? "columnConfigs" : "columnConfigs." + __err.field,
                             message: __err.message
                         });
                     }
+                } else {
+                    throw __e;
                 }
-                return __elemResult.success ? __elemResult.value : item;
-            });
-            instance.columnConfigs = __arr;
-            __arr.forEach((item, idx) => {
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.columnConfigs, idx, (item as any).__refId);
-                }
-            });
+            } finally {
+                ctx.popScope();
+            }
         } else {
             errors.push({ field: "columnConfigs", message: __raw_columnConfigs == null ? "OverviewSettings.columnConfigs is required" : "expected Array<ColumnConfig>" });
         }
@@ -627,7 +609,7 @@ export declare function overviewSettingsDefaultValue(): OverviewSettings;
 export declare function overviewSettingsEncode(value: OverviewSettings, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function overviewSettingsEncodeWithContext(value: OverviewSettings, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function overviewSettingsEncodePartialWithContext(value: Partial<OverviewSettings>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof OverviewSettings>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function overviewSettingsDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -719,17 +701,17 @@ export declare const OverviewSettings: {
 
 ## Mapping
 
-original 0..239 -> expanded 962..1201
-original 288..329 -> expanded 1201..1242
-original 354..385 -> expanded 1242..1273
-original 409..504 -> expanded 1273..1368
-original 504..505 -> expanded 25769..25770
-generated 0..962 <- imports
-generated 1368..1562 <- Default
-generated 1562..4154 <- Encode
-generated 4154..13929 <- Decode
-generated 13929..24287 <- Gigaform
-generated 24287..25769 <- __convenience_const
+original 0..239 -> expanded 1047..1286
+original 288..329 -> expanded 1286..1327
+original 354..385 -> expanded 1327..1358
+original 409..504 -> expanded 1358..1453
+original 504..505 -> expanded 25620..25621
+generated 0..1047 <- imports
+generated 1453..1647 <- Default
+generated 1647..4590 <- Encode
+generated 4590..13780 <- Decode
+generated 13780..24138 <- Gigaform
+generated 24138..25620 <- __convenience_const
 
 ## Metadata
 

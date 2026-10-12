@@ -15,7 +15,7 @@ true
 import { activityTypeDecodeWithContext, activityTypeEncodeWithContext, activityTypeDefaultValue } from "./activity-type.svelte";
 import { actorDecodeWithContext, actorEncodeWithContext } from "./actor.svelte";
 import { targetDecodeWithContext, targetEncodeWithContext } from "./target.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -58,69 +58,58 @@ export function didEncode(value: Did, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function didEncodeWithContext(value: Did, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return didEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function didEncodePartialWithContext(value: Partial<Did>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Did>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Did",
-        __id,
+        __id: ctx.register(value),
     };
+    didEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function didEncodePartialWithContext(value: Partial<Did>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Did>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Did" };
+        didEncodeFields(value as Did, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function didEncodeFields(value: Did, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("in")) {
-
         if (value.in !== undefined) {
-            result.in = typeof value.in === "string"
-                ? value.in
-                : actorEncodeWithContext(value.in, ctx);
+            result.in = (typeof value.in === "string" ? value.in : actorEncodeWithContext(value.in, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("out")) {
-
         if (value.out !== undefined) {
-            result.out = typeof value.out === "string"
-                ? value.out
-                : targetEncodeWithContext(value.out, ctx);
+            result.out = (typeof value.out === "string" ? value.out : targetEncodeWithContext(value.out, ctx));
         }
     }
     if (__fields === undefined || __fields.keeps("id")) {
-
         if (value.id !== undefined) {
             result.id = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("activityType")) {
-
         if (value.activityType !== undefined) {
             result.activityType = activityTypeEncodeWithContext(value.activityType, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("createdAt")) {
-
         if (value.createdAt !== undefined) {
             result.createdAt = value.createdAt;
         }
     }
     if (__fields === undefined || __fields.keeps("metadata")) {
         if (value.metadata !== undefined) {
-
             result.metadata = value.metadata;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -188,7 +177,7 @@ export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Did.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Did | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Did") as Did | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -219,7 +208,7 @@ export function didDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Did");
     }
 
     ctx.trackForFreeze(instance);
@@ -666,7 +655,7 @@ export declare function didDefaultValue(): Did;
 export declare function didEncode(value: Did, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function didEncodeWithContext(value: Did, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function didEncodePartialWithContext(value: Partial<Did>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Did>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function didDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -764,17 +753,17 @@ export declare const Did: {
 
 ## Mapping
 
-original 0..211 -> expanded 936..1147
-original 260..288 -> expanded 1147..1175
-original 307..336 -> expanded 1175..1204
-original 355..483 -> expanded 1204..1332
-original 483..484 -> expanded 24709..24710
-generated 0..936 <- imports
-generated 1332..1542 <- Default
-generated 1542..4361 <- Encode
-generated 4361..14195 <- Decode
-generated 14195..23578 <- Gigaform
-generated 23578..24709 <- __convenience_const
+original 0..211 -> expanded 977..1188
+original 260..288 -> expanded 1188..1216
+original 307..336 -> expanded 1216..1245
+original 355..483 -> expanded 1245..1373
+original 483..484 -> expanded 25012..25013
+generated 0..977 <- imports
+generated 1373..1583 <- Default
+generated 1583..4650 <- Encode
+generated 4650..14498 <- Decode
+generated 14498..23881 <- Gigaform
+generated 23881..25012 <- __convenience_const
 
 ## Metadata
 

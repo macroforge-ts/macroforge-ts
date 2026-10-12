@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
-import type { FieldSelection as __mf_FieldSelection, DecodeOptions as __mf_DecodeOptions, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** import macro { JSON } from "@testground/macro"; */
 
 
@@ -28,20 +28,78 @@ export class MacroUser {
     apiToken: string;
 
     static toString(value: MacroUser): string {
-        return macroUserToString(value);
+        const parts: string[] = [];
+        parts.push("userId: " + String(value.id));
+        parts.push("name: " + String(value.name));
+        parts.push("role: " + String(value.role));
+        parts.push("favoriteMacro: " + String(value.favoriteMacro));
+        parts.push("since: " + String(value.since));
+        return "MacroUser { " + parts.join(", ") + " }";
     }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: MacroUser, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
+    }
+    const result: Record<string, unknown> = {
+        "__type": "MacroUser",
+        __id: ctx.register(value),
+    };
+    MacroUser.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<MacroUser>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof MacroUser>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "MacroUser" };
+        MacroUser.#encodeFields(value as MacroUser, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(value: MacroUser, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("id")) {
+        if (value.id !== undefined) {
+            result.id = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("name")) {
+        if (value.name !== undefined) {
+            result.name = value.name;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("role")) {
+        if (value.role !== undefined) {
+            result.role = value.role;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("favoriteMacro")) {
+        if (value.favoriteMacro !== undefined) {
+            result.favoriteMacro = value.favoriteMacro;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("since")) {
+        if (value.since !== undefined) {
+            result.since = value.since;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("apiToken")) {
+        if (value.apiToken !== undefined) {
+            result.apiToken = value.apiToken;
+        }
+    }
+}
 
     /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
     static encode(value: MacroUser, keepMetadata?: boolean): string {
         return macroUserEncode(value, keepMetadata);
     }
 
-    /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-    static encodeWithContext(value: MacroUser, ctx: __mf_EncodeContext): Record<string, unknown> {
-        return macroUserEncodeWithContext(value, ctx);
-    }
-
 constructor(props: { id: string; name: string; role: string; favoriteMacro: 'Derive' | 'JsonNative'; since: string; apiToken: string }) {
+
     this.id = props.id;
     this.name = props.name;
     this.role = props.role;
@@ -116,7 +174,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "MacroUser.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as MacroUser | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "MacroUser") as MacroUser | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -143,10 +201,11 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("apiToken")) && !("apiToken" in obj)) {
         errors.push({ field: "apiToken", message: "missing required field" });
     }
-    const instance = Object.create(MacroUser.prototype) as MacroUser;
+
+    const instance: any = Object.create(MacroUser.prototype);
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "MacroUser");
     }
 
     ctx.trackForFreeze(instance);
@@ -241,13 +300,7 @@ static is(obj: unknown): obj is MacroUser {
 }
 
 export function macroUserToString(value: MacroUser): string {
-    const parts: string[] = [];
-    parts.push("userId: " + String(value.id));
-    parts.push("name: " + String(value.name));
-    parts.push("role: " + String(value.role));
-    parts.push("favoriteMacro: " + String(value.favoriteMacro));
-    parts.push("since: " + String(value.since));
-    return "MacroUser { " + parts.join(", ") + " }";
+    return MacroUser.toString(value);
 }
 
 /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -256,68 +309,14 @@ export function macroUserEncode(value: MacroUser, keepMetadata?: boolean): strin
     const __raw = macroUserEncodeWithContext(value, ctx);
     return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
 }
-
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function macroUserEncodeWithContext(value: MacroUser, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return macroUserEncodePartialWithContext(value, ctx);
+    return MacroUser.encodeWithContext(value, ctx);
 }
 
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export function macroUserEncodePartialWithContext(value: Partial<MacroUser>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof MacroUser>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
-    }
-
-    const result: Record<string, unknown> = {
-        "__type": "MacroUser",
-        __id,
-    };
-
-    if (__fields === undefined || __fields.keeps("id")) {
-
-        if (value.id !== undefined) {
-            result.id = value.id;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("name")) {
-
-        if (value.name !== undefined) {
-            result.name = value.name;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("role")) {
-
-        if (value.role !== undefined) {
-            result.role = value.role;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("favoriteMacro")) {
-
-        if (value.favoriteMacro !== undefined) {
-            result.favoriteMacro = value.favoriteMacro;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("since")) {
-
-        if (value.since !== undefined) {
-            result.since = value.since;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("apiToken")) {
-
-        if (value.apiToken !== undefined) {
-            result.apiToken = value.apiToken;
-        }
-    }
-
-    return result;
+    return MacroUser.encodePartialWithContext(value, ctx, fields);
 }
 
 /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
@@ -361,6 +360,7 @@ export const showcaseUserJson = JSON.parse(MacroUser.encode(showcaseUser));
 
 /** import macro { JSON } from "@testground/macro"; */
 export declare class MacroUser {
+	#private;
 	id: string;
 	name: string;
 	role: string;
@@ -368,10 +368,12 @@ export declare class MacroUser {
 	since: string;
 	apiToken: string;
 	static toString(value: MacroUser): string;
-	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-	static encode(value: MacroUser, keepMetadata?: boolean): string;
 	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 	static encodeWithContext(value: MacroUser, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext(value: Partial<MacroUser>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof MacroUser>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: MacroUser, keepMetadata?: boolean): string;
 	constructor(props: {
 		id: string;
 		name: string;
@@ -411,7 +413,7 @@ export declare function macroUserToString(value: MacroUser): string;
 export declare function macroUserEncode(value: MacroUser, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function macroUserEncodeWithContext(value: MacroUser, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function macroUserEncodePartialWithContext(value: Partial<MacroUser>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof MacroUser>): Record<string, unknown>;
 /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
 export declare function macroUserDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -441,23 +443,24 @@ export declare const showcaseUserJson: unknown;
 
 ## Mapping
 
-original 0..56 -> expanded 483..539
-original 93..123 -> expanded 539..569
-original 158..278 -> expanded 569..689
-original 307..330 -> expanded 689..712
-original 330..331 -> expanded 9843..9844
-original 331..683 -> expanded 14680..15032
-generated 0..483 <- imports
-generated 712..808 <- Debug
-generated 808..1451 <- Encode
-generated 1451..9843 <- Decode
-generated 9844..10249 <- Debug
-generated 10249..12883 <- Encode
-generated 12883..14680 <- Decode
+original 0..56 -> expanded 524..580
+original 93..123 -> expanded 580..610
+original 158..278 -> expanded 610..730
+original 307..330 -> expanded 730..753
+original 330..331 -> expanded 12292..12293
+original 331..683 -> expanded 15543..15895
+generated 0..524 <- imports
+generated 753..1176 <- Debug
+generated 1176..3555 <- Encode
+generated 3555..3880 <- Encode
+generated 3880..12292 <- Decode
+generated 12293..12396 <- Debug
+generated 12396..13746 <- Encode
+generated 13746..15543 <- Decode
 
 ## Metadata
 
-class MacroUser: {"body_span":{"end":332,"start":118},"decorators":[{"args_src":"Debug, Encode, Decode","name":"Derive","span":{"end":94,"start":57}}],"fields":[{"decorators":[{"args_src":"{ rename: \"userId\" }","name":"debug","span":{"end":159,"start":124}}],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":175,"start":164},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":193,"start":180},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"role","optional":false,"readonly":false,"span":{"end":211,"start":198},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"favoriteMacro","optional":false,"readonly":false,"span":{"end":255,"start":216},"ts_type":"'Derive' | 'JsonNative'","visibility":"Public"},{"decorators":[],"initializer":null,"name":"since","optional":false,"readonly":false,"span":{"end":274,"start":260},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":308,"start":279}}],"initializer":null,"name":"apiToken","optional":false,"readonly":false,"span":{"end":330,"start":313},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MacroUser","span":{"end":332,"start":102},"type_params":[]}
+class MacroUser: {"body_span":{"end":332,"start":118},"decorators":[{"args_src":"Debug, Encode, Decode","name":"Derive","span":{"end":94,"start":57}}],"fields":[{"decorators":[{"args_src":"{ rename: \"userId\" }","name":"debug","span":{"end":159,"start":124}}],"initializer":null,"name":"id","optional":false,"readonly":false,"span":{"end":175,"start":164},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"name","optional":false,"readonly":false,"span":{"end":193,"start":180},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"role","optional":false,"readonly":false,"span":{"end":211,"start":198},"ts_type":"string","visibility":"Public"},{"decorators":[],"initializer":null,"name":"favoriteMacro","optional":false,"readonly":false,"span":{"end":255,"start":216},"ts_type":"'Derive' | 'JsonNative'","visibility":"Public"},{"decorators":[],"initializer":null,"name":"since","optional":false,"readonly":false,"span":{"end":274,"start":260},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":308,"start":279}}],"initializer":null,"name":"apiToken","optional":false,"readonly":false,"span":{"end":330,"start":313},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MacroUser","span":{"end":332,"start":102},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

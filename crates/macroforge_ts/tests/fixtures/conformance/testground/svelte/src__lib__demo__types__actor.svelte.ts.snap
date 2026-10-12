@@ -12,9 +12,9 @@ true
 
 ## Output
 
-import { accountDecodeWithContext, accountHasShape, accountDefaultValue } from "./account.svelte";
-import { employeeDecodeWithContext, employeeHasShape, employeeDefaultValue } from "./employee.svelte";
-import { userDecodeWithContext, userHasShape, userDefaultValue } from "./user.svelte";
+import { accountDecodeWithContext, accountHasShape, accountEncodeWithContext, accountDefaultValue } from "./account.svelte";
+import { employeeDecodeWithContext, employeeHasShape, employeeEncodeWithContext, employeeDefaultValue } from "./employee.svelte";
+import { userDecodeWithContext, userHasShape, userEncodeWithContext, userDefaultValue } from "./user.svelte";
 import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
@@ -48,6 +48,15 @@ export function actorEncodeWithContext(value: Actor, ctx: __mf_EncodeContext): u
     if (__encoder) {
         __variant = __encoder(value, ctx);
         __matched = true;
+    }
+    if (!__matched && value !== null && typeof value === "object") {
+        const __refTag = (value as any)["__type"];
+        if (!__matched && __refTag === "User") { __variant = userEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Employee") { __variant = employeeEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && __refTag === "Account") { __variant = accountEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && userHasShape(value)) { __variant = userEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && employeeHasShape(value)) { __variant = employeeEncodeWithContext(value as any, ctx); __matched = true; }
+        if (!__matched && accountHasShape(value)) { __variant = accountEncodeWithContext(value as any, ctx); __matched = true; }
     }
     
     if (!__matched) {
@@ -484,15 +493,15 @@ export declare const Actor: {
 
 ## Mapping
 
-original 0..202 -> expanded 845..1047
-original 251..314 -> expanded 1047..1110
-original 314..315 -> expanded 13054..13055
-generated 0..845 <- imports
-generated 1110..1189 <- Default
-generated 1189..2430 <- Encode
-generated 2430..7640 <- Decode
-generated 7640..12321 <- Gigaform
-generated 12321..13054 <- __convenience_const
+original 0..202 -> expanded 921..1123
+original 251..314 -> expanded 1123..1186
+original 314..315 -> expanded 14022..14023
+generated 0..921 <- imports
+generated 1186..1265 <- Default
+generated 1265..3398 <- Encode
+generated 3398..8608 <- Decode
+generated 8608..13289 <- Gigaform
+generated 13289..14022 <- __convenience_const
 
 ## Metadata
 

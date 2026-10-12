@@ -88,7 +88,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "User.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as User | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "User") as User | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -107,7 +107,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "User");
     }
 
     ctx.trackForFreeze(instance);
@@ -229,10 +229,10 @@ export declare const User: {
 ## Mapping
 
 original 22..83 -> expanded 350..411
-original 83..84 -> expanded 6759..6760
+original 83..84 -> expanded 6775..6776
 generated 0..350 <- imports
-generated 411..6141 <- Decode
-generated 6141..6759 <- __convenience_const
+generated 411..6157 <- Decode
+generated 6157..6775 <- __convenience_const
 
 ## Metadata
 

@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -44,41 +44,38 @@ export function emailEncode(value: Email, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function emailEncodeWithContext(value: Email, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return emailEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function emailEncodePartialWithContext(value: Partial<Email>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Email>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "Email",
-        __id,
+        __id: ctx.register(value),
     };
+    emailEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function emailEncodePartialWithContext(value: Partial<Email>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Email>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Email" };
+        emailEncodeFields(value as Email, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function emailEncodeFields(value: Email, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("canEmail")) {
-
         if (value.canEmail !== undefined) {
             result.canEmail = value.canEmail;
         }
     }
     if (__fields === undefined || __fields.keeps("emailString")) {
-
         if (value.emailString !== undefined) {
             result.emailString = value.emailString;
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -146,7 +143,7 @@ export function emailDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "Email.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as Email | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "Email") as Email | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -165,7 +162,7 @@ export function emailDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "Email");
     }
 
     ctx.trackForFreeze(instance);
@@ -407,7 +404,7 @@ export declare function emailDefaultValue(): Email;
 export declare function emailEncode(value: Email, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function emailEncodeWithContext(value: Email, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function emailEncodePartialWithContext(value: Partial<Email>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Email>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function emailDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -493,18 +490,18 @@ export declare const Email: {
 
 ## Mapping
 
-original 0..58 -> expanded 642..700
-original 107..137 -> expanded 700..730
-original 185..213 -> expanded 730..758
-original 255..260 -> expanded 758..763
-original 310..337 -> expanded 763..790
-original 337..338 -> expanded 16056..16057
-generated 0..642 <- imports
-generated 790..908 <- Default
-generated 908..2878 <- Encode
-generated 2878..10294 <- Decode
-generated 10294..14871 <- Gigaform
-generated 14871..16056 <- __convenience_const
+original 0..58 -> expanded 683..741
+original 107..137 -> expanded 741..771
+original 185..213 -> expanded 771..799
+original 255..260 -> expanded 799..804
+original 310..337 -> expanded 804..831
+original 337..338 -> expanded 16438..16439
+generated 0..683 <- imports
+generated 831..949 <- Default
+generated 949..3242 <- Encode
+generated 3242..10676 <- Decode
+generated 10676..15253 <- Gigaform
+generated 15253..16438 <- __convenience_const
 
 ## Metadata
 

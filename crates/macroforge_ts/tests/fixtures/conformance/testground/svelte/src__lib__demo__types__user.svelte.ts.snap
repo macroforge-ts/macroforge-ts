@@ -16,7 +16,7 @@ import { appPermissionsDecodeWithContext, appPermissionsEncodeWithContext, appPe
 import { settingsDecodeWithContext, settingsEncodeWithContext, settingsDefaultValue } from "./settings.svelte";
 import { userRoleDecodeWithContext, userRoleEncodeWithContext } from "./user-role.svelte";
 import { __foreign__optionOptionDefault, __foreign__dateTimeDateTimeDefault, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionDecode, __foreign__dateTimeDateTimeDecode } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -82,125 +82,108 @@ export function userEncode(value: User, keepMetadata?: boolean): string {
 
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
-    return userEncodePartialWithContext(value, ctx);
-}
-
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function userEncodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof User>): Record<string, unknown> {
-    const __fields = fields === undefined ? undefined : __mf_fieldRequirement(fields);
-
-    let __id: number | undefined;
-    if (__fields === undefined) {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        __id = ctx.register(value);
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return { __ref: existingId };
     }
-
     const result: Record<string, unknown> = {
         "__type": "User",
-        __id,
+        __id: ctx.register(value),
     };
+    userEncodeFields(value, ctx, result, undefined);
+    return result;
+}
 
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function userEncodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof User>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "User" };
+        userEncodeFields(value as User, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function userEncodeFields(value: User, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
     if (__fields === undefined || __fields.keeps("id")) {
-
         if (value.id !== undefined) {
             result.id = value.id;
         }
     }
     if (__fields === undefined || __fields.keeps("email")) {
-
         if (value.email !== undefined) {
             result.email = __foreign__optionOptionEncode(value.email);
         }
     }
     if (__fields === undefined || __fields.keeps("firstName")) {
-
         if (value.firstName !== undefined) {
             result.firstName = value.firstName;
         }
     }
     if (__fields === undefined || __fields.keeps("lastName")) {
-
         if (value.lastName !== undefined) {
             result.lastName = value.lastName;
         }
     }
     if (__fields === undefined || __fields.keeps("password")) {
-
         if (value.password !== undefined) {
             result.password = __foreign__optionOptionEncode(value.password);
         }
     }
     if (__fields === undefined || __fields.keeps("metadata")) {
-
         if (value.metadata !== undefined) {
             result.metadata = __foreign__optionOptionEncode(value.metadata);
         }
     }
     if (__fields === undefined || __fields.keeps("settings")) {
-
         if (value.settings !== undefined) {
             result.settings = settingsEncodeWithContext(value.settings, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("role")) {
-
         if (value.role !== undefined) {
             result.role = userRoleEncodeWithContext(value.role, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("emailVerified")) {
-
         if (value.emailVerified !== undefined) {
             result.emailVerified = value.emailVerified;
         }
     }
     if (__fields === undefined || __fields.keeps("verificationToken")) {
-
         if (value.verificationToken !== undefined) {
             result.verificationToken = __foreign__optionOptionEncode(value.verificationToken);
         }
     }
     if (__fields === undefined || __fields.keeps("verificationExpires")) {
-
         if (value.verificationExpires !== undefined) {
             result.verificationExpires = __foreign__optionOptionEncode(value.verificationExpires);
         }
     }
     if (__fields === undefined || __fields.keeps("passwordResetToken")) {
-
         if (value.passwordResetToken !== undefined) {
             result.passwordResetToken = __foreign__optionOptionEncode(value.passwordResetToken);
         }
     }
     if (__fields === undefined || __fields.keeps("passwordResetExpires")) {
-
         if (value.passwordResetExpires !== undefined) {
             result.passwordResetExpires = __foreign__optionOptionEncode(value.passwordResetExpires);
         }
     }
     if (__fields === undefined || __fields.keeps("permissions")) {
-
         if (value.permissions !== undefined) {
             result.permissions = appPermissionsEncodeWithContext(value.permissions, ctx);
         }
     }
     if (__fields === undefined || __fields.keeps("createdAt")) {
-
         if (value.createdAt !== undefined) {
             result.createdAt = __foreign__dateTimeDateTimeEncode(value.createdAt);
         }
     }
     if (__fields === undefined || __fields.keeps("lastLoginAt")) {
-
         if (value.lastLoginAt !== undefined) {
             result.lastLoginAt = __foreign__optionOptionEncode(value.lastLoginAt);
         }
     }
-
-    return result;
 }
 
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
@@ -268,7 +251,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
         if (typeof value.__ref !== "number") {
             throw new __mf_DecodeError([{ field: "__ref", message: "User.decodeWithContext: __ref must be a number" }]);
         }
-        return ctx.getOrDefer(value.__ref) as User | __mf_PendingRef;
+        return ctx.getOrDefer(value.__ref, "User") as User | __mf_PendingRef;
     }
 
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -329,7 +312,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
     const instance: any = {};
 
     if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance);
+        ctx.register(obj.__id as number, instance, "User");
     }
 
     ctx.trackForFreeze(instance);
@@ -1395,7 +1378,7 @@ export declare function userDefaultValue(): User;
 export declare function userEncode(value: User, keepMetadata?: boolean): string;
 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
 export declare function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
 export declare function userEncodePartialWithContext(value: Partial<User>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof User>): Record<string, unknown>;
 /** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export declare function userDecode(input: unknown, opts?: __mf_DecodeOptions): {
@@ -1523,18 +1506,18 @@ export declare const User: {
 
 ## Mapping
 
-original 0..325 -> expanded 1211..1536
-original 374..453 -> expanded 1536..1615
-original 494..522 -> expanded 1615..1643
-original 563..690 -> expanded 1643..1770
-original 722..1102 -> expanded 1770..2150
-original 1102..1103 -> expanded 57306..57307
-generated 0..1211 <- imports
-generated 2150..2946 <- Default
-generated 2946..7841 <- Encode
-generated 7841..25808 <- Decode
-generated 25808..56148 <- Gigaform
-generated 56148..57306 <- __convenience_const
+original 0..325 -> expanded 1252..1577
+original 374..453 -> expanded 1577..1656
+original 494..522 -> expanded 1656..1684
+original 563..690 -> expanded 1684..1811
+original 722..1102 -> expanded 1811..2191
+original 1102..1103 -> expanded 57666..57667
+generated 0..1252 <- imports
+generated 2191..2987 <- Default
+generated 2987..8185 <- Encode
+generated 8185..26168 <- Decode
+generated 26168..56508 <- Gigaform
+generated 56508..57666 <- __convenience_const
 
 ## Metadata
 
