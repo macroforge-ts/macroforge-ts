@@ -2,8 +2,9 @@ use std::collections::HashSet;
 
 use convert_case::{Case, Casing};
 
+use crate::host::expand::derive_scope::unnamed_member_message;
 use crate::ts_syn::abi::InterfaceFieldIR;
-use crate::ts_syn::abi::ir::class::{ClassIR, FieldIR, Visibility};
+use crate::ts_syn::abi::ir::class::{ClassIR, FieldIR, MemberKey, Visibility};
 use crate::ts_syn::abi::ir::interface::InterfaceIR;
 use crate::ts_syn::abi::ir::type_alias::{TypeMember, TypeMemberKind};
 use crate::ts_syn::abi::ir::type_registry::{
@@ -80,7 +81,8 @@ pub fn standalone_fn_name(type_name: &str, suffix: &str) -> String {
 
 /// Extract fields from a type definition in the registry.
 ///
-/// Returns `None` if the definition cannot provide fields (e.g. enums).
+/// Returns `None` if the definition cannot provide fields: an enum, or a
+/// type with a member under a computed key or an index signature.
 /// For type aliases with intersection bodies, recursively flattens.
 pub fn fields_from_definition(
     definition: &TypeDefinitionIR,
@@ -94,7 +96,7 @@ fn fields_from_definition_visiting(
     type_registry: &TypeRegistry,
     visiting: &mut Vec<String>,
 ) -> Option<Vec<InterfaceFieldIR>> {
-    match definition {
+    let fields = match definition {
         TypeDefinitionIR::Interface(interface) => Some(interface.fields.clone()),
         TypeDefinitionIR::Class(class) => Some(
             class
@@ -102,6 +104,7 @@ fn fields_from_definition_visiting(
                 .iter()
                 .map(|field| InterfaceFieldIR {
                     name: field.name.clone(),
+                    key: field.key,
                     span: field.span,
                     ts_type: field.ts_type.clone(),
                     optional: field.optional,
@@ -120,7 +123,9 @@ fn fields_from_definition_visiting(
             }
         }
         TypeDefinitionIR::Enum(_) => None,
-    }
+    };
+    // A member without a name leaves the type's fields unknown.
+    fields.filter(|fields| fields.iter().all(|field| field.key != MemberKey::Unnamed))
 }
 
 /// Flatten an intersection type's members into a single field list.
@@ -256,7 +261,7 @@ pub fn class_instance_fields(
         None => Vec::new(),
     };
     for field in &class.fields {
-        if field.name.starts_with('#') {
+        if field.key == MemberKey::Private {
             return Err(format!(
                 "field '{}' of class '{}' can only be set by the class's own constructor, which a derive does not run; declare it `private {}` for a derive to read and build it",
                 field.name,
@@ -265,6 +270,9 @@ pub fn class_instance_fields(
             ));
         }
         fields.push(field.clone());
+    }
+    if let Some(unnamed) = fields.iter().find(|field| field.key == MemberKey::Unnamed) {
+        return Err(unnamed_member_message(&unnamed.name, &class.name));
     }
     Ok(fields)
 }
@@ -306,7 +314,7 @@ fn superclass_fields(
         None => Vec::new(),
     };
     for field in &base.fields {
-        if field.name.starts_with('#') || field.visibility == Visibility::Private {
+        if field.key == MemberKey::Private || field.visibility == Visibility::Private {
             return Err(format!(
                 "field '{}' of class '{name}' is private to it, so a derive on its subclass '{subclass}' cannot reach it; declare it `protected`",
                 field.name
@@ -335,6 +343,9 @@ pub fn interface_instance_fields(
         declared,
         &mut vec![interface.name.clone()],
     )?;
+    if let Some(unnamed) = fields.iter().find(|field| field.key == MemberKey::Unnamed) {
+        return Err(unnamed_member_message(&unnamed.name, &interface.name));
+    }
     Ok(fields)
 }
 

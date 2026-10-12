@@ -27,6 +27,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::abi::ir::TypeParamIR;
 
+use crate::abi::ir::class::MemberKey;
 use crate::abi::{DecoratorIR, SpanIR};
 
 /// Intermediate representation of a TypeScript interface declaration.
@@ -135,6 +136,10 @@ impl InterfaceIR {
 pub struct InterfaceFieldIR {
     /// The property name (identifier).
     pub name: String,
+
+    /// How the property's key is written.
+    #[serde(default)]
+    pub key: MemberKey,
 
     /// Source span of the property signature.
     pub span: SpanIR,

@@ -5,7 +5,7 @@ use crate::TsSynError;
 use crate::abi::ir::TypeParamIR;
 use crate::abi::{
     ClassIR, DecoratorIR, EnumIR, EnumValue, EnumVariantIR, FieldIR, FunctionIR, FunctionParamIR,
-    InterfaceFieldIR, InterfaceIR, InterfaceMethodIR, MethodSigIR, NEWTYPE_BRAND_PREFIX,
+    InterfaceFieldIR, InterfaceIR, InterfaceMethodIR, MemberKey, MethodSigIR, NEWTYPE_BRAND_PREFIX,
     NEWTYPE_MACRO, SpanIR, TypeAliasIR, TypeBody, TypeMember, TypeMemberKind, Visibility,
 };
 use ::oxc::ast::ast::{
@@ -94,25 +94,61 @@ pub fn lower_classes(
     Ok(classes)
 }
 
-/// The name a property key gives its property: an identifier's own, or the
-/// value of a string or whole-number literal, as `'first-name'` and `0` are
-/// written. A computed or `#private` key names no property a macro can reach.
-fn property_name(key: &PropertyKey<'_>, computed: bool) -> Option<String> {
-    if computed {
-        return None;
-    }
+/// The name a property key gives its property, and how the key is written:
+/// an identifier's own name, the value of a string or whole-number literal,
+/// as `'first-name'` and `0` are written, or a `#private` name with its `#`.
+///
+/// A key that is worked out as the code runs gives no name to read off, so
+/// its member is carried under the key's source in brackets, `[KEY]`. A macro
+/// that cannot reach such a member has to say so rather than never see it.
+fn property_name(key: &PropertyKey<'_>, computed: bool, source: &str) -> (String, MemberKey) {
+    let named = |name: String| (name, MemberKey::Named);
     match key {
-        PropertyKey::StaticIdentifier(ident) => Some(ident.name.to_string()),
-        PropertyKey::StringLiteral(literal) => Some(literal.value.to_string()),
+        _ if computed => {}
+        PropertyKey::StaticIdentifier(ident) => return named(ident.name.to_string()),
+        PropertyKey::PrivateIdentifier(private) => {
+            return (format!("#{}", private.name), MemberKey::Private);
+        }
+        PropertyKey::StringLiteral(literal) => return named(literal.value.to_string()),
         PropertyKey::NumericLiteral(literal) => {
             // The largest whole number a property name spells without an exponent.
             const LARGEST_PLAIN: f64 = 1e21;
             let value = literal.value;
-            (value.fract() == 0.0 && value >= 0.0 && value < LARGEST_PLAIN)
-                .then(|| format!("{value:.0}"))
+            if value.fract() == 0.0 && (0.0..LARGEST_PLAIN).contains(&value) {
+                return named(format!("{value:.0}"));
+            }
         }
-        _ => None,
+        _ => {}
     }
+    let span = key.span();
+    (
+        format!("[{}]", &source[span.start as usize..span.end as usize]),
+        MemberKey::Unnamed,
+    )
+}
+
+/// The name an index signature is carried under: its bracketed parameter, as
+/// `[key: string]`.
+fn index_signature_name(span: oxc::span::Span, source: &str) -> String {
+    let text = &source[span.start as usize..span.end as usize];
+    match (text.find('['), text.find(']')) {
+        (Some(open), Some(close)) if open < close => text[open..=close].to_string(),
+        _ => format!("[{text}]"),
+    }
+}
+
+/// The type an annotation gives, as written, or `any` without one.
+fn annotated_type(
+    annotation: Option<&oxc::ast::ast::TSTypeAnnotation<'_>>,
+    source: &str,
+) -> String {
+    annotation.map_or_else(
+        || "any".to_string(),
+        |annotation| {
+            let span = annotation.type_annotation.span();
+            source[span.start as usize..span.end as usize].to_string()
+        },
+    )
 }
 
 fn lower_class(
@@ -157,41 +193,48 @@ fn lower_class(
         match element {
             // A static property belongs to the class, not to its instances.
             ClassElement::PropertyDefinition(prop) if !prop.r#static => {
-                // A `#private` field is a field like any other, under the
-                // name it is written with: a macro that cannot reach it has
-                // to say so rather than never see it.
-                let name = match &prop.key {
-                    PropertyKey::PrivateIdentifier(private) => Some(format!("#{}", private.name)),
-                    key => property_name(key, prop.computed),
-                };
-                if let Some(name) = name {
-                    let field_decorators =
-                        collect_leading_decorators(source, floor, prop.span.start as usize, filter);
-                    fields.push(FieldIR {
-                        name,
-                        span: oxc_span_ir(prop.span),
-                        ts_type: prop
-                            .type_annotation
-                            .as_ref()
-                            .map(|ann| {
-                                let sp = ann.type_annotation.span();
-                                source[sp.start as usize..sp.end as usize].to_string()
-                            })
-                            .unwrap_or_else(|| "any".to_string()),
-                        optional: prop.optional,
-                        readonly: prop.readonly,
-                        visibility: match prop.accessibility {
-                            Some(TSAccessibility::Private) => Visibility::Private,
-                            Some(TSAccessibility::Protected) => Visibility::Protected,
-                            _ => Visibility::Public,
-                        },
-                        decorators: field_decorators,
-                        initializer: prop.value.as_ref().map(|value| {
-                            let sp = value.span();
-                            source[sp.start as usize..sp.end as usize].to_string()
-                        }),
-                    });
-                }
+                let (name, key) = property_name(&prop.key, prop.computed, source);
+                fields.push(FieldIR {
+                    name,
+                    key,
+                    span: oxc_span_ir(prop.span),
+                    ts_type: annotated_type(prop.type_annotation.as_deref(), source),
+                    optional: prop.optional,
+                    readonly: prop.readonly,
+                    visibility: match prop.accessibility {
+                        Some(TSAccessibility::Private) => Visibility::Private,
+                        Some(TSAccessibility::Protected) => Visibility::Protected,
+                        _ => Visibility::Public,
+                    },
+                    decorators: collect_leading_decorators(
+                        source,
+                        floor,
+                        prop.span.start as usize,
+                        filter,
+                    ),
+                    initializer: prop.value.as_ref().map(|value| {
+                        let sp = value.span();
+                        source[sp.start as usize..sp.end as usize].to_string()
+                    }),
+                });
+            }
+            ClassElement::TSIndexSignature(signature) if !signature.r#static => {
+                fields.push(FieldIR {
+                    name: index_signature_name(signature.span, source),
+                    key: MemberKey::Unnamed,
+                    span: oxc_span_ir(signature.span),
+                    ts_type: annotated_type(Some(&*signature.type_annotation), source),
+                    optional: false,
+                    readonly: signature.readonly,
+                    visibility: Visibility::Public,
+                    decorators: collect_leading_decorators(
+                        source,
+                        floor,
+                        signature.span.start as usize,
+                        filter,
+                    ),
+                    initializer: None,
+                });
             }
             ClassElement::MethodDefinition(method) => {
                 // A constructor parameter with a modifier declares a field.
@@ -300,6 +343,7 @@ fn parameter_property(param: &FormalParameter<'_>, source: &str) -> Option<Field
     let text = |span: oxc::span::Span| source[span.start as usize..span.end as usize].to_string();
     Some(FieldIR {
         name: ident.name.to_string(),
+        key: MemberKey::Named,
         span: oxc_span_ir(param.span),
         ts_type: param
             .type_annotation
@@ -395,27 +439,37 @@ fn lower_interface_members(
         let floor = std::mem::replace(&mut previous_end, elem.span().end as usize);
         match elem {
             TSSignature::TSPropertySignature(prop) => {
-                if let Some(name) = property_name(&prop.key, prop.computed) {
-                    let ts_type = prop
-                        .type_annotation
-                        .as_ref()
-                        .map(|ann| {
-                            let sp = ann.type_annotation.span();
-                            source[sp.start as usize..sp.end as usize].to_string()
-                        })
-                        .unwrap_or_else(|| "any".to_string());
-
-                    let field_decorators =
-                        collect_leading_decorators(source, floor, prop.span.start as usize, filter);
-                    fields.push(InterfaceFieldIR {
-                        name,
-                        span: oxc_span_ir(prop.span),
-                        ts_type,
-                        optional: prop.optional,
-                        readonly: prop.readonly,
-                        decorators: field_decorators,
-                    });
-                }
+                let (name, key) = property_name(&prop.key, prop.computed, source);
+                fields.push(InterfaceFieldIR {
+                    name,
+                    key,
+                    span: oxc_span_ir(prop.span),
+                    ts_type: annotated_type(prop.type_annotation.as_deref(), source),
+                    optional: prop.optional,
+                    readonly: prop.readonly,
+                    decorators: collect_leading_decorators(
+                        source,
+                        floor,
+                        prop.span.start as usize,
+                        filter,
+                    ),
+                });
+            }
+            TSSignature::TSIndexSignature(signature) => {
+                fields.push(InterfaceFieldIR {
+                    name: index_signature_name(signature.span, source),
+                    key: MemberKey::Unnamed,
+                    span: oxc_span_ir(signature.span),
+                    ts_type: annotated_type(Some(&*signature.type_annotation), source),
+                    optional: false,
+                    readonly: signature.readonly,
+                    decorators: collect_leading_decorators(
+                        source,
+                        floor,
+                        signature.span.start as usize,
+                        filter,
+                    ),
+                });
             }
             TSSignature::TSMethodSignature(meth) => {
                 if let PropertyKey::StaticIdentifier(ident) = &meth.key {
@@ -1048,6 +1102,7 @@ mod tests {
         ClassIR, InterfaceIR, Program, SpanIR, TypeAliasIR, TypeBody, TypeMemberKind,
         lower_classes, lower_interfaces, lower_type_aliases,
     };
+    use crate::abi::MemberKey;
     use oxc::allocator::Allocator;
     use oxc::parser::Parser;
     use oxc::span::SourceType;
@@ -1111,6 +1166,53 @@ mod tests {
                 "{source}"
             );
         }
+    }
+
+    #[test]
+    fn a_member_is_carried_with_how_its_key_is_written() {
+        let class = single_class(
+            "class Bag { name = ''; 'first-name' = ''; #secret = 1; [KEY] = 2; [Symbol.iterator] = 3; 1.5 = 4; [key: string]: unknown; static [index: number]: string; }",
+        );
+        assert_eq!(
+            class
+                .fields
+                .iter()
+                .map(|field| (field.name.clone(), field.key))
+                .collect::<Vec<_>>(),
+            vec![
+                ("name".to_string(), MemberKey::Named),
+                ("first-name".to_string(), MemberKey::Named),
+                ("#secret".to_string(), MemberKey::Private),
+                ("[KEY]".to_string(), MemberKey::Unnamed),
+                ("[Symbol.iterator]".to_string(), MemberKey::Unnamed),
+                ("[1.5]".to_string(), MemberKey::Unnamed),
+                ("[key: string]".to_string(), MemberKey::Unnamed),
+            ]
+        );
+        assert_eq!(class.fields[6].ts_type, "unknown");
+
+        let interface = single_interface(
+            "interface Bag { id: string; '#tag': string; '[x]': string; [KEY]: number; readonly [key: string]: unknown; }",
+        );
+        assert_eq!(
+            interface
+                .fields
+                .iter()
+                .map(|field| (field.name.clone(), field.key))
+                .collect::<Vec<_>>(),
+            vec![
+                ("id".to_string(), MemberKey::Named),
+                ("#tag".to_string(), MemberKey::Named),
+                ("[x]".to_string(), MemberKey::Named),
+                ("[KEY]".to_string(), MemberKey::Unnamed),
+                ("[key: string]".to_string(), MemberKey::Unnamed),
+            ]
+        );
+        assert!(interface.fields[4].readonly);
+
+        let alias = single_type_alias("type Bag = { id: string; [key: string]: unknown };");
+        let fields = alias.body.as_object().expect("an object type");
+        assert_eq!(fields[1].key, MemberKey::Unnamed);
     }
 
     #[test]

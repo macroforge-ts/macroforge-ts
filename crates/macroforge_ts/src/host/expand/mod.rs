@@ -90,6 +90,7 @@
 
 mod declarations;
 mod derive_requirements;
+pub(crate) mod derive_scope;
 mod derive_targets;
 mod external_loader;
 mod helpers;
@@ -117,6 +118,7 @@ use super::{
     MacroConfig, MacroDispatcher, MacroError, MacroRegistry, PatchCollector, Result, derived,
 };
 
+use derive_scope::Declares;
 pub(crate) use derive_targets::{
     AttributeTarget, AttributeTargetIR, DeriveTargetIR, SpanKey, collect_attribute_targets,
     collect_derive_targets, diagnostic_span_for_derive, find_macro_name_span,
@@ -1124,6 +1126,51 @@ impl MacroExpander {
             &derive_targets,
             source,
         ));
+        // What an `import macro` comment brings in names a macro, not a
+        // value or a type of the module.
+        let module_imports: Vec<_> = crate::host::import_registry::with_registry(|registry| {
+            registry
+                .source_import_entries()
+                .into_iter()
+                .filter(|import| !registry.is_macro_import(&import.local_name))
+                .collect()
+        });
+        diagnostics.extend(derive_scope::check_shadowed_globals(
+            &derive_targets,
+            derive_scope::declared_names(
+                class_map.values(),
+                Declares::TypeAndValue,
+                |class| &class.name,
+                |class| class.span,
+            )
+            .chain(derive_scope::declared_names(
+                interface_map.values(),
+                Declares::Type,
+                |interface| &interface.name,
+                |interface| interface.span,
+            ))
+            .chain(derive_scope::declared_names(
+                enum_map.values(),
+                Declares::TypeAndValue,
+                |declared| &declared.name,
+                |declared| declared.span,
+            ))
+            .chain(derive_scope::declared_names(
+                type_alias_map.values(),
+                Declares::Type,
+                |alias| &alias.name,
+                |alias| alias.span,
+            ))
+            .chain(derive_scope::declared_names(
+                function_map.values(),
+                Declares::Value,
+                |function| &function.name,
+                |function| function.span,
+            ))
+            .chain(derive_scope::imported_names(&module_imports)),
+            source,
+        ));
+        diagnostics.extend(derive_scope::check_unnamed_alias_members(&derive_targets));
 
         let (attribute_targets, attr_diagnostics) = collect_attribute_targets(
             &function_map,

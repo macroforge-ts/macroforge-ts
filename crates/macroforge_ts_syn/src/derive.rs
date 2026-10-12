@@ -963,6 +963,7 @@ mod tests {
                 fields: vec![
                     FieldIR {
                         name: "id".into(),
+                        key: crate::abi::MemberKey::Named,
                         span: SpanIR::new(25, 35),
                         ts_type: "number".into(),
                         optional: false,
@@ -973,6 +974,7 @@ mod tests {
                     },
                     FieldIR {
                         name: "name".into(),
+                        key: crate::abi::MemberKey::Named,
                         span: SpanIR::new(40, 55),
                         ts_type: "string".into(),
                         optional: false,

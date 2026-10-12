@@ -16,6 +16,7 @@ use crate::ts_syn::abi::{InterfaceFieldIR, InterfaceIR};
 fn make_field(name: &str, ts_type: &str) -> InterfaceFieldIR {
     InterfaceFieldIR {
         name: name.to_string(),
+        key: crate::ts_syn::abi::MemberKey::Named,
         span: zero_span(),
         ts_type: ts_type.to_string(),
         optional: false,

@@ -121,6 +121,22 @@ impl ClassIR {
     }
 }
 
+/// How a member's key is written, which decides whether its `name` is one a
+/// macro can read the member by.
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum MemberKey {
+    /// A name: an identifier, or a string or whole-number literal.
+    #[default]
+    Named,
+    /// A `#private` name, which only the class's own body reaches. The
+    /// member's `name` keeps the `#`.
+    Private,
+    /// A key worked out as the code runs, or an index signature. The member's
+    /// `name` is the key as written, brackets included: `[KEY]`,
+    /// `[key: string]`.
+    Unnamed,
+}
+
 /// Intermediate representation of a class field/property.
 ///
 /// Represents a property declaration within a TypeScript class, including
@@ -146,6 +162,10 @@ impl ClassIR {
 pub struct FieldIR {
     /// The field name (identifier).
     pub name: String,
+
+    /// How the field's key is written.
+    #[serde(default)]
+    pub key: MemberKey,
 
     /// Source span of the field declaration.
     pub span: SpanIR,

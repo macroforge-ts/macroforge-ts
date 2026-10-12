@@ -62,6 +62,28 @@
 //! `Decode` additionally generates `static is(value)` / `static hasShape(obj)` type
 //! guards and `validateField`/`validateFields` helpers; see [`endec`] for the full surface.
 //!
+//! ## Values That Hold Themselves
+//!
+//! `Encode` and `Decode` keep track of the values they have seen: a value
+//! held in several places is written once and read back as one, and a cycle
+//! closes. The other derives walk a value field by field with no such record,
+//! as their Rust counterparts do. A value held twice is copied, compared,
+//! hashed and printed at each place, and one that holds itself overflows the
+//! stack with a `RangeError`.
+//!
+//! ## Names A Derive Reads
+//!
+//! A derive reads a field's type by its name, so `Map<K, V>`, `Date` and
+//! `Record<K, V>` are taken for the global ones, and the code it generates
+//! builds and tests values through those globals. A module that declares or
+//! imports something of its own under such a name is an expansion error on
+//! any built-in derive in it.
+//!
+//! A member under a computed key (`[KEY]: T`) or an index signature
+//! (`[key: string]: T`) has no name to be read by, and is an expansion error
+//! on the type deriving: name the member, or hold the entries in a `Record`
+//! field.
+//!
 //! ## Type-Position Macros
 //!
 //! | Macro | Expands To | Description |

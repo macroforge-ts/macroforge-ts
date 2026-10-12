@@ -2,7 +2,7 @@
 
 use super::zero_span;
 use crate::builtin::derive::common::{Declared, class_instance_fields, interface_instance_fields};
-use crate::ts_syn::abi::ir::class::{FieldIR, Visibility};
+use crate::ts_syn::abi::ir::class::{FieldIR, MemberKey, Visibility};
 use crate::ts_syn::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistry, TypeRegistryEntry};
 use crate::ts_syn::abi::ir::{InterfaceFieldIR, TypeParamIR};
 use crate::ts_syn::abi::{ClassIR, InterfaceIR};
@@ -12,6 +12,11 @@ const FILE: &str = "/project/src/shapes.ts";
 fn field(name: &str, visibility: Visibility) -> FieldIR {
     FieldIR {
         name: name.to_string(),
+        key: if name.starts_with('#') {
+            MemberKey::Private
+        } else {
+            MemberKey::Named
+        },
         span: zero_span(),
         ts_type: "string".to_string(),
         optional: false,
@@ -40,6 +45,7 @@ fn class(name: &str, superclass: Option<&str>, fields: Vec<FieldIR>) -> ClassIR 
 fn interface_field(name: &str, ts_type: &str) -> InterfaceFieldIR {
     InterfaceFieldIR {
         name: name.to_string(),
+        key: MemberKey::Named,
         span: zero_span(),
         ts_type: ts_type.to_string(),
         optional: false,
@@ -221,4 +227,69 @@ fn an_interface_has_the_fields_of_what_it_extends_and_may_narrow_them() {
     let registry = registry_of(vec![TypeDefinitionIR::Interface(row.clone())]);
     let message = interface_instance_fields(&row, declared(&registry)).expect_err("unknown base");
     assert!(message.contains("extends 'ExternalRow', which this project does not declare"));
+}
+
+#[test]
+fn a_member_without_a_name_is_an_error_wherever_it_is_declared() {
+    let unnamed = |name: &str| FieldIR {
+        key: MemberKey::Unnamed,
+        ..field(name, Visibility::Public)
+    };
+    let own = class(
+        "Bag",
+        None,
+        vec![field("id", Visibility::Public), unnamed("[KEY]")],
+    );
+    let message = class_instance_fields(&own, declared(&TypeRegistry::new())).expect_err("unnamed");
+    assert!(message.contains("member `[KEY]` of 'Bag' has no name a derive can read it by"));
+
+    let base = class("Base", None, vec![unnamed("[key: string]")]);
+    let derived = class(
+        "Derived",
+        Some("Base"),
+        vec![field("id", Visibility::Public)],
+    );
+    let registry = registry_of(vec![
+        TypeDefinitionIR::Class(base),
+        TypeDefinitionIR::Class(derived.clone()),
+    ]);
+    let message = class_instance_fields(&derived, declared(&registry)).expect_err("inherited");
+    assert!(message.contains("member `[key: string]` of 'Derived'"));
+
+    let indexed = interface(
+        "Indexed",
+        &[],
+        vec![InterfaceFieldIR {
+            key: MemberKey::Unnamed,
+            ..interface_field("[key: string]", "unknown")
+        }],
+    );
+    let extending = interface(
+        "Extending",
+        &["Indexed"],
+        vec![interface_field("id", "string")],
+    );
+    let registry = registry_of(vec![
+        TypeDefinitionIR::Interface(indexed),
+        TypeDefinitionIR::Interface(extending.clone()),
+    ]);
+    let message =
+        interface_instance_fields(&extending, declared(&registry)).expect_err("inherited");
+    assert!(message.contains("member `[key: string]` of 'Extending'"));
+
+    // A name that only looks bracketed or private is a name.
+    let quoted = class(
+        "Quoted",
+        None,
+        vec![
+            FieldIR {
+                key: MemberKey::Named,
+                ..field("#tag", Visibility::Public)
+            },
+            field("[x]", Visibility::Public),
+        ],
+    );
+    let fields = class_instance_fields(&quoted, declared(&TypeRegistry::new()))
+        .expect("quoted names are names");
+    assert_eq!(names(&fields), ["#tag", "[x]"]);
 }

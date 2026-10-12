@@ -247,6 +247,7 @@ impl DataTypeAlias {
 
 <CodeBlock code={`struct FieldIR {
     pub name: String,               // Field name
+    pub key: MemberKey,             // Named, Private (#name) or Unnamed ([KEY], [key: string])
     pub span: SpanIR,               // Field span
     pub ts_type: String,            // TypeScript type annotation
     pub optional: bool,             // Whether field has ?
@@ -260,6 +261,7 @@ impl DataTypeAlias {
 
 <CodeBlock code={`struct InterfaceFieldIR {
     pub name: String,
+    pub key: MemberKey,
     pub span: SpanIR,
     pub ts_type: String,
     pub optional: bool,
@@ -267,6 +269,16 @@ impl DataTypeAlias {
     pub decorators: Vec<DecoratorIR>,
     // Note: No visibility field (interfaces are always public)
 }`} lang="rust" />
+
+<Alert type="note">
+	<span>
+		Every member a type declares is listed. One under a computed key or an index signature has
+		no name to read it by: its <code>key</code> is <code>MemberKey::Unnamed</code> and its
+		<code>name</code> is the key as written, brackets included. A <code>#private</code> field
+		has <code>MemberKey::Private</code> and keeps its <code>#</code>. Skip or reject what your
+		macro cannot reach.
+	</span>
+</Alert>
 
 <h3>Enum Variants (EnumVariantIR)</h3>
 
