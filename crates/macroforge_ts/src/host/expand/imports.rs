@@ -125,6 +125,12 @@ pub(super) fn external_type_function_import_patches(
             (format!("{camel}ValidateFields"), false),
             (format!("{camel}HasShape"), false),
             (format!("{camel}Is"), false),
+            (format!("{camel}ToString"), false),
+            (format!("{camel}Clone"), false),
+            (format!("{camel}Equals"), false),
+            (format!("{camel}HashCode"), false),
+            (format!("{camel}PartialCompare"), false),
+            (format!("{camel}Compare"), false),
         ];
 
         // Append camelCase suffixes registered by external macros via add_cross_module_suffix()
