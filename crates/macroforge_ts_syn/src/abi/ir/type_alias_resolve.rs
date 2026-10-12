@@ -99,18 +99,15 @@ fn resolve_recursive(
             .map(|a| resolve_recursive(a, registry, caller_file_path, file_imports, depth + 1))
             .collect();
 
-        // Only user-defined aliases start with an uppercase letter; lower-case
-        // names (`partial<T>`) are TS unknowns. We also leave built-in container
-        // types alone and just rebuild them with resolved args.
-        if base.chars().next().is_some_and(|c| c.is_ascii_uppercase())
-            && let Some(expanded) = try_expand_alias(
-                base,
-                &resolved_args,
-                registry,
-                caller_file_path,
-                file_imports,
-            )
-        {
+        // A name the registry does not hold as an alias, a built-in
+        // container included, is rebuilt around its resolved arguments.
+        if let Some(expanded) = try_expand_alias(
+            base,
+            &resolved_args,
+            registry,
+            caller_file_path,
+            file_imports,
+        ) {
             return resolve_recursive(
                 &expanded,
                 registry,

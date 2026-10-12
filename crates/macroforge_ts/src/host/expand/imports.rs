@@ -87,14 +87,6 @@ pub(super) fn external_type_function_import_patches(
     let mut needed: std::collections::BTreeMap<(String, String), bool> = Default::default();
 
     for (type_name, module_src) in import_sources {
-        if !type_name
-            .chars()
-            .next()
-            .is_some_and(|c| c.is_ascii_uppercase())
-        {
-            continue;
-        }
-
         // For now, only add external imports for relative module specifiers.
         // This matches the common `./foo` / `../foo` patterns for sharing types across files.
         if !module_src.starts_with('.') && !module_src.starts_with('$') {
