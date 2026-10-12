@@ -10,9 +10,10 @@ use crate::abi::{
 };
 use ::oxc::ast::ast::{
     BindingPattern, Class, ClassElement, Declaration, ExportDefaultDeclarationKind, Expression,
-    Function, Program, PropertyKey, Statement, TSAccessibility, TSEnumDeclaration,
-    TSEnumMemberName, TSInterfaceDeclaration, TSSignature, TSType, TSTypeAliasDeclaration,
-    TSTypeLiteral, TSTypeName, TSTypeOperatorOperator, TSTypeParameterDeclaration, UnaryOperator,
+    FormalParameter, Function, MethodDefinitionKind, Program, PropertyKey, Statement,
+    TSAccessibility, TSEnumDeclaration, TSEnumMemberName, TSInterfaceDeclaration, TSSignature,
+    TSType, TSTypeAliasDeclaration, TSTypeLiteral, TSTypeName, TSTypeOperatorOperator,
+    TSTypeParameterDeclaration, UnaryOperator,
 };
 use oxc::span::GetSpan;
 use std::collections::HashSet;
@@ -93,6 +94,27 @@ pub fn lower_classes(
     Ok(classes)
 }
 
+/// The name a property key gives its property: an identifier's own, or the
+/// value of a string or whole-number literal, as `'first-name'` and `0` are
+/// written. A computed or `#private` key names no property a macro can reach.
+fn property_name(key: &PropertyKey<'_>, computed: bool) -> Option<String> {
+    if computed {
+        return None;
+    }
+    match key {
+        PropertyKey::StaticIdentifier(ident) => Some(ident.name.to_string()),
+        PropertyKey::StringLiteral(literal) => Some(literal.value.to_string()),
+        PropertyKey::NumericLiteral(literal) => {
+            // The largest whole number a property name spells without an exponent.
+            const LARGEST_PLAIN: f64 = 1e21;
+            let value = literal.value;
+            (value.fract() == 0.0 && value >= 0.0 && value < LARGEST_PLAIN)
+                .then(|| format!("{value:.0}"))
+        }
+        _ => None,
+    }
+}
+
 fn lower_class(
     decl: &Class<'_>,
     source: &str,
@@ -109,11 +131,14 @@ fn lower_class(
         .unwrap_or_default();
 
     let mut heritage = Vec::new();
-    if let Some(super_class) = &decl.heritage
-        && let Expression::Identifier(ident) = &super_class.expression
-    {
-        heritage.push(ident.name.to_string());
-    }
+    let superclass = match &decl.heritage {
+        Some(super_class) => match &super_class.expression {
+            Expression::Identifier(ident) => Some(ident.name.to_string()),
+            _ => None,
+        },
+        None => None,
+    };
+    heritage.extend(superclass.clone());
     for item in &decl.implements {
         if let TSTypeName::IdentifierReference(ident) = &item.expression {
             heritage.push(ident.name.to_string());
@@ -132,11 +157,18 @@ fn lower_class(
         match element {
             // A static property belongs to the class, not to its instances.
             ClassElement::PropertyDefinition(prop) if !prop.r#static => {
-                if let PropertyKey::StaticIdentifier(ident) = &prop.key {
+                // A `#private` field is a field like any other, under the
+                // name it is written with: a macro that cannot reach it has
+                // to say so rather than never see it.
+                let name = match &prop.key {
+                    PropertyKey::PrivateIdentifier(private) => Some(format!("#{}", private.name)),
+                    key => property_name(key, prop.computed),
+                };
+                if let Some(name) = name {
                     let field_decorators =
                         collect_leading_decorators(source, floor, prop.span.start as usize, filter);
                     fields.push(FieldIR {
-                        name: ident.name.to_string(),
+                        name,
                         span: oxc_span_ir(prop.span),
                         ts_type: prop
                             .type_annotation
@@ -162,6 +194,17 @@ fn lower_class(
                 }
             }
             ClassElement::MethodDefinition(method) => {
+                // A constructor parameter with a modifier declares a field.
+                if method.kind == MethodDefinitionKind::Constructor {
+                    fields.extend(
+                        method
+                            .value
+                            .params
+                            .items
+                            .iter()
+                            .filter_map(|param| parameter_property(param, source)),
+                    );
+                }
                 if let PropertyKey::StaticIdentifier(ident) = &method.key {
                     let func = &method.value;
 
@@ -237,9 +280,40 @@ fn lower_class(
         is_abstract: decl.r#abstract,
         type_params,
         heritage,
+        superclass,
         decorators,
         fields,
         methods,
+    })
+}
+
+/// The field a constructor parameter declares, when it carries the modifier
+/// that makes it one: `public`, `protected`, `private` or `readonly`. Its
+/// default value is the field's initializer.
+fn parameter_property(param: &FormalParameter<'_>, source: &str) -> Option<FieldIR> {
+    if param.accessibility.is_none() && !param.readonly {
+        return None;
+    }
+    let BindingPattern::BindingIdentifier(ident) = &param.pattern else {
+        return None;
+    };
+    let text = |span: oxc::span::Span| source[span.start as usize..span.end as usize].to_string();
+    Some(FieldIR {
+        name: ident.name.to_string(),
+        span: oxc_span_ir(param.span),
+        ts_type: param
+            .type_annotation
+            .as_ref()
+            .map_or_else(|| "any".to_string(), |ann| text(ann.type_annotation.span())),
+        optional: param.optional,
+        readonly: param.readonly,
+        visibility: match param.accessibility {
+            Some(TSAccessibility::Private) => Visibility::Private,
+            Some(TSAccessibility::Protected) => Visibility::Protected,
+            _ => Visibility::Public,
+        },
+        decorators: Vec::new(),
+        initializer: param.initializer.as_ref().map(|value| text(value.span())),
     })
 }
 
@@ -321,7 +395,7 @@ fn lower_interface_members(
         let floor = std::mem::replace(&mut previous_end, elem.span().end as usize);
         match elem {
             TSSignature::TSPropertySignature(prop) => {
-                if let PropertyKey::StaticIdentifier(ident) = &prop.key {
+                if let Some(name) = property_name(&prop.key, prop.computed) {
                     let ts_type = prop
                         .type_annotation
                         .as_ref()
@@ -334,7 +408,7 @@ fn lower_interface_members(
                     let field_decorators =
                         collect_leading_decorators(source, floor, prop.span.start as usize, filter);
                     fields.push(InterfaceFieldIR {
-                        name: ident.name.to_string(),
+                        name,
                         span: oxc_span_ir(prop.span),
                         ts_type,
                         optional: prop.optional,

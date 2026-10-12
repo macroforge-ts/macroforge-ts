@@ -92,6 +92,12 @@ pub struct ClassIR {
     /// For `class Foo extends Bar implements IBaz`, this would be `["Bar", "IBaz"]`.
     pub heritage: Vec<String>,
 
+    /// The class this one extends, when it extends one named by an
+    /// identifier: `Bar` for `class Foo extends Bar implements IBaz`. Its
+    /// instances hold that class's fields as well as their own.
+    #[serde(default)]
+    pub superclass: Option<String>,
+
     /// Macro directives from the JSDoc comment above the class.
     pub decorators: Vec<DecoratorIR>,
 

@@ -27,6 +27,7 @@ fn make_registry_with_derives() -> TypeRegistry {
             is_abstract: false,
             type_params: vec![],
             heritage: vec![],
+            superclass: None,
             decorators: vec![make_decorator(
                 "derive",
                 "Clone, Hash, PartialEq, Debug, Default",
@@ -69,6 +70,7 @@ fn make_registry_with_derives() -> TypeRegistry {
             is_abstract: false,
             type_params: vec![],
             heritage: vec![],
+            superclass: None,
             decorators: vec![],
             fields: vec![],
             methods: vec![],

@@ -32,6 +32,7 @@ use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, MacroContextIR, MacroResul
 ///     is_abstract: false,
 ///     type_params: vec![],
 ///     heritage: vec![],
+///     superclass: None,
 ///     decorators: vec![],
 ///     fields: vec![],
 ///     methods: vec![],
