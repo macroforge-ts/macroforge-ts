@@ -61,7 +61,15 @@ pub(super) fn handle_primitive_type_alias(
     // A string input is the value itself, not JSON: always for `string`, and for
     // a wire-converted base, where parsing would round `bigint` digits.
     let data_init_expr = if primitive == "string" || wire_decode.is_some() {
-        Expr::parse("input").expect("data init expr should parse")
+        // A string is the value itself, or the JSON text of a string, which
+        // is what `encode` writes for it.
+        let text_or_value: Expr = ts_ident!(crate::builtin::derive::endec::coder::endec_helper(
+            "textOrValue"
+        ))
+        .into();
+        Expr::Source(crate::builtin::derive::common::rendered(ts_template! {
+            @{text_or_value}(input, (__spelled) => typeof __spelled === "string")
+        }))
     } else {
         Expr::parse(r#"typeof input === "string" ? JSON.parse(input) : input"#)
             .expect("data init expr should parse")
@@ -106,7 +114,7 @@ pub(super) fn handle_primitive_type_alias(
         }
 
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
-        export function @{fn_decode_internal_ident}(value: unknown, @{ctx_param}: @{decode_context_ident}): @{full_type_ident} {
+        export function @{fn_decode_internal_ident}(value: unknown, @{ctx_param}: @{decode_context_ident}@{&alias.coders}): @{full_type_ident} {
             {#if let Some(wire_decode) = &wire_decode}
                 let __decoded: unknown = value;
                 if (typeof value !== "@{primitive}") {

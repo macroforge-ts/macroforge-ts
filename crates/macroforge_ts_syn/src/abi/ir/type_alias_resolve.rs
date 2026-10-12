@@ -45,16 +45,43 @@ pub fn resolve_generic_aliases(
     caller_file_path: &str,
     file_imports: &[FileImportEntry],
 ) -> String {
-    resolve_recursive(ts_type, registry, caller_file_path, file_imports, 0)
+    resolve_generic_aliases_where(
+        ts_type,
+        registry,
+        caller_file_path,
+        file_imports,
+        &|_, _| true,
+    )
 }
 
-fn resolve_recursive(
+/// [`resolve_generic_aliases`], expanding an instantiation only where
+/// `expands` says so, given the alias's name and what it expands to. One left
+/// alone keeps its name, with its arguments resolved.
+pub fn resolve_generic_aliases_where(
     ts_type: &str,
     registry: &TypeRegistry,
     caller_file_path: &str,
     file_imports: &[FileImportEntry],
-    depth: u8,
+    expands: &dyn Fn(&str, &str) -> bool,
 ) -> String {
+    let source = AliasSource {
+        registry,
+        caller_file_path,
+        file_imports,
+        expands,
+    };
+    resolve_recursive(ts_type, &source, 0)
+}
+
+/// Where instantiations are resolved from, and which of them are expanded.
+struct AliasSource<'a> {
+    registry: &'a TypeRegistry,
+    caller_file_path: &'a str,
+    file_imports: &'a [FileImportEntry],
+    expands: &'a dyn Fn(&str, &str) -> bool,
+}
+
+fn resolve_recursive(ts_type: &str, source: &AliasSource<'_>, depth: u8) -> String {
     if depth >= MAX_DEPTH {
         return ts_type.to_string();
     }
@@ -64,7 +91,7 @@ fn resolve_recursive(
     if let Some(parts) = split_top_level_union(trimmed) {
         let resolved: Vec<String> = parts
             .iter()
-            .map(|p| resolve_recursive(p, registry, caller_file_path, file_imports, depth + 1))
+            .map(|part| resolve_recursive(part, source, depth + 1))
             .collect();
         return resolved.join(" | ");
     }
@@ -73,14 +100,14 @@ fn resolve_recursive(
     if let Some(parts) = split_top_level_intersection(trimmed) {
         let resolved: Vec<String> = parts
             .iter()
-            .map(|p| resolve_recursive(p, registry, caller_file_path, file_imports, depth + 1))
+            .map(|part| resolve_recursive(part, source, depth + 1))
             .collect();
         return resolved.join(" & ");
     }
 
     // `T[]`: recurse into element type.
     if let Some(inner) = trimmed.strip_suffix("[]") {
-        let element = resolve_recursive(inner, registry, caller_file_path, file_imports, depth + 1);
+        let element = resolve_recursive(inner, source, depth + 1);
         // `[]` binds tighter than `|` and `&`, so a compound element keeps
         // its parentheses.
         let compound = split_top_level_union(&element).is_some()
@@ -96,25 +123,21 @@ fn resolve_recursive(
     if let Some((base, args_str)) = parse_generic(trimmed) {
         let resolved_args: Vec<String> = split_top_level_commas(args_str)
             .iter()
-            .map(|a| resolve_recursive(a, registry, caller_file_path, file_imports, depth + 1))
+            .map(|argument| resolve_recursive(argument, source, depth + 1))
             .collect();
 
         // A name the registry does not hold as an alias, a built-in
-        // container included, is rebuilt around its resolved arguments.
+        // container included, is rebuilt around its resolved arguments. So
+        // is an alias the caller keeps by name.
         if let Some(expanded) = try_expand_alias(
             base,
             &resolved_args,
-            registry,
-            caller_file_path,
-            file_imports,
-        ) {
-            return resolve_recursive(
-                &expanded,
-                registry,
-                caller_file_path,
-                file_imports,
-                depth + 1,
-            );
+            source.registry,
+            source.caller_file_path,
+            source.file_imports,
+        ) && (source.expands)(base, &expanded)
+        {
+            return resolve_recursive(&expanded, source, depth + 1);
         }
 
         return format!("{}<{}>", base, resolved_args.join(", "));
@@ -153,7 +176,7 @@ pub fn alias_default_member(
     let (base, args) = parse_generic(ts_type.trim())?;
     let resolved_args: Vec<String> = split_top_level_commas(args)
         .iter()
-        .map(|arg| resolve_recursive(arg, registry, caller_file_path, file_imports, 1))
+        .map(|arg| resolve_generic_aliases(arg, registry, caller_file_path, file_imports))
         .collect();
     instantiate_alias(
         base,

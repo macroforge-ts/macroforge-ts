@@ -57,7 +57,7 @@ pub(super) fn tuple_view(
     let reference = decode_reference(type_name, &alias.full_type_name);
     Ok(ts_template! {
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
-        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}): @{full_type_ident.clone()} {
+        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}@{&alias.coders}): @{full_type_ident.clone()} {
             {$typescript reference}
             if (!Array.isArray(value)) {
                 throw new @{decode_error_expr}([{ field: "_root", message: "@{type_name}.decodeWithContext: expected an array" }]);
@@ -158,7 +158,7 @@ pub(super) fn whole_view(alias: &AliasDecode, ts_type: &str) -> Result<TsStream,
     };
     Ok(ts_template! {
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
-        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}): @{full_type_ident.clone()} {
+        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}@{&alias.coders}): @{full_type_ident.clone()} {
             {$typescript reference}
             const obj: Record<string, unknown> = { _root: value };
             const errors: Array<{ field: string; message: string }> = [];

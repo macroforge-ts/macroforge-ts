@@ -43,7 +43,13 @@ fn failure(ts_type: &str) -> String {
 
 #[test]
 fn a_value_that_is_its_own_encoding_is_left_alone() {
-    for ts_type in ["unknown", "T", "T[]", "Record<string, T>", "null", "object"] {
+    for ts_type in [
+        "unknown",
+        "unknown[]",
+        "Record<string, unknown>",
+        "null",
+        "object",
+    ] {
         assert_eq!(coded(ts_type), (None, None), "{ts_type}");
     }
     let (encoded, decoded) = coded("string[]");
@@ -51,6 +57,133 @@ fn a_value_that_is_its_own_encoding_is_left_alone() {
     assert_eq!(
         decoded.as_deref(),
         Some("__mf_decodeArray(raw,ctx,__mf_decodeString)")
+    );
+}
+
+#[test]
+fn a_value_of_a_type_parameter_is_coded_by_the_coder_handed_in_for_it() {
+    assert_eq!(
+        coded("T"),
+        (
+            Some("(__encodeT===undefined?v:__encodeT(v,ctx))".to_string()),
+            Some("(__decodeT===undefined?rawasT:__decodeT(raw,ctx))".to_string())
+        )
+    );
+    let (encoded, decoded) = coded("T[]");
+    assert_eq!(
+        encoded.as_deref(),
+        Some("v.map((__item0)=>(__encodeT===undefined?__item0:__encodeT(__item0,ctx)))")
+    );
+    assert_eq!(
+        decoded.as_deref(),
+        Some(
+            "__mf_decodeArray(raw,ctx,(__raw0)=>(__decodeT===undefined?__raw0asT:__decodeT(__raw0,ctx)))"
+        )
+    );
+}
+
+#[test]
+fn a_generic_type_is_handed_the_coders_of_its_arguments() {
+    let (encoded, decoded) = coded("Box<Date>");
+    assert_eq!(
+        encoded.as_deref(),
+        Some("boxEncodeWithContext<Date>(v,ctx,(__arg0)=>__arg0.toISOString())")
+    );
+    assert_eq!(
+        decoded.as_deref(),
+        Some("boxDecodeWithContext<Date>(raw,ctx,__mf_decodeDate)")
+    );
+
+    // An argument that is its own coding has no coder, and a later one that
+    // has one keeps its place.
+    let (encoded, decoded) = coded("Pair<unknown, User>");
+    assert_eq!(
+        encoded.as_deref(),
+        Some(
+            "pairEncodeWithContext<unknown,User>(v,ctx,undefined,(__arg0)=>userEncodeWithContext(__arg0,ctx))"
+        )
+    );
+    assert_eq!(
+        decoded.as_deref(),
+        Some(
+            "pairDecodeWithContext<unknown,User>(raw,ctx,undefined,(__raw0)=>userDecodeWithContext(__raw0,ctx))"
+        )
+    );
+    assert_eq!(
+        coded("Box<unknown>"),
+        (
+            Some("boxEncodeWithContext(v,ctx)".to_string()),
+            Some("boxDecodeWithContext(raw,ctx)".to_string())
+        )
+    );
+
+    // A parameter in scope is handed on, and a selection keeps its place
+    // ahead of the coders.
+    let (encoded, decoded) = coded("Partial<Box<T>>");
+    assert_eq!(
+        encoded.as_deref(),
+        Some(
+            "boxEncodePartialWithContext<T>(v,ctx,undefined,(__arg0)=>(__encodeT===undefined?__arg0:__encodeT(__arg0,ctx)))"
+        )
+    );
+    assert_eq!(
+        decoded.as_deref(),
+        Some(
+            "boxDecodePartialWithContext<T>(raw,ctx,undefined,(__raw0)=>(__decodeT===undefined?__raw0asT:__decodeT(__raw0,ctx)))"
+        )
+    );
+    let (encoded, _) = coded("Pick<Box<Date>, 'held'>");
+    assert_eq!(
+        encoded.as_deref(),
+        Some(
+            r#"boxEncodePartialWithContext<Date>(v,ctx,{only:["held"]},(__arg0)=>__arg0.toISOString())"#
+        )
+    );
+}
+
+#[test]
+fn a_union_a_field_cannot_tell_apart_is_an_error() {
+    for ts_type in [
+        "User | Admin",
+        "(User | Admin)[]",
+        "User | Admin | null",
+        "Date | number",
+        "Set<string> | string[]",
+        "Partial<User> | string[]",
+    ] {
+        assert!(
+            failure(ts_type).contains("nothing in a field says which member"),
+            "{ts_type}"
+        );
+    }
+    // A union of values that are their own coding is carried as it is, a
+    // date beside a string is that string, and a function's `|` is its own.
+    for ts_type in [
+        "Date | string",
+        "string | string[]",
+        "number | 'auto'",
+        "() => User | Admin",
+    ] {
+        assert_eq!(coded(ts_type).0, None, "{ts_type}");
+    }
+    // One user type beside a primitive or a literal is told from it.
+    let (encoded, decoded) = coded("string | User");
+    assert_eq!(
+        encoded.as_deref(),
+        Some(r#"(typeofv==="string"?v:userEncodeWithContext(v,ctx))"#)
+    );
+    assert_eq!(
+        decoded.as_deref(),
+        Some(r#"(typeofraw==="string"?raw:userDecodeWithContext(raw,ctx))"#)
+    );
+    let (encoded, decoded) = coded("Box<Date> | 'none'");
+    assert_eq!(
+        encoded.as_deref(),
+        Some("(v==='none'?v:boxEncodeWithContext<Date>(v,ctx,(__arg0)=>__arg0.toISOString()))")
+    );
+    assert_eq!(
+        decoded.as_deref(),
+        Some("(raw==='none'?raw:boxDecodeWithContext<Date>(raw,ctx,__mf_decodeDate))")
     );
 }
 
@@ -148,7 +281,7 @@ fn a_tuple_is_coded_element_by_element() {
             "(__mf_decodeTuple(raw,ctx,[(__raw0)=>userDecodeWithContext(__raw0,ctx),__mf_decodeDate],1,__mf_decodeString)as[User,Date?,...string[]])"
         )
     );
-    assert_eq!(coded("[T, unknown]"), (None, None));
+    assert_eq!(coded("[unknown, object]"), (None, None));
 }
 
 #[test]
@@ -183,8 +316,18 @@ fn an_object_type_written_in_place_is_coded_member_by_member() {
             r#"(__mf_decodeObject(raw,ctx,{at:__mf_decodeDate,note:__mf_decodeString,"kebab-key":(__raw0)=>userDecodeWithContext(__raw0,ctx)},["note"])as{at:Date;note?:string;'kebab-key':User})"#
         )
     );
-    // An index signature names no member, so its values pass through.
-    assert_eq!(coded("{ [key: string]: Date }"), (None, None));
+    // An index signature over strings alone is the `Record` it describes.
+    let (encoded, decoded) = coded("{ [key: string]: Date }");
+    assert!(encoded.is_some_and(|encoded| encoded.contains("toISOString()")));
+    assert!(
+        decoded
+            .is_some_and(|decoded| decoded.contains("__mf_decodeRecord(raw,ctx,__mf_decodeDate)"))
+    );
+    assert_eq!(coded("{ [key: string]: unknown }"), (None, None));
+    // Beside named members, or under a computed key, it names no member to code.
+    assert!(failure("{ id: string; [key: string]: Date }").contains("which no name reads"));
+    assert!(failure("{ id: string; [KEY]: Date }").contains("`[KEY]`"));
+    assert!(failure("{ [key: number]: Date }").contains("which no name reads"));
 }
 
 #[test]
@@ -231,15 +374,32 @@ fn a_utility_type_over_a_user_type_says_which_fields_a_value_has() {
     assert_eq!(
         NestedType::of("Readonly<Partial<User>>", &no_param),
         Ok(Some(NestedType {
-            name: "User".to_string(),
             fields: WrapperFields::Any,
+            ..NestedType::whole("User".to_string())
         }))
     );
     assert_eq!(
         NestedType::of("Required<Omit<User, 'id'>>", &no_param),
         Ok(Some(NestedType {
-            name: "User".to_string(),
             fields: WrapperFields::Except(vec!["id".to_string()]),
+            required: true,
+            ..NestedType::whole("User".to_string())
+        }))
+    );
+    // A `Required` gives a `Partial` its fields back, and a `Partial` takes
+    // a `Required`'s away.
+    assert_eq!(
+        NestedType::of("Required<Partial<User>>", &no_param),
+        Ok(Some(NestedType {
+            required: true,
+            ..NestedType::whole("User".to_string())
+        }))
+    );
+    assert_eq!(
+        NestedType::of("Partial<Required<User>>", &no_param),
+        Ok(Some(NestedType {
+            fields: WrapperFields::Any,
+            ..NestedType::whole("User".to_string())
         }))
     );
     assert_eq!(NestedType::of("Partial<T>", &|name| name == "T"), Ok(None));

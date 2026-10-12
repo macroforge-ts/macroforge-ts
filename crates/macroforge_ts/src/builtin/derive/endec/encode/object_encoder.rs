@@ -10,6 +10,8 @@ use super::text::encode_text_body;
 use super::types::EncodeField;
 use crate::builtin::derive::common::{TypeNames, js_string, rendered};
 use crate::builtin::derive::endec::coder::endec_helper;
+use crate::builtin::derive::endec::type_arguments::{declared_param_coders, passed_param_coders};
+use crate::builtin::derive::endec::union_guard::Direction;
 use crate::builtin::return_types::{
     ENCODE_CONTEXT, FIELD_REQUIREMENT, FIELD_REQUIREMENT_TYPE, FIELD_SELECTION,
 };
@@ -25,11 +27,16 @@ pub(super) fn object_encode_functions(
     let fn_encode_ident = names.generic_function("Encode");
     let fn_encode_internal_expr: Expr = names.generic_call("EncodeWithContext").into();
     let full_type_ident = names.full_type_ident();
-    let encode_text = encode_text_body(&fn_encode_internal_expr, tag_field);
+    let coders = declared_param_coders(Direction::Encode, &names.params);
+    let encode_text = encode_text_body(
+        &fn_encode_internal_expr,
+        tag_field,
+        &passed_param_coders(Direction::Encode, &names.params),
+    );
     let with_context = encode_with_context_functions(names, tag_field, fields, Home::Module);
     ts_template! {
         /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
-        export function @{fn_encode_ident}(value: @{full_type_ident}, keepMetadata?: boolean): string {
+        export function @{fn_encode_ident}(value: @{full_type_ident}, keepMetadata?: boolean@{coders}): string {
             {$typescript encode_text}
         }
 
@@ -66,9 +73,15 @@ pub(super) fn encode_with_context_functions(
     let field_requirement_expr: Expr = ts_ident!(FIELD_REQUIREMENT).into();
     let field_requirement_type = ts_ident!(FIELD_REQUIREMENT_TYPE);
     let encode_selection: Expr = ts_ident!(endec_helper("encodeSelection")).into();
+    let encoded_as: Expr = ts_ident!(endec_helper("encodedAs")).into();
+    let encoded_reference: Expr = ts_ident!(endec_helper("encodedReference")).into();
     let full_type_ident = names.full_type_ident();
     let type_name = names.type_name.as_str();
     let generic_args = names.generic_args.as_str();
+    // The coders of the type's parameters, as each function takes them
+    // after its other parameters and hands them on.
+    let coders = declared_param_coders(Direction::Encode, &names.params);
+    let passed_coders = passed_param_coders(Direction::Encode, &names.params);
     // The writer, as each home calls it.
     let write_fields: Expr = match home {
         Home::Module => names.generic_call("EncodeFields").into(),
@@ -110,13 +123,10 @@ pub(super) fn encode_with_context_functions(
     let whole_body = ts_template! {
         const existingId = ctx.getId(value);
         if (existingId !== undefined) {
-            return { __ref: existingId };
+            return @{&encoded_reference}(ctx, existingId);
         }
-        const result: Record<string, unknown> = {
-            "@{tag_field}": "@{type_name}",
-            __id: ctx.register(value),
-        };
-        @{&write_fields}(value, ctx, result, undefined);
+        const result = @{&encoded_as}(ctx, ctx.register(value), { "@{tag_field}": "@{type_name}" });
+        @{&write_fields}(value, ctx, result, undefined@{&passed_coders});
         return result;
     };
     // The writer reads the value as a whole one, testing each field for
@@ -125,7 +135,7 @@ pub(super) fn encode_with_context_functions(
     let partial_body = ts_template! {
         return @{encode_selection}(ctx, value, () => {
             const result: Record<string, unknown> = { "@{tag_field}": "@{type_name}" };
-            @{&write_fields}(value as @{&full_type_ident}, ctx, result, fields === undefined ? undefined : @{field_requirement_expr}(fields));
+            @{&write_fields}(value as @{&full_type_ident}, ctx, result, fields === undefined ? undefined : @{field_requirement_expr}(fields)@{&passed_coders});
             return result;
         });
     };
@@ -134,16 +144,16 @@ pub(super) fn encode_with_context_functions(
             let fn_encode_fields_ident = names.generic_function("EncodeFields");
             ts_template! {
                 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context */
-                export function @{fn_encode_internal_ident}(value: @{&full_type_ident}, ctx: @{&encode_context_ident}): Record<string, unknown> {
+                export function @{fn_encode_internal_ident}(value: @{&full_type_ident}, ctx: @{&encode_context_ident}@{&coders}): Record<string, unknown> {
                     {$typescript whole_body}
                 }
 
                 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out */
-                export function @{fn_encode_partial_ident}(value: Partial<@{&full_type_ident}>, ctx: @{&encode_context_ident}, fields?: @{field_selection_ident}<keyof @{&full_type_ident}>): Record<string, unknown> {
+                export function @{fn_encode_partial_ident}(value: Partial<@{&full_type_ident}>, ctx: @{&encode_context_ident}, fields?: @{field_selection_ident}<keyof @{&full_type_ident}>@{&coders}): Record<string, unknown> {
                     {$typescript partial_body}
                 }
 
-                function @{fn_encode_fields_ident}(@{value_param}: @{&full_type_ident}, @{ctx_param}: @{&encode_context_ident}, @{result_param}: Record<string, unknown>, @{fields_param}: @{field_requirement_type} | undefined): void {
+                function @{fn_encode_fields_ident}(@{value_param}: @{&full_type_ident}, @{ctx_param}: @{&encode_context_ident}, @{result_param}: Record<string, unknown>, @{fields_param}: @{field_requirement_type} | undefined@{&coders}): void {
                     {$typescript field_statements}
                 }
             }
@@ -154,28 +164,28 @@ pub(super) fn encode_with_context_functions(
             let class = ts_ident!(type_name);
             let standalone = ts_template! {
                 /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context */
-                export function @{fn_encode_internal_ident}(value: @{&full_type_ident}, ctx: @{&encode_context_ident}): Record<string, unknown> {
-                    return @{&class}.@{whole_call}(value, ctx);
+                export function @{fn_encode_internal_ident}(value: @{&full_type_ident}, ctx: @{&encode_context_ident}@{&coders}): Record<string, unknown> {
+                    return @{&class}.@{whole_call}(value, ctx@{&passed_coders});
                 }
 
                 /** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out */
-                export function @{fn_encode_partial_ident}(value: Partial<@{&full_type_ident}>, ctx: @{&encode_context_ident}, fields?: @{&field_selection_ident}<keyof @{&full_type_ident}>): Record<string, unknown> {
-                    return @{&class}.@{partial_call}(value, ctx, fields);
+                export function @{fn_encode_partial_ident}(value: Partial<@{&full_type_ident}>, ctx: @{&encode_context_ident}, fields?: @{&field_selection_ident}<keyof @{&full_type_ident}>@{&coders}): Record<string, unknown> {
+                    return @{&class}.@{partial_call}(value, ctx, fields@{&passed_coders});
                 }
             };
             let class_body = ts_template!(Within {
                 /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context */
-                static @{names.generic_method("encodeWithContext")}(value: @{&full_type_ident}, ctx: @{&encode_context_ident}): Record<string, unknown> {
+                static @{names.generic_method("encodeWithContext")}(value: @{&full_type_ident}, ctx: @{&encode_context_ident}@{&coders}): Record<string, unknown> {
                     {$typescript whole_body}
                 }
 
                 /** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out */
-                static @{names.generic_method("encodePartialWithContext")}(value: Partial<@{&full_type_ident}>, ctx: @{&encode_context_ident}, fields?: @{&field_selection_ident}<keyof @{&full_type_ident}>): Record<string, unknown> {
+                static @{names.generic_method("encodePartialWithContext")}(value: Partial<@{&full_type_ident}>, ctx: @{&encode_context_ident}, fields?: @{&field_selection_ident}<keyof @{&full_type_ident}>@{&coders}): Record<string, unknown> {
                     {$typescript partial_body}
                 }
 
                 // Hash-private, so a subclass's own writer is a member apart.
-                static @{names.generic_method("#encodeFields")}(@{value_param}: @{&full_type_ident}, @{ctx_param}: @{&encode_context_ident}, @{result_param}: Record<string, unknown>, @{fields_param}: @{field_requirement_type} | undefined): void {
+                static @{names.generic_method("#encodeFields")}(@{value_param}: @{&full_type_ident}, @{ctx_param}: @{&encode_context_ident}, @{result_param}: Record<string, unknown>, @{fields_param}: @{field_requirement_type} | undefined@{&coders}): void {
                     {$typescript field_statements}
                 }
             });
@@ -192,7 +202,7 @@ pub(super) fn encode_with_context_functions(
 /// Whether `source` reads the binding `name`: the word on its own, not as a
 /// property of something else, as part of a longer name, or as the text of a
 /// string that names a field.
-fn mentions(source: &str, name: &str) -> bool {
+pub(super) fn mentions(source: &str, name: &str) -> bool {
     let is_name_char = |letter: char| letter.is_alphanumeric() || matches!(letter, '_' | '$');
     source.match_indices(name).any(|(start, _)| {
         let before = source[..start].chars().next_back();

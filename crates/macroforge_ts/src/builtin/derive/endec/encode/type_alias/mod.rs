@@ -6,6 +6,8 @@ mod union;
 mod view;
 
 use crate::ast::Ident;
+use crate::builtin::derive::endec::reserved_keys::check_reserved_keys;
+use crate::builtin::derive::endec::source_field::SourceField;
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::abi::ir::{FileImportEntry, TypeParamIR, TypeRegistry};
 use crate::ts_syn::{
@@ -19,6 +21,8 @@ use super::object_encoder::object_encode_functions;
 use super::types::EncodeField;
 use crate::builtin::derive::common::TypeNames;
 use crate::builtin::derive::endec::EndecContainerOptions;
+use crate::builtin::derive::endec::type_arguments::{declared_param_coders, passed_param_coders};
+use crate::builtin::derive::endec::union_guard::Direction;
 use crate::builtin::return_types::ENCODE_CONTEXT;
 
 /// What every type alias `Encode` generator shares.
@@ -34,6 +38,11 @@ struct AliasEncode<'a> {
     fn_encode_ident: Ident,
     fn_encode_internal_ident: Ident,
     encode_context_ident: Ident,
+    /// The coders of the alias's type parameters, as `encodeWithContext`
+    /// declares them after its context.
+    coders: String,
+    /// The same coders, as `encode` hands them on.
+    passed_coders: String,
 }
 
 pub(super) fn handle_type_alias(
@@ -73,6 +82,8 @@ pub(super) fn handle_type_alias(
         fn_encode_ident,
         fn_encode_internal_ident,
         encode_context_ident,
+        coders: declared_param_coders(Direction::Encode, &names.params),
+        passed_coders: passed_param_coders(Direction::Encode, &names.params),
     };
 
     if let Some(primitive) = type_alias.body().primitive_base() {
@@ -84,6 +95,12 @@ pub(super) fn handle_type_alias(
         let container_opts = EndecContainerOptions::from_decorators(&type_alias.inner.decorators);
         let names = TypeNames::new(type_name, type_params);
         let mut diagnostics = DiagnosticCollector::new();
+        check_reserved_keys(
+            Direction::Encode,
+            &container_opts,
+            ir_fields.iter().map(SourceField::from),
+            &mut diagnostics,
+        );
         let fields: Vec<EncodeField> = ir_fields
             .iter()
             .filter_map(|field| {

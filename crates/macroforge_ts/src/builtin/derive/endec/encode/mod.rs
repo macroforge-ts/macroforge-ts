@@ -31,6 +31,11 @@
 //! 2. If so, return `{ "__ref": existingId }` instead
 //! 3. Otherwise, register the object and encode its fields
 //!
+//! `encode(value)` leaves `__type` and `__id` out of its text unless
+//! `keepMetadata` is set. Nothing is then left for a reference to name, so a
+//! value held in several places is written out at each of them, and a value
+//! that holds itself, which only a reference can write, throws a `TypeError`.
+//!
 //! ## Type-Specific Encoding
 //!
 //! A field is encoded by the whole structure of its type, to any depth:
@@ -50,12 +55,36 @@
 //! | `Partial<T>`, `Pick<T,K>`, `Omit<T,K>` | `{name}EncodePartialWithContext`, which encodes the fields the value has and, for a `Pick` or `Omit`, only those the type keeps. Such a value is written out wherever it is held and never becomes a `__ref`; one that holds itself throws a `TypeError` |
 //! | A type deriving `Encode` | Its `{name}EncodeWithContext` function |
 //! | A configured foreign type | Its `encode` handler |
-//! | A type parameter, `unknown`, any other type | The value as it is |
+//! | A type parameter | The encoder handed in for it, or the value as it is without one |
+//! | `string \| User`, a primitive beside one type deriving `Encode` | The primitive as it is, anything else through the type |
+//! | Any other union with a member that is encoded, `Circle \| Square`, `Date \| number` | An expansion error: nothing in a field says which member a value is. Name the union with an alias and derive on that |
+//! | `unknown`, any other type | The value as it is |
 //!
 //! Note: which strategy applies is resolved **statically** from the field's declared
-//! TypeScript type at expansion time: there is no runtime feature detection. A
-//! value of a type parameter is carried as it is: `Box<Date>` does not encode the
-//! date its `T` holds.
+//! TypeScript type at expansion time: there is no runtime feature detection.
+//!
+//! ## Generic Types
+//!
+//! A type parameter says nothing of how its values are encoded, so
+//! `{name}EncodeWithContext` and `{name}EncodePartialWithContext` of a generic
+//! type take one optional `Encoder` for each parameter, after their other
+//! parameters. A field written with the type's arguments hands them in:
+//!
+//! ```typescript
+//! /** @derive(Encode) */
+//! interface Box<T> { held: T; list: T[] }
+//!
+//! /** @derive(Encode) */
+//! interface Shelf { dated: Box<Date> }
+//! // shelfEncodeWithContext calls
+//! // boxEncodeWithContext<Date>(value.dated, ctx, (date) => date.toISOString())
+//! ```
+//!
+//! A union alias hands the encoders on to a member written with type
+//! arguments. The top-level `{name}Encode` and a class's static `encode` take
+//! the same encoders after `keepMetadata`,
+//! `boxEncode(box, false, (date) => date.toISOString())`. Without an encoder
+//! a value of the parameter is written as it is.
 //!
 //! ## Field-Level Options
 //!

@@ -2,10 +2,8 @@
 
 use std::rc::Rc;
 
-use crate::builtin::derive::common::rendered;
 use crate::host::ForeignTypeConfig;
 use crate::host::import_registry::with_registry_mut;
-use crate::macros::ts_template;
 
 /// The full foreign type list, and the configured types it was built from.
 struct WithBuiltins {
@@ -61,11 +59,19 @@ fn builtin_foreign_types() -> Vec<ForeignTypeConfig> {
         handler_sites: Vec::new(),
     };
 
+    // Each decoder takes the encoding its encoder writes and refuses any
+    // other value: the constructors it ends in would coerce one instead, as
+    // `BigInt(true)` is `1n` and `new Int8Array(5)` is five zeroes.
     let typed_array = |name: &str| {
         ft(
             name,
             "(v) => Array.from(v)",
-            &rendered(ts_template! { (v) => new @{name}(v as number[]) }),
+            &format!(
+                r#"(v) => {{
+                if (!Array.isArray(v) || !v.every((n: unknown): n is number => typeof n === "number")) throw new TypeError("expected an array of numbers");
+                return new {name}(v);
+            }}"#
+            ),
         )
     };
 
@@ -73,27 +79,65 @@ fn builtin_foreign_types() -> Vec<ForeignTypeConfig> {
         ft(
             name,
             "(v) => Array.from(v, (n) => String(n))",
-            &rendered(ts_template! { (v) => new @{name}((v as string[]).map((s) => BigInt(s))) }),
+            &format!(
+                r#"(v) => {{
+                if (!Array.isArray(v) || !v.every((s: unknown): s is string => typeof s === "string" && /^-?\d+$/.test(s))) throw new TypeError("expected an array of whole numbers as text");
+                return new {name}(v.map((s) => BigInt(s)));
+            }}"#
+            ),
         )
     };
 
     vec![
-        ft("bigint", "(v) => String(v)", "(v) => BigInt(v as string)"),
-        ft("URL", "(v) => v.toString()", "(v) => new URL(v as string)"),
+        ft(
+            "bigint",
+            "(v) => String(v)",
+            r#"(v) => {
+                const raw: unknown = v;
+                if (typeof raw === "bigint") return raw;
+                if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+                if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
+                return BigInt(raw);
+            }"#,
+        ),
+        ft(
+            "URL",
+            "(v) => v.toString()",
+            r#"(v) => {
+                const raw: unknown = v;
+                if (typeof raw !== "string") throw new TypeError("expected the text of a URL");
+                return new URL(raw);
+            }"#,
+        ),
         ft(
             "URLSearchParams",
             "(v) => v.toString()",
-            "(v) => new URLSearchParams(v as string)",
+            r#"(v) => {
+                const raw: unknown = v;
+                if (typeof raw !== "string") throw new TypeError("expected the text of a query string");
+                return new URLSearchParams(raw);
+            }"#,
         ),
         ft(
             "RegExp",
             "(v) => ({ source: v.source, flags: v.flags })",
-            "(v) => new RegExp((v as any).source, (v as any).flags)",
+            r#"(v) => {
+                const raw: unknown = v;
+                if (typeof raw !== "object" || raw === null || !("source" in raw) || typeof raw.source !== "string") throw new TypeError("expected the source and flags of a RegExp");
+                const flags = "flags" in raw && typeof raw.flags === "string" ? raw.flags : "";
+                return new RegExp(raw.source, flags);
+            }"#,
         ),
         ft(
             "Error",
             "(v) => ({ name: v.name, message: v.message, stack: v.stack })",
-            "(v) => Object.assign(new Error((v as any).message), { name: (v as any).name })",
+            r#"(v) => {
+                const raw: unknown = v;
+                if (typeof raw !== "object" || raw === null || !("message" in raw) || typeof raw.message !== "string") throw new TypeError("expected the name and message of an Error");
+                const error = new Error(raw.message);
+                if ("name" in raw && typeof raw.name === "string") error.name = raw.name;
+                return error;
+            }"#,
         ),
         typed_array("Int8Array"),
         typed_array("Uint8Array"),
@@ -109,7 +153,10 @@ fn builtin_foreign_types() -> Vec<ForeignTypeConfig> {
         ft(
             "ArrayBuffer",
             "(v) => Array.from(new Uint8Array(v))",
-            "(v) => new Uint8Array(v as number[]).buffer",
+            r#"(v) => {
+                if (!Array.isArray(v) || !v.every((n: unknown): n is number => typeof n === "number")) throw new TypeError("expected an array of numbers");
+                return new Uint8Array(v).buffer;
+            }"#,
         ),
     ]
 }

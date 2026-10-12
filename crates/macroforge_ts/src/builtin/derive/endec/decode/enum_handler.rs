@@ -16,6 +16,11 @@ pub(super) fn handle_enum(
     let fn_decode_internal_ident = ts_ident!("{}DecodeWithContext", enum_name.to_case(Case::Camel));
     let fn_decode_internal_expr: Expr = fn_decode_internal_ident.clone().into();
     let fn_is_ident = ts_ident!("{}Is", enum_name.to_case(Case::Camel));
+    let fn_is_expr: Expr = fn_is_ident.clone().into();
+    let text_or_value: Expr = ts_ident!(crate::builtin::derive::endec::coder::endec_helper(
+        "textOrValue"
+    ))
+    .into();
     let variant_expressions: Vec<Expr> = enum_data
         .variants()
         .iter()
@@ -33,7 +38,8 @@ pub(super) fn handle_enum(
     let mut result = ts_template! {
         /** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member */
         export function @{fn_decode_ident}(input: unknown): @{&enum_ident} {
-            return @{fn_decode_internal_expr}(input);
+            // A string may be a member itself or the JSON text of one.
+            return @{fn_decode_internal_expr}(@{text_or_value}(input, @{&fn_is_expr}));
         }
 
         /** Decodes with an existing context (for consistency with other types). */

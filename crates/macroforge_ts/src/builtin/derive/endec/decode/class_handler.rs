@@ -1,4 +1,6 @@
 use crate::ast::Expr;
+use crate::builtin::derive::endec::reserved_keys::check_reserved_keys;
+use crate::builtin::derive::endec::source_field::SourceField;
 use crate::macros::ts_template;
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::{DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, ts_ident};
@@ -12,6 +14,10 @@ use super::validation::generate_field_validations;
 use crate::builtin::derive::common::{
     ClassUse, TypeNames, derive_class_fields, js_string, property_key, rendered, type_has_derive,
 };
+use crate::builtin::derive::endec::type_arguments::{
+    declared_param_coders, passed_param_coders, required_param_coders,
+};
+use crate::builtin::derive::endec::union_guard::Direction;
 use crate::builtin::return_types::{
     DECODE_CONTEXT, DECODE_ERROR, DECODE_OPTIONS, FIELD_REQUIREMENT, FIELD_REQUIREMENT_TYPE,
     FIELD_SELECTION, PENDING_REF, decode_return_type, is_ok_check, root_forward_reference_error,
@@ -55,6 +61,12 @@ pub(super) fn handle_class(
     let type_params = class_names.params.clone();
     let class_fields = derive_class_fields(input, class, "Decode", ClassUse::Builds)?;
     let mut all_diagnostics = DiagnosticCollector::new();
+    check_reserved_keys(
+        Direction::Decode,
+        &container_opts,
+        class_fields.iter().map(SourceField::from),
+        &mut all_diagnostics,
+    );
     let fields: Vec<DecodeField> = class_fields
         .iter()
         .filter_map(|field| {
@@ -182,6 +194,10 @@ pub(super) fn handle_class(
         (None, _) => "",
     };
 
+    let coders = declared_param_coders(Direction::Decode, &class_names.params);
+    let passed_coders = passed_param_coders(Direction::Decode, &class_names.params);
+    let required_coders = required_param_coders(&class_names.params);
+
     let mut result = ts_template!(Within {
         {#if !has_constructor}
             constructor(props: @{props_type_ident}) {
@@ -199,13 +215,13 @@ pub(super) fn handle_class(
         {/if}
 
         /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors */
-        static @{class_names.generic_method("decode")}(input: unknown, opts?: @{decode_options_ident}): @{return_type_ident} {
+        static @{class_names.generic_method("decode")}(input: unknown, opts?: @{decode_options_ident}@{&coders}): @{return_type_ident} {
             try {
                 // Auto-detect: if string, parse as JSON first
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
                 const ctx = @{decode_context_expr}.create();
-                const resultOrRef = @{&class_expr}.@{ts_ident!(format!("decodeWithContext{generic_args}"))}(data, ctx);
+                const resultOrRef = @{&class_expr}.@{ts_ident!(format!("decodeWithContext{generic_args}"))}(data, ctx@{&passed_coders});
 
                 if (@{pending_ref_expr}.is(resultOrRef)) {
                     return @{error_root_ref_expr};
@@ -232,10 +248,10 @@ pub(super) fn handle_class(
         }
 
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
-        static @{class_names.generic_method("decodeWithContext")}(value: unknown, ctx: @{&decode_context_ident}): @{&class_ident} | @{&pending_ref_ident};
+        static @{class_names.generic_method("decodeWithContext")}(value: unknown, ctx: @{&decode_context_ident}@{&coders}): @{&class_ident} | @{&pending_ref_ident};
         /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have */
-        static @{class_names.generic_method("decodeWithContext")}(value: unknown, ctx: @{&decode_context_ident}, fields: @{&field_requirement_ident}): Partial<@{&class_ident}> | @{&pending_ref_ident};
-        static @{class_names.generic_method("decodeWithContext")}(value: unknown, ctx: @{&decode_context_ident}, __fields?: @{&field_requirement_ident}): Partial<@{&class_ident}> | @{&pending_ref_ident} {
+        static @{class_names.generic_method("decodeWithContext")}(value: unknown, ctx: @{&decode_context_ident}@{&required_coders}, fields: @{&field_requirement_ident}): Partial<@{&class_ident}> | @{&pending_ref_ident};
+        static @{class_names.generic_method("decodeWithContext")}(value: unknown, ctx: @{&decode_context_ident}@{&coders}, __fields?: @{&field_requirement_ident}): Partial<@{&class_ident}> | @{&pending_ref_ident} {
             {$typescript reference}
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -347,13 +363,13 @@ pub(super) fn handle_class(
     // Generate standalone functions that delegate to static methods
     let mut standalone = ts_template! {
         /** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors */
-        export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}): @{return_type_ident} {
-            return @{&class_expr}.@{ts_ident!(format!("decode{generic_args}"))}(input, opts);
+        export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}@{&coders}): @{return_type_ident} {
+            return @{&class_expr}.@{ts_ident!(format!("decode{generic_args}"))}(input, opts@{&passed_coders});
         }
 
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
-        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}): @{class_ident} | @{pending_ref_ident} {
-            return @{&class_expr}.@{ts_ident!(format!("decodeWithContext{generic_args}"))}(value, ctx);
+        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}@{&coders}): @{class_ident} | @{pending_ref_ident} {
+            return @{&class_expr}.@{ts_ident!(format!("decodeWithContext{generic_args}"))}(value, ctx@{&passed_coders});
         }
 
         /** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check */
@@ -362,8 +378,8 @@ pub(super) fn handle_class(
         }
 
         /** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out */
-        export function @{fn_decode_partial_ident}(value: unknown, ctx: @{&decode_context_ident}, fields?: @{field_selection_ident}<keyof @{&class_ident}>): Partial<@{&class_ident}> | @{&pending_ref_ident} {
-            return @{&class_expr}.@{ts_ident!(format!("decodeWithContext{generic_args}"))}(value, ctx, @{field_requirement_expr}(fields));
+        export function @{fn_decode_partial_ident}(value: unknown, ctx: @{&decode_context_ident}, fields?: @{field_selection_ident}<keyof @{&class_ident}>@{&coders}): Partial<@{&class_ident}> | @{&pending_ref_ident} {
+            return @{&class_expr}.@{ts_ident!(format!("decodeWithContext{generic_args}"))}(value, ctx@{&passed_coders}, @{field_requirement_expr}(fields));
         }
 
         /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type */

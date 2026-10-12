@@ -29,6 +29,8 @@ pub(super) fn decode_entry(u: &Union) -> TsStream {
         decode_options_ident,
         generic_decl,
         generic_args,
+        coders,
+        passed_coders,
         full_type_name,
         foreign_types_config,
         type_registry,
@@ -85,7 +87,10 @@ pub(super) fn decode_entry(u: &Union) -> TsStream {
         .map(|callee| rendered(ts_template! { @{callee}(input) }))
         .collect();
     let data_init = if has_string_variant {
-        "input".to_string()
+        // A string may be a member itself or the JSON text of one.
+        let text_or_value = crate::builtin::derive::endec::coder::endec_helper("textOrValue");
+        let has_shape = format!("{}HasShape", type_name.to_case(Case::Camel));
+        rendered(ts_template! { @{text_or_value}(input, @{has_shape}) })
     } else if foreign_shape_checks.is_empty() {
         r#"typeof input === "string" ? JSON.parse(input) : input"#.to_string()
     } else {
@@ -97,12 +102,12 @@ pub(super) fn decode_entry(u: &Union) -> TsStream {
     let data_init_expr = Expr::parse(&data_init).expect("data init expr should parse");
     ts_template! {
         /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
-        export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}): @{return_type_ident} {
+        export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}@{coders}): @{return_type_ident} {
             try {
                 const data = @{data_init_expr};
 
                 const ctx = @{decode_context_expr}.create();
-                const resultOrRef = @{fn_decode_internal_expr}(data, ctx);
+                const resultOrRef = @{fn_decode_internal_expr}(data, ctx@{passed_coders});
 
                 if (@{pending_ref_expr}.is(resultOrRef)) {
                     return @{error_root_ref_expr};
@@ -140,6 +145,7 @@ pub(super) fn decode_with_context(u: &Union) -> TsStream {
         decode_context_ident,
         pending_ref_ident,
         generic_decl,
+        coders,
         full_type_ident,
         full_type_name,
         ..
@@ -160,7 +166,7 @@ pub(super) fn decode_with_context(u: &Union) -> TsStream {
     };
     ts_template! {
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
-        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}): @{full_type_ident} | @{pending_ref_ident} {
+        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}@{coders}): @{full_type_ident} | @{pending_ref_ident} {
             {$typescript reference}
 
             {$typescript body}

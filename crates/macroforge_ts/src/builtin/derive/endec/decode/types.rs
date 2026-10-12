@@ -86,6 +86,9 @@ pub(super) struct DecodeField {
     // --- Encodable type tracking for direct function calls ---
     /// For `T | null` where T is Encodable: the type name.
     pub nullable_encodable_type: Option<String>,
+    /// That type with the coders of its type arguments, when it is written
+    /// with any.
+    pub nullable_nested: Option<NestedType>,
     /// For `T | null` and `T | undefined` where the union's own cases do not
     /// decode `T`: `T` as a field of its own, decoded by its own category once
     /// the value is known to be present.
@@ -99,9 +102,14 @@ pub(super) struct DecodeField {
 
     /// For a collection or a tuple: how its raw value decodes.
     pub composite: Option<CompositeDecode>,
-    /// For a utility type over a user type, such as `Partial<T>`: that type
-    /// and the fields of it a value has.
+    /// For a user type, or a utility type over one, such as `Partial<T>`:
+    /// that type, the fields of it a value has, and the coders of its type
+    /// arguments.
     pub wrapped: Option<NestedType>,
+    /// For a type parameter, the expression decoding the raw value through
+    /// the coder handed in for it, and for a union carried as it is, the one
+    /// checking the raw value to be of it.
+    pub by_parameter: Option<String>,
 
     /// Set when the field's resolved type is a two-member union of a
     /// primitive or foreign type with the `Encodable` type: the shape an
@@ -249,4 +257,7 @@ pub(super) struct EncodableTypeRef {
     /// For foreign types: the hasShape handler as a callable expression,
     /// e.g. `__foreign__dateTimeUtcHasShape`.
     pub foreign_has_shape_callee: Option<String>,
+    /// For any other type: what decodes a value of it, called as
+    /// `(value, ctx)`.
+    pub decoder: Expr,
 }

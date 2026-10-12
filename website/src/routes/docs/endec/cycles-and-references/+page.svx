@@ -27,11 +27,17 @@ const json = Node.encode(root, true); // keepMetadata
 
 Cycle detection works by tagging objects with `__type` and `__id` as they're visited; a repeat visit emits a reference to the existing id instead of recursing.
 
-Those fields are **stripped from the output by default**. Pass `keepMetadata: true` to retain them: which you must do if you intend to decode a cyclic graph back, since the ids are what reconnect it.
+Those fields are **stripped from the output by default**, and with them goes what a reference would name. A value held in several places is then written out at each of them, and decodes as that many equal values. A value that holds itself has no end to write out, so `encode` throws a `TypeError` for it. Pass `keepMetadata: true` to keep the ids and the references that reconnect a graph.
 
 ```typescript
-Node.encode(root);        // clean payload, cycles flattened
-Node.encode(root, true);  // round-trippable, includes __type/__id
+const shared = new Node();
+const tree = new Node();
+tree.children = [shared, shared];
+
+Node.encode(tree);        // clean payload, `shared` written out twice
+Node.encode(tree, true);  // includes __type/__id, the second `shared` is a __ref
+Node.encode(root, true);  // a cycle needs its metadata
+Node.encode(root);        // TypeError: root holds itself
 ```
 
 For API responses you usually want the default. For persistence or transferring an object graph, keep the metadata.

@@ -5,6 +5,7 @@ use crate::ast::Expr;
 use crate::macros::ts_template;
 use crate::ts_syn::{MacroforgeError, TsStream};
 
+use super::super::object_encoder::mentions;
 use super::super::text::encode_text_body;
 use super::{AliasEncode, view};
 
@@ -18,25 +19,27 @@ pub(super) fn encode_fallback_alias(alias: &AliasEncode) -> Result<TsStream, Mac
         fn_encode_ident,
         fn_encode_internal_ident,
         encode_context_ident,
+        coders,
+        passed_coders,
         ..
     } = alias;
     let fn_encode_internal_expr: Expr = fn_encode_internal_ident.clone().into();
-    let encode_text = encode_text_body(&fn_encode_internal_expr, "__type");
+    let encode_text = encode_text_body(&fn_encode_internal_expr, "__type", passed_coders);
     let mut result = if let Some(params) = &type_params_ident {
         let (body, reads_context) = encode_body(alias)?;
         ts_template! {
             /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
-            export function @{fn_encode_ident}<@{params}>(value: @{full_type_ident}, keepMetadata?: boolean): string {
+            export function @{fn_encode_ident}<@{params}>(value: @{full_type_ident}, keepMetadata?: boolean@{coders}): string {
                 {$typescript encode_text}
             }
 
             /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context */
             {#if reads_context}
-            export function @{fn_encode_internal_ident}<@{params}>(value: @{full_type_ident}, ctx: @{encode_context_ident}): unknown {
+            export function @{fn_encode_internal_ident}<@{params}>(value: @{full_type_ident}, ctx: @{encode_context_ident}@{coders}): unknown {
                 {$typescript body}
             }
             {:else}
-            export function @{fn_encode_internal_ident}<@{params}>(value: @{full_type_ident}, ctx: @{encode_context_ident}): unknown;
+            export function @{fn_encode_internal_ident}<@{params}>(value: @{full_type_ident}, ctx: @{encode_context_ident}@{coders}): unknown;
             export function @{fn_encode_internal_ident}<@{params}>(value: @{full_type_ident}): unknown {
                 {$typescript body}
             }
@@ -77,7 +80,6 @@ fn encode_body(alias: &AliasEncode) -> Result<(TsStream, bool), MacroforgeError>
     } else {
         ts_template! { return value; }
     };
-    // The field encoders read the context only as a call's last argument.
-    let reads_context = body.source().contains("ctx)");
+    let reads_context = mentions(body.source(), "ctx");
     Ok((body, reads_context))
 }

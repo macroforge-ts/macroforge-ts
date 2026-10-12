@@ -1,3 +1,6 @@
+use crate::builtin::derive::endec::reserved_keys::check_reserved_keys;
+use crate::builtin::derive::endec::source_field::SourceField;
+use crate::builtin::derive::endec::union_guard::Direction;
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::{DataInterface, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream};
 
@@ -16,6 +19,12 @@ pub(super) fn handle_interface(
     let names = TypeNames::new(input.name(), interface.type_params());
     let interface_fields = derive_interface_fields(input, interface, "Decode")?;
     let mut diagnostics = DiagnosticCollector::new();
+    check_reserved_keys(
+        Direction::Decode,
+        &container_opts,
+        interface_fields.iter().map(SourceField::from),
+        &mut diagnostics,
+    );
     let fields: Vec<DecodeField> = interface_fields
         .iter()
         .filter_map(|field| {

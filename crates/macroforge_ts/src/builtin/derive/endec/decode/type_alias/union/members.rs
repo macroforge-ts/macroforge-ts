@@ -14,9 +14,10 @@ use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, TypeRegistry};
 use crate::ts_syn::{MacroforgeError, MacroforgeErrors, ts_ident};
 
 use super::super::AliasDecode;
-use crate::builtin::derive::endec::coder::{TypeScope, decode_members};
-use crate::builtin::derive::endec::decode::helpers::{extract_base_type, nested_decode_fn_name};
+use crate::builtin::derive::endec::coder::{TypeScope, decode_members, object_shape_test};
 use crate::builtin::derive::endec::decode::types::EncodableTypeRef;
+use crate::builtin::derive::endec::type_arguments::{member_decoder, param_coder};
+use crate::builtin::derive::endec::union_guard::Direction;
 use crate::builtin::derive::endec::validators::ValidatorSpec;
 use crate::builtin::derive::endec::{
     EndecContainerOptions, TaggingMode, TypeCategory, decorator_validators, get_foreign_types,
@@ -36,6 +37,8 @@ pub(super) struct IntersectionVariant {
     pub(super) tag_value: String,
     pub(super) type_ref: String,
     pub(super) is_encodable: bool,
+    /// What decodes the referenced type's value, called as `(value, ctx)`.
+    pub(super) decoder: Expr,
 }
 
 // Inline object members without a tag field (e.g. `string | { id: string }`)
@@ -43,8 +46,8 @@ pub(super) struct IntersectionVariant {
 pub(super) struct UntaggedObjectVariant {
     /// JS condition that is true when `value` has this member's shape.
     pub(super) shape_condition: String,
-    pub(super) required_fields: Vec<String>,
-    pub(super) optional_fields: Vec<String>,
+    /// The call decoding `value` into the member's fields.
+    pub(super) decoded: String,
 }
 
 pub(super) struct ExternalObjectVariant {
@@ -58,7 +61,7 @@ pub(super) struct ExternalObjectVariant {
     /// Set when the payload is a generated type instead: without dispatching
     /// to its decoder the payload is kept verbatim, so decimals stay
     /// strings and dates stay ISO text inside the variant.
-    pub(super) payload_decode_fn: Option<crate::ast::Ident>,
+    pub(super) payload_decode_fn: Option<Expr>,
 }
 
 /// A union alias's members, sorted by how each decodes, with everything the
@@ -73,6 +76,8 @@ pub(super) struct Union<'a> {
     pub(super) decode_options_ident: Ident,
     pub(super) generic_decl: &'a str,
     pub(super) generic_args: &'a str,
+    pub(super) coders: &'a str,
+    pub(super) passed_coders: &'a str,
     pub(super) full_type_name: &'a str,
     pub(super) full_type_ident: Ident,
     pub(super) type_registry: &'a TypeRegistry,
@@ -93,6 +98,7 @@ pub(super) struct Union<'a> {
     pub(super) has_encodables: bool,
     pub(super) has_dates: bool,
     pub(super) has_generic_params: bool,
+    pub(super) param_decoder: Option<String>,
     pub(super) regular_encodables: Vec<EncodableTypeRef>,
     pub(super) foreign_encodables: Vec<EncodableTypeRef>,
     pub(super) object_variants: Vec<ObjectVariant>,
@@ -240,6 +246,7 @@ impl<'a> Union<'a> {
         // template can use their configured expressions instead of generating
         // broken `{camelCase}DecodeWithContext()` function calls.
         let foreign_types_config = get_foreign_types();
+        let mut member_failures: Vec<String> = Vec::new();
         let encodable_types: Vec<EncodableTypeRef> = type_refs
             .iter()
             .filter(|t| {
@@ -265,14 +272,25 @@ impl<'a> Union<'a> {
                 } else {
                     t.clone()
                 };
+                let decoder = member_decoder(&clean_type, &scope).unwrap_or_else(|message| {
+                    member_failures.push(message);
+                    String::new()
+                });
                 EncodableTypeRef {
                     full_type: clean_type,
                     is_foreign: ft_match.config.is_some(),
                     foreign_decode_callee,
                     foreign_has_shape_callee,
+                    decoder: Expr::Source(decoder),
                 }
             })
             .collect();
+        if let Some(message) = member_failures.into_iter().next() {
+            return Err(MacroforgeError::new(
+                type_alias.inner.span,
+                format!("@derive(Decode): {message}"),
+            ));
+        }
 
         let date_types: Vec<String> = type_refs
             .iter()
@@ -284,6 +302,12 @@ impl<'a> Union<'a> {
         let has_encodables = !encodable_types.is_empty();
         let has_dates = !date_types.is_empty();
         let has_generic_params = !generic_type_params.is_empty();
+        // One parameter among the members is the member a value is when it
+        // is no other, so the coder handed in for it decodes that value.
+        let param_decoder = match generic_type_params.as_slice() {
+            [param] => Some(param_coder(Direction::Decode, param)),
+            _ => None,
+        };
 
         // Separate regular and foreign encodable types for different code generation
         let regular_encodables: Vec<&EncodableTypeRef> =
@@ -307,10 +331,17 @@ impl<'a> Union<'a> {
                             .and_then(|ft| ft.handler_callee(ForeignHandler::Decode));
                     let payload_decode_fn = if inner_foreign_decode_callee.is_some() {
                         None
-                    } else if let TypeCategory::Encodable(base) =
+                    } else if let TypeCategory::Encodable(_) =
                         TypeCategory::from_ts_type(payload_ts_type)
                     {
-                        Some(ts_ident!(nested_decode_fn_name(&extract_base_type(&base))))
+                        let decoder =
+                            member_decoder(payload_ts_type, &scope).map_err(|message| {
+                                MacroforgeError::new(
+                                    type_alias.inner.span,
+                                    format!("@derive(Decode): {message}"),
+                                )
+                            })?;
+                        Some(Expr::Source(decoder))
                     } else {
                         None
                     };
@@ -346,23 +377,16 @@ impl<'a> Union<'a> {
                             }
                         }
                     } else {
-                        let (optional, required): (Vec<_>, Vec<_>) =
-                            fields.iter().partition(|f| f.optional);
-                        let required_fields: Vec<String> =
-                            required.iter().map(|f| f.name.clone()).collect();
-                        let shape_condition = std::iter::once(rendered(ts_template! {
-                            typeof value === "object" && value !== null && !Array.isArray(value)
-                        }))
-                        .chain(required_fields.iter().map(|name| {
-                            let key = js_string(name);
-                            rendered(ts_template! { @{key} in value })
-                        }))
-                        .collect::<Vec<_>>()
-                        .join(" && ");
+                        let decoded =
+                            decode_members(fields, "value", &scope, 0).map_err(|message| {
+                                MacroforgeError::new(
+                                    type_alias.inner.span,
+                                    format!("@derive(Decode): {message}"),
+                                )
+                            })?;
                         untagged_object_variants.push(UntaggedObjectVariant {
-                            shape_condition,
-                            required_fields,
-                            optional_fields: optional.iter().map(|f| f.name.clone()).collect(),
+                            shape_condition: object_shape_test(fields, "value"),
+                            decoded,
                         });
                     }
                 }
@@ -408,10 +432,17 @@ impl<'a> Union<'a> {
                                 && TypeCategory::match_foreign_type(&rt, &foreign_types_config)
                                     .config
                                     .is_none());
+                        let decoder = member_decoder(&rt, &scope).map_err(|message| {
+                            MacroforgeError::new(
+                                type_alias.inner.span,
+                                format!("@derive(Decode): {message}"),
+                            )
+                        })?;
                         intersection_variants.push(IntersectionVariant {
                             tag_value: tv,
                             type_ref: rt,
                             is_encodable: is_ser,
+                            decoder: Expr::Source(decoder),
                         });
                     }
                 }
@@ -499,6 +530,8 @@ impl<'a> Union<'a> {
             decode_options_ident: alias.decode_options_ident.clone(),
             generic_decl: &alias.generic_decl,
             generic_args: &alias.generic_args,
+            coders: &alias.coders,
+            passed_coders: &alias.passed_coders,
             full_type_name,
             full_type_ident: ts_ident!(full_type_name.as_str()),
             type_registry: alias.type_registry,
@@ -514,6 +547,7 @@ impl<'a> Union<'a> {
             primitive_types,
             primitive_arms,
             has_arm_validators,
+            param_decoder,
             regular_encodables: regular_encodables.into_iter().cloned().collect(),
             foreign_encodables: foreign_encodables.into_iter().cloned().collect(),
             encodable_types,

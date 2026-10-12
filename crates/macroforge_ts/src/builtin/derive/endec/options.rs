@@ -165,6 +165,19 @@ impl EndecContainerOptions {
         }
     }
 
+    /// What the encoding keeps the JSON key `key` for, when a field cannot be
+    /// written under it: the type's tag, or the marks of a value held in more
+    /// than one place.
+    pub fn reserved_key(&self, key: &str) -> Option<&'static str> {
+        if key == self.tag_field_or_default() {
+            Some("which holds the type's tag")
+        } else if matches!(key, "__id" | "__ref") {
+            Some("which marks a value held in more than one place")
+        } else {
+            None
+        }
+    }
+
     /// Returns the content field name for adjacently-tagged mode.
     pub fn content_field(&self) -> Option<&str> {
         match &self.tagging {

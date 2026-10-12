@@ -10,13 +10,17 @@ use crate::builtin::derive::common::{
     rendered, tuple_body, tuple_element, type_has_derive,
 };
 use crate::macros::ts_template;
+use crate::ts_syn::abi::ir::class::MemberKey;
 use crate::ts_syn::abi::ir::interface::InterfaceFieldIR;
 use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, TypeDefinitionIR, TypeRegistry};
-use crate::ts_syn::abi::ir::{split_top_level_commas, split_top_level_union, typeof_primitive};
+use crate::ts_syn::abi::ir::{
+    resolve_generic_aliases_where, split_top_level_commas, split_top_level_union, typeof_primitive,
+};
 use crate::ts_syn::config::ForeignHandler;
 
-use super::decode::helpers::primitive_accepts;
+use super::decode::helpers::{primitive_accepts, structural_accepts};
 use super::nested::NestedType;
+use super::type_arguments::param_coder;
 use super::union_guard::{Direction, UnionGuard, union_guard};
 use super::{EndecContainerOptions, EndecFieldOptions, TypeCategory, get_foreign_types};
 
@@ -34,8 +38,112 @@ impl TypeScope<'_> {
         self.type_params.iter().any(|param| param == name)
     }
 
-    fn nested(&self, ts_type: &str) -> Result<Option<NestedType>, String> {
-        NestedType::of(ts_type, &|name| self.is_param(name))
+    /// `ts_type` as a nested type coded in `direction`, with the coder of
+    /// each of its type arguments and, when it is decoded, the keys a
+    /// `Required` demands of it.
+    pub(crate) fn nested(
+        &self,
+        ts_type: &str,
+        direction: Direction,
+        depth: usize,
+    ) -> Result<Option<NestedType>, String> {
+        let Some(mut nested) = NestedType::of(ts_type, &|name| self.is_param(name))? else {
+            return Ok(None);
+        };
+        let mut arguments = Vec::new();
+        for argument in nested.type_arguments() {
+            arguments.push(match direction {
+                Direction::Encode => {
+                    let held = format!("__arg{depth}");
+                    encode_expr(argument, &held, self, depth + 1)?
+                        .map(|encoded| rendered(ts_template! { (@{&held}) => @{encoded} }))
+                }
+                Direction::Decode => {
+                    if decode_expr(argument, "__probe", self, depth + 1)?.is_some() {
+                        Some(decoder(argument, self, depth)?)
+                    } else {
+                        None
+                    }
+                }
+            });
+        }
+        nested.arguments = arguments;
+        if nested.required && matches!(direction, Direction::Decode) {
+            nested.demanded = self.optional_keys(&nested);
+        }
+        Ok(Some(nested))
+    }
+
+    /// The fields `nested` keeps that its type lets a value leave out, each
+    /// as its JSON key and its name: an optional field with no default to
+    /// fill it. Empty when the registry does not hold the type, whose fields
+    /// are then unknown.
+    fn optional_keys(&self, nested: &NestedType) -> Vec<(String, String)> {
+        let base = nested
+            .name
+            .split_once('<')
+            .map_or(nested.name.as_str(), |(base, _)| base);
+        let Some(entry) = self
+            .registry
+            .resolve_in_file(base, self.file_path, self.file_imports)
+        else {
+            return Vec::new();
+        };
+        let decorators = match &entry.definition {
+            TypeDefinitionIR::Class(class) => &class.decorators,
+            TypeDefinitionIR::Interface(interface) => &interface.decorators,
+            TypeDefinitionIR::TypeAlias(alias) => &alias.decorators,
+            TypeDefinitionIR::Enum(_) => return Vec::new(),
+        };
+        let container = EndecContainerOptions::from_decorators(decorators);
+        fields_from_definition(&entry.definition, self.registry)
+            .unwrap_or_default()
+            .into_iter()
+            .filter(|field| field.optional && nested.keeps(&field.name))
+            .filter_map(|field| {
+                let options =
+                    EndecFieldOptions::from_decorators(&field.decorators, &field.name).options;
+                let left_out = options.should_decode()
+                    && !options.flatten
+                    && !options.default
+                    && options.default_expr.is_none();
+                left_out.then(|| {
+                    let key = options
+                        .rename
+                        .unwrap_or_else(|| container.rename_all.apply(&field.name));
+                    (key, field.name.clone())
+                })
+            })
+            .collect()
+    }
+
+    /// `ts_type` with each generic alias it instantiates written out, where
+    /// what the alias stands for can be coded in place. An alias deriving
+    /// `derive` whose union a field could not tell apart keeps its name, and
+    /// is coded by its own coders.
+    pub(crate) fn resolved(&self, ts_type: &str, direction: Direction) -> String {
+        let derive = match direction {
+            Direction::Encode => "Encode",
+            Direction::Decode => "Decode",
+        };
+        resolve_generic_aliases_where(
+            ts_type,
+            self.registry,
+            self.file_path,
+            self.file_imports,
+            &|alias, expanded| {
+                !type_has_derive(self.registry, alias, derive)
+                    || untold_member(expanded, self).is_none()
+                    || matches!(self.guard(expanded, direction), Ok(Some(_)))
+            },
+        )
+    }
+
+    /// The coder parameter in scope for `ts_type`, when it is one of the
+    /// type parameters.
+    fn param_coder(&self, ts_type: &str, direction: Direction) -> Option<String> {
+        self.is_param(ts_type)
+            .then(|| param_coder(direction, ts_type))
     }
 
     /// `name` when it names a type the registry holds deriving the coder
@@ -63,6 +171,61 @@ impl TypeScope<'_> {
         direction: Direction,
     ) -> Result<Option<(UnionGuard, String)>, String> {
         union_guard(ts_type, direction, |name| self.is_param(name))
+    }
+}
+
+/// The member of the union `ts_type` that a field cannot tell from the
+/// others: one whose values are coded, where nothing says which member a
+/// value is. `None` for any other type, and for a union whose members are
+/// their own coding, which is carried as it is.
+fn untold_member<'a>(ts_type: &'a str, scope: &TypeScope<'_>) -> Option<&'a str> {
+    // A function type's `|` belongs to what it returns.
+    if ts_type.contains("=>") {
+        return None;
+    }
+    // `null` and `undefined` are told by being themselves, which leaves a
+    // union of one other member no union at all.
+    let members: Vec<&str> = split_top_level_union(ts_type)?
+        .into_iter()
+        .filter(|member| !matches!(ungrouped(member), "null" | "undefined"))
+        .collect();
+    if members.len() < 2 {
+        return None;
+    }
+    let holds_text = members.contains(&"string");
+    members.into_iter().find(|member| {
+        let member = ungrouped(member);
+        if scope.is_param(member) {
+            return false;
+        }
+        match TypeCategory::from_ts_type(member) {
+            TypeCategory::Encodable(_) | TypeCategory::Wrapper(_) => true,
+            TypeCategory::Set(_) | TypeCategory::Map(_, _) => true,
+            // A date is its text once encoded, which a string member takes.
+            TypeCategory::Date => !holds_text,
+            TypeCategory::Array(_) | TypeCategory::Record(_, _) | TypeCategory::Unknown => {
+                scope.derived(member, Direction::Encode).is_some()
+                    || scope.derived(member, Direction::Decode).is_some()
+                    || matches!(
+                        encode_expr(member, "__probe", scope, 0),
+                        Ok(Some(_)) | Err(_)
+                    )
+            }
+            TypeCategory::Primitive | TypeCategory::Optional(_) | TypeCategory::Nullable(_) => {
+                false
+            }
+        }
+    })
+}
+
+/// An error for a union with a member a field cannot tell from the others.
+fn told_apart(ts_type: &str, scope: &TypeScope<'_>) -> Result<(), String> {
+    match untold_member(ts_type, scope) {
+        Some(member) => Err(format!(
+            "`{ts_type}` holds `{}`, whose values are coded, and nothing in a field says which member of the union a value is; name the union with an alias, `type Named = {ts_type}`, and derive on that",
+            member.trim()
+        )),
+        None => Ok(()),
     }
 }
 
@@ -107,10 +270,61 @@ fn tuple_elements(ts_type: &str) -> Option<Vec<&str>> {
 
 /// The members of an object type written out in place, such as
 /// `{ at: Date; note?: string }`. `None` for any other type, and for one
-/// with a member that is not a plain property, an index signature included:
-/// its values pass through as they are.
-pub(crate) fn object_members(ts_type: &str) -> Option<Vec<InterfaceFieldIR>> {
+/// with a method or a call signature, whose values pass through as they are.
+/// An error for one with a computed key or an index signature, which names
+/// no member to code.
+pub(crate) fn object_members(ts_type: &str) -> Result<Option<Vec<InterfaceFieldIR>>, String> {
     use oxc::ast::ast::{Statement, TSType};
+
+    if !ts_type.trim_start().starts_with('{') {
+        return Ok(None);
+    }
+    let allocator = oxc::allocator::Allocator::default();
+    let source = format!("type __T = {ts_type};");
+    let parsed = oxc::parser::Parser::new(&allocator, &source, oxc::span::SourceType::ts()).parse();
+    let [Statement::TSTypeAliasDeclaration(declared)] = parsed.program.body.as_slice() else {
+        return Ok(None);
+    };
+    let TSType::TSTypeLiteral(literal) = &declared.type_annotation else {
+        return Ok(None);
+    };
+    let Ok(aliases) = crate::ts_syn::lower_type_aliases(&parsed.program, &source) else {
+        return Ok(None);
+    };
+    let [alias] = aliases.as_slice() else {
+        return Ok(None);
+    };
+    let Some(fields) = alias.body.as_object() else {
+        return Ok(None);
+    };
+    if dictionary(fields).is_some() {
+        return Ok(None);
+    }
+    if let Some(unnamed) = fields.iter().find(|field| field.key == MemberKey::Unnamed) {
+        return Err(format!(
+            "`{ts_type}` has the member `{}`, which no name reads: a computed key or an index signature is known only as the code runs. Write the entries as a `Record`",
+            unnamed.name
+        ));
+    }
+    Ok((fields.len() == literal.members.len()).then(|| fields.to_vec()))
+}
+
+/// The value type of an object type that is one index signature over
+/// strings, `{ [key: string]: V }`, which is `Record<string, V>` written
+/// another way.
+fn dictionary(fields: &[InterfaceFieldIR]) -> Option<&str> {
+    let [only] = fields else {
+        return None;
+    };
+    let parameter = only.name.strip_prefix('[')?.strip_suffix(']')?;
+    let (_, key_type) = parameter.split_once(':')?;
+    (only.key == MemberKey::Unnamed && key_type.trim() == "string").then_some(only.ts_type.as_str())
+}
+
+/// `ts_type` as the `Record` it is, when it is an object type of one index
+/// signature over strings.
+pub(crate) fn dictionary_record(ts_type: &str) -> Option<String> {
+    use oxc::ast::ast::Statement;
 
     if !ts_type.trim_start().starts_with('{') {
         return None;
@@ -118,18 +332,15 @@ pub(crate) fn object_members(ts_type: &str) -> Option<Vec<InterfaceFieldIR>> {
     let allocator = oxc::allocator::Allocator::default();
     let source = format!("type __T = {ts_type};");
     let parsed = oxc::parser::Parser::new(&allocator, &source, oxc::span::SourceType::ts()).parse();
-    let [Statement::TSTypeAliasDeclaration(declared)] = parsed.program.body.as_slice() else {
-        return None;
-    };
-    let TSType::TSTypeLiteral(literal) = &declared.type_annotation else {
+    let [Statement::TSTypeAliasDeclaration(_)] = parsed.program.body.as_slice() else {
         return None;
     };
     let aliases = crate::ts_syn::lower_type_aliases(&parsed.program, &source).ok()?;
     let [alias] = aliases.as_slice() else {
         return None;
     };
-    let fields = alias.body.as_object()?;
-    (fields.len() == literal.members.len()).then(|| fields.to_vec())
+    let value_type = dictionary(alias.body.as_object()?)?;
+    Some(format!("Record<string, {value_type}>"))
 }
 
 /// Whether a member of an object type may be absent from its encoding: one
@@ -168,6 +379,36 @@ fn encode_object(
     Ok(Some(rendered(
         ts_template! { ({ ...@{value}, @{encoded_members} }) },
     )))
+}
+
+/// A test that `value` has the shape of the object type with `members`: an
+/// object holding each required key, and each member typed by one literal
+/// holding that literal, which is what tells apart the variants of a union
+/// that carries no tag.
+pub(crate) fn object_shape_test(members: &[InterfaceFieldIR], value: &str) -> String {
+    let is_literal = |ts_type: &str| {
+        ts_type.starts_with(['"', '\''])
+            || ts_type.parse::<f64>().is_ok()
+            || matches!(ts_type, "true" | "false")
+    };
+    std::iter::once(rendered(ts_template! {
+        typeof @{value} === "object" && @{value} !== null && !Array.isArray(@{value})
+    }))
+    .chain(
+        members
+            .iter()
+            .filter(|member| !member_may_be_absent(member))
+            .flat_map(|member| {
+                let key = js_string(&member.name);
+                let literal = member.ts_type.trim();
+                std::iter::once(rendered(ts_template! { @{&key} in @{value} })).chain(
+                    is_literal(literal)
+                        .then(|| rendered(ts_template! { @{value}[@{&key}] === @{literal} })),
+                )
+            }),
+    )
+    .collect::<Vec<_>>()
+    .join(" && ")
 }
 
 /// A call decoding `raw` as the object type with `members`, each member by
@@ -365,13 +606,22 @@ pub(crate) fn encode_expr(
     depth: usize,
 ) -> Result<Option<String>, String> {
     let ts_type = ungrouped(ts_type);
+    // A value of a type parameter is encoded by the coder handed in for it.
+    if let Some(encode) = scope.param_coder(ts_type, Direction::Encode) {
+        return Ok(Some(rendered(ts_template! {
+            (@{&encode} === undefined ? @{value} : @{&encode}(@{value}, ctx))
+        })));
+    }
     if let Some(callee) = foreign_callee(ts_type, ForeignHandler::Encode) {
         return Ok(Some(rendered(ts_template! { @{callee}(@{value}) })));
     }
     if let Some(elements) = tuple_elements(ts_type) {
         return encode_tuple(&elements, value, scope, depth);
     }
-    if let Some(members) = object_members(ts_type) {
+    if let Some(record) = dictionary_record(ts_type) {
+        return encode_expr(&record, value, scope, depth);
+    }
+    if let Some(members) = object_members(ts_type)? {
         return encode_object(&members, value, scope, depth);
     }
     let item = format!("__item{depth}");
@@ -415,7 +665,7 @@ pub(crate) fn encode_expr(
         TypeCategory::Nullable(inner) => encode_expr(&inner, value, scope, depth)?
             .map(|encoded| rendered(ts_template! { (@{value} === null ? null : @{encoded}) })),
         TypeCategory::Encodable(_) | TypeCategory::Wrapper(_) => scope
-            .nested(ts_type)?
+            .nested(ts_type, Direction::Encode, depth)?
             .map(|nested| nested.encode_call(value)),
         TypeCategory::Unknown if scope.derived(ts_type, Direction::Encode).is_some() => {
             Some(NestedType::whole(ts_type.to_string()).encode_call(value))
@@ -425,12 +675,18 @@ pub(crate) fn encode_expr(
                 let value_expr = crate::ast::Expr::Source(value.to_string());
                 let (is_member, member_value) =
                     (guard.test(&value_expr), guard.convert(&value_expr));
-                let encoded = NestedType::whole(name).encode_call(value);
+                let encoded = scope
+                    .nested(&name, Direction::Encode, depth)?
+                    .unwrap_or_else(|| NestedType::whole(name))
+                    .encode_call(value);
                 Some(rendered(
                     ts_template! { (@{is_member} ? @{member_value} : @{encoded}) },
                 ))
             }
-            None => None,
+            None => {
+                told_apart(ts_type, scope)?;
+                None
+            }
         },
     })
 }
@@ -550,6 +806,16 @@ fn leaf_decoder(ts_type: &str) -> Option<&'static str> {
     })
 }
 
+/// The local name of an `@macroforge/core/endec` type, requesting its
+/// import for the file being expanded.
+pub(crate) fn endec_type(name: &str) -> String {
+    let alias = format!("__mf_{name}");
+    crate::host::import_registry::with_registry_mut(|registry| {
+        registry.request_import(&alias, Some(name), crate::package::ENDEC, true);
+    });
+    alias
+}
+
 /// The local name of an `@macroforge/core/endec` helper, requesting its
 /// import for the file being expanded.
 pub(crate) fn endec_helper(name: &str) -> String {
@@ -585,13 +851,23 @@ pub(crate) fn decode_expr(
     depth: usize,
 ) -> Result<Option<String>, String> {
     let ts_type = ungrouped(ts_type);
+    // A value of a type parameter is decoded by the coder handed in for it.
+    if let Some(decode) = scope.param_coder(ts_type, Direction::Decode) {
+        return Ok(Some(rendered(ts_template! {
+            (@{&decode} === undefined ? @{raw} as @{ts_type} : @{&decode}(@{raw}, ctx))
+        })));
+    }
     if let Some(callee) = foreign_callee(ts_type, ForeignHandler::Decode) {
         return Ok(Some(rendered(ts_template! { @{callee}(@{raw}) })));
     }
     if let Some(elements) = tuple_elements(ts_type) {
         return decode_tuple(ts_type, &elements, raw, scope, depth);
     }
-    if let Some(members) = object_members(ts_type) {
+    if let Some(record) = dictionary_record(ts_type) {
+        return Ok(decode_expr(&record, raw, scope, depth)?
+            .map(|decoded| rendered(ts_template! { (@{decoded} as @{ts_type}) })));
+    }
+    if let Some(members) = object_members(ts_type)? {
         return Ok(decode_object(&members, raw, scope, depth)?
             .map(|decoded| rendered(ts_template! { (@{decoded} as @{ts_type}) })));
     }
@@ -665,9 +941,9 @@ pub(crate) fn decode_expr(
         }),
         TypeCategory::Nullable(inner) => decode_expr(&inner, raw, scope, depth)?
             .map(|decoded| rendered(ts_template! { (@{raw} === null ? null : @{decoded}) })),
-        TypeCategory::Encodable(_) | TypeCategory::Wrapper(_) => {
-            scope.nested(ts_type)?.map(|nested| nested.decode_call(raw))
-        }
+        TypeCategory::Encodable(_) | TypeCategory::Wrapper(_) => scope
+            .nested(ts_type, Direction::Decode, depth)?
+            .map(|nested| nested.decode_call(raw)),
         TypeCategory::Unknown if scope.derived(ts_type, Direction::Decode).is_some() => {
             Some(NestedType::whole(ts_type.to_string()).decode_call(raw))
         }
@@ -675,12 +951,28 @@ pub(crate) fn decode_expr(
             Some((guard, name)) => {
                 let raw_expr = crate::ast::Expr::Source(raw.to_string());
                 let (is_member, member_value) = (guard.test(&raw_expr), guard.convert(&raw_expr));
-                let decoded = NestedType::whole(name).decode_call(raw);
+                let decoded = scope
+                    .nested(&name, Direction::Decode, depth)?
+                    .unwrap_or_else(|| NestedType::whole(name))
+                    .decode_call(raw);
                 Some(rendered(
                     ts_template! { (@{is_member} ? @{member_value} : @{decoded}) },
                 ))
             }
-            None => None,
+            // A union left to be carried as it is holds values that are
+            // their own encoding, which are still checked to be of it.
+            None => {
+                told_apart(ts_type, scope)?;
+                split_top_level_union(ts_type)
+                    .and_then(|_| structural_accepts(ts_type, raw, depth))
+                    .map(|accepts| {
+                        let checked = endec_helper("decodeChecked");
+                        let expected = js_string(ts_type);
+                        rendered(ts_template! {
+                            (@{checked}(@{raw}, @{accepts}, @{expected}) as @{ts_type})
+                        })
+                    })
+            }
         },
     })
 }

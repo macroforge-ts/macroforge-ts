@@ -2,12 +2,13 @@ use crate::ast::Expr;
 use crate::builtin::derive::common::{Member, rendered};
 use crate::macros::ts_template;
 use crate::ts_syn::abi::DiagnosticCollector;
-use crate::ts_syn::abi::ir::{FileImportEntry, TypeRegistry, resolve_generic_aliases};
+use crate::ts_syn::abi::ir::{FileImportEntry, TypeRegistry};
 
 use crate::builtin::derive::endec::coder::{TypeScope, encode_expr};
 use crate::builtin::derive::endec::encode::types::{EncodeField, FieldEncoding};
 use crate::builtin::derive::endec::nested::NestedType;
 use crate::builtin::derive::endec::source_field::SourceField;
+use crate::builtin::derive::endec::union_guard::Direction;
 use crate::builtin::derive::endec::{
     EndecContainerOptions, EndecFieldOptions, EndecFormat, TypeCategory, WrapperFields,
     get_foreign_types,
@@ -40,8 +41,13 @@ pub(in crate::builtin::derive::endec::encode) fn to_encode_field(
         .clone()
         .unwrap_or_else(|| container_opts.rename_all.apply(field.name));
 
-    let resolved_ts_type =
-        resolve_generic_aliases(field.ts_type, type_registry, caller_file_path, file_imports);
+    let scope = TypeScope {
+        registry: type_registry,
+        file_path: caller_file_path,
+        file_imports,
+        type_params,
+    };
+    let resolved_ts_type = scope.resolved(field.ts_type, Direction::Encode);
     let type_cat = TypeCategory::from_ts_type(&resolved_ts_type);
 
     // A near miss of a configured foreign type is worth a hint.
@@ -80,21 +86,15 @@ pub(in crate::builtin::derive::endec::encode) fn to_encode_field(
     } else if opts.format == Some(EndecFormat::Decimal) && type_cat == TypeCategory::Primitive {
         FieldEncoding::Decimal
     } else {
-        let scope = TypeScope {
-            registry: type_registry,
-            file_path: caller_file_path,
-            file_imports,
-            type_params,
-        };
         let value = rendered(ts_template! { value@{&member} });
         // A flattened value's members become the enclosing object's, whose
         // `__id` is the enclosing value's: it is written out by its fields,
         // with no identity of its own.
-        let flattened = match NestedType::of(&present_type, &|name| scope.is_param(name)) {
+        let flattened = match scope.nested(&present_type, Direction::Encode, 0) {
             Ok(Some(nested)) if opts.flatten && nested.fields == WrapperFields::Whole => {
                 Some(NestedType {
-                    name: nested.name,
                     fields: WrapperFields::Any,
+                    ..nested
                 })
             }
             _ => None,

@@ -1,7 +1,7 @@
 use super::{
     HashMap, TypeBody, TypeDefinitionIR, TypeMember, TypeMemberKind, TypeRegistry,
-    resolve_generic_aliases, split_top_level_commas, split_top_level_intersection,
-    split_top_level_union, substitute_tokens,
+    resolve_generic_aliases, resolve_generic_aliases_where, split_top_level_commas,
+    split_top_level_intersection, split_top_level_union, substitute_tokens,
 };
 use crate::abi::SpanIR;
 use crate::abi::ir::TypeParamIR;
@@ -255,4 +255,37 @@ fn split_top_level_commas_respects_nesting() {
         vec!["string", "Map<string, number>"]
     );
     assert_eq!(split_top_level_commas("A"), vec!["A"]);
+}
+
+#[test]
+fn an_alias_the_caller_keeps_is_left_by_name_with_its_arguments_resolved() {
+    let reg = record_link_registry();
+    let keep_links = |alias: &str, _: &str| alias != "RecordLink";
+    assert_eq!(
+        resolve_generic_aliases_where("RecordLink<ErrandMessage>[]", &reg, "", &[], &keep_links),
+        "RecordLink<ErrandMessage>[]"
+    );
+    assert_eq!(
+        resolve_generic_aliases_where(
+            "Map<string, RecordLink<RecordLink<Note>>>",
+            &reg,
+            "",
+            &[],
+            &keep_links
+        ),
+        "Map<string, RecordLink<RecordLink<Note>>>"
+    );
+    // The expansion is what the caller is asked about.
+    let expansions = std::cell::RefCell::new(Vec::new());
+    let record = |alias: &str, expanded: &str| {
+        expansions
+            .borrow_mut()
+            .push(format!("{alias} = {expanded}"));
+        true
+    };
+    assert_eq!(
+        resolve_generic_aliases_where("RecordLink<Note>", &reg, "", &[], &record),
+        "string | Note"
+    );
+    assert_eq!(expansions.into_inner(), ["RecordLink = string | Note"]);
 }

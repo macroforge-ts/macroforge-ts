@@ -521,6 +521,30 @@ export function decodedLiteral<T>(
  */
 export type Decoder<Value> = (raw: unknown, ctx: DecodeContext) => Value | PendingRef;
 
+/**
+ * What a string handed to `decode` stands for, where the type itself takes
+ * a string: the value its JSON text spells, when `takes` that value, and
+ * otherwise the string itself. So the text `encode` writes always reads
+ * back as what was encoded, and a bare string is still the value it is.
+ */
+export function textOrValue(input: unknown, takes: (value: unknown) => boolean): unknown {
+  if (typeof input !== "string") return input;
+  let spelled: unknown;
+  try {
+    spelled = JSON.parse(input);
+  } catch {
+    // Not JSON text, so the string is the value.
+    return input;
+  }
+  return takes(spelled) ? spelled : input;
+}
+
+/**
+ * Encodes one value with a context: what a generic type is handed for each
+ * of its type parameters, to encode the values it holds of that type.
+ */
+export type Encoder<Value> = (value: Value, ctx: EncodeContext) => unknown;
+
 function mismatch(expected: string): DecodeError {
   return new DecodeError([{ field: "_root", message: `expected ${expected}` }]);
 }
@@ -551,9 +575,9 @@ export function decodeBigInt(raw: unknown): bigint {
 
 /** Decodes a date held in a collection: a `Date`, or the ISO text of one. */
 export function decodeDate(raw: unknown): Date {
-  if (raw instanceof Date) return raw;
-  if (typeof raw !== "string") throw mismatch("an ISO date string");
-  return new Date(raw);
+  const date = raw instanceof Date ? raw : typeof raw === "string" ? new Date(raw) : undefined;
+  if (date === undefined || Number.isNaN(date.getTime())) throw mismatch("an ISO date string");
+  return date;
 }
 
 /**
@@ -635,13 +659,16 @@ export function decodeArray<Item>(
   if (!Array.isArray(raw)) throw mismatch("an array");
   const items: Item[] = [];
   items.length = raw.length;
-  raw.forEach((element: unknown, index) => {
+  // By index, so that a hole in the array is an element too, and refused as
+  // the `undefined` it is.
+  for (let index = 0; index < raw.length; index++) {
+    const element: unknown = raw[index];
     inScope(ctx, `[${index}]`, () => {
       settle(ctx, item(element, ctx), (value) => {
         items[index] = value;
       });
     });
-  });
+  }
   return items;
 }
 
@@ -653,13 +680,14 @@ export function decodeSet<Item>(
 ): Set<Item> {
   if (!Array.isArray(raw)) throw mismatch("an array");
   const items = new Set<Item>();
-  raw.forEach((element: unknown, index) => {
+  for (let index = 0; index < raw.length; index++) {
+    const element: unknown = raw[index];
     inScope(ctx, `[${index}]`, () => {
       settle(ctx, item(element, ctx), (value) => {
         items.add(value);
       });
     });
-  });
+  }
   return items;
 }
 
@@ -761,16 +789,51 @@ export function decodeTuple(
   }
   const elements: unknown[] = [];
   elements.length = raw.length;
-  raw.forEach((element: unknown, index) => {
+  for (let index = 0; index < raw.length; index++) {
+    const element: unknown = raw[index];
     const decode = items[index] ?? rest;
-    if (decode === undefined) return;
+    if (decode === undefined) continue;
     inScope(ctx, `[${index}]`, () => {
       settle(ctx, decode(element, ctx), (value) => {
         elements[index] = value;
       });
     });
-  });
+  }
   return elements;
+}
+
+/**
+ * Reports each of the `demanded` fields that `raw` lacks as missing, and
+ * gives `raw` back to be decoded. These are the fields a `Required` of a
+ * type makes a value have where the type itself lets them be left out, each
+ * as its JSON key and the property it is decoded to.
+ *
+ * A reference stands for a value read elsewhere as its type, which may lack
+ * them, so the value it names is held to them once it has been read.
+ */
+export function requireKeys(
+  raw: unknown,
+  ctx: DecodeContext,
+  demanded: ReadonlyArray<readonly [key: string, property: string]>,
+): unknown {
+  if (!isRawObject(raw)) return raw;
+  const report = (has: (key: string, property: string) => boolean) => {
+    const missing = demanded.filter(([key, property]) => !has(key, property));
+    if (missing.length > 0) {
+      ctx.pushErrors(missing.map(([field]) => ({ field, message: "missing required field" })));
+    }
+  };
+  if (typeof raw.__ref === "number") {
+    settle<unknown>(ctx, ctx.getOrDefer(raw.__ref), (value) => {
+      report(
+        (_key, property) =>
+          typeof value === "object" && value !== null && Reflect.get(value, property) !== undefined,
+      );
+    });
+  } else {
+    report((key) => raw[key] !== undefined);
+  }
+  return raw;
 }
 
 function tupleLength(declared: number, required: number, open: boolean): string {
@@ -872,17 +935,134 @@ export function encodedText(encoded: unknown): string {
 
 /**
  * The JSON text of an encoded value without its `tagField` and `__id`
- * members, at every depth.
- * @throws {TypeError} If the value has no JSON text, as `undefined` has none.
+ * members, at every depth. Nothing is left for a reference to name, so a
+ * value held in several places is written out at each of them.
+ * @throws {TypeError} If the value has no JSON text, as `undefined` has none,
+ * or holds itself, which only a reference can write.
  */
 export function encodedTextWithoutMetadata(encoded: unknown, tagField: string): string {
+  const written = holdsReference(encoded)
+    ? writtenOut(encoded, { open: new Set(), copying: 0, copies: 0 })
+    : encoded;
   return jsonText(
     JSON.stringify(
-      encoded,
+      written,
       (key, member: unknown) =>
         key === tagField || key === "__id" ? undefined : replacerMember(member),
     ),
   );
+}
+
+/**
+ * The references the encoders wrote, each with the encoding it stands for.
+ * Kept apart from the encoded values, so that data shaped like a reference
+ * is never taken for one.
+ */
+const encodedReferences = new WeakMap<object, object>();
+
+/** The encodings the encoders registered, by context and id. */
+const encodedById = new WeakMap<EncodeContext, Map<number, object>>();
+
+/**
+ * Starts the encoding of a value registered as `id` in `ctx`: `encoded` with
+ * its `__id`, known as what a reference to `id` stands for.
+ */
+export function encodedAs(
+  ctx: EncodeContext,
+  id: number,
+  encoded: Record<string, unknown>,
+): Record<string, unknown> {
+  encoded.__id = id;
+  const byId = encodedById.get(ctx) ?? new Map<number, object>();
+  encodedById.set(ctx, byId);
+  byId.set(id, encoded);
+  return encoded;
+}
+
+/** The reference written for a value already encoded as `id` in `ctx`. */
+export function encodedReference(ctx: EncodeContext, id: number): { __ref: number } {
+  const reference = { __ref: id };
+  const encoded = encodedById.get(ctx)?.get(id);
+  if (encoded !== undefined) encodedReferences.set(reference, encoded);
+  return reference;
+}
+
+/** Whether `encoded` is an object the encoders built, whose members are its encoding. */
+function isEncodedObject(encoded: unknown): encoded is Record<string, unknown> {
+  if (typeof encoded !== "object" || encoded === null) return false;
+  const prototype: unknown = Object.getPrototypeOf(encoded);
+  return prototype === Object.prototype || prototype === null;
+}
+
+/** Whether a reference the encoders wrote is anywhere in `encoded`. */
+function holdsReference(encoded: unknown): boolean {
+  if (Array.isArray(encoded)) return encoded.some(holdsReference);
+  if (!isEncodedObject(encoded)) return false;
+  return encodedReferences.has(encoded) || Object.values(encoded).some(holdsReference);
+}
+
+/**
+ * How much may be written out in place of references, over one text: a unit
+ * for each member and element copied, and one for each character of a key or
+ * a string. A value shared at every level of a deep graph is written out
+ * once for every path to it, and a large one held in many places once for
+ * each, so what is copied grows without bound in the size of the graph.
+ */
+const WRITTEN_OUT_LIMIT = 16_000_000;
+
+/** Counts `units` copied in place of a reference against the limit. */
+function copied(writing: WritingOut, units: number): void {
+  if (writing.copying === 0) return;
+  writing.copies += units;
+  if (writing.copies > WRITTEN_OUT_LIMIT) {
+    throw new TypeError(
+      "a value held in many places is too large to write out at each of them: encode it with keepMetadata",
+    );
+  }
+}
+
+/**
+ * What is being written out: the encodings around this one, how many of
+ * them stand in for a reference, and how much those have copied.
+ */
+interface WritingOut {
+  readonly open: Set<object>;
+  copying: number;
+  copies: number;
+}
+
+/** `encoded` with each reference replaced by the encoding it stands for. */
+function writtenOut(encoded: unknown, writing: WritingOut): unknown {
+  if (typeof encoded === "string") {
+    copied(writing, encoded.length);
+    return encoded;
+  }
+  if (Array.isArray(encoded)) {
+    copied(writing, encoded.length);
+    return encoded.map((element: unknown) => writtenOut(element, writing));
+  }
+  if (!isEncodedObject(encoded)) return encoded;
+  const referenced = encodedReferences.get(encoded);
+  const source = referenced ?? encoded;
+  if (!isEncodedObject(source)) return source;
+  if (writing.open.has(source)) {
+    throw new TypeError(
+      "a value that holds itself has no JSON text without its metadata: encode it with keepMetadata",
+    );
+  }
+  writing.open.add(source);
+  if (referenced !== undefined) writing.copying += 1;
+  try {
+    const members: Record<string, unknown> = {};
+    for (const [key, member] of Object.entries(source)) {
+      copied(writing, 1 + key.length);
+      defineMember(members, key, writtenOut(member, writing));
+    }
+    return members;
+  } finally {
+    writing.open.delete(source);
+    if (referenced !== undefined) writing.copying -= 1;
+  }
 }
 
 function jsonText(text: string | undefined): string {

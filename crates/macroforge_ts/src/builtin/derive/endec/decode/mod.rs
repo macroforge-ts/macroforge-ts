@@ -25,6 +25,13 @@
 //!   has no constructor of its own. A subclass's hands them to its superclass's
 //!   when that derives `Decode`
 //!
+//! `decode` takes JSON text or a value already parsed from it. Where the type
+//! itself takes a string, as an alias of `string` or of `Date`, an enum of
+//! strings and a union with a string or a string-literal member do, a string
+//! is the JSON text of a value when it spells one the type takes, and the
+//! value itself otherwise. So `decode(encode(value))` reads back what was
+//! encoded, and `decode("small")` is still the member `small`.
+//!
 //! Decoding builds an instance without running its constructor, so a class
 //! keeps whatever constructor it has. Its `private`, `protected` and `readonly`
 //! fields, its constructor parameter properties and the fields of its
@@ -80,14 +87,38 @@
 //! | Tuples | From an array of the tuple's length, each element decoded by its own type |
 //! | An object type written in place | An object of exactly its members, each decoded by its own type |
 //! | `Partial<T>`, `Pick<T,K>`, `Omit<T,K>` | `{name}DecodePartialWithContext` |
+//! | `Required<T>` | As `T`, with the fields `T` leaves optional required too, unless a default fills them |
 //! | A type deriving `Decode` | Its `{name}DecodeWithContext` function |
 //! | A configured foreign type | Its `decode` handler |
-//! | A type parameter, `unknown`, any other type | The value as it is, unchecked |
+//! | A type parameter | The decoder handed in for it, or the value as it is, unchecked, without one |
+//! | `string \| User`, a primitive beside one type deriving `Decode` | The primitive as it is, anything else through the type |
+//! | Any other union with a member that is decoded, `Circle \| Square`, `Date \| number` | An expansion error: nothing in a field says which member a value is. Name the union with an alias and derive on that |
+//! | A union of values that are their own encoding, `string \| string[]`, `Date \| string` | The value as it is, checked to be one of the members |
+//! | `unknown`, any other type | The value as it is, unchecked |
 //!
 //! A member that fails is reported under its path: `grid[0][1]`,
 //! `byName.key.id`. Members share the context of the value that holds them, so
 //! a value held in several places, or a child pointing back at its parent
 //! through a collection, decodes to one object.
+//!
+//! ## Generic Types
+//!
+//! `{name}DecodeWithContext` and `{name}DecodePartialWithContext` of a generic
+//! type take one optional `Decoder` for each type parameter, after their
+//! other parameters, and a field written with the type's arguments hands in a
+//! decoder made from each: `Box<Date>` decodes the dates its `T` holds, and
+//! `Page<User>` its users, checked and built like any other. A union alias
+//! hands the decoders on to a member written with type arguments. The
+//! top-level `{name}Decode` and a class's static `decode` take the same
+//! decoders after their options, `boxDecode(text, undefined, decodeDate)`.
+//! Without a decoder a value of the parameter is kept as it is.
+//!
+//! ## Reserved Keys
+//!
+//! `__id` and `__ref` mark a value held in more than one place, and the tag
+//! key (`__type`, or the container's `tag`) holds the type's name. A field
+//! read from or written under one of them is an expansion error: give it
+//! another key with `@endec({ rename: "..." })`.
 //!
 //! ## References
 //!

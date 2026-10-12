@@ -7,9 +7,7 @@ use crate::ts_syn::{TsStream, ts_ident};
 
 use super::members::Union;
 use crate::builtin::derive::common::primitive_keyword_test;
-use crate::builtin::derive::endec::decode::helpers::{
-    extract_base_type, nested_decode_fn_name, nested_has_shape_fn_name,
-};
+use crate::builtin::derive::endec::decode::helpers::{extract_base_type, nested_has_shape_fn_name};
 use crate::builtin::derive::endec::decode::validation::{Missing, generate_field_validations};
 
 /// Tries literals, primitives, dates, member types, inline variants and
@@ -23,6 +21,8 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
         has_encodables,
         has_dates,
         has_generic_params,
+        param_decoder,
+        pending_ref_ident,
         has_object_variants,
         has_intersection_variants,
         has_literals,
@@ -99,7 +99,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                             }
                                         {/for}
                                         {#for type_ref in regular_encodables}
-                                                {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                                 if (__variantName === "@{type_ref.full_type}") {
                                                     return @{decode_with_context_fn}(__inner != null && typeof __inner === "object" ? __inner : {}, ctx) as @{full_type_ident};
                                                 }
@@ -116,7 +116,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                     }
                                     if (typeof value === "string") {
                                         {#for type_ref in regular_encodables}
-                                            {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                            {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                             if (value === "@{type_ref.full_type}") {
                                                 return @{decode_with_context_fn}({}, ctx) as @{full_type_ident};
                                             }
@@ -129,7 +129,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                         if (typeof __typeName === "string") {
                                             const __content = (value as any)["@{content_field}"];
                                             {#for type_ref in regular_encodables}
-                                                {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                                 if (__typeName === "@{type_ref.full_type}") {
                                                     return @{decode_with_context_fn}(__content != null && typeof __content === "object" ? __content : {}, ctx) as @{full_type_ident};
                                                 }
@@ -148,7 +148,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                     // Untagged: shape matching only
                                     {#for type_ref in regular_encodables}
                                         {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
-                                        {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                        {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                         if (@{has_shape_fn}(value)) {
                                             try {
                                                 return @{decode_with_context_fn}(value, ctx) as @{full_type_ident};
@@ -174,7 +174,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                         const __typeName = (value as any)["@{tag_field}"];
                                         if (typeof __typeName === "string") {
                                             {#for type_ref in regular_encodables}
-                                                {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                                 if (__typeName === "@{type_ref.full_type}") {
                                                     return @{decode_with_context_fn}(value, ctx) as @{full_type_ident};
                                                 }
@@ -196,7 +196,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                             {/for}
                                             if (__shapeMatches.length === 1) {
                                                 {#for type_ref in regular_encodables}
-                                                    {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                    {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                                     if (__shapeMatches[0] === "@{type_ref.full_type}") {
                                                         return @{decode_with_context_fn}(value, ctx) as @{full_type_ident};
                                                     }
@@ -212,7 +212,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                         {/for}
                                         if (__shapeMatches.length === 1) {
                                             {#for type_ref in regular_encodables}
-                                                {$let decode_with_context_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                {$let decode_with_context_fn: Expr = type_ref.decoder.clone()}
                                                 if (__shapeMatches[0] === "@{type_ref.full_type}") {
                                                     return @{decode_with_context_fn}(value, ctx) as @{full_type_ident};
                                                 }
@@ -236,6 +236,11 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                             {/for}
 
                             {#if *has_generic_params}
+                                {#if let Some(decode_param) = param_decoder}
+                                    if (@{decode_param} !== undefined && value !== null && value !== undefined) {
+                                        return @{decode_param}(value, ctx) as @{full_type_ident} | @{pending_ref_ident};
+                                    }
+                                {/if}
                                 return value as @{full_type_ident};
                             {/if}
 
@@ -252,7 +257,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                         {#for iv in intersection_variants}
                                             if (__typeName === "@{iv.tag_value}") {
                                                 {#if iv.is_encodable}
-                                                    {$let iv_deser_fn: Expr = ts_ident!(nested_decode_fn_name(&extract_base_type(&iv.type_ref))).into()}
+                                                    {$let iv_deser_fn: Expr = iv.decoder.clone()}
                                                     const __inner = @{iv_deser_fn}(value, ctx);
                                                     return { ...(__inner as any), "@{tag_field}": "@{iv.tag_value}" } as @{full_type_ident};
                                                 {:else}
@@ -294,14 +299,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
 
                             {#for uv in untagged_object_variants}
                                 if (@{uv.shape_condition}) {
-                                    const __result: Record<string, unknown> = {};
-                                    {#for name in &uv.required_fields}
-                                        __result["@{name}"] = (value as any)["@{name}"];
-                                    {/for}
-                                    {#for name in &uv.optional_fields}
-                                        if ("@{name}" in value) __result["@{name}"] = (value as any)["@{name}"];
-                                    {/for}
-                                    return __result as @{full_type_ident};
+                                    return @{uv.decoded} as @{full_type_ident};
                                 }
                             {/for}
 

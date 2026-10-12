@@ -1,4 +1,5 @@
 use crate::ast::Expr;
+use crate::builtin::derive::endec::TypeCategory;
 use crate::ts_syn::TsSynError;
 
 use convert_case::{Case, Casing};
@@ -214,6 +215,45 @@ pub(crate) fn primitive_accepts(ts_type: &str, raw: &str) -> Option<String> {
     Some(accepts.join(" || "))
 }
 
+/// The condition under which `raw` is a value of `ts_type`, when every
+/// value of the type is its own encoding and can be told by looking at it: a
+/// primitive, a literal, `Date`, an array or a `Record` of such, or a union
+/// of them. `None` for any other type. `depth` numbers the locals of nested
+/// callbacks apart.
+pub(crate) fn structural_accepts(ts_type: &str, raw: &str, depth: usize) -> Option<String> {
+    let ts_type = ts_type.trim();
+    if let Some(parts) = split_top_level_union(ts_type) {
+        let accepts = parts
+            .iter()
+            .map(|part| {
+                structural_accepts(part, raw, depth)
+                    .map(|accepts| rendered(ts_template! { (@{accepts}) }))
+            })
+            .collect::<Option<Vec<_>>>()?;
+        return Some(accepts.join(" || "));
+    }
+    if let Some(accepts) = primitive_accepts(ts_type, raw) {
+        return Some(accepts);
+    }
+    let member = format!("__member{depth}");
+    match TypeCategory::from_ts_type(ts_type) {
+        TypeCategory::Date => Some(rendered(ts_template! { @{raw} instanceof Date })),
+        TypeCategory::Array(element) => {
+            let accepts = structural_accepts(&element, &member, depth + 1)?;
+            Some(rendered(ts_template! {
+                Array.isArray(@{raw}) && @{raw}.every((@{&member}: unknown) => @{accepts})
+            }))
+        }
+        TypeCategory::Record(_, value) => {
+            let accepts = structural_accepts(&value, &member, depth + 1)?;
+            Some(rendered(ts_template! {
+                typeof @{raw} === "object" && @{raw} !== null && !Array.isArray(@{raw}) && Object.values(@{raw}).every((@{&member}: unknown) => @{accepts})
+            }))
+        }
+        _ => matches!(ts_type, "unknown" | "any").then(|| "true".to_string()),
+    }
+}
+
 /// The error for a raw value that is not of the field's type. A missing value
 /// where the type requires one is reported as required rather than as the
 /// wrong type.
@@ -254,7 +294,7 @@ pub(super) fn parse_default_expr(expr_src: &str) -> Result<Expr, TsSynError> {
 
 /// Extracts the base type name from a potentially generic type.
 /// For example: "User<T>" -> "User", "Map<string, number>" -> "Map"
-pub(super) fn extract_base_type(ts_type: &str) -> String {
+pub(crate) fn extract_base_type(ts_type: &str) -> String {
     if let Some(idx) = ts_type.find('<') {
         ts_type[..idx].to_string()
     } else {

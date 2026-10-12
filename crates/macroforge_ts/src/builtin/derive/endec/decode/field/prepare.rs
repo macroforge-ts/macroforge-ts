@@ -4,19 +4,19 @@ use crate::builtin::derive::common::{
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::DiagnosticCollector;
-use crate::ts_syn::abi::ir::{FileImportEntry, TypeRegistry, resolve_generic_aliases};
+use crate::ts_syn::abi::ir::{FileImportEntry, TypeRegistry};
 use crate::ts_syn::config::ForeignHandler;
 
 use crate::builtin::derive::endec::coder::{
-    TypeScope, decode_expr, json_keys_of, nullable_foreign_decoder, object_members,
+    TypeScope, decode_expr, dictionary_record, json_keys_of, nullable_foreign_decoder,
+    object_members,
 };
 use crate::builtin::derive::endec::decode::helpers::{
-    alias_primitive_arm_validators, parse_default_expr,
+    alias_primitive_arm_validators, parse_default_expr, primitive_accepts,
 };
 use crate::builtin::derive::endec::decode::types::{
     CompositeDecode, DecodeField, RawShape, raw_cast_type, raw_var_name,
 };
-use crate::builtin::derive::endec::nested::NestedType;
 use crate::builtin::derive::endec::source_field::SourceField;
 use crate::builtin::derive::endec::union_guard::{Direction, UnionGuard, union_guard};
 use crate::builtin::derive::endec::value_kind::{
@@ -57,8 +57,13 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         .clone()
         .unwrap_or_else(|| container_opts.rename_all.apply(field.name));
 
-    let resolved_ts_type =
-        resolve_generic_aliases(field.ts_type, type_registry, caller_file_path, file_imports);
+    let scope = TypeScope {
+        registry: type_registry,
+        file_path: caller_file_path,
+        file_imports,
+        type_params,
+    };
+    let resolved_ts_type = scope.resolved(field.ts_type, Direction::Decode);
     // A type parameter has no decoder to call: its values pass through as
     // they are, wherever it appears.
     let is_param = |name: &str| type_params.iter().any(|param| param == name);
@@ -71,12 +76,6 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
             diagnostics.error(field.span, message);
             None
         }
-    };
-    let scope = TypeScope {
-        registry: type_registry,
-        file_path: caller_file_path,
-        file_imports,
-        type_params,
     };
     let mut type_cat = match TypeCategory::from_ts_type(&resolved_ts_type) {
         TypeCategory::Encodable(name) if is_param(&name) => TypeCategory::Unknown,
@@ -117,12 +116,24 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         _ => None,
     };
     let nullable_encodable_type = match &type_cat {
-        TypeCategory::Nullable(inner) => {
-            encodable(inner).or_else(|| nullable_union.as_ref().map(|(_, name)| name.clone()))
-        }
+        // A type named in lowercase is known for one by the registry alone.
+        TypeCategory::Nullable(inner) => encodable(inner)
+            .or_else(|| nullable_union.as_ref().map(|(_, name)| name.clone()))
+            .or_else(|| scope.derived(inner, Direction::Decode)),
         _ => None,
     };
     let nullable_union_guard = nullable_union.map(|(guard, _)| guard);
+    let nullable_nested = match nullable_encodable_type
+        .as_deref()
+        .map(|name| scope.nested(name, Direction::Decode, 0))
+    {
+        Some(Ok(nested)) => nested,
+        Some(Err(message)) => {
+            diagnostics.error(field.span, format!("@derive(Decode): {message}"));
+            None
+        }
+        None => None,
+    };
 
     // Whatever decodes the field is called as written, so a user expression
     // or a composite arrow is parenthesized here, once.
@@ -173,7 +184,11 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         TypeCategory::Array(_) | TypeCategory::Set(_) => Some(RawShape::Array),
         TypeCategory::Map(_, _) | TypeCategory::Record(_, _) => Some(RawShape::Object),
         TypeCategory::Unknown if tuple_body(&resolved_ts_type).is_some() => Some(RawShape::Array),
-        TypeCategory::Unknown if object_members(&resolved_ts_type).is_some() => {
+        // An object type that cannot be read is reported where it is decoded.
+        TypeCategory::Unknown
+            if !matches!(object_members(&resolved_ts_type), Ok(None))
+                || dictionary_record(&resolved_ts_type).is_some() =>
+        {
             Some(RawShape::Object)
         }
         _ => None,
@@ -189,18 +204,41 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         },
         None => None,
     };
-    let wrapped = match &type_cat {
-        TypeCategory::Wrapper(_) => {
-            match NestedType::of(&resolved_ts_type, &|name| scope.is_param(name)) {
-                Ok(wrapped) => wrapped,
+    let nested = match &type_cat {
+        TypeCategory::Wrapper(_) => scope.nested(&resolved_ts_type, Direction::Decode, 0),
+        // The member a guard leaves is named by the guard; any other type
+        // is the field's own, type arguments included.
+        TypeCategory::Encodable(name) if union_guard.is_some() => {
+            scope.nested(name, Direction::Decode, 0)
+        }
+        TypeCategory::Encodable(_) => scope.nested(&resolved_ts_type, Direction::Decode, 0),
+        _ => Ok(None),
+    };
+    let wrapped = match nested {
+        Ok(wrapped) => wrapped,
+        Err(message) => {
+            diagnostics.error(field.span, format!("@derive(Decode): {message}"));
+            None
+        }
+    };
+    // A value of a type parameter is decoded by the coder handed in for it.
+    // A union nothing else decodes is carried as it is, which only a union
+    // of values that are their own coding can be, and is checked to be one.
+    let checked_union = matches!(type_cat, TypeCategory::Unknown)
+        && raw_shape.is_none()
+        && primitive_accepts(&resolved_ts_type, &raw_var_name).is_none();
+    let by_parameter =
+        if decode_with.is_none() && (scope.is_param(resolved_ts_type.trim()) || checked_union) {
+            match decode_expr(&resolved_ts_type, &raw_var_name, &scope, 0) {
+                Ok(decoded) => decoded,
                 Err(message) => {
                     diagnostics.error(field.span, format!("@derive(Decode): {message}"));
                     None
                 }
             }
-        }
-        _ => None,
-    };
+        } else {
+            None
+        };
 
     // A flattened type reads keys of the enclosing object, which have to be
     // known to tell them from keys nothing reads.
@@ -258,10 +296,19 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
     // decorators stay with this field: only the type differs. One a
     // `decodeWith` already covers is left to that function.
     let member_of_its_own = match &type_cat {
+        // So is a type parameter, and a generic type written with its
+        // arguments, which are decoded by the coders made for them.
         TypeCategory::Nullable(inner)
             if TypeCategory::from_ts_type(inner).is_composite()
                 || tuple_body(inner).is_some()
-                || object_members(inner).is_some() =>
+                || !matches!(object_members(inner), Ok(None))
+                || dictionary_record(inner).is_some()
+                || scope.is_param(inner.trim())
+                || (inner.contains('<')
+                    && matches!(
+                        TypeCategory::from_ts_type(inner),
+                        TypeCategory::Encodable(_)
+                    )) =>
         {
             Some(inner)
         }
@@ -315,11 +362,13 @@ pub(in crate::builtin::derive::endec::decode) fn to_decode_field(
         validators: opts.validators.clone(),
         nullable_inner_kind,
         nullable_encodable_type,
+        nullable_nested,
         present_inner,
         decode_with,
         decimal_format: opts.format == Some(EndecFormat::Decimal),
         composite,
         wrapped,
+        by_parameter,
         union_guard,
         nullable_union_guard,
         union_string_validators,

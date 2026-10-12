@@ -15,7 +15,8 @@ use super::{TypeCategory, get_foreign_types};
 /// How a union's other member is recognised at runtime, and what it becomes.
 #[derive(Clone, Debug)]
 pub(crate) enum UnionGuard {
-    /// A primitive, recognised by its keyword and kept as it is.
+    /// A primitive, recognised by its keyword, or a literal, recognised by
+    /// being it, and kept as it is.
     Primitive(String),
     /// A foreign type, recognised by its `hasShape` and converted by its
     /// `decode` or `encode` handler.
@@ -33,8 +34,17 @@ impl UnionGuard {
     /// Whether `value` is the guarded member.
     pub(crate) fn test(&self, value: &Expr) -> Expr {
         match self {
+            // A literal is told by being itself, a keyword by its `typeof`.
             Self::Primitive(keyword) => {
-                primitive_keyword_test(keyword, &rendered(ts_template! { @{value} })).into()
+                let keyword = keyword.trim();
+                let is_literal = keyword.starts_with(['"', '\'', '`'])
+                    || keyword.parse::<f64>().is_ok()
+                    || matches!(keyword, "true" | "false");
+                if is_literal {
+                    rendered(ts_template! { @{value} === @{keyword} }).into()
+                } else {
+                    primitive_keyword_test(keyword, &rendered(ts_template! { @{value} })).into()
+                }
             }
             Self::Foreign { has_shape, .. } => {
                 rendered(ts_template! { @{has_shape}(@{value}) }).into()
@@ -60,8 +70,9 @@ impl UnionGuard {
 }
 
 /// The guard for `ts_type` when it is a two-member union of a primitive or a
-/// foreign type and a user type, with the user type's name. A type parameter,
-/// per `is_param`, has no encoder or decoder and so is no user type here.
+/// foreign type and a user type, with the user type as written, type
+/// arguments included. A type parameter, per `is_param`, has no encoder or
+/// decoder and so is no user type here.
 ///
 /// Errors when the foreign member lacks the `hasShape`, `decode` or `encode`
 /// handler the union needs: without it the members cannot be told apart.
@@ -71,7 +82,10 @@ pub(crate) fn union_guard(
     is_param: impl Fn(&str) -> bool,
 ) -> Result<Option<(UnionGuard, String)>, String> {
     if let Some((primitive, name)) = detect_primitive_encodable_union(ts_type) {
-        return Ok((!is_param(&name)).then_some((UnionGuard::Primitive(primitive), name)));
+        let member = split_top_level_union(ts_type.trim())
+            .and_then(|parts| parts.into_iter().find(|part| *part != primitive))
+            .map_or_else(|| name.clone(), str::to_string);
+        return Ok((!is_param(&name)).then_some((UnionGuard::Primitive(primitive), member)));
     }
     let Some(parts) = split_top_level_union(ts_type.trim()) else {
         return Ok(None);
@@ -114,7 +128,7 @@ pub(crate) fn union_guard(
             has_shape: has_shape.into(),
             convert: convert.into(),
         };
-        return Ok(Some((guard, name)));
+        return Ok(Some((guard, other.trim().to_string())));
     }
     Ok(None)
 }

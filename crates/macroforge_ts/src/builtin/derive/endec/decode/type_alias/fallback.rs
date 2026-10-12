@@ -66,7 +66,14 @@ pub(super) fn handle_fallback_type_alias(alias: &AliasDecode) -> Result<TsStream
         &foreign_types_config,
     );
     let data_init_expr = if accepts_string {
-        Expr::parse("input").expect("data init expr should parse")
+        // A string may be the value itself or the JSON text of it.
+        let text_or_value: Expr = ts_ident!(crate::builtin::derive::endec::coder::endec_helper(
+            "textOrValue"
+        ))
+        .into();
+        Expr::Source(crate::builtin::derive::common::rendered(ts_template! {
+            @{text_or_value}(input, @{&fn_has_shape_expr})
+        }))
     } else {
         Expr::parse(r#"typeof input === "string" ? JSON.parse(input) : input"#)
             .expect("data init expr should parse")
@@ -74,12 +81,12 @@ pub(super) fn handle_fallback_type_alias(alias: &AliasDecode) -> Result<TsStream
 
     let mut result = ts_template! {
         /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors */
-        export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}): @{return_type_ident} {
+        export function @{fn_decode_ident}(input: unknown, opts?: @{decode_options_ident}@{&alias.coders}): @{return_type_ident} {
             try {
                 const data = @{data_init_expr};
 
                 const ctx = @{decode_context_expr}.create();
-                const result = @{fn_decode_internal_expr}(data, ctx);
+                const result = @{fn_decode_internal_expr}(data, ctx@{&alias.passed_coders});
                 ctx.applyPatches();
                 if (opts?.freeze) {
                     ctx.freezeAll();
@@ -133,7 +140,7 @@ fn passthrough(alias: &AliasDecode) -> TsStream {
     let reference = decode_reference(alias.type_name, &alias.full_type_name);
     ts_template! {
         /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context */
-        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}): @{full_type_ident.clone()} {
+        export function @{fn_decode_internal_ident}(value: unknown, ctx: @{decode_context_ident}@{&alias.coders}): @{full_type_ident.clone()} {
             {$typescript reference}
             return value as @{type_ident};
         }

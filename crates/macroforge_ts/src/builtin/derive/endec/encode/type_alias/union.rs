@@ -14,6 +14,10 @@ use super::super::field::statements::encode_fields;
 use super::super::text::encode_text_body;
 use super::super::types::EncodeField;
 use super::AliasEncode;
+use crate::builtin::derive::common::rendered;
+use crate::builtin::derive::endec::coder::{TypeScope, object_shape_test};
+use crate::builtin::derive::endec::type_arguments::{member_encoder, param_coder};
+use crate::builtin::derive::endec::union_guard::Direction;
 use crate::builtin::derive::endec::{
     EndecContainerOptions, TaggingMode, TypeCategory, get_foreign_types,
 };
@@ -28,6 +32,8 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
         fn_encode_ident,
         fn_encode_internal_ident,
         encode_context_ident,
+        coders,
+        passed_coders,
         ..
     } = alias;
     // Union type: tagging-mode-aware encoding
@@ -51,7 +57,7 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
     // as raw values instead of passing through the per-variant encoder.
     struct SerVariant {
         tag_value: String,
-        ser_fn: crate::ast::Ident,
+        ser_fn: Expr,
         has_shape_fn: crate::ast::Ident,
     }
     let mut ser_variants: Vec<SerVariant> = Vec::new();
@@ -65,6 +71,52 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
             .iter()
             .any(|param| param.name == name)
     };
+    let param_names: Vec<String> = type_alias
+        .type_params()
+        .iter()
+        .map(|param| param.name.clone())
+        .collect();
+    let scope = TypeScope {
+        registry: alias.type_registry,
+        file_path: alias.caller_file_path,
+        file_imports: alias.file_imports,
+        type_params: &param_names,
+    };
+    // What encodes a member that is a user type, with the coders of its
+    // type arguments handed on.
+    let member_encoder_of = |ts_type: &str| -> Result<Expr, MacroforgeError> {
+        member_encoder(ts_type, &scope)
+            .map(Expr::Source)
+            .map_err(|message| {
+                MacroforgeError::new(type_alias.inner.span, format!("@derive(Encode): {message}"))
+            })
+    };
+    // One parameter among members that are otherwise told by `null`, a tag
+    // or a shape is the member a value is when it is no other, so the coder
+    // handed in for it encodes that value.
+    let param_encoder: Option<(String, String)> = type_alias.as_union().and_then(|members| {
+        let mut params = members.iter().filter_map(|member| match &member.kind {
+            TypeMemberKind::TypeRef(reference) if is_type_param(reference.trim()) => {
+                Some(reference.trim().to_string())
+            }
+            _ => None,
+        });
+        let param = params.next().filter(|_| params.next().is_none())?;
+        let told_apart = members.iter().all(|member| match &member.kind {
+            TypeMemberKind::Literal(literal) => matches!(literal.trim(), "null" | "undefined"),
+            TypeMemberKind::TypeRef(reference) => {
+                is_type_param(reference.trim())
+                    || matches!(reference.trim(), "null" | "undefined")
+                    || matches!(
+                        TypeCategory::from_ts_type(reference),
+                        TypeCategory::Encodable(_)
+                    )
+            }
+            TypeMemberKind::Object { .. } | TypeMemberKind::Intersection(_) => true,
+            TypeMemberKind::Brand(_) => false,
+        });
+        told_apart.then(|| (param_coder(Direction::Encode, &param), param))
+    });
     // Externally-tagged single-key object variants (`{ Name: Payload }`)
     // whose payload is a configured foreign type (BigDecimal, DateTime):
     // without the inline encode expression, the runtime instance
@@ -78,7 +130,7 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
         /// verbatim, so every field inside it that needs a non-identity
         /// encoding (decimals, dates, record links) leaks its
         /// runtime shape.
-        payload_ser_fn: Option<crate::ast::Ident>,
+        payload_ser_fn: Option<Expr>,
     }
     let mut external_ser_variants: Vec<ExternalSerVariant> = Vec::new();
     if let Some(members) = type_alias.as_union() {
@@ -113,7 +165,7 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                         let camel = rt.to_case(Case::Camel);
                         ser_variants.push(SerVariant {
                             tag_value: tv,
-                            ser_fn: ts_ident!("{}EncodeWithContext", camel),
+                            ser_fn: member_encoder_of(&rt)?,
                             has_shape_fn: ts_ident!("{}HasShape", camel),
                         });
                     }
@@ -128,7 +180,7 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                         let camel = name.to_case(Case::Camel);
                         ref_variants.push(SerVariant {
                             tag_value: name,
-                            ser_fn: ts_ident!("{}EncodeWithContext", camel),
+                            ser_fn: member_encoder_of(t)?,
                             has_shape_fn: ts_ident!("{}HasShape", camel),
                         });
                     }
@@ -142,10 +194,10 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                             .and_then(|ft| ft.handler_callee(ForeignHandler::Encode));
                     let payload_ser_fn = if foreign_encode_callee.is_some() {
                         None
-                    } else if let TypeCategory::Encodable(base) =
+                    } else if let TypeCategory::Encodable(_) =
                         TypeCategory::from_ts_type(payload_ts_type)
                     {
-                        Some(ts_ident!("{}EncodeWithContext", base.to_case(Case::Camel)))
+                        Some(member_encoder_of(payload_ts_type)?)
                     } else {
                         None
                     };
@@ -166,18 +218,22 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
     let has_external_ser_variants = !external_ser_variants.is_empty();
     let dispatch_by_tag = !is_untagged;
 
+    let encoded_as: Expr = ts_ident!(crate::builtin::derive::endec::coder::endec_helper(
+        "encodedAs"
+    ))
+    .into();
     let (object_dispatch, object_diagnostics) = object_variant_dispatch(alias, &tag_field)?;
-    let encode_text = encode_text_body(&fn_encode_internal_expr, "__type");
+    let encode_text = encode_text_body(&fn_encode_internal_expr, "__type", passed_coders);
 
     let mut result = if let Some(params) = &type_params_ident {
         ts_template! {
             /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
-            export function @{fn_encode_ident}<@{params}>(value: @{full_type_ident}, keepMetadata?: boolean): string {
+            export function @{fn_encode_ident}<@{params}>(value: @{full_type_ident}, keepMetadata?: boolean@{coders}): string {
                 {$typescript encode_text}
             }
 
             /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context */
-            export function @{fn_encode_internal_ident}<@{params}>(value: @{full_type_ident}, ctx: @{encode_context_ident}): unknown {
+            export function @{fn_encode_internal_ident}<@{params}>(value: @{full_type_ident}, ctx: @{encode_context_ident}@{coders}): unknown {
                 let __variant: unknown;
                 let __matched = false;
                 const __encoder = __mf_derivedEncoder(value);
@@ -231,6 +287,12 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                     {/for}
                 }
                 {/if}
+                {#if let Some((encode_param, param)) = &param_encoder}
+                if (!__matched && @{encode_param} !== undefined && value !== null && value !== undefined) {
+                    __variant = @{encode_param}(value as @{param}, ctx);
+                    __matched = true;
+                }
+                {/if}
                 if (!__matched) {
                     __variant = value;
                 }
@@ -246,7 +308,10 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                     // already carries the tag field.
                     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
                         const { __type: __typeName, ...fields } = __variant as any;
-                        return { "@{tag_field}": (value as any)["@{tag_field}"] ?? __typeName, ...fields };
+                        const __tagged = { "@{tag_field}": (value as any)["@{tag_field}"] ?? __typeName, ...fields };
+                        // What a later reference to this value stands for is
+                        // the member as the union tags it.
+                        return typeof fields.__id === "number" ? @{&encoded_as}(ctx, fields.__id, __tagged) : __tagged;
                     }
                     return __variant;
                 {:else}
@@ -258,17 +323,17 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                     {#if is_externally_tagged}
                         // Externally tagged: { "TypeName": { ...fields } }
                         const __outer: Record<string, unknown> = { [__typeName]: fields };
-                        if (__idVal !== undefined) __outer.__id = __idVal;
+                        if (__idVal !== undefined) @{&encoded_as}(ctx, __idVal, __outer);
                         return __outer;
                     {:else if is_adjacently_tagged}
                         // Adjacently tagged: { tag: "TypeName", content: { ...fields } }
                         const __outer: Record<string, unknown> = { "@{tag_field}": __typeName, "@{content_field}": fields };
-                        if (__idVal !== undefined) __outer.__id = __idVal;
+                        if (__idVal !== undefined) @{&encoded_as}(ctx, __idVal, __outer);
                         return __outer;
                     {:else if is_untagged}
                         // Untagged: just the raw fields
                         const __outer: Record<string, unknown> = { ...fields };
-                        if (__idVal !== undefined) __outer.__id = __idVal;
+                        if (__idVal !== undefined) @{&encoded_as}(ctx, __idVal, __outer);
                         return __outer;
                     {/if}
                 {/if}
@@ -351,7 +416,10 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                     // already carries the tag field.
                     if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
                         const { __type: __typeName, ...fields } = __variant as any;
-                        return { "@{tag_field}": (value as any)["@{tag_field}"] ?? __typeName, ...fields };
+                        const __tagged = { "@{tag_field}": (value as any)["@{tag_field}"] ?? __typeName, ...fields };
+                        // What a later reference to this value stands for is
+                        // the member as the union tags it.
+                        return typeof fields.__id === "number" ? @{&encoded_as}(ctx, fields.__id, __tagged) : __tagged;
                     }
                     return __variant;
                 {:else}
@@ -363,17 +431,17 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
                     {#if is_externally_tagged}
                         // Externally tagged: { "TypeName": { ...fields } }
                         const __outer: Record<string, unknown> = { [__typeName]: fields };
-                        if (__idVal !== undefined) __outer.__id = __idVal;
+                        if (__idVal !== undefined) @{&encoded_as}(ctx, __idVal, __outer);
                         return __outer;
                     {:else if is_adjacently_tagged}
                         // Adjacently tagged: { tag: "TypeName", content: { ...fields } }
                         const __outer: Record<string, unknown> = { "@{tag_field}": __typeName, "@{content_field}": fields };
-                        if (__idVal !== undefined) __outer.__id = __idVal;
+                        if (__idVal !== undefined) @{&encoded_as}(ctx, __idVal, __outer);
                         return __outer;
                     {:else if is_untagged}
                         // Untagged: just the raw fields
                         const __outer: Record<string, unknown> = { ...fields };
-                        if (__idVal !== undefined) __outer.__id = __idVal;
+                        if (__idVal !== undefined) @{&encoded_as}(ctx, __idVal, __outer);
                         return __outer;
                     {/if}
                 {/if}
@@ -398,11 +466,13 @@ fn object_variant_dispatch(
     // An adjacently tagged member, `{ tag: 'X'; content: T }`, is an object
     // variant like an internally tagged one: encoding each of its fields
     // sends the content through its own encoder, and the tag is copied.
-    let members = match (&container_opts.tagging, alias.type_alias.as_union()) {
+    // An externally tagged member is its one key, dispatched on its own.
+    let (members, tagged) = match (&container_opts.tagging, alias.type_alias.as_union()) {
         (
             TaggingMode::InternallyTagged { .. } | TaggingMode::AdjacentlyTagged { .. },
             Some(members),
-        ) => members,
+        ) => (members, true),
+        (TaggingMode::Untagged, Some(members)) => (members, false),
         _ => return Ok((TsStream::merge_all([]), Vec::new())),
     };
     let param_names: Vec<String> = alias
@@ -416,13 +486,10 @@ fn object_variant_dispatch(
         let TypeMemberKind::Object { fields } = &member.kind else {
             continue;
         };
-        let Some(tag_value) = fields
+        let tag_value = fields
             .iter()
-            .find(|field| field.name == tag_field)
-            .and_then(|field| string_literal(&field.ts_type))
-        else {
-            continue;
-        };
+            .find(|field| tagged && field.name == tag_field)
+            .and_then(|field| string_literal(&field.ts_type));
         let encode_fields_list: Vec<EncodeField> = fields
             .iter()
             .filter_map(|field| {
@@ -437,9 +504,17 @@ fn object_variant_dispatch(
                 )
             })
             .collect();
+        // A member with the union's tag is told by it, and any other by
+        // its shape: the keys it has to have and the literals it holds.
+        let is_member = match tag_value {
+            Some(tag_value) => rendered(ts_template! {
+                typeof value === "object" && value !== null && "@{tag_field}" in value && value["@{tag_field}"] === "@{tag_value}"
+            }),
+            None => object_shape_test(fields, "value"),
+        };
         let statements = encode_fields(&encode_fields_list, tag_field);
         blocks.push(ts_template! {
-            if (!__matched && typeof value === "object" && value !== null && "@{tag_field}" in value && value["@{tag_field}"] === "@{tag_value}") {
+            if (!__matched && @{is_member}) {
                 const result: Record<string, unknown> = {};
                 {$typescript statements}
                 __variant = result;

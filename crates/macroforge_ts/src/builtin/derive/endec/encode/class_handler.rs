@@ -1,6 +1,9 @@
 //! `Encode` for a class: static methods and the standalone functions that run them.
 
 use crate::ast::Expr;
+use crate::builtin::derive::endec::reserved_keys::check_reserved_keys;
+use crate::builtin::derive::endec::source_field::SourceField;
+use crate::builtin::derive::endec::union_guard::Direction;
 use crate::macros::ts_template;
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::{
@@ -13,6 +16,7 @@ use super::text::encode_text_body;
 use super::types::EncodeField;
 use crate::builtin::derive::common::{ClassUse, TypeNames, derive_class_fields};
 use crate::builtin::derive::endec::EndecContainerOptions;
+use crate::builtin::derive::endec::type_arguments::{declared_param_coders, passed_param_coders};
 
 pub(super) fn handle_class(
     input: &DeriveInput,
@@ -37,6 +41,12 @@ pub(super) fn handle_class(
     let type_params = class_names.params.clone();
     let class_fields = derive_class_fields(input, class, "Encode", ClassUse::Reads)?;
     let mut all_diagnostics = DiagnosticCollector::new();
+    check_reserved_keys(
+        Direction::Encode,
+        &container_opts,
+        class_fields.iter().map(SourceField::from),
+        &mut all_diagnostics,
+    );
     let fields: Vec<EncodeField> = class_fields
         .iter()
         .filter_map(|field| {
@@ -57,18 +67,20 @@ pub(super) fn handle_class(
         return Err(MacroforgeErrors::new(all_diagnostics.into_vec()).into());
     }
 
-    let encode_text = encode_text_body(&fn_encode_internal_call, tag_field);
+    let coders = declared_param_coders(Direction::Encode, &class_names.params);
+    let passed_coders = passed_param_coders(Direction::Encode, &class_names.params);
+    let encode_text = encode_text_body(&fn_encode_internal_call, tag_field, &passed_coders);
     let with_context = encode_with_context_functions(&class_names, tag_field, &fields, Home::Class);
     let standalone = ts_template! {
         /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
-        export function @{fn_encode_ident}(value: @{&class_ident}, keepMetadata?: boolean): string {
+        export function @{fn_encode_ident}(value: @{&class_ident}, keepMetadata?: boolean@{&coders}): string {
             {$typescript encode_text}
         }
     };
     let class_body = ts_template!(Within {
         /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
-        static @{class_names.generic_method("encode")}(value: @{&class_ident}, keepMetadata?: boolean): string {
-            return @{fn_encode_expr}(value, keepMetadata);
+        static @{class_names.generic_method("encode")}(value: @{&class_ident}, keepMetadata?: boolean@{&coders}): string {
+            return @{fn_encode_expr}(value, keepMetadata@{&passed_coders});
         }
     });
 

@@ -143,17 +143,35 @@ fn decode_field(field: &DecodeField, owner: &str, required: Required) -> TsStrea
             },
         );
     }
-    match required {
-        Required::All => ts_template! {
+    // A required key that is missing is reported as missing, once: there is
+    // no value to decode and find wrong as well.
+    let key = field.json_key_text();
+    match (required, field.key_required()) {
+        (Required::All, true) => ts_template! {
+            if ("@{key}" in obj) {
+                {$typescript decoded}
+            }
+        },
+        (Required::All, false) => ts_template! {
             {
                 {$typescript decoded}
             }
         },
-        Required::Selected => {
+        (Required::Selected, key_required) => {
             let is_required = requires(field);
             let name = js_string(&field.field_name);
+            let read: Expr = if key_required {
+                rendered(ts_template! {
+                    (@{is_required} ? "@{&key}" in obj : (__fields.keeps(@{name}) && obj["@{&key}"] !== undefined))
+                })
+            } else {
+                rendered(ts_template! {
+                    (@{is_required} || (__fields.keeps(@{name}) && obj["@{&key}"] !== undefined))
+                })
+            }
+            .into();
             ts_template! {
-                if (@{is_required} || (__fields.keeps(@{name}) && obj["@{field.json_key_text()}"] !== undefined)) {
+                if @{read} {
                     {$typescript decoded}
                 }
             }
@@ -231,8 +249,8 @@ fn decode_flattened_field(
         TypeCategory::Encodable(type_name) => {
             let has_shape: Expr = ts_ident!(nested_has_shape_fn_name(&type_name)).into();
             let unregistered = NestedType {
-                name: type_name,
                 fields: WrapperFields::Except(Vec::new()),
+                ..NestedType::whole(type_name)
             };
             let decoded = unregistered.decode_call("obj");
             let decode = ts_template! {
