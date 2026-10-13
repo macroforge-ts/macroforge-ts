@@ -616,6 +616,16 @@ fn check_endec_options(
         )),
         (None, None) | (Some(_), None) | (Some(_), Some(_)) => {}
     }
+    for (option, key) in [("tag", &tag), ("content", &content)] {
+        if key.as_deref() == Some("__proto__") {
+            diagnostics.push(option_error(
+                first,
+                format!(
+                    "`@endec`: `{option}` is \"__proto__\", which names an object's prototype and adds no key to it"
+                ),
+            ));
+        }
+    }
     // An object type is one shape: it is tagged, and that is all.
     let is_one_shape = match &target.target_ir {
         DeriveTargetIR::Class(_) | DeriveTargetIR::Interface(_) => true,

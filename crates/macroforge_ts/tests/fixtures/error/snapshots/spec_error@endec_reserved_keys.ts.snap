@@ -26,11 +26,24 @@ interface Tagged {
     __type: string;
 }
 
+/** @derive(Encode, Decode) */
+interface Reaching {
+    /** @endec({ rename: "__proto__" }) */
+    held: string;
+}
+
+/** @derive(Encode, Decode) */
+/** @endec({ tag: "__proto__" }) */
+type Tagging = { a: string } | { b: number };
+
 ## Changed
 
 true
 
 ## Output
+
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, decodeNumber as __mf_decodeNumber, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Marked {
     __id: number;
@@ -52,24 +65,186 @@ interface Tagged {
     __type: string;
 }
 
+
+interface Reaching {
+    
+    held: string;
+}
+
+
+type Tagging = { a: string } | { b: number };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function taggingEncode(value: Tagging, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = taggingEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function taggingEncodeWithContext(value: Tagging, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "a" in value) {
+        const result: Record<string, unknown> = {};
+        result["a"] = value.a;
+        __variant = result;
+        __matched = true;
+    }
+    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "b" in value) {
+        const result: Record<string, unknown> = {};
+        result["b"] = value.b;
+        __variant = result;
+        __matched = true;
+    }
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        const __tagged = { "__proto__": (value as any)["__proto__"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+    }
+    return __variant;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function taggingDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Tagging } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = taggingDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Tagging.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function taggingDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Tagging | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Tagging.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Tagging | __mf_PendingRef;
+    }
+
+    
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "a")) {
+        return __mf_decodeObject(value, ctx, { a: __mf_decodeString }) as Tagging;
+    }
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "b")) {
+        return __mf_decodeObject(value, ctx, { b: __mf_decodeNumber }) as Tagging;
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "Tagging.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function taggingHasShape(value: unknown): boolean {
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "a")) return true;
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "b")) return true;
+                return false;
+}
+export function taggingIs(value: unknown): value is Tagging {
+    return taggingHasShape(value);
+}
+
+const Tagging: {
+  readonly encode: typeof taggingEncode;
+  readonly encodeWithContext: typeof taggingEncodeWithContext;
+  readonly decode: typeof taggingDecode;
+  readonly decodeWithContext: typeof taggingDecodeWithContext;
+  readonly hasShape: typeof taggingHasShape;
+  readonly is: typeof taggingIs;
+} = {
+  encode: taggingEncode,
+  encodeWithContext: taggingEncodeWithContext,
+  decode: taggingDecode,
+  decodeWithContext: taggingDecodeWithContext,
+  hasShape: taggingHasShape,
+  is: taggingIs
+};
+
 ## DTS
 
-interface Marked {
-	__id: number;
-	__type: string;
-	name: string;
-}
-declare class Linked {
-	link: string;
-}
-/** @endec({ tag: "kind" }) */
-interface Tagged {
-	kind: string;
-	__type: string;
-}
+type Tagging = {
+	a: string;
+} | {
+	b: number;
+};
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function taggingEncode(value: Tagging, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function taggingEncodeWithContext(value: Tagging, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function taggingDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Tagging;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function taggingDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Tagging | __mf_PendingRef;
+export declare function taggingHasShape(value: unknown): boolean;
+export declare function taggingIs(value: unknown): value is Tagging;
+export {};
 
 ## Diagnostics
 
+Error [529..564]: `@endec`: `tag` is "__proto__", which names an object's prototype and adds no key to it
 Error [55..68]: @derive(Encode): field '__id' is written under the key `__id`, which marks a value held in more than one place; give it another with `@endec({ rename: "..." })`
 Error [73..88]: @derive(Encode): field '__type' is written under the key `__type`, which holds the type's tag; give it another with `@endec({ rename: "..." })`
 Error [55..68]: @derive(Decode): field '__id' is read from the key `__id`, which marks a value held in more than one place; give it another with `@endec({ rename: "..." })`
@@ -78,20 +253,32 @@ Error [199..217]: @derive(Encode): field 'link' is written under the key `__ref`
 Error [199..217]: @derive(Decode): field 'link' is read from the key `__ref`, which marks a value held in more than one place; give it another with `@endec({ rename: "..." })`
 Error [306..319]: @derive(Encode): field 'kind' is written under the key `kind`, which holds the type's tag; give it another with `@endec({ rename: "..." })`
 Error [306..319]: @derive(Decode): field 'kind' is read from the key `kind`, which holds the type's tag; give it another with `@endec({ rename: "..." })`
+Error [481..494]: @derive(Encode): field 'held' is written under the key `__proto__`, which names an object's prototype and adds no key to it; give it another with `@endec({ rename: "..." })`
+Error [481..494]: @derive(Decode): field 'held' is read from the key `__proto__`, which names an object's prototype and adds no key to it; give it another with `@endec({ rename: "..." })`
 
 ## Mapping
 
-original 30..109 -> expanded 0..79
-original 139..159 -> expanded 79..99
-original 193..220 -> expanded 99..126
-original 250..323 -> expanded 126..199
-original 357..380 -> expanded 199..222
+original 30..109 -> expanded 583..662
+original 139..159 -> expanded 662..682
+original 193..220 -> expanded 682..709
+original 250..323 -> expanded 709..782
+original 357..381 -> expanded 782..806
+original 411..437 -> expanded 806..832
+original 475..497 -> expanded 832..854
+original 563..609 -> expanded 854..900
+original 609..610 -> expanded 6224..6225
+generated 0..583 <- imports
+generated 900..2773 <- Encode
+generated 2773..5722 <- Decode
+generated 5722..6224 <- __convenience_const
 
 ## Metadata
 
 class Linked: {"body_span":{"end":219,"start":154},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":140,"start":110}}],"fields":[{"accessor":false,"decorators":[{"args_src":"{ rename: \"__ref\" }","name":"endec","span":{"end":194,"start":160}}],"initializer":"''","key":"Named","name":"link","optional":false,"readonly":false,"span":{"end":217,"start":199},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Linked","span":{"end":219,"start":141},"superclass":null,"type_params":[]}
 interface Marked: {"body_span":{"end":108,"start":49},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"__id","optional":false,"readonly":false,"span":{"end":68,"start":55},"ts_type":"number"},{"decorators":[],"key":"Named","name":"__type","optional":false,"readonly":false,"span":{"end":88,"start":73},"ts_type":"string"},{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":106,"start":93},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Marked","span":{"end":108,"start":32},"type_params":[]}
 interface Tagged: {"body_span":{"end":380,"start":300},"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":282,"start":252}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":251,"start":221}}],"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":319,"start":306},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"label\" }","name":"endec","span":{"end":358,"start":324}}],"key":"Named","name":"__type","optional":false,"readonly":false,"span":{"end":378,"start":363},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Tagged","span":{"end":380,"start":283},"type_params":[]}
+interface Reaching: {"body_span":{"end":496,"start":432},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":412,"start":382}}],"fields":[{"decorators":[{"args_src":"{ rename: \"__proto__\" }","name":"endec","span":{"end":476,"start":438}}],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":494,"start":481},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Reaching","span":{"end":496,"start":413},"type_params":[]}
+type Tagging: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"a","optional":false,"readonly":false,"span":{"end":591,"start":582},"ts_type":"string"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"b","optional":false,"readonly":false,"span":{"end":607,"start":598},"ts_type":"number"}]}}}]},"decorators":[{"args_src":"{ tag: \"__proto__\" }","name":"endec","span":{"end":564,"start":529}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":528,"start":498}}],"name":"Tagging","span":{"end":610,"start":565},"type_params":[]}
 
 ## Registry reads
 

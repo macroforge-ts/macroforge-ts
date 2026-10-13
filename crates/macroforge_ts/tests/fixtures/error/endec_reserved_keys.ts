@@ -18,3 +18,13 @@ interface Tagged {
     /** @endec({ rename: "label" }) */
     __type: string;
 }
+
+/** @derive(Encode, Decode) */
+interface Reaching {
+    /** @endec({ rename: "__proto__" }) */
+    held: string;
+}
+
+/** @derive(Encode, Decode) */
+/** @endec({ tag: "__proto__" }) */
+type Tagging = { a: string } | { b: number };

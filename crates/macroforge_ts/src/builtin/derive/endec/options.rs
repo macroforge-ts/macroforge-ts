@@ -231,14 +231,17 @@ impl EndecContainerOptions {
         }
     }
 
-    /// What the encoding keeps the JSON key `key` for, when a field cannot be
-    /// written under it: the type's tag, or the marks of a value held in more
-    /// than one place.
+    /// What the JSON key `key` is kept for, when a field cannot be written
+    /// under it: the type's tag, the marks of a value held in more than one
+    /// place, or an object's prototype, which setting `__proto__` reaches
+    /// where it should add a key.
     pub fn reserved_key(&self, key: &str) -> Option<&'static str> {
         if key == self.tag_field_or_default() {
             Some("which holds the type's tag")
         } else if matches!(key, "__id" | "__ref") {
             Some("which marks a value held in more than one place")
+        } else if key == "__proto__" {
+            Some("which names an object's prototype and adds no key to it")
         } else {
             None
         }
