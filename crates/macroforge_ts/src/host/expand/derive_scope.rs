@@ -788,6 +788,78 @@ fn after_word<'a>(text: &'a str, word: &str) -> Option<&'a str> {
         .map(str::trim_start)
 }
 
+/// Whether the JSDoc `block` is one of those stacked directly above the
+/// declaration at `declaration`.
+fn stands_above(
+    source: &str,
+    block: crate::ts_syn::jsdoc::JsDocBlock,
+    declaration: SpanIR,
+) -> bool {
+    use crate::ts_syn::jsdoc::{adjacent_jsdoc, stacked_jsdoc_above};
+
+    let mut above = adjacent_jsdoc(source, declaration.start.saturating_sub(1) as usize);
+    while let Some(found) = above {
+        if found == block {
+            return true;
+        }
+        above = stacked_jsdoc_above(source, 0, found);
+    }
+    false
+}
+
+/// An error for each directive whose argument list never closes: an
+/// `@derive(` anywhere, and any other in the comments of a type a derive is
+/// on, those of its members included. Such a text is no directive, so the
+/// derive would go on without what it says.
+pub(super) fn check_unclosed_directives(
+    comments: &[oxc::ast::Comment],
+    source: &str,
+    declared: &[(SpanIR, &[DecoratorIR])],
+    valid_annotations: &std::collections::HashSet<String>,
+) -> Vec<Diagnostic> {
+    use crate::ts_syn::jsdoc::{JsDocBlock, is_macro_import_comment, unclosed_directives};
+
+    let mut diagnostics = Vec::new();
+    for comment in comments.iter().filter(|comment| comment.is_block()) {
+        let block = JsDocBlock {
+            start: comment.span.start as usize,
+            end: comment.span.end as usize,
+        };
+        let body = source
+            .get(block.start..block.end)
+            .and_then(|text| text.strip_prefix("/**")?.strip_suffix("*/"));
+        let Some(body) = body.filter(|body| !is_macro_import_comment(body)) else {
+            continue;
+        };
+        let unclosed = unclosed_directives(body, Some(valid_annotations));
+        if unclosed.is_empty() {
+            continue;
+        }
+        let span = SpanIR::new(comment.span.start + 1, comment.span.end + 1);
+        let on_derived = declared.iter().any(|(declaration, decorators)| {
+            decorators
+                .iter()
+                .any(|decorator| decorator.name == "Derive")
+                && ((declaration.start <= span.start && span.end <= declaration.end)
+                    || stands_above(source, block, *declaration))
+        });
+        for name in unclosed {
+            if on_derived || name.eq_ignore_ascii_case("derive") {
+                diagnostics.push(Diagnostic {
+                    level: DiagnosticLevel::Error,
+                    message: format!(
+                        "the arguments of this `@{name}` never close, so it is read as no `@{name}` and would change nothing"
+                    ),
+                    span: Some(span),
+                    notes: vec![],
+                    help: Some(format!("close the parenthesis `@{name}(` opens")),
+                });
+            }
+        }
+    }
+    diagnostics
+}
+
 /// An error for each JSDoc holding an `@derive` that stands above nothing a
 /// derive expands: a declaration of another kind, a member, or a type with
 /// something written between the two. `declared` gives each declaration
@@ -797,10 +869,7 @@ pub(super) fn check_unattached_derives(
     source: &str,
     declared: &[(SpanIR, &[DecoratorIR])],
 ) -> Vec<Diagnostic> {
-    use crate::ts_syn::jsdoc::{
-        JsDocBlock, adjacent_jsdoc, is_macro_import_comment, parse_all_macro_directives,
-        stacked_jsdoc_above,
-    };
+    use crate::ts_syn::jsdoc::{JsDocBlock, is_macro_import_comment, parse_all_macro_directives};
 
     comments
         .iter()
@@ -825,16 +894,7 @@ pub(super) fn check_unattached_derives(
                     .iter()
                     .any(|decorator| decorator.span.start < span.end && span.start < decorator.span.end);
                 // The comments stacked directly above a declaration are its own.
-                let mut above = adjacent_jsdoc(source, declaration.start.saturating_sub(1) as usize);
-                let mut stands_above = false;
-                while let Some(found) = above {
-                    if found == block {
-                        stands_above = true;
-                        break;
-                    }
-                    above = stacked_jsdoc_above(source, 0, found);
-                }
-                decorates || stands_above
+                decorates || stands_above(source, block, *declaration)
             });
             if attached {
                 return None;

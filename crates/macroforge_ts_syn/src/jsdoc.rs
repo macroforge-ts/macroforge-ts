@@ -170,7 +170,27 @@ pub fn parse_all_macro_directives(
     comment_body: &str,
     valid_annotations: Option<&HashSet<String>>,
 ) -> Vec<(String, String)> {
+    read_comment_directives(comment_body, valid_annotations).0
+}
+
+/// The names of the directives in a JSDoc comment body whose argument list
+/// never closes, as `@default(5` and `@endec({ rename: "x"`. Such a text is
+/// no directive, and [`parse_all_macro_directives`] leaves it out.
+pub fn unclosed_directives(
+    comment_body: &str,
+    valid_annotations: Option<&HashSet<String>>,
+) -> Vec<String> {
+    read_comment_directives(comment_body, valid_annotations).1
+}
+
+/// The directives of a comment body, and the names of those whose argument
+/// list never closes.
+fn read_comment_directives(
+    comment_body: &str,
+    valid_annotations: Option<&HashSet<String>>,
+) -> (Vec<(String, String)>, Vec<String>) {
     let mut results = Vec::new();
+    let mut unclosed = Vec::new();
 
     let lines: Vec<&str> = comment_body
         .lines()
@@ -199,7 +219,7 @@ pub fn parse_all_macro_directives(
             accumulated.push_str(line);
             nesting.feed_line(line);
             if !nesting.has_open_bracket() {
-                parse_directives_from_text(&accumulated, valid_annotations, &mut results);
+                read_directives(&accumulated, valid_annotations, &mut results, &mut unclosed);
                 accumulated.clear();
                 nesting = Nesting::default();
             }
@@ -217,14 +237,14 @@ pub fn parse_all_macro_directives(
         }
 
         nesting = Nesting::default();
-        parse_directives_from_text(line, valid_annotations, &mut results);
+        read_directives(line, valid_annotations, &mut results, &mut unclosed);
     }
 
     if !accumulated.is_empty() {
-        parse_directives_from_text(&accumulated, valid_annotations, &mut results);
+        read_directives(&accumulated, valid_annotations, &mut results, &mut unclosed);
     }
 
-    results
+    (results, unclosed)
 }
 
 /// Parse the directives a text fragment opens with: `@name` or `@name(args)`,
@@ -235,6 +255,20 @@ pub fn parse_directives_from_text(
     valid_annotations: Option<&HashSet<String>>,
     results: &mut Vec<(String, String)>,
 ) {
+    read_directives(text, valid_annotations, results, &mut Vec::new());
+}
+
+/// Reads the directives `text` opens with into `results`, and the name of
+/// one whose argument list never closes, which ends the run, into `unclosed`.
+fn read_directives(
+    text: &str,
+    valid_annotations: Option<&HashSet<String>>,
+    results: &mut Vec<(String, String)>,
+    unclosed: &mut Vec<String>,
+) {
+    let is_valid = |name: &str| {
+        valid_annotations.is_none_or(|valid| valid.contains(&name.to_ascii_lowercase()))
+    };
     let mut remaining = text.trim_start();
     while let Some(after_at) = remaining.strip_prefix('@') {
         let name_end = after_at
@@ -249,6 +283,9 @@ pub fn parse_directives_from_text(
         let trimmed_after_name = after_name.trim_start();
         let (args, rest) = if let Some(args_and_rest) = trimmed_after_name.strip_prefix('(') {
             let Some(close) = closing_paren(args_and_rest) else {
+                if is_valid(name) {
+                    unclosed.push(name.to_string());
+                }
                 return;
             };
             (args_and_rest[..close].trim(), &args_and_rest[close + 1..])
@@ -256,9 +293,7 @@ pub fn parse_directives_from_text(
             ("", after_name)
         };
 
-        let is_valid =
-            valid_annotations.is_none_or(|valid| valid.contains(&name.to_ascii_lowercase()));
-        if is_valid {
+        if is_valid(name) {
             let normalized_name = if name.eq_ignore_ascii_case("derive") {
                 "Derive".to_string()
             } else {
@@ -404,6 +439,52 @@ mod adjacency_tests {
                 ("default".to_string(), "1".to_string())
             ]
         );
+    }
+
+    /// An argument list that never closes is told from a directive without
+    /// one, and from a tag of prose, by the names a macro reads.
+    #[test]
+    fn a_directive_whose_arguments_never_close_is_named() {
+        let valid: HashSet<String> = ["default", "endec", "derive"]
+            .into_iter()
+            .map(str::to_string)
+            .collect();
+        for (body, name) in [
+            (" @default(5 ", "default"),
+            (" @default(] ", "default"),
+            (" @default({ a: ) ", "default"),
+            ("\n * @endec({\n *   rename: \"x\"\n ", "endec"),
+            (" @derive(Debug ", "derive"),
+            (" @default(\"a)\" ", "default"),
+        ] {
+            assert_eq!(unclosed_directives(body, Some(&valid)), [name], "{body}");
+            assert_eq!(
+                parse_all_macro_directives(body, Some(&valid)),
+                Vec::new(),
+                "{body}"
+            );
+        }
+        // The directives before it are read, and it ends the run.
+        assert_eq!(
+            parse_all_macro_directives(" @derive(Debug) @default(5 ", Some(&valid)),
+            [("Derive".to_string(), "Debug".to_string())]
+        );
+        assert_eq!(
+            unclosed_directives(" @derive(Debug) @default(5 ", Some(&valid)),
+            ["default"]
+        );
+        for closed in [
+            " @default(5) ",
+            " @default ",
+            " @see (the docs ",
+            " prose with @default(5 ",
+        ] {
+            assert_eq!(
+                unclosed_directives(closed, Some(&valid)),
+                Vec::<String>::new(),
+                "{closed}"
+            );
+        }
     }
 
     #[test]

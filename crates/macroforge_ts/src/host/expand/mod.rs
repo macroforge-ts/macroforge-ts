@@ -1008,6 +1008,14 @@ impl MacroExpander {
             derive_scope::check_unattached_derives(&parsed.program.comments, source, &declared);
         map_diagnostic_spans(&mut unattached, prepass_mapping.as_ref());
         prepass_diagnostics.append(&mut unattached);
+        let mut unclosed = derive_scope::check_unclosed_directives(
+            &parsed.program.comments,
+            source,
+            &declared,
+            &valid_annotations,
+        );
+        map_diagnostic_spans(&mut unclosed, prepass_mapping.as_ref());
+        prepass_diagnostics.append(&mut unclosed);
 
         if items.is_empty() {
             return Ok(MacroExpansion {

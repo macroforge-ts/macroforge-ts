@@ -1,0 +1,420 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/decorator_arguments_unclosed.ts
+---
+## Input
+
+/** A decorator whose arguments never close is an error, not a decorator left out. */
+/** @derive(Default, Decode) */
+export interface Settings {
+    /** @default(5 */
+    retries: number;
+    /** @default({ a: ) */
+    extra: Record<string, number>;
+    /**
+     * @endec({
+     *   rename: "label"
+     */
+    name: string;
+}
+
+/** @derive(Default) */
+export class Options {
+    /** @default(] */
+    level: number;
+}
+
+/**
+ * @derive(Default)
+ * @endec({ tag: "kind"
+ */
+export type Shape = { side: number };
+
+/** @derive(Debug */
+export interface Unread {
+    id: string;
+}
+
+/** A type no derive is on keeps its comments to itself. */
+export interface Plain {
+    /** @default (see the notes */
+    note: string;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
+/** A decorator whose arguments never close is an error, not a decorator left out. */
+
+export interface Settings {
+    
+    retries: number;
+    
+    extra: Record<string, number>;
+    
+    name: string;
+}
+
+export function settingsDefaultValue(): Settings {
+    return {
+        retries: 0,
+        extra: ({}),
+        name: "",
+    };
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = settingsDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Settings.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Settings> | __mf_PendingRef;
+export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Settings> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Settings.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Settings.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Settings") as Settings | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Settings.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("retries")) && !("retries" in obj)) {
+        errors.push({ field: "retries", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("extra")) && !("extra" in obj)) {
+        errors.push({ field: "extra", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("name")) && !("name" in obj)) {
+        errors.push({ field: "name", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Settings");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("retries")) ? "retries" in obj : (__fields.keeps("retries") && obj["retries"] !== undefined)) {
+        const __raw_retries = obj["retries"] as number;
+
+        if (!(typeof __raw_retries === "number" && globalThis.Number.isFinite(__raw_retries))) {
+            errors.push({ field: "retries", message: __raw_retries == null ? "Settings.retries is required" : "expected number" });
+        } else {
+            instance.retries = __raw_retries;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("extra")) ? "extra" in obj : (__fields.keeps("extra") && obj["extra"] !== undefined)) {
+        const __raw_extra = obj["extra"] as Record<string, number>;
+        if (typeof __raw_extra === "object" && __raw_extra !== null) {
+            ctx.pushScope("extra");
+            try {
+                instance.extra = (__mf_decodeRecord(__raw_extra, ctx, __mf_decodeNumber) as Record<string, number>);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "extra" : "extra." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "extra", message: __raw_extra == null ? "Settings.extra is required" : "expected Record<string, number>" });
+        }
+    }
+    if ((__fields === undefined || __fields.requires("name")) ? "name" in obj : (__fields.keeps("name") && obj["name"] !== undefined)) {
+        const __raw_name = obj["name"] as string;
+
+        if (!(typeof __raw_name === "string")) {
+            errors.push({ field: "name", message: __raw_name == null ? "Settings.name is required" : "expected string" });
+        } else {
+            instance.name = __raw_name;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Settings;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function settingsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Settings>): Partial<Settings> | __mf_PendingRef {
+    return settingsDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function settingsValidateField<K extends keyof Settings>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function settingsValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function settingsValidateFields(partial: { readonly [K in keyof Settings]?: unknown }): Array<{ field: string; message: string }>;
+export function settingsValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function settingsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "retries") && __mf_holds(obj, "extra") && __mf_holds(obj, "name");
+}
+
+export function settingsIs(obj: unknown): obj is Settings {
+    return settingsHasShape(obj) && settingsDecode(obj).success;
+}
+
+export const Settings: {
+  readonly defaultValue: typeof settingsDefaultValue;
+  readonly decode: typeof settingsDecode;
+  readonly decodeWithContext: typeof settingsDecodeWithContext;
+  readonly decodePartialWithContext: typeof settingsDecodePartialWithContext;
+  readonly validateField: typeof settingsValidateField;
+  readonly validateFields: typeof settingsValidateFields;
+  readonly hasShape: typeof settingsHasShape;
+  readonly is: typeof settingsIs;
+} = {
+  defaultValue: settingsDefaultValue,
+  decode: settingsDecode,
+  decodeWithContext: settingsDecodeWithContext,
+  decodePartialWithContext: settingsDecodePartialWithContext,
+  validateField: settingsValidateField,
+  validateFields: settingsValidateFields,
+  hasShape: settingsHasShape,
+  is: settingsIs
+};
+
+
+export class Options {
+    
+    level: number;
+
+    static defaultValue(): Options {
+        const fields: { level: number } = {
+            level: 0,
+        };
+        return __mf_instanceOf(Options.prototype, fields);
+    }
+}
+
+export function optionsDefaultValue(): Options {
+    return Options.defaultValue();
+}
+
+
+export type Shape = { side: number };
+
+export function shapeDefaultValue(): Shape {
+    return {
+        side: 0,
+    };
+}
+
+export const Shape: {
+  readonly defaultValue: typeof shapeDefaultValue;
+} = {
+  defaultValue: shapeDefaultValue
+};
+
+/** @derive(Debug */
+export interface Unread {
+    id: string;
+}
+
+/** A type no derive is on keeps its comments to itself. */
+export interface Plain {
+    /** @default (see the notes */
+    note: string;
+}
+
+## DTS
+
+/** A decorator whose arguments never close is an error, not a decorator left out. */
+export interface Settings {
+	retries: number;
+	extra: Record<string, number>;
+	name: string;
+}
+export declare function settingsDefaultValue(): Settings;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Settings;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Settings | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Settings> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function settingsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Settings>): Partial<Settings> | __mf_PendingRef;
+export declare function settingsValidateField<K extends keyof Settings>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function settingsValidateFields(partial: { readonly [K in keyof Settings]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function settingsHasShape(obj: unknown): boolean;
+export declare function settingsIs(obj: unknown): obj is Settings;
+export declare const Settings: {
+	readonly defaultValue: typeof settingsDefaultValue;
+	readonly decode: typeof settingsDecode;
+	readonly decodeWithContext: typeof settingsDecodeWithContext;
+	readonly decodePartialWithContext: typeof settingsDecodePartialWithContext;
+	readonly validateField: typeof settingsValidateField;
+	readonly validateFields: typeof settingsValidateFields;
+	readonly hasShape: typeof settingsHasShape;
+	readonly is: typeof settingsIs;
+};
+export declare class Options {
+	level: number;
+	static defaultValue(): Options;
+}
+export declare function optionsDefaultValue(): Options;
+export type Shape = {
+	side: number;
+};
+export declare function shapeDefaultValue(): Shape;
+export declare const Shape: {
+	readonly defaultValue: typeof shapeDefaultValue;
+};
+/** @derive(Debug */
+export interface Unread {
+	id: string;
+}
+/** A type no derive is on keeps its comments to itself. */
+export interface Plain {
+	/** @default (see the notes */
+	note: string;
+}
+
+## Diagnostics
+
+Error [151..168]: the arguments of this `@default` never close, so it is read as no `@default` and would change nothing
+  help: close the parenthesis `@default(` opens
+Error [194..216]: the arguments of this `@default` never close, so it is read as no `@default` and would change nothing
+  help: close the parenthesis `@default(` opens
+Error [256..308]: the arguments of this `@endec` never close, so it is read as no `@endec` and would change nothing
+  help: close the parenthesis `@endec(` opens
+Error [381..398]: the arguments of this `@default` never close, so it is read as no `@default` and would change nothing
+  help: close the parenthesis `@default(` opens
+Error [421..472]: the arguments of this `@endec` never close, so it is read as no `@endec` and would change nothing
+  help: close the parenthesis `@endec(` opens
+Error [512..532]: the arguments of this `@derive` never close, so it is read as no `@derive` and would change nothing
+  help: close the parenthesis `@derive(` opens
+
+## Mapping
+
+original 0..86 -> expanded 580..666
+original 117..150 -> expanded 666..699
+original 167..193 -> expanded 699..725
+original 215..255 -> expanded 725..765
+original 307..327 -> expanded 765..785
+original 327..329 -> expanded 9025..9027
+original 352..380 -> expanded 9027..9055
+original 397..417 -> expanded 9055..9075
+original 417..418 -> expanded 9255..9256
+original 418..420 -> expanded 9343..9345
+original 471..509 -> expanded 9345..9383
+original 509..717 -> expanded 9585..9793
+generated 0..580 <- imports
+generated 785..918 <- Default
+generated 918..8255 <- Decode
+generated 8255..9025 <- __convenience_const
+generated 9075..9255 <- Default
+generated 9256..9343 <- Default
+generated 9383..9468 <- Default
+generated 9468..9585 <- __convenience_const
+
+## Metadata
+
+class Options: {"body_span":{"end":419,"start":375},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":353,"start":330}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"level","optional":false,"readonly":false,"span":{"end":417,"start":403},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"Options","span":{"end":419,"start":361},"superclass":null,"type_params":[]}
+interface Settings: {"body_span":{"end":328,"start":145},"decorators":[{"args_src":"Default, Decode","name":"Derive","span":{"end":118,"start":87}}],"fields":[{"decorators":[],"key":"Named","name":"retries","optional":false,"readonly":false,"span":{"end":189,"start":173},"ts_type":"number"},{"decorators":[],"key":"Named","name":"extra","optional":false,"readonly":false,"span":{"end":251,"start":221},"ts_type":"Record<string, number>"},{"decorators":[],"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":326,"start":313},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Settings","span":{"end":328,"start":126},"type_params":[]}
+interface Unread: {"body_span":{"end":576,"start":557},"decorators":[],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":574,"start":563},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Unread","span":{"end":576,"start":540},"type_params":[]}
+interface Plain: {"body_span":{"end":717,"start":661},"decorators":[],"fields":[{"decorators":[],"key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":715,"start":702},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Plain","span":{"end":717,"start":645},"type_params":[]}
+type Shape: {"body":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"side","optional":false,"readonly":false,"span":{"end":507,"start":495},"ts_type":"number"}]}},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":472,"start":421}}],"name":"Shape","span":{"end":510,"start":480},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)
