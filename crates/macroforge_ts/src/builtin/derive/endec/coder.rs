@@ -304,6 +304,40 @@ impl TypeScope<'_> {
         .then(|| name.to_string())
     }
 
+    /// Why `ts_type` cannot be coded, when it names a type through a
+    /// namespace the file imports (`models.User` after `import * as models`):
+    /// a type's coders are found by its own name, and without them its
+    /// values would pass uncoded and unchecked. `None` for any other type,
+    /// a foreign type that is configured under such a name among them.
+    fn through_namespace(&self, ts_type: &str) -> Option<String> {
+        let name = parse_generic_type(ts_type).map_or(ts_type, |(base, _)| base);
+        let (namespace, member) = name.split_once('.')?;
+        // An array or a union of such a type is read down to the name.
+        if !name.split('.').all(is_identifier_name) {
+            return None;
+        }
+        let import = self.file_imports.iter().find(|import| {
+            import.local_name == namespace && import.original_name.as_deref() == Some("*")
+        })?;
+        if TypeCategory::match_foreign_type(name, &get_foreign_types())
+            .config
+            .is_some()
+        {
+            return None;
+        }
+        // What a module exports is one name: of `Space.Type`, the `Space`.
+        let exported = member.split('.').next().unwrap_or(member);
+        let written = if exported == member {
+            String::new()
+        } else {
+            format!(", and write `{member}`")
+        };
+        Some(format!(
+            "`{name}` names a type through the namespace `{namespace}`, and a type's coders are found by its own name; import it by name, as in `import type {{ {exported} }} from \"{}\"`{written}",
+            import.module_specifier
+        ))
+    }
+
     fn guard(
         &self,
         ts_type: &str,
@@ -775,6 +809,9 @@ pub(crate) fn encode_expr(
     if let Some(callee) = foreign_callee(ts_type, ForeignHandler::Encode) {
         return Ok(Some(rendered(ts_template! { @{callee}(@{value}) })));
     }
+    if let Some(reason) = scope.through_namespace(ts_type) {
+        return Err(reason);
+    }
     if let Some(yielded) = scope.operators_resolved(ts_type)? {
         return encode_expr(&yielded, value, scope, depth);
     }
@@ -1113,6 +1150,9 @@ pub(crate) fn decode_expr(
     }
     if let Some(callee) = foreign_callee(ts_type, ForeignHandler::Decode) {
         return Ok(Some(rendered(ts_template! { @{callee}(@{raw}) })));
+    }
+    if let Some(reason) = scope.through_namespace(ts_type) {
+        return Err(reason);
     }
     if let Some(yielded) = scope.operators_resolved(ts_type)? {
         return decode_expr(&yielded, raw, scope, depth);
