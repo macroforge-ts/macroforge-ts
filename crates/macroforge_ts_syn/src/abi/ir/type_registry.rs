@@ -1035,14 +1035,27 @@ impl TypeRegistry {
         let exported = import
             .map(|import| import.original_name.as_deref().unwrap_or(name))
             .filter(|exported| *exported != "*");
-        // The module's own declaration under that name, when the module is
-        // one of the project's.
-        if let (Some(import), Some(exported)) = (import, exported)
-            && let Some(module_path) =
-                resolve_relative_module(caller_file_path, &import.module_specifier)
-            && let Some(entry) = self.exported_by(&module_path, exported)
-        {
-            return Some(entry);
+        if let (Some(import), Some(exported)) = (import, exported) {
+            let specifier = import.module_specifier.trim();
+            if !(specifier.starts_with("./") || specifier.starts_with("../")) {
+                // A specifier that is not relative names a module of the
+                // project by the end of its path (`$lib/types/user`), or a
+                // package. A package's types are none of the project's,
+                // whatever the project declares under their names.
+                return self.exported_by_specifier(specifier, exported);
+            }
+            // A relative specifier names one module of the project.
+            if let Some(module_path) = resolve_relative_module(caller_file_path, specifier)
+                && let Some(entry) = self
+                    .exported_by(
+                        &|file_path| file_path_is_module(file_path, &module_path),
+                        exported,
+                    )
+                    .into_iter()
+                    .next()
+            {
+                return Some(entry);
+            }
         }
         // A name imported under another is the type its module exports,
         // never one declared elsewhere under the local name.
@@ -1097,43 +1110,76 @@ impl TypeRegistry {
         matches.next().is_none().then_some(first)
     }
 
-    /// The declaration the module at `module_path` exports as `exported`:
-    /// one declared under that name, one it exports under it (`export {
-    /// User as Member }`, `export default class User`), or one of another
-    /// module that it exports again under it.
-    fn exported_by(&self, module_path: &str, exported: &str) -> Option<&TypeRegistryEntry> {
+    /// The declaration a module named by a specifier that is not relative
+    /// exports as `exported`. The longest end of the specifier that is the
+    /// end of a module's path names the module (`$lib/types/user` is
+    /// `src/lib/types/user.ts`), and only when one declaration answers to
+    /// it: two are no answer, and none means the specifier names a package.
+    fn exported_by_specifier(&self, specifier: &str, exported: &str) -> Option<&TypeRegistryEntry> {
+        for ending in specifier_endings(specifier) {
+            let found = self.exported_by(
+                &|file_path| file_path_ends_in_module(file_path, &ending),
+                exported,
+            );
+            match found.as_slice() {
+                [] => continue,
+                [entry] => return Some(entry),
+                [_, _, ..] => return None,
+            }
+        }
+        None
+    }
+
+    /// The declarations a module whose file `is_module` takes exports as
+    /// `exported`: one declared under that name, one it exports under it
+    /// (`export { User as Member }`, `export default class User`), or one
+    /// of another module that it exports again under it. Each once, those
+    /// declared under the name first.
+    fn exported_by(
+        &self,
+        is_module: &dyn Fn(&str) -> bool,
+        exported: &str,
+    ) -> Vec<&TypeRegistryEntry> {
         let exports_again = |entry: &TypeRegistryEntry| {
-            entry.re_exported.iter().any(|again| {
-                again.name == exported && file_path_is_module(&again.file_path, module_path)
-            })
+            entry
+                .re_exported
+                .iter()
+                .any(|again| again.name == exported && is_module(&again.file_path))
         };
         // A type keeps its name through most modules, so the declarations
         // of that name are asked first.
         let named = self.candidates(exported);
-        if let Some(entry) = named
+        let mut found: Vec<&TypeRegistryEntry> = named
             .iter()
-            .find(|entry| file_path_is_module(&entry.file_path, module_path))
-            .or_else(|| named.iter().find(|entry| exports_again(entry)))
-        {
-            return Some(entry);
-        }
-        // Qualified keys are ordered, so two declarations a module exports
-        // under one name give the same one each time.
-        let mut renamed: Vec<(&String, &TypeRegistryEntry)> = self
-            .qualified_types
-            .entries
-            .by_key
-            .iter()
-            .filter(|(_, entry)| {
-                exports_again(entry)
-                    || (entry.exported_as.iter().any(|name| name == exported)
-                        && file_path_is_module(&entry.file_path, module_path))
-            })
+            .filter(|entry| is_module(&entry.file_path))
+            .chain(named.iter().filter(|entry| exports_again(entry)))
+            .copied()
             .collect();
-        renamed.sort_by_key(|(key, _)| *key);
-        let (_, entry) = renamed.into_iter().next()?;
-        self.log.note(|| RegistryRead::Name(entry.name.clone()));
-        Some(entry)
+        if found.is_empty() {
+            // Qualified keys are ordered, so two declarations a module
+            // exports under one name come in the same order each time.
+            let mut renamed: Vec<(&String, &TypeRegistryEntry)> = self
+                .qualified_types
+                .entries
+                .by_key
+                .iter()
+                .filter(|(_, entry)| {
+                    exports_again(entry)
+                        || (entry.exported_as.iter().any(|name| name == exported)
+                            && is_module(&entry.file_path))
+                })
+                .collect();
+            renamed.sort_by_key(|(key, _)| *key);
+            found.extend(renamed.into_iter().map(|(_, entry)| entry));
+        }
+        let mut distinct: Vec<&TypeRegistryEntry> = Vec::with_capacity(found.len());
+        for entry in found {
+            if !distinct.iter().any(|kept| std::ptr::eq(*kept, entry)) {
+                self.log.note(|| RegistryRead::Name(entry.name.clone()));
+                distinct.push(entry);
+            }
+        }
+        distinct
     }
 
     /// Every definition named `name`, in qualified-key order, so a lookup
@@ -1215,6 +1261,74 @@ fn module_specifier_basename(module_specifier: &str) -> &str {
         s = rest;
     }
     strip_source_extension(s.rsplit('/').next().unwrap_or(s))
+}
+
+/// The ends of a specifier that is not relative, longest first, each as a
+/// path a module's own may end in: `$lib/types/user` gives `lib/types/user`,
+/// `types/user` and `user`. The marks an alias opens with (`$`, `@`, `~`,
+/// `#`) are no part of a path.
+pub fn specifier_endings(specifier: &str) -> Vec<String> {
+    let segments: Vec<&str> = specifier
+        .trim()
+        .split('/')
+        .map(|segment| segment.trim_start_matches(['$', '@', '~', '#']))
+        .filter(|segment| !segment.is_empty())
+        .collect();
+    (0..segments.len())
+        .filter_map(|start| segments.get(start..))
+        .map(|ending| strip_source_extension(&ending.join("/")).to_string())
+        .collect()
+}
+
+/// Whether the module `file_path` holds is one a path ending in `ending`
+/// names: the file itself, its directory when it is an `index`, or the file
+/// without a further extension of its own (`user.svelte.ts` for `user`).
+pub fn file_path_ends_in_module(file_path: &str, ending: &str) -> bool {
+    let trimmed = strip_source_extension(file_path);
+    let ends = |stem: &str| {
+        stem == ending
+            || stem
+                .strip_suffix(ending)
+                .is_some_and(|before| before.ends_with('/'))
+    };
+    let base_start = trimmed.rfind('/').map_or(0, |slash| slash + 1);
+    let without_extensions = trimmed
+        .char_indices()
+        .filter(|(index, letter)| *index >= base_start && *letter == '.')
+        .filter_map(|(index, _)| trimmed.get(..index));
+    ends(trimmed)
+        || trimmed.strip_suffix("/index").is_some_and(ends)
+        || without_extensions.into_iter().any(ends)
+}
+
+/// Whether the module `specifier` names in the file at `caller_file_path`
+/// gives the generated functions of the type `entry` declares along with
+/// the type: its declaring module, or one that exports all of that module
+/// again. A module that exports the type again by name gives the type alone.
+pub fn module_gives_functions(
+    entry: &TypeRegistryEntry,
+    caller_file_path: &str,
+    specifier: &str,
+) -> bool {
+    let is_module: Box<dyn Fn(&str) -> bool> =
+        match resolve_relative_module(caller_file_path, specifier) {
+            Some(module_path) => {
+                Box::new(move |file_path| file_path_is_module(file_path, &module_path))
+            }
+            None => {
+                let endings = specifier_endings(specifier);
+                Box::new(move |file_path| {
+                    endings
+                        .iter()
+                        .any(|ending| file_path_ends_in_module(file_path, ending))
+                })
+            }
+        };
+    is_module(&entry.file_path)
+        || entry
+            .re_exported
+            .iter()
+            .any(|again| again.whole && is_module(&again.file_path))
 }
 
 /// The extension-less path a relative specifier resolves to from the file at
@@ -1454,6 +1568,70 @@ mod tests {
         }];
         let resolved = registry.resolve_in_file("User", "/project/src/page.ts", &defaulted);
         assert_eq!(resolved.map(|entry| entry.name.as_str()), Some("User"));
+    }
+
+    /// A specifier that is not relative names a module of the project by the
+    /// end of its path, and a package otherwise: a package's type is no type
+    /// of the project, though the project declares one of its name.
+    #[test]
+    fn a_name_imported_from_a_package_is_no_type_of_the_project() {
+        let mut registry = TypeRegistry::default();
+        registry.insert(
+            make_interface_entry("User", "/project/src/lib/types/user.ts", vec![]),
+            "/project",
+        );
+        registry.insert(
+            make_interface_entry(
+                "Session",
+                "/project/src/lib/types/session.svelte.ts",
+                vec![],
+            ),
+            "/project",
+        );
+        registry.insert(
+            make_interface_entry("Config", "/project/src/lib/config/index.ts", vec![]),
+            "/project",
+        );
+        let resolve = |name: &str, module: &str| {
+            let imports = [FileImportEntry {
+                local_name: name.to_string(),
+                module_specifier: module.to_string(),
+                original_name: None,
+                is_type_only: true,
+            }];
+            registry
+                .resolve_in_file(name, "/project/src/routes/page.ts", &imports)
+                .map(|entry| entry.file_path.clone())
+        };
+
+        // An alias into the project, by the whole path, a part of it, and a directory.
+        assert_eq!(
+            resolve("User", "$lib/types/user").as_deref(),
+            Some("/project/src/lib/types/user.ts")
+        );
+        assert_eq!(
+            resolve("User", "@/lib/types/user").as_deref(),
+            Some("/project/src/lib/types/user.ts")
+        );
+        assert_eq!(
+            resolve("User", "~types/user.ts").as_deref(),
+            Some("/project/src/lib/types/user.ts")
+        );
+        assert_eq!(
+            resolve("Session", "$lib/types/session").as_deref(),
+            Some("/project/src/lib/types/session.svelte.ts")
+        );
+        assert_eq!(
+            resolve("Config", "$lib/config").as_deref(),
+            Some("/project/src/lib/config/index.ts")
+        );
+
+        // A package, though the project declares the one `User` there is.
+        assert_eq!(resolve("User", "some-auth"), None);
+        assert_eq!(resolve("User", "@auth/core"), None);
+        assert_eq!(resolve("Config", "effect/Config"), None);
+        // A path that ends like the module's name without being it.
+        assert_eq!(resolve("User", "other/superuser"), None);
     }
 
     /// An import is the declaration its module exports under the imported
@@ -2110,14 +2288,29 @@ mod tests {
     }
 
     #[test]
-    fn resolve_in_file_refuses_an_ambiguous_basename_match() {
+    fn resolve_in_file_takes_the_longest_ending_and_refuses_one_two_modules_share() {
         let registry = registry_with_two_record_links();
-        let imports = [import_from("RecordLink", "$lib/index")];
-        assert!(
+        let resolve = |module: &str| {
+            let imports = [import_from("RecordLink", module)];
             registry
                 .resolve_in_file("RecordLink", "/project/src/routes/page.ts", &imports)
-                .is_none()
+                .map(|entry| entry.file_path.clone())
+        };
+        // `lib/index` is the end of one module's path, and `lib` its directory.
+        assert_eq!(
+            resolve("$lib/index").as_deref(),
+            Some("/project/src/lib/index.ts")
         );
+        assert_eq!(
+            resolve("$lib").as_deref(),
+            Some("/project/src/lib/index.ts")
+        );
+        assert_eq!(
+            resolve("$lib/idp").as_deref(),
+            Some("/project/src/lib/idp/index.ts")
+        );
+        // `index` is the end of both.
+        assert_eq!(resolve("~/index"), None);
     }
 }
 

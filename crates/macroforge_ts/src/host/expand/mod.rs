@@ -106,9 +106,7 @@ mod wasm_loader;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use crate::ts_syn::abi::ir::{
-    file_path_is_module, relative_module_specifier, resolve_relative_module,
-};
+use crate::ts_syn::abi::ir::{module_gives_functions, relative_module_specifier};
 use crate::ts_syn::abi::{
     ClassIR, DecoratorIR, Diagnostic, DiagnosticLevel, EnumIR, FunctionIR, InterfaceIR,
     MacroContextIR, MacroResult, Patch, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
@@ -1693,17 +1691,8 @@ impl MacroExpander {
                             // A module that exports the type again by name
                             // exports the type alone: its functions are
                             // imported from where it is declared.
-                            let gives_functions = |module_path: &str| {
-                                file_path_is_module(&entry.file_path, module_path)
-                                    || entry.re_exported.iter().any(|again| {
-                                        again.whole
-                                            && file_path_is_module(&again.file_path, module_path)
-                                    })
-                            };
                             if let Some(specifier) = import_sources.get(&name)
-                                && let Some(module_path) =
-                                    resolve_relative_module(&ctx.file_name, specifier)
-                                && !gives_functions(&module_path)
+                                && !module_gives_functions(entry, &ctx.file_name, specifier)
                                 && let Some(declaring) =
                                     relative_module_specifier(&ctx.file_name, &entry.file_path)
                             {

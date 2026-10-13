@@ -4,7 +4,8 @@
 use std::collections::HashMap;
 
 use crate::ts_syn::abi::ir::type_registry::{
-    ModuleReExport, ReExport, file_path_is_module, resolve_relative_module,
+    ModuleReExport, ReExport, file_path_ends_in_module, file_path_is_module,
+    resolve_relative_module, specifier_endings,
 };
 
 use super::cache::CacheEntry;
@@ -173,10 +174,26 @@ fn same_declaration(left: &Exported, right: &Exported) -> bool {
     left.file_path == right.file_path && left.name == right.name
 }
 
-/// The index of the scanned file a relative `specifier` in `importer` names.
+/// The index of the scanned file `specifier` names in `importer`: the
+/// module a relative one resolves to, or for any other the one file whose
+/// path ends as the longest end of the specifier that a scanned file ends in.
 fn module_index(files: &[(String, &CacheEntry)], importer: &str, specifier: &str) -> Option<usize> {
-    let module_path = resolve_relative_module(importer, specifier)?;
-    files
-        .iter()
-        .position(|(path, _)| file_path_is_module(path, &module_path))
+    if let Some(module_path) = resolve_relative_module(importer, specifier) {
+        return files
+            .iter()
+            .position(|(path, _)| file_path_is_module(path, &module_path));
+    }
+    if specifier.starts_with('.') {
+        return None;
+    }
+    specifier_endings(specifier).iter().find_map(|ending| {
+        let mut named = files
+            .iter()
+            .enumerate()
+            .filter(|(_, (path, _))| file_path_ends_in_module(path, ending))
+            .map(|(index, _)| index);
+        let first = named.next()?;
+        // Two files under one ending name no one module.
+        Some(named.next().is_none().then_some(first))
+    })?
 }
