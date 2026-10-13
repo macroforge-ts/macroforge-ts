@@ -17,7 +17,7 @@ use super::AliasEncode;
 use crate::builtin::derive::common::rendered;
 use crate::builtin::derive::endec::coder::{TypeScope, object_shape_test};
 use crate::builtin::derive::endec::type_arguments::{member_encoder, param_coder};
-use crate::builtin::derive::endec::union_guard::Direction;
+use crate::builtin::derive::endec::union_guard::{Direction, tagged_member};
 use crate::builtin::derive::endec::{
     EndecContainerOptions, TaggingMode, TypeCategory, get_foreign_types,
 };
@@ -142,37 +142,21 @@ pub(super) fn encode_union_alias(alias: &AliasEncode) -> Result<TsStream, Macrof
             match &m.kind {
                 // Tagged intersection variant: `{ variant: 'X' } & TypeRef`
                 TypeMemberKind::Intersection(subs) => {
-                    let mut tag_value: Option<String> = None;
-                    let mut ref_type: Option<String> = None;
-                    for sub in subs {
-                        match &sub.kind {
-                            TypeMemberKind::Object { fields } => {
-                                tag_value = fields.iter().find_map(|f| {
-                                    if f.name == tag_field {
-                                        Some(
-                                            f.ts_type
-                                                .trim()
-                                                .trim_matches('\'')
-                                                .trim_matches('"')
-                                                .to_string(),
-                                        )
-                                    } else {
-                                        None
-                                    }
-                                });
-                            }
-                            TypeMemberKind::TypeRef(t) => ref_type = Some(t.clone()),
-                            _ => {}
-                        }
-                    }
-                    if let (Some(tv), Some(rt)) = (tag_value, ref_type) {
-                        let camel = function_prefix(&rt);
-                        ser_variants.push(SerVariant {
-                            tag_value: tv,
-                            ser_fn: member_encoder_of(&rt)?,
-                            has_shape_fn: ts_ident!("{}HasShape", camel),
-                        });
-                    }
+                    let (tag_value, type_ref) =
+                        tagged_member(subs, &tag_field).map_err(|message| {
+                            MacroforgeError::new(
+                                type_alias.inner.span,
+                                format!(
+                                    "@derive(Encode) on '{}': {message}",
+                                    type_alias.inner.name
+                                ),
+                            )
+                        })?;
+                    ser_variants.push(SerVariant {
+                        tag_value,
+                        ser_fn: member_encoder_of(type_ref)?,
+                        has_shape_fn: ts_ident!("{}HasShape", function_prefix(type_ref)),
+                    });
                 }
                 TypeMemberKind::TypeRef(t) => {
                     if let TypeCategory::Encodable(name) = TypeCategory::from_ts_type(t)

@@ -18,7 +18,7 @@ use super::super::AliasDecode;
 use crate::builtin::derive::endec::coder::{TypeScope, decode_members, raw_shape_test};
 use crate::builtin::derive::endec::decode::types::EncodableTypeRef;
 use crate::builtin::derive::endec::type_arguments::{member_decoder, param_coder};
-use crate::builtin::derive::endec::union_guard::Direction;
+use crate::builtin::derive::endec::union_guard::{Direction, tagged_member};
 use crate::builtin::derive::endec::validators::ValidatorSpec;
 use crate::builtin::derive::endec::{
     EndecContainerOptions, TaggingMode, TypeCategory, decorator_validators, get_foreign_types,
@@ -396,31 +396,18 @@ impl<'a> Union<'a> {
                     }
                 }
                 TypeMemberKind::Intersection(sub_members) => {
-                    // Look for { tag: 'Value' } & TypeRef pattern
-                    let mut tag_value = None;
-                    let mut ref_type = None;
-
-                    for sub in sub_members {
-                        match &sub.kind {
-                            TypeMemberKind::Object { fields } => {
-                                tag_value = fields.iter().find_map(|f| {
-                                    if f.name == tag_field {
-                                        let t =
-                                            f.ts_type.trim().trim_matches('\'').trim_matches('"');
-                                        Some(t.to_string())
-                                    } else {
-                                        None
-                                    }
-                                });
-                            }
-                            TypeMemberKind::TypeRef(t) => {
-                                ref_type = Some(t.clone());
-                            }
-                            _ => {}
-                        }
-                    }
-
-                    if let (Some(tv), Some(rt)) = (tag_value, ref_type) {
+                    let (tv, rt) = tagged_member(sub_members, &tag_field)
+                        .map(|(tag_value, type_ref)| (tag_value, type_ref.to_string()))
+                        .map_err(|message| {
+                            MacroforgeError::new(
+                                type_alias.inner.span,
+                                format!(
+                                    "@derive(Decode) on '{}': {message}",
+                                    type_alias.inner.name
+                                ),
+                            )
+                        })?;
+                    {
                         // A `{ tag: 'X' } & TypeRef` variant's payload must be decoded
                         // through `TypeRef`'s own decoder so nested fields (dates,
                         // records, links) are reconstructed: a shallow `{ ...value, tag }`

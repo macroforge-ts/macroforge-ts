@@ -8,10 +8,69 @@ use crate::builtin::derive::common::{
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::split_top_level_union;
+use crate::ts_syn::abi::ir::type_alias::{TypeMember, TypeMemberKind};
 use crate::ts_syn::config::ForeignHandler;
 
 use super::decode::helpers::decoded_keyword_test;
 use super::{TypeCategory, get_foreign_types};
+
+/// The tag and the type of a union member written `{ tag: 'name' } & Type`:
+/// the one form of an intersection a union is told and coded by. Any other
+/// is an error saying so, since a member that is read as none would be left
+/// out of the union's coders without a word.
+pub(crate) fn tagged_member<'member>(
+    sub_members: &'member [TypeMember],
+    tag_field: &str,
+) -> Result<(String, &'member str), String> {
+    let unread = |why: &str| {
+        format!(
+            "a member of the union is an intersection that {why}, and a union codes an intersection only as `{{ {tag_field}: 'name' }} & Type`: the tag that tells the member, and the one type that holds its fields; name the member with an alias, `type Member = ...`, derive on that, and use the alias in the union"
+        )
+    };
+    let [first, second] = sub_members else {
+        return Err(unread("is not of two parts"));
+    };
+    let (fields, type_ref) = match (&first.kind, &second.kind) {
+        (TypeMemberKind::Object { fields }, TypeMemberKind::TypeRef(type_ref))
+        | (TypeMemberKind::TypeRef(type_ref), TypeMemberKind::Object { fields }) => {
+            (fields, type_ref)
+        }
+        _ => return Err(unread("is not an object type and a named type")),
+    };
+    let [tag] = fields.as_slice() else {
+        return Err(unread(&format!(
+            "holds other fields beside `{tag_field}`, or none"
+        )));
+    };
+    let written = tag.ts_type.trim();
+    let name = written
+        .strip_prefix('\'')
+        .and_then(|rest| rest.strip_suffix('\''))
+        .or_else(|| {
+            written
+                .strip_prefix('"')
+                .and_then(|rest| rest.strip_suffix('"'))
+        });
+    if tag.name != tag_field {
+        // A field that names its member is a tag under another name.
+        return Err(unread(&match name {
+            Some(_) => format!(
+                "is tagged by `{}`, where the union's tag is `{tag_field}` (`@endec({{ tag: \"{}\" }})` on the union makes it that)",
+                tag.name, tag.name
+            ),
+            None => format!(
+                "holds the field `{}` where the union's tag, `{tag_field}`, would stand",
+                tag.name
+            ),
+        }));
+    }
+    match name {
+        Some(name) => Ok((name.to_string(), type_ref.as_str())),
+        None => Err(unread(&format!(
+            "has a `{tag_field}` of type `{written}`, which is no one name"
+        ))),
+    }
+}
 
 /// How a union's other member is recognised at runtime, and what it becomes.
 #[derive(Clone, Debug)]
