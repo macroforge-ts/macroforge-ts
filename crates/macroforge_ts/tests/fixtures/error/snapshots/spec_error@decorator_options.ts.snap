@@ -1,0 +1,328 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/decorator_options.ts
+---
+## Input
+
+/** @derive(Debug, Clone, PartialEq, Hash, PartialOrd, Ord, Eq, Default) */
+export interface Options {
+    /** @debug({ skp: true }) */
+    misspelled: string;
+    /** @partialEq({ ignore: true }) */
+    unknown: string;
+    /** @ord({ skipp: true }) */
+    ordered: string;
+    /** @ord(skip, nonsense) */
+    several: string;
+    /** @default(1, 2) */
+    twice: number;
+    /** @debug({ skip: true, rename: "kept, as it is" }) */
+    known: string;
+    /** @hash(skip) */
+    flagged: string;
+    /** @default({ a: 1, b: [2, 3] }) */
+    whole: { a: number; b: number[] };
+}
+
+/** @derive(Debug, Encode) */
+/** @endec({ tagg: "kind", renameAll: "snake_case" }) */
+export interface Container {
+    id: string;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
+
+export interface Options {
+    
+    misspelled: string;
+    
+    unknown: string;
+    
+    ordered: string;
+    
+    several: string;
+    
+    twice: number;
+    
+    known: string;
+    
+    flagged: string;
+    
+    whole: { a: number; b: number[] };
+}
+
+export function optionsToString(value: Options): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("misspelled: " + String(value.misspelled));
+    parts.push("unknown: " + String(value.unknown));
+    parts.push("ordered: " + String(value.ordered));
+    parts.push("several: " + String(value.several));
+    parts.push("twice: " + String(value.twice));
+    parts.push("flagged: " + String(value.flagged));
+    parts.push("whole: " + __mf_structuralDebug(value.whole));
+        return "Options { " + parts.join(", ") + " }";
+    });
+}
+
+export function optionsClone(value: Options): Options {
+    return __mf_clonedWith(value, (): Options => ({
+	misspelled: value.misspelled,
+	unknown: value.unknown,
+	ordered: value.ordered,
+	several: value.several,
+	twice: value.twice,
+	known: value.known,
+	flagged: value.flagged,
+	whole: __mf_structuralClone(value.whole)
+}));
+}
+
+export function optionsEquals(a: Options, b: Options): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => a.misspelled === b.misspelled && a.unknown === b.unknown && a.ordered === b.ordered && a.several === b.several && (a.twice === b.twice || a.twice !== a.twice && b.twice !== b.twice) && a.known === b.known && a.flagged === b.flagged && __mf_structuralEquals(a.whole, b.whole));
+}
+
+export function optionsHashCode(value: Options): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + ((value.misspelled ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.unknown ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.ordered ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.several ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (Number.isInteger(value.twice) ? value.twice | 0 : value.twice.toString().split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.known ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.whole))) | 0;
+        return hash;
+    });
+}
+
+export function optionsPartialCompare(a: Options, b: Options): number | null {
+    if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
+    const cmp0 = (a.misspelled < b.misspelled ? -1 : a.misspelled > b.misspelled ? 1 : 0);
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = (a.unknown < b.unknown ? -1 : a.unknown > b.unknown ? 1 : 0);
+    if (cmp1 === null) return null;
+    if (cmp1 !== 0) return cmp1;
+    const cmp2 = (a.ordered < b.ordered ? -1 : a.ordered > b.ordered ? 1 : 0);
+    if (cmp2 === null) return null;
+    if (cmp2 !== 0) return cmp2;
+    const cmp3 = (a.twice < b.twice ? -1 : a.twice > b.twice ? 1 : a.twice === b.twice || (a.twice !== a.twice && b.twice !== b.twice) ? 0 : null);
+    if (cmp3 === null) return null;
+    if (cmp3 !== 0) return cmp3;
+    const cmp4 = (a.known < b.known ? -1 : a.known > b.known ? 1 : 0);
+    if (cmp4 === null) return null;
+    if (cmp4 !== 0) return cmp4;
+    const cmp5 = (a.flagged < b.flagged ? -1 : a.flagged > b.flagged ? 1 : 0);
+    if (cmp5 === null) return null;
+    if (cmp5 !== 0) return cmp5;
+    const cmp6 = __mf_structuralCompare(a.whole, b.whole);
+    if (cmp6 === null) return null;
+    if (cmp6 !== 0) return cmp6;
+        return 0;
+    });
+}
+
+export function optionsCompare(a: Options, b: Options): number {
+    if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
+    const cmp0 = a.misspelled < b.misspelled ? -1 : a.misspelled > b.misspelled ? 1 : 0;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = a.unknown < b.unknown ? -1 : a.unknown > b.unknown ? 1 : 0;
+    if (cmp1 !== 0) return cmp1;
+    const cmp2 = a.ordered < b.ordered ? -1 : a.ordered > b.ordered ? 1 : 0;
+    if (cmp2 !== 0) return cmp2;
+    const cmp3 = a.twice < b.twice ? -1 : a.twice > b.twice ? 1 : a.twice === b.twice ? 0 : a.twice !== a.twice ? b.twice !== b.twice ? 0 : 1 : -1;
+    if (cmp3 !== 0) return cmp3;
+    const cmp4 = a.known < b.known ? -1 : a.known > b.known ? 1 : 0;
+    if (cmp4 !== 0) return cmp4;
+    const cmp5 = a.flagged < b.flagged ? -1 : a.flagged > b.flagged ? 1 : 0;
+    if (cmp5 !== 0) return cmp5;
+    const cmp6 = __mf_structuralCompare(a.whole, b.whole);
+    if (cmp6 !== 0) return cmp6;
+        return 0;
+    });
+}
+
+export const Options: {
+  readonly toString: typeof optionsToString;
+  readonly clone: typeof optionsClone;
+  readonly equals: typeof optionsEquals;
+  readonly hashCode: typeof optionsHashCode;
+  readonly partialCompare: typeof optionsPartialCompare;
+  readonly compare: typeof optionsCompare;
+} = {
+  toString: optionsToString,
+  clone: optionsClone,
+  equals: optionsEquals,
+  hashCode: optionsHashCode,
+  partialCompare: optionsPartialCompare,
+  compare: optionsCompare
+};
+
+
+/** @endec({ tagg: "kind", renameAll: "snake_case" }) */
+export interface Container {
+    id: string;
+}
+
+export function containerToString(value: Container): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("id: " + String(value.id));
+        return "Container { " + parts.join(", ") + " }";
+    });
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function containerEncode(value: Container, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = containerEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function containerEncodeWithContext(value: Container, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Container" });
+    containerEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function containerEncodePartialWithContext(value: Partial<Container>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Container>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Container" };
+        containerEncodeFields(value as Container, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function containerEncodeFields(value: Container, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("id")) {
+        if (value.id !== undefined) {
+            result["id"] = value.id;
+        }
+    }
+}
+
+export const Container: {
+  readonly toString: typeof containerToString;
+  readonly encode: typeof containerEncode;
+  readonly encodeWithContext: typeof containerEncodeWithContext;
+  readonly encodePartialWithContext: typeof containerEncodePartialWithContext;
+} = {
+  toString: containerToString,
+  encode: containerEncode,
+  encodeWithContext: containerEncodeWithContext,
+  encodePartialWithContext: containerEncodePartialWithContext
+};
+
+## DTS
+
+export interface Options {
+	misspelled: string;
+	unknown: string;
+	ordered: string;
+	several: string;
+	twice: number;
+	known: string;
+	flagged: string;
+	whole: {
+		a: number;
+		b: number[];
+	};
+}
+export declare function optionsToString(value: Options): string;
+export declare function optionsClone(value: Options): Options;
+export declare function optionsEquals(a: Options, b: Options): boolean;
+export declare function optionsHashCode(value: Options): number;
+export declare function optionsPartialCompare(a: Options, b: Options): number | null;
+export declare function optionsCompare(a: Options, b: Options): number;
+export declare const Options: {
+	readonly toString: typeof optionsToString;
+	readonly clone: typeof optionsClone;
+	readonly equals: typeof optionsEquals;
+	readonly hashCode: typeof optionsHashCode;
+	readonly partialCompare: typeof optionsPartialCompare;
+	readonly compare: typeof optionsCompare;
+};
+/** @endec({ tagg: "kind", renameAll: "snake_case" }) */
+export interface Container {
+	id: string;
+}
+export declare function containerToString(value: Container): string;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function containerEncode(value: Container, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function containerEncodeWithContext(value: Container, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function containerEncodePartialWithContext(value: Partial<Container>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Container>): Record<string, unknown>;
+export declare const Container: {
+	readonly toString: typeof containerToString;
+	readonly encode: typeof containerEncode;
+	readonly encodeWithContext: typeof containerEncodeWithContext;
+	readonly encodePartialWithContext: typeof containerEncodePartialWithContext;
+};
+
+## Diagnostics
+
+Error [108..136]: `@debug` takes `skip`, `rename`, not `skp`
+Error [165..200]: `@partialEq` takes `skip`, not `ignore`
+Error [226..254]: `@ord` takes `skip`, not `skipp`
+Error [280..307]: `@ord` takes `skip`, not `nonsense`
+Error [610..666]: `@endec` takes `skip`, `skipEncoding`, `skipDecoding`, `flatten`, `default`, `rename`, `validate`, `message`, `encodeWith`, `decodeWith`, `format`, `renameAll`, `denyUnknownFields`, `tag`, `content`, `untagged`, `externallyTagged`, not `tagg`
+Error [5..73]: @default(1, 2) writes several values, and a default is one; write an object or an array in its brackets
+
+## Mapping
+
+original 75..107 -> expanded 890..922
+original 135..164 -> expanded 922..951
+original 199..225 -> expanded 951..977
+original 253..279 -> expanded 977..1003
+original 306..332 -> expanded 1003..1029
+original 353..377 -> expanded 1029..1053
+original 432..456 -> expanded 1053..1077
+original 474..500 -> expanded 1077..1103
+original 536..577 -> expanded 1103..1144
+original 577..579 -> expanded 6224..6226
+original 608..712 -> expanded 6226..6330
+original 712..713 -> expanded 9160..9161
+generated 0..890 <- imports
+generated 1144..1733 <- Debug
+generated 1733..2064 <- Clone
+generated 2064..2479 <- PartialEq
+generated 2479..3485 <- Hash
+generated 3485..4754 <- PartialOrd
+generated 4754..5747 <- Ord
+generated 5747..6224 <- __convenience_const
+generated 6330..6585 <- Debug
+generated 6585..8721 <- Encode
+generated 8721..9160 <- __convenience_const
+
+## Metadata
+
+interface Options: {"body_span":{"end":578,"start":102},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, PartialOrd, Ord, Eq, Default","name":"Derive","span":{"end":76,"start":1}}],"fields":[{"decorators":[{"args_src":"{ skp: true }","name":"debug","span":{"end":136,"start":108}}],"key":"Named","name":"misspelled","optional":false,"readonly":false,"span":{"end":160,"start":141},"ts_type":"string"},{"decorators":[{"args_src":"{ ignore: true }","name":"partialEq","span":{"end":200,"start":165}}],"key":"Named","name":"unknown","optional":false,"readonly":false,"span":{"end":221,"start":205},"ts_type":"string"},{"decorators":[{"args_src":"{ skipp: true }","name":"ord","span":{"end":254,"start":226}}],"key":"Named","name":"ordered","optional":false,"readonly":false,"span":{"end":275,"start":259},"ts_type":"string"},{"decorators":[{"args_src":"skip, nonsense","name":"ord","span":{"end":307,"start":280}}],"key":"Named","name":"several","optional":false,"readonly":false,"span":{"end":328,"start":312},"ts_type":"string"},{"decorators":[{"args_src":"1, 2","name":"default","span":{"end":354,"start":333}}],"key":"Named","name":"twice","optional":false,"readonly":false,"span":{"end":373,"start":359},"ts_type":"number"},{"decorators":[{"args_src":"{ skip: true, rename: \"kept, as it is\" }","name":"debug","span":{"end":433,"start":378}}],"key":"Named","name":"known","optional":false,"readonly":false,"span":{"end":452,"start":438},"ts_type":"string"},{"decorators":[{"args_src":"skip","name":"hash","span":{"end":475,"start":457}}],"key":"Named","name":"flagged","optional":false,"readonly":false,"span":{"end":496,"start":480},"ts_type":"string"},{"decorators":[{"args_src":"{ a: 1, b: [2, 3] }","name":"default","span":{"end":537,"start":501}}],"key":"Named","name":"whole","optional":false,"readonly":false,"span":{"end":576,"start":542},"ts_type":"{ a: number; b: number[] }"}],"heritage":[],"methods":[],"name":"Options","span":{"end":578,"start":84},"type_params":[]}
+interface Container: {"body_span":{"end":713,"start":694},"decorators":[{"args_src":"{ tagg: \"kind\", renameAll: \"snake_case\" }","name":"endec","span":{"end":666,"start":610}},{"args_src":"Debug, Encode","name":"Derive","span":{"end":609,"start":580}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":711,"start":700},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Container","span":{"end":713,"start":674},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)
