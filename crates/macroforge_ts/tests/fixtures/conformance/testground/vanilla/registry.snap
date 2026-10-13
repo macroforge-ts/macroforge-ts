@@ -1,7 +1,7 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
 ---
-## Types (418)
+## Types (420)
 
 Address 958440372c7be36a
 AddressPatch 9b17388b566719be
@@ -224,6 +224,7 @@ GreaterThanValidator 1d0927d0e701bdd1
 Greeter 3f828f3190491bfd
 Grid 83e43c19cd761f67
 HTTPResponse 753efd6a33926db6
+Holder e348868fb978f545
 HostileBag 0c21d297b68fdb54
 HostileClass 8b6e8d23162ff880
 HostileItem 6cfffc82d61c4f04
@@ -344,6 +345,7 @@ Outcome 5ebc1bf0cdef8d91
 Pair 4423b25ff8c4e6ec
 PatternValidator 44f82c68af0d6f73
 Phone 690773ae527432c9
+Plain d98534e25d4536f1
 Point e10ad571f8c70df9
 Port 3d25df6b6843ebba
 PositiveBigIntValidator b4b4766a6497289d
@@ -422,8 +424,10 @@ Version e26b0a39c845b678
 Wall 901e5f02bdf9c4fc
 point2D 9c3236f9adc43b41
 
-## Qualified types (421)
+## Qualified types (423)
 
+checks/repeated-error.ts::Holder e348868fb978f545
+checks/repeated-error.ts::Plain d98534e25d4536f1
 src/all-macros-test.ts::AllMacrosTestClass 79287093db2fe287
 src/attributes-test.ts::ServerStatus cfce776f0ee07718
 src/buildtime-demo.ts::UserId 93e3c0ab46c7552b

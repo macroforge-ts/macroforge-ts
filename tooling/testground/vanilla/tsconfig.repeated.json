@@ -1,0 +1,4 @@
+{
+    "extends": "./tsconfig.json",
+    "include": ["checks/repeated-error.ts"]
+}
