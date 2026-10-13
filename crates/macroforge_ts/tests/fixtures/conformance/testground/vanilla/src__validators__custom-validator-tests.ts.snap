@@ -121,8 +121,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(CustomNumberValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "CustomNumberValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "CustomNumberValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -302,8 +302,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(CustomStringValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "CustomStringValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "CustomStringValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -484,8 +484,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(ImportedCustomValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ImportedCustomValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ImportedCustomValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -664,8 +664,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(CustomWithMessageValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "CustomWithMessageValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "CustomWithMessageValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -976,23 +976,23 @@ export declare function customWithMessageValidatorIs(value: unknown): value is C
 ## Mapping
 
 original 0..536 -> expanded 535..1071
-original 536..537 -> expanded 7486..7487
-original 537..709 -> expanded 9464..9636
-original 709..710 -> expanded 15983..15984
-original 710..1016 -> expanded 17961..18267
-original 1016..1017 -> expanded 24682..24683
-original 1017..1206 -> expanded 26690..26879
-original 1206..1207 -> expanded 33268..33269
-original 1207..1208 -> expanded 35321..35322
+original 536..537 -> expanded 7492..7493
+original 537..709 -> expanded 9470..9642
+original 709..710 -> expanded 15995..15996
+original 710..1016 -> expanded 17973..18279
+original 1016..1017 -> expanded 24700..24701
+original 1017..1206 -> expanded 26708..26897
+original 1206..1207 -> expanded 33292..33293
+original 1207..1208 -> expanded 35345..35346
 generated 0..535 <- imports
-generated 1071..7486 <- Decode
-generated 7487..9464 <- Decode
-generated 9636..15983 <- Decode
-generated 15984..17961 <- Decode
-generated 18267..24682 <- Decode
-generated 24683..26690 <- Decode
-generated 26879..33268 <- Decode
-generated 33269..35321 <- Decode
+generated 1071..7492 <- Decode
+generated 7493..9470 <- Decode
+generated 9642..15995 <- Decode
+generated 15996..17973 <- Decode
+generated 18279..24700 <- Decode
+generated 24701..26708 <- Decode
+generated 26897..33292 <- Decode
+generated 33293..35345 <- Decode
 
 ## Metadata
 

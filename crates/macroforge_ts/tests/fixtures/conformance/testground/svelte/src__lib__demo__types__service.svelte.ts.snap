@@ -260,8 +260,8 @@ export function serviceDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Service");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Service");
     }
 
     ctx.trackForFreeze(instance);
@@ -1033,13 +1033,13 @@ original 825..851 -> expanded 1313..1339
 original 900..930 -> expanded 1339..1369
 original 977..1005 -> expanded 1369..1397
 original 1054..1119 -> expanded 1397..1462
-original 1119..1120 -> expanded 36660..36661
+original 1119..1120 -> expanded 36666..36667
 generated 0..979 <- imports
 generated 1462..1807 <- Default
 generated 1807..5653 <- Encode
-generated 5653..19945 <- Decode
-generated 19945..35421 <- Gigaform
-generated 35421..36660 <- __convenience_const
+generated 5653..19951 <- Decode
+generated 19951..35427 <- Gigaform
+generated 35427..36666 <- __convenience_const
 
 ## Metadata
 

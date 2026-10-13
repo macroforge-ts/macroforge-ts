@@ -176,8 +176,8 @@ export function variantCircleDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "VariantCircle");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "VariantCircle");
     }
 
     ctx.trackForFreeze(instance);
@@ -424,8 +424,8 @@ export function variantRectDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "VariantRect");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "VariantRect");
     }
 
     ctx.trackForFreeze(instance);
@@ -1500,8 +1500,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(VariantBase.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "VariantBase");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "VariantBase");
     }
 
     ctx.trackForFreeze(instance);
@@ -1636,7 +1636,7 @@ export class VariantMid extends VariantBase {
     tags = new Set<string>();
     protected note: string | null = null;
 
-    static toString(value: VariantMid): string {
+    static override toString(value: VariantMid): string {
         return __mf_debuggedWithin(value, () => {
             const parts: string[] = [];
         parts.push("id: " + String(value.id));
@@ -1648,7 +1648,7 @@ export class VariantMid extends VariantBase {
         });
     }
 
-    static clone(value: VariantMid): VariantMid {
+    static override clone(value: VariantMid): VariantMid {
         return __mf_clonedWith(value, () => ({
         	id: value.id,
         	created: new Date(value.created.getTime()),
@@ -1658,12 +1658,12 @@ export class VariantMid extends VariantBase {
         }));
     }
 
-    static equals(a: VariantMid, b: VariantMid): boolean {
+    static override equals(a: VariantMid, b: VariantMid): boolean {
         if (a === b) return true;
         return __mf_equalWithin(a, b, () => a.id === b.id && (a.created.getTime() === b.created.getTime() || a.created.getTime() !== a.created.getTime() && b.created.getTime() !== b.created.getTime()) && (a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight) && a.tags.size === b.tags.size && Array.from(a.tags).every((__item0) => b.tags.has(__item0) || Array.from(b.tags).some((__other0) => __item0 === __other0)) && a.note === b.note);
     }
 
-    static hashCode(value: VariantMid): number {
+    static override hashCode(value: VariantMid): number {
         return __mf_hashedWithin(value, () => {
             let hash = 17;
         hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
@@ -1675,7 +1675,7 @@ export class VariantMid extends VariantBase {
         });
     }
 
-    static defaultValue(): VariantMid {
+    static override defaultValue(): VariantMid {
         const fields: { id: string; created: Date; weight: number; tags: Set<string>; note: string | null } = {
             id: "",
             created: new Date(0),
@@ -1687,7 +1687,7 @@ export class VariantMid extends VariantBase {
     }
 
 /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-static encodeWithContext(value: VariantMid, ctx: __mf_EncodeContext): Record<string, unknown> {
+static override encodeWithContext(value: VariantMid, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
         return __mf_encodedReference(ctx, existingId);
@@ -1698,7 +1698,7 @@ static encodeWithContext(value: VariantMid, ctx: __mf_EncodeContext): Record<str
 }
 
 /** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-static encodePartialWithContext(value: Partial<VariantMid>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantMid>): Record<string, unknown> {
+static override encodePartialWithContext(value: Partial<VariantMid>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantMid>): Record<string, unknown> {
     return __mf_encodeSelection(ctx, value, () => {
         const result: Record<string, unknown> = { "__type": "VariantMid" };
         VariantMid.#encodeFields(value as VariantMid, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
@@ -1735,7 +1735,7 @@ static #encodeFields(value: VariantMid, _ctx: __mf_EncodeContext, result: Record
 }
 
     /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-    static encode(value: VariantMid, keepMetadata?: boolean): string {
+    static override encode(value: VariantMid, keepMetadata?: boolean): string {
         return variantMidEncode(value, keepMetadata);
     }
 
@@ -1746,7 +1746,7 @@ constructor(props: { id: string; created: Date; weight: number; tags: Set<string
 }
 
 /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: VariantMid } | { success: false; errors: Array<{ field: string; message: string }> } {
+static override decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: VariantMid } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
         const data = typeof input === "string" ? __mf_parsedText(input) : input;
@@ -1800,10 +1800,10 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantMid | __mf_PendingRef;
+static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantMid | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
-static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<VariantMid> | __mf_PendingRef;
-static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<VariantMid> | __mf_PendingRef {
+static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<VariantMid> | __mf_PendingRef;
+static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<VariantMid> | __mf_PendingRef {
     if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
         throw new __mf_DecodeError([{ field: "_root", message: "VariantMid.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
     }
@@ -1838,8 +1838,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(VariantMid.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "VariantMid");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "VariantMid");
     }
 
     ctx.trackForFreeze(instance);
@@ -1912,24 +1912,24 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     return instance;
 }
-static validateField<K extends keyof VariantMid>(field: K, value: unknown): Array<{ field: string; message: string }>;
-static validateField(): Array<{ field: string; message: string }> {
+static override validateField<K extends keyof VariantMid>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static override validateField(): Array<{ field: string; message: string }> {
     return [];
 }
 
-static validateFields(partial: { readonly [K in keyof VariantMid]?: unknown }): Array<{ field: string; message: string }>;
-static validateFields(): Array<{ field: string; message: string }> {
+static override validateFields(partial: { readonly [K in keyof VariantMid]?: unknown }): Array<{ field: string; message: string }>;
+static override validateFields(): Array<{ field: string; message: string }> {
     return [];
 }
 
-static hasShape(obj: unknown): boolean {
+static override hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
     return __mf_holds(obj, "id") && __mf_holds(obj, "created") && __mf_holds(obj, "weight") && __mf_holds(obj, "tags") && __mf_holds(obj, "note");
 }
 
-static is(obj: unknown): obj is VariantMid {
+static override is(obj: unknown): obj is VariantMid {
     if (obj instanceof VariantMid) {
         return true;
     }
@@ -2008,7 +2008,7 @@ export class VariantLeaf extends VariantMid {
     readonly kind = 'leaf';
     children: VariantLeaf[] = [];
 
-    static toString(value: VariantLeaf): string {
+    static override toString(value: VariantLeaf): string {
         return __mf_debuggedWithin(value, () => {
             const parts: string[] = [];
         parts.push("id: " + String(value.id));
@@ -2023,7 +2023,7 @@ export class VariantLeaf extends VariantMid {
         });
     }
 
-    static clone(value: VariantLeaf): VariantLeaf {
+    static override clone(value: VariantLeaf): VariantLeaf {
         return __mf_clonedWith(value, () => ({
         	id: value.id,
         	created: new Date(value.created.getTime()),
@@ -2036,7 +2036,7 @@ export class VariantLeaf extends VariantMid {
         }));
     }
 
-    static equals(a: VariantLeaf, b: VariantLeaf): boolean {
+    static override equals(a: VariantLeaf, b: VariantLeaf): boolean {
         if (a === b) return true;
         return __mf_equalWithin(a, b, () => a.id === b.id && (a.created.getTime() === b.created.getTime() || a.created.getTime() !== a.created.getTime() && b.created.getTime() !== b.created.getTime()) && (a.weight === b.weight || a.weight !== a.weight && b.weight !== b.weight) && a.tags.size === b.tags.size && Array.from(a.tags).every((__item0) => b.tags.has(__item0) || Array.from(b.tags).some((__other0) => __item0 === __other0)) && a.note === b.note && variantInternalEquals(a.shape, b.shape) && a.kind === b.kind && a.children.length === b.children.length && a.children.every((__item0, __index0) => {
         	const __other0 = b.children[__index0];
@@ -2044,7 +2044,7 @@ export class VariantLeaf extends VariantMid {
         }));
     }
 
-    static hashCode(value: VariantLeaf): number {
+    static override hashCode(value: VariantLeaf): number {
         return __mf_hashedWithin(value, () => {
             let hash = 17;
         hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
@@ -2059,7 +2059,7 @@ export class VariantLeaf extends VariantMid {
         });
     }
 
-    static defaultValue(): VariantLeaf {
+    static override defaultValue(): VariantLeaf {
         const fields: { id: string; created: Date; weight: number; tags: Set<string>; note: string | null; shape: VariantInternal; kind: 'leaf'; children: VariantLeaf[] } = {
             id: "",
             created: new Date(0),
@@ -2074,7 +2074,7 @@ export class VariantLeaf extends VariantMid {
     }
 
 /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-static encodeWithContext(value: VariantLeaf, ctx: __mf_EncodeContext): Record<string, unknown> {
+static override encodeWithContext(value: VariantLeaf, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
         return __mf_encodedReference(ctx, existingId);
@@ -2085,7 +2085,7 @@ static encodeWithContext(value: VariantLeaf, ctx: __mf_EncodeContext): Record<st
 }
 
 /** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-static encodePartialWithContext(value: Partial<VariantLeaf>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantLeaf>): Record<string, unknown> {
+static override encodePartialWithContext(value: Partial<VariantLeaf>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantLeaf>): Record<string, unknown> {
     return __mf_encodeSelection(ctx, value, () => {
         const result: Record<string, unknown> = { "__type": "VariantLeaf" };
         VariantLeaf.#encodeFields(value as VariantLeaf, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
@@ -2137,7 +2137,7 @@ static #encodeFields(value: VariantLeaf, ctx: __mf_EncodeContext, result: Record
 }
 
     /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-    static encode(value: VariantLeaf, keepMetadata?: boolean): string {
+    static override encode(value: VariantLeaf, keepMetadata?: boolean): string {
         return variantLeafEncode(value, keepMetadata);
     }
 
@@ -2149,7 +2149,7 @@ constructor(props: { id: string; created: Date; weight: number; tags: Set<string
 }
 
 /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: VariantLeaf } | { success: false; errors: Array<{ field: string; message: string }> } {
+static override decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: VariantLeaf } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
         const data = typeof input === "string" ? __mf_parsedText(input) : input;
@@ -2203,10 +2203,10 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantLeaf | __mf_PendingRef;
+static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantLeaf | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
-static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<VariantLeaf> | __mf_PendingRef;
-static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<VariantLeaf> | __mf_PendingRef {
+static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<VariantLeaf> | __mf_PendingRef;
+static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<VariantLeaf> | __mf_PendingRef {
     if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
         throw new __mf_DecodeError([{ field: "_root", message: "VariantLeaf.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
     }
@@ -2250,8 +2250,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(VariantLeaf.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "VariantLeaf");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "VariantLeaf");
     }
 
     ctx.trackForFreeze(instance);
@@ -2380,24 +2380,24 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     return instance;
 }
-static validateField<K extends keyof VariantLeaf>(field: K, value: unknown): Array<{ field: string; message: string }>;
-static validateField(): Array<{ field: string; message: string }> {
+static override validateField<K extends keyof VariantLeaf>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static override validateField(): Array<{ field: string; message: string }> {
     return [];
 }
 
-static validateFields(partial: { readonly [K in keyof VariantLeaf]?: unknown }): Array<{ field: string; message: string }>;
-static validateFields(): Array<{ field: string; message: string }> {
+static override validateFields(partial: { readonly [K in keyof VariantLeaf]?: unknown }): Array<{ field: string; message: string }>;
+static override validateFields(): Array<{ field: string; message: string }> {
     return [];
 }
 
-static hasShape(obj: unknown): boolean {
+static override hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
     return __mf_holds(obj, "id") && __mf_holds(obj, "created") && __mf_holds(obj, "weight") && __mf_holds(obj, "tags") && __mf_holds(obj, "note") && __mf_holds(obj, "shape") && __mf_holds(obj, "kind") && __mf_holds(obj, "children");
 }
 
-static is(obj: unknown): obj is VariantLeaf {
+static override is(obj: unknown): obj is VariantLeaf {
     if (obj instanceof VariantLeaf) {
         return true;
     }
@@ -2832,17 +2832,17 @@ export declare class VariantMid extends VariantBase {
 	#private;
 	tags;
 	protected note: string | null;
-	static toString(value: VariantMid): string;
-	static clone(value: VariantMid): VariantMid;
-	static equals(a: VariantMid, b: VariantMid): boolean;
-	static hashCode(value: VariantMid): number;
-	static defaultValue(): VariantMid;
+	static override toString(value: VariantMid): string;
+	static override clone(value: VariantMid): VariantMid;
+	static override equals(a: VariantMid, b: VariantMid): boolean;
+	static override hashCode(value: VariantMid): number;
+	static override defaultValue(): VariantMid;
 	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-	static encodeWithContext(value: VariantMid, ctx: __mf_EncodeContext): Record<string, unknown>;
+	static override encodeWithContext(value: VariantMid, ctx: __mf_EncodeContext): Record<string, unknown>;
 	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-	static encodePartialWithContext(value: Partial<VariantMid>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantMid>): Record<string, unknown>;
+	static override encodePartialWithContext(value: Partial<VariantMid>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantMid>): Record<string, unknown>;
 	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-	static encode(value: VariantMid, keepMetadata?: boolean): string;
+	static override encode(value: VariantMid, keepMetadata?: boolean): string;
 	constructor(props: {
 		id: string;
 		created: Date;
@@ -2851,7 +2851,7 @@ export declare class VariantMid extends VariantBase {
 		note: string | null;
 	});
 	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+	static override decode(input: unknown, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: VariantMid;
 	} | {
@@ -2862,19 +2862,19 @@ export declare class VariantMid extends VariantBase {
 		}>;
 	};
 	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantMid | __mf_PendingRef;
+	static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantMid | __mf_PendingRef;
 	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
-	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<VariantMid> | __mf_PendingRef;
-	static validateField<K extends keyof VariantMid>(field: K, value: unknown): Array<{
+	static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<VariantMid> | __mf_PendingRef;
+	static override validateField<K extends keyof VariantMid>(field: K, value: unknown): Array<{
 		field: string;
 		message: string;
 	}>;
-	static validateFields(partial: { readonly [K in keyof VariantMid]?: unknown }): Array<{
+	static override validateFields(partial: { readonly [K in keyof VariantMid]?: unknown }): Array<{
 		field: string;
 		message: string;
 	}>;
-	static hasShape(obj: unknown): boolean;
-	static is(obj: unknown): obj is VariantMid;
+	static override hasShape(obj: unknown): boolean;
+	static override is(obj: unknown): obj is VariantMid;
 }
 export declare function variantMidToString(value: VariantMid): string;
 export declare function variantMidClone(value: VariantMid): VariantMid;
@@ -2912,17 +2912,17 @@ export declare class VariantLeaf extends VariantMid {
 	shape: VariantInternal;
 	readonly kind = "leaf";
 	children: VariantLeaf[];
-	static toString(value: VariantLeaf): string;
-	static clone(value: VariantLeaf): VariantLeaf;
-	static equals(a: VariantLeaf, b: VariantLeaf): boolean;
-	static hashCode(value: VariantLeaf): number;
-	static defaultValue(): VariantLeaf;
+	static override toString(value: VariantLeaf): string;
+	static override clone(value: VariantLeaf): VariantLeaf;
+	static override equals(a: VariantLeaf, b: VariantLeaf): boolean;
+	static override hashCode(value: VariantLeaf): number;
+	static override defaultValue(): VariantLeaf;
 	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-	static encodeWithContext(value: VariantLeaf, ctx: __mf_EncodeContext): Record<string, unknown>;
+	static override encodeWithContext(value: VariantLeaf, ctx: __mf_EncodeContext): Record<string, unknown>;
 	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-	static encodePartialWithContext(value: Partial<VariantLeaf>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantLeaf>): Record<string, unknown>;
+	static override encodePartialWithContext(value: Partial<VariantLeaf>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof VariantLeaf>): Record<string, unknown>;
 	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-	static encode(value: VariantLeaf, keepMetadata?: boolean): string;
+	static override encode(value: VariantLeaf, keepMetadata?: boolean): string;
 	constructor(props: {
 		id: string;
 		created: Date;
@@ -2934,7 +2934,7 @@ export declare class VariantLeaf extends VariantMid {
 		children: VariantLeaf[];
 	});
 	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+	static override decode(input: unknown, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: VariantLeaf;
 	} | {
@@ -2945,19 +2945,19 @@ export declare class VariantLeaf extends VariantMid {
 		}>;
 	};
 	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantLeaf | __mf_PendingRef;
+	static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext): VariantLeaf | __mf_PendingRef;
 	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
-	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<VariantLeaf> | __mf_PendingRef;
-	static validateField<K extends keyof VariantLeaf>(field: K, value: unknown): Array<{
+	static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<VariantLeaf> | __mf_PendingRef;
+	static override validateField<K extends keyof VariantLeaf>(field: K, value: unknown): Array<{
 		field: string;
 		message: string;
 	}>;
-	static validateFields(partial: { readonly [K in keyof VariantLeaf]?: unknown }): Array<{
+	static override validateFields(partial: { readonly [K in keyof VariantLeaf]?: unknown }): Array<{
 		field: string;
 		message: string;
 	}>;
-	static hasShape(obj: unknown): boolean;
-	static is(obj: unknown): obj is VariantLeaf;
+	static override hasShape(obj: unknown): boolean;
+	static override is(obj: unknown): obj is VariantLeaf;
 }
 export declare function variantLeafToString(value: VariantLeaf): string;
 export declare function variantLeafClone(value: VariantLeaf): VariantLeaf;
@@ -2997,18 +2997,18 @@ export declare function variantLeafIs(value: unknown): value is VariantLeaf;
 ## Mapping
 
 original 0..316 -> expanded 1418..1734
-original 316..479 -> expanded 12434..12597
-original 479..650 -> expanded 24576..24747
-original 650..814 -> expanded 34151..34315
-original 814..978 -> expanded 41539..41703
-original 978..1152 -> expanded 49489..49663
-original 1152..1318 -> expanded 56576..56742
-original 1318..1319 -> expanded 67360..67361
-original 1319..1510 -> expanded 71100..71291
-original 1510..1511 -> expanded 84872..84873
-original 1511..1727 -> expanded 88570..88786
-original 1727..1728 -> expanded 107380..107381
-original 1728..1729 -> expanded 111120..111121
+original 316..479 -> expanded 12440..12603
+original 479..650 -> expanded 24588..24759
+original 650..814 -> expanded 34163..34327
+original 814..978 -> expanded 41551..41715
+original 978..1152 -> expanded 49501..49675
+original 1152..1318 -> expanded 56588..56754
+original 1318..1319 -> expanded 67378..67379
+original 1319..1510 -> expanded 71118..71309
+original 1510..1511 -> expanded 85058..85059
+original 1511..1727 -> expanded 88756..88972
+original 1727..1728 -> expanded 107734..107735
+original 1728..1729 -> expanded 111474..111475
 generated 0..1418 <- imports
 generated 1734..2009 <- Debug
 generated 2009..2170 <- Clone
@@ -3016,90 +3016,90 @@ generated 2170..2400 <- PartialEq
 generated 2400..2745 <- Hash
 generated 2745..3170 <- PartialOrd
 generated 3170..5382 <- Encode
-generated 5382..10897 <- Decode
-generated 10897..12434 <- __convenience_const
-generated 12597..12925 <- Debug
-generated 12925..13149 <- Clone
-generated 13149..13362 <- PartialEq
-generated 13362..13737 <- Hash
-generated 13737..14277 <- PartialOrd
-generated 14277..16612 <- Encode
-generated 16612..23101 <- Decode
-generated 23101..24576 <- __convenience_const
-generated 24747..24891 <- Debug
-generated 24891..25014 <- Clone
-generated 25014..25176 <- PartialEq
-generated 25176..25292 <- Hash
-generated 25292..25439 <- PartialOrd
-generated 25439..27527 <- Encode
-generated 27527..33084 <- Decode
-generated 33084..34151 <- __convenience_const
-generated 34315..34459 <- Debug
-generated 34459..34582 <- Clone
-generated 34582..34744 <- PartialEq
-generated 34744..34860 <- Hash
-generated 34860..36941 <- Encode
-generated 36941..40586 <- Decode
-generated 40586..41539 <- __convenience_const
-generated 41703..41847 <- Debug
-generated 41847..41970 <- Clone
-generated 41970..42132 <- PartialEq
-generated 42132..42248 <- Hash
-generated 42248..44326 <- Encode
-generated 44326..48536 <- Decode
-generated 48536..49489 <- __convenience_const
-generated 49663..49807 <- Debug
-generated 49807..49930 <- Clone
-generated 49930..50092 <- PartialEq
-generated 50092..50208 <- Hash
-generated 50208..52275 <- Encode
-generated 52275..55623 <- Decode
-generated 55623..56576 <- __convenience_const
-generated 56742..57123 <- Debug
-generated 57123..57348 <- Clone
-generated 57348..57730 <- PartialEq
-generated 57730..58264 <- Hash
-generated 58264..58535 <- Default
-generated 58535..60443 <- Encode
-generated 60443..60772 <- Encode
-generated 60772..67360 <- Decode
-generated 67361..67470 <- Debug
-generated 67470..67578 <- Clone
-generated 67578..67695 <- PartialEq
-generated 67695..67804 <- Hash
-generated 67804..67903 <- Default
-generated 67903..69273 <- Encode
-generated 69273..71100 <- Decode
-generated 71291..71786 <- Debug
-generated 71786..72072 <- Clone
-generated 72072..72629 <- PartialEq
-generated 72629..73508 <- Hash
-generated 73508..73878 <- Default
-generated 73878..76103 <- Encode
-generated 76103..76430 <- Encode
-generated 76430..84872 <- Decode
-generated 84873..84979 <- Debug
-generated 84979..85083 <- Clone
-generated 85083..85196 <- PartialEq
-generated 85196..85302 <- Hash
-generated 85302..85398 <- Default
-generated 85398..86758 <- Encode
-generated 86758..88570 <- Decode
-generated 88786..89503 <- Debug
-generated 89503..89948 <- Clone
-generated 89948..90821 <- PartialEq
-generated 90821..92037 <- Hash
-generated 92037..92549 <- Default
-generated 92549..95373 <- Encode
-generated 95373..95702 <- Encode
-generated 95702..107380 <- Decode
-generated 107381..107490 <- Debug
-generated 107490..107598 <- Clone
-generated 107598..107715 <- PartialEq
-generated 107715..107824 <- Hash
-generated 107824..107923 <- Default
-generated 107923..109293 <- Encode
-generated 109293..111120 <- Decode
+generated 5382..10903 <- Decode
+generated 10903..12440 <- __convenience_const
+generated 12603..12931 <- Debug
+generated 12931..13155 <- Clone
+generated 13155..13368 <- PartialEq
+generated 13368..13743 <- Hash
+generated 13743..14283 <- PartialOrd
+generated 14283..16618 <- Encode
+generated 16618..23113 <- Decode
+generated 23113..24588 <- __convenience_const
+generated 24759..24903 <- Debug
+generated 24903..25026 <- Clone
+generated 25026..25188 <- PartialEq
+generated 25188..25304 <- Hash
+generated 25304..25451 <- PartialOrd
+generated 25451..27539 <- Encode
+generated 27539..33096 <- Decode
+generated 33096..34163 <- __convenience_const
+generated 34327..34471 <- Debug
+generated 34471..34594 <- Clone
+generated 34594..34756 <- PartialEq
+generated 34756..34872 <- Hash
+generated 34872..36953 <- Encode
+generated 36953..40598 <- Decode
+generated 40598..41551 <- __convenience_const
+generated 41715..41859 <- Debug
+generated 41859..41982 <- Clone
+generated 41982..42144 <- PartialEq
+generated 42144..42260 <- Hash
+generated 42260..44338 <- Encode
+generated 44338..48548 <- Decode
+generated 48548..49501 <- __convenience_const
+generated 49675..49819 <- Debug
+generated 49819..49942 <- Clone
+generated 49942..50104 <- PartialEq
+generated 50104..50220 <- Hash
+generated 50220..52287 <- Encode
+generated 52287..55635 <- Decode
+generated 55635..56588 <- __convenience_const
+generated 56754..57135 <- Debug
+generated 57135..57360 <- Clone
+generated 57360..57742 <- PartialEq
+generated 57742..58276 <- Hash
+generated 58276..58547 <- Default
+generated 58547..60455 <- Encode
+generated 60455..60784 <- Encode
+generated 60784..67378 <- Decode
+generated 67379..67488 <- Debug
+generated 67488..67596 <- Clone
+generated 67596..67713 <- PartialEq
+generated 67713..67822 <- Hash
+generated 67822..67921 <- Default
+generated 67921..69291 <- Encode
+generated 69291..71118 <- Decode
+generated 71309..71813 <- Debug
+generated 71813..72108 <- Clone
+generated 72108..72674 <- PartialEq
+generated 72674..73562 <- Hash
+generated 73562..73941 <- Default
+generated 73941..76184 <- Encode
+generated 76184..76520 <- Encode
+generated 76520..85058 <- Decode
+generated 85059..85165 <- Debug
+generated 85165..85269 <- Clone
+generated 85269..85382 <- PartialEq
+generated 85382..85488 <- Hash
+generated 85488..85584 <- Default
+generated 85584..86944 <- Encode
+generated 86944..88756 <- Decode
+generated 88972..89698 <- Debug
+generated 89698..90152 <- Clone
+generated 90152..91034 <- PartialEq
+generated 91034..92259 <- Hash
+generated 92259..92780 <- Default
+generated 92780..95622 <- Encode
+generated 95622..95960 <- Encode
+generated 95960..107734 <- Decode
+generated 107735..107844 <- Debug
+generated 107844..107952 <- Clone
+generated 107952..108069 <- PartialEq
+generated 108069..108178 <- Hash
+generated 108178..108277 <- Default
+generated 108277..109647 <- Encode
+generated 109647..111474 <- Decode
 
 ## Metadata
 

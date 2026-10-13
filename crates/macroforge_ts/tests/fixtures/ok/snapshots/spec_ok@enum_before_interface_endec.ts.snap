@@ -205,8 +205,8 @@ export function jobDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Job");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Job");
     }
 
     ctx.trackForFreeze(instance);
@@ -369,14 +369,14 @@ export declare const Job: {
 original 30..106 -> expanded 712..788
 original 106..108 -> expanded 2684..2686
 original 138..181 -> expanded 2686..2729
-original 181..182 -> expanded 11310..11311
+original 181..182 -> expanded 11316..11317
 generated 0..712 <- imports
 generated 788..1192 <- Encode
 generated 1192..2317 <- Decode
 generated 2317..2684 <- __convenience_const
 generated 2729..4815 <- Encode
-generated 4815..10417 <- Decode
-generated 10417..11310 <- __convenience_const
+generated 4815..10423 <- Decode
+generated 10423..11316 <- __convenience_const
 
 ## Metadata
 

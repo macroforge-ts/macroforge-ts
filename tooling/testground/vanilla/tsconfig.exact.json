@@ -2,7 +2,12 @@
     "extends": "./tsconfig.json",
     "compilerOptions": {
         "exactOptionalPropertyTypes": true,
-        "noUncheckedIndexedAccess": true
+        "noUncheckedIndexedAccess": true,
+        "noPropertyAccessFromIndexSignature": true,
+        "noImplicitOverride": true,
+        "noImplicitReturns": true,
+        "allowUnreachableCode": false,
+        "verbatimModuleSyntax": true
     },
     "include": ["src/edge-cases", "src/shape-tests.ts", ".macroforge/types/**/*.d.ts"]
 }

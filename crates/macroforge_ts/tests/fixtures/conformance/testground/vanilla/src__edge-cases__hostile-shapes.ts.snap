@@ -180,8 +180,8 @@ export function hostileItemDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "HostileItem");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "HostileItem");
     }
 
     ctx.trackForFreeze(instance);
@@ -551,8 +551,8 @@ export function hostileBagDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "HostileBag");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "HostileBag");
     }
 
     ctx.trackForFreeze(instance);
@@ -1023,8 +1023,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(HostileClass.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "HostileClass");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "HostileClass");
     }
 
     ctx.trackForFreeze(instance);
@@ -1265,8 +1265,8 @@ export function hostileStrictDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "HostileStrict");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "HostileStrict");
     }
 
     ctx.trackForFreeze(instance);
@@ -1600,42 +1600,42 @@ export declare const HostileStrict: {
 ## Mapping
 
 original 0..324 -> expanded 1256..1580
-original 324..728 -> expanded 12474..12878
-original 728..940 -> expanded 40877..41089
-original 940..941 -> expanded 50043..50044
-original 941..1069 -> expanded 53723..53851
-original 1069..1070 -> expanded 62825..62826
+original 324..728 -> expanded 12480..12884
+original 728..940 -> expanded 40889..41101
+original 940..941 -> expanded 50061..50062
+original 941..1069 -> expanded 53741..53869
+original 1069..1070 -> expanded 62849..62850
 generated 0..1256 <- imports
 generated 1580..1890 <- Debug
 generated 1890..2057 <- Clone
 generated 2057..2294 <- PartialEq
 generated 2294..2749 <- Hash
 generated 2749..5076 <- Encode
-generated 5076..11105 <- Decode
-generated 11105..12474 <- __convenience_const
-generated 12878..13852 <- Debug
-generated 13852..14440 <- Clone
-generated 14440..15689 <- PartialEq
-generated 15689..17232 <- Hash
-generated 17232..21495 <- Encode
-generated 21495..39537 <- Decode
-generated 39537..40877 <- __convenience_const
-generated 41089..41417 <- Debug
-generated 41417..41593 <- Clone
-generated 41593..41832 <- PartialEq
-generated 41832..42302 <- Hash
-generated 42302..44040 <- Encode
-generated 44040..44371 <- Encode
-generated 44371..50043 <- Decode
-generated 50044..50156 <- Debug
-generated 50156..50268 <- Clone
-generated 50268..50389 <- PartialEq
-generated 50389..50501 <- Hash
-generated 50501..51881 <- Encode
-generated 51881..53723 <- Decode
-generated 53851..56055 <- Encode
-generated 56055..61722 <- Decode
-generated 61722..62825 <- __convenience_const
+generated 5076..11111 <- Decode
+generated 11111..12480 <- __convenience_const
+generated 12884..13858 <- Debug
+generated 13858..14446 <- Clone
+generated 14446..15695 <- PartialEq
+generated 15695..17238 <- Hash
+generated 17238..21501 <- Encode
+generated 21501..39549 <- Decode
+generated 39549..40889 <- __convenience_const
+generated 41101..41429 <- Debug
+generated 41429..41605 <- Clone
+generated 41605..41844 <- PartialEq
+generated 41844..42314 <- Hash
+generated 42314..44052 <- Encode
+generated 44052..44383 <- Encode
+generated 44383..50061 <- Decode
+generated 50062..50174 <- Debug
+generated 50174..50286 <- Clone
+generated 50286..50407 <- PartialEq
+generated 50407..50519 <- Hash
+generated 50519..51899 <- Encode
+generated 51899..53741 <- Decode
+generated 53869..56073 <- Encode
+generated 56073..61746 <- Decode
+generated 61746..62849 <- __convenience_const
 
 ## Metadata
 

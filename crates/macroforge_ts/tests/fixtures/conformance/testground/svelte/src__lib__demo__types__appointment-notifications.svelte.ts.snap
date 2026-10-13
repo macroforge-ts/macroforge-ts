@@ -157,8 +157,8 @@ export function appointmentNotificationsDecodeWithContext(value: unknown, ctx: _
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "AppointmentNotifications");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "AppointmentNotifications");
     }
 
     ctx.trackForFreeze(instance);
@@ -498,13 +498,13 @@ original 0..58 -> expanded 838..896
 original 107..156 -> expanded 896..945
 original 197..251 -> expanded 945..999
 original 292..338 -> expanded 999..1045
-original 338..339 -> expanded 21937..21938
+original 338..339 -> expanded 21943..21944
 generated 0..838 <- imports
 generated 1045..1244 <- Default
 generated 1244..3998 <- Encode
-generated 3998..14327 <- Decode
-generated 14327..20239 <- Gigaform
-generated 20239..21937 <- __convenience_const
+generated 3998..14333 <- Decode
+generated 14333..20245 <- Gigaform
+generated 20245..21943 <- __convenience_const
 
 ## Metadata
 

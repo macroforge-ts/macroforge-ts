@@ -3,7 +3,7 @@
  * modifiers, readonly and static properties, accessors, methods, optional and
  * definite fields, a constructor of the class's own, parameter properties,
  * fields typed by their initializers and inherited fields, of a class and of
- * an interface.
+ * an interface, and a static a superclass writes that a derive generates.
  */
 
 import type { EdgeItem } from './edge-types';
@@ -74,6 +74,19 @@ export class ClassBase {
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export class ClassDerived extends ClassBase {
     extra: number = 0;
+}
+
+export class ClassOwnStatic {
+    id: string = '';
+
+    static toString(value: ClassOwnStatic): string {
+        return `own ${value.id}`;
+    }
+}
+
+/** @derive(Debug, Clone) */
+export class ClassOverStatic extends ClassOwnStatic {
+    note: string = '';
 }
 
 /** @derive(Debug, Clone, PartialEq, Hash, Default) */

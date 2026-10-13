@@ -212,8 +212,8 @@ export function shapeItemDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ShapeItem");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ShapeItem");
     }
 
     ctx.trackForFreeze(instance);
@@ -821,8 +821,8 @@ export function shapeFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ShapeFields");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ShapeFields");
     }
 
     ctx.trackForFreeze(instance);
@@ -1321,8 +1321,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(ShapeCard.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ShapeCard");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ShapeCard");
     }
 
     ctx.trackForFreeze(instance);
@@ -2023,8 +2023,8 @@ export function shapeEventDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ShapeEvent");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ShapeEvent");
     }
 
     ctx.trackForFreeze(instance);
@@ -2309,8 +2309,8 @@ export function shapeDraftDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ShapeDraft");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ShapeDraft");
     }
 
     ctx.trackForFreeze(instance);
@@ -2961,16 +2961,16 @@ export declare const ShapeDraft: {
 ## Mapping
 
 original 0..445 -> expanded 1400..1845
-original 445..620 -> expanded 13913..14088
-original 620..784 -> expanded 17655..17819
-original 784..1318 -> expanded 21352..21886
-original 1318..1478 -> expanded 54289..54449
-original 1478..1479 -> expanded 64417..64418
-original 1479..1591 -> expanded 68073..68185
-original 1591..1715 -> expanded 76396..76520
-original 1715..1852 -> expanded 84132..84269
-original 1852..2088 -> expanded 96326..96562
-original 2088..2089 -> expanded 111107..111108
+original 445..620 -> expanded 13919..14094
+original 620..784 -> expanded 17661..17825
+original 784..1318 -> expanded 21358..21892
+original 1318..1478 -> expanded 54301..54461
+original 1478..1479 -> expanded 64435..64436
+original 1479..1591 -> expanded 68091..68203
+original 1591..1715 -> expanded 76414..76538
+original 1715..1852 -> expanded 84150..84287
+original 1852..2088 -> expanded 96350..96586
+original 2088..2089 -> expanded 111137..111138
 generated 0..1400 <- imports
 generated 1845..2149 <- Debug
 generated 2149..2308 <- Clone
@@ -2980,71 +2980,71 @@ generated 2990..3521 <- PartialOrd
 generated 3521..3964 <- Ord
 generated 3964..4074 <- Default
 generated 4074..6371 <- Encode
-generated 6371..12332 <- Decode
-generated 12332..13913 <- __convenience_const
-generated 14088..14393 <- Debug
-generated 14393..14479 <- Clone
-generated 14479..14576 <- PartialEq
-generated 14576..14739 <- Hash
-generated 14739..14951 <- PartialOrd
-generated 14951..15149 <- Ord
-generated 15149..15234 <- Default
-generated 15234..15668 <- Encode
-generated 15668..16710 <- Decode
-generated 16710..17655 <- __convenience_const
-generated 17819..18115 <- Debug
-generated 18115..18198 <- Clone
-generated 18198..18292 <- PartialEq
-generated 18292..18496 <- Hash
-generated 18496..18705 <- PartialOrd
-generated 18705..18900 <- Ord
-generated 18900..18982 <- Default
-generated 18982..19410 <- Encode
-generated 19410..20432 <- Decode
-generated 20432..21352 <- __convenience_const
-generated 21886..23041 <- Debug
-generated 23041..23787 <- Clone
-generated 23787..25951 <- PartialEq
-generated 25951..28068 <- Hash
-generated 28068..28507 <- Default
-generated 28507..33037 <- Encode
-generated 33037..52822 <- Decode
-generated 52822..54289 <- __convenience_const
-generated 54449..54811 <- Debug
-generated 54811..55025 <- Clone
-generated 55025..55425 <- PartialEq
-generated 55425..55851 <- Hash
-generated 55851..56079 <- Default
-generated 56079..57852 <- Encode
-generated 57852..58177 <- Encode
-generated 58177..64417 <- Decode
-generated 64418..64521 <- Debug
-generated 64521..64621 <- Clone
-generated 64621..64730 <- PartialEq
-generated 64730..64833 <- Hash
-generated 64833..64926 <- Default
-generated 64926..66276 <- Encode
-generated 66276..68073 <- Decode
-generated 68185..68317 <- Debug
-generated 68317..68428 <- Clone
-generated 68428..68578 <- PartialEq
-generated 68578..68686 <- Hash
-generated 68686..70730 <- Encode
-generated 70730..75527 <- Decode
-generated 75527..76396 <- __convenience_const
-generated 76520..76649 <- Debug
-generated 76649..76757 <- Clone
-generated 76757..76904 <- PartialEq
-generated 76904..77010 <- Hash
-generated 77010..78783 <- Encode
-generated 78783..83284 <- Decode
-generated 83284..84132 <- __convenience_const
-generated 84269..86933 <- Encode
-generated 86933..95286 <- Decode
-generated 95286..96326 <- __convenience_const
-generated 96562..99608 <- Encode
-generated 99608..110067 <- Decode
-generated 110067..111107 <- __convenience_const
+generated 6371..12338 <- Decode
+generated 12338..13919 <- __convenience_const
+generated 14094..14399 <- Debug
+generated 14399..14485 <- Clone
+generated 14485..14582 <- PartialEq
+generated 14582..14745 <- Hash
+generated 14745..14957 <- PartialOrd
+generated 14957..15155 <- Ord
+generated 15155..15240 <- Default
+generated 15240..15674 <- Encode
+generated 15674..16716 <- Decode
+generated 16716..17661 <- __convenience_const
+generated 17825..18121 <- Debug
+generated 18121..18204 <- Clone
+generated 18204..18298 <- PartialEq
+generated 18298..18502 <- Hash
+generated 18502..18711 <- PartialOrd
+generated 18711..18906 <- Ord
+generated 18906..18988 <- Default
+generated 18988..19416 <- Encode
+generated 19416..20438 <- Decode
+generated 20438..21358 <- __convenience_const
+generated 21892..23047 <- Debug
+generated 23047..23793 <- Clone
+generated 23793..25957 <- PartialEq
+generated 25957..28074 <- Hash
+generated 28074..28513 <- Default
+generated 28513..33043 <- Encode
+generated 33043..52834 <- Decode
+generated 52834..54301 <- __convenience_const
+generated 54461..54823 <- Debug
+generated 54823..55037 <- Clone
+generated 55037..55437 <- PartialEq
+generated 55437..55863 <- Hash
+generated 55863..56091 <- Default
+generated 56091..57864 <- Encode
+generated 57864..58189 <- Encode
+generated 58189..64435 <- Decode
+generated 64436..64539 <- Debug
+generated 64539..64639 <- Clone
+generated 64639..64748 <- PartialEq
+generated 64748..64851 <- Hash
+generated 64851..64944 <- Default
+generated 64944..66294 <- Encode
+generated 66294..68091 <- Decode
+generated 68203..68335 <- Debug
+generated 68335..68446 <- Clone
+generated 68446..68596 <- PartialEq
+generated 68596..68704 <- Hash
+generated 68704..70748 <- Encode
+generated 70748..75545 <- Decode
+generated 75545..76414 <- __convenience_const
+generated 76538..76667 <- Debug
+generated 76667..76775 <- Clone
+generated 76775..76922 <- PartialEq
+generated 76922..77028 <- Hash
+generated 77028..78801 <- Encode
+generated 78801..83302 <- Decode
+generated 83302..84150 <- __convenience_const
+generated 84287..86951 <- Encode
+generated 86951..95310 <- Decode
+generated 95310..96350 <- __convenience_const
+generated 96586..99632 <- Encode
+generated 99632..110097 <- Decode
+generated 110097..111137 <- __convenience_const
 
 ## Metadata
 

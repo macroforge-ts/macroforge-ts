@@ -380,3 +380,17 @@ Deno.test('an interface is coded, cloned and compared with the fields of what it
     assertStrictEquals(blank.kind, 'account');
     assertStrictEquals(blank.balance, 0);
 });
+
+Deno.test('a derived static stands over the one its superclass has', () => {
+    const base = Object.assign(new mod.ClassOwnStatic(), { id: 'a' });
+    const value = Object.assign(new mod.ClassOverStatic(), { id: 'a', note: 'n' });
+    assertStrictEquals(mod.ClassOwnStatic.toString(base), 'own a');
+    assertStrictEquals(mod.ClassOverStatic.toString(value), 'ClassOverStatic { id: a, note: n }');
+    assertStrictEquals(mod.classOverStaticToString(value), 'ClassOverStatic { id: a, note: n }');
+
+    const derived = decoded(mod.ClassDerived.decode({ id: 'd', extra: 2 }));
+    const copy = mod.ClassDerived.clone(derived);
+    assert(copy instanceof mod.ClassDerived);
+    assertEquals(copy, derived);
+    assert(mod.ClassBase.equals(derived, copy));
+});

@@ -110,8 +110,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(GreaterThanBigIntValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "GreaterThanBigIntValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "GreaterThanBigIntValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -296,8 +296,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(GreaterThanOrEqualToBigIntValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "GreaterThanOrEqualToBigIntValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "GreaterThanOrEqualToBigIntValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -482,8 +482,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(LessThanBigIntValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "LessThanBigIntValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "LessThanBigIntValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -668,8 +668,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(LessThanOrEqualToBigIntValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "LessThanOrEqualToBigIntValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "LessThanOrEqualToBigIntValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -854,8 +854,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(BetweenBigIntValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "BetweenBigIntValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "BetweenBigIntValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -1040,8 +1040,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(PositiveBigIntValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "PositiveBigIntValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "PositiveBigIntValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -1226,8 +1226,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(NonNegativeBigIntValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "NonNegativeBigIntValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "NonNegativeBigIntValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -1412,8 +1412,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(NegativeBigIntValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "NegativeBigIntValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "NegativeBigIntValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -1598,8 +1598,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(NonPositiveBigIntValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "NonPositiveBigIntValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "NonPositiveBigIntValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -2173,43 +2173,43 @@ export declare function nonPositiveBigIntValidatorIs(value: unknown): value is N
 ## Mapping
 
 original 0..261 -> expanded 433..694
-original 261..262 -> expanded 7255..7256
-original 262..464 -> expanded 9308..9510
-original 464..465 -> expanded 16329..16330
-original 465..634 -> expanded 18517..18686
-original 634..635 -> expanded 25181..25182
-original 635..831 -> expanded 27189..27385
-original 831..832 -> expanded 34138..34139
-original 832..1001 -> expanded 36281..36450
-original 1001..1002 -> expanded 42980..42981
-original 1002..1165 -> expanded 44973..45136
-original 1165..1166 -> expanded 51604..51605
-original 1166..1338 -> expanded 53612..53784
-original 1338..1339 -> expanded 60336..60337
-original 1339..1502 -> expanded 62389..62552
-original 1502..1503 -> expanded 69020..69021
-original 1503..1675 -> expanded 71028..71200
-original 1675..1676 -> expanded 77752..77753
-original 1676..1677 -> expanded 79805..79806
+original 261..262 -> expanded 7261..7262
+original 262..464 -> expanded 9314..9516
+original 464..465 -> expanded 16341..16342
+original 465..634 -> expanded 18529..18698
+original 634..635 -> expanded 25199..25200
+original 635..831 -> expanded 27207..27403
+original 831..832 -> expanded 34162..34163
+original 832..1001 -> expanded 36305..36474
+original 1001..1002 -> expanded 43010..43011
+original 1002..1165 -> expanded 45003..45166
+original 1165..1166 -> expanded 51640..51641
+original 1166..1338 -> expanded 53648..53820
+original 1338..1339 -> expanded 60378..60379
+original 1339..1502 -> expanded 62431..62594
+original 1502..1503 -> expanded 69068..69069
+original 1503..1675 -> expanded 71076..71248
+original 1675..1676 -> expanded 77806..77807
+original 1676..1677 -> expanded 79859..79860
 generated 0..433 <- imports
-generated 694..7255 <- Decode
-generated 7256..9308 <- Decode
-generated 9510..16329 <- Decode
-generated 16330..18517 <- Decode
-generated 18686..25181 <- Decode
-generated 25182..27189 <- Decode
-generated 27385..34138 <- Decode
-generated 34139..36281 <- Decode
-generated 36450..42980 <- Decode
-generated 42981..44973 <- Decode
-generated 45136..51604 <- Decode
-generated 51605..53612 <- Decode
-generated 53784..60336 <- Decode
-generated 60337..62389 <- Decode
-generated 62552..69020 <- Decode
-generated 69021..71028 <- Decode
-generated 71200..77752 <- Decode
-generated 77753..79805 <- Decode
+generated 694..7261 <- Decode
+generated 7262..9314 <- Decode
+generated 9516..16341 <- Decode
+generated 16342..18529 <- Decode
+generated 18698..25199 <- Decode
+generated 25200..27207 <- Decode
+generated 27403..34162 <- Decode
+generated 34163..36305 <- Decode
+generated 36474..43010 <- Decode
+generated 43011..45003 <- Decode
+generated 45166..51640 <- Decode
+generated 51641..53648 <- Decode
+generated 53820..60378 <- Decode
+generated 60379..62431 <- Decode
+generated 62594..69068 <- Decode
+generated 69069..71076 <- Decode
+generated 71248..77806 <- Decode
+generated 77807..79859 <- Decode
 
 ## Metadata
 

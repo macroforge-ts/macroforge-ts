@@ -120,8 +120,8 @@ export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "UserProfile");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "UserProfile");
     }
 
     ctx.trackForFreeze(instance);
@@ -297,10 +297,10 @@ original 22..51 -> expanded 433..462
 original 71..96 -> expanded 462..487
 original 138..166 -> expanded 487..515
 original 189..209 -> expanded 515..535
-original 209..210 -> expanded 10876..10877
+original 209..210 -> expanded 10882..10883
 generated 0..433 <- imports
-generated 535..10160 <- Decode
-generated 10160..10876 <- __convenience_const
+generated 535..10166 <- Decode
+generated 10166..10882 <- __convenience_const
 
 ## Metadata
 

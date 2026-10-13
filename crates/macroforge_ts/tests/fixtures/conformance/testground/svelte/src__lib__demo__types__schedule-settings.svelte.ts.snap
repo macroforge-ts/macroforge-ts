@@ -179,8 +179,8 @@ export function scheduleSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ScheduleSettings");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ScheduleSettings");
     }
 
     ctx.trackForFreeze(instance);
@@ -642,13 +642,13 @@ export declare const ScheduleSettings: {
 original 0..113 -> expanded 1022..1135
 original 162..228 -> expanded 1135..1201
 original 253..343 -> expanded 1201..1291
-original 343..344 -> expanded 23990..23991
+original 343..344 -> expanded 23996..23997
 generated 0..1022 <- imports
 generated 1291..1491 <- Default
 generated 1491..4363 <- Encode
-generated 4363..13451 <- Decode
-generated 13451..22508 <- Gigaform
-generated 22508..23990 <- __convenience_const
+generated 4363..13457 <- Decode
+generated 13457..22514 <- Gigaform
+generated 22514..23996 <- __convenience_const
 
 ## Metadata
 

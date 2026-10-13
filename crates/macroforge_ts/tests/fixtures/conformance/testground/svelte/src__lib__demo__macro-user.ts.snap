@@ -204,8 +204,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(MacroUser.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "MacroUser");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "MacroUser");
     }
 
     ctx.trackForFreeze(instance);
@@ -446,16 +446,16 @@ original 0..56 -> expanded 764..820
 original 93..123 -> expanded 820..850
 original 158..278 -> expanded 850..970
 original 307..330 -> expanded 970..993
-original 330..331 -> expanded 12729..12730
-original 331..683 -> expanded 15980..16332
+original 330..331 -> expanded 12735..12736
+original 331..683 -> expanded 15986..16338
 generated 0..764 <- imports
 generated 993..1486 <- Debug
 generated 1486..3869 <- Encode
 generated 3869..4194 <- Encode
-generated 4194..12729 <- Decode
-generated 12730..12833 <- Debug
-generated 12833..14183 <- Encode
-generated 14183..15980 <- Decode
+generated 4194..12735 <- Decode
+generated 12736..12839 <- Debug
+generated 12839..14189 <- Encode
+generated 14189..15986 <- Decode
 
 ## Metadata
 

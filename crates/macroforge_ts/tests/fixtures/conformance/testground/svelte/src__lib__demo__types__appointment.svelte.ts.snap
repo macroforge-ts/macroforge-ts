@@ -310,8 +310,8 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Appointment");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Appointment");
     }
 
     ctx.trackForFreeze(instance);
@@ -1363,13 +1363,13 @@ original 1581..1626 -> expanded 2351..2396
 original 1654..1659 -> expanded 2396..2401
 original 1732..1757 -> expanded 2401..2426
 original 1785..1830 -> expanded 2426..2471
-original 1830..1831 -> expanded 50443..50444
+original 1830..1831 -> expanded 50449..50450
 generated 0..1620 <- imports
 generated 2471..3023 <- Default
 generated 3023..7820 <- Encode
-generated 7820..26036 <- Decode
-generated 26036..49096 <- Gigaform
-generated 49096..50443 <- __convenience_const
+generated 7820..26042 <- Decode
+generated 26042..49102 <- Gigaform
+generated 49102..50449 <- __convenience_const
 
 ## Metadata
 

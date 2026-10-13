@@ -5,7 +5,9 @@ use std::collections::HashMap;
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
 use crate::builtin::derive::common::parameter_name;
-use crate::builtin::derive::common::{ClassUse, derive_class_fields, derive_interface_fields};
+use crate::builtin::derive::common::{
+    ClassUse, derive_class_fields, derive_interface_fields, inherited_statics,
+};
 use crate::builtin::derive::common::{
     field_value_type, fixed_tuple, is_primitive_union, js_string, property_key, rendered,
     structural_call, structural_helper,
@@ -56,7 +58,8 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
         Data::Class(class) => {
             let class_fields = derive_class_fields(&input, class, "Clone", ClassUse::Builds)?;
             let class_name = class.inner.name.clone();
-            let class_names = TypeNames::new(&class_name, class.type_params());
+            let class_names = TypeNames::new(&class_name, class.type_params())
+                .inheriting(inherited_statics(&input, class, "Clone"));
             let class_ident = class_names.full_type_ident();
 
             let literal = object_clone_literal(

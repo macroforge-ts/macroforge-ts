@@ -112,8 +112,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(Data.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Data");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Data");
     }
 
     ctx.trackForFreeze(instance);
@@ -248,11 +248,11 @@ export {};
 
 original 0..41 -> expanded 433..474
 original 63..94 -> expanded 474..505
-original 94..95 -> expanded 5305..5306
-original 95..96 -> expanded 7028..7029
+original 94..95 -> expanded 5311..5312
+original 95..96 -> expanded 7034..7035
 generated 0..433 <- imports
-generated 505..5305 <- Decode
-generated 5306..7028 <- Decode
+generated 505..5311 <- Decode
+generated 5312..7034 <- Decode
 
 ## Metadata
 

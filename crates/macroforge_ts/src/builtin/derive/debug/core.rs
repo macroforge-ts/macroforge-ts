@@ -3,7 +3,9 @@ use convert_case::{Case, Casing};
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
 use crate::builtin::derive::common::structural_callee;
-use crate::builtin::derive::common::{ClassUse, derive_class_fields, derive_interface_fields};
+use crate::builtin::derive::common::{
+    ClassUse, derive_class_fields, derive_interface_fields, inherited_statics,
+};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::ts_syn::ts_ident;
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
@@ -29,7 +31,8 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
         Data::Class(class) => {
             let class_fields = derive_class_fields(&input, class, "Debug", ClassUse::Reads)?;
             let class_name = input.name();
-            let class_names = TypeNames::new(class_name, class.type_params());
+            let class_names = TypeNames::new(class_name, class.type_params())
+                .inheriting(inherited_statics(&input, class, "Debug"));
             let class_ident = class_names.full_type_ident();
 
             let debug_fields: Vec<DebugField> = class_fields

@@ -1,7 +1,7 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
 ---
-## Types (407)
+## Types (409)
 
 Address f0d229a1409690d0
 AddressPatch 9f24746fc3a6b7e7
@@ -50,20 +50,22 @@ BuildtimeDemoResult 0d91cdb2a6f52c09
 CapitalizedValidator c9312a017b3d02ec
 Cents 07fad5f8ee51b7e4
 Choice 887dac70feb2b363
-ClassAbstract 8f408eaa26900324
+ClassAbstract ee3acd21b1506ffe
 ClassAccessors 723a0ea9c065774a
-ClassAccount eaaee0ec59693920
-ClassBase f32ac650ae6c0dd8
-ClassCallback a6c654854d8b3b32
-ClassConstructed 01a78ea9179bbde1
-ClassDated 70e3f9358708478c
-ClassDerived f319e9cea912b33f
-ClassEntity 8cac0abf3a2f36f4
-ClassGuarded c2da570a4b73ed48
-ClassHolder 96c5a83186781534
-ClassInferred 546cedbd956032f1
-ClassMembers f056f9389fd757d1
-ClassParameters 6416a2b3c4ccb2e3
+ClassAccount 75c8f2f4210ae492
+ClassBase 1d9136c47c7507f8
+ClassCallback c39748de02a9761b
+ClassConstructed f0331a3bf373acfc
+ClassDated dae16d84066281bf
+ClassDerived d70b3971b14be6d4
+ClassEntity a8a41e4dbc1a547e
+ClassGuarded 2d7466b0dcd05fc0
+ClassHolder 1526f2f2ef5289a2
+ClassInferred d3d598c2aaf61125
+ClassMembers b659544cf72302b7
+ClassOverStatic 724213ec61b1e28f
+ClassOwnStatic 71bebc1491c0c632
+ClassParameters 63b0e5214ccf9f93
 Code afab74ee73521e34
 CollectionBig 6c72145a811b12e7
 CollectionKeys 476445ad6c8c2f53
@@ -411,7 +413,7 @@ Version a97656860d12bbc3
 Wall 5a067be59c2d4675
 point2D 697bb407a60739cf
 
-## Qualified types (410)
+## Qualified types (412)
 
 src/all-macros-test.ts::AllMacrosTestClass 0a3bab42a552ef1b
 src/attributes-test.ts::ServerStatus a6f77a8f50f170a0
@@ -460,19 +462,21 @@ src/edge-cases/alias-shapes.ts::AliasSet 4f737ab77a81cc0e
 src/edge-cases/alias-shapes.ts::AliasTagged 88b38510d6e85022
 src/edge-cases/alias-shapes.ts::AliasTuple 6d21d1c30683c654
 src/edge-cases/alias-shapes.ts::AliasUntagged ac22ab408f9d20a6
-src/edge-cases/class-shapes.ts::ClassAbstract 8f408eaa26900324
-src/edge-cases/class-shapes.ts::ClassAccount eaaee0ec59693920
-src/edge-cases/class-shapes.ts::ClassBase f32ac650ae6c0dd8
-src/edge-cases/class-shapes.ts::ClassCallback a6c654854d8b3b32
-src/edge-cases/class-shapes.ts::ClassConstructed 01a78ea9179bbde1
-src/edge-cases/class-shapes.ts::ClassDated 70e3f9358708478c
-src/edge-cases/class-shapes.ts::ClassDerived f319e9cea912b33f
-src/edge-cases/class-shapes.ts::ClassEntity 8cac0abf3a2f36f4
-src/edge-cases/class-shapes.ts::ClassGuarded c2da570a4b73ed48
-src/edge-cases/class-shapes.ts::ClassHolder 96c5a83186781534
-src/edge-cases/class-shapes.ts::ClassInferred 546cedbd956032f1
-src/edge-cases/class-shapes.ts::ClassMembers f056f9389fd757d1
-src/edge-cases/class-shapes.ts::ClassParameters 6416a2b3c4ccb2e3
+src/edge-cases/class-shapes.ts::ClassAbstract ee3acd21b1506ffe
+src/edge-cases/class-shapes.ts::ClassAccount 75c8f2f4210ae492
+src/edge-cases/class-shapes.ts::ClassBase 1d9136c47c7507f8
+src/edge-cases/class-shapes.ts::ClassCallback c39748de02a9761b
+src/edge-cases/class-shapes.ts::ClassConstructed f0331a3bf373acfc
+src/edge-cases/class-shapes.ts::ClassDated dae16d84066281bf
+src/edge-cases/class-shapes.ts::ClassDerived d70b3971b14be6d4
+src/edge-cases/class-shapes.ts::ClassEntity a8a41e4dbc1a547e
+src/edge-cases/class-shapes.ts::ClassGuarded 2d7466b0dcd05fc0
+src/edge-cases/class-shapes.ts::ClassHolder 1526f2f2ef5289a2
+src/edge-cases/class-shapes.ts::ClassInferred d3d598c2aaf61125
+src/edge-cases/class-shapes.ts::ClassMembers b659544cf72302b7
+src/edge-cases/class-shapes.ts::ClassOverStatic 724213ec61b1e28f
+src/edge-cases/class-shapes.ts::ClassOwnStatic 71bebc1491c0c632
+src/edge-cases/class-shapes.ts::ClassParameters 63b0e5214ccf9f93
 src/edge-cases/collection-shapes.ts::CollectionBig 6c72145a811b12e7
 src/edge-cases/collection-shapes.ts::CollectionKeys 476445ad6c8c2f53
 src/edge-cases/collection-shapes.ts::CollectionKind 434090cf3741bfbe

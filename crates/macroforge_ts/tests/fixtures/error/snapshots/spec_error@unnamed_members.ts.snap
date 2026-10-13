@@ -178,8 +178,8 @@ export function keyedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Keyed");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Keyed");
     }
 
     ctx.trackForFreeze(instance);
@@ -340,16 +340,16 @@ original 0..25 -> expanded 679..704
 original 53..117 -> expanded 704..768
 original 148..213 -> expanded 768..833
 original 243..287 -> expanded 833..877
-original 287..289 -> expanded 9896..9898
-original 312..383 -> expanded 9898..9969
-original 383..385 -> expanded 10157..10159
-original 415..487 -> expanded 10159..10231
+original 287..289 -> expanded 9902..9904
+original 312..383 -> expanded 9904..9975
+original 383..385 -> expanded 10163..10165
+original 415..487 -> expanded 10165..10237
 generated 0..679 <- imports
 generated 877..3120 <- Encode
-generated 3120..8968 <- Decode
-generated 8968..9896 <- __convenience_const
-generated 9969..10047 <- Default
-generated 10047..10157 <- __convenience_const
+generated 3120..8974 <- Decode
+generated 8974..9902 <- __convenience_const
+generated 9975..10053 <- Default
+generated 10053..10163 <- __convenience_const
 
 ## Metadata
 

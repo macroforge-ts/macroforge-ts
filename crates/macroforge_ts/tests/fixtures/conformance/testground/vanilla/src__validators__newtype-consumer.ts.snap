@@ -151,8 +151,8 @@ export function tripDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Trip");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Trip");
     }
 
     ctx.trackForFreeze(instance);
@@ -335,11 +335,11 @@ export declare function greet(name: string): string;
 ## Mapping
 
 original 0..324 -> expanded 809..1133
-original 324..674 -> expanded 11218..11568
+original 324..674 -> expanded 11224..11574
 generated 0..809 <- imports
 generated 1133..3440 <- Encode
-generated 3440..10304 <- Decode
-generated 10304..11218 <- __convenience_const
+generated 3440..10310 <- Decode
+generated 10310..11224 <- __convenience_const
 
 ## Metadata
 

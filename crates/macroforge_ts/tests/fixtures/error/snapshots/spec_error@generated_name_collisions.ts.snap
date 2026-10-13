@@ -175,8 +175,8 @@ export function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "HTTPResponse");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "HTTPResponse");
     }
 
     ctx.trackForFreeze(instance);
@@ -380,8 +380,8 @@ export function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "HttpResponse");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "HttpResponse");
     }
 
     ctx.trackForFreeze(instance);
@@ -685,32 +685,32 @@ Error [352..366]: `@derive(Clone)` on 'Account' generates `accountClone`, a name
 ## Mapping
 
 original 44..91 -> expanded 795..842
-original 91..93 -> expanded 10181..10183
-original 137..182 -> expanded 10183..10228
-original 182..184 -> expanded 19517..19519
-original 206..241 -> expanded 19519..19554
-original 241..243 -> expanded 21934..21936
-original 265..307 -> expanded 21936..21978
-original 307..347 -> expanded 24494..24534
-original 368..406 -> expanded 24534..24572
-original 406..441 -> expanded 24789..24824
+original 91..93 -> expanded 10187..10189
+original 137..182 -> expanded 10189..10234
+original 182..184 -> expanded 19529..19531
+original 206..241 -> expanded 19531..19566
+original 241..243 -> expanded 21946..21948
+original 265..307 -> expanded 21948..21990
+original 307..347 -> expanded 24506..24546
+original 368..406 -> expanded 24546..24584
+original 406..441 -> expanded 24801..24836
 generated 0..795 <- imports
 generated 842..1114 <- Debug
 generated 1114..1271 <- Clone
 generated 1271..3468 <- Encode
-generated 3468..8950 <- Decode
-generated 8950..10181 <- __convenience_const
-generated 10228..10496 <- Debug
-generated 10496..10649 <- Clone
-generated 10649..12838 <- Encode
-generated 12838..18286 <- Decode
-generated 18286..19517 <- __convenience_const
-generated 19554..21615 <- Encode
-generated 21615..21934 <- __convenience_const
-generated 21978..24133 <- Encode
-generated 24133..24494 <- __convenience_const
-generated 24572..24701 <- Clone
-generated 24701..24789 <- __convenience_const
+generated 3468..8956 <- Decode
+generated 8956..10187 <- __convenience_const
+generated 10234..10502 <- Debug
+generated 10502..10655 <- Clone
+generated 10655..12844 <- Encode
+generated 12844..18298 <- Decode
+generated 18298..19529 <- __convenience_const
+generated 19566..21627 <- Encode
+generated 21627..21946 <- __convenience_const
+generated 21990..24145 <- Encode
+generated 24145..24506 <- __convenience_const
+generated 24584..24713 <- Clone
+generated 24713..24801 <- __convenience_const
 
 ## Metadata
 

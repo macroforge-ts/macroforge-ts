@@ -166,8 +166,8 @@ export function monthlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "MonthlyRecurrenceRule");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "MonthlyRecurrenceRule");
     }
 
     ctx.trackForFreeze(instance);
@@ -541,13 +541,13 @@ export declare const MonthlyRecurrenceRule: {
 original 0..58 -> expanded 838..896
 original 107..200 -> expanded 896..989
 original 241..261 -> expanded 989..1009
-original 261..262 -> expanded 19967..19968
+original 261..262 -> expanded 19973..19974
 generated 0..838 <- imports
 generated 1009..1172 <- Default
 generated 1172..3854 <- Encode
-generated 3854..12037 <- Decode
-generated 12037..18350 <- Gigaform
-generated 18350..19967 <- __convenience_const
+generated 3854..12043 <- Decode
+generated 12043..18356 <- Gigaform
+generated 18356..19973 <- __convenience_const
 
 ## Metadata
 

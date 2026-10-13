@@ -192,8 +192,8 @@ export function phoneNumberDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "PhoneNumber");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "PhoneNumber");
     }
 
     ctx.trackForFreeze(instance);
@@ -673,13 +673,13 @@ original 397..402 -> expanded 989..994
 original 443..468 -> expanded 994..1019
 original 515..542 -> expanded 1019..1046
 original 589..613 -> expanded 1046..1070
-original 613..614 -> expanded 23633..23634
+original 613..614 -> expanded 23639..23640
 generated 0..838 <- imports
 generated 1070..1262 <- Default
 generated 1262..4116 <- Encode
-generated 4116..14165 <- Decode
-generated 14165..22286 <- Gigaform
-generated 22286..23633 <- __convenience_const
+generated 4116..14171 <- Decode
+generated 14171..22292 <- Gigaform
+generated 22292..23639 <- __convenience_const
 
 ## Metadata
 

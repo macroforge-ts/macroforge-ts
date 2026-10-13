@@ -168,8 +168,8 @@ export function emailPartsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "EmailParts");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "EmailParts");
     }
 
     ctx.trackForFreeze(instance);
@@ -567,13 +567,13 @@ original 107..142 -> expanded 896..931
 original 183..207 -> expanded 931..955
 original 248..277 -> expanded 955..984
 original 318..348 -> expanded 984..1014
-original 348..349 -> expanded 20681..20682
+original 348..349 -> expanded 20687..20688
 generated 0..838 <- imports
 generated 1014..1163 <- Default
 generated 1163..3704 <- Encode
-generated 3704..13605 <- Decode
-generated 13605..19361 <- Gigaform
-generated 19361..20681 <- __convenience_const
+generated 3704..13611 <- Decode
+generated 13611..19367 <- Gigaform
+generated 19367..20687 <- __convenience_const
 
 ## Metadata
 

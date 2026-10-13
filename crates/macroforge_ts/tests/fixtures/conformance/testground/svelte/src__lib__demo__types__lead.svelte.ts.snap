@@ -518,8 +518,8 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Lead");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Lead");
     }
 
     ctx.trackForFreeze(instance);
@@ -2628,13 +2628,13 @@ original 4035..4040 -> expanded 3413..3418
 original 4081..4112 -> expanded 3418..3449
 original 4153..4183 -> expanded 3449..3479
 original 4243..4288 -> expanded 3479..3524
-original 4288..4289 -> expanded 98929..98930
+original 4288..4289 -> expanded 98935..98936
 generated 0..1881 <- imports
 generated 3524..4386 <- Default
 generated 4386..12315 <- Encode
-generated 12315..49750 <- Decode
-generated 49750..97771 <- Gigaform
-generated 97771..98929 <- __convenience_const
+generated 12315..49756 <- Decode
+generated 49756..97777 <- Gigaform
+generated 97777..98935 <- __convenience_const
 
 ## Metadata
 

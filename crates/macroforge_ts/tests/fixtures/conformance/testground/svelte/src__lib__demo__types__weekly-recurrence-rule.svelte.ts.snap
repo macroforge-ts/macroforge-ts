@@ -158,8 +158,8 @@ export function weeklyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "WeeklyRecurrenceRule");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "WeeklyRecurrenceRule");
     }
 
     ctx.trackForFreeze(instance);
@@ -521,13 +521,13 @@ export declare const WeeklyRecurrenceRule: {
 
 original 0..108 -> expanded 980..1088
 original 157..258 -> expanded 1088..1189
-original 258..259 -> expanded 19448..19449
+original 258..259 -> expanded 19454..19455
 generated 0..980 <- imports
 generated 1189..1337 <- Default
 generated 1337..3919 <- Encode
-generated 3919..11183 <- Decode
-generated 11183..17858 <- Gigaform
-generated 17858..19448 <- __convenience_const
+generated 3919..11189 <- Decode
+generated 11189..17864 <- Gigaform
+generated 17864..19454 <- __convenience_const
 
 ## Metadata
 

@@ -166,8 +166,8 @@ export function editedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Edited");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Edited");
     }
 
     ctx.trackForFreeze(instance);
@@ -533,13 +533,13 @@ export declare const Edited: {
 original 0..58 -> expanded 838..896
 original 107..138 -> expanded 896..927
 original 179..262 -> expanded 927..1010
-original 262..263 -> expanded 18013..18014
+original 262..263 -> expanded 18019..18020
 generated 0..838 <- imports
 generated 1010..1151 <- Default
 generated 1151..3616 <- Encode
-generated 3616..11209 <- Decode
-generated 11209..16801 <- Gigaform
-generated 16801..18013 <- __convenience_const
+generated 3616..11215 <- Decode
+generated 11215..16807 <- Gigaform
+generated 16807..18019 <- __convenience_const
 
 ## Metadata
 

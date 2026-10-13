@@ -167,8 +167,8 @@ fn decode_with_context(
             const instance: any = {};
 
             // Only a whole value can be referred to.
-            if (__fields === undefined && obj.__id !== undefined) {
-                ctx.register(obj.__id as number, instance, "@{type_name}");
+            if (__fields === undefined && obj["__id"] !== undefined) {
+                ctx.register(obj["__id"] as number, instance, "@{type_name}");
             }
 
             ctx.trackForFreeze(instance);

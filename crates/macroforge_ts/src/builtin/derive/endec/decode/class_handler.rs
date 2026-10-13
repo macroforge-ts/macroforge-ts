@@ -14,7 +14,8 @@ use super::reference::decode_selectable_reference;
 use super::types::DecodeField;
 use super::validation::generate_field_validations;
 use crate::builtin::derive::common::{
-    ClassUse, TypeNames, derive_class_fields, js_string, property_key, rendered, type_has_derive,
+    ClassUse, TypeNames, derive_class_fields, inherited_statics, js_string, property_key, rendered,
+    type_has_derive,
 };
 use crate::builtin::derive::endec::coder::endec_helper;
 use crate::builtin::derive::endec::type_arguments::{
@@ -32,7 +33,8 @@ pub(super) fn handle_class(
     class: &crate::ts_syn::DataClass,
 ) -> Result<TsStream, MacroforgeError> {
     let class_name = input.name();
-    let class_names = TypeNames::new(class_name, class.type_params());
+    let class_names = TypeNames::new(class_name, class.type_params())
+        .inheriting(inherited_statics(input, class, "Decode"));
     let class_ident = class_names.full_type_ident();
     let class_expr: Expr = ts_ident!(class_name).into();
     let generic_args = class_names.generic_args.as_str();
@@ -306,8 +308,8 @@ pub(super) fn handle_class(
 
             // Register with context if __id is present. Only a whole value
             // can be referred to.
-            if (__fields === undefined && obj.__id !== undefined) {
-                ctx.register(obj.__id as number, instance, "@{class_name}");
+            if (__fields === undefined && obj["__id"] !== undefined) {
+                ctx.register(obj["__id"] as number, instance, "@{class_name}");
             }
 
             // Track for optional freezing
@@ -321,17 +323,17 @@ pub(super) fn handle_class(
         }
 
         {#if fields_with_validators.is_empty()}
-            static @{ts_ident!(format!("validateField{}", key_param.decl))}(field: @{key_param.name.clone()}, value: unknown): Array<{ field: string; message: string }>;
-            static validateField(): Array<{ field: string; message: string }> {
+            static @{class_names.static_method("validateField", &key_param.decl)}(field: @{key_param.name.clone()}, value: unknown): Array<{ field: string; message: string }>;
+            static @{class_names.static_method("validateField", "")}(): Array<{ field: string; message: string }> {
                 return [];
             }
 
             static @{class_names.generic_method("validateFields")}(partial: { readonly [@{key_param.name.clone()} in keyof @{class_ident.clone()}]?: unknown }): Array<{ field: string; message: string }>;
-            static validateFields(): Array<{ field: string; message: string }> {
+            static @{class_names.static_method("validateFields", "")}(): Array<{ field: string; message: string }> {
                 return [];
             }
         {:else}
-            static @{ts_ident!(format!("validateField{}", key_param.decl))}(field: @{key_param.name.clone()}, value: unknown): Array<{ field: string; message: string }> {
+            static @{class_names.static_method("validateField", &key_param.decl)}(field: @{key_param.name.clone()}, value: unknown): Array<{ field: string; message: string }> {
                 const errors: Array<{ field: string; message: string }> = [];
                 {#for field in &fields_with_validators}
                     if (field === "@{field.field_name_text()}") {
@@ -356,7 +358,7 @@ pub(super) fn handle_class(
             }
         {/if}
 
-        static hasShape(obj: unknown): boolean {
+        static @{class_names.static_method("hasShape", "")}(obj: unknown): boolean {
             if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
                 return false;
             }

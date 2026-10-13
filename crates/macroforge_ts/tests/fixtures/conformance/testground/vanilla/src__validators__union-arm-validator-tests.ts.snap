@@ -202,8 +202,8 @@ export function phoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Phone");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Phone");
     }
 
     ctx.trackForFreeze(instance);
@@ -634,18 +634,18 @@ export declare const Fallback: {
 
 original 0..159 -> expanded 466..625
 original 159..230 -> expanded 3795..3866
-original 230..343 -> expanded 9706..9819
-original 343..428 -> expanded 14634..14719
-original 428..429 -> expanded 18034..18035
+original 230..343 -> expanded 9712..9825
+original 343..428 -> expanded 14640..14725
+original 428..429 -> expanded 18040..18041
 generated 0..466 <- imports
 generated 625..3462 <- Decode
 generated 3462..3795 <- __convenience_const
-generated 3866..9073 <- Decode
-generated 9073..9706 <- __convenience_const
-generated 9819..14283 <- Decode
-generated 14283..14634 <- __convenience_const
-generated 14719..17692 <- Decode
-generated 17692..18034 <- __convenience_const
+generated 3866..9079 <- Decode
+generated 9079..9712 <- __convenience_const
+generated 9825..14289 <- Decode
+generated 14289..14640 <- __convenience_const
+generated 14725..17698 <- Decode
+generated 17698..18040 <- __convenience_const
 
 ## Metadata
 

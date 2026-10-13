@@ -190,8 +190,8 @@ export function indexDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Index");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Index");
     }
 
     ctx.trackForFreeze(instance);
@@ -365,13 +365,13 @@ original 0..38 -> expanded 840..878
 original 59..96 -> expanded 878..915
 original 96..161 -> expanded 1258..1323
 original 191..243 -> expanded 1323..1375
-original 243..244 -> expanded 11377..11378
+original 243..244 -> expanded 11383..11384
 generated 0..840 <- imports
 generated 915..1161 <- Debug
 generated 1161..1258 <- __convenience_const
 generated 1375..3677 <- Encode
-generated 3677..10449 <- Decode
-generated 10449..11377 <- __convenience_const
+generated 3677..10455 <- Decode
+generated 10455..11383 <- __convenience_const
 
 ## Metadata
 

@@ -248,8 +248,8 @@ export function headersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Headers");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Headers");
     }
 
     ctx.trackForFreeze(instance);
@@ -415,7 +415,7 @@ export {};
 ## Mapping
 
 original 91..204 -> expanded 902..1015
-original 204..205 -> expanded 16189..16190
+original 204..205 -> expanded 16195..16196
 generated 0..902 <- imports
 generated 1015..1446 <- Debug
 generated 1446..1680 <- Clone
@@ -425,8 +425,8 @@ generated 2702..3648 <- PartialOrd
 generated 3648..4430 <- Ord
 generated 4430..4596 <- Default
 generated 4596..7255 <- Encode
-generated 7255..14685 <- Decode
-generated 14685..16189 <- __convenience_const
+generated 7255..14691 <- Decode
+generated 14691..16195 <- __convenience_const
 
 ## Metadata
 

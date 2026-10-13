@@ -158,8 +158,8 @@ export function emailDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Email");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Email");
     }
 
     ctx.trackForFreeze(instance);
@@ -491,13 +491,13 @@ original 107..137 -> expanded 896..926
 original 185..213 -> expanded 926..954
 original 255..260 -> expanded 954..959
 original 310..337 -> expanded 959..986
-original 337..338 -> expanded 16599..16600
+original 337..338 -> expanded 16605..16606
 generated 0..838 <- imports
 generated 986..1104 <- Default
 generated 1104..3389 <- Encode
-generated 3389..10837 <- Decode
-generated 10837..15414 <- Gigaform
-generated 15414..16599 <- __convenience_const
+generated 3389..10843 <- Decode
+generated 10843..15420 <- Gigaform
+generated 15420..16605 <- __convenience_const
 
 ## Metadata
 

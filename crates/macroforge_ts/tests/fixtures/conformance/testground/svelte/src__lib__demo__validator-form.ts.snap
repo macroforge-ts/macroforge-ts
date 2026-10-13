@@ -140,8 +140,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(UserRegistrationForm.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "UserRegistrationForm");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "UserRegistrationForm");
     }
 
     ctx.trackForFreeze(instance);
@@ -459,8 +459,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(ProductForm.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ProductForm");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ProductForm");
     }
 
     ctx.trackForFreeze(instance);
@@ -783,8 +783,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(EventForm.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "EventForm");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "EventForm");
     }
 
     ctx.trackForFreeze(instance);
@@ -1203,30 +1203,30 @@ original 392..420 -> expanded 771..799
 original 529..557 -> expanded 799..827
 original 613..636 -> expanded 827..850
 original 672..694 -> expanded 850..872
-original 694..695 -> expanded 16570..16571
-original 695..697 -> expanded 18533..18535
-original 719..751 -> expanded 18535..18567
-original 810..834 -> expanded 18567..18591
-original 896..921 -> expanded 18591..18616
-original 972..1000 -> expanded 18616..18644
-original 1059..1090 -> expanded 18644..18675
-original 1127..1145 -> expanded 18675..18693
-original 1145..1146 -> expanded 33571..33572
-original 1146..1148 -> expanded 35399..35401
-original 1170..1200 -> expanded 35401..35431
-original 1252..1277 -> expanded 35431..35456
-original 1354..1381 -> expanded 35456..35483
-original 1423..1448 -> expanded 35483..35508
-original 1504..1531 -> expanded 35508..35535
-original 1531..1532 -> expanded 48556..48557
-original 1532..2731 -> expanded 50354..51553
+original 694..695 -> expanded 16576..16577
+original 695..697 -> expanded 18539..18541
+original 719..751 -> expanded 18541..18573
+original 810..834 -> expanded 18573..18597
+original 896..921 -> expanded 18597..18622
+original 972..1000 -> expanded 18622..18650
+original 1059..1090 -> expanded 18650..18681
+original 1127..1145 -> expanded 18681..18699
+original 1145..1146 -> expanded 33583..33584
+original 1146..1148 -> expanded 35411..35413
+original 1170..1200 -> expanded 35413..35443
+original 1252..1277 -> expanded 35443..35468
+original 1354..1381 -> expanded 35468..35495
+original 1423..1448 -> expanded 35495..35520
+original 1504..1531 -> expanded 35520..35547
+original 1531..1532 -> expanded 48574..48575
+original 1532..2731 -> expanded 50372..51571
 generated 0..501 <- imports
-generated 872..16570 <- Decode
-generated 16571..18533 <- Decode
-generated 18693..33571 <- Decode
-generated 33572..35399 <- Decode
-generated 35535..48556 <- Decode
-generated 48557..50354 <- Decode
+generated 872..16576 <- Decode
+generated 16577..18539 <- Decode
+generated 18699..33583 <- Decode
+generated 33584..35411 <- Decode
+generated 35547..48574 <- Decode
+generated 48575..50372 <- Decode
 
 ## Metadata
 

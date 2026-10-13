@@ -156,8 +156,8 @@ export function commentedDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Commented");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Commented");
     }
 
     ctx.trackForFreeze(instance);
@@ -481,13 +481,13 @@ export declare const Commented: {
 original 0..58 -> expanded 838..896
 original 107..141 -> expanded 896..930
 original 182..233 -> expanded 930..981
-original 233..234 -> expanded 16133..16134
+original 233..234 -> expanded 16139..16140
 generated 0..838 <- imports
 generated 981..1101 <- Default
 generated 1101..3426 <- Encode
-generated 3426..10375 <- Decode
-generated 10375..14840 <- Gigaform
-generated 14840..16133 <- __convenience_const
+generated 3426..10381 <- Decode
+generated 10381..14846 <- Gigaform
+generated 14846..16139 <- __convenience_const
 
 ## Metadata
 

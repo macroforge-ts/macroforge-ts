@@ -168,8 +168,8 @@ export function numberDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Number");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Number");
     }
 
     ctx.trackForFreeze(instance);
@@ -567,13 +567,13 @@ original 107..138 -> expanded 896..927
 original 179..209 -> expanded 927..957
 original 250..277 -> expanded 957..984
 original 318..345 -> expanded 984..1011
-original 345..346 -> expanded 20250..20251
+original 345..346 -> expanded 20256..20257
 generated 0..838 <- imports
 generated 1011..1153 <- Default
 generated 1153..3638 <- Encode
-generated 3638..13369 <- Decode
-generated 13369..19038 <- Gigaform
-generated 19038..20250 <- __convenience_const
+generated 3638..13375 <- Decode
+generated 13375..19044 <- Gigaform
+generated 19044..20256 <- __convenience_const
 
 ## Metadata
 

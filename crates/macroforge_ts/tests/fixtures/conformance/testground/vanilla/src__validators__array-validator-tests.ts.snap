@@ -110,8 +110,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(MaxItemsValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "MaxItemsValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "MaxItemsValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -306,8 +306,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(MinItemsValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "MinItemsValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "MinItemsValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -502,8 +502,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(ItemsCountValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ItemsCountValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ItemsCountValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -775,19 +775,19 @@ export declare function itemsCountValidatorIs(value: unknown): value is ItemsCou
 ## Mapping
 
 original 0..240 -> expanded 501..741
-original 240..241 -> expanded 7442..7443
-original 241..396 -> expanded 9360..9515
-original 396..397 -> expanded 16219..16220
-original 397..558 -> expanded 18137..18298
-original 558..559 -> expanded 25057..25058
-original 559..560 -> expanded 27005..27006
+original 240..241 -> expanded 7448..7449
+original 241..396 -> expanded 9366..9521
+original 396..397 -> expanded 16231..16232
+original 397..558 -> expanded 18149..18310
+original 558..559 -> expanded 25075..25076
+original 559..560 -> expanded 27023..27024
 generated 0..501 <- imports
-generated 741..7442 <- Decode
-generated 7443..9360 <- Decode
-generated 9515..16219 <- Decode
-generated 16220..18137 <- Decode
-generated 18298..25057 <- Decode
-generated 25058..27005 <- Decode
+generated 741..7448 <- Decode
+generated 7449..9366 <- Decode
+generated 9521..16231 <- Decode
+generated 16232..18149 <- Decode
+generated 18310..25075 <- Decode
+generated 25076..27023 <- Decode
 
 ## Metadata
 

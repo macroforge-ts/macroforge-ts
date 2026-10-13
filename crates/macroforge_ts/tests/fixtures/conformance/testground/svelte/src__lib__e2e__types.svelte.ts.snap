@@ -205,8 +205,8 @@ export function addressDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Address");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Address");
     }
 
     ctx.trackForFreeze(instance);
@@ -448,8 +448,8 @@ export function skillDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Skill");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Skill");
     }
 
     ctx.trackForFreeze(instance);
@@ -676,8 +676,8 @@ export function milestoneDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Milestone");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Milestone");
     }
 
     ctx.trackForFreeze(instance);
@@ -900,8 +900,8 @@ export function metadataValueDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "MetadataValue");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "MetadataValue");
     }
 
     ctx.trackForFreeze(instance);
@@ -1119,8 +1119,8 @@ export function tagDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Tag");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Tag");
     }
 
     ctx.trackForFreeze(instance);
@@ -1338,8 +1338,8 @@ export function featureDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Feature");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Feature");
     }
 
     ctx.trackForFreeze(instance);
@@ -1548,8 +1548,8 @@ export function limitDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Limit");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Limit");
     }
 
     ctx.trackForFreeze(instance);
@@ -1767,8 +1767,8 @@ export function budgetDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Budget");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Budget");
     }
 
     ctx.trackForFreeze(instance);
@@ -2015,8 +2015,8 @@ export function projectDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Project");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Project");
     }
 
     ctx.trackForFreeze(instance);
@@ -2336,8 +2336,8 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Employee");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Employee");
     }
 
     ctx.trackForFreeze(instance);
@@ -2649,8 +2649,8 @@ export function orgConfigDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "OrgConfig");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "OrgConfig");
     }
 
     ctx.trackForFreeze(instance);
@@ -2924,8 +2924,8 @@ export function departmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Department");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Department");
     }
 
     ctx.trackForFreeze(instance);
@@ -3249,8 +3249,8 @@ export function organizationDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Organization");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Organization");
     }
 
     ctx.trackForFreeze(instance);
@@ -3559,8 +3559,8 @@ export function accountBaseDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "AccountBase");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "AccountBase");
     }
 
     ctx.trackForFreeze(instance);
@@ -3818,8 +3818,8 @@ export function savingsAccountDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "SavingsAccount");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "SavingsAccount");
     }
 
     ctx.trackForFreeze(instance);
@@ -4095,8 +4095,8 @@ export function checkingAccountDecodeWithContext(value: unknown, ctx: __mf_Decod
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "CheckingAccount");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "CheckingAccount");
     }
 
     ctx.trackForFreeze(instance);
@@ -4334,8 +4334,8 @@ export function holidayDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Holiday");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Holiday");
     }
 
     ctx.trackForFreeze(instance);
@@ -5477,95 +5477,95 @@ export declare const Moment: {
 
 original 0..1354 -> expanded 879..2233
 original 1384..1508 -> expanded 2233..2357
-original 1508..1510 -> expanded 13917..13919
-original 1540..1627 -> expanded 13919..14006
-original 1627..1629 -> expanded 24214..24216
-original 1659..1758 -> expanded 24216..24315
-original 1758..1760 -> expanded 35141..35143
-original 1790..1865 -> expanded 35143..35218
-original 1865..1867 -> expanded 45119..45121
-original 1897..1981 -> expanded 45121..45205
-original 1981..1983 -> expanded 55204..55206
-original 2013..2081 -> expanded 55206..55274
-original 2081..2083 -> expanded 64735..64737
-original 2113..2176 -> expanded 64737..64800
-original 2176..2178 -> expanded 74098..74100
-original 2208..2300 -> expanded 74100..74192
-original 2300..2330 -> expanded 84550..84580
-original 2360..2515 -> expanded 84580..84735
-original 2515..2517 -> expanded 98282..98284
-original 2547..2752 -> expanded 98284..98489
-original 2752..2754 -> expanded 115271..115273
-original 2784..2875 -> expanded 115273..115364
-original 2875..2904 -> expanded 126278..126307
-original 2934..3088 -> expanded 126307..126461
-original 3088..3090 -> expanded 141098..141100
-original 3120..3280 -> expanded 141100..141260
-original 3280..3313 -> expanded 156280..156313
-original 3343..3452 -> expanded 156313..156422
-original 3452..3454 -> expanded 167800..167802
-original 3484..3583 -> expanded 167802..167901
-original 3583..3585 -> expanded 181343..181345
-original 3615..3718 -> expanded 181345..181448
-original 3718..3760 -> expanded 195009..195051
-original 3790..3837 -> expanded 195051..195098
-original 3837..3892 -> expanded 203430..203485
-original 3914..3964 -> expanded 203485..203535
-original 3964..3965 -> expanded 208796..208797
+original 1508..1510 -> expanded 13923..13925
+original 1540..1627 -> expanded 13925..14012
+original 1627..1629 -> expanded 24226..24228
+original 1659..1758 -> expanded 24228..24327
+original 1758..1760 -> expanded 35159..35161
+original 1790..1865 -> expanded 35161..35236
+original 1865..1867 -> expanded 45143..45145
+original 1897..1981 -> expanded 45145..45229
+original 1981..1983 -> expanded 55234..55236
+original 2013..2081 -> expanded 55236..55304
+original 2081..2083 -> expanded 64771..64773
+original 2113..2176 -> expanded 64773..64836
+original 2176..2178 -> expanded 74140..74142
+original 2208..2300 -> expanded 74142..74234
+original 2300..2330 -> expanded 84598..84628
+original 2360..2515 -> expanded 84628..84783
+original 2515..2517 -> expanded 98336..98338
+original 2547..2752 -> expanded 98338..98543
+original 2752..2754 -> expanded 115331..115333
+original 2784..2875 -> expanded 115333..115424
+original 2875..2904 -> expanded 126344..126373
+original 2934..3088 -> expanded 126373..126527
+original 3088..3090 -> expanded 141170..141172
+original 3120..3280 -> expanded 141172..141332
+original 3280..3313 -> expanded 156358..156391
+original 3343..3452 -> expanded 156391..156500
+original 3452..3454 -> expanded 167884..167886
+original 3484..3583 -> expanded 167886..167985
+original 3583..3585 -> expanded 181433..181435
+original 3615..3718 -> expanded 181435..181538
+original 3718..3760 -> expanded 195105..195147
+original 3790..3837 -> expanded 195147..195194
+original 3837..3892 -> expanded 203532..203587
+original 3914..3964 -> expanded 203587..203637
+original 3964..3965 -> expanded 208898..208899
 generated 0..879 <- imports
 generated 2357..5119 <- Encode
-generated 5119..12940 <- Decode
-generated 12940..13917 <- __convenience_const
-generated 14006..16450 <- Encode
-generated 16450..23279 <- Decode
-generated 23279..24214 <- __convenience_const
-generated 24315..26881 <- Encode
-generated 26881..34122 <- Decode
-generated 34122..35141 <- __convenience_const
-generated 35218..37617 <- Encode
-generated 37617..44016 <- Decode
-generated 44016..45119 <- __convenience_const
-generated 45205..47615 <- Encode
-generated 47615..54311 <- Decode
-generated 54311..55204 <- __convenience_const
-generated 55274..57579 <- Encode
-generated 57579..63758 <- Decode
-generated 63758..64735 <- __convenience_const
-generated 64800..67063 <- Encode
-generated 67063..73163 <- Decode
-generated 73163..74098 <- __convenience_const
-generated 74192..76667 <- Encode
-generated 76667..83594 <- Decode
-generated 83594..84550 <- __convenience_const
-generated 84735..87712 <- Encode
-generated 87712..97305 <- Decode
-generated 97305..98282 <- __convenience_const
-generated 98489..102012 <- Encode
-generated 102012..114273 <- Decode
-generated 114273..115271 <- __convenience_const
-generated 115364..117856 <- Encode
-generated 117856..125259 <- Decode
-generated 125259..126278 <- __convenience_const
-generated 126461..129578 <- Encode
-generated 129578..140058 <- Decode
-generated 140058..141098 <- __convenience_const
-generated 141260..144441 <- Encode
-generated 144441..155198 <- Decode
-generated 155198..156280 <- __convenience_const
-generated 156422..159105 <- Encode
-generated 159105..166739 <- Decode
-generated 166739..167800 <- __convenience_const
-generated 167901..170987 <- Encode
-generated 170987..180219 <- Decode
-generated 180219..181343 <- __convenience_const
-generated 181448..184557 <- Encode
-generated 184557..193864 <- Decode
-generated 193864..195009 <- __convenience_const
-generated 195098..197212 <- Encode
-generated 197212..202453 <- Decode
-generated 202453..203430 <- __convenience_const
-generated 203535..208472 <- Decode
-generated 208472..208796 <- __convenience_const
+generated 5119..12946 <- Decode
+generated 12946..13923 <- __convenience_const
+generated 14012..16456 <- Encode
+generated 16456..23291 <- Decode
+generated 23291..24226 <- __convenience_const
+generated 24327..26893 <- Encode
+generated 26893..34140 <- Decode
+generated 34140..35159 <- __convenience_const
+generated 35236..37635 <- Encode
+generated 37635..44040 <- Decode
+generated 44040..45143 <- __convenience_const
+generated 45229..47639 <- Encode
+generated 47639..54341 <- Decode
+generated 54341..55234 <- __convenience_const
+generated 55304..57609 <- Encode
+generated 57609..63794 <- Decode
+generated 63794..64771 <- __convenience_const
+generated 64836..67099 <- Encode
+generated 67099..73205 <- Decode
+generated 73205..74140 <- __convenience_const
+generated 74234..76709 <- Encode
+generated 76709..83642 <- Decode
+generated 83642..84598 <- __convenience_const
+generated 84783..87760 <- Encode
+generated 87760..97359 <- Decode
+generated 97359..98336 <- __convenience_const
+generated 98543..102066 <- Encode
+generated 102066..114333 <- Decode
+generated 114333..115331 <- __convenience_const
+generated 115424..117916 <- Encode
+generated 117916..125325 <- Decode
+generated 125325..126344 <- __convenience_const
+generated 126527..129644 <- Encode
+generated 129644..140130 <- Decode
+generated 140130..141170 <- __convenience_const
+generated 141332..144513 <- Encode
+generated 144513..155276 <- Decode
+generated 155276..156358 <- __convenience_const
+generated 156500..159183 <- Encode
+generated 159183..166823 <- Decode
+generated 166823..167884 <- __convenience_const
+generated 167985..171071 <- Encode
+generated 171071..180309 <- Decode
+generated 180309..181433 <- __convenience_const
+generated 181538..184647 <- Encode
+generated 184647..193960 <- Decode
+generated 193960..195105 <- __convenience_const
+generated 195194..197308 <- Encode
+generated 197308..202555 <- Decode
+generated 202555..203532 <- __convenience_const
+generated 203637..208574 <- Decode
+generated 208574..208898 <- __convenience_const
 
 ## Metadata
 

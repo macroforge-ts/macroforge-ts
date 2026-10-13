@@ -149,8 +149,8 @@ export function eventDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Event");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Event");
     }
 
     ctx.trackForFreeze(instance);
@@ -280,12 +280,12 @@ export declare const Event: {
 
 original 0..36 -> expanded 807..843
 original 75..124 -> expanded 843..892
-original 124..125 -> expanded 9236..9237
+original 124..125 -> expanded 9242..9243
 generated 0..807 <- imports
 generated 892..1005 <- Default
 generated 1005..3111 <- Encode
-generated 3111..8215 <- Decode
-generated 8215..9236 <- __convenience_const
+generated 3111..8221 <- Decode
+generated 8221..9242 <- __convenience_const
 
 ## Metadata
 

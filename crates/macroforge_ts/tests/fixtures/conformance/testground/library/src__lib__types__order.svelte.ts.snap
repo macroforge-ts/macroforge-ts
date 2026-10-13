@@ -150,8 +150,8 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Order");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Order");
     }
 
     ctx.trackForFreeze(instance);
@@ -291,12 +291,12 @@ export declare const Order: {
 ## Mapping
 
 original 39..104 -> expanded 679..744
-original 104..105 -> expanded 9995..9996
+original 104..105 -> expanded 10001..10002
 generated 0..679 <- imports
 generated 744..849 <- Default
 generated 849..3098 <- Encode
-generated 3098..8974 <- Decode
-generated 8974..9995 <- __convenience_const
+generated 3098..8980 <- Decode
+generated 8980..10001 <- __convenience_const
 
 ## Metadata
 

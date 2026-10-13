@@ -242,7 +242,7 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                     }
                                 {/if}
                                 return value as @{full_type_ident};
-                            {/if}
+                            {:else}
 
                             {#if *has_object_variants || *has_intersection_variants}
                                 // Tagged variants with tag-based discrimination
@@ -307,5 +307,6 @@ pub(super) fn mixed_dispatch(u: &Union) -> TsStream {
                                 field: "_root",
                                 message: "@{type_name}.decodeWithContext: value does not match any union member"
                             }]);
+                            {/if}
     }
 }

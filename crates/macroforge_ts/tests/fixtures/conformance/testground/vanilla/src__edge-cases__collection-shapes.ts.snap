@@ -464,8 +464,8 @@ export function collectionNestedDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "CollectionNested");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "CollectionNested");
     }
 
     ctx.trackForFreeze(instance);
@@ -1094,8 +1094,8 @@ export function collectionKeysDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "CollectionKeys");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "CollectionKeys");
     }
 
     ctx.trackForFreeze(instance);
@@ -1654,8 +1654,8 @@ export function collectionUnionsDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "CollectionUnions");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "CollectionUnions");
     }
 
     ctx.trackForFreeze(instance);
@@ -2139,8 +2139,8 @@ export function collectionTuplesDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "CollectionTuples");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "CollectionTuples");
     }
 
     ctx.trackForFreeze(instance);
@@ -2590,8 +2590,8 @@ export function collectionBigDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "CollectionBig");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "CollectionBig");
     }
 
     ctx.trackForFreeze(instance);
@@ -3127,11 +3127,11 @@ export declare const CollectionBig: {
 
 original 0..433 -> expanded 1675..2108
 original 433..948 -> expanded 5980..6495
-original 948..1410 -> expanded 44312..44774
-original 1410..1804 -> expanded 75947..76341
-original 1804..2219 -> expanded 101879..102294
-original 2219..2422 -> expanded 127094..127297
-original 2422..2423 -> expanded 144321..144322
+original 948..1410 -> expanded 44318..44780
+original 1410..1804 -> expanded 75959..76353
+original 1804..2219 -> expanded 101897..102312
+original 2219..2422 -> expanded 127118..127321
+original 2422..2423 -> expanded 144351..144352
 generated 0..1675 <- imports
 generated 2108..2447 <- Debug
 generated 2447..2545 <- Clone
@@ -3149,39 +3149,39 @@ generated 9396..13734 <- PartialEq
 generated 13734..16664 <- Hash
 generated 16664..17025 <- Default
 generated 17025..21996 <- Encode
-generated 21996..42690 <- Decode
-generated 42690..44312 <- __convenience_const
-generated 44774..45687 <- Debug
-generated 45687..46481 <- Clone
-generated 46481..48754 <- PartialEq
-generated 48754..50613 <- Hash
-generated 50613..51023 <- Default
-generated 51023..55428 <- Encode
-generated 55428..74387 <- Decode
-generated 74387..75947 <- __convenience_const
-generated 76341..77075 <- Debug
-generated 77075..77877 <- Clone
-generated 77877..79595 <- PartialEq
-generated 79595..80880 <- Hash
-generated 80880..81149 <- Default
-generated 81149..85049 <- Encode
-generated 85049..100257 <- Decode
-generated 100257..101879 <- __convenience_const
-generated 102294..103063 <- Debug
-generated 103063..103616 <- Clone
-generated 103616..104331 <- PartialEq
-generated 104331..105110 <- Hash
-generated 105110..105447 <- Default
-generated 105447..109187 <- Encode
-generated 109187..125472 <- Decode
-generated 125472..127094 <- __convenience_const
-generated 127297..127759 <- Debug
-generated 127759..128010 <- Clone
-generated 128010..128661 <- PartialEq
-generated 128661..129609 <- Hash
-generated 129609..132543 <- Encode
-generated 132543..142894 <- Decode
-generated 142894..144321 <- __convenience_const
+generated 21996..42696 <- Decode
+generated 42696..44318 <- __convenience_const
+generated 44780..45693 <- Debug
+generated 45693..46487 <- Clone
+generated 46487..48760 <- PartialEq
+generated 48760..50619 <- Hash
+generated 50619..51029 <- Default
+generated 51029..55434 <- Encode
+generated 55434..74399 <- Decode
+generated 74399..75959 <- __convenience_const
+generated 76353..77087 <- Debug
+generated 77087..77889 <- Clone
+generated 77889..79607 <- PartialEq
+generated 79607..80892 <- Hash
+generated 80892..81161 <- Default
+generated 81161..85061 <- Encode
+generated 85061..100275 <- Decode
+generated 100275..101897 <- __convenience_const
+generated 102312..103081 <- Debug
+generated 103081..103634 <- Clone
+generated 103634..104349 <- PartialEq
+generated 104349..105128 <- Hash
+generated 105128..105465 <- Default
+generated 105465..109205 <- Encode
+generated 109205..125496 <- Decode
+generated 125496..127118 <- __convenience_const
+generated 127321..127783 <- Debug
+generated 127783..128034 <- Clone
+generated 128034..128685 <- PartialEq
+generated 128685..129633 <- Hash
+generated 129633..132567 <- Encode
+generated 132567..142924 <- Decode
+generated 142924..144351 <- __convenience_const
 
 ## Metadata
 

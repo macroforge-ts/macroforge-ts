@@ -195,8 +195,8 @@ export function directiveTextsDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "DirectiveTexts");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "DirectiveTexts");
     }
 
     ctx.trackForFreeze(instance);
@@ -560,8 +560,8 @@ export function directiveSkippedDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "DirectiveSkipped");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "DirectiveSkipped");
     }
 
     ctx.trackForFreeze(instance);
@@ -782,8 +782,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(DirectiveSkippedClass.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "DirectiveSkippedClass");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "DirectiveSkippedClass");
     }
 
     ctx.trackForFreeze(instance);
@@ -998,8 +998,8 @@ export function directiveInnerDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "DirectiveInner");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "DirectiveInner");
     }
 
     ctx.trackForFreeze(instance);
@@ -1196,8 +1196,8 @@ export function directiveFlatDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "DirectiveFlat");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "DirectiveFlat");
     }
 
     ctx.trackForFreeze(instance);
@@ -1620,42 +1620,42 @@ export declare const DirectiveFlat: {
 ## Mapping
 
 original 0..678 -> expanded 937..1615
-original 678..790 -> expanded 16172..16284
-original 790..959 -> expanded 17216..17385
-original 959..1414 -> expanded 18346..18801
-original 1414..1665 -> expanded 28688..28939
-original 1665..1666 -> expanded 36703..36704
-original 1666..1753 -> expanded 40151..40238
-original 1753..1900 -> expanded 49116..49263
-original 1900..1901 -> expanded 59084..59085
+original 678..790 -> expanded 16178..16290
+original 790..959 -> expanded 17222..17391
+original 959..1414 -> expanded 18352..18807
+original 1414..1665 -> expanded 28700..28951
+original 1665..1666 -> expanded 36721..36722
+original 1666..1753 -> expanded 40169..40256
+original 1753..1900 -> expanded 49140..49287
+original 1900..1901 -> expanded 59114..59115
 generated 0..937 <- imports
 generated 1615..2110 <- Debug
 generated 2110..2302 <- Default
 generated 2302..5182 <- Encode
-generated 5182..14856 <- Decode
-generated 14856..16172 <- __convenience_const
-generated 16284..16453 <- Clone
-generated 16453..16638 <- PartialEq
-generated 16638..16918 <- Debug
-generated 16918..17216 <- __convenience_const
-generated 17385..17662 <- Debug
-generated 17662..17829 <- Clone
-generated 17829..18041 <- PartialEq
-generated 18041..18346 <- __convenience_const
-generated 18801..21372 <- Encode
-generated 21372..27522 <- Decode
-generated 27522..28688 <- __convenience_const
-generated 28939..30766 <- Encode
-generated 30766..31115 <- Encode
-generated 31115..36703 <- Decode
-generated 36704..38174 <- Encode
-generated 38174..40151 <- Decode
-generated 40238..42461 <- Encode
-generated 42461..47992 <- Decode
-generated 47992..49116 <- __convenience_const
-generated 49263..51820 <- Encode
-generated 51820..57981 <- Decode
-generated 57981..59084 <- __convenience_const
+generated 5182..14862 <- Decode
+generated 14862..16178 <- __convenience_const
+generated 16290..16459 <- Clone
+generated 16459..16644 <- PartialEq
+generated 16644..16924 <- Debug
+generated 16924..17222 <- __convenience_const
+generated 17391..17668 <- Debug
+generated 17668..17835 <- Clone
+generated 17835..18047 <- PartialEq
+generated 18047..18352 <- __convenience_const
+generated 18807..21378 <- Encode
+generated 21378..27534 <- Decode
+generated 27534..28700 <- __convenience_const
+generated 28951..30778 <- Encode
+generated 30778..31127 <- Encode
+generated 31127..36721 <- Decode
+generated 36722..38192 <- Encode
+generated 38192..40169 <- Decode
+generated 40256..42479 <- Encode
+generated 42479..48016 <- Decode
+generated 48016..49140 <- __convenience_const
+generated 49287..51844 <- Encode
+generated 51844..58011 <- Decode
+generated 58011..59114 <- __convenience_const
 
 ## Metadata
 

@@ -154,8 +154,8 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Profile");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Profile");
     }
 
     ctx.trackForFreeze(instance);
@@ -584,23 +584,23 @@ export {};
 
 original 22..216 -> expanded 581..775
 original 232..267 -> expanded 819..854
-original 267..269 -> expanded 13281..13283
-original 312..367 -> expanded 13283..13338
-original 367..369 -> expanded 16888..16890
-original 391..417 -> expanded 16890..16916
-original 417..418 -> expanded 19016..19017
+original 267..269 -> expanded 13287..13289
+original 312..367 -> expanded 13289..13344
+original 367..369 -> expanded 16894..16896
+original 391..417 -> expanded 16896..16922
+original 417..418 -> expanded 19022..19023
 generated 0..536 <- imports
 generated 536..581 <- $Newtype
 generated 775..819 <- $Newtype
-generated 854..12625 <- Decode
-generated 12625..13281 <- __convenience_const
-generated 13338..14046 <- Encode
-generated 14046..15958 <- Decode
-generated 15958..16152 <- Hash
-generated 16152..16255 <- Debug
-generated 16255..16888 <- __convenience_const
-generated 16916..18708 <- Decode
-generated 18708..19016 <- __convenience_const
+generated 854..12631 <- Decode
+generated 12631..13287 <- __convenience_const
+generated 13344..14052 <- Encode
+generated 14052..15964 <- Decode
+generated 15964..16158 <- Hash
+generated 16158..16261 <- Debug
+generated 16261..16894 <- __convenience_const
+generated 16922..18714 <- Decode
+generated 18714..19022 <- __convenience_const
 
 ## Metadata
 

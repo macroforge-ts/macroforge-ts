@@ -16,7 +16,7 @@ use super::field::prepare::to_encode_field;
 use super::object_encoder::{Home, encode_with_context_functions};
 use super::text::encode_text_body;
 use super::types::EncodeField;
-use crate::builtin::derive::common::{ClassUse, TypeNames, derive_class_fields};
+use crate::builtin::derive::common::{ClassUse, TypeNames, derive_class_fields, inherited_statics};
 use crate::builtin::derive::endec::EndecContainerOptions;
 use crate::builtin::derive::endec::type_arguments::{declared_param_coders, passed_param_coders};
 
@@ -29,7 +29,8 @@ pub(super) fn handle_class(
     let file_imports = input.context.import_registry.file_import_entries();
     let file_imports = file_imports.as_slice();
     let class_name = input.name();
-    let class_names = TypeNames::new(class_name, class.type_params());
+    let class_names = TypeNames::new(class_name, class.type_params())
+        .inheriting(inherited_statics(input, class, "Encode"));
     let class_ident = class_names.full_type_ident();
     let container_opts = EndecContainerOptions::from_decorators(&class.inner.decorators);
     let tag_field = container_opts.tag_field_or_default();

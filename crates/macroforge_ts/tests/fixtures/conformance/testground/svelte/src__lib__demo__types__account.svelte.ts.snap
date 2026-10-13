@@ -404,8 +404,8 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Account");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Account");
     }
 
     ctx.trackForFreeze(instance);
@@ -2096,13 +2096,13 @@ original 2747..2752 -> expanded 3105..3110
 original 2793..2824 -> expanded 3110..3141
 original 2865..2895 -> expanded 3141..3171
 original 2923..2948 -> expanded 3171..3196
-original 2948..2949 -> expanded 80183..80184
+original 2948..2949 -> expanded 80189..80190
 generated 0..1898 <- imports
 generated 3196..3826 <- Default
 generated 3826..10105 <- Encode
-generated 10105..41225 <- Decode
-generated 41225..78944 <- Gigaform
-generated 78944..80183 <- __convenience_const
+generated 10105..41231 <- Decode
+generated 41231..78950 <- Gigaform
+generated 78950..80189 <- __convenience_const
 
 ## Metadata
 

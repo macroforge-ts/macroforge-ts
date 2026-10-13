@@ -1347,8 +1347,8 @@ export function enumHolderDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "EnumHolder");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "EnumHolder");
     }
 
     ctx.trackForFreeze(instance);
@@ -2238,8 +2238,8 @@ original 1392..1631 -> expanded 26267..26506
 original 1631..1814 -> expanded 30408..30591
 original 1814..1980 -> expanded 33307..33473
 original 1980..2468 -> expanded 37085..37573
-original 2468..2631 -> expanded 70618..70781
-original 2631..2632 -> expanded 73158..73159
+original 2468..2631 -> expanded 70624..70787
+original 2631..2632 -> expanded 73164..73165
 generated 0..1293 <- imports
 generated 1727..2130 <- Debug
 generated 2130..2219 <- Clone
@@ -2336,14 +2336,14 @@ generated 39766..41387 <- PartialEq
 generated 41387..43023 <- Hash
 generated 43023..43503 <- Default
 generated 43503..48360 <- Encode
-generated 48360..69182 <- Decode
-generated 69182..70618 <- __convenience_const
-generated 70781..71182 <- Debug
-generated 71182..71427 <- Clone
-generated 71427..71690 <- PartialEq
-generated 71690..72272 <- PartialOrd
-generated 72272..72711 <- Ord
-generated 72711..73158 <- __convenience_const
+generated 48360..69188 <- Decode
+generated 69188..70624 <- __convenience_const
+generated 70787..71188 <- Debug
+generated 71188..71433 <- Clone
+generated 71433..71696 <- PartialEq
+generated 71696..72278 <- PartialOrd
+generated 72278..72717 <- Ord
+generated 72717..73164 <- __convenience_const
 
 ## Metadata
 

@@ -252,8 +252,8 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "TaxRate");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "TaxRate");
     }
 
     ctx.trackForFreeze(instance);
@@ -1030,13 +1030,13 @@ original 952..957 -> expanded 1217..1222
 original 998..1028 -> expanded 1222..1252
 original 1056..1061 -> expanded 1252..1257
 original 1080..1128 -> expanded 1257..1305
-original 1128..1129 -> expanded 37646..37647
+original 1128..1129 -> expanded 37652..37653
 generated 0..908 <- imports
 generated 1305..1586 <- Default
 generated 1586..5213 <- Encode
-generated 5213..22943 <- Decode
-generated 22943..36407 <- Gigaform
-generated 36407..37646 <- __convenience_const
+generated 5213..22949 <- Decode
+generated 22949..36413 <- Gigaform
+generated 36413..37652 <- __convenience_const
 
 ## Metadata
 

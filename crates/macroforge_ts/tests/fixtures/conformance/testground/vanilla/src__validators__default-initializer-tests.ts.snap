@@ -144,8 +144,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(Settings.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Settings");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Settings");
     }
 
     ctx.trackForFreeze(instance);
@@ -476,8 +476,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(Counter.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Counter");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Counter");
     }
 
     ctx.trackForFreeze(instance);
@@ -762,38 +762,38 @@ export declare function counterDefaultValue(): Counter;
 ## Mapping
 
 original 0..396 -> expanded 1001..1397
-original 396..397 -> expanded 10534..10535
-original 397..579 -> expanded 12407..12589
-original 579..580 -> expanded 12862..12863
-original 580..752 -> expanded 12950..13122
-original 752..753 -> expanded 21776..21777
-original 753..754 -> expanded 25573..25574
+original 396..397 -> expanded 10540..10541
+original 397..579 -> expanded 12413..12595
+original 579..580 -> expanded 12868..12869
+original 580..752 -> expanded 12956..13128
+original 752..753 -> expanded 21788..21789
+original 753..754 -> expanded 25585..25586
 generated 0..1001 <- imports
 generated 1397..1763 <- Default
-generated 1763..10534 <- Decode
-generated 10535..10625 <- Default
-generated 10625..12407 <- Decode
-generated 12589..12862 <- Default
-generated 12863..12950 <- Default
-generated 13122..13389 <- Debug
-generated 13389..13511 <- Clone
-generated 13511..13717 <- PartialEq
-generated 13717..14059 <- Hash
-generated 14059..14476 <- PartialOrd
-generated 14476..14839 <- Ord
-generated 14839..16375 <- Encode
-generated 16375..16696 <- Encode
-generated 16696..21596 <- Decode
-generated 21596..21776 <- Default
-generated 21777..21874 <- Debug
-generated 21874..21966 <- Clone
-generated 21966..22067 <- PartialEq
-generated 22067..22164 <- Hash
-generated 22164..22287 <- PartialOrd
-generated 22287..22389 <- Ord
-generated 22389..23719 <- Encode
-generated 23719..25486 <- Decode
-generated 25486..25573 <- Default
+generated 1763..10540 <- Decode
+generated 10541..10631 <- Default
+generated 10631..12413 <- Decode
+generated 12595..12868 <- Default
+generated 12869..12956 <- Default
+generated 13128..13395 <- Debug
+generated 13395..13517 <- Clone
+generated 13517..13723 <- PartialEq
+generated 13723..14065 <- Hash
+generated 14065..14482 <- PartialOrd
+generated 14482..14845 <- Ord
+generated 14845..16381 <- Encode
+generated 16381..16702 <- Encode
+generated 16702..21608 <- Decode
+generated 21608..21788 <- Default
+generated 21789..21886 <- Debug
+generated 21886..21978 <- Clone
+generated 21978..22079 <- PartialEq
+generated 22079..22176 <- Hash
+generated 22176..22299 <- PartialOrd
+generated 22299..22401 <- Ord
+generated 22401..23731 <- Encode
+generated 23731..25498 <- Decode
+generated 25498..25585 <- Default
 
 ## Metadata
 

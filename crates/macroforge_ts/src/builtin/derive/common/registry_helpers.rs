@@ -3,14 +3,25 @@ use std::collections::HashSet;
 use convert_case::{Case, Casing};
 
 use crate::host::expand::derive_scope::{prototype_member_message, unnamed_member_message};
-use crate::ts_syn::abi::InterfaceFieldIR;
 use crate::ts_syn::abi::ir::class::{ClassIR, FieldIR, MemberKey, Visibility};
 use crate::ts_syn::abi::ir::interface::InterfaceIR;
 use crate::ts_syn::abi::ir::type_alias::{TypeMember, TypeMemberKind};
 use crate::ts_syn::abi::ir::type_registry::{
     FileImportEntry, ResolvedTypeRef, TypeDefinitionIR, TypeRegistry, TypeRegistryEntry,
 };
+use crate::ts_syn::abi::{DecoratorIR, InterfaceFieldIR};
 use crate::ts_syn::{DataClass, DataInterface, DataTypeAlias, DeriveInput, MacroforgeError};
+
+/// Whether one of `decorators` is an `@derive` naming `derive_name`.
+fn derives(decorators: &[DecoratorIR], derive_name: &str) -> bool {
+    decorators.iter().any(|decorator| {
+        decorator.name.eq_ignore_ascii_case("derive")
+            && decorator
+                .args_src
+                .split(',')
+                .any(|argument| argument.trim().eq_ignore_ascii_case(derive_name))
+    })
+}
 
 /// Check if a type in the registry has `@derive(MacroName)` applied.
 /// Works for classes, interfaces, enums, and type aliases.
@@ -26,12 +37,7 @@ pub fn type_has_derive(registry: &TypeRegistry, type_name: &str, derive_name: &s
             TypeDefinitionIR::Enum(e) => &e.decorators,
             TypeDefinitionIR::TypeAlias(t) => &t.decorators,
         };
-        decorators.iter().any(|d| {
-            d.name.eq_ignore_ascii_case("derive")
-                && d.args_src
-                    .split(',')
-                    .any(|arg| arg.trim().eq_ignore_ascii_case(derive_name))
-        })
+        derives(decorators, derive_name)
     };
 
     // Check primary entry first (fast path for unambiguous names)
@@ -490,6 +496,61 @@ fn rune_state_type(field: &FieldIR) -> Option<String> {
         }
         None => crate::ts_syn::initializer_type(given?.as_expression()?, false, initializer),
     }
+}
+
+/// The static members the classes a class extends hand down to it.
+#[derive(Default)]
+pub struct InheritedStatics {
+    /// One of them derives the macro asking, so has each static it generates.
+    derived: bool,
+    /// The statics they declare themselves.
+    declared: Vec<String>,
+}
+
+impl InheritedStatics {
+    /// Whether the static `name` is handed down, so that a class's own
+    /// overrides it. A `#private` one is never handed down.
+    pub fn holds(&self, name: &str) -> bool {
+        !name.starts_with('#') && (self.derived || self.declared.iter().any(|held| held == name))
+    }
+}
+
+/// The static members the classes `class` extends hand down to it, as
+/// `derive` on `class` meets them. A superclass the registry does not hold
+/// hands down none that can be known, but for the `toString` every class has
+/// as a function, which a class with a superclass overrides.
+pub fn inherited_statics(input: &DeriveInput, class: &DataClass, derive: &str) -> InheritedStatics {
+    let file_imports = input.context.import_registry.file_import_entries();
+    let mut declared = Declared {
+        registry: &input.context.type_registry,
+        file_path: input.context.file_name.as_str(),
+        file_imports: &file_imports,
+    };
+    let mut inherited = InheritedStatics::default();
+    if class.inner.superclass.is_some() {
+        inherited.declared.push("toString".to_string());
+    }
+    let mut visited = vec![class.inner.name.as_str()];
+    let mut superclass = class.inner.superclass.as_deref();
+    while let Some(entry) = superclass.and_then(|name| declared.resolve(name)) {
+        let TypeDefinitionIR::Class(base) = &entry.definition else {
+            break;
+        };
+        if visited.contains(&base.name.as_str()) {
+            break;
+        }
+        visited.push(base.name.as_str());
+        inherited.derived |= derives(&base.decorators, derive);
+        inherited.declared.extend(
+            base.methods
+                .iter()
+                .filter(|method| method.is_static)
+                .map(|method| method.name.clone()),
+        );
+        declared = declared.at(entry);
+        superclass = base.superclass.as_deref();
+    }
+    inherited
 }
 
 /// The fields a derive on `class` works over, inherited ones included, or

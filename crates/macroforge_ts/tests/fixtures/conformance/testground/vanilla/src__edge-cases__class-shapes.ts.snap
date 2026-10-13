@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/class-shapes.ts
-sha256 1f9c6da3aa5b18a1ec7d4a444e25a84bc0a14cc5f7859d3aafb302e51c931602
+sha256 ed569e3a2d78634121213a043c91ddd29b379a4bede4f2b6142d8398d6481399
 
 ## Changed
 
@@ -21,7 +21,7 @@ import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_Fi
  * modifiers, readonly and static properties, accessors, methods, optional and
  * definite fields, a constructor of the class's own, parameter properties,
  * fields typed by their initializers and inherited fields, of a class and of
- * an interface.
+ * an interface, and a static a superclass writes that a derive generates.
  */
 
 import type { EdgeItem } from './edge-types';
@@ -253,8 +253,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(ClassMembers.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ClassMembers");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ClassMembers");
     }
 
     ctx.trackForFreeze(instance);
@@ -653,8 +653,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(ClassGuarded.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ClassGuarded");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ClassGuarded");
     }
 
     ctx.trackForFreeze(instance);
@@ -992,8 +992,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(ClassConstructed.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ClassConstructed");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ClassConstructed");
     }
 
     ctx.trackForFreeze(instance);
@@ -1303,8 +1303,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(ClassParameters.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ClassParameters");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ClassParameters");
     }
 
     ctx.trackForFreeze(instance);
@@ -1586,8 +1586,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(ClassBase.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ClassBase");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ClassBase");
     }
 
     ctx.trackForFreeze(instance);
@@ -1700,7 +1700,7 @@ export function classBaseIs(value: unknown): value is ClassBase {
 export class ClassDerived extends ClassBase {
     extra: number = 0;
 
-    static toString(value: ClassDerived): string {
+    static override toString(value: ClassDerived): string {
         return __mf_debuggedWithin(value, () => {
             const parts: string[] = [];
         parts.push("id: " + String(value.id));
@@ -1709,19 +1709,19 @@ export class ClassDerived extends ClassBase {
         });
     }
 
-    static clone(value: ClassDerived): ClassDerived {
+    static override clone(value: ClassDerived): ClassDerived {
         return __mf_clonedWith(value, () => ({
         	id: value.id,
         	extra: value.extra
         }));
     }
 
-    static equals(a: ClassDerived, b: ClassDerived): boolean {
+    static override equals(a: ClassDerived, b: ClassDerived): boolean {
         if (a === b) return true;
         return __mf_equalWithin(a, b, () => a.id === b.id && (a.extra === b.extra || a.extra !== a.extra && b.extra !== b.extra));
     }
 
-    static hashCode(value: ClassDerived): number {
+    static override hashCode(value: ClassDerived): number {
         return __mf_hashedWithin(value, () => {
             let hash = 17;
         hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
@@ -1730,7 +1730,7 @@ export class ClassDerived extends ClassBase {
         });
     }
 
-    static defaultValue(): ClassDerived {
+    static override defaultValue(): ClassDerived {
         const fields: { id: string; extra: number } = {
             id: "",
             extra: 0,
@@ -1739,7 +1739,7 @@ export class ClassDerived extends ClassBase {
     }
 
 /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-static encodeWithContext(value: ClassDerived, ctx: __mf_EncodeContext): Record<string, unknown> {
+static override encodeWithContext(value: ClassDerived, ctx: __mf_EncodeContext): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
         return __mf_encodedReference(ctx, existingId);
@@ -1750,7 +1750,7 @@ static encodeWithContext(value: ClassDerived, ctx: __mf_EncodeContext): Record<s
 }
 
 /** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-static encodePartialWithContext(value: Partial<ClassDerived>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassDerived>): Record<string, unknown> {
+static override encodePartialWithContext(value: Partial<ClassDerived>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassDerived>): Record<string, unknown> {
     return __mf_encodeSelection(ctx, value, () => {
         const result: Record<string, unknown> = { "__type": "ClassDerived" };
         ClassDerived.#encodeFields(value as ClassDerived, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
@@ -1772,7 +1772,7 @@ static #encodeFields(value: ClassDerived, _ctx: __mf_EncodeContext, result: Reco
 }
 
     /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-    static encode(value: ClassDerived, keepMetadata?: boolean): string {
+    static override encode(value: ClassDerived, keepMetadata?: boolean): string {
         return classDerivedEncode(value, keepMetadata);
     }
 
@@ -1782,7 +1782,7 @@ constructor(props: { id: string; extra: number }) {
 }
 
 /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassDerived } | { success: false; errors: Array<{ field: string; message: string }> } {
+static override decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassDerived } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
         const data = typeof input === "string" ? __mf_parsedText(input) : input;
@@ -1836,10 +1836,10 @@ static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value
 }
 
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ClassDerived | __mf_PendingRef;
+static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ClassDerived | __mf_PendingRef;
 /** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
-static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ClassDerived> | __mf_PendingRef;
-static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ClassDerived> | __mf_PendingRef {
+static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ClassDerived> | __mf_PendingRef;
+static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ClassDerived> | __mf_PendingRef {
     if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
         throw new __mf_DecodeError([{ field: "_root", message: "ClassDerived.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
     }
@@ -1865,8 +1865,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(ClassDerived.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ClassDerived");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ClassDerived");
     }
 
     ctx.trackForFreeze(instance);
@@ -1894,24 +1894,24 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     return instance;
 }
-static validateField<K extends keyof ClassDerived>(field: K, value: unknown): Array<{ field: string; message: string }>;
-static validateField(): Array<{ field: string; message: string }> {
+static override validateField<K extends keyof ClassDerived>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static override validateField(): Array<{ field: string; message: string }> {
     return [];
 }
 
-static validateFields(partial: { readonly [K in keyof ClassDerived]?: unknown }): Array<{ field: string; message: string }>;
-static validateFields(): Array<{ field: string; message: string }> {
+static override validateFields(partial: { readonly [K in keyof ClassDerived]?: unknown }): Array<{ field: string; message: string }>;
+static override validateFields(): Array<{ field: string; message: string }> {
     return [];
 }
 
-static hasShape(obj: unknown): boolean {
+static override hasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
     return __mf_holds(obj, "id") && __mf_holds(obj, "extra");
 }
 
-static is(obj: unknown): obj is ClassDerived {
+static override is(obj: unknown): obj is ClassDerived {
     if (obj instanceof ClassDerived) {
         return true;
     }
@@ -1982,6 +1982,43 @@ export function classDerivedDecodePartialWithContext(value: unknown, ctx: __mf_D
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
 export function classDerivedIs(value: unknown): value is ClassDerived {
     return ClassDerived.is(value);
+}
+
+export class ClassOwnStatic {
+    id: string = '';
+
+    static toString(value: ClassOwnStatic): string {
+        return `own ${value.id}`;
+    }
+}
+
+/** @derive(Debug, Clone) */
+export class ClassOverStatic extends ClassOwnStatic {
+    note: string = '';
+
+    static override toString(value: ClassOverStatic): string {
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("id: " + String(value.id));
+        parts.push("note: " + String(value.note));
+            return "ClassOverStatic { " + parts.join(", ") + " }";
+        });
+    }
+
+    static clone(value: ClassOverStatic): ClassOverStatic {
+        return __mf_clonedWith(value, () => ({
+        	id: value.id,
+        	note: value.note
+        }));
+    }
+}
+
+export function classOverStaticToString(value: ClassOverStatic): string {
+    return ClassOverStatic.toString(value);
+}
+
+export function classOverStaticClone(value: ClassOverStatic): ClassOverStatic {
+    return ClassOverStatic.clone(value);
 }
 
 /** @derive(Debug, Clone, PartialEq, Hash, Default) */
@@ -2251,8 +2288,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(ClassHolder.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ClassHolder");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ClassHolder");
     }
 
     ctx.trackForFreeze(instance);
@@ -2765,8 +2802,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(ClassInferred.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ClassInferred");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ClassInferred");
     }
 
     ctx.trackForFreeze(instance);
@@ -3235,8 +3272,8 @@ export function classEntityDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ClassEntity");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ClassEntity");
     }
 
     ctx.trackForFreeze(instance);
@@ -3474,8 +3511,8 @@ export function classDatedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ClassDated");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ClassDated");
     }
 
     ctx.trackForFreeze(instance);
@@ -3746,8 +3783,8 @@ export function classAccountDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ClassAccount");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ClassAccount");
     }
 
     ctx.trackForFreeze(instance);
@@ -3862,7 +3899,7 @@ export const ClassAccount: {
 * modifiers, readonly and static properties, accessors, methods, optional and
 * definite fields, a constructor of the class's own, parameter properties,
 * fields typed by their initializers and inherited fields, of a class and of
-* an interface.
+* an interface, and a static a superclass writes that a derive generates.
 */
 import type { EdgeItem } from "./edge-types";
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
@@ -4266,23 +4303,23 @@ export declare function classBaseIs(value: unknown): value is ClassBase;
 export declare class ClassDerived extends ClassBase {
 	#private;
 	extra: number;
-	static toString(value: ClassDerived): string;
-	static clone(value: ClassDerived): ClassDerived;
-	static equals(a: ClassDerived, b: ClassDerived): boolean;
-	static hashCode(value: ClassDerived): number;
-	static defaultValue(): ClassDerived;
+	static override toString(value: ClassDerived): string;
+	static override clone(value: ClassDerived): ClassDerived;
+	static override equals(a: ClassDerived, b: ClassDerived): boolean;
+	static override hashCode(value: ClassDerived): number;
+	static override defaultValue(): ClassDerived;
 	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-	static encodeWithContext(value: ClassDerived, ctx: __mf_EncodeContext): Record<string, unknown>;
+	static override encodeWithContext(value: ClassDerived, ctx: __mf_EncodeContext): Record<string, unknown>;
 	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-	static encodePartialWithContext(value: Partial<ClassDerived>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassDerived>): Record<string, unknown>;
+	static override encodePartialWithContext(value: Partial<ClassDerived>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ClassDerived>): Record<string, unknown>;
 	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-	static encode(value: ClassDerived, keepMetadata?: boolean): string;
+	static override encode(value: ClassDerived, keepMetadata?: boolean): string;
 	constructor(props: {
 		id: string;
 		extra: number;
 	});
 	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+	static override decode(input: unknown, opts?: __mf_DecodeOptions): {
 		success: true;
 		value: ClassDerived;
 	} | {
@@ -4293,19 +4330,19 @@ export declare class ClassDerived extends ClassBase {
 		}>;
 	};
 	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ClassDerived | __mf_PendingRef;
+	static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ClassDerived | __mf_PendingRef;
 	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
-	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ClassDerived> | __mf_PendingRef;
-	static validateField<K extends keyof ClassDerived>(field: K, value: unknown): Array<{
+	static override decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ClassDerived> | __mf_PendingRef;
+	static override validateField<K extends keyof ClassDerived>(field: K, value: unknown): Array<{
 		field: string;
 		message: string;
 	}>;
-	static validateFields(partial: { readonly [K in keyof ClassDerived]?: unknown }): Array<{
+	static override validateFields(partial: { readonly [K in keyof ClassDerived]?: unknown }): Array<{
 		field: string;
 		message: string;
 	}>;
-	static hasShape(obj: unknown): boolean;
-	static is(obj: unknown): obj is ClassDerived;
+	static override hasShape(obj: unknown): boolean;
+	static override is(obj: unknown): obj is ClassDerived;
 }
 export declare function classDerivedToString(value: ClassDerived): string;
 export declare function classDerivedClone(value: ClassDerived): ClassDerived;
@@ -4337,6 +4374,18 @@ export declare function classDerivedHasShape(value: unknown): boolean;
 export declare function classDerivedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ClassDerived>): Partial<ClassDerived> | __mf_PendingRef;
 /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
 export declare function classDerivedIs(value: unknown): value is ClassDerived;
+export declare class ClassOwnStatic {
+	id: string;
+	static toString(value: ClassOwnStatic): string;
+}
+/** @derive(Debug, Clone) */
+export declare class ClassOverStatic extends ClassOwnStatic {
+	note: string;
+	static override toString(value: ClassOverStatic): string;
+	static clone(value: ClassOverStatic): ClassOverStatic;
+}
+export declare function classOverStaticToString(value: ClassOverStatic): string;
+export declare function classOverStaticClone(value: ClassOverStatic): ClassOverStatic;
 /** @derive(Debug, Clone, PartialEq, Hash, Default) */
 export declare abstract class ClassAbstract {
 	kind: string;
@@ -4718,219 +4767,227 @@ export declare const ClassAccount: {
 
 ## Mapping
 
-original 0..878 -> expanded 1252..2130
-original 878..879 -> expanded 15714..15715
-original 879..1249 -> expanded 19496..19866
-original 1249..1250 -> expanded 32993..32994
-original 1250..1529 -> expanded 37040..37319
-original 1529..1530 -> expanded 47710..47711
-original 1530..1820 -> expanded 51957..52247
-original 1820..1821 -> expanded 62510..62511
-original 1821..1940 -> expanded 66418..66537
-original 1940..1941 -> expanded 74254..74255
-original 1941..2083 -> expanded 77910..78052
-original 2083..2084 -> expanded 87161..87162
-original 2084..2239 -> expanded 90943..91098
-original 2239..2240 -> expanded 92170..92171
-original 2240..2510 -> expanded 92747..93017
-original 2510..2511 -> expanded 108225..108226
-original 2511..2990 -> expanded 111965..112444
-original 2990..2991 -> expanded 135012..135013
-original 2991..3149 -> expanded 138836..138994
-original 3149..3150 -> expanded 140302..140303
-original 3150..3289 -> expanded 140879..141018
-original 3289..3407 -> expanded 151953..152071
-original 3407..3587 -> expanded 162195..162375
-original 3587..3588 -> expanded 175913..175914
+original 0..936 -> expanded 1252..2188
+original 936..937 -> expanded 15778..15779
+original 937..1307 -> expanded 19560..19930
+original 1307..1308 -> expanded 33063..33064
+original 1308..1587 -> expanded 37110..37389
+original 1587..1588 -> expanded 47786..47787
+original 1588..1878 -> expanded 52033..52323
+original 1878..1879 -> expanded 62592..62593
+original 1879..1998 -> expanded 66500..66619
+original 1998..1999 -> expanded 74342..74343
+original 1999..2141 -> expanded 77998..78140
+original 2141..2142 -> expanded 87417..87418
+original 2142..2398 -> expanded 91199..91455
+original 2398..2399 -> expanded 91968..91969
+original 2399..2554 -> expanded 92214..92369
+original 2554..2555 -> expanded 93441..93442
+original 2555..2825 -> expanded 94018..94288
+original 2825..2826 -> expanded 109502..109503
+original 2826..3305 -> expanded 113242..113721
+original 3305..3306 -> expanded 136295..136296
+original 3306..3464 -> expanded 140119..140277
+original 3464..3465 -> expanded 141585..141586
+original 3465..3604 -> expanded 142162..142301
+original 3604..3722 -> expanded 153242..153360
+original 3722..3902 -> expanded 163490..163670
+original 3902..3903 -> expanded 177214..177215
 generated 0..1252 <- imports
-generated 2130..2666 <- Debug
-generated 2666..3016 <- Clone
-generated 3016..3560 <- PartialEq
-generated 3560..4453 <- Hash
-generated 4453..4774 <- Default
-generated 4774..7076 <- Encode
-generated 7076..7407 <- Encode
-generated 7407..15714 <- Decode
-generated 15715..15827 <- Debug
-generated 15827..15939 <- Clone
-generated 15939..16060 <- PartialEq
-generated 16060..16172 <- Hash
-generated 16172..16274 <- Default
-generated 16274..17654 <- Encode
-generated 17654..19496 <- Decode
-generated 19866..20308 <- Debug
-generated 20308..20550 <- Clone
-generated 20550..20851 <- PartialEq
-generated 20851..21515 <- Hash
-generated 21515..22413 <- PartialOrd
-generated 22413..23131 <- Ord
-generated 23131..23450 <- Default
-generated 23450..25526 <- Encode
-generated 25526..25857 <- Encode
-generated 25857..32993 <- Decode
-generated 32994..33106 <- Debug
-generated 33106..33218 <- Clone
-generated 33218..33339 <- PartialEq
-generated 33339..33451 <- Hash
-generated 33451..33594 <- PartialOrd
-generated 33594..33716 <- Ord
-generated 33716..33818 <- Default
-generated 33818..35198 <- Encode
-generated 35198..37040 <- Decode
-generated 37319..37659 <- Debug
-generated 37659..37847 <- Clone
-generated 37847..38102 <- PartialEq
-generated 38102..38580 <- Hash
-generated 38580..39177 <- PartialOrd
-generated 39177..39678 <- Ord
-generated 39678..39916 <- Default
-generated 39916..41698 <- Encode
-generated 41698..42037 <- Encode
-generated 42037..47710 <- Decode
-generated 47711..47835 <- Debug
-generated 47835..47963 <- Clone
-generated 47963..48100 <- PartialEq
-generated 48100..48224 <- Hash
-generated 48224..48383 <- PartialOrd
-generated 48383..48521 <- Ord
-generated 48521..48635 <- Default
-generated 48635..50055 <- Encode
-generated 50055..51957 <- Decode
-generated 52247..52634 <- Debug
-generated 52634..52845 <- Clone
-generated 52845..53109 <- PartialEq
-generated 53109..53704 <- Hash
-generated 53704..53980 <- Default
-generated 53980..55906 <- Encode
-generated 55906..56243 <- Encode
-generated 56243..62510 <- Decode
-generated 62511..62632 <- Debug
-generated 62632..62756 <- Clone
-generated 62756..62889 <- PartialEq
-generated 62889..63010 <- Hash
-generated 63010..63121 <- Default
-generated 63121..64531 <- Encode
-generated 64531..66418 <- Decode
-generated 66537..66802 <- Debug
-generated 66802..66922 <- Clone
-generated 66922..67080 <- PartialEq
-generated 67080..67368 <- Hash
-generated 67368..67547 <- Default
-generated 67547..69089 <- Encode
-generated 69089..69414 <- Encode
-generated 69414..74254 <- Decode
-generated 74255..74358 <- Debug
-generated 74358..74458 <- Clone
-generated 74458..74567 <- PartialEq
-generated 74567..74670 <- Hash
-generated 74670..74763 <- Default
-generated 74763..76113 <- Encode
-generated 76113..77910 <- Decode
-generated 78052..78376 <- Debug
-generated 78376..78548 <- Clone
-generated 78548..78783 <- PartialEq
-generated 78783..79251 <- Hash
-generated 79251..79473 <- Default
-generated 79473..81203 <- Encode
-generated 81203..81534 <- Encode
-generated 81534..87161 <- Decode
-generated 87162..87274 <- Debug
-generated 87274..87386 <- Clone
-generated 87386..87507 <- PartialEq
-generated 87507..87619 <- Hash
-generated 87619..87721 <- Default
-generated 87721..89101 <- Encode
-generated 89101..90943 <- Decode
-generated 91098..91375 <- Debug
-generated 91375..91507 <- Clone
-generated 91507..91677 <- PartialEq
-generated 91677..91971 <- Hash
-generated 91971..92170 <- Default
-generated 92171..92286 <- Debug
-generated 92286..92402 <- Clone
-generated 92402..92527 <- PartialEq
-generated 92527..92642 <- Hash
-generated 92642..92747 <- Default
-generated 93017..93577 <- Debug
-generated 93577..94114 <- Clone
-generated 94114..94910 <- PartialEq
-generated 94910..95628 <- Hash
-generated 95628..96005 <- Default
-generated 96005..98327 <- Encode
-generated 98327..98656 <- Encode
-generated 98656..108225 <- Decode
-generated 108226..108335 <- Debug
-generated 108335..108443 <- Clone
-generated 108443..108560 <- PartialEq
-generated 108560..108669 <- Hash
-generated 108669..108768 <- Default
-generated 108768..110138 <- Encode
-generated 110138..111965 <- Decode
-generated 112444..113355 <- Debug
-generated 113355..113865 <- Clone
-generated 113865..114770 <- PartialEq
-generated 114770..116765 <- Hash
-generated 116765..117379 <- Default
-generated 117379..120911 <- Encode
-generated 120911..121244 <- Encode
-generated 121244..135012 <- Decode
-generated 135013..135128 <- Debug
-generated 135128..135244 <- Clone
-generated 135244..135369 <- PartialEq
-generated 135369..135484 <- Hash
-generated 135484..135589 <- Default
-generated 135589..136979 <- Encode
-generated 136979..138836 <- Decode
-generated 138994..139330 <- Debug
-generated 139330..139514 <- Clone
-generated 139514..139713 <- PartialEq
-generated 139713..140045 <- Hash
-generated 140045..140302 <- Default
-generated 140303..140418 <- Debug
-generated 140418..140534 <- Clone
-generated 140534..140659 <- PartialEq
-generated 140659..140774 <- Hash
-generated 140774..140879 <- Default
-generated 141018..141326 <- Debug
-generated 141326..141491 <- Clone
-generated 141491..141678 <- PartialEq
-generated 141678..142079 <- Hash
-generated 142079..142193 <- Default
-generated 142193..144516 <- Encode
-generated 144516..150486 <- Decode
-generated 150486..151953 <- __convenience_const
-generated 152071..152329 <- Debug
-generated 152329..152490 <- Clone
-generated 152490..152747 <- PartialEq
-generated 152747..152965 <- Hash
-generated 152965..153067 <- Default
-generated 153067..155232 <- Encode
-generated 155232..160759 <- Decode
-generated 160759..162195 <- __convenience_const
-generated 162375..162782 <- Debug
-generated 162782..163011 <- Clone
-generated 163011..163397 <- PartialEq
-generated 163397..164034 <- Hash
-generated 164034..164201 <- Default
-generated 164201..166871 <- Encode
-generated 166871..174415 <- Decode
-generated 174415..175913 <- __convenience_const
+generated 2188..2724 <- Debug
+generated 2724..3074 <- Clone
+generated 3074..3618 <- PartialEq
+generated 3618..4511 <- Hash
+generated 4511..4832 <- Default
+generated 4832..7134 <- Encode
+generated 7134..7465 <- Encode
+generated 7465..15778 <- Decode
+generated 15779..15891 <- Debug
+generated 15891..16003 <- Clone
+generated 16003..16124 <- PartialEq
+generated 16124..16236 <- Hash
+generated 16236..16338 <- Default
+generated 16338..17718 <- Encode
+generated 17718..19560 <- Decode
+generated 19930..20372 <- Debug
+generated 20372..20614 <- Clone
+generated 20614..20915 <- PartialEq
+generated 20915..21579 <- Hash
+generated 21579..22477 <- PartialOrd
+generated 22477..23195 <- Ord
+generated 23195..23514 <- Default
+generated 23514..25590 <- Encode
+generated 25590..25921 <- Encode
+generated 25921..33063 <- Decode
+generated 33064..33176 <- Debug
+generated 33176..33288 <- Clone
+generated 33288..33409 <- PartialEq
+generated 33409..33521 <- Hash
+generated 33521..33664 <- PartialOrd
+generated 33664..33786 <- Ord
+generated 33786..33888 <- Default
+generated 33888..35268 <- Encode
+generated 35268..37110 <- Decode
+generated 37389..37729 <- Debug
+generated 37729..37917 <- Clone
+generated 37917..38172 <- PartialEq
+generated 38172..38650 <- Hash
+generated 38650..39247 <- PartialOrd
+generated 39247..39748 <- Ord
+generated 39748..39986 <- Default
+generated 39986..41768 <- Encode
+generated 41768..42107 <- Encode
+generated 42107..47786 <- Decode
+generated 47787..47911 <- Debug
+generated 47911..48039 <- Clone
+generated 48039..48176 <- PartialEq
+generated 48176..48300 <- Hash
+generated 48300..48459 <- PartialOrd
+generated 48459..48597 <- Ord
+generated 48597..48711 <- Default
+generated 48711..50131 <- Encode
+generated 50131..52033 <- Decode
+generated 52323..52710 <- Debug
+generated 52710..52921 <- Clone
+generated 52921..53185 <- PartialEq
+generated 53185..53780 <- Hash
+generated 53780..54056 <- Default
+generated 54056..55982 <- Encode
+generated 55982..56319 <- Encode
+generated 56319..62592 <- Decode
+generated 62593..62714 <- Debug
+generated 62714..62838 <- Clone
+generated 62838..62971 <- PartialEq
+generated 62971..63092 <- Hash
+generated 63092..63203 <- Default
+generated 63203..64613 <- Encode
+generated 64613..66500 <- Decode
+generated 66619..66884 <- Debug
+generated 66884..67004 <- Clone
+generated 67004..67162 <- PartialEq
+generated 67162..67450 <- Hash
+generated 67450..67629 <- Default
+generated 67629..69171 <- Encode
+generated 69171..69496 <- Encode
+generated 69496..74342 <- Decode
+generated 74343..74446 <- Debug
+generated 74446..74546 <- Clone
+generated 74546..74655 <- PartialEq
+generated 74655..74758 <- Hash
+generated 74758..74851 <- Default
+generated 74851..76201 <- Encode
+generated 76201..77998 <- Decode
+generated 78140..78473 <- Debug
+generated 78473..78654 <- Clone
+generated 78654..78898 <- PartialEq
+generated 78898..79375 <- Hash
+generated 79375..79606 <- Default
+generated 79606..81354 <- Encode
+generated 81354..81694 <- Encode
+generated 81694..87417 <- Decode
+generated 87418..87530 <- Debug
+generated 87530..87642 <- Clone
+generated 87642..87763 <- PartialEq
+generated 87763..87875 <- Hash
+generated 87875..87977 <- Default
+generated 87977..89357 <- Encode
+generated 89357..91199 <- Decode
+generated 91455..91792 <- Debug
+generated 91792..91968 <- Clone
+generated 91969..92090 <- Debug
+generated 92090..92214 <- Clone
+generated 92369..92646 <- Debug
+generated 92646..92778 <- Clone
+generated 92778..92948 <- PartialEq
+generated 92948..93242 <- Hash
+generated 93242..93441 <- Default
+generated 93442..93557 <- Debug
+generated 93557..93673 <- Clone
+generated 93673..93798 <- PartialEq
+generated 93798..93913 <- Hash
+generated 93913..94018 <- Default
+generated 94288..94848 <- Debug
+generated 94848..95385 <- Clone
+generated 95385..96181 <- PartialEq
+generated 96181..96899 <- Hash
+generated 96899..97276 <- Default
+generated 97276..99598 <- Encode
+generated 99598..99927 <- Encode
+generated 99927..109502 <- Decode
+generated 109503..109612 <- Debug
+generated 109612..109720 <- Clone
+generated 109720..109837 <- PartialEq
+generated 109837..109946 <- Hash
+generated 109946..110045 <- Default
+generated 110045..111415 <- Encode
+generated 111415..113242 <- Decode
+generated 113721..114632 <- Debug
+generated 114632..115142 <- Clone
+generated 115142..116047 <- PartialEq
+generated 116047..118042 <- Hash
+generated 118042..118656 <- Default
+generated 118656..122188 <- Encode
+generated 122188..122521 <- Encode
+generated 122521..136295 <- Decode
+generated 136296..136411 <- Debug
+generated 136411..136527 <- Clone
+generated 136527..136652 <- PartialEq
+generated 136652..136767 <- Hash
+generated 136767..136872 <- Default
+generated 136872..138262 <- Encode
+generated 138262..140119 <- Decode
+generated 140277..140613 <- Debug
+generated 140613..140797 <- Clone
+generated 140797..140996 <- PartialEq
+generated 140996..141328 <- Hash
+generated 141328..141585 <- Default
+generated 141586..141701 <- Debug
+generated 141701..141817 <- Clone
+generated 141817..141942 <- PartialEq
+generated 141942..142057 <- Hash
+generated 142057..142162 <- Default
+generated 142301..142609 <- Debug
+generated 142609..142774 <- Clone
+generated 142774..142961 <- PartialEq
+generated 142961..143362 <- Hash
+generated 143362..143476 <- Default
+generated 143476..145799 <- Encode
+generated 145799..151775 <- Decode
+generated 151775..153242 <- __convenience_const
+generated 153360..153618 <- Debug
+generated 153618..153779 <- Clone
+generated 153779..154036 <- PartialEq
+generated 154036..154254 <- Hash
+generated 154254..154356 <- Default
+generated 154356..156521 <- Encode
+generated 156521..162054 <- Decode
+generated 162054..163490 <- __convenience_const
+generated 163670..164077 <- Debug
+generated 164077..164306 <- Clone
+generated 164306..164692 <- PartialEq
+generated 164692..165329 <- Hash
+generated 165329..165496 <- Default
+generated 165496..168166 <- Encode
+generated 168166..175716 <- Decode
+generated 175716..177214 <- __convenience_const
 
 ## Metadata
 
-class ClassMembers: {"body_span":{"end":880,"start":472},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":445,"start":375}}],"fields":[{"accessor":false,"decorators":[],"initializer":"'open'","key":"Named","name":"open","optional":false,"readonly":false,"span":{"end":539,"start":510},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"'fixed'","key":"Named","name":"fixed","optional":false,"readonly":true,"span":{"end":577,"start":544},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":600,"start":582},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"definite","optional":false,"readonly":false,"span":{"end":623,"start":605},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":651,"start":628},"ts_type":"EdgeItem[]","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":729,"start":677},"body_src":"\n        return `${this.open}:${this.fixed}`;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"label","params_src":"","return_type_src":"string","span":{"end":729,"start":657},"type_params":[],"visibility":"Public"},{"body_span":{"end":792,"start":759},"body_src":"\n        this.open = text;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"label","params_src":"text: string","return_type_src":"","span":{"end":792,"start":735},"type_params":[],"visibility":"Public"},{"body_span":{"end":878,"start":817},"body_src":"\n        return `${this.open} (${this.items.length})`;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"describe","params_src":"","return_type_src":"string","span":{"end":878,"start":798},"type_params":[],"visibility":"Public"}],"name":"ClassMembers","span":{"end":880,"start":453},"superclass":null,"type_params":[]}
-class ClassGuarded: {"body_span":{"end":1251,"start":1000},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":973,"start":882}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1024,"start":1006},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"1","key":"Named","name":"guarded","optional":false,"readonly":false,"span":{"end":1059,"start":1029},"ts_type":"number","untyped":false,"visibility":"Protected"},{"accessor":false,"decorators":[],"initializer":"true","key":"Named","name":"hidden","optional":false,"readonly":false,"span":{"end":1095,"start":1064},"ts_type":"boolean","untyped":false,"visibility":"Private"},{"accessor":false,"decorators":[],"initializer":"'sealed'","key":"Named","name":"sealed","optional":false,"readonly":true,"span":{"end":1143,"start":1100},"ts_type":"string","untyped":false,"visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1249,"start":1185},"body_src":"\n        return [this.guarded, this.hidden, this.sealed];\n    ","decorators":[],"is_async":false,"is_static":false,"name":"reveal","params_src":"","return_type_src":"[number, boolean, string]","span":{"end":1249,"start":1149},"type_params":[],"visibility":"Public"}],"name":"ClassGuarded","span":{"end":1251,"start":981},"superclass":null,"type_params":[]}
-class ClassConstructed: {"body_span":{"end":1531,"start":1375},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1344,"start":1253}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":1395,"start":1381},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"weight","optional":false,"readonly":false,"span":{"end":1415,"start":1400},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1529,"start":1464},"body_src":"\n        this.label = label;\n        this.weight = weight;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"label: string, weight: number","return_type_src":"","span":{"end":1529,"start":1421},"type_params":[],"visibility":"Public"}],"name":"ClassConstructed","span":{"end":1531,"start":1352},"superclass":null,"type_params":[]}
-class ClassParameters: {"body_span":{"end":1822,"start":1633},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1603,"start":1533}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1679,"start":1660},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"rank","optional":false,"readonly":true,"span":{"end":1710,"start":1689},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"'secret'","key":"Named","name":"secret","optional":false,"readonly":false,"span":{"end":1753,"start":1720},"ts_type":"string","untyped":false,"visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1762,"start":1760},"body_src":"","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"public name: string,\n        readonly rank: number,\n        private secret: string = 'secret'","return_type_src":"","span":{"end":1762,"start":1639},"type_params":[],"visibility":"Public"},{"body_span":{"end":1820,"start":1785},"body_src":"\n        return this.secret;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"reveal","params_src":"","return_type_src":"string","span":{"end":1820,"start":1768},"type_params":[],"visibility":"Public"}],"name":"ClassParameters","span":{"end":1822,"start":1611},"superclass":null,"type_params":[]}
-class ClassBase: {"body_span":{"end":1942,"start":1918},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1894,"start":1824}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1940,"start":1924},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassBase","span":{"end":1942,"start":1902},"superclass":null,"type_params":[]}
-class ClassDerived: {"body_span":{"end":2085,"start":2059},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2014,"start":1944}}],"fields":[{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"extra","optional":false,"readonly":false,"span":{"end":2083,"start":2065},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":["ClassBase"],"is_abstract":false,"methods":[],"name":"ClassDerived","span":{"end":2085,"start":2022},"superclass":"ClassBase","type_params":[]}
-class ClassAbstract: {"body_span":{"end":2241,"start":2178},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default","name":"Derive","span":{"end":2141,"start":2087}}],"fields":[{"accessor":false,"decorators":[],"initializer":"'abstract'","key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2210,"start":2184},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":true,"methods":[{"body_span":null,"body_src":null,"decorators":[],"is_async":false,"is_static":false,"name":"area","params_src":"","return_type_src":"number","span":{"end":2239,"start":2215},"type_params":[],"visibility":"Public"}],"name":"ClassAbstract","span":{"end":2241,"start":2149},"superclass":null,"type_params":[]}
-class ClassHolder: {"body_span":{"end":2512,"start":2339},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2313,"start":2243}}],"fields":[{"accessor":false,"decorators":[],"initializer":"ClassMembers.defaultValue()","key":"Named","name":"card","optional":false,"readonly":false,"span":{"end":2394,"start":2345},"ts_type":"ClassMembers","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"cards","optional":false,"readonly":false,"span":{"end":2426,"start":2399},"ts_type":"ClassMembers[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Map()","key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":2474,"start":2431},"ts_type":"Map<string, ClassBase>","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":2510,"start":2479},"ts_type":"ClassBase | null","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassHolder","span":{"end":2512,"start":2321},"superclass":null,"type_params":[]}
-class ClassInferred: {"body_span":{"end":2992,"start":2612},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2584,"start":2514}}],"fields":[{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":2628,"start":2618},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"'none'","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":2648,"start":2633},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"false","key":"Named","name":"active","optional":false,"readonly":false,"span":{"end":2668,"start":2653},"ts_type":"boolean","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"10n","key":"Named","name":"big","optional":false,"readonly":false,"span":{"end":2683,"start":2673},"ts_type":"bigint","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"-1","key":"Named","name":"offset","optional":false,"readonly":false,"span":{"end":2700,"start":2688},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"`n${1}`","key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":2720,"start":2705},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Date(0)","key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":2742,"start":2725},"ts_type":"Date","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Set<string>()","key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":2772,"start":2747},"ts_type":"Set<string>","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"0.5 as number","key":"Named","name":"ratio","optional":false,"readonly":false,"span":{"end":2799,"start":2777},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"'inferred'","key":"Named","name":"kind","optional":false,"readonly":true,"span":{"end":2831,"start":2804},"ts_type":"'inferred'","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"3","key":"Named","name":"rank","optional":false,"readonly":true,"span":{"end":2854,"start":2836},"ts_type":"3","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":2895,"start":2881},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"7","key":"Named","name":"secret","optional":false,"readonly":false,"span":{"end":2923,"start":2905},"ts_type":"number","untyped":false,"visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":2932,"start":2930},"body_src":"","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"public id = '',\n        private secret = 7","return_type_src":"","span":{"end":2932,"start":2860},"type_params":[],"visibility":"Public"},{"body_span":{"end":2990,"start":2955},"body_src":"\n        return this.secret;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"reveal","params_src":"","return_type_src":"number","span":{"end":2990,"start":2938},"type_params":[],"visibility":"Public"}],"name":"ClassInferred","span":{"end":2992,"start":2592},"superclass":null,"type_params":[]}
-class ClassCallback: {"body_span":{"end":3151,"start":3076},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default","name":"Derive","span":{"end":3048,"start":2994}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":3100,"start":3082},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"() => {}","key":"Named","name":"onChange","optional":false,"readonly":false,"span":{"end":3149,"start":3105},"ts_type":"(name: string) => void","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassCallback","span":{"end":3151,"start":3056},"superclass":null,"type_params":[]}
-interface ClassEntity: {"body_span":{"end":3290,"start":3253},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":3223,"start":3153}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":3270,"start":3259},"ts_type":"string"},{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":3288,"start":3275},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ClassEntity","span":{"end":3290,"start":3231},"type_params":[]}
-interface ClassDated: {"body_span":{"end":3408,"start":3391},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":3362,"start":3292}}],"fields":[{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":3406,"start":3397},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"ClassDated","span":{"end":3408,"start":3370},"type_params":[]}
-interface ClassAccount: {"body_span":{"end":3588,"start":3543},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":3480,"start":3410}}],"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":3565,"start":3549},"ts_type":"'account'"},{"decorators":[],"key":"Named","name":"balance","optional":false,"readonly":false,"span":{"end":3586,"start":3570},"ts_type":"number"}],"heritage":["ClassEntity","ClassDated"],"methods":[],"name":"ClassAccount","span":{"end":3588,"start":3488},"type_params":[]}
+class ClassMembers: {"body_span":{"end":938,"start":530},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":503,"start":433}}],"fields":[{"accessor":false,"decorators":[],"initializer":"'open'","key":"Named","name":"open","optional":false,"readonly":false,"span":{"end":597,"start":568},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"'fixed'","key":"Named","name":"fixed","optional":false,"readonly":true,"span":{"end":635,"start":602},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":658,"start":640},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"definite","optional":false,"readonly":false,"span":{"end":681,"start":663},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":709,"start":686},"ts_type":"EdgeItem[]","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":787,"start":735},"body_src":"\n        return `${this.open}:${this.fixed}`;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"label","params_src":"","return_type_src":"string","span":{"end":787,"start":715},"type_params":[],"visibility":"Public"},{"body_span":{"end":850,"start":817},"body_src":"\n        this.open = text;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"label","params_src":"text: string","return_type_src":"","span":{"end":850,"start":793},"type_params":[],"visibility":"Public"},{"body_span":{"end":936,"start":875},"body_src":"\n        return `${this.open} (${this.items.length})`;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"describe","params_src":"","return_type_src":"string","span":{"end":936,"start":856},"type_params":[],"visibility":"Public"}],"name":"ClassMembers","span":{"end":938,"start":511},"superclass":null,"type_params":[]}
+class ClassGuarded: {"body_span":{"end":1309,"start":1058},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1031,"start":940}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1082,"start":1064},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"1","key":"Named","name":"guarded","optional":false,"readonly":false,"span":{"end":1117,"start":1087},"ts_type":"number","untyped":false,"visibility":"Protected"},{"accessor":false,"decorators":[],"initializer":"true","key":"Named","name":"hidden","optional":false,"readonly":false,"span":{"end":1153,"start":1122},"ts_type":"boolean","untyped":false,"visibility":"Private"},{"accessor":false,"decorators":[],"initializer":"'sealed'","key":"Named","name":"sealed","optional":false,"readonly":true,"span":{"end":1201,"start":1158},"ts_type":"string","untyped":false,"visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1307,"start":1243},"body_src":"\n        return [this.guarded, this.hidden, this.sealed];\n    ","decorators":[],"is_async":false,"is_static":false,"name":"reveal","params_src":"","return_type_src":"[number, boolean, string]","span":{"end":1307,"start":1207},"type_params":[],"visibility":"Public"}],"name":"ClassGuarded","span":{"end":1309,"start":1039},"superclass":null,"type_params":[]}
+class ClassConstructed: {"body_span":{"end":1589,"start":1433},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1402,"start":1311}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":1453,"start":1439},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"weight","optional":false,"readonly":false,"span":{"end":1473,"start":1458},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1587,"start":1522},"body_src":"\n        this.label = label;\n        this.weight = weight;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"label: string, weight: number","return_type_src":"","span":{"end":1587,"start":1479},"type_params":[],"visibility":"Public"}],"name":"ClassConstructed","span":{"end":1589,"start":1410},"superclass":null,"type_params":[]}
+class ClassParameters: {"body_span":{"end":1880,"start":1691},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1661,"start":1591}}],"fields":[{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":1737,"start":1718},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":null,"key":"Named","name":"rank","optional":false,"readonly":true,"span":{"end":1768,"start":1747},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"'secret'","key":"Named","name":"secret","optional":false,"readonly":false,"span":{"end":1811,"start":1778},"ts_type":"string","untyped":false,"visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1820,"start":1818},"body_src":"","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"public name: string,\n        readonly rank: number,\n        private secret: string = 'secret'","return_type_src":"","span":{"end":1820,"start":1697},"type_params":[],"visibility":"Public"},{"body_span":{"end":1878,"start":1843},"body_src":"\n        return this.secret;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"reveal","params_src":"","return_type_src":"string","span":{"end":1878,"start":1826},"type_params":[],"visibility":"Public"}],"name":"ClassParameters","span":{"end":1880,"start":1669},"superclass":null,"type_params":[]}
+class ClassBase: {"body_span":{"end":2000,"start":1976},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1952,"start":1882}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":1998,"start":1982},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassBase","span":{"end":2000,"start":1960},"superclass":null,"type_params":[]}
+class ClassDerived: {"body_span":{"end":2143,"start":2117},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2072,"start":2002}}],"fields":[{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"extra","optional":false,"readonly":false,"span":{"end":2141,"start":2123},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":["ClassBase"],"is_abstract":false,"methods":[],"name":"ClassDerived","span":{"end":2143,"start":2080},"superclass":"ClassBase","type_params":[]}
+class ClassOwnStatic: {"body_span":{"end":2291,"start":2173},"decorators":[],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":2195,"start":2179},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":2289,"start":2248},"body_src":"\n        return `own ${value.id}`;\n    ","decorators":[],"is_async":false,"is_static":true,"name":"toString","params_src":"value: ClassOwnStatic","return_type_src":"string","span":{"end":2289,"start":2201},"type_params":[],"visibility":"Public"}],"name":"ClassOwnStatic","span":{"end":2291,"start":2152},"superclass":null,"type_params":[]}
+class ClassOverStatic: {"body_span":{"end":2400,"start":2374},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":2321,"start":2293}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":2398,"start":2380},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":["ClassOwnStatic"],"is_abstract":false,"methods":[],"name":"ClassOverStatic","span":{"end":2400,"start":2329},"superclass":"ClassOwnStatic","type_params":[]}
+class ClassAbstract: {"body_span":{"end":2556,"start":2493},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default","name":"Derive","span":{"end":2456,"start":2402}}],"fields":[{"accessor":false,"decorators":[],"initializer":"'abstract'","key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":2525,"start":2499},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":true,"methods":[{"body_span":null,"body_src":null,"decorators":[],"is_async":false,"is_static":false,"name":"area","params_src":"","return_type_src":"number","span":{"end":2554,"start":2530},"type_params":[],"visibility":"Public"}],"name":"ClassAbstract","span":{"end":2556,"start":2464},"superclass":null,"type_params":[]}
+class ClassHolder: {"body_span":{"end":2827,"start":2654},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2628,"start":2558}}],"fields":[{"accessor":false,"decorators":[],"initializer":"ClassMembers.defaultValue()","key":"Named","name":"card","optional":false,"readonly":false,"span":{"end":2709,"start":2660},"ts_type":"ClassMembers","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"[]","key":"Named","name":"cards","optional":false,"readonly":false,"span":{"end":2741,"start":2714},"ts_type":"ClassMembers[]","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Map()","key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":2789,"start":2746},"ts_type":"Map<string, ClassBase>","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"null","key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":2825,"start":2794},"ts_type":"ClassBase | null","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassHolder","span":{"end":2827,"start":2636},"superclass":null,"type_params":[]}
+class ClassInferred: {"body_span":{"end":3307,"start":2927},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2899,"start":2829}}],"fields":[{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":2943,"start":2933},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"'none'","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":2963,"start":2948},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"false","key":"Named","name":"active","optional":false,"readonly":false,"span":{"end":2983,"start":2968},"ts_type":"boolean","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"10n","key":"Named","name":"big","optional":false,"readonly":false,"span":{"end":2998,"start":2988},"ts_type":"bigint","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"-1","key":"Named","name":"offset","optional":false,"readonly":false,"span":{"end":3015,"start":3003},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"`n${1}`","key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":3035,"start":3020},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Date(0)","key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":3057,"start":3040},"ts_type":"Date","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Set<string>()","key":"Named","name":"tags","optional":false,"readonly":false,"span":{"end":3087,"start":3062},"ts_type":"Set<string>","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"0.5 as number","key":"Named","name":"ratio","optional":false,"readonly":false,"span":{"end":3114,"start":3092},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"'inferred'","key":"Named","name":"kind","optional":false,"readonly":true,"span":{"end":3146,"start":3119},"ts_type":"'inferred'","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"3","key":"Named","name":"rank","optional":false,"readonly":true,"span":{"end":3169,"start":3151},"ts_type":"3","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":3210,"start":3196},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"7","key":"Named","name":"secret","optional":false,"readonly":false,"span":{"end":3238,"start":3220},"ts_type":"number","untyped":false,"visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":3247,"start":3245},"body_src":"","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"public id = '',\n        private secret = 7","return_type_src":"","span":{"end":3247,"start":3175},"type_params":[],"visibility":"Public"},{"body_span":{"end":3305,"start":3270},"body_src":"\n        return this.secret;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"reveal","params_src":"","return_type_src":"number","span":{"end":3305,"start":3253},"type_params":[],"visibility":"Public"}],"name":"ClassInferred","span":{"end":3307,"start":2907},"superclass":null,"type_params":[]}
+class ClassCallback: {"body_span":{"end":3466,"start":3391},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default","name":"Derive","span":{"end":3363,"start":3309}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":3415,"start":3397},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"() => {}","key":"Named","name":"onChange","optional":false,"readonly":false,"span":{"end":3464,"start":3420},"ts_type":"(name: string) => void","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ClassCallback","span":{"end":3466,"start":3371},"superclass":null,"type_params":[]}
+interface ClassEntity: {"body_span":{"end":3605,"start":3568},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":3538,"start":3468}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":3585,"start":3574},"ts_type":"string"},{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":3603,"start":3590},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ClassEntity","span":{"end":3605,"start":3546},"type_params":[]}
+interface ClassDated: {"body_span":{"end":3723,"start":3706},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":3677,"start":3607}}],"fields":[{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":3721,"start":3712},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"ClassDated","span":{"end":3723,"start":3685},"type_params":[]}
+interface ClassAccount: {"body_span":{"end":3903,"start":3858},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":3795,"start":3725}}],"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":3880,"start":3864},"ts_type":"'account'"},{"decorators":[],"key":"Named","name":"balance","optional":false,"readonly":false,"span":{"end":3901,"start":3885},"ts_type":"number"}],"heritage":["ClassEntity","ClassDated"],"methods":[],"name":"ClassAccount","span":{"end":3903,"start":3803},"type_params":[]}
 
 ## Registry reads
 
@@ -4942,6 +4999,7 @@ Name("ClassBase")
 Name("ClassDated")
 Name("ClassEntity")
 Name("ClassMembers")
+Name("ClassOwnStatic")
 Name("Date")
 Name("EdgeItem")
 Name("Map")

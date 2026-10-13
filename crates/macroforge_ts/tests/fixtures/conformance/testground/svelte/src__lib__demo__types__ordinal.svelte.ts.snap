@@ -215,8 +215,8 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Ordinal");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Ordinal");
     }
 
     ctx.trackForFreeze(instance);
@@ -808,13 +808,13 @@ export declare const Ordinal: {
 
 original 0..58 -> expanded 838..896
 original 107..302 -> expanded 896..1091
-original 302..303 -> expanded 28604..28605
+original 302..303 -> expanded 28610..28611
 generated 0..838 <- imports
 generated 1091..1321 <- Default
 generated 1321..4622 <- Encode
-generated 4622..14948 <- Decode
-generated 14948..27365 <- Gigaform
-generated 27365..28604 <- __convenience_const
+generated 4622..14954 <- Decode
+generated 14954..27371 <- Gigaform
+generated 27371..28610 <- __convenience_const
 
 ## Metadata
 

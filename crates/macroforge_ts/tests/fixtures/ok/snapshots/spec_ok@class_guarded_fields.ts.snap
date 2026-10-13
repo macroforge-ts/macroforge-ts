@@ -255,8 +255,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(Guarded.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Guarded");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Guarded");
     }
 
     ctx.trackForFreeze(instance);
@@ -494,8 +494,8 @@ export {};
 ## Mapping
 
 original 91..248 -> expanded 933..1090
-original 248..249 -> expanded 13864..13865
-original 249..250 -> expanded 17661..17662
+original 248..249 -> expanded 13870..13871
+original 249..250 -> expanded 17667..17668
 generated 0..933 <- imports
 generated 1090..1518 <- Debug
 generated 1518..1746 <- Clone
@@ -506,16 +506,16 @@ generated 3546..4234 <- Ord
 generated 4234..4539 <- Default
 generated 4539..6562 <- Encode
 generated 6562..6883 <- Encode
-generated 6883..13864 <- Decode
-generated 13865..13962 <- Debug
-generated 13962..14054 <- Clone
-generated 14054..14155 <- PartialEq
-generated 14155..14252 <- Hash
-generated 14252..14375 <- PartialOrd
-generated 14375..14477 <- Ord
-generated 14477..14564 <- Default
-generated 14564..15894 <- Encode
-generated 15894..17661 <- Decode
+generated 6883..13870 <- Decode
+generated 13871..13968 <- Debug
+generated 13968..14060 <- Clone
+generated 14060..14161 <- PartialEq
+generated 14161..14258 <- Hash
+generated 14258..14381 <- PartialOrd
+generated 14381..14483 <- Ord
+generated 14483..14570 <- Default
+generated 14570..15900 <- Encode
+generated 15900..17667 <- Decode
 
 ## Metadata
 

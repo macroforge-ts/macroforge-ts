@@ -331,8 +331,8 @@ export function edgePartialsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "EdgePartials");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "EdgePartials");
     }
 
     ctx.trackForFreeze(instance);
@@ -948,8 +948,8 @@ export function edgeRenamedPartialsDecodeWithContext(value: unknown, ctx: __mf_D
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "EdgeRenamedPartials");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "EdgeRenamedPartials");
     }
 
     ctx.trackForFreeze(instance);
@@ -1376,8 +1376,8 @@ export function edgeOptionalDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "EdgeOptional");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "EdgeOptional");
     }
 
     ctx.trackForFreeze(instance);
@@ -1699,8 +1699,8 @@ export function edgeRequiredDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "EdgeRequired");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "EdgeRequired");
     }
 
     ctx.trackForFreeze(instance);
@@ -2179,39 +2179,39 @@ export declare const EdgeRequired: {
 ## Mapping
 
 original 0..963 -> expanded 1641..2604
-original 963..1397 -> expanded 37296..37730
-original 1397..1640 -> expanded 60392..60635
-original 1640..1973 -> expanded 73378..73711
-original 1973..1974 -> expanded 92737..92738
+original 963..1397 -> expanded 37302..37736
+original 1397..1640 -> expanded 60404..60647
+original 1640..1973 -> expanded 73396..73729
+original 1973..1974 -> expanded 92761..92762
 generated 0..1641 <- imports
 generated 2604..3710 <- Debug
 generated 3710..4816 <- Clone
 generated 4816..6880 <- PartialEq
 generated 6880..8521 <- Hash
 generated 8521..13803 <- Encode
-generated 13803..35898 <- Decode
-generated 35898..37296 <- __convenience_const
-generated 37730..38502 <- Debug
-generated 38502..39035 <- Clone
-generated 39035..39578 <- PartialEq
-generated 39578..40292 <- Hash
-generated 40292..44249 <- Encode
-generated 44249..58791 <- Decode
-generated 58791..60392 <- __convenience_const
-generated 60635..61040 <- Debug
-generated 61040..61337 <- Clone
-generated 61337..61657 <- PartialEq
-generated 61657..62475 <- Hash
-generated 62475..65129 <- Encode
-generated 65129..71980 <- Decode
-generated 71980..73378 <- __convenience_const
-generated 73711..74314 <- Debug
-generated 74314..74734 <- Clone
-generated 74734..75322 <- PartialEq
-generated 75322..75950 <- Hash
-generated 75950..79231 <- Encode
-generated 79231..91339 <- Decode
-generated 91339..92737 <- __convenience_const
+generated 13803..35904 <- Decode
+generated 35904..37302 <- __convenience_const
+generated 37736..38508 <- Debug
+generated 38508..39041 <- Clone
+generated 39041..39584 <- PartialEq
+generated 39584..40298 <- Hash
+generated 40298..44255 <- Encode
+generated 44255..58803 <- Decode
+generated 58803..60404 <- __convenience_const
+generated 60647..61052 <- Debug
+generated 61052..61349 <- Clone
+generated 61349..61669 <- PartialEq
+generated 61669..62487 <- Hash
+generated 62487..65141 <- Encode
+generated 65141..71998 <- Decode
+generated 71998..73396 <- __convenience_const
+generated 73729..74332 <- Debug
+generated 74332..74752 <- Clone
+generated 74752..75340 <- PartialEq
+generated 75340..75968 <- Hash
+generated 75968..79249 <- Encode
+generated 79249..91363 <- Decode
+generated 91363..92761 <- __convenience_const
 
 ## Metadata
 

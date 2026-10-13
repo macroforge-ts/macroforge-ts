@@ -3,7 +3,9 @@ use convert_case::{Case, Casing};
 use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
 use crate::builtin::derive::common::structural_callee;
-use crate::builtin::derive::common::{ClassUse, derive_class_fields, derive_interface_fields};
+use crate::builtin::derive::common::{
+    ClassUse, derive_class_fields, derive_interface_fields, inherited_statics,
+};
 use crate::builtin::derive::common::{
     CompareFieldOptions, EnumValueKinds, OrdField, Ordering, generate_field_order,
     generate_value_order, rendered, structural_helper, tuple_compare_statements,
@@ -29,7 +31,8 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
         Data::Class(class) => {
             let class_fields = derive_class_fields(&input, class, "PartialOrd", ClassUse::Reads)?;
             let class_name = input.name();
-            let class_names = TypeNames::new(class_name, class.type_params());
+            let class_names = TypeNames::new(class_name, class.type_params())
+                .inheriting(inherited_statics(&input, class, "PartialOrd"));
             let class_ident = class_names.full_type_ident();
 
             // Collect fields for comparison

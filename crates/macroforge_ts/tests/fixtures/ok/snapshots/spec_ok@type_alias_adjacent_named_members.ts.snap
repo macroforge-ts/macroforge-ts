@@ -147,8 +147,8 @@ export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Circle");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Circle");
     }
 
     ctx.trackForFreeze(instance);
@@ -336,8 +336,8 @@ export function squareDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Square");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Square");
     }
 
     ctx.trackForFreeze(instance);
@@ -662,21 +662,21 @@ export {};
 ## Mapping
 
 original 30..71 -> expanded 718..759
-original 71..73 -> expanded 9099..9101
-original 103..142 -> expanded 9101..9140
-original 142..144 -> expanded 17438..17440
-original 222..252 -> expanded 17440..17470
-original 252..253 -> expanded 23393..23394
+original 71..73 -> expanded 9105..9107
+original 103..142 -> expanded 9107..9146
+original 142..144 -> expanded 17450..17452
+original 222..252 -> expanded 17452..17482
+original 252..253 -> expanded 23405..23406
 generated 0..718 <- imports
 generated 759..2866 <- Encode
-generated 2866..8150 <- Decode
-generated 8150..9099 <- __convenience_const
-generated 9140..11239 <- Encode
-generated 11239..16489 <- Decode
-generated 16489..17438 <- __convenience_const
-generated 17470..19462 <- Encode
-generated 19462..22917 <- Decode
-generated 22917..23393 <- __convenience_const
+generated 2866..8156 <- Decode
+generated 8156..9105 <- __convenience_const
+generated 9146..11245 <- Encode
+generated 11245..16501 <- Decode
+generated 16501..17450 <- __convenience_const
+generated 17482..19474 <- Encode
+generated 19474..22929 <- Decode
+generated 22929..23405 <- __convenience_const
 
 ## Metadata
 

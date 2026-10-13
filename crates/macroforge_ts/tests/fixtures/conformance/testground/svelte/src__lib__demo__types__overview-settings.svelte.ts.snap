@@ -184,8 +184,8 @@ export function overviewSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "OverviewSettings");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "OverviewSettings");
     }
 
     ctx.trackForFreeze(instance);
@@ -703,13 +703,13 @@ original 0..239 -> expanded 1202..1441
 original 288..329 -> expanded 1441..1482
 original 354..385 -> expanded 1482..1513
 original 409..504 -> expanded 1513..1608
-original 504..505 -> expanded 26069..26070
+original 504..505 -> expanded 26075..26076
 generated 0..1202 <- imports
 generated 1608..1802 <- Default
 generated 1802..4743 <- Encode
-generated 4743..14229 <- Decode
-generated 14229..24587 <- Gigaform
-generated 24587..26069 <- __convenience_const
+generated 4743..14235 <- Decode
+generated 14235..24593 <- Gigaform
+generated 24593..26075 <- __convenience_const
 
 ## Metadata
 

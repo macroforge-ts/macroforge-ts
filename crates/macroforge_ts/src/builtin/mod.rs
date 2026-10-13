@@ -11,7 +11,10 @@
 //! function (e.g. `userClone`, `userEncode`) that runs it.
 //! **Enums, interfaces, and type aliases** get standalone functions only (e.g.
 //! `statusDefaultValue`, `pointEquals`), since methods cannot be attached to them.
-//! The tables below show the class-side static methods.
+//! The tables below show the class-side static methods. One that a class
+//! it extends has as well, by deriving the same macro or by declaring it, is
+//! marked `override`, so the class passes `noImplicitOverride`; so is the
+//! `toString` of any class with a superclass, which has one as a function.
 //!
 //! A derive works over every field an instance holds. For a class that is its
 //! `private`, `protected` and `readonly` fields, its constructor parameter

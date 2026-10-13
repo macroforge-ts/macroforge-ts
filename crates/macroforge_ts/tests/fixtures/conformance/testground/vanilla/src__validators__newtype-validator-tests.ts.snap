@@ -593,8 +593,8 @@ export function runDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Run");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Run");
     }
 
     ctx.trackForFreeze(instance);
@@ -965,7 +965,7 @@ original 437..496 -> expanded 9589..9648
 original 496..582 -> expanded 12702..12788
 original 598..599 -> expanded 12832..12833
 original 599..741 -> expanded 16650..16792
-original 741..742 -> expanded 29452..29453
+original 741..742 -> expanded 29458..29459
 generated 0..745 <- imports
 generated 745..790 <- $Newtype
 generated 790..835 <- $Newtype
@@ -993,8 +993,8 @@ generated 12833..13573 <- Encode
 generated 13573..16167 <- Decode
 generated 16167..16650 <- __convenience_const
 generated 16792..19496 <- Encode
-generated 19496..28559 <- Decode
-generated 28559..29452 <- __convenience_const
+generated 19496..28565 <- Decode
+generated 28565..29458 <- __convenience_const
 
 ## Metadata
 

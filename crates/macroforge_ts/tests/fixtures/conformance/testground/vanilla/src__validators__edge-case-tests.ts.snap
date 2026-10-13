@@ -110,8 +110,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(MultipleValidatorsTest.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "MultipleValidatorsTest");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "MultipleValidatorsTest");
     }
 
     ctx.trackForFreeze(instance);
@@ -297,8 +297,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(CustomMessageTest.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "CustomMessageTest");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "CustomMessageTest");
     }
 
     ctx.trackForFreeze(instance);
@@ -478,8 +478,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(MixedValidatorsTest.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "MixedValidatorsTest");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "MixedValidatorsTest");
     }
 
     ctx.trackForFreeze(instance);
@@ -662,8 +662,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(CombinedStringValidatorsTest.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "CombinedStringValidatorsTest");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "CombinedStringValidatorsTest");
     }
 
     ctx.trackForFreeze(instance);
@@ -849,8 +849,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(CombinedNumberValidatorsTest.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "CombinedNumberValidatorsTest");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "CombinedNumberValidatorsTest");
     }
 
     ctx.trackForFreeze(instance);
@@ -1217,27 +1217,27 @@ export declare function combinedNumberValidatorsTestIs(value: unknown): value is
 ## Mapping
 
 original 0..274 -> expanded 433..707
-original 274..275 -> expanded 7696..7697
-original 275..480 -> expanded 9689..9894
-original 480..481 -> expanded 15984..15985
-original 481..702 -> expanded 17902..18123
-original 702..703 -> expanded 24614..24615
-original 703..904 -> expanded 26562..26763
-original 904..905 -> expanded 34209..34210
-original 905..1094 -> expanded 36292..36481
-original 1094..1095 -> expanded 43694..43695
-original 1095..1096 -> expanded 45777..45778
+original 274..275 -> expanded 7702..7703
+original 275..480 -> expanded 9695..9900
+original 480..481 -> expanded 15996..15997
+original 481..702 -> expanded 17914..18135
+original 702..703 -> expanded 24632..24633
+original 703..904 -> expanded 26580..26781
+original 904..905 -> expanded 34233..34234
+original 905..1094 -> expanded 36316..36505
+original 1094..1095 -> expanded 43724..43725
+original 1095..1096 -> expanded 45807..45808
 generated 0..433 <- imports
-generated 707..7696 <- Decode
-generated 7697..9689 <- Decode
-generated 9894..15984 <- Decode
-generated 15985..17902 <- Decode
-generated 18123..24614 <- Decode
-generated 24615..26562 <- Decode
-generated 26763..34209 <- Decode
-generated 34210..36292 <- Decode
-generated 36481..43694 <- Decode
-generated 43695..45777 <- Decode
+generated 707..7702 <- Decode
+generated 7703..9695 <- Decode
+generated 9900..15996 <- Decode
+generated 15997..17914 <- Decode
+generated 18135..24632 <- Decode
+generated 24633..26580 <- Decode
+generated 26781..34233 <- Decode
+generated 34234..36316 <- Decode
+generated 36505..43724 <- Decode
+generated 43725..45807 <- Decode
 
 ## Metadata
 

@@ -107,8 +107,8 @@ export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Inner");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Inner");
     }
 
     ctx.trackForFreeze(instance);
@@ -276,8 +276,8 @@ export function containerDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Container");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Container");
     }
 
     ctx.trackForFreeze(instance);
@@ -534,13 +534,13 @@ export {};
 ## Mapping
 
 original 0..107 -> expanded 466..573
-original 107..182 -> expanded 7999..8074
-original 182..2159 -> expanded 14728..16705
+original 107..182 -> expanded 8005..8080
+original 182..2159 -> expanded 14740..16717
 generated 0..466 <- imports
-generated 573..7366 <- Decode
-generated 7366..7999 <- __convenience_const
-generated 8074..14035 <- Decode
-generated 14035..14728 <- __convenience_const
+generated 573..7372 <- Decode
+generated 7372..8005 <- __convenience_const
+generated 8080..14047 <- Decode
+generated 14047..14740 <- __convenience_const
 
 ## Metadata
 

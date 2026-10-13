@@ -129,8 +129,8 @@ export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "UserWithDecode");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "UserWithDecode");
     }
 
     ctx.trackForFreeze(instance);
@@ -337,8 +337,8 @@ export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_Deco
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "FullFeaturedType");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "FullFeaturedType");
     }
 
     ctx.trackForFreeze(instance);
@@ -529,8 +529,8 @@ export function typeADecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "TypeA");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "TypeA");
     }
 
     ctx.trackForFreeze(instance);
@@ -677,8 +677,8 @@ export function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "TypeB");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "TypeB");
     }
 
     ctx.trackForFreeze(instance);
@@ -981,34 +981,34 @@ export declare function verifyImports(): void;
 
 original 0..745 -> expanded 551..1296
 original 767..857 -> expanded 1296..1386
-original 857..921 -> expanded 8931..8995
-original 958..1034 -> expanded 8995..9071
-original 1034..1084 -> expanded 10155..10205
-original 1129..1221 -> expanded 10205..10297
-original 1221..1291 -> expanded 19246..19316
-original 1313..1360 -> expanded 19316..19363
-original 1360..1362 -> expanded 25203..25205
-original 1384..1431 -> expanded 25205..25252
-original 1431..1433 -> expanded 31136..31138
-original 1470..1517 -> expanded 31138..31185
-original 1517..2163 -> expanded 31979..32625
+original 857..921 -> expanded 8937..9001
+original 958..1034 -> expanded 9001..9077
+original 1034..1084 -> expanded 10161..10211
+original 1129..1221 -> expanded 10211..10303
+original 1221..1291 -> expanded 19258..19328
+original 1313..1360 -> expanded 19328..19375
+original 1360..1362 -> expanded 25221..25223
+original 1384..1431 -> expanded 25223..25270
+original 1431..1433 -> expanded 31160..31162
+original 1470..1517 -> expanded 31162..31209
+original 1517..2163 -> expanded 32003..32649
 generated 0..551 <- imports
-generated 1386..8163 <- Decode
-generated 8163..8931 <- __convenience_const
-generated 9071..9339 <- PartialEq
-generated 9339..9923 <- PartialOrd
-generated 9923..10155 <- __convenience_const
-generated 10297..17186 <- Decode
-generated 17186..17497 <- PartialEq
-generated 17497..18248 <- PartialOrd
-generated 18248..19246 <- __convenience_const
-generated 19363..24570 <- Decode
-generated 24570..25203 <- __convenience_const
-generated 25252..30503 <- Decode
-generated 30503..31136 <- __convenience_const
-generated 31185..31391 <- PartialEq
-generated 31391..31792 <- PartialOrd
-generated 31792..31979 <- __convenience_const
+generated 1386..8169 <- Decode
+generated 8169..8937 <- __convenience_const
+generated 9077..9345 <- PartialEq
+generated 9345..9929 <- PartialOrd
+generated 9929..10161 <- __convenience_const
+generated 10303..17198 <- Decode
+generated 17198..17509 <- PartialEq
+generated 17509..18260 <- PartialOrd
+generated 18260..19258 <- __convenience_const
+generated 19375..24588 <- Decode
+generated 24588..25221 <- __convenience_const
+generated 25270..30527 <- Decode
+generated 30527..31160 <- __convenience_const
+generated 31209..31415 <- PartialEq
+generated 31415..31816 <- PartialOrd
+generated 31816..32003 <- __convenience_const
 
 ## Metadata
 

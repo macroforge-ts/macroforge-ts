@@ -162,8 +162,8 @@ export function fooDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Foo");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Foo");
     }
 
     ctx.trackForFreeze(instance);
@@ -304,12 +304,12 @@ export declare const Foo: {
 original 0..36 -> expanded 807..843
 original 75..103 -> expanded 843..871
 original 134..181 -> expanded 871..918
-original 181..182 -> expanded 9996..9997
+original 181..182 -> expanded 10002..10003
 generated 0..807 <- imports
 generated 918..1062 <- Default
 generated 1062..3315 <- Encode
-generated 3315..9021 <- Decode
-generated 9021..9996 <- __convenience_const
+generated 3315..9027 <- Decode
+generated 9027..10002 <- __convenience_const
 
 ## Metadata
 

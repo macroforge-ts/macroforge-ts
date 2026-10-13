@@ -111,8 +111,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(EmailValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "EmailValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "EmailValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -292,8 +292,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(UrlValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "UrlValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "UrlValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -473,8 +473,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(UuidValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "UuidValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "UuidValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -654,8 +654,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(MaxLengthValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "MaxLengthValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "MaxLengthValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -835,8 +835,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(MinLengthValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "MinLengthValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "MinLengthValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -1016,8 +1016,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(LengthValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "LengthValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "LengthValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -1197,8 +1197,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(LengthRangeValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "LengthRangeValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "LengthRangeValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -1378,8 +1378,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(PatternValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "PatternValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "PatternValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -1559,8 +1559,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(NonEmptyValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "NonEmptyValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "NonEmptyValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -1740,8 +1740,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(TrimmedValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "TrimmedValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "TrimmedValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -1921,8 +1921,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(LowercaseValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "LowercaseValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "LowercaseValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -2102,8 +2102,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(UppercaseValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "UppercaseValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "UppercaseValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -2283,8 +2283,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(CapitalizedValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "CapitalizedValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "CapitalizedValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -2464,8 +2464,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(UncapitalizedValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "UncapitalizedValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "UncapitalizedValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -2645,8 +2645,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(StartsWithValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "StartsWithValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "StartsWithValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -2826,8 +2826,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(EndsWithValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "EndsWithValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "EndsWithValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -3007,8 +3007,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(IncludesValidator.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "IncludesValidator");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "IncludesValidator");
     }
 
     ctx.trackForFreeze(instance);
@@ -3994,75 +3994,75 @@ export declare function includesValidatorIs(value: unknown): value is IncludesVa
 ## Mapping
 
 original 0..276 -> expanded 433..709
-original 276..277 -> expanded 6754..6755
-original 277..405 -> expanded 8627..8755
-original 405..406 -> expanded 14605..14606
-original 406..536 -> expanded 16448..16578
-original 536..537 -> expanded 22594..22595
-original 537..693 -> expanded 24452..24608
-original 693..694 -> expanded 30863..30864
-original 694..848 -> expanded 32796..32950
-original 848..849 -> expanded 39165..39166
-original 849..1003 -> expanded 41098..41252
-original 1003..1004 -> expanded 47429..47430
-original 1004..1190 -> expanded 49317..49503
-original 1190..1191 -> expanded 55936..55937
-original 1191..1346 -> expanded 57899..58054
-original 1346..1347 -> expanded 64090..64091
-original 1347..1495 -> expanded 65993..66141
-original 1495..1496 -> expanded 72294..72295
-original 1496..1640 -> expanded 74212..74356
-original 1640..1641 -> expanded 80460..80461
-original 1641..1789 -> expanded 82363..82511
-original 1789..1790 -> expanded 88618..88619
-original 1790..1938 -> expanded 90551..90699
-original 1938..1939 -> expanded 96806..96807
-original 1939..2091 -> expanded 98739..98891
-original 2091..2092 -> expanded 105062..105063
-original 2092..2252 -> expanded 107025..107185
-original 2252..2253 -> expanded 113492..113493
-original 2253..2420 -> expanded 115485..115652
-original 2420..2421 -> expanded 121954..121955
-original 2421..2578 -> expanded 123902..124059
-original 2578..2579 -> expanded 130242..130243
-original 2579..2733 -> expanded 132160..132314
-original 2733..2734 -> expanded 138507..138508
-original 2734..2735 -> expanded 140425..140426
+original 276..277 -> expanded 6760..6761
+original 277..405 -> expanded 8633..8761
+original 405..406 -> expanded 14617..14618
+original 406..536 -> expanded 16460..16590
+original 536..537 -> expanded 22612..22613
+original 537..693 -> expanded 24470..24626
+original 693..694 -> expanded 30887..30888
+original 694..848 -> expanded 32820..32974
+original 848..849 -> expanded 39195..39196
+original 849..1003 -> expanded 41128..41282
+original 1003..1004 -> expanded 47465..47466
+original 1004..1190 -> expanded 49353..49539
+original 1190..1191 -> expanded 55978..55979
+original 1191..1346 -> expanded 57941..58096
+original 1346..1347 -> expanded 64138..64139
+original 1347..1495 -> expanded 66041..66189
+original 1495..1496 -> expanded 72348..72349
+original 1496..1640 -> expanded 74266..74410
+original 1640..1641 -> expanded 80520..80521
+original 1641..1789 -> expanded 82423..82571
+original 1789..1790 -> expanded 88684..88685
+original 1790..1938 -> expanded 90617..90765
+original 1938..1939 -> expanded 96878..96879
+original 1939..2091 -> expanded 98811..98963
+original 2091..2092 -> expanded 105140..105141
+original 2092..2252 -> expanded 107103..107263
+original 2252..2253 -> expanded 113576..113577
+original 2253..2420 -> expanded 115569..115736
+original 2420..2421 -> expanded 122044..122045
+original 2421..2578 -> expanded 123992..124149
+original 2578..2579 -> expanded 130338..130339
+original 2579..2733 -> expanded 132256..132410
+original 2733..2734 -> expanded 138609..138610
+original 2734..2735 -> expanded 140527..140528
 generated 0..433 <- imports
-generated 709..6754 <- Decode
-generated 6755..8627 <- Decode
-generated 8755..14605 <- Decode
-generated 14606..16448 <- Decode
-generated 16578..22594 <- Decode
-generated 22595..24452 <- Decode
-generated 24608..30863 <- Decode
-generated 30864..32796 <- Decode
-generated 32950..39165 <- Decode
-generated 39166..41098 <- Decode
-generated 41252..47429 <- Decode
-generated 47430..49317 <- Decode
-generated 49503..55936 <- Decode
-generated 55937..57899 <- Decode
-generated 58054..64090 <- Decode
-generated 64091..65993 <- Decode
-generated 66141..72294 <- Decode
-generated 72295..74212 <- Decode
-generated 74356..80460 <- Decode
-generated 80461..82363 <- Decode
-generated 82511..88618 <- Decode
-generated 88619..90551 <- Decode
-generated 90699..96806 <- Decode
-generated 96807..98739 <- Decode
-generated 98891..105062 <- Decode
-generated 105063..107025 <- Decode
-generated 107185..113492 <- Decode
-generated 113493..115485 <- Decode
-generated 115652..121954 <- Decode
-generated 121955..123902 <- Decode
-generated 124059..130242 <- Decode
-generated 130243..132160 <- Decode
-generated 132314..138507 <- Decode
-generated 138508..140425 <- Decode
+generated 709..6760 <- Decode
+generated 6761..8633 <- Decode
+generated 8761..14617 <- Decode
+generated 14618..16460 <- Decode
+generated 16590..22612 <- Decode
+generated 22613..24470 <- Decode
+generated 24626..30887 <- Decode
+generated 30888..32820 <- Decode
+generated 32974..39195 <- Decode
+generated 39196..41128 <- Decode
+generated 41282..47465 <- Decode
+generated 47466..49353 <- Decode
+generated 49539..55978 <- Decode
+generated 55979..57941 <- Decode
+generated 58096..64138 <- Decode
+generated 64139..66041 <- Decode
+generated 66189..72348 <- Decode
+generated 72349..74266 <- Decode
+generated 74410..80520 <- Decode
+generated 80521..82423 <- Decode
+generated 82571..88684 <- Decode
+generated 88685..90617 <- Decode
+generated 90765..96878 <- Decode
+generated 96879..98811 <- Decode
+generated 98963..105140 <- Decode
+generated 105141..107103 <- Decode
+generated 107263..113576 <- Decode
+generated 113577..115569 <- Decode
+generated 115736..122044 <- Decode
+generated 122045..123992 <- Decode
+generated 124149..130338 <- Decode
+generated 130339..132256 <- Decode
+generated 132410..138609 <- Decode
+generated 138610..140527 <- Decode
 
 ## Metadata
 

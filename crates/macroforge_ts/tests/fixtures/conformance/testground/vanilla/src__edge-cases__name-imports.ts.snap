@@ -225,8 +225,8 @@ export function nameImportsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "NameImports");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "NameImports");
     }
 
     ctx.trackForFreeze(instance);
@@ -470,7 +470,7 @@ export declare const NameImports: {
 ## Mapping
 
 original 0..372 -> expanded 1134..1506
-original 372..373 -> expanded 18327..18328
+original 372..373 -> expanded 18333..18334
 generated 0..1134 <- imports
 generated 1506..2036 <- Debug
 generated 2036..2510 <- Clone
@@ -478,8 +478,8 @@ generated 2510..3248 <- PartialEq
 generated 3248..3933 <- Hash
 generated 3933..4118 <- Default
 generated 4118..7036 <- Encode
-generated 7036..16860 <- Decode
-generated 16860..18327 <- __convenience_const
+generated 7036..16866 <- Decode
+generated 16866..18333 <- __convenience_const
 
 ## Metadata
 

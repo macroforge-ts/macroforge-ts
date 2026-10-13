@@ -155,8 +155,8 @@ export function dataPathDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "DataPath");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "DataPath");
     }
 
     ctx.trackForFreeze(instance);
@@ -491,13 +491,13 @@ export declare const DataPath: {
 
 original 0..58 -> expanded 928..986
 original 107..192 -> expanded 986..1071
-original 192..193 -> expanded 16409..16410
+original 192..193 -> expanded 16415..16416
 generated 0..928 <- imports
 generated 1071..1188 <- Default
 generated 1188..3494 <- Encode
-generated 3494..10072 <- Decode
-generated 10072..15143 <- Gigaform
-generated 15143..16409 <- __convenience_const
+generated 3494..10078 <- Decode
+generated 10078..15149 <- Gigaform
+generated 15149..16415 <- __convenience_const
 
 ## Metadata
 

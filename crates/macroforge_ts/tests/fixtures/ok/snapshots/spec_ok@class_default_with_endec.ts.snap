@@ -161,8 +161,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(Account.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Account");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Account");
     }
 
     ctx.trackForFreeze(instance);
@@ -341,16 +341,16 @@ export declare function accountIs(value: unknown): value is Account;
 ## Mapping
 
 original 39..111 -> expanded 756..828
-original 111..112 -> expanded 8677..8678
-original 112..113 -> expanded 11862..11863
+original 111..112 -> expanded 8683..8684
+original 112..113 -> expanded 11868..11869
 generated 0..756 <- imports
 generated 828..1048 <- Default
 generated 1048..2749 <- Encode
 generated 2749..3070 <- Encode
-generated 3070..8677 <- Decode
-generated 8678..8765 <- Default
-generated 8765..10095 <- Encode
-generated 10095..11862 <- Decode
+generated 3070..8683 <- Decode
+generated 8684..8771 <- Default
+generated 8771..10101 <- Encode
+generated 10101..11868 <- Decode
 
 ## Metadata
 

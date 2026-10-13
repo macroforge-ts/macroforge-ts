@@ -155,8 +155,8 @@ export function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Coordinates");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Coordinates");
     }
 
     ctx.trackForFreeze(instance);
@@ -472,13 +472,13 @@ export declare const Coordinates: {
 
 original 0..58 -> expanded 838..896
 original 107..174 -> expanded 896..963
-original 174..175 -> expanded 15440..15441
+original 174..175 -> expanded 15446..15447
 generated 0..838 <- imports
 generated 963..1075 <- Default
 generated 1075..3398 <- Encode
-generated 3398..9450 <- Decode
-generated 9450..14093 <- Gigaform
-generated 14093..15440 <- __convenience_const
+generated 3398..9456 <- Decode
+generated 9456..14099 <- Gigaform
+generated 14099..15446 <- __convenience_const
 
 ## Metadata
 

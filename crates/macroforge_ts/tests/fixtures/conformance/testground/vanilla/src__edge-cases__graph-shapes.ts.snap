@@ -252,8 +252,8 @@ export function graphTreeDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "GraphTree");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "GraphTree");
     }
 
     ctx.trackForFreeze(instance);
@@ -596,8 +596,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(GraphPerson.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "GraphPerson");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "GraphPerson");
     }
 
     ctx.trackForFreeze(instance);
@@ -984,8 +984,8 @@ export function graphSharedDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "GraphShared");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "GraphShared");
     }
 
     ctx.trackForFreeze(instance);
@@ -1393,8 +1393,8 @@ export function graphLoopDecodeWithContext(value: unknown, ctx: __mf_DecodeConte
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "GraphLoop");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "GraphLoop");
     }
 
     ctx.trackForFreeze(instance);
@@ -1711,8 +1711,8 @@ export function graphPatchedDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "GraphPatched");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "GraphPatched");
     }
 
     ctx.trackForFreeze(instance);
@@ -1970,8 +1970,8 @@ export function graphPatchedFirstDecodeWithContext(value: unknown, ctx: __mf_Dec
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "GraphPatchedFirst");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "GraphPatchedFirst");
     }
 
     ctx.trackForFreeze(instance);
@@ -2445,13 +2445,13 @@ export declare const GraphPatchedFirst: {
 ## Mapping
 
 original 0..435 -> expanded 1300..1735
-original 435..711 -> expanded 17909..18185
-original 711..712 -> expanded 34652..34653
-original 712..998 -> expanded 38293..38579
-original 998..1238 -> expanded 58464..58704
-original 1238..1389 -> expanded 73387..73538
-original 1389..1511 -> expanded 85666..85788
-original 1511..1512 -> expanded 96666..96667
+original 435..711 -> expanded 17915..18191
+original 711..712 -> expanded 34664..34665
+original 712..998 -> expanded 38305..38591
+original 998..1238 -> expanded 58482..58722
+original 1238..1389 -> expanded 73411..73562
+original 1389..1511 -> expanded 85696..85818
+original 1511..1512 -> expanded 96702..96703
 generated 0..1300 <- imports
 generated 1735..2197 <- Debug
 generated 2197..2485 <- Clone
@@ -2460,33 +2460,33 @@ generated 2977..3482 <- Hash
 generated 3482..4798 <- PartialOrd
 generated 4798..5844 <- Ord
 generated 5844..8448 <- Encode
-generated 8448..16422 <- Decode
-generated 16422..17909 <- __convenience_const
-generated 18185..18801 <- Debug
-generated 18801..19414 <- Clone
-generated 19414..20380 <- PartialEq
-generated 20380..21300 <- Hash
-generated 21300..23826 <- Encode
-generated 23826..24155 <- Encode
-generated 24155..34652 <- Decode
-generated 34653..34762 <- Debug
-generated 34762..34870 <- Clone
-generated 34870..34987 <- PartialEq
-generated 34987..35096 <- Hash
-generated 35096..36466 <- Encode
-generated 36466..38293 <- Decode
-generated 38579..42429 <- Encode
-generated 42429..57403 <- Decode
-generated 57403..58464 <- __convenience_const
-generated 58704..61799 <- Encode
-generated 61799..72368 <- Decode
-generated 72368..73387 <- __convenience_const
-generated 73538..76196 <- Encode
-generated 76196..84584 <- Decode
-generated 84584..85666 <- __convenience_const
-generated 85788..88287 <- Encode
-generated 88287..95479 <- Decode
-generated 95479..96666 <- __convenience_const
+generated 8448..16428 <- Decode
+generated 16428..17915 <- __convenience_const
+generated 18191..18807 <- Debug
+generated 18807..19420 <- Clone
+generated 19420..20386 <- PartialEq
+generated 20386..21306 <- Hash
+generated 21306..23832 <- Encode
+generated 23832..24161 <- Encode
+generated 24161..34664 <- Decode
+generated 34665..34774 <- Debug
+generated 34774..34882 <- Clone
+generated 34882..34999 <- PartialEq
+generated 34999..35108 <- Hash
+generated 35108..36478 <- Encode
+generated 36478..38305 <- Decode
+generated 38591..42441 <- Encode
+generated 42441..57421 <- Decode
+generated 57421..58482 <- __convenience_const
+generated 58722..61817 <- Encode
+generated 61817..72392 <- Decode
+generated 72392..73411 <- __convenience_const
+generated 73562..76220 <- Encode
+generated 76220..84614 <- Decode
+generated 84614..85696 <- __convenience_const
+generated 85818..88317 <- Encode
+generated 88317..95515 <- Decode
+generated 95515..96702 <- __convenience_const
 
 ## Metadata
 

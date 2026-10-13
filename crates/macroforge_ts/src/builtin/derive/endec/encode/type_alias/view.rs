@@ -89,12 +89,12 @@ pub(super) fn tuple_body(
             const __tuple: unknown[] = [];
             {#for slot in slot_names}
                 if ("@{slot}" in result) {
-                    __tuple.push(result.@{ts_ident!(slot.as_str())});
+                    __tuple.push(result["@{slot}"]);
                 }
             {/for}
             {#if rest_start.is_some()}
-                if (Array.isArray(result.rest)) {
-                    __tuple.push(...result.rest);
+                if (Array.isArray(result["rest"])) {
+                    __tuple.push(...result["rest"]);
                 }
             {/if}
             return __tuple;
@@ -115,7 +115,7 @@ pub(super) fn whole_body(alias: &AliasEncode, ts_type: &str) -> Result<TsStream,
         return ((value: @{view_type}): unknown => {
             const result: Record<string, unknown> = {};
             {$typescript statements}
-            return result.value;
+            return result["value"];
         })({ value });
     })
 }

@@ -175,8 +175,8 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Cardinal");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Cardinal");
     }
 
     ctx.trackForFreeze(instance);
@@ -584,13 +584,13 @@ export declare const Cardinal: {
 
 original 0..58 -> expanded 838..896
 original 107..211 -> expanded 896..1000
-original 211..212 -> expanded 19457..19458
+original 211..212 -> expanded 19463..19464
 generated 0..838 <- imports
 generated 1000..1144 <- Default
 generated 1144..3752 <- Encode
-generated 3752..11106 <- Decode
-generated 11106..18191 <- Gigaform
-generated 18191..19457 <- __convenience_const
+generated 3752..11112 <- Decode
+generated 11112..18197 <- Gigaform
+generated 18197..19463 <- __convenience_const
 
 ## Metadata
 

@@ -175,8 +175,8 @@ export function metadataDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Metadata");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Metadata");
     }
 
     ctx.trackForFreeze(instance);
@@ -598,13 +598,13 @@ export declare const Metadata: {
 
 original 0..58 -> expanded 928..986
 original 107..239 -> expanded 986..1118
-original 239..240 -> expanded 20704..20705
+original 239..240 -> expanded 20710..20711
 generated 0..928 <- imports
 generated 1118..1284 <- Default
 generated 1284..3944 <- Encode
-generated 3944..11940 <- Decode
-generated 11940..19438 <- Gigaform
-generated 19438..20704 <- __convenience_const
+generated 3944..11946 <- Decode
+generated 11946..19444 <- Gigaform
+generated 19444..20710 <- __convenience_const
 
 ## Metadata
 

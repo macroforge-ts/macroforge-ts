@@ -190,8 +190,8 @@ export function recurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "RecurrenceRule");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "RecurrenceRule");
     }
 
     ctx.trackForFreeze(instance);
@@ -719,13 +719,13 @@ export declare const RecurrenceRule: {
 
 original 0..172 -> expanded 1124..1296
 original 221..446 -> expanded 1296..1521
-original 446..447 -> expanded 27740..27741
+original 446..447 -> expanded 27746..27747
 generated 0..1124 <- imports
 generated 1521..1778 <- Default
 generated 1778..4952 <- Encode
-generated 4952..16736 <- Decode
-generated 16736..26312 <- Gigaform
-generated 26312..27740 <- __convenience_const
+generated 4952..16742 <- Decode
+generated 16742..26318 <- Gigaform
+generated 26318..27746 <- __convenience_const
 
 ## Metadata
 

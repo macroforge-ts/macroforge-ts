@@ -157,8 +157,8 @@ export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Circle");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Circle");
     }
 
     ctx.trackForFreeze(instance);
@@ -539,11 +539,6 @@ export function slotDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext
         return __decodeT(value, ctx) as Slot<T> | __mf_PendingRef;
     }
     return value as Slot<T>;
-
-    throw new __mf_DecodeError([{
-        field: "_root",
-        message: "Slot.decodeWithContext: value does not match any union member"
-    }]);
 }
 export function slotHasShape(value: unknown): boolean {
 
@@ -685,22 +680,22 @@ Error [397..427]: @derive(Decode): `() => Circle | null` is a function, which JS
 ## Mapping
 
 original 30..71 -> expanded 939..980
-original 71..73 -> expanded 9320..9322
-original 103..133 -> expanded 9322..9352
-original 133..135 -> expanded 15734..15736
-original 165..192 -> expanded 15736..15763
-original 192..194 -> expanded 22395..22397
-original 224..511 -> expanded 22397..22684
+original 71..73 -> expanded 9326..9328
+original 103..133 -> expanded 9328..9358
+original 133..135 -> expanded 15740..15742
+original 165..192 -> expanded 15742..15769
+original 192..194 -> expanded 22252..22254
+original 224..511 -> expanded 22254..22541
 generated 0..939 <- imports
 generated 980..3087 <- Encode
-generated 3087..8371 <- Decode
-generated 8371..9320 <- __convenience_const
-generated 9352..11088 <- Encode
-generated 11088..15258 <- Decode
-generated 15258..15734 <- __convenience_const
-generated 15763..17745 <- Encode
-generated 17745..21932 <- Decode
-generated 21932..22395 <- __convenience_const
+generated 3087..8377 <- Decode
+generated 8377..9326 <- __convenience_const
+generated 9358..11094 <- Encode
+generated 11094..15264 <- Decode
+generated 15264..15740 <- __convenience_const
+generated 15769..17751 <- Encode
+generated 17751..21789 <- Decode
+generated 21789..22252 <- __convenience_const
 
 ## Metadata
 

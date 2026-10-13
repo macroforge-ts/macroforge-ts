@@ -486,8 +486,8 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Order");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Order");
     }
 
     ctx.trackForFreeze(instance);
@@ -2429,13 +2429,13 @@ original 3347..3385 -> expanded 3459..3497
 original 3413..3440 -> expanded 3497..3524
 original 3468..3490 -> expanded 3524..3546
 original 3518..3552 -> expanded 3546..3580
-original 3552..3553 -> expanded 94185..94186
+original 3552..3553 -> expanded 94191..94192
 generated 0..1972 <- imports
 generated 3580..4381 <- Default
 generated 4381..12270 <- Encode
-generated 12270..50277 <- Decode
-generated 50277..93000 <- Gigaform
-generated 93000..94185 <- __convenience_const
+generated 12270..50283 <- Decode
+generated 50283..93006 <- Gigaform
+generated 93006..94191 <- __convenience_const
 
 ## Metadata
 

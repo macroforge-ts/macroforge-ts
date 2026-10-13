@@ -251,8 +251,8 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Route");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Route");
     }
 
     ctx.trackForFreeze(instance);
@@ -1044,13 +1044,13 @@ original 159..270 -> expanded 1128..1239
 original 311..334 -> expanded 1239..1262
 original 375..399 -> expanded 1262..1286
 original 440..601 -> expanded 1286..1447
-original 601..602 -> expanded 38532..38533
+original 601..602 -> expanded 38538..38539
 generated 0..1018 <- imports
 generated 1447..1755 <- Default
 generated 1755..5662 <- Encode
-generated 5662..21863 <- Decode
-generated 21863..37347 <- Gigaform
-generated 37347..38532 <- __convenience_const
+generated 5662..21869 <- Decode
+generated 21869..37353 <- Gigaform
+generated 37353..38538 <- __convenience_const
 
 ## Metadata
 

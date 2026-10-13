@@ -203,8 +203,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(Point.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Point");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Point");
     }
 
     ctx.trackForFreeze(instance);
@@ -415,8 +415,8 @@ export {};
 ## Mapping
 
 original 70..206 -> expanded 894..1030
-original 206..207 -> expanded 10764..10765
-original 207..208 -> expanded 14252..14253
+original 206..207 -> expanded 10770..10771
+original 207..208 -> expanded 14258..14259
 generated 0..894 <- imports
 generated 1030..1383 <- Debug
 generated 1383..1560 <- Clone
@@ -425,14 +425,14 @@ generated 1810..2427 <- Hash
 generated 2427..2668 <- Default
 generated 2668..4476 <- Encode
 generated 4476..4793 <- Encode
-generated 4793..10764 <- Decode
-generated 10765..10856 <- Debug
-generated 10856..10940 <- Clone
-generated 10940..11033 <- PartialEq
-generated 11033..11124 <- Hash
-generated 11124..11205 <- Default
-generated 11205..12515 <- Encode
-generated 12515..14252 <- Decode
+generated 4793..10770 <- Decode
+generated 10771..10862 <- Debug
+generated 10862..10946 <- Clone
+generated 10946..11039 <- PartialEq
+generated 11039..11130 <- Hash
+generated 11130..11211 <- Default
+generated 11211..12521 <- Encode
+generated 12521..14258 <- Decode
 
 ## Metadata
 

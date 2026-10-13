@@ -3,8 +3,8 @@
 
 use crate::ast::Expr;
 use crate::builtin::derive::common::{
-    ClassUse, DefaultFieldOptions, TypeNames, derive_class_fields, has_known_default, property_key,
-    rendered, structural_helper,
+    ClassUse, DefaultFieldOptions, TypeNames, derive_class_fields, has_known_default,
+    inherited_statics, property_key, rendered, structural_helper,
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::DiagnosticCollector;
@@ -20,7 +20,8 @@ pub(super) fn class_default(
     sources: &DefaultSources,
 ) -> Result<TsStream, MacroforgeError> {
     let class_name = input.name();
-    let names = TypeNames::new(class_name, class.type_params());
+    let names = TypeNames::new(class_name, class.type_params())
+        .inheriting(inherited_statics(input, class, "Default"));
     let class_ident = ts_ident!(class_name);
     let class_expr: Expr = class_ident.into();
     let class_fields = derive_class_fields(input, class, "Default", ClassUse::Builds)?;

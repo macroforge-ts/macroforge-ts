@@ -332,8 +332,8 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Employee");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Employee");
     }
 
     ctx.trackForFreeze(instance);
@@ -1593,13 +1593,13 @@ original 626..670 -> expanded 1878..1922
 original 711..737 -> expanded 1922..1948
 original 778..805 -> expanded 1948..1975
 original 824..1070 -> expanded 1975..2221
-original 1070..1071 -> expanded 60618..60619
+original 1070..1071 -> expanded 60624..60625
 generated 0..1412 <- imports
 generated 2221..2741 <- Default
 generated 2741..8015 <- Encode
-generated 8015..32035 <- Decode
-generated 32035..59352 <- Gigaform
-generated 59352..60618 <- __convenience_const
+generated 8015..32041 <- Decode
+generated 32041..59358 <- Gigaform
+generated 59358..60624 <- __convenience_const
 
 ## Metadata
 

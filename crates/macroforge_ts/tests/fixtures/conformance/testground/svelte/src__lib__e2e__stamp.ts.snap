@@ -149,11 +149,6 @@ export function stampedDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeCont
         return __decodeT(value, ctx) as Stamped<T> | __mf_PendingRef;
     }
     return value as Stamped<T>;
-
-    throw new __mf_DecodeError([{
-        field: "_root",
-        message: "Stamped.decodeWithContext: value does not match any union member"
-    }]);
 }
 export function stampedHasShape(value: unknown): boolean {
 
@@ -374,21 +369,21 @@ export {};
 
 original 0..251 -> expanded 730..981
 original 290..354 -> expanded 981..1045
-original 354..356 -> expanded 7167..7169
-original 447..467 -> expanded 7169..7189
-original 483..484 -> expanded 7233..7234
-original 484..485 -> expanded 10565..10566
+original 354..356 -> expanded 7015..7017
+original 447..467 -> expanded 7017..7037
+original 483..484 -> expanded 7081..7082
+original 484..485 -> expanded 10413..10414
 generated 0..685 <- imports
 generated 685..730 <- $Newtype
 generated 1045..1152 <- Default
 generated 1152..2599 <- Encode
-generated 2599..6568 <- Decode
-generated 6568..7167 <- __convenience_const
-generated 7189..7233 <- $Newtype
-generated 7234..7311 <- Default
-generated 7311..8003 <- Encode
-generated 8003..10011 <- Decode
-generated 10011..10565 <- __convenience_const
+generated 2599..6416 <- Decode
+generated 6416..7015 <- __convenience_const
+generated 7037..7081 <- $Newtype
+generated 7082..7159 <- Default
+generated 7159..7851 <- Encode
+generated 7851..9859 <- Decode
+generated 9859..10413 <- __convenience_const
 
 ## Metadata
 

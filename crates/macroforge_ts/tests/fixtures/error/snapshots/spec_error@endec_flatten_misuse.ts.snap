@@ -163,8 +163,8 @@ export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Inner");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Inner");
     }
 
     ctx.trackForFreeze(instance);
@@ -515,26 +515,26 @@ Error [533..541]: @derive(Decode): field 'held': `flatten` holds a value's field
 ## Mapping
 
 original 30..73 -> expanded 860..903
-original 73..75 -> expanded 9057..9059
-original 105..178 -> expanded 9059..9132
-original 178..180 -> expanded 14977..14979
-original 210..247 -> expanded 14979..15016
-original 269..292 -> expanded 15016..15039
-original 314..338 -> expanded 15039..15063
-original 360..395 -> expanded 15063..15098
-original 417..451 -> expanded 15098..15132
-original 473..505 -> expanded 15132..15164
-original 527..545 -> expanded 15164..15182
-original 567..590 -> expanded 15182..15205
-original 612..642 -> expanded 15205..15235
-original 664..701 -> expanded 15235..15272
+original 73..75 -> expanded 9063..9065
+original 105..178 -> expanded 9065..9138
+original 178..180 -> expanded 14983..14985
+original 210..247 -> expanded 14985..15022
+original 269..292 -> expanded 15022..15045
+original 314..338 -> expanded 15045..15069
+original 360..395 -> expanded 15069..15104
+original 417..451 -> expanded 15104..15138
+original 473..505 -> expanded 15138..15170
+original 527..545 -> expanded 15170..15188
+original 567..590 -> expanded 15188..15211
+original 612..642 -> expanded 15211..15241
+original 664..701 -> expanded 15241..15278
 generated 0..860 <- imports
 generated 903..2979 <- Encode
-generated 2979..8122 <- Decode
-generated 8122..9057 <- __convenience_const
-generated 9132..11151 <- Encode
-generated 11151..14494 <- Decode
-generated 14494..14977 <- __convenience_const
+generated 2979..8128 <- Decode
+generated 8128..9063 <- __convenience_const
+generated 9138..11157 <- Encode
+generated 11157..14500 <- Decode
+generated 14500..14983 <- __convenience_const
 
 ## Metadata
 

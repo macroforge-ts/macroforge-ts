@@ -4,7 +4,9 @@ use crate::ast::Expr;
 use crate::builtin::derive::common::TypeNames;
 use crate::builtin::derive::common::parameter_name;
 use crate::builtin::derive::common::structural_callee;
-use crate::builtin::derive::common::{ClassUse, derive_class_fields, derive_interface_fields};
+use crate::builtin::derive::common::{
+    ClassUse, derive_class_fields, derive_interface_fields, inherited_statics,
+};
 use crate::builtin::derive::common::{
     CompareFieldOptions, EnumValueKinds, fixed_tuple, rendered, structural_call,
 };
@@ -33,7 +35,8 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
         Data::Class(class) => {
             let class_fields = derive_class_fields(&input, class, "Hash", ClassUse::Reads)?;
             let class_name = input.name();
-            let class_names = TypeNames::new(class_name, class.type_params());
+            let class_names = TypeNames::new(class_name, class.type_params())
+                .inheriting(inherited_statics(&input, class, "Hash"));
             let class_ident = class_names.full_type_ident();
 
             // Collect fields that should be included in hash

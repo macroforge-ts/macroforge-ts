@@ -263,8 +263,8 @@ export function siteDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Site");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Site");
     }
 
     ctx.trackForFreeze(instance);
@@ -1107,13 +1107,13 @@ original 394..511 -> expanded 1225..1342
 original 552..595 -> expanded 1342..1385
 original 636..662 -> expanded 1385..1411
 original 703..796 -> expanded 1411..1504
-original 796..797 -> expanded 44724..44725
+original 796..797 -> expanded 44730..44731
 generated 0..962 <- imports
 generated 1504..1938 <- Default
 generated 1938..6244 <- Encode
-generated 6244..25634 <- Decode
-generated 25634..43566 <- Gigaform
-generated 43566..44724 <- __convenience_const
+generated 6244..25640 <- Decode
+generated 25640..43572 <- Gigaform
+generated 43572..44730 <- __convenience_const
 
 ## Metadata
 

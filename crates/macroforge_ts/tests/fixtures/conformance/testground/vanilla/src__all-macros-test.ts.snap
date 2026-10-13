@@ -241,8 +241,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(AllMacrosTestClass.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "AllMacrosTestClass");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "AllMacrosTestClass");
     }
 
     ctx.trackForFreeze(instance);
@@ -501,8 +501,8 @@ export declare const testInstance: unknown;
 ## Mapping
 
 original 0..449 -> expanded 863..1312
-original 449..450 -> expanded 15036..15037
-original 450..695 -> expanded 18950..19195
+original 449..450 -> expanded 15042..15043
+original 450..695 -> expanded 18956..19201
 generated 0..863 <- imports
 generated 1312..1819 <- Debug
 generated 1819..2135 <- Clone
@@ -510,13 +510,13 @@ generated 2135..2526 <- PartialEq
 generated 2526..3489 <- Hash
 generated 3489..5949 <- Encode
 generated 5949..6292 <- Encode
-generated 6292..15036 <- Decode
-generated 15037..15167 <- Debug
-generated 15167..15303 <- Clone
-generated 15303..15448 <- PartialEq
-generated 15448..15578 <- Hash
-generated 15578..17018 <- Encode
-generated 17018..18950 <- Decode
+generated 6292..15042 <- Decode
+generated 15043..15173 <- Debug
+generated 15173..15309 <- Clone
+generated 15309..15454 <- PartialEq
+generated 15454..15584 <- Hash
+generated 15584..17024 <- Encode
+generated 17024..18956 <- Decode
 
 ## Metadata
 

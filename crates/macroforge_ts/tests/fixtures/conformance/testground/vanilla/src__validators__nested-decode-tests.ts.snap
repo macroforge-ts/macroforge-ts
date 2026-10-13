@@ -140,8 +140,8 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Point");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Point");
     }
 
     ctx.trackForFreeze(instance);
@@ -359,8 +359,8 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Route");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Route");
     }
 
     ctx.trackForFreeze(instance);
@@ -622,8 +622,8 @@ export function labeledDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Labeled");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Labeled");
     }
 
     ctx.trackForFreeze(instance);
@@ -836,8 +836,8 @@ export function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext,
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Box");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Box");
     }
 
     ctx.trackForFreeze(instance);
@@ -1056,8 +1056,8 @@ export function pairDecodeWithContext<A, B>(value: unknown, ctx: __mf_DecodeCont
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Pair");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Pair");
     }
 
     ctx.trackForFreeze(instance);
@@ -1670,31 +1670,31 @@ export declare const Outcome: {
 ## Mapping
 
 original 0..255 -> expanded 933..1188
-original 255..400 -> expanded 10156..10301
-original 400..526 -> expanded 22205..22331
-original 526..619 -> expanded 31639..31732
-original 619..710 -> expanded 41613..41704
-original 710..784 -> expanded 52672..52746
-original 784..785 -> expanded 60078..60079
+original 255..400 -> expanded 10162..10307
+original 400..526 -> expanded 22217..22343
+original 526..619 -> expanded 31657..31750
+original 619..710 -> expanded 41637..41728
+original 710..784 -> expanded 52702..52776
+original 784..785 -> expanded 60108..60109
 generated 0..933 <- imports
 generated 1188..3260 <- Encode
-generated 3260..9221 <- Decode
-generated 9221..10156 <- __convenience_const
-generated 10301..12910 <- Encode
-generated 12910..21270 <- Decode
-generated 21270..22205 <- __convenience_const
-generated 22331..24768 <- Encode
-generated 24768..30662 <- Decode
-generated 30662..31639 <- __convenience_const
-generated 31732..34196 <- Encode
-generated 34196..40720 <- Decode
-generated 40720..41613 <- __convenience_const
-generated 41704..44434 <- Encode
-generated 44434..51758 <- Decode
-generated 51758..52672 <- __convenience_const
-generated 52746..54841 <- Encode
-generated 54841..59569 <- Decode
-generated 59569..60078 <- __convenience_const
+generated 3260..9227 <- Decode
+generated 9227..10162 <- __convenience_const
+generated 10307..12916 <- Encode
+generated 12916..21282 <- Decode
+generated 21282..22217 <- __convenience_const
+generated 22343..24780 <- Encode
+generated 24780..30680 <- Decode
+generated 30680..31657 <- __convenience_const
+generated 31750..34214 <- Encode
+generated 34214..40744 <- Decode
+generated 40744..41637 <- __convenience_const
+generated 41728..44458 <- Encode
+generated 44458..51788 <- Decode
+generated 51788..52702 <- __convenience_const
+generated 52776..54871 <- Encode
+generated 54871..59599 <- Decode
+generated 59599..60108 <- __convenience_const
 
 ## Metadata
 

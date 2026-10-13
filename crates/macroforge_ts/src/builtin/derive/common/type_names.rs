@@ -5,6 +5,7 @@ use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::TypeParamIR;
 use crate::ts_syn::{TsStream, ts_ident};
 
+use super::registry_helpers::InheritedStatics;
 use super::value_type::rendered;
 
 use convert_case::{Case, Casing};
@@ -21,6 +22,8 @@ pub(crate) struct TypeNames {
     pub generic_args: String,
     /// The type applied to its parameters, e.g. `Box<T>`.
     pub full_type: String,
+    /// The statics a class is handed down, which its own override.
+    inherited: InheritedStatics,
 }
 
 /// The key parameter of a `validateField`.
@@ -43,7 +46,13 @@ impl TypeNames {
             generic_decl: TypeParamIR::declare_all(type_params),
             params: type_params.iter().map(|param| param.name.clone()).collect(),
             generic_args,
+            inherited: InheritedStatics::default(),
         }
+    }
+
+    /// The names of a class that is handed down `inherited`.
+    pub fn inheriting(self, inherited: InheritedStatics) -> Self {
+        Self { inherited, ..self }
     }
 
     /// `{camelName}{suffix}`, the name of one generated function.
@@ -60,7 +69,20 @@ impl TypeNames {
     /// `{name}<T extends Shape>`, a generated static method declaring the
     /// type's parameters: a static member cannot name the class's own.
     pub fn generic_method(&self, name: &str) -> Ident {
-        ts_ident!(format!("{name}{}", self.generic_decl))
+        self.static_method(name, &self.generic_decl)
+    }
+
+    /// `{name}{type_params}`, a generated static method, marked `override`
+    /// when a class the type extends hands down one of that name: without
+    /// the mark it fails `noImplicitOverride`, and with one it has no need
+    /// of it fails everywhere.
+    pub fn static_method(&self, name: &str, type_params: &str) -> Ident {
+        let modifier = if self.inherited.holds(name) {
+            "override "
+        } else {
+            ""
+        };
+        ts_ident!(format!("{modifier}{name}{type_params}"))
     }
 
     /// A function a class derives, written where it reaches every field of

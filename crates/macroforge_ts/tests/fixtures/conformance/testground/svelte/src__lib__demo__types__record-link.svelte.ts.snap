@@ -120,11 +120,6 @@ export function recordLinkDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeC
         return __decodeT(value, ctx) as RecordLink<T> | __mf_PendingRef;
     }
     return value as RecordLink<T>;
-
-    throw new __mf_DecodeError([{
-        field: "_root",
-        message: "RecordLink.decodeWithContext: value does not match any union member"
-    }]);
 }
 export function recordLinkHasShape(value: unknown): boolean {
                 if (typeof value === "string") return true;
@@ -192,12 +187,12 @@ export declare const RecordLink: {
 ## Mapping
 
 original 39..95 -> expanded 509..565
-original 95..96 -> expanded 5499..5500
+original 95..96 -> expanded 5344..5345
 generated 0..509 <- imports
 generated 565..644 <- Default
 generated 644..2106 <- Encode
-generated 2106..4855 <- Decode
-generated 4855..5499 <- __convenience_const
+generated 2106..4700 <- Decode
+generated 4700..5344 <- __convenience_const
 
 ## Metadata
 

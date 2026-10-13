@@ -240,8 +240,8 @@ export function casedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Cased");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Cased");
     }
 
     ctx.trackForFreeze(instance);
@@ -430,8 +430,8 @@ export function numberedDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Numbered");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Numbered");
     }
 
     ctx.trackForFreeze(instance);
@@ -620,8 +620,8 @@ export function skippedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Skipped");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Skipped");
     }
 
     ctx.trackForFreeze(instance);
@@ -810,8 +810,8 @@ export function untaggedDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Untagged");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Untagged");
     }
 
     ctx.trackForFreeze(instance);
@@ -1441,8 +1441,8 @@ export function twiceDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Twice");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Twice");
     }
 
     ctx.trackForFreeze(instance);
@@ -1978,51 +1978,51 @@ original 691..714 -> expanded 1082..1105
 original 774..801 -> expanded 1105..1132
 original 858..884 -> expanded 1132..1158
 original 914..1002 -> expanded 1158..1246
-original 1002..1004 -> expanded 9540..9542
-original 1034..1139 -> expanded 9542..9647
-original 1139..1141 -> expanded 18148..18150
-original 1171..1253 -> expanded 18150..18232
-original 1253..1255 -> expanded 26664..26666
-original 1285..1372 -> expanded 26666..26753
-original 1372..1374 -> expanded 35254..35256
-original 1451..1501 -> expanded 35256..35306
-original 1501..1503 -> expanded 40855..40857
-original 1569..1622 -> expanded 40857..40910
-original 1622..1624 -> expanded 46579..46581
-original 1696..1733 -> expanded 46581..46618
-original 1733..1735 -> expanded 52495..52497
-original 1765..1901 -> expanded 52497..52633
-original 1901..1903 -> expanded 60936..60938
-original 1933..2036 -> expanded 60938..61041
-original 2036..2037 -> expanded 62600..62601
+original 1002..1004 -> expanded 9546..9548
+original 1034..1139 -> expanded 9548..9653
+original 1139..1141 -> expanded 18160..18162
+original 1171..1253 -> expanded 18162..18244
+original 1253..1255 -> expanded 26682..26684
+original 1285..1372 -> expanded 26684..26771
+original 1372..1374 -> expanded 35278..35280
+original 1451..1501 -> expanded 35280..35330
+original 1501..1503 -> expanded 40879..40881
+original 1569..1622 -> expanded 40881..40934
+original 1622..1624 -> expanded 46603..46605
+original 1696..1733 -> expanded 46605..46642
+original 1733..1735 -> expanded 52519..52521
+original 1765..1901 -> expanded 52521..52657
+original 1901..1903 -> expanded 60966..60968
+original 1933..2036 -> expanded 60968..61071
+original 2036..2037 -> expanded 62630..62631
 generated 0..823 <- imports
 generated 1246..3350 <- Encode
-generated 3350..8605 <- Decode
-generated 8605..9540 <- __convenience_const
-generated 9647..11796 <- Encode
-generated 11796..17150 <- Decode
-generated 17150..18148 <- __convenience_const
-generated 18232..20366 <- Encode
-generated 20366..25687 <- Decode
-generated 25687..26664 <- __convenience_const
-generated 26753..28902 <- Encode
-generated 28902..34256 <- Decode
-generated 34256..35254 <- __convenience_const
-generated 35306..37205 <- Encode
-generated 37205..40385 <- Decode
-generated 40385..40855 <- __convenience_const
-generated 40910..42845 <- Encode
-generated 42845..46070 <- Decode
-generated 46070..46579 <- __convenience_const
-generated 46618..48600 <- Encode
-generated 48600..52025 <- Decode
-generated 52025..52495 <- __convenience_const
-generated 52633..54738 <- Encode
-generated 54738..60001 <- Decode
-generated 60001..60936 <- __convenience_const
-generated 61041..61439 <- Encode
-generated 61439..62244 <- Decode
-generated 62244..62600 <- __convenience_const
+generated 3350..8611 <- Decode
+generated 8611..9546 <- __convenience_const
+generated 9653..11802 <- Encode
+generated 11802..17162 <- Decode
+generated 17162..18160 <- __convenience_const
+generated 18244..20378 <- Encode
+generated 20378..25705 <- Decode
+generated 25705..26682 <- __convenience_const
+generated 26771..28920 <- Encode
+generated 28920..34280 <- Decode
+generated 34280..35278 <- __convenience_const
+generated 35330..37229 <- Encode
+generated 37229..40409 <- Decode
+generated 40409..40879 <- __convenience_const
+generated 40934..42869 <- Encode
+generated 42869..46094 <- Decode
+generated 46094..46603 <- __convenience_const
+generated 46642..48624 <- Encode
+generated 48624..52049 <- Decode
+generated 52049..52519 <- __convenience_const
+generated 52657..54762 <- Encode
+generated 54762..60031 <- Decode
+generated 60031..60966 <- __convenience_const
+generated 61071..61469 <- Encode
+generated 61469..62274 <- Decode
+generated 62274..62630 <- __convenience_const
 
 ## Metadata
 

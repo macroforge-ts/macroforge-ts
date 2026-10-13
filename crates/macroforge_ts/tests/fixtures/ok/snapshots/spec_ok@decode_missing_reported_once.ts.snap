@@ -122,8 +122,8 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Account");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Account");
     }
 
     ctx.trackForFreeze(instance);
@@ -296,10 +296,10 @@ export {};
 ## Mapping
 
 original 22..172 -> expanded 501..651
-original 172..173 -> expanded 10206..10207
+original 172..173 -> expanded 10212..10213
 generated 0..501 <- imports
-generated 651..9550 <- Decode
-generated 9550..10206 <- __convenience_const
+generated 651..9556 <- Decode
+generated 9556..10212 <- __convenience_const
 
 ## Metadata
 

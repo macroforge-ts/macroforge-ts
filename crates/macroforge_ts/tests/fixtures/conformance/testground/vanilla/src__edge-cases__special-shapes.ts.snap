@@ -310,8 +310,8 @@ export function specialScalarsDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "SpecialScalars");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "SpecialScalars");
     }
 
     ctx.trackForFreeze(instance);
@@ -872,8 +872,8 @@ export function specialCarriedDecodeWithContext(value: unknown, ctx: __mf_Decode
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "SpecialCarried");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "SpecialCarried");
     }
 
     ctx.trackForFreeze(instance);
@@ -1225,8 +1225,8 @@ export function specialCollectionsDecodeWithContext(value: unknown, ctx: __mf_De
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "SpecialCollections");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "SpecialCollections");
     }
 
     ctx.trackForFreeze(instance);
@@ -1667,11 +1667,11 @@ export declare const SpecialCollections: {
 ## Mapping
 
 original 0..390 -> expanded 1410..1800
-original 390..458 -> expanded 22448..22516
-original 458..543 -> expanded 25849..25934
-original 543..723 -> expanded 32705..32885
-original 723..1013 -> expanded 45408..45698
-original 1013..1014 -> expanded 66794..66795
+original 390..458 -> expanded 22454..22522
+original 458..543 -> expanded 25855..25940
+original 543..723 -> expanded 32711..32891
+original 723..1013 -> expanded 45420..45710
+original 1013..1014 -> expanded 66812..66813
 generated 0..1410 <- imports
 generated 1800..2319 <- Debug
 generated 2319..2597 <- Clone
@@ -1681,25 +1681,25 @@ generated 4172..6135 <- PartialOrd
 generated 6135..7732 <- Ord
 generated 7732..7934 <- Default
 generated 7934..10964 <- Encode
-generated 10964..20692 <- Decode
-generated 20692..22448 <- __convenience_const
-generated 22516..23280 <- Encode
-generated 23280..25262 <- Decode
-generated 25262..25849 <- __convenience_const
-generated 25934..27742 <- Encode
-generated 27742..32118 <- Decode
-generated 32118..32705 <- __convenience_const
-generated 32885..35591 <- Encode
-generated 35591..44284 <- Decode
-generated 44284..45408 <- __convenience_const
-generated 45698..46295 <- Debug
-generated 46295..46942 <- Clone
-generated 46942..48362 <- PartialEq
-generated 48362..50060 <- Hash
-generated 50060..50275 <- Default
-generated 50275..53603 <- Encode
-generated 53603..65110 <- Decode
-generated 65110..66794 <- __convenience_const
+generated 10964..20698 <- Decode
+generated 20698..22454 <- __convenience_const
+generated 22522..23286 <- Encode
+generated 23286..25268 <- Decode
+generated 25268..25855 <- __convenience_const
+generated 25940..27748 <- Encode
+generated 27748..32124 <- Decode
+generated 32124..32711 <- __convenience_const
+generated 32891..35597 <- Encode
+generated 35597..44296 <- Decode
+generated 44296..45420 <- __convenience_const
+generated 45710..46307 <- Debug
+generated 46307..46954 <- Clone
+generated 46954..48374 <- PartialEq
+generated 48374..50072 <- Hash
+generated 50072..50287 <- Default
+generated 50287..53615 <- Encode
+generated 53615..65128 <- Decode
+generated 65128..66812 <- __convenience_const
 
 ## Metadata
 

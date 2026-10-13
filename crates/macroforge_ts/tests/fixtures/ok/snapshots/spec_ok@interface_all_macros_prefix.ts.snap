@@ -210,8 +210,8 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Point");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Point");
     }
 
     ctx.trackForFreeze(instance);
@@ -375,7 +375,7 @@ export declare const Point: {
 ## Mapping
 
 original 91..148 -> expanded 902..959
-original 148..149 -> expanded 12578..12579
+original 148..149 -> expanded 12584..12585
 generated 0..902 <- imports
 generated 959..1241 <- Debug
 generated 1241..1374 <- Clone
@@ -385,8 +385,8 @@ generated 2074..2602 <- PartialOrd
 generated 2602..3044 <- Ord
 generated 3044..3140 <- Default
 generated 3140..5357 <- Encode
-generated 5357..11137 <- Decode
-generated 11137..12578 <- __convenience_const
+generated 5357..11143 <- Decode
+generated 11143..12584 <- __convenience_const
 
 ## Metadata
 

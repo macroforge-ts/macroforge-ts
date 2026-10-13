@@ -106,8 +106,8 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "User");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "User");
     }
 
     ctx.trackForFreeze(instance);
@@ -228,10 +228,10 @@ export declare const User: {
 ## Mapping
 
 original 22..83 -> expanded 433..494
-original 83..84 -> expanded 6901..6902
+original 83..84 -> expanded 6907..6908
 generated 0..433 <- imports
-generated 494..6283 <- Decode
-generated 6283..6901 <- __convenience_const
+generated 494..6289 <- Decode
+generated 6289..6907 <- __convenience_const
 
 ## Metadata
 

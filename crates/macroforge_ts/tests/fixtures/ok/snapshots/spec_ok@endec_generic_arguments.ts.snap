@@ -196,8 +196,8 @@ export function boxDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext,
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Box");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Box");
     }
 
     ctx.trackForFreeze(instance);
@@ -476,8 +476,8 @@ static decodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?:
 
     const instance: any = Object.create(Stack.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Stack");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Stack");
     }
 
     ctx.trackForFreeze(instance);
@@ -832,11 +832,6 @@ export function maybeDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContex
         return __decodeT(value, ctx) as Maybe<T> | __mf_PendingRef;
     }
     return value as Maybe<T>;
-
-    throw new __mf_DecodeError([{
-        field: "_root",
-        message: "Maybe.decodeWithContext: value does not match any union member"
-    }]);
 }
 export function maybeHasShape(value: unknown): boolean {
                 if (value === null) return true;
@@ -884,10 +879,10 @@ export function pairEncodeWithContext<Left, Right>(value: Pair<Left, Right>, ctx
         result["e1"] = (__encodeRight === undefined ? value.e1 : __encodeRight(value.e1, ctx));
         const __tuple: unknown[] = [];
         if ("e0" in result) {
-            __tuple.push(result.e0);
+            __tuple.push(result["e0"]);
         }
         if ("e1" in result) {
-            __tuple.push(result.e1);
+            __tuple.push(result["e1"]);
         }
         return __tuple;
     })(__view);
@@ -1169,8 +1164,8 @@ export function wrapperDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeCont
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Wrapper");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Wrapper");
     }
 
     ctx.trackForFreeze(instance);
@@ -1435,8 +1430,8 @@ export function shelfDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Shelf");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Shelf");
     }
 
     ctx.trackForFreeze(instance);
@@ -1994,44 +1989,44 @@ export {};
 ## Mapping
 
 original 30..115 -> expanded 939..1024
-original 115..117 -> expanded 14397..14399
-original 147..186 -> expanded 14399..14438
-original 186..187 -> expanded 22213..22214
-original 187..189 -> expanded 25567..25569
-original 219..312 -> expanded 25569..25662
-original 312..314 -> expanded 32494..32496
-original 344..370 -> expanded 32496..32522
-original 370..372 -> expanded 37267..37269
-original 402..442 -> expanded 37269..37309
-original 442..444 -> expanded 44315..44317
-original 474..518 -> expanded 44317..44361
-original 518..520 -> expanded 53809..53811
-original 550..803 -> expanded 53811..54064
-original 803..804 -> expanded 73528..73529
+original 115..117 -> expanded 14403..14405
+original 147..186 -> expanded 14405..14444
+original 186..187 -> expanded 22225..22226
+original 187..189 -> expanded 25579..25581
+original 219..312 -> expanded 25581..25674
+original 312..314 -> expanded 32506..32508
+original 344..370 -> expanded 32508..32534
+original 370..372 -> expanded 37129..37131
+original 402..442 -> expanded 37131..37171
+original 442..444 -> expanded 44183..44185
+original 474..518 -> expanded 44185..44229
+original 518..520 -> expanded 53683..53685
+original 550..803 -> expanded 53685..53938
+original 803..804 -> expanded 73408..73409
 generated 0..939 <- imports
 generated 1024..4027 <- Encode
-generated 4027..13511 <- Decode
-generated 13511..14397 <- __convenience_const
-generated 14438..16174 <- Encode
-generated 16174..16537 <- Encode
-generated 16537..22213 <- Decode
-generated 22214..23671 <- Encode
-generated 23671..25567 <- Decode
-generated 25662..28098 <- Encode
-generated 28098..31992 <- Decode
-generated 31992..32494 <- __convenience_const
-generated 32522..34129 <- Encode
-generated 34129..36791 <- Decode
-generated 36791..37267 <- __convenience_const
-generated 37309..38868 <- Encode
-generated 38868..43852 <- Decode
-generated 43852..44315 <- __convenience_const
-generated 44361..46769 <- Encode
-generated 46769..52839 <- Decode
-generated 52839..53809 <- __convenience_const
-generated 54064..57971 <- Encode
-generated 57971..72600 <- Decode
-generated 72600..73528 <- __convenience_const
+generated 4027..13517 <- Decode
+generated 13517..14403 <- __convenience_const
+generated 14444..16180 <- Encode
+generated 16180..16543 <- Encode
+generated 16543..22225 <- Decode
+generated 22226..23683 <- Encode
+generated 23683..25579 <- Decode
+generated 25674..28110 <- Encode
+generated 28110..32004 <- Decode
+generated 32004..32506 <- __convenience_const
+generated 32534..34141 <- Encode
+generated 34141..36653 <- Decode
+generated 36653..37129 <- __convenience_const
+generated 37171..38736 <- Encode
+generated 38736..43720 <- Decode
+generated 43720..44183 <- __convenience_const
+generated 44229..46637 <- Encode
+generated 46637..52713 <- Decode
+generated 52713..53683 <- __convenience_const
+generated 53938..57845 <- Encode
+generated 57845..72480 <- Decode
+generated 72480..73408 <- __convenience_const
 
 ## Metadata
 

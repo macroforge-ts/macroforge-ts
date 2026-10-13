@@ -179,8 +179,8 @@ export function operatorOwnerDecodeWithContext(value: unknown, ctx: __mf_DecodeC
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "OperatorOwner");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "OperatorOwner");
     }
 
     ctx.trackForFreeze(instance);
@@ -451,8 +451,8 @@ export function operatorItemDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "OperatorItem");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "OperatorItem");
     }
 
     ctx.trackForFreeze(instance);
@@ -718,23 +718,23 @@ export declare const OperatorItem: {
 ## Mapping
 
 original 0..272 -> expanded 896..1168
-original 272..464 -> expanded 12457..12649
-original 464..465 -> expanded 27177..27178
+original 272..464 -> expanded 12463..12655
+original 464..465 -> expanded 27189..27190
 generated 0..896 <- imports
 generated 1168..1488 <- Debug
 generated 1488..1687 <- Clone
 generated 1687..1994 <- PartialEq
 generated 1994..2340 <- Hash
 generated 2340..4719 <- Encode
-generated 4719..11030 <- Decode
-generated 11030..12457 <- __convenience_const
-generated 12649..13127 <- Debug
-generated 13127..13448 <- Clone
-generated 13448..13961 <- PartialEq
-generated 13961..14654 <- Hash
-generated 14654..17437 <- Encode
-generated 17437..25779 <- Decode
-generated 25779..27177 <- __convenience_const
+generated 4719..11036 <- Decode
+generated 11036..12463 <- __convenience_const
+generated 12655..13133 <- Debug
+generated 13133..13454 <- Clone
+generated 13454..13967 <- PartialEq
+generated 13967..14660 <- Hash
+generated 14660..17443 <- Encode
+generated 17443..25791 <- Decode
+generated 25791..27189 <- __convenience_const
 
 ## Metadata
 

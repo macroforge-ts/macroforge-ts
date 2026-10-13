@@ -114,8 +114,8 @@ export function contactInfoDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ContactInfo");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ContactInfo");
     }
 
     ctx.trackForFreeze(instance);
@@ -263,10 +263,10 @@ export {};
 ## Mapping
 
 original 22..167 -> expanded 433..578
-original 167..168 -> expanded 10036..10037
+original 167..168 -> expanded 10042..10043
 generated 0..433 <- imports
-generated 578..9320 <- Decode
-generated 9320..10036 <- __convenience_const
+generated 578..9326 <- Decode
+generated 9326..10042 <- __convenience_const
 
 ## Metadata
 

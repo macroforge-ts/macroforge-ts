@@ -144,8 +144,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(UserRegistrationForm.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "UserRegistrationForm");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "UserRegistrationForm");
     }
 
     ctx.trackForFreeze(instance);
@@ -463,8 +463,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(ProductForm.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "ProductForm");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "ProductForm");
     }
 
     ctx.trackForFreeze(instance);
@@ -787,8 +787,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(EventForm.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "EventForm");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "EventForm");
     }
 
     ctx.trackForFreeze(instance);
@@ -1069,8 +1069,8 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
     const instance: any = Object.create(MeasurementForm.prototype);
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "MeasurementForm");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "MeasurementForm");
     }
 
     ctx.trackForFreeze(instance);
@@ -1533,23 +1533,23 @@ export declare function validateMeasurement(data: unknown): ValidationResult<Mea
 ## Mapping
 
 original 0..840 -> expanded 721..1561
-original 840..841 -> expanded 17259..17260
-original 841..1291 -> expanded 19222..19672
-original 1291..1292 -> expanded 34550..34551
-original 1292..1677 -> expanded 36378..36763
-original 1677..1678 -> expanded 49784..49785
-original 1678..1821 -> expanded 51582..51725
-original 1821..1822 -> expanded 60812..60813
-original 1822..2740 -> expanded 62700..63618
+original 840..841 -> expanded 17265..17266
+original 841..1291 -> expanded 19228..19678
+original 1291..1292 -> expanded 34562..34563
+original 1292..1677 -> expanded 36390..36775
+original 1677..1678 -> expanded 49802..49803
+original 1678..1821 -> expanded 51600..51743
+original 1821..1822 -> expanded 60836..60837
+original 1822..2740 -> expanded 62724..63642
 generated 0..721 <- imports
-generated 1561..17259 <- Decode
-generated 17260..19222 <- Decode
-generated 19672..34550 <- Decode
-generated 34551..36378 <- Decode
-generated 36763..49784 <- Decode
-generated 49785..51582 <- Decode
-generated 51725..60812 <- Decode
-generated 60813..62700 <- Decode
+generated 1561..17265 <- Decode
+generated 17266..19228 <- Decode
+generated 19678..34562 <- Decode
+generated 34563..36390 <- Decode
+generated 36775..49802 <- Decode
+generated 49803..51600 <- Decode
+generated 51743..60836 <- Decode
+generated 60837..62724 <- Decode
 
 ## Metadata
 

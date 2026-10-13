@@ -148,8 +148,8 @@ export function customDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Custom");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Custom");
     }
 
     ctx.trackForFreeze(instance);
@@ -465,13 +465,13 @@ export declare const Custom: {
 
 original 0..119 -> expanded 996..1115
 original 168..231 -> expanded 1115..1178
-original 231..232 -> expanded 15442..15443
+original 231..232 -> expanded 15448..15449
 generated 0..996 <- imports
 generated 1178..1270 <- Default
 generated 1270..3446 <- Encode
-generated 3446..9396 <- Decode
-generated 9396..14230 <- Gigaform
-generated 14230..15442 <- __convenience_const
+generated 3446..9402 <- Decode
+generated 9402..14236 <- Gigaform
+generated 14236..15448 <- __convenience_const
 
 ## Metadata
 

@@ -155,8 +155,8 @@ export function viewedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
 
     const instance: any = {};
 
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Viewed");
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "Viewed");
     }
 
     ctx.trackForFreeze(instance);
@@ -468,13 +468,13 @@ export declare const Viewed: {
 
 original 0..58 -> expanded 838..896
 original 107..198 -> expanded 896..987
-original 198..199 -> expanded 15460..15461
+original 198..199 -> expanded 15466..15467
 generated 0..838 <- imports
 generated 987..1110 <- Default
 generated 1110..3418 <- Encode
-generated 3418..9474 <- Decode
-generated 9474..14248 <- Gigaform
-generated 14248..15460 <- __convenience_const
+generated 3418..9480 <- Decode
+generated 9480..14254 <- Gigaform
+generated 14254..15466 <- __convenience_const
 
 ## Metadata
 

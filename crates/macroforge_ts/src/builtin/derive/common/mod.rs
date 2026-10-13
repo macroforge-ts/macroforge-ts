@@ -63,10 +63,10 @@ pub use property::{
     Member, is_identifier_name, local_name_part, mentions, parameter_name, property_key,
 };
 pub use registry_helpers::{
-    ClassUse, Declared, class_instance_fields, collection_element_type, derive_class_fields,
-    derive_interface_fields, fields_from_definition, flatten_intersection_fields,
-    get_effective_fields, interface_instance_fields, resolved_type_has_derive, standalone_fn_name,
-    type_has_derive,
+    ClassUse, Declared, InheritedStatics, class_instance_fields, collection_element_type,
+    derive_class_fields, derive_interface_fields, fields_from_definition,
+    flatten_intersection_fields, get_effective_fields, inherited_statics,
+    interface_instance_fields, resolved_type_has_derive, standalone_fn_name, type_has_derive,
 };
 pub(crate) use type_names::TypeNames;
 pub use type_utils::{
