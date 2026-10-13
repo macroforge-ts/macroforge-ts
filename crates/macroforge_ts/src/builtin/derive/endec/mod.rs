@@ -243,6 +243,7 @@ pub use crate::host::import_registry::{
 };
 
 // Re-export submodule items so existing consumers (`super::*`, `crate::builtin::derive::endec::*`) keep working.
+pub(crate) use coder::inline_object_fields;
 pub use foreign_types::{ForeignTypeMatch, get_foreign_types};
 pub use options::{
     EndecContainerOptions, EndecFieldOptions, EndecFieldParseResult, EndecFormat, RenameAll,

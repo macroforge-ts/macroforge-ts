@@ -5,6 +5,7 @@ use std::cell::RefCell;
 use convert_case::{Case, Casing};
 
 use super::literal::decode_literal_default;
+use crate::builtin::derive::common::undefaultable;
 use crate::builtin::derive::common::{
     TypeNames, get_type_default_with_registry, is_primitive_type, js_string, rendered,
     type_has_derive,
@@ -240,6 +241,15 @@ pub(super) fn missing_default_derives<'f>(
             );
             continue;
         }
+        if let Some(reason) = undefaultable(ts_type, registry) {
+            diagnostics.error(
+                span,
+                format!(
+                    "@derive(Default) on '{parent_name}': field '{field_name}' {reason}; add @default(value)"
+                ),
+            );
+            continue;
+        }
         if is_primitive_type(ts_type)
             || ts_type.ends_with("[]")
             || ts_type.starts_with("Array<")
@@ -250,9 +260,11 @@ pub(super) fn missing_default_derives<'f>(
         {
             continue;
         }
+        // A generic type is known, and derives, by its name.
+        let type_name = ts_type.split_once('<').map_or(ts_type, |(base, _)| base);
         let type_known =
-            registry.get(ts_type).is_some() || registry.get_all(ts_type).next().is_some();
-        if type_known && !type_has_derive(registry, ts_type, "Default") {
+            registry.get(type_name).is_some() || registry.get_all(type_name).next().is_some();
+        if type_known && !type_has_derive(registry, type_name, "Default") {
             diagnostics.error(
                 span,
                 format!(

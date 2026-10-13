@@ -3,6 +3,8 @@ use convert_case::{Case, Casing};
 use super::value_type::rendered;
 use crate::builtin::derive::endec::{TypeCategory, get_foreign_types};
 use crate::macros::ts_template;
+use crate::ts_syn::abi::ir::class::MemberKey;
+use crate::ts_syn::abi::ir::interface::InterfaceFieldIR;
 use crate::ts_syn::abi::ir::type_registry::TypeDefinitionIR;
 use crate::ts_syn::abi::ir::{
     EnumVariantIR, FileImportEntry, TypeRegistry, alias_default_member, is_primitive_keyword,
@@ -412,10 +414,17 @@ fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
         return rendered(ts_template! { [@{defaults}] });
     }
 
-    // Object literal types: { [key: string]: number }, { foo: string }, etc.
-    // Must be checked before union splitting since braces can contain pipes.
+    // An object type written in place: each member it has to have, by its
+    // own default. An index signature names no member, so it adds none.
+    // Checked before union splitting since braces can contain pipes.
     if t.starts_with('{') {
-        return "{}".to_string();
+        return match crate::builtin::derive::endec::inline_object_fields(t) {
+            Some(fields) => object_default_literal(
+                fields.iter().filter(|field| field.key == MemberKey::Named),
+                names,
+            ),
+            None => "({})".to_string(),
+        };
     }
 
     // Handle union types (e.g., string | Account, "Estimate" | "Invoice")
@@ -503,6 +512,25 @@ fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
         t if t.starts_with("Readonly<") && t.ends_with('>') => {
             get_type_default_resolved(&t["Readonly<".len()..t.len() - 1], names)
         }
+        // `Required<T>` and `NonNullable<T>` default as `T` does, once the
+        // `null` and `undefined` a `NonNullable` rules out are set aside.
+        t if (t.starts_with("Required<") || t.starts_with("NonNullable<")) && t.ends_with('>') => {
+            let inner = &t[t.find('<').map_or(0, |open| open + 1)..t.len() - 1];
+            let present: Vec<&str> = split_top_level_union(inner)
+                .unwrap_or_else(|| vec![inner])
+                .into_iter()
+                .filter(|member| !matches!(member.trim(), "null" | "undefined"))
+                .collect();
+            get_type_default_resolved(&present.join(" | "), names)
+        }
+        // A `Pick` or `Omit` holds the fields of its type it keeps, each by
+        // its own default.
+        t if (t.starts_with("Pick<") || t.starts_with("Omit<")) && t.ends_with('>') => {
+            match selected_fields(t, names) {
+                Some(fields) => object_default_literal(fields.iter(), names),
+                None => "({})".to_string(),
+            }
+        }
         // Built-in generic utility types (all produce object-like values)
         t if crate::ts_syn::type_normalize::is_ts_object_utility_type(
             crate::ts_syn::type_normalize::base_type_name(t),
@@ -510,12 +538,23 @@ fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
         {
             "({})".to_string()
         }
-        // Generic type instantiations (`RecordLink<T>`, etc.) should have
-        // been resolved to their body by `resolve_generic_aliases` before we
-        // got here. Any instantiation that reaches this branch is either an
-        // unregistered alias or a type we cannot introspect: emit `undefined`
-        // rather than a call to a nonexistent `xDefaultValue<T>()` helper.
-        t if is_generic_type(t) => "undefined".to_string(),
+        // A generic type the registry holds deriving `Default` defaults
+        // through its own function, given the same arguments. An alias that
+        // could be written out was, by `resolve_generic_aliases`, before
+        // this, and one the registry does not hold has no function to call.
+        t if is_generic_type(t) => match parse_generic_type(t) {
+            Some((base, arguments))
+                if names
+                    .registry
+                    .resolve_in_file(base, names.file_path, names.file_imports)
+                    .is_some()
+                    && super::type_has_derive(names.registry, base, "Default") =>
+            {
+                let callee = ts_ident!("{}DefaultValue", base.to_case(Case::Camel));
+                rendered(ts_template! { @{callee}<@{arguments}>() })
+            }
+            _ => "undefined".to_string(),
+        },
         // String literal types: "active", 'pending', `template`
         t if (t.starts_with('"') && t.ends_with('"'))
             || (t.starts_with('\'') && t.ends_with('\''))
@@ -529,6 +568,97 @@ fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
         "true" | "false" => t.to_string(),
         // Unknown types: assume they implement Default trait
         type_name => format_default_call(type_name),
+    }
+}
+
+/// An object literal holding each of `fields` that a value has to have, by
+/// its own default.
+fn object_default_literal<'f>(
+    fields: impl Iterator<Item = &'f InterfaceFieldIR>,
+    names: &Names<'_>,
+) -> String {
+    let members: Vec<String> = fields
+        .filter(|field| !field.optional)
+        .map(|field| {
+            let key = super::property_key(&field.name);
+            let default = get_type_default_resolved(&field.ts_type, names);
+            rendered(ts_template! { @{key}: @{default} })
+        })
+        .collect();
+    if members.is_empty() {
+        return "({})".to_string();
+    }
+    let members = members.join(", ");
+    rendered(ts_template! { ({ @{members} }) })
+}
+
+/// The fields a `Pick<T, K>` or an `Omit<T, K>` keeps of `T`, when the
+/// registry holds `T` and the keys are written as literals.
+fn selected_fields(ts_type: &str, names: &Names<'_>) -> Option<Vec<InterfaceFieldIR>> {
+    use crate::builtin::derive::endec::WrapperFields;
+
+    let (_, arguments) = parse_generic_type(ts_type)?;
+    let inner = split_top_level_commas(arguments).into_iter().next()?;
+    let entry =
+        names
+            .registry
+            .resolve_in_file(inner.trim(), names.file_path, names.file_imports)?;
+    let fields = super::fields_from_definition(&entry.definition, names.registry)?;
+    let keeps: Box<dyn Fn(&str) -> bool> = match WrapperFields::of(ts_type)?.ok()? {
+        WrapperFields::Only(kept) => Box::new(move |name| kept.iter().any(|key| key == name)),
+        WrapperFields::Except(left) => Box::new(move |name| !left.iter().any(|key| key == name)),
+        WrapperFields::Whole | WrapperFields::Any => return None,
+    };
+    Some(
+        fields
+            .into_iter()
+            .filter(|field| keeps(&field.name))
+            .collect(),
+    )
+}
+
+/// Why a field of type `ts_type` has no default the derive can write, when
+/// it has none: a `Required` whose type leaves fields optional, which a
+/// default of that type lacks, and a `Pick` or `Omit` of a type whose
+/// fields are not known.
+pub fn undefaultable(ts_type: &str, registry: &TypeRegistry) -> Option<String> {
+    // The field's own file is not known here, so a name resolves as the
+    // registry holds it.
+    let names = &Names {
+        registry,
+        file_path: "",
+        file_imports: &[],
+    };
+    let ts_type = ts_type.trim();
+    if !ts_type.ends_with('>') {
+        return None;
+    }
+    let (base, arguments) = parse_generic_type(ts_type)?;
+    match base {
+        "Pick" | "Omit" => selected_fields(ts_type, names).is_none().then(|| {
+            format!("has type `{ts_type}`, a selection of fields that are not known here")
+        }),
+        "Required" => {
+            let entry = names.registry.resolve_in_file(
+                arguments.trim(),
+                names.file_path,
+                names.file_imports,
+            )?;
+            let fields = super::fields_from_definition(&entry.definition, names.registry)?;
+            let optional: Vec<&str> = fields
+                .iter()
+                .filter(|field| field.optional)
+                .map(|field| field.name.as_str())
+                .collect();
+            (!optional.is_empty()).then(|| {
+                format!(
+                    "has type `{ts_type}`, whose default would have to hold `{}`, which '{}' leaves optional",
+                    optional.join("`, `"),
+                    arguments.trim()
+                )
+            })
+        }
+        _ => None,
     }
 }
 

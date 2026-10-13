@@ -102,19 +102,28 @@ fn test_get_type_default() {
     // `get_type_default_with_registry` for the resolved path.
     assert_eq!(get_type_default("RecordLink<Service>"), "undefined");
     assert_eq!(get_type_default("Result<User, Error>"), "undefined");
-    // Object literal types default to {}
-    assert_eq!(get_type_default("{ [key: string]: number }"), "{}");
-    assert_eq!(get_type_default("{ foo: string; bar: number }"), "{}");
-    assert_eq!(get_type_default("{ [K in keyof T]: V }"), "{}");
+    // An object type written in place defaults to the members it has to
+    // have, and one that names none to an empty object.
+    assert_eq!(get_type_default("{ [key: string]: number }"), "({})");
+    assert_eq!(
+        get_type_default("{ foo: string; bar: number; later?: Date }"),
+        r#"({ foo: "", bar: 0 })"#
+    );
+    assert_eq!(get_type_default("{ [K in keyof T]: V }"), "({})");
+    // A `Required` or a `NonNullable` defaults as what it wraps.
+    assert_eq!(get_type_default("Required<User>"), "userDefaultValue()");
+    assert_eq!(get_type_default("NonNullable<string | null>"), r#""""#);
+    // A selection of a type the registry does not hold names no field.
+    assert_eq!(get_type_default("Pick<User, 'id'>"), "({})");
 }
 
 #[test]
 fn test_get_type_default_object_literal_before_union_split() {
     // Object types containing pipes should not be split as unions
-    assert_eq!(get_type_default("{ a: string | number }"), "{}");
+    assert_eq!(get_type_default("{ a: string | number }"), r#"({ a: "" })"#);
     assert_eq!(
         get_type_default("{ status: \"active\" | \"inactive\" }"),
-        "{}"
+        r#"({ status: "active" })"#
     );
 }
 

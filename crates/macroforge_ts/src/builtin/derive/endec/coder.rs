@@ -269,35 +269,41 @@ fn tuple_elements(ts_type: &str) -> Option<Vec<&str>> {
 }
 
 /// The members of an object type written out in place, such as
-/// `{ at: Date; note?: string }`. `None` for any other type, and for one
-/// with a method or a call signature, whose values pass through as they are.
-/// An error for one with a computed key or an index signature, which names
-/// no member to code.
-pub(crate) fn object_members(ts_type: &str) -> Result<Option<Vec<InterfaceFieldIR>>, String> {
+/// `{ at: Date; note?: string }`, an index signature among them. `None` for
+/// any other type, and for one with a method or a call signature.
+pub(crate) fn inline_object_fields(ts_type: &str) -> Option<Vec<InterfaceFieldIR>> {
     use oxc::ast::ast::{Statement, TSType};
 
     if !ts_type.trim_start().starts_with('{') {
-        return Ok(None);
+        return None;
     }
     let allocator = oxc::allocator::Allocator::default();
     let source = format!("type __T = {ts_type};");
     let parsed = oxc::parser::Parser::new(&allocator, &source, oxc::span::SourceType::ts()).parse();
     let [Statement::TSTypeAliasDeclaration(declared)] = parsed.program.body.as_slice() else {
-        return Ok(None);
+        return None;
     };
     let TSType::TSTypeLiteral(literal) = &declared.type_annotation else {
-        return Ok(None);
+        return None;
     };
-    let Ok(aliases) = crate::ts_syn::lower_type_aliases(&parsed.program, &source) else {
-        return Ok(None);
-    };
+    let aliases = crate::ts_syn::lower_type_aliases(&parsed.program, &source).ok()?;
     let [alias] = aliases.as_slice() else {
+        return None;
+    };
+    let fields = alias.body.as_object()?;
+    (fields.len() == literal.members.len()).then(|| fields.to_vec())
+}
+
+/// The members of an object type written out in place that are coded one
+/// by one. `None` for any other type, for one whose values pass through as
+/// they are, and for one that is a single index signature, which is coded as
+/// the `Record` it describes. An error for one with a computed key, or an
+/// index signature beside named members, which names no member to code.
+pub(crate) fn object_members(ts_type: &str) -> Result<Option<Vec<InterfaceFieldIR>>, String> {
+    let Some(fields) = inline_object_fields(ts_type) else {
         return Ok(None);
     };
-    let Some(fields) = alias.body.as_object() else {
-        return Ok(None);
-    };
-    if dictionary(fields).is_some() {
+    if dictionary(&fields).is_some() {
         return Ok(None);
     }
     if let Some(unnamed) = fields.iter().find(|field| field.key == MemberKey::Unnamed) {
@@ -306,7 +312,7 @@ pub(crate) fn object_members(ts_type: &str) -> Result<Option<Vec<InterfaceFieldI
             unnamed.name
         ));
     }
-    Ok((fields.len() == literal.members.len()).then(|| fields.to_vec()))
+    Ok(Some(fields))
 }
 
 /// The value type of an object type that is one index signature over
@@ -324,22 +330,8 @@ fn dictionary(fields: &[InterfaceFieldIR]) -> Option<&str> {
 /// `ts_type` as the `Record` it is, when it is an object type of one index
 /// signature over strings.
 pub(crate) fn dictionary_record(ts_type: &str) -> Option<String> {
-    use oxc::ast::ast::Statement;
-
-    if !ts_type.trim_start().starts_with('{') {
-        return None;
-    }
-    let allocator = oxc::allocator::Allocator::default();
-    let source = format!("type __T = {ts_type};");
-    let parsed = oxc::parser::Parser::new(&allocator, &source, oxc::span::SourceType::ts()).parse();
-    let [Statement::TSTypeAliasDeclaration(_)] = parsed.program.body.as_slice() else {
-        return None;
-    };
-    let aliases = crate::ts_syn::lower_type_aliases(&parsed.program, &source).ok()?;
-    let [alias] = aliases.as_slice() else {
-        return None;
-    };
-    let value_type = dictionary(alias.body.as_object()?)?;
+    let fields = inline_object_fields(ts_type)?;
+    let value_type = dictionary(&fields)?;
     Some(format!("Record<string, {value_type}>"))
 }
 

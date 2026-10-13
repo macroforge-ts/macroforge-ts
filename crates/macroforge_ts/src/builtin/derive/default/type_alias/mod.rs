@@ -13,7 +13,7 @@ use crate::ts_syn::{
 };
 
 use super::object::object_default;
-use super::values::DefaultSources;
+use super::values::{DefaultSources, missing_default_derives};
 use crate::builtin::derive::common::TypeNames;
 
 pub(super) fn type_alias_default(
@@ -29,16 +29,62 @@ pub(super) fn type_alias_default(
     } else if let Some(members) = type_alias.as_union() {
         union::union_default(input, type_alias, members, sources)
     } else {
-        fallback_default(input, type_alias, &names)
+        fallback_default(input, type_alias, &names, sources)
     }
 }
 
-/// A tuple, primitive or other alias: its `@default(value)`, or for a
-/// primitive alias the primitive's default.
+/// The default of an alias of another type, or of a tuple, with no
+/// `@default(value)` of its own: what a field of the type it stands for
+/// defaults to. `None` for a type the derive can write no default for, and
+/// the errors of one whose default is missing something.
+fn aliased_default(
+    input: &DeriveInput,
+    type_alias: &DataTypeAlias,
+    names: &TypeNames,
+    sources: &DefaultSources,
+) -> Result<Option<String>, MacroforgeError> {
+    let aliased = match (type_alias.body().as_alias(), type_alias.body().as_tuple()) {
+        (Some(target), _) => target.to_string(),
+        (None, Some(elements)) => {
+            let elements = elements.join(", ");
+            rendered(ts_template! { [@{elements}] })
+        }
+        (None, None) => return Ok(None),
+    };
+    // A function has no default, and a type parameter none the alias knows.
+    if aliased.contains("=>") {
+        return Ok(None);
+    }
+    let mut diagnostics = DiagnosticCollector::new();
+    missing_default_derives(
+        std::iter::once((
+            names.type_name.as_str(),
+            aliased.as_str(),
+            input.decorator_span(),
+        )),
+        names,
+        sources.registry,
+        &mut diagnostics,
+    );
+    if diagnostics.has_errors() {
+        return Err(MacroforgeErrors::new(diagnostics.into_vec()).into());
+    }
+    let default = crate::builtin::derive::common::get_type_default_with_registry(
+        &aliased,
+        sources.registry,
+        sources.caller_file_path,
+        sources.file_imports,
+    );
+    Ok((default != "undefined").then_some(default))
+}
+
+/// A tuple, primitive or other alias: its `@default(value)`, or the default
+/// of the primitive, the tuple or the type it stands for.
 fn fallback_default(
     input: &DeriveInput,
     type_alias: &DataTypeAlias,
     names: &TypeNames,
+    sources: &DefaultSources,
 ) -> Result<TsStream, MacroforgeError> {
     let type_name = names.type_name.as_str();
     let full_type_name = names.full_type.as_str();
@@ -86,7 +132,10 @@ fn fallback_default(
             let zero = crate::builtin::derive::common::get_type_default(base);
             Some(rendered(ts_template! { @{zero} as @{&full_type_name} }))
         }
-        (value, None) => value,
+        (Some(value), None) => Some(value),
+        // An alias of another type is that type, and defaults as it does.
+        (None, None) => aliased_default(input, type_alias, names, sources)?
+            .map(|default| rendered(ts_template! { (@{default}) as @{&full_type_name} })),
     };
 
     if let Some(default_variant) = default_value {

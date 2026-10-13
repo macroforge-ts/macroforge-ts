@@ -160,7 +160,8 @@
 //! The macro reports an expansion error only if:
 //!
 //! - An enum has no variant marked with `@default`
-//! - A type alias that is not an object, union or primitive has no `@default(value)`
+//! - A type alias of a type with no default of its own, such as a function or
+//!   a type that does not derive `Default`, has no `@default(value)`
 //! - A primitive alias with `@endec` validators has no `@default(value)`
 //! - A field's `@default` expression fails to parse
 //! - A function-typed field has neither `@default(value)` nor an initializer, as a
