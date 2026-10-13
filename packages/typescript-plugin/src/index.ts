@@ -1660,12 +1660,9 @@ function init(
                             if (macro) {
                                 return { start: macro.start, length: macro.length };
                             }
-                            // If macro name is "macro" (generic fallback) and there's exactly one macro,
-                            // use that macro's position
-                            if (
-                                (macroName === 'macro' || macroName === '') &&
-                                nearestDecorator.macros.length === 1
-                            ) {
+                            // A region none of the decorator's macros names, such as the
+                            // import block they share, is its one macro's when it has one.
+                            if (nearestDecorator.macros.length === 1) {
                                 const onlyMacro = nearestDecorator.macros[0];
                                 return { start: onlyMacro.start, length: onlyMacro.length };
                             }
