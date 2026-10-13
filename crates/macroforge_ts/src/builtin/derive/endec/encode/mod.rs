@@ -156,12 +156,12 @@
 //!     static #encodeFields(value: User, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields): void {
 //!         if (__fields === undefined || __fields.keeps('id')) {
 //!             if (value.id !== undefined) {
-//!                 result.id = value.id;
+//!                 result["id"] = value.id;
 //!             }
 //!         }
 //!         if (__fields === undefined || __fields.keeps('name')) {
 //!             if (value.name !== undefined) {
-//!                 result.userName = value.name;
+//!                 result["userName"] = value.name;
 //!             }
 //!         }
 //!         if (__fields === undefined || __fields.keeps('metadata')) {

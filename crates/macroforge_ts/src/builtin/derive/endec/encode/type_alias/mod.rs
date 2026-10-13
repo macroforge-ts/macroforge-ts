@@ -6,7 +6,8 @@ mod union;
 mod view;
 
 use crate::ast::Ident;
-use crate::builtin::derive::endec::reserved_keys::check_reserved_keys;
+use crate::builtin::derive::endec::coder::TypeScope;
+use crate::builtin::derive::endec::reserved_keys::check_field_keys;
 use crate::builtin::derive::endec::source_field::SourceField;
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::abi::ir::{FileImportEntry, TypeParamIR, TypeRegistry};
@@ -95,10 +96,17 @@ pub(super) fn handle_type_alias(
         let container_opts = EndecContainerOptions::from_decorators(&type_alias.inner.decorators);
         let names = TypeNames::new(type_name, type_params);
         let mut diagnostics = DiagnosticCollector::new();
-        check_reserved_keys(
+        let key_scope = TypeScope {
+            registry: type_registry,
+            file_path: caller_file_path,
+            file_imports: &file_imports,
+            type_params: &names.params,
+        };
+        check_field_keys(
             Direction::Encode,
             &container_opts,
             ir_fields.iter().map(SourceField::from),
+            &key_scope,
             &mut diagnostics,
         );
         let fields: Vec<EncodeField> = ir_fields

@@ -403,6 +403,37 @@ pub(crate) fn object_shape_test(members: &[InterfaceFieldIR], value: &str) -> St
     .join(" && ")
 }
 
+/// [`object_shape_test`] for a raw value being decoded, which is told by the
+/// keys it holds itself: every object answers to `constructor` and the rest
+/// of `Object.prototype`.
+pub(crate) fn raw_shape_test(members: &[InterfaceFieldIR], value: &str) -> String {
+    let is_literal = |ts_type: &str| {
+        ts_type.starts_with(['"', '\''])
+            || ts_type.parse::<f64>().is_ok()
+            || matches!(ts_type, "true" | "false")
+    };
+    let holds = endec_helper("holds");
+    std::iter::once(rendered(ts_template! {
+        typeof @{value} === "object" && @{value} !== null && !Array.isArray(@{value})
+    }))
+    .chain(
+        members
+            .iter()
+            .filter(|member| !member_may_be_absent(member))
+            .flat_map(|member| {
+                let key = js_string(&member.name);
+                let literal = member.ts_type.trim();
+                std::iter::once(rendered(ts_template! { @{&holds}(@{value}, @{&key}) })).chain(
+                    is_literal(literal).then(|| {
+                        rendered(ts_template! { Reflect.get(@{value}, @{&key}) === @{literal} })
+                    }),
+                )
+            }),
+    )
+    .collect::<Vec<_>>()
+    .join(" && ")
+}
+
 /// A call decoding `raw` as the object type with `members`, each member by
 /// its own type. `None` when no member's type has a decoder, so the object
 /// is taken as it is.

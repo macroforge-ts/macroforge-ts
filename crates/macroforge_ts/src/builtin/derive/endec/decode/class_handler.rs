@@ -1,6 +1,8 @@
 use crate::ast::Expr;
-use crate::builtin::derive::endec::reserved_keys::check_reserved_keys;
+use crate::builtin::derive::endec::coder::TypeScope;
+use crate::builtin::derive::endec::reserved_keys::check_field_keys;
 use crate::builtin::derive::endec::source_field::SourceField;
+use crate::builtin::derive::endec::untyped_fields::check_untyped_fields;
 use crate::macros::ts_template;
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::{DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, ts_ident};
@@ -14,6 +16,7 @@ use super::validation::generate_field_validations;
 use crate::builtin::derive::common::{
     ClassUse, TypeNames, derive_class_fields, js_string, property_key, rendered, type_has_derive,
 };
+use crate::builtin::derive::endec::coder::endec_helper;
 use crate::builtin::derive::endec::type_arguments::{
     declared_param_coders, passed_param_coders, required_param_coders,
 };
@@ -61,12 +64,20 @@ pub(super) fn handle_class(
     let type_params = class_names.params.clone();
     let class_fields = derive_class_fields(input, class, "Decode", ClassUse::Builds)?;
     let mut all_diagnostics = DiagnosticCollector::new();
-    check_reserved_keys(
+    let key_scope = TypeScope {
+        registry: type_registry,
+        file_path: caller_file_path,
+        file_imports,
+        type_params: &type_params,
+    };
+    check_field_keys(
         Direction::Decode,
         &container_opts,
         class_fields.iter().map(SourceField::from),
+        &key_scope,
         &mut all_diagnostics,
     );
+    check_untyped_fields(Direction::Decode, &class_fields, &mut all_diagnostics);
     let fields: Vec<DecodeField> = class_fields
         .iter()
         .filter_map(|field| {
@@ -115,7 +126,8 @@ pub(super) fn handle_class(
             .iter()
             .map(|f| {
                 let key = js_string(&f.json_key);
-                rendered(ts_template! { @{key} in o })
+                let holds = endec_helper("holds");
+                rendered(ts_template! { @{holds}(obj, @{key}) })
             })
             .collect::<Vec<_>>()
             .join(" && ")
@@ -194,6 +206,8 @@ pub(super) fn handle_class(
         (None, _) => "",
     };
 
+    // A key is read only where the input itself has it.
+    let own_members: Expr = ts_ident!(endec_helper("ownMembers")).into();
     let coders = declared_param_coders(Direction::Decode, &class_names.params);
     let passed_coders = passed_param_coders(Direction::Decode, &class_names.params);
     let required_coders = required_param_coders(&class_names.params);
@@ -258,7 +272,7 @@ pub(super) fn handle_class(
                 throw new @{decode_error_expr}([{ field: "_root", message: "@{class_name}.decodeWithContext: expected an object" }]);
             }
 
-            const obj = value as Record<string, unknown>;
+            const obj = @{own_members}(value);
             const errors: Array<{ field: string; message: string }> = [];
 
             {#if container_opts.deny_unknown_fields}
@@ -340,7 +354,6 @@ pub(super) fn handle_class(
             if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
                 return false;
             }
-            const o = obj as Record<string, unknown>;
             return @{shape_check_condition};
         }
 

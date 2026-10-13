@@ -114,7 +114,7 @@ pub(in crate::builtin::derive::endec::encode) fn to_encode_field(
     let by_function = matches!(encoding, FieldEncoding::With(_));
 
     Some(EncodeField {
-        json_member: Member::of(&json_key),
+        json_member: Member::keyed(&json_key),
         field_name: field.name.to_string(),
         member,
         optional: field.optional || (undefinable && !by_function),

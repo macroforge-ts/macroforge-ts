@@ -30,6 +30,15 @@ impl Member {
     }
 }
 
+impl Member {
+    /// A member of a dictionary by its key: `["name"]`. A type with a string
+    /// index signature reads `.constructor` and `.toString` as the members
+    /// every object has, and a key in brackets as one of its own.
+    pub fn keyed(name: &str) -> Self {
+        Self(format!("[{}]", js_string(name)))
+    }
+}
+
 impl ToTsString for Member {
     fn to_ts_string(&self) -> String {
         self.0.clone()

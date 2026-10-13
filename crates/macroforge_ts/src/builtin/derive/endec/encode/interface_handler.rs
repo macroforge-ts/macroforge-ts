@@ -1,6 +1,7 @@
 //! `Encode` for an interface: the shared object encoder.
 
-use crate::builtin::derive::endec::reserved_keys::check_reserved_keys;
+use crate::builtin::derive::endec::coder::TypeScope;
+use crate::builtin::derive::endec::reserved_keys::check_field_keys;
 use crate::builtin::derive::endec::source_field::SourceField;
 use crate::builtin::derive::endec::union_guard::Direction;
 use crate::ts_syn::abi::DiagnosticCollector;
@@ -21,10 +22,17 @@ pub(super) fn handle_interface(
     let names = TypeNames::new(input.name(), interface.type_params());
     let interface_fields = derive_interface_fields(input, interface, "Encode")?;
     let mut diagnostics = DiagnosticCollector::new();
-    check_reserved_keys(
+    let key_scope = TypeScope {
+        registry: &input.context.type_registry,
+        file_path: input.context.file_name.as_str(),
+        file_imports: &file_imports,
+        type_params: &names.params,
+    };
+    check_field_keys(
         Direction::Encode,
         &container_opts,
         interface_fields.iter().map(SourceField::from),
+        &key_scope,
         &mut diagnostics,
     );
     let fields: Vec<EncodeField> = interface_fields

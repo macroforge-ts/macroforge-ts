@@ -231,6 +231,7 @@ mod source_field;
 mod type_arguments;
 mod type_category;
 mod union_guard;
+mod untyped_fields;
 mod validators;
 mod value_kind;
 

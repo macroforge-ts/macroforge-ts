@@ -1,9 +1,11 @@
 //! `Encode` for a class: static methods and the standalone functions that run them.
 
 use crate::ast::Expr;
-use crate::builtin::derive::endec::reserved_keys::check_reserved_keys;
+use crate::builtin::derive::endec::coder::TypeScope;
+use crate::builtin::derive::endec::reserved_keys::check_field_keys;
 use crate::builtin::derive::endec::source_field::SourceField;
 use crate::builtin::derive::endec::union_guard::Direction;
+use crate::builtin::derive::endec::untyped_fields::check_untyped_fields;
 use crate::macros::ts_template;
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::{
@@ -41,12 +43,20 @@ pub(super) fn handle_class(
     let type_params = class_names.params.clone();
     let class_fields = derive_class_fields(input, class, "Encode", ClassUse::Reads)?;
     let mut all_diagnostics = DiagnosticCollector::new();
-    check_reserved_keys(
+    let key_scope = TypeScope {
+        registry: type_registry,
+        file_path: caller_file_path,
+        file_imports,
+        type_params: &type_params,
+    };
+    check_field_keys(
         Direction::Encode,
         &container_opts,
         class_fields.iter().map(SourceField::from),
+        &key_scope,
         &mut all_diagnostics,
     );
+    check_untyped_fields(Direction::Encode, &class_fields, &mut all_diagnostics);
     let fields: Vec<EncodeField> = class_fields
         .iter()
         .filter_map(|field| {

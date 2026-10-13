@@ -142,7 +142,7 @@ fn view_field(
         alias.file_imports,
         &names.params,
     )?;
-    field.json_member = Member::of(name);
+    field.json_member = Member::keyed(name);
     Some(field)
 }
 

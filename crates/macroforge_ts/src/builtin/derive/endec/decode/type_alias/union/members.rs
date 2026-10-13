@@ -14,7 +14,7 @@ use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, TypeRegistry};
 use crate::ts_syn::{MacroforgeError, MacroforgeErrors, ts_ident};
 
 use super::super::AliasDecode;
-use crate::builtin::derive::endec::coder::{TypeScope, decode_members, object_shape_test};
+use crate::builtin::derive::endec::coder::{TypeScope, decode_members, raw_shape_test};
 use crate::builtin::derive::endec::decode::types::EncodableTypeRef;
 use crate::builtin::derive::endec::type_arguments::{member_decoder, param_coder};
 use crate::builtin::derive::endec::union_guard::Direction;
@@ -385,7 +385,7 @@ impl<'a> Union<'a> {
                                 )
                             })?;
                         untagged_object_variants.push(UntaggedObjectVariant {
-                            shape_condition: object_shape_test(fields, "value"),
+                            shape_condition: raw_shape_test(fields, "value"),
                             decoded,
                         });
                     }

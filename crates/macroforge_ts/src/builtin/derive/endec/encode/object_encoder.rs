@@ -220,7 +220,7 @@ mod tests {
     fn a_binding_is_read_only_as_a_word_of_its_own() {
         assert!(mentions("f(value.id, ctx)", "ctx"));
         assert!(mentions("ctx.register(value)", "ctx"));
-        assert!(!mentions("result.ctx = value.ctx;", "ctx"));
+        assert!(!mentions(r#"result["ctx"] = value.ctx;"#, "ctx"));
         assert!(!mentions(r#"__fields.keeps("ctx")"#, "ctx"));
         assert!(!mentions("const ctxt = 1; context();", "ctx"));
         assert!(!mentions("", "ctx"));

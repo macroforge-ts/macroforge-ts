@@ -12,6 +12,7 @@ use super::reference::decode_selectable_reference;
 use super::types::DecodeField;
 use super::validation::generate_field_validations;
 use crate::builtin::derive::common::{TypeNames, js_string, rendered};
+use crate::builtin::derive::endec::coder::endec_helper;
 use crate::builtin::derive::endec::type_arguments::{
     declared_param_coders, passed_param_coders, required_param_coders,
 };
@@ -124,6 +125,8 @@ fn decode_with_context(
     let field_selection_ident = ts_ident!(FIELD_SELECTION);
     let field_requirement_ident = ts_ident!(FIELD_REQUIREMENT_TYPE);
     let field_requirement_expr: Expr = ts_ident!(FIELD_REQUIREMENT).into();
+    // A key is read only where the input itself has it.
+    let own_members: Expr = ts_ident!(endec_helper("ownMembers")).into();
     // The coders of the type's parameters come after the context, ahead of
     // the requirement only this type's own partial decoder passes.
     let coders = declared_param_coders(Direction::Decode, &names.params);
@@ -141,7 +144,7 @@ fn decode_with_context(
                 throw new @{decode_error_expr}([{ field: "_root", message: "@{type_name}.decodeWithContext: expected an object" }]);
             }
 
-            const obj = value as Record<string, unknown>;
+            const obj = @{own_members}(value);
             const errors: Array<{ field: string; message: string }> = [];
 
             {#if container_opts.deny_unknown_fields}
@@ -260,7 +263,8 @@ fn shape_guards(names: &TypeNames, fields: &[DecodeField]) -> TsStream {
         .filter(|field| field.key_required())
         .map(|field| {
             let key = js_string(&field.json_key);
-            rendered(ts_template! { @{key} in o })
+            let holds = endec_helper("holds");
+            rendered(ts_template! { @{holds}(obj, @{key}) })
         })
         .collect();
     let shape_check_condition = required_keys.join(" && ");
@@ -272,7 +276,6 @@ fn shape_guards(names: &TypeNames, fields: &[DecodeField]) -> TsStream {
             {#if required_keys.is_empty()}
                 return true;
             {:else}
-                const o = obj as Record<string, unknown>;
                 return @{shape_check_condition};
             {/if}
         }

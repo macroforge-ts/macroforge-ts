@@ -298,10 +298,10 @@ class Point {
         result.code
     );
 
-    // Should use direct property access (result.x) not computed (result["x"])
+    // A field is written by its key, which the result's index signature types.
     assert!(
-        result.code.contains("result.x =") || result.code.contains("result.x="),
-        "Should use direct property access for x. Got:\n{}",
+        result.code.contains(r#"result["x"] ="#),
+        "Should write x by its key. Got:\n{}",
         result.code
     );
 
@@ -513,13 +513,13 @@ export interface Crew {
     for field in ["members", "byName", "stamps"] {
         assert!(
             crew_encoder.contains(&format!(
-                "result.{field} = value.{field} === null ? null : "
+                "result[\"{field}\"] = value.{field} === null ? null : "
             )),
             "a null {field} should still encode as null. Got:\n{}",
             result.code
         );
         assert!(
-            !crew_encoder.contains(&format!("result.{field} = value.{field};")),
+            !crew_encoder.contains(&format!("result[\"{field}\"] = value.{field};")),
             "{field} should not be passed through unencoded. Got:\n{}",
             result.code
         );
@@ -645,7 +645,7 @@ export interface Crew {
     );
     for field in ["members", "draft"] {
         assert!(
-            !crew_encoder.contains(&format!("result.{field} = value.{field};")),
+            !crew_encoder.contains(&format!("result[\"{field}\"] = value.{field};")),
             "{field} should not be passed through unencoded. Got:\n{}",
             result.code
         );

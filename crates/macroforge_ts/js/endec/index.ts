@@ -646,6 +646,25 @@ function settle<Value>(
   else place(decoded);
 }
 
+/**
+ * Whether `raw` holds `key` itself. Every object answers to `constructor`,
+ * `toString` and the rest of `Object.prototype`, which are no part of what
+ * it was decoded from.
+ */
+export function holds(raw: object, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(raw, key);
+}
+
+/**
+ * The members `raw` holds itself, as an object that has no others: a key is
+ * then there only when the input has it.
+ */
+export function ownMembers(raw: object): Record<string, unknown> {
+  const members: Record<string, unknown> = Object.create(null);
+  for (const [key, member] of Object.entries(raw)) members[key] = member;
+  return members;
+}
+
 function isRawObject(raw: unknown): raw is Record<string, unknown> {
   return typeof raw === "object" && raw !== null && !Array.isArray(raw);
 }
@@ -757,7 +776,7 @@ export function decodeObject(
   if (!isRawObject(raw)) throw mismatch("an object");
   const decoded: Record<string, unknown> = {};
   for (const [key, decode] of Object.entries(members)) {
-    const member = raw[key];
+    const member = holds(raw, key) ? raw[key] : undefined;
     inScope(ctx, key, () => {
       if (member === undefined) {
         if (optional.includes(key)) return;
@@ -831,7 +850,7 @@ export function requireKeys(
       );
     });
   } else {
-    report((key) => raw[key] !== undefined);
+    report((key) => holds(raw, key) && raw[key] !== undefined);
   }
   return raw;
 }
@@ -930,7 +949,7 @@ export function fieldRequirement(
  * @throws {TypeError} If the value has no JSON text, as `undefined` has none.
  */
 export function encodedText(encoded: unknown): string {
-  return jsonText(JSON.stringify(encoded));
+  return jsonText(JSON.stringify(encoded, (_key, member: unknown) => replacerMember(member)));
 }
 
 /**
@@ -1080,9 +1099,14 @@ function jsonText(text: string | undefined): string {
 function replacerMember(
   member: unknown,
 ): string | number | boolean | null | Record<string, unknown> | unknown[] | undefined {
-  if (typeof member === "string" || typeof member === "number" || typeof member === "boolean") {
+  if (typeof member === "number") {
+    // JSON writes `NaN` and the infinities as `null`, which reads back as no number.
+    if (!Number.isFinite(member)) {
+      throw new TypeError(`JSON cannot represent the number ${member}`);
+    }
     return member;
   }
+  if (typeof member === "string" || typeof member === "boolean") return member;
   if (Array.isArray(member) || isJsonObject(member)) return member;
   if (typeof member === "bigint") throw new TypeError("Do not know how to serialize a BigInt");
   return member === null ? null : undefined;
