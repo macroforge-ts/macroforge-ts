@@ -545,3 +545,35 @@ fn an_operator_over_a_declared_type_is_read_as_what_it_yields() {
         "{hidden}"
     );
 }
+
+/// A type is read once at each level it nests, and one at the limit of what
+/// a derive reads fits a test thread's stack: read twice a level, or deeper
+/// than the stack holds, it would not finish.
+#[test]
+fn a_type_nested_to_the_limit_is_coded_a_level_at_a_time() {
+    let depth = crate::builtin::derive::common::MAX_TYPE_DEPTH;
+    let nested =
+        |open: &str, close: &str| format!("{}number{}", open.repeat(depth), close.repeat(depth));
+    let decoded = |ts_type: String| coded(&ts_type).1.expect("the type decodes");
+    assert_eq!(
+        decoded(nested("", "[]")).matches("decodeArray").count(),
+        depth
+    );
+    assert_eq!(
+        decoded(nested("{ held: ", " }"))
+            .matches("decodeObject")
+            .count(),
+        depth
+    );
+    assert_eq!(
+        decoded(nested("[", "]")).matches("decodeTuple(").count(),
+        depth
+    );
+    assert_eq!(
+        decoded(nested("Record<string, ", ">"))
+            .matches("decodeRecord")
+            .count(),
+        depth
+    );
+    assert!(decoded(nested("(", " | null)")).contains("decodeChecked"));
+}

@@ -66,13 +66,7 @@ impl TypeScope<'_> {
                     encode_expr(argument, &held, self, depth + 1)?
                         .map(|encoded| rendered(ts_template! { (@{&held}) => @{encoded} }))
                 }
-                Direction::Decode => {
-                    if decode_expr(argument, "__probe", self, depth + 1)?.is_some() {
-                        Some(decoder(argument, self, depth)?)
-                    } else {
-                        None
-                    }
-                }
+                Direction::Decode => own_decoder(argument, self, depth)?,
             });
         }
         nested.arguments = arguments;
@@ -567,12 +561,19 @@ fn decode_object(
     scope: &TypeScope<'_>,
     depth: usize,
 ) -> Result<Option<String>, String> {
+    let mut decoders = Vec::with_capacity(members.len());
     for member in members {
-        if decode_expr(&member.ts_type, "__probe", scope, depth + 1)?.is_some() {
-            return decode_members(members, raw, scope, depth).map(Some);
-        }
+        decoders.push(own_decoder(&member.ts_type, scope, depth)?);
     }
-    Ok(None)
+    if decoders.iter().all(Option::is_none) {
+        return Ok(None);
+    }
+    let decoders = members
+        .iter()
+        .zip(decoders)
+        .map(|(member, own)| own.unwrap_or_else(|| kept_as(&member.ts_type, depth)))
+        .collect();
+    Ok(Some(members_call(members, decoders, raw)))
 }
 
 /// A call decoding `raw` into an object of exactly `members`, each by its own
@@ -585,10 +586,22 @@ pub(crate) fn decode_members(
 ) -> Result<String, String> {
     let mut decoders = Vec::with_capacity(members.len());
     for member in members {
-        let key = property_key(&member.name);
-        let decode = decoder(&member.ts_type, scope, depth)?;
-        decoders.push(rendered(ts_template! { @{key}: @{decode} }));
+        decoders.push(decoder(&member.ts_type, scope, depth)?);
     }
+    Ok(members_call(members, decoders, raw))
+}
+
+/// The call decoding `raw` into an object of `members`, the decoder of each
+/// given in their order.
+fn members_call(members: &[InterfaceFieldIR], decoders: Vec<String>, raw: &str) -> String {
+    let decoders: Vec<String> = members
+        .iter()
+        .zip(decoders)
+        .map(|(member, decode)| {
+            let key = property_key(&member.name);
+            rendered(ts_template! { @{key}: @{decode} })
+        })
+        .collect();
     let optional: Vec<String> = members
         .iter()
         .filter(|member| member_may_be_absent(member))
@@ -597,14 +610,14 @@ pub(crate) fn decode_members(
     let decode_object = endec_helper("decodeObject");
     let decoders = decoders.join(", ");
     if optional.is_empty() {
-        return Ok(rendered(ts_template! {
+        return rendered(ts_template! {
             @{decode_object}(@{raw}, ctx, { @{decoders} })
-        }));
+        });
     }
     let optional = optional.join(", ");
-    Ok(rendered(ts_template! {
+    rendered(ts_template! {
         @{decode_object}(@{raw}, ctx, { @{decoders} }, [@{optional}])
-    }))
+    })
 }
 
 /// The handler a configured foreign type codes its values with.
@@ -1036,17 +1049,33 @@ pub(crate) fn endec_helper(name: &str) -> String {
 /// A function decoding one raw value of `ts_type`, to hand to a collection's
 /// decoder. A type whose values decode as themselves is cast to it.
 fn decoder(ts_type: &str, scope: &TypeScope<'_>, depth: usize) -> Result<String, String> {
+    Ok(own_decoder(ts_type, scope, depth)?.unwrap_or_else(|| kept_as(ts_type, depth)))
+}
+
+/// `decoder`, and `None` for a type whose values decode as themselves, which
+/// leaves a collection of them to be taken as it is. The type is read once:
+/// reading it again for each of its uses would double the work at each level
+/// it nests.
+fn own_decoder(
+    ts_type: &str,
+    scope: &TypeScope<'_>,
+    depth: usize,
+) -> Result<Option<String>, String> {
     let ts_type = ungrouped(ts_type);
     if foreign_callee(ts_type, ForeignHandler::Decode).is_none()
         && let Some(leaf) = leaf_decoder(ts_type)
     {
-        return Ok(endec_helper(leaf));
+        return Ok(Some(endec_helper(leaf)));
     }
     let raw = format!("__raw{depth}");
-    Ok(match decode_expr(ts_type, &raw, scope, depth + 1)? {
-        Some(decoded) => rendered(ts_template! { (@{&raw}) => @{decoded} }),
-        None => rendered(ts_template! { (@{&raw}) => @{&raw} as @{ts_type} }),
-    })
+    Ok(decode_expr(ts_type, &raw, scope, depth + 1)?
+        .map(|decoded| rendered(ts_template! { (@{&raw}) => @{decoded} })))
+}
+
+/// A function handing back a raw value of `ts_type`, which decodes as itself.
+fn kept_as(ts_type: &str, depth: usize) -> String {
+    let (raw, ts_type) = (format!("__raw{depth}"), ungrouped(ts_type));
+    rendered(ts_template! { (@{&raw}) => @{&raw} as @{ts_type} })
 }
 
 /// An expression decoding `raw`, an `unknown` value, as `ts_type`, with
@@ -1111,22 +1140,12 @@ pub(crate) fn decode_expr(
     }
     // Whether an element decodes as itself decides whether its collection
     // does; a `Set` or `Map` is built from its encoding either way.
-    let item_is_itself = |item_type: &str| -> Result<bool, String> {
-        Ok(decode_expr(item_type, "__probe", scope, depth + 1)?.is_none())
-    };
     Ok(match TypeCategory::from_ts_type(ts_type) {
         TypeCategory::Primitive | TypeCategory::Date => None,
-        TypeCategory::Array(element) => {
-            if item_is_itself(&element)? {
-                None
-            } else {
-                let decode_array = endec_helper("decodeArray");
-                let item = decoder(&element, scope, depth)?;
-                Some(rendered(
-                    ts_template! { @{decode_array}(@{raw}, ctx, @{item}) },
-                ))
-            }
-        }
+        TypeCategory::Array(element) => own_decoder(&element, scope, depth)?.map(|item| {
+            let decode_array = endec_helper("decodeArray");
+            rendered(ts_template! { @{decode_array}(@{raw}, ctx, @{item}) })
+        }),
         TypeCategory::Set(element) => {
             let decode_set = endec_helper("decodeSet");
             let item = decoder(&element, scope, depth)?;
@@ -1144,11 +1163,12 @@ pub(crate) fn decode_expr(
         }
         TypeCategory::Record(key_type, value_type) => {
             let keys = record_key_arguments(&key_type, scope, depth)?;
-            if keys.is_none() && item_is_itself(&value_type)? {
+            let own = own_decoder(&value_type, scope, depth)?;
+            if keys.is_none() && own.is_none() {
                 None
             } else {
                 let decode_record = endec_helper("decodeRecord");
-                let item = decoder(&value_type, scope, depth)?;
+                let item = own.unwrap_or_else(|| kept_as(&value_type, depth));
                 let keys = keys.unwrap_or_default();
                 Some(rendered(
                     ts_template! { (@{decode_record}(@{raw}, ctx, @{item}@{keys}) as @{ts_type}) },
@@ -1222,8 +1242,9 @@ fn decode_tuple(
             TypeCategory::Array(item_type) => item_type.as_str(),
             _ => element.ts_type,
         };
-        any_decoded |= decode_expr(item_type, "__probe", scope, depth + 1)?.is_some();
-        let item = decoder(item_type, scope, depth)?;
+        let own = own_decoder(item_type, scope, depth)?;
+        any_decoded |= own.is_some();
+        let item = own.unwrap_or_else(|| kept_as(item_type, depth));
         if element.rest {
             rest = Some(item);
         } else {
