@@ -731,13 +731,23 @@ export function holds(raw: object, key: string): boolean {
  * then there only when the input has it.
  */
 export function ownMembers(raw: object): Record<string, unknown> {
+  if (keepsItsMembers(raw)) throw mismatch("an object");
   const members: Record<string, unknown> = Object.create(null);
   for (const [key, member] of Object.entries(raw)) members[key] = member;
   return members;
 }
 
+/**
+ * Whether `raw` keeps what it holds where its own members do not show: a
+ * `Map` or a `Set`. Read by its members, one would decode as an empty
+ * object, and everything in it would be lost without a word.
+ */
+function keepsItsMembers(raw: object): boolean {
+  return raw instanceof Map || raw instanceof Set;
+}
+
 function isRawObject(raw: unknown): raw is Record<string, unknown> {
-  return typeof raw === "object" && raw !== null && !Array.isArray(raw);
+  return typeof raw === "object" && raw !== null && !Array.isArray(raw) && !keepsItsMembers(raw);
 }
 
 /** Decodes an array, each element with `item`. */

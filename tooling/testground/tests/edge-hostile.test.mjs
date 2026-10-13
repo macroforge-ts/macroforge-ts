@@ -146,6 +146,14 @@ Deno.test('arrays are arrays', () => {
     fails('array for map', bag({ lookup: [1, 2] }));
     fails('array for object', bag({ item: ['i', 1] }));
     fails('null for record', bag({ counts: null }));
+    // A `Map` and a `Set` show none of what they hold as members: read as
+    // objects they would decode as empty ones.
+    fails('Map for map', bag({ lookup: new Map([['a', 1]]) }));
+    fails('Map for record', bag({ counts: new Map([['a', 1]]) }));
+    fails('Set for record', bag({ counts: new Set(['a']) }));
+    fails('Map for object', bag({ item: new Map([['id', 'i'], ['score', 1]]) }));
+    fails('Set for set', bag({ tags: new Set(['a']) }));
+    fails('Map for root', new Map(Object.entries(bag({}))));
 });
 
 Deno.test('scalars are checked, not coerced', () => {
