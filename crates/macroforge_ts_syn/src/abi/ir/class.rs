@@ -170,8 +170,9 @@ pub struct FieldIR {
     /// Source span of the field declaration.
     pub span: SpanIR,
 
-    /// The type annotation as a string (e.g., `"string"`, `"number[]"`, `"Map<K, V>"`).
-    /// Stored as a string for simplicity in v0.
+    /// The field's type as a string (e.g., `"string"`, `"number[]"`, `"Map<K, V>"`):
+    /// its annotation as written, else the type its initializer makes plain
+    /// (`number` for `count = 0`), else `any`.
     pub ts_type: String,
 
     /// Whether the field is optional (`?`).
@@ -189,6 +190,18 @@ pub struct FieldIR {
     /// The initializer expression as written (`"dark"` for `theme = "dark"`).
     #[serde(default)]
     pub initializer: Option<String>,
+
+    /// Whether the field is declared with `accessor`: its value is kept in a
+    /// private slot behind a getter and a setter, which the class's
+    /// constructor sets up.
+    #[serde(default)]
+    pub accessor: bool,
+
+    /// Whether the declaration leaves the field's type unsaid: it has no
+    /// annotation and no initializer whose type is plain, and `ts_type` is
+    /// `any` for want of one.
+    #[serde(default)]
+    pub untyped: bool,
 }
 
 impl FieldIR {

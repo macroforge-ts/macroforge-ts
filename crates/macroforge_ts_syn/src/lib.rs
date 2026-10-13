@@ -112,8 +112,8 @@ pub use import_registry::{
     with_registry, with_registry_mut,
 };
 pub use lower::{
-    collect_exported_names, lower_classes, lower_enums, lower_functions, lower_interfaces,
-    lower_targets, lower_type_aliases,
+    collect_exported_names, initializer_type, lower_classes, lower_enums, lower_functions,
+    lower_interfaces, lower_targets, lower_type_aliases,
 };
 pub use quote_helpers::{
     QuoteArena, ToAssignTargetSource, ToExprSource, ToIdentSource, ToPatSource,

@@ -1135,8 +1135,7 @@ impl MacroExpander {
                 .filter(|import| !registry.is_macro_import(&import.local_name))
                 .collect()
         });
-        diagnostics.extend(derive_scope::check_shadowed_globals(
-            &derive_targets,
+        let module_names = || {
             derive_scope::declared_names(
                 class_map.values(),
                 Declares::TypeAndValue,
@@ -1167,10 +1166,20 @@ impl MacroExpander {
                 |function| &function.name,
                 |function| function.span,
             ))
-            .chain(derive_scope::imported_names(&module_imports)),
+            .chain(derive_scope::imported_names(&module_imports))
+        };
+        diagnostics.extend(derive_scope::check_shadowed_globals(
+            &derive_targets,
+            module_names(),
+            source,
+        ));
+        diagnostics.extend(derive_scope::check_generated_names(
+            &derive_targets,
+            module_names(),
             source,
         ));
         diagnostics.extend(derive_scope::check_unnamed_alias_members(&derive_targets));
+        diagnostics.extend(derive_scope::check_ambient_enums(&derive_targets, source));
 
         let (attribute_targets, attr_diagnostics) = collect_attribute_targets(
             &function_map,

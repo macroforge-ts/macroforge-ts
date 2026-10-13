@@ -75,6 +75,21 @@ fn an_initializer_reading_this_is_rejected() {
 }
 
 #[test]
+fn every_initializer_reading_this_is_reported() {
+    let messages = diagnostics(
+        "/** @derive(Default) */\nexport class Settings {\n  base: number = 1;\n  next: number = this.base + 1;\n  after: number = this.next + 1;\n}\n",
+    );
+    for field in ["next", "after"] {
+        assert!(
+            messages.iter().any(|message| {
+                message.contains(&format!("the initializer of '{field}' reads `this`"))
+            }),
+            "{field}: {messages:?}"
+        );
+    }
+}
+
+#[test]
 fn a_function_initializer_keeps_its_own_this() {
     let method = default_value_method(
         "/** @derive(Default) */\nexport class Settings {\n  theme: string = \"dark\";\n  describe = function (this: Settings): string { return this.theme; };\n}\n",

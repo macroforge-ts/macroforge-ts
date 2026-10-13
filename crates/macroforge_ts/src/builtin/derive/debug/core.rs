@@ -8,7 +8,7 @@ use crate::macros::{ts_macro_derive, ts_template};
 use crate::ts_syn::ts_ident;
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
-use crate::builtin::derive::common::{is_primitive_union, rendered, structural_call};
+use crate::builtin::derive::common::{is_primitive_union, js_string, rendered, structural_call};
 
 use super::debug_generation::{debug_value_expr, push_statements};
 use super::types::DebugField;
@@ -62,26 +62,34 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
         Data::Enum(enum_data) => {
             let enum_name = input.name();
             let enum_ident = ts_ident!(enum_name);
-            let variants: Vec<String> = enum_data
+            // A member is found by its value: a string enum has no lookup
+            // from value to name, and a `const enum` no object to look in.
+            let members: Vec<(Expr, String)> = enum_data
                 .variants()
                 .iter()
-                .map(|v| v.name.clone())
+                .map(|variant| {
+                    let name = js_string(&variant.name);
+                    (
+                        Expr::Source(rendered(ts_template! { @{enum_name}[@{name}] })),
+                        js_string(&format!("{enum_name}.{}", variant.name)),
+                    )
+                })
                 .collect();
 
             let fn_name_ident = ts_ident!("{}ToString", enum_name.to_case(Case::Camel));
-            // Convert ident to expression for array access
-            let enum_expr: Expr = enum_ident.clone().into();
             Ok(ts_template! {
                 export function @{fn_name_ident}(value: @{enum_ident.clone()}): string {
-                    {#if !variants.is_empty()}
-                        const key = @{enum_expr.clone()}[value as unknown as keyof typeof @{enum_ident.clone()}];
-                        if (key !== undefined) {
-                            return "@{enum_name}." + key;
-                        }
-                        return "@{enum_name}(" + String(value) + ")";
-                    {:else}
-                        return "@{enum_name}(" + String(value) + ")";
+                    {#if !members.is_empty()}
+                        // Members that share a value are one type, which a
+                        // test of `value` itself would narrow away.
+                        const held: unknown = value;
+                        {#for (member, label) in &members}
+                            if (held === @{member}) {
+                                return @{label};
+                            }
+                        {/for}
                     {/if}
+                    return "@{enum_name}(" + String(value) + ")";
                 }
             })
         }

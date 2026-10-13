@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use convert_case::{Case, Casing};
 
-use crate::host::expand::derive_scope::unnamed_member_message;
+use crate::host::expand::derive_scope::{prototype_member_message, unnamed_member_message};
 use crate::ts_syn::abi::InterfaceFieldIR;
 use crate::ts_syn::abi::ir::class::{ClassIR, FieldIR, MemberKey, Visibility};
 use crate::ts_syn::abi::ir::interface::InterfaceIR;
@@ -269,10 +269,20 @@ pub fn class_instance_fields(
                 field.name.trim_start_matches('#')
             ));
         }
-        fields.push(field.clone());
+        fields.push(match rune_state_type(field) {
+            Some(ts_type) => FieldIR {
+                ts_type,
+                untyped: false,
+                ..field.clone()
+            },
+            None => field.clone(),
+        });
     }
     if let Some(unnamed) = fields.iter().find(|field| field.key == MemberKey::Unnamed) {
         return Err(unnamed_member_message(&unnamed.name, &class.name));
+    }
+    if fields.iter().any(|field| field.name == "__proto__") {
+        return Err(prototype_member_message(&class.name));
     }
     Ok(fields)
 }
@@ -345,6 +355,9 @@ pub fn interface_instance_fields(
     )?;
     if let Some(unnamed) = fields.iter().find(|field| field.key == MemberKey::Unnamed) {
         return Err(unnamed_member_message(&unnamed.name, &interface.name));
+    }
+    if fields.iter().any(|field| field.name == "__proto__") {
+        return Err(prototype_member_message(&interface.name));
     }
     Ok(fields)
 }
@@ -434,6 +447,47 @@ fn rune_of(initializer: &str) -> Option<&'static str> {
         })
 }
 
+/// The type of a field left untyped whose initializer is `$state`, read off
+/// the rune: its type argument, or what the value it is given makes plain.
+fn rune_state_type(field: &FieldIR) -> Option<String> {
+    use oxc::allocator::Allocator;
+    use oxc::ast::ast::Expression;
+    use oxc::span::GetSpan;
+
+    if !field.untyped {
+        return None;
+    }
+    let initializer = field.initializer.as_deref()?;
+    let text = |span: oxc::span::Span| &initializer[span.start as usize..span.end as usize];
+    let allocator = Allocator::default();
+    let parser = oxc::parser::Parser::new(&allocator, initializer, oxc::span::SourceType::ts());
+    // The initializer was read out of a module that parsed.
+    let parsed = parser.parse_expression().ok()?;
+    let Expression::CallExpression(call) = parsed.without_parentheses() else {
+        return None;
+    };
+    // `$state` and `$state.raw` hold the value they are given.
+    if !matches!(text(call.callee.span()), "$state" | "$state.raw") {
+        return None;
+    }
+    let given = call.arguments.first();
+    match &call.type_arguments {
+        Some(arguments) => {
+            let [written] = arguments.params.as_slice() else {
+                return None;
+            };
+            let held = text(written.span());
+            // With nothing given, the state starts out `undefined`.
+            Some(if given.is_some() {
+                held.to_string()
+            } else {
+                format!("{held} | undefined")
+            })
+        }
+        None => crate::ts_syn::initializer_type(given?.as_expression()?, false, initializer),
+    }
+}
+
 /// The fields a derive on `class` works over, inherited ones included, or
 /// the error saying which one `derive` cannot reach, or cannot set up in an
 /// instance it builds.
@@ -464,6 +518,12 @@ pub fn derive_class_fields(
         if let Some((field, rune)) = rune_field {
             return Err(failure(format!(
                 "field '{}' of class '{}' is set up by `{rune}`, which only the class's constructor can do, and a derive builds an instance without running it",
+                field.name, class.inner.name
+            )));
+        }
+        if let Some(field) = fields.iter().find(|field| field.accessor) {
+            return Err(failure(format!(
+                "field '{}' of class '{}' is an `accessor`, whose value is kept where only the class's constructor can set it up, and a derive builds an instance without running it",
                 field.name, class.inner.name
             )));
         }

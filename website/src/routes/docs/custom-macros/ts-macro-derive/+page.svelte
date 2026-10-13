@@ -249,12 +249,14 @@ impl DataTypeAlias {
     pub name: String,               // Field name
     pub key: MemberKey,             // Named, Private (#name) or Unnamed ([KEY], [key: string])
     pub span: SpanIR,               // Field span
-    pub ts_type: String,            // TypeScript type annotation
+    pub ts_type: String,            // Annotation, else what the initializer makes plain, else "any"
     pub optional: bool,             // Whether field has ?
     pub readonly: bool,             // Whether field is readonly
     pub visibility: Visibility,     // Public, Protected, Private
     pub decorators: Vec<DecoratorIR>, // Field decorators
     pub initializer: Option<String>,  // Initializer as written, e.g. "dark"
+    pub accessor: bool,             // Declared with the accessor keyword
+    pub untyped: bool,              // No annotation and no plain initializer: ts_type is "any"
 }`} lang="rust" />
 
 <h3>Interface Fields (InterfaceFieldIR)</h3>

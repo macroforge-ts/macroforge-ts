@@ -221,9 +221,7 @@ test.describe('Enum derives', () => {
     test('Status enum Debug toString', async ({ page }) => {
         const e2e = await readVanillaSlice(page, 'e2e');
         const statusDebug = probed(e2e.enums.statusDebug, 'enums.statusDebug');
-        // Format: "Status(active)"
-        expect(statusDebug).toContain('Status');
-        expect(statusDebug).toContain('active');
+        expect(statusDebug).toBe('Status.Active');
     });
 
     test('Status enum Clone', async ({ page }) => {

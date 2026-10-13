@@ -85,13 +85,14 @@ pub(super) fn class_default(
         let default_value = match (opts.value, &field.initializer) {
             (Some(value), _) => resolve_default_value(Some(value), &field.ts_type, sources),
             (None, Some(initializer)) if reads_this(initializer) => {
-                return Err(MacroforgeError::new(
+                diagnostics.error(
                     field.span,
                     format!(
                         "@derive(Default): the initializer of '{}' reads `this`, which a default has no instance for. Add @default(value) to '{}'",
                         field.name, field.name
                     ),
-                ));
+                );
+                continue;
             }
             (None, Some(initializer)) => initializer.clone(),
             (None, None) if field.optional => continue,
@@ -107,6 +108,9 @@ pub(super) fn class_default(
             )
         })?;
         field_data.push((field.name.clone(), field.ts_type.clone(), value_expr));
+    }
+    if diagnostics.has_errors() {
+        return Err(MacroforgeErrors::new(diagnostics.into_vec()).into());
     }
 
     // The fields are written out under their declared types, so a default

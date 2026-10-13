@@ -12,8 +12,8 @@ use ::oxc::ast::ast::{
     BindingPattern, Class, ClassElement, Declaration, ExportDefaultDeclarationKind, Expression,
     FormalParameter, Function, MethodDefinitionKind, Program, PropertyKey, Statement,
     TSAccessibility, TSEnumDeclaration, TSEnumMemberName, TSInterfaceDeclaration, TSSignature,
-    TSType, TSTypeAliasDeclaration, TSTypeLiteral, TSTypeName, TSTypeOperatorOperator,
-    TSTypeParameterDeclaration, UnaryOperator,
+    TSType, TSTypeAliasDeclaration, TSTypeAnnotation, TSTypeLiteral, TSTypeName,
+    TSTypeOperatorOperator, TSTypeParameterDeclaration, UnaryOperator,
 };
 use oxc::span::GetSpan;
 use std::collections::HashSet;
@@ -151,6 +151,103 @@ fn annotated_type(
     )
 }
 
+fn source_text(span: oxc::span::Span, source: &str) -> String {
+    source[span.start as usize..span.end as usize].to_string()
+}
+
+fn visibility(accessibility: Option<TSAccessibility>) -> Visibility {
+    match accessibility {
+        Some(TSAccessibility::Private) => Visibility::Private,
+        Some(TSAccessibility::Protected) => Visibility::Protected,
+        Some(TSAccessibility::Public) | None => Visibility::Public,
+    }
+}
+
+/// A field's type, and whether its declaration leaves the type unsaid: what
+/// its annotation gives, else what its initializer makes plain, else `any`.
+fn declared_type(
+    annotation: Option<&TSTypeAnnotation<'_>>,
+    initializer: Option<&Expression<'_>>,
+    readonly: bool,
+    source: &str,
+) -> (String, bool) {
+    if annotation.is_some() {
+        return (annotated_type(annotation, source), false);
+    }
+    initializer
+        .and_then(|value| initializer_type(value, readonly, source))
+        .map_or_else(|| ("any".to_string(), true), |ts_type| (ts_type, false))
+}
+
+/// Constructors of the standard library whose instances have one type,
+/// whatever they are given.
+const PLAIN_CONSTRUCTORS: &[&str] = &["Date", "Error", "RegExp", "URL", "URLSearchParams"];
+
+/// The type TypeScript gives a field for the initializer `value`, where the
+/// initializer alone says it: a literal, an assertion, or a `new` whose type
+/// takes no inference. A `readonly` field keeps a literal's own type, and
+/// any other field the widened one. `source` is the text `value` was parsed
+/// from.
+pub fn initializer_type(value: &Expression<'_>, readonly: bool, source: &str) -> Option<String> {
+    let value = value.without_parentheses();
+    let literal = |widened: &str| {
+        Some(if readonly {
+            source_text(value.span(), source)
+        } else {
+            widened.to_string()
+        })
+    };
+    match value {
+        Expression::NumericLiteral(_) => literal("number"),
+        Expression::StringLiteral(_) => literal("string"),
+        Expression::BooleanLiteral(_) => literal("boolean"),
+        Expression::BigIntLiteral(_) => literal("bigint"),
+        Expression::UnaryExpression(negated)
+            if negated.operator == UnaryOperator::UnaryNegation =>
+        {
+            match &negated.argument {
+                Expression::NumericLiteral(_) => literal("number"),
+                Expression::BigIntLiteral(_) => literal("bigint"),
+                _ => None,
+            }
+        }
+        // A template with no holes is a literal, whose own type a `readonly`
+        // field keeps.
+        Expression::TemplateLiteral(template) if !readonly || !template.expressions.is_empty() => {
+            Some("string".to_string())
+        }
+        Expression::RegExpLiteral(_) => Some("RegExp".to_string()),
+        Expression::TSAsExpression(asserted) => asserted_type(&asserted.type_annotation, source),
+        Expression::TSTypeAssertion(asserted) => asserted_type(&asserted.type_annotation, source),
+        Expression::TSSatisfiesExpression(checked) => {
+            initializer_type(&checked.expression, readonly, source)
+        }
+        Expression::NewExpression(created) => {
+            let Expression::Identifier(constructor) = &created.callee else {
+                return None;
+            };
+            match &created.type_arguments {
+                Some(arguments) => Some(format!(
+                    "{}{}",
+                    constructor.name,
+                    source_text(arguments.span, source)
+                )),
+                None => PLAIN_CONSTRUCTORS
+                    .contains(&constructor.name.as_str())
+                    .then(|| constructor.name.to_string()),
+            }
+        }
+        _ => None,
+    }
+}
+
+/// The type an assertion gives, unless it is `as const`, whose type is read
+/// off the value.
+fn asserted_type(asserted: &TSType<'_>, source: &str) -> Option<String> {
+    let ts_type = source_text(asserted.span(), source);
+    (ts_type != "const").then_some(ts_type)
+}
+
 fn lower_class(
     decl: &Class<'_>,
     source: &str,
@@ -194,28 +291,63 @@ fn lower_class(
             // A static property belongs to the class, not to its instances.
             ClassElement::PropertyDefinition(prop) if !prop.r#static => {
                 let (name, key) = property_name(&prop.key, prop.computed, source);
+                let (ts_type, untyped) = declared_type(
+                    prop.type_annotation.as_deref(),
+                    prop.value.as_ref(),
+                    prop.readonly,
+                    source,
+                );
                 fields.push(FieldIR {
                     name,
                     key,
                     span: oxc_span_ir(prop.span),
-                    ts_type: annotated_type(prop.type_annotation.as_deref(), source),
+                    ts_type,
                     optional: prop.optional,
                     readonly: prop.readonly,
-                    visibility: match prop.accessibility {
-                        Some(TSAccessibility::Private) => Visibility::Private,
-                        Some(TSAccessibility::Protected) => Visibility::Protected,
-                        _ => Visibility::Public,
-                    },
+                    visibility: visibility(prop.accessibility),
                     decorators: collect_leading_decorators(
                         source,
                         floor,
                         prop.span.start as usize,
                         filter,
                     ),
-                    initializer: prop.value.as_ref().map(|value| {
-                        let sp = value.span();
-                        source[sp.start as usize..sp.end as usize].to_string()
-                    }),
+                    initializer: prop
+                        .value
+                        .as_ref()
+                        .map(|value| source_text(value.span(), source)),
+                    accessor: false,
+                    untyped,
+                });
+            }
+            // An `accessor` is a field too, kept behind a getter and a setter.
+            ClassElement::AccessorProperty(prop) if !prop.r#static => {
+                let (name, key) = property_name(&prop.key, prop.computed, source);
+                let (ts_type, untyped) = declared_type(
+                    prop.type_annotation.as_deref(),
+                    prop.value.as_ref(),
+                    false,
+                    source,
+                );
+                fields.push(FieldIR {
+                    name,
+                    key,
+                    span: oxc_span_ir(prop.span),
+                    ts_type,
+                    optional: false,
+                    readonly: false,
+                    visibility: visibility(prop.accessibility),
+                    decorators: collect_leading_decorators(
+                        source,
+                        floor,
+                        prop.span.start as usize,
+                        filter,
+                    ),
+                    initializer: prop
+                        .value
+                        .as_ref()
+                        .map(|value| source_text(value.span(), source)),
+                    accessor: true,
+                    untyped,
                 });
             }
             ClassElement::TSIndexSignature(signature) if !signature.r#static => {
@@ -234,6 +366,8 @@ fn lower_class(
                         filter,
                     ),
                     initializer: None,
+                    accessor: false,
+                    untyped: false,
                 });
             }
             ClassElement::MethodDefinition(method) => {
@@ -301,11 +435,7 @@ fn lower_class(
                         return_type_src,
                         is_static: method.r#static,
                         is_async: method.value.r#async,
-                        visibility: match method.accessibility {
-                            Some(TSAccessibility::Private) => Visibility::Private,
-                            Some(TSAccessibility::Protected) => Visibility::Protected,
-                            _ => Visibility::Public,
-                        },
+                        visibility: visibility(method.accessibility),
                         decorators: method_decorators,
                         body_span: method_body_span,
                         body_src: method_body_src,
@@ -340,24 +470,27 @@ fn parameter_property(param: &FormalParameter<'_>, source: &str) -> Option<Field
     let BindingPattern::BindingIdentifier(ident) = &param.pattern else {
         return None;
     };
-    let text = |span: oxc::span::Span| source[span.start as usize..span.end as usize].to_string();
+    let (ts_type, untyped) = declared_type(
+        param.type_annotation.as_deref(),
+        param.initializer.as_deref(),
+        param.readonly,
+        source,
+    );
     Some(FieldIR {
         name: ident.name.to_string(),
         key: MemberKey::Named,
         span: oxc_span_ir(param.span),
-        ts_type: param
-            .type_annotation
-            .as_ref()
-            .map_or_else(|| "any".to_string(), |ann| text(ann.type_annotation.span())),
+        ts_type,
         optional: param.optional,
         readonly: param.readonly,
-        visibility: match param.accessibility {
-            Some(TSAccessibility::Private) => Visibility::Private,
-            Some(TSAccessibility::Protected) => Visibility::Protected,
-            _ => Visibility::Public,
-        },
+        visibility: visibility(param.accessibility),
         decorators: Vec::new(),
-        initializer: param.initializer.as_ref().map(|value| text(value.span())),
+        initializer: param
+            .initializer
+            .as_ref()
+            .map(|value| source_text(value.span(), source)),
+        accessor: false,
+        untyped,
     })
 }
 
@@ -625,6 +758,7 @@ fn lower_enum(decl: &TSEnumDeclaration<'_>, source: &str) -> EnumIR {
         decorators,
         variants,
         is_const: decl.r#const,
+        is_declare: decl.declare,
     }
 }
 
@@ -1100,7 +1234,7 @@ pub fn collect_exported_names(program: &Program<'_>) -> HashSet<String> {
 mod tests {
     use super::{
         ClassIR, InterfaceIR, Program, SpanIR, TypeAliasIR, TypeBody, TypeMemberKind,
-        lower_classes, lower_interfaces, lower_type_aliases,
+        lower_classes, lower_enums, lower_interfaces, lower_type_aliases,
     };
     use crate::abi::MemberKey;
     use oxc::allocator::Allocator;
@@ -1166,6 +1300,74 @@ mod tests {
                 "{source}"
             );
         }
+    }
+
+    #[test]
+    fn a_field_takes_the_type_its_declaration_makes_plain() {
+        let class = single_class(
+            "class Shape { count = 0; label = 'a'; on = true; big = 1n; low = -1; note = `n${1}`; \
+             at = new Date(); tags = new Set<string>(); ratio = (0.5 as number); held = <string>x; \
+             checked = 2 satisfies number; pattern = /a/; readonly kind = 'k'; readonly rank = -2; \
+             readonly mark = `m`; list = []; made = new Thing(); frozen = [1] as const; \
+             said: string = x; accessor step = 1; static accessor all = 0; accessor open; \
+             constructor(public id = '', readonly code = 7, private bag = {}) {} }",
+        );
+        let plain = |name: &'static str, ts_type: &'static str| (name, ts_type, false, false);
+        let unsaid = |name: &'static str| (name, "any", true, false);
+        assert_eq!(
+            class
+                .fields
+                .iter()
+                .map(|field| {
+                    (
+                        field.name.as_str(),
+                        field.ts_type.as_str(),
+                        field.untyped,
+                        field.accessor,
+                    )
+                })
+                .collect::<Vec<_>>(),
+            vec![
+                plain("count", "number"),
+                plain("label", "string"),
+                plain("on", "boolean"),
+                plain("big", "bigint"),
+                plain("low", "number"),
+                plain("note", "string"),
+                plain("at", "Date"),
+                plain("tags", "Set<string>"),
+                plain("ratio", "number"),
+                plain("held", "string"),
+                plain("checked", "number"),
+                plain("pattern", "RegExp"),
+                plain("kind", "'k'"),
+                plain("rank", "-2"),
+                unsaid("mark"),
+                unsaid("list"),
+                unsaid("made"),
+                unsaid("frozen"),
+                plain("said", "string"),
+                ("step", "number", false, true),
+                ("open", "any", true, true),
+                plain("id", "string"),
+                plain("code", "7"),
+                unsaid("bag"),
+            ]
+        );
+    }
+
+    #[test]
+    fn an_enum_is_carried_with_how_it_is_declared() {
+        let declared = |source: &str| {
+            let allocator = Allocator::default();
+            let enums =
+                lower_enums(&parse(&allocator, source), source, None).expect("enums should lower");
+            let lowered = enums.first().expect("source declares an enum");
+            (lowered.is_const, lowered.is_declare)
+        };
+        assert_eq!(declared("enum Plain { A }"), (false, false));
+        assert_eq!(declared("const enum Inlined { A }"), (true, false));
+        assert_eq!(declared("declare enum Elsewhere { A }"), (false, true));
     }
 
     #[test]

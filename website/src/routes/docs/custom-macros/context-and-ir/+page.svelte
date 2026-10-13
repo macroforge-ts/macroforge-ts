@@ -184,6 +184,7 @@ pub struct InterfaceMethodIR {
     pub decorators: Vec<DecoratorIR>,
     pub variants: Vec<EnumVariantIR>,
     pub is_const: bool,              // declared const enum
+    pub is_declare: bool,            // declared with declare: no value in this module
 }
 
 pub struct EnumVariantIR {

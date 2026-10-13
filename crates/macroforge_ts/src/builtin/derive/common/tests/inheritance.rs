@@ -24,6 +24,8 @@ fn field(name: &str, visibility: Visibility) -> FieldIR {
         visibility,
         decorators: vec![],
         initializer: None,
+        accessor: false,
+        untyped: false,
     }
 }
 
@@ -227,6 +229,48 @@ fn an_interface_has_the_fields_of_what_it_extends_and_may_narrow_them() {
     let registry = registry_of(vec![TypeDefinitionIR::Interface(row.clone())]);
     let message = interface_instance_fields(&row, declared(&registry)).expect_err("unknown base");
     assert!(message.contains("extends 'ExternalRow', which this project does not declare"));
+}
+
+#[test]
+fn an_untyped_rune_field_takes_the_type_the_rune_holds() {
+    let rune = |name: &str, initializer: &str| FieldIR {
+        ts_type: "any".to_string(),
+        untyped: true,
+        initializer: Some(initializer.to_string()),
+        ..field(name, Visibility::Public)
+    };
+    let counter = class(
+        "Counter",
+        None,
+        vec![
+            rune("count", "$state(0)"),
+            rune("label", "$state<string | null>(null)"),
+            rune("later", "$state<number>()"),
+            rune("raw", "$state.raw('a')"),
+            rune("list", "$state([])"),
+            rune("sum", "$derived(1)"),
+            FieldIR {
+                initializer: Some("$state(0)".to_string()),
+                ..field("said", Visibility::Public)
+            },
+        ],
+    );
+    let fields = class_instance_fields(&counter, declared(&TypeRegistry::new())).expect("fields");
+    assert_eq!(
+        fields
+            .iter()
+            .map(|field| (field.name.as_str(), field.ts_type.as_str(), field.untyped))
+            .collect::<Vec<_>>(),
+        [
+            ("count", "number", false),
+            ("label", "string | null", false),
+            ("later", "number | undefined", false),
+            ("raw", "string", false),
+            ("list", "any", true),
+            ("sum", "any", true),
+            ("said", "string", false),
+        ]
+    );
 }
 
 #[test]

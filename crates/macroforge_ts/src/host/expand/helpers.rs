@@ -137,11 +137,13 @@ pub(super) fn has_existing_namespace_or_const(source: &str, type_name: &str) -> 
 }
 
 /// Gets the type name from a DeriveTargetIR.
-/// Returns None for classes (they use instance methods).
+/// Returns None for classes (they use instance methods), and for a `const
+/// enum`, which TypeScript lets no namespace of values merge with.
 pub(super) fn get_derive_target_name(target: &DeriveTargetIR) -> Option<&str> {
     match target {
         DeriveTargetIR::Class(_) => None,
         DeriveTargetIR::Interface(i) => Some(&i.name),
+        DeriveTargetIR::Enum(e) if e.is_const => None,
         DeriveTargetIR::Enum(e) => Some(&e.name),
         DeriveTargetIR::TypeAlias(t) => Some(&t.name),
     }
