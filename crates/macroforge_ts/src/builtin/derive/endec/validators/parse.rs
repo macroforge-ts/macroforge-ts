@@ -1,7 +1,7 @@
 //! Parsing one validator: its name, arguments and custom message.
 
 use super::{CustomValidator, Validator, ValidatorParseError, ValidatorSpec};
-use crate::builtin::derive::common::{parse_string_literal, unwrapped};
+use crate::builtin::derive::common::{is_identifier_name, parse_string_literal, unwrapped};
 use crate::builtin::derive::endec::helpers::extract_named_value;
 
 /// Parse object form: { validate: "email", message: "Invalid email" }
@@ -27,15 +27,16 @@ pub(in crate::builtin::derive::endec) fn parse_validator_string(
     let trimmed = s.trim();
 
     // Check for function-call style: name(args)
-    if let Some(paren_idx) = trimmed.find('(') {
-        let name = &trimmed[..paren_idx];
-        let Some(args_end) = trimmed.rfind(')') else {
-            return Err(ValidatorParseError::invalid_args(
-                name,
-                "missing closing parenthesis",
-            ));
+    if let Some((name, rest)) = trimmed.split_once('(') {
+        // The arguments run to a `)` that ends the validator, and what
+        // stands before them is its name: `)(` has neither.
+        let Some(args) = rest.strip_suffix(')') else {
+            return Err(if is_identifier_name(name.trim()) {
+                ValidatorParseError::invalid_args(name, "missing closing parenthesis")
+            } else {
+                ValidatorParseError::unknown_validator(trimmed)
+            });
         };
-        let args = &trimmed[paren_idx + 1..args_end];
         return parse_validator_with_args(name, args);
     }
 

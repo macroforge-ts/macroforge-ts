@@ -22,6 +22,8 @@ export interface Fields {
     kept: string;
     /** @endec({ encodeWith: "open(", decodeWith: "String" }) */
     unclosed: string;
+    /** @endec({ validate: [")(", "minLength(2) or so"] }) */
+    reversed: string;
 }
 
 /** @derive(Encode, Decode) */

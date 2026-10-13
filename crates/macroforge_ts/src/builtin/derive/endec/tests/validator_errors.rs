@@ -19,6 +19,21 @@ fn test_unknown_validator_returns_error() {
 }
 
 #[test]
+fn a_validator_whose_arguments_never_close_is_an_error() {
+    use crate::builtin::derive::endec::validators::parse::parse_validator_string;
+    let message = |written: &str| parse_validator_string(written).unwrap_err().message;
+    assert_eq!(message(")("), "unknown validator ')('");
+    assert_eq!(
+        message("minLength(2) or so"),
+        "invalid arguments for 'minLength': missing closing parenthesis"
+    );
+    assert_eq!(
+        message("maxLength(5"),
+        "invalid arguments for 'maxLength': missing closing parenthesis"
+    );
+}
+
+#[test]
 fn test_unknown_validator_with_typo_suggests_correction() {
     use crate::builtin::derive::endec::validators::parse::parse_validator_string;
     // "emai" is close to "email"

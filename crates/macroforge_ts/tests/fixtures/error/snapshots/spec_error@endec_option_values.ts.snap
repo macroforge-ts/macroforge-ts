@@ -29,6 +29,8 @@ export interface Fields {
     kept: string;
     /** @endec({ encodeWith: "open(", decodeWith: "String" }) */
     unclosed: string;
+    /** @endec({ validate: [")(", "minLength(2) or so"] }) */
+    reversed: string;
 }
 
 /** @derive(Encode, Decode) */
@@ -113,6 +115,8 @@ export interface Fields {
     kept: string;
     
     unclosed: string;
+    
+    reversed: string;
 }
 
 
@@ -1568,6 +1572,7 @@ export interface Fields {
 	twice: string;
 	kept: string;
 	unclosed: string;
+	reversed: string;
 }
 /** @endec({ renameAll: "weird" }) */
 export interface Cased {
@@ -1936,23 +1941,25 @@ Error [62..90]: `@endec`: `rename` takes a string literal, not `5`
 Error [117..147]: `@endec`: `skip` takes `true` or `false`, not `"yes"`
 Error [173..202]: `@endec`: `rename` takes a string that is not empty
 Error [494..524]: `@endec`: `tag` is an option of a type, and does nothing on a member of 'Fields'
-Error [832..869]: `@endec`: `renameAll` takes "camelCase", "snake_case", "SCREAMING_SNAKE_CASE", "kebab-case" or "PascalCase", not `"weird"`
-Error [952..1003]: `@endec`: `tag` takes a string literal, not `5`
-Error [952..1003]: `@endec`: `denyUnknownFields` takes `true` or `false`, not `"yes"`
-Error [1089..1118]: `@endec`: `skip` is an option of a field, and does nothing on the type 'Skipped'
-Error [1203..1236]: `@endec`: `untagged` says how the members of a union are told apart, and 'Untagged' is not a union
-Error [1322..1368]: `@endec`: `untagged` and `tag` each say how the members of a union are told apart; give one of them
-Error [1451..1486]: `@endec`: `content` names the key a tagged member's value is held under, and is given without `tag`
-Error [1572..1613]: `@endec`: `tag` and `content` are both "t", and a member's tag and its value cannot be held under one key
-Error [1683..1725]: `@endec` is given `renameAll` more than once
-Error [1851..1881]: `@endec` configures the fields of a type and the members of a union, and the enum 'Kind' has neither
-Error [1905..1939]: `@endec` configures the fields of a type and the members of a union, and the enum 'Kind' has neither
+Error [916..953]: `@endec`: `renameAll` takes "camelCase", "snake_case", "SCREAMING_SNAKE_CASE", "kebab-case" or "PascalCase", not `"weird"`
+Error [1036..1087]: `@endec`: `tag` takes a string literal, not `5`
+Error [1036..1087]: `@endec`: `denyUnknownFields` takes `true` or `false`, not `"yes"`
+Error [1173..1202]: `@endec`: `skip` is an option of a field, and does nothing on the type 'Skipped'
+Error [1287..1320]: `@endec`: `untagged` says how the members of a union are told apart, and 'Untagged' is not a union
+Error [1406..1452]: `@endec`: `untagged` and `tag` each say how the members of a union are told apart; give one of them
+Error [1535..1570]: `@endec`: `content` names the key a tagged member's value is held under, and is given without `tag`
+Error [1656..1697]: `@endec`: `tag` and `content` are both "t", and a member's tag and its value cannot be held under one key
+Error [1767..1809]: `@endec` is given `renameAll` more than once
+Error [1935..1965]: `@endec` configures the fields of a type and the members of a union, and the enum 'Kind' has neither
+Error [1989..2023]: `@endec` configures the fields of a type and the members of a union, and the enum 'Kind' has neither
 Error [269..285]: @derive(Encode): field 'spelled': `format: "decimal"` writes a number as its text, and `string` is not `number`
 Error [290..329]: field 'listed': `5` is no validator: one is written as a string, such as "email", or as { validate: "...", message: "..." }
 Error [290..329]: field 'listed': `email` is no validator: one is written as a string, such as "email", or as { validate: "...", message: "..." }
 Error [354..400]: field 'ranged': invalid arguments for 'between': the first number is the least and cannot be above the second
 Error [425..470]: field 'sized': invalid arguments for 'length': the first length is the least and cannot be above the second
 Error [780..797]: @endec(encodeWith): invalid expression for 'unclosed': Parse("Expected `)` but found `EOF`")
+Error [802..859]: field 'reversed': unknown validator ')('
+Error [802..859]: field 'reversed': invalid arguments for 'minLength': missing closing parenthesis
 Error [269..285]: @derive(Decode): field 'spelled': `format: "decimal"` reads a number from its text, and `string` is not `number`
 
 ## Mapping
@@ -1968,66 +1975,67 @@ original 469..493 -> expanded 1009..1033
 original 523..548 -> expanded 1033..1058
 original 602..626 -> expanded 1058..1082
 original 691..714 -> expanded 1082..1105
-original 774..800 -> expanded 1105..1131
-original 830..918 -> expanded 1131..1219
-original 918..920 -> expanded 9513..9515
-original 950..1055 -> expanded 9515..9620
-original 1055..1057 -> expanded 18121..18123
-original 1087..1169 -> expanded 18123..18205
-original 1169..1171 -> expanded 26637..26639
-original 1201..1288 -> expanded 26639..26726
-original 1288..1290 -> expanded 35227..35229
-original 1367..1417 -> expanded 35229..35279
-original 1417..1419 -> expanded 40828..40830
-original 1485..1538 -> expanded 40830..40883
-original 1538..1540 -> expanded 46552..46554
-original 1612..1649 -> expanded 46554..46591
-original 1649..1651 -> expanded 52468..52470
-original 1681..1817 -> expanded 52470..52606
-original 1817..1819 -> expanded 60909..60911
-original 1849..1952 -> expanded 60911..61014
-original 1952..1953 -> expanded 62573..62574
+original 774..801 -> expanded 1105..1132
+original 858..884 -> expanded 1132..1158
+original 914..1002 -> expanded 1158..1246
+original 1002..1004 -> expanded 9540..9542
+original 1034..1139 -> expanded 9542..9647
+original 1139..1141 -> expanded 18148..18150
+original 1171..1253 -> expanded 18150..18232
+original 1253..1255 -> expanded 26664..26666
+original 1285..1372 -> expanded 26666..26753
+original 1372..1374 -> expanded 35254..35256
+original 1451..1501 -> expanded 35256..35306
+original 1501..1503 -> expanded 40855..40857
+original 1569..1622 -> expanded 40857..40910
+original 1622..1624 -> expanded 46579..46581
+original 1696..1733 -> expanded 46581..46618
+original 1733..1735 -> expanded 52495..52497
+original 1765..1901 -> expanded 52497..52633
+original 1901..1903 -> expanded 60936..60938
+original 1933..2036 -> expanded 60938..61041
+original 2036..2037 -> expanded 62600..62601
 generated 0..823 <- imports
-generated 1219..3323 <- Encode
-generated 3323..8578 <- Decode
-generated 8578..9513 <- __convenience_const
-generated 9620..11769 <- Encode
-generated 11769..17123 <- Decode
-generated 17123..18121 <- __convenience_const
-generated 18205..20339 <- Encode
-generated 20339..25660 <- Decode
-generated 25660..26637 <- __convenience_const
-generated 26726..28875 <- Encode
-generated 28875..34229 <- Decode
-generated 34229..35227 <- __convenience_const
-generated 35279..37178 <- Encode
-generated 37178..40358 <- Decode
-generated 40358..40828 <- __convenience_const
-generated 40883..42818 <- Encode
-generated 42818..46043 <- Decode
-generated 46043..46552 <- __convenience_const
-generated 46591..48573 <- Encode
-generated 48573..51998 <- Decode
-generated 51998..52468 <- __convenience_const
-generated 52606..54711 <- Encode
-generated 54711..59974 <- Decode
-generated 59974..60909 <- __convenience_const
-generated 61014..61412 <- Encode
-generated 61412..62217 <- Decode
-generated 62217..62573 <- __convenience_const
+generated 1246..3350 <- Encode
+generated 3350..8605 <- Decode
+generated 8605..9540 <- __convenience_const
+generated 9647..11796 <- Encode
+generated 11796..17150 <- Decode
+generated 17150..18148 <- __convenience_const
+generated 18232..20366 <- Encode
+generated 20366..25687 <- Decode
+generated 25687..26664 <- __convenience_const
+generated 26753..28902 <- Encode
+generated 28902..34256 <- Decode
+generated 34256..35254 <- __convenience_const
+generated 35306..37205 <- Encode
+generated 37205..40385 <- Decode
+generated 40385..40855 <- __convenience_const
+generated 40910..42845 <- Encode
+generated 42845..46070 <- Decode
+generated 46070..46579 <- __convenience_const
+generated 46618..48600 <- Encode
+generated 48600..52025 <- Decode
+generated 52025..52495 <- __convenience_const
+generated 52633..54738 <- Encode
+generated 54738..60001 <- Decode
+generated 60001..60936 <- __convenience_const
+generated 61041..61439 <- Encode
+generated 61439..62244 <- Decode
+generated 62244..62600 <- __convenience_const
 
 ## Metadata
 
-interface Fields: {"body_span":{"end":799,"start":56},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[{"args_src":"{ rename: 5 }","name":"endec","span":{"end":90,"start":62}}],"key":"Named","name":"numbered","optional":false,"readonly":false,"span":{"end":112,"start":95},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: \"yes\" }","name":"endec","span":{"end":147,"start":117}}],"key":"Named","name":"worded","optional":true,"readonly":false,"span":{"end":168,"start":152},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"\" }","name":"endec","span":{"end":202,"start":173}}],"key":"Named","name":"unnamed","optional":false,"readonly":false,"span":{"end":223,"start":207},"ts_type":"string"},{"decorators":[{"args_src":"{ format: \"decimal\" }","name":"endec","span":{"end":264,"start":228}}],"key":"Named","name":"spelled","optional":false,"readonly":false,"span":{"end":285,"start":269},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [5, email] }","name":"endec","span":{"end":329,"start":290}}],"key":"Named","name":"listed","optional":false,"readonly":false,"span":{"end":349,"start":334},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"between(5, 1)\"] }","name":"endec","span":{"end":400,"start":354}}],"key":"Named","name":"ranged","optional":false,"readonly":false,"span":{"end":420,"start":405},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"length(4, 2)\"] }","name":"endec","span":{"end":470,"start":425}}],"key":"Named","name":"sized","optional":false,"readonly":false,"span":{"end":489,"start":475},"ts_type":"string"},{"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":524,"start":494}}],"key":"Named","name":"tagged","optional":false,"readonly":false,"span":{"end":544,"start":529},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"a\" }","name":"endec","span":{"end":603,"start":549}},{"args_src":"{ rename: \"b\" }","name":"endec","span":{"end":603,"start":549}}],"key":"Named","name":"twice","optional":false,"readonly":false,"span":{"end":622,"start":608},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"skip\", default: \"\\\"flatten, (skip)\\\"\" }","name":"endec","span":{"end":692,"start":627}}],"key":"Named","name":"kept","optional":false,"readonly":false,"span":{"end":710,"start":697},"ts_type":"string"},{"decorators":[{"args_src":"{ encodeWith: \"open(\", decodeWith: \"String\" }","name":"endec","span":{"end":775,"start":715}}],"key":"Named","name":"unclosed","optional":false,"readonly":false,"span":{"end":797,"start":780},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Fields","span":{"end":799,"start":39},"type_params":[]}
-interface Cased: {"body_span":{"end":919,"start":893},"decorators":[{"args_src":"{ renameAll: \"weird\" }","name":"endec","span":{"end":869,"start":832}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":831,"start":801}}],"fields":[{"decorators":[],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":917,"start":899},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Cased","span":{"end":919,"start":877},"type_params":[]}
-interface Numbered: {"body_span":{"end":1056,"start":1030},"decorators":[{"args_src":"{ tag: 5, denyUnknownFields: \"yes\" }","name":"endec","span":{"end":1003,"start":952}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":951,"start":921}}],"fields":[{"decorators":[],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":1054,"start":1036},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Numbered","span":{"end":1056,"start":1011},"type_params":[]}
-interface Skipped: {"body_span":{"end":1170,"start":1144},"decorators":[{"args_src":"{ skip: true }","name":"endec","span":{"end":1118,"start":1089}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":1088,"start":1058}}],"fields":[{"decorators":[],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":1168,"start":1150},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Skipped","span":{"end":1170,"start":1126},"type_params":[]}
-interface Untagged: {"body_span":{"end":1289,"start":1263},"decorators":[{"args_src":"{ untagged: true }","name":"endec","span":{"end":1236,"start":1203}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":1202,"start":1172}}],"fields":[{"decorators":[],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":1287,"start":1269},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Untagged","span":{"end":1289,"start":1244},"type_params":[]}
-interface Twice: {"body_span":{"end":1818,"start":1792},"decorators":[{"args_src":"{ renameAll: \"kebab-case\" }","name":"endec","span":{"end":1768,"start":1726}},{"args_src":"{ renameAll: \"snake_case\" }","name":"endec","span":{"end":1725,"start":1683}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":1682,"start":1652}}],"fields":[{"decorators":[],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":1816,"start":1798},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Twice","span":{"end":1818,"start":1776},"type_params":[]}
-enum Kind: {"body_span":{"end":1953,"start":1899},"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":1881,"start":1851}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":1850,"start":1820}}],"is_const":false,"is_declare":false,"name":"Kind","span":{"end":1953,"start":1889},"variants":[{"decorators":[{"args_src":"{ rename: \"first\" }","name":"endec","span":{"end":1939,"start":1905}}],"name":"A","span":{"end":1951,"start":1944},"value":{"String":"a"}}]}
-type Both: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1399,"start":1390},"ts_type":"'a'"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1415,"start":1406},"ts_type":"'b'"}]}}}]},"decorators":[{"args_src":"{ tag: \"kind\", untagged: true }","name":"endec","span":{"end":1368,"start":1322}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":1321,"start":1291}}],"name":"Both","span":{"end":1418,"start":1376},"type_params":[]}
-type Content: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1520,"start":1511},"ts_type":"'a'"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1536,"start":1527},"ts_type":"'b'"}]}}}]},"decorators":[{"args_src":"{ content: \"value\" }","name":"endec","span":{"end":1486,"start":1451}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":1450,"start":1420}}],"name":"Content","span":{"end":1539,"start":1494},"type_params":[]}
-type Same: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"Cased"}},{"decorators":[],"kind":{"TypeRef":"Numbered"}}]},"decorators":[{"args_src":"{ tag: \"t\", content: \"t\" }","name":"endec","span":{"end":1613,"start":1572}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":1571,"start":1541}}],"name":"Same","span":{"end":1650,"start":1621},"type_params":[]}
+interface Fields: {"body_span":{"end":883,"start":56},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[{"args_src":"{ rename: 5 }","name":"endec","span":{"end":90,"start":62}}],"key":"Named","name":"numbered","optional":false,"readonly":false,"span":{"end":112,"start":95},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: \"yes\" }","name":"endec","span":{"end":147,"start":117}}],"key":"Named","name":"worded","optional":true,"readonly":false,"span":{"end":168,"start":152},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"\" }","name":"endec","span":{"end":202,"start":173}}],"key":"Named","name":"unnamed","optional":false,"readonly":false,"span":{"end":223,"start":207},"ts_type":"string"},{"decorators":[{"args_src":"{ format: \"decimal\" }","name":"endec","span":{"end":264,"start":228}}],"key":"Named","name":"spelled","optional":false,"readonly":false,"span":{"end":285,"start":269},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [5, email] }","name":"endec","span":{"end":329,"start":290}}],"key":"Named","name":"listed","optional":false,"readonly":false,"span":{"end":349,"start":334},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"between(5, 1)\"] }","name":"endec","span":{"end":400,"start":354}}],"key":"Named","name":"ranged","optional":false,"readonly":false,"span":{"end":420,"start":405},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"length(4, 2)\"] }","name":"endec","span":{"end":470,"start":425}}],"key":"Named","name":"sized","optional":false,"readonly":false,"span":{"end":489,"start":475},"ts_type":"string"},{"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":524,"start":494}}],"key":"Named","name":"tagged","optional":false,"readonly":false,"span":{"end":544,"start":529},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"a\" }","name":"endec","span":{"end":603,"start":549}},{"args_src":"{ rename: \"b\" }","name":"endec","span":{"end":603,"start":549}}],"key":"Named","name":"twice","optional":false,"readonly":false,"span":{"end":622,"start":608},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"skip\", default: \"\\\"flatten, (skip)\\\"\" }","name":"endec","span":{"end":692,"start":627}}],"key":"Named","name":"kept","optional":false,"readonly":false,"span":{"end":710,"start":697},"ts_type":"string"},{"decorators":[{"args_src":"{ encodeWith: \"open(\", decodeWith: \"String\" }","name":"endec","span":{"end":775,"start":715}}],"key":"Named","name":"unclosed","optional":false,"readonly":false,"span":{"end":797,"start":780},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\")(\", \"minLength(2) or so\"] }","name":"endec","span":{"end":859,"start":802}}],"key":"Named","name":"reversed","optional":false,"readonly":false,"span":{"end":881,"start":864},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Fields","span":{"end":883,"start":39},"type_params":[]}
+interface Cased: {"body_span":{"end":1003,"start":977},"decorators":[{"args_src":"{ renameAll: \"weird\" }","name":"endec","span":{"end":953,"start":916}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":915,"start":885}}],"fields":[{"decorators":[],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":1001,"start":983},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Cased","span":{"end":1003,"start":961},"type_params":[]}
+interface Numbered: {"body_span":{"end":1140,"start":1114},"decorators":[{"args_src":"{ tag: 5, denyUnknownFields: \"yes\" }","name":"endec","span":{"end":1087,"start":1036}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":1035,"start":1005}}],"fields":[{"decorators":[],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":1138,"start":1120},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Numbered","span":{"end":1140,"start":1095},"type_params":[]}
+interface Skipped: {"body_span":{"end":1254,"start":1228},"decorators":[{"args_src":"{ skip: true }","name":"endec","span":{"end":1202,"start":1173}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":1172,"start":1142}}],"fields":[{"decorators":[],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":1252,"start":1234},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Skipped","span":{"end":1254,"start":1210},"type_params":[]}
+interface Untagged: {"body_span":{"end":1373,"start":1347},"decorators":[{"args_src":"{ untagged: true }","name":"endec","span":{"end":1320,"start":1287}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":1286,"start":1256}}],"fields":[{"decorators":[],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":1371,"start":1353},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Untagged","span":{"end":1373,"start":1328},"type_params":[]}
+interface Twice: {"body_span":{"end":1902,"start":1876},"decorators":[{"args_src":"{ renameAll: \"kebab-case\" }","name":"endec","span":{"end":1852,"start":1810}},{"args_src":"{ renameAll: \"snake_case\" }","name":"endec","span":{"end":1809,"start":1767}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":1766,"start":1736}}],"fields":[{"decorators":[],"key":"Named","name":"firstName","optional":false,"readonly":false,"span":{"end":1900,"start":1882},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Twice","span":{"end":1902,"start":1860},"type_params":[]}
+enum Kind: {"body_span":{"end":2037,"start":1983},"decorators":[{"args_src":"{ tag: \"kind\" }","name":"endec","span":{"end":1965,"start":1935}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":1934,"start":1904}}],"is_const":false,"is_declare":false,"name":"Kind","span":{"end":2037,"start":1973},"variants":[{"decorators":[{"args_src":"{ rename: \"first\" }","name":"endec","span":{"end":2023,"start":1989}}],"name":"A","span":{"end":2035,"start":2028},"value":{"String":"a"}}]}
+type Both: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1483,"start":1474},"ts_type":"'a'"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1499,"start":1490},"ts_type":"'b'"}]}}}]},"decorators":[{"args_src":"{ tag: \"kind\", untagged: true }","name":"endec","span":{"end":1452,"start":1406}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":1405,"start":1375}}],"name":"Both","span":{"end":1502,"start":1460},"type_params":[]}
+type Content: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1604,"start":1595},"ts_type":"'a'"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":1620,"start":1611},"ts_type":"'b'"}]}}}]},"decorators":[{"args_src":"{ content: \"value\" }","name":"endec","span":{"end":1570,"start":1535}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":1534,"start":1504}}],"name":"Content","span":{"end":1623,"start":1578},"type_params":[]}
+type Same: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"Cased"}},{"decorators":[],"kind":{"TypeRef":"Numbered"}}]},"decorators":[{"args_src":"{ tag: \"t\", content: \"t\" }","name":"endec","span":{"end":1697,"start":1656}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":1655,"start":1625}}],"name":"Same","span":{"end":1734,"start":1705},"type_params":[]}
 
 ## Registry reads
 
