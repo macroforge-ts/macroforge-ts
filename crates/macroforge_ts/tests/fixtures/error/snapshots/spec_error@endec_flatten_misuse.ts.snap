@@ -1,0 +1,551 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/endec_flatten_misuse.ts
+---
+## Input
+
+/** @derive(Encode, Decode) */
+export interface Inner {
+    id: string;
+}
+
+/** @derive(Encode, Decode) */
+export type Shape = { kind: 'a'; x: number } | { kind: 'b'; y: number };
+
+/** @derive(Encode, Decode) */
+export interface Flattened<T> {
+    /** @endec(flatten) */
+    text: string;
+    /** @endec(flatten) */
+    list: Inner[];
+    /** @endec(flatten) */
+    map: Map<string, number>;
+    /** @endec(flatten) */
+    partial: Partial<Inner>;
+    /** @endec(flatten) */
+    inline: { x: number };
+    /** @endec(flatten) */
+    held: T;
+    /** @endec(flatten) */
+    whole: Inner;
+    /** @endec(flatten) */
+    maybe: Inner | null;
+    /** @endec(flatten) */
+    rest: Record<string, number>;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeRecord as __mf_decodeRecord } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+
+export interface Inner {
+    id: string;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function innerEncode(value: Inner, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = innerEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function innerEncodeWithContext(value: Inner, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Inner" });
+    innerEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function innerEncodePartialWithContext(value: Partial<Inner>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Inner>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Inner" };
+        innerEncodeFields(value as Inner, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function innerEncodeFields(value: Inner, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("id")) {
+        if (value.id !== undefined) {
+            result["id"] = value.id;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function innerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Inner } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = innerDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Inner.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Inner | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Inner> | __mf_PendingRef;
+export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Inner> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Inner.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Inner.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Inner") as Inner | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Inner.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "Inner");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+        const __raw_id = obj["id"] as string;
+
+        if (!(typeof __raw_id === "string")) {
+            errors.push({ field: "id", message: __raw_id == null ? "Inner.id is required" : "expected string" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Inner;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function innerDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Inner>): Partial<Inner> | __mf_PendingRef {
+    return innerDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function innerValidateField<K extends keyof Inner>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function innerValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function innerValidateFields(partial: { readonly [K in keyof Inner]?: unknown }): Array<{ field: string; message: string }>;
+export function innerValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function innerHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "id");
+}
+
+export function innerIs(obj: unknown): obj is Inner {
+    return innerHasShape(obj) && innerDecode(obj).success;
+}
+
+export const Inner: {
+  readonly encode: typeof innerEncode;
+  readonly encodeWithContext: typeof innerEncodeWithContext;
+  readonly encodePartialWithContext: typeof innerEncodePartialWithContext;
+  readonly decode: typeof innerDecode;
+  readonly decodeWithContext: typeof innerDecodeWithContext;
+  readonly decodePartialWithContext: typeof innerDecodePartialWithContext;
+  readonly validateField: typeof innerValidateField;
+  readonly validateFields: typeof innerValidateFields;
+  readonly hasShape: typeof innerHasShape;
+  readonly is: typeof innerIs;
+} = {
+  encode: innerEncode,
+  encodeWithContext: innerEncodeWithContext,
+  encodePartialWithContext: innerEncodePartialWithContext,
+  decode: innerDecode,
+  decodeWithContext: innerDecodeWithContext,
+  decodePartialWithContext: innerDecodePartialWithContext,
+  validateField: innerValidateField,
+  validateFields: innerValidateFields,
+  hasShape: innerHasShape,
+  is: innerIs
+};
+
+
+export type Shape = { kind: 'a'; x: number } | { kind: 'b'; y: number };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function shapeEncode(value: Shape, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = shapeEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): unknown {
+    let __variant: unknown;
+    let __matched = false;
+    const __encoder = __mf_derivedEncoder(value);
+    if (__encoder) {
+        __variant = __encoder(value, ctx);
+        __matched = true;
+    }
+    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'a' && "x" in value) {
+        const result: Record<string, unknown> = {};
+        result["kind"] = value.kind;
+        result["x"] = value.x;
+        __variant = result;
+        __matched = true;
+    }
+    if (!__matched && typeof value === "object" && value !== null && !Array.isArray(value) && "kind" in value && value["kind"] === 'b' && "y" in value) {
+        const result: Record<string, unknown> = {};
+        result["kind"] = value.kind;
+        result["y"] = value.y;
+        __variant = result;
+        __matched = true;
+    }
+    if (!__matched) {
+        __variant = value;
+    }
+
+    if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+        const { __type: __typeName, ...fields } = __variant as any;
+        const __tagged = { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+
+        return typeof fields.__id === "number" ? __mf_encodedAs(ctx, fields.__id, __tagged) : __tagged;
+    }
+    return __variant;
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function shapeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Shape } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = shapeDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Shape.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function shapeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Shape | __mf_PendingRef {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Shape.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as Shape | __mf_PendingRef;
+    }
+
+    
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'a' && __mf_holds(value, "x")) {
+        return __mf_decodeObject(value, ctx, { kind: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'a', "'a'") as 'a'), x: __mf_decodeNumber }) as Shape;
+    }
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'b' && __mf_holds(value, "y")) {
+        return __mf_decodeObject(value, ctx, { kind: (__raw0) => (__mf_decodeChecked(__raw0, __raw0 === 'b', "'b'") as 'b'), y: __mf_decodeNumber }) as Shape;
+    }
+
+    throw new __mf_DecodeError([{
+        field: "_root",
+        message: "Shape.decodeWithContext: value does not match any union member"
+    }]);
+}
+export function shapeHasShape(value: unknown): boolean {
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'a' && __mf_holds(value, "x")) return true;
+                if (typeof value === "object" && value !== null && !Array.isArray(value) && __mf_holds(value, "kind") && Reflect.get(value, "kind") === 'b' && __mf_holds(value, "y")) return true;
+                return false;
+}
+export function shapeIs(value: unknown): value is Shape {
+    return shapeHasShape(value);
+}
+
+export const Shape: {
+  readonly encode: typeof shapeEncode;
+  readonly encodeWithContext: typeof shapeEncodeWithContext;
+  readonly decode: typeof shapeDecode;
+  readonly decodeWithContext: typeof shapeDecodeWithContext;
+  readonly hasShape: typeof shapeHasShape;
+  readonly is: typeof shapeIs;
+} = {
+  encode: shapeEncode,
+  encodeWithContext: shapeEncodeWithContext,
+  decode: shapeDecode,
+  decodeWithContext: shapeDecodeWithContext,
+  hasShape: shapeHasShape,
+  is: shapeIs
+};
+
+
+export interface Flattened<T> {
+    
+    text: string;
+    
+    list: Inner[];
+    
+    map: Map<string, number>;
+    
+    partial: Partial<Inner>;
+    
+    inline: { x: number };
+    
+    held: T;
+    
+    whole: Inner;
+    
+    maybe: Inner | null;
+    
+    rest: Record<string, number>;
+}
+
+## DTS
+
+export interface Inner {
+	id: string;
+}
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function innerEncode(value: Inner, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function innerEncodeWithContext(value: Inner, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function innerEncodePartialWithContext(value: Partial<Inner>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Inner>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function innerDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Inner;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Inner | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Inner> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function innerDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Inner>): Partial<Inner> | __mf_PendingRef;
+export declare function innerValidateField<K extends keyof Inner>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function innerValidateFields(partial: { readonly [K in keyof Inner]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function innerHasShape(obj: unknown): boolean;
+export declare function innerIs(obj: unknown): obj is Inner;
+export declare const Inner: {
+	readonly encode: typeof innerEncode;
+	readonly encodeWithContext: typeof innerEncodeWithContext;
+	readonly encodePartialWithContext: typeof innerEncodePartialWithContext;
+	readonly decode: typeof innerDecode;
+	readonly decodeWithContext: typeof innerDecodeWithContext;
+	readonly decodePartialWithContext: typeof innerDecodePartialWithContext;
+	readonly validateField: typeof innerValidateField;
+	readonly validateFields: typeof innerValidateFields;
+	readonly hasShape: typeof innerHasShape;
+	readonly is: typeof innerIs;
+};
+export type Shape = {
+	kind: "a";
+	x: number;
+} | {
+	kind: "b";
+	y: number;
+};
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function shapeEncode(value: Shape, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function shapeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Shape;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function shapeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Shape | __mf_PendingRef;
+export declare function shapeHasShape(value: unknown): boolean;
+export declare function shapeIs(value: unknown): value is Shape;
+export declare const Shape: {
+	readonly encode: typeof shapeEncode;
+	readonly encodeWithContext: typeof shapeEncodeWithContext;
+	readonly decode: typeof shapeDecode;
+	readonly decodeWithContext: typeof shapeDecodeWithContext;
+	readonly hasShape: typeof shapeHasShape;
+	readonly is: typeof shapeIs;
+};
+export interface Flattened<T> {
+	text: string;
+	list: Inner[];
+	map: Map<string, number>;
+	partial: Partial<Inner>;
+	inline: {
+		x: number;
+	};
+	held: T;
+	whole: Inner;
+	maybe: Inner | null;
+	rest: Record<string, number>;
+}
+
+## Diagnostics
+
+Error [275..288]: @derive(Encode): field 'text': `flatten` holds a value's fields as the enclosing object's own, and `string` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
+Error [320..334]: @derive(Encode): field 'list': `flatten` holds a value's fields as the enclosing object's own, and `Inner[]` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
+Error [366..391]: @derive(Encode): field 'map': `flatten` holds a value's fields as the enclosing object's own, and `Map<string, number>` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
+Error [423..447]: @derive(Encode): field 'partial': `flatten` holds a value's fields as the enclosing object's own, and `Partial<Inner>` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
+Error [479..501]: @derive(Encode): field 'inline': `flatten` holds a value's fields as the enclosing object's own, and `{ x: number }` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
+Error [533..541]: @derive(Encode): field 'held': `flatten` holds a value's fields as the enclosing object's own, and `T` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
+Error [275..288]: @derive(Decode): field 'text': `flatten` holds a value's fields as the enclosing object's own, and `string` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
+Error [320..334]: @derive(Decode): field 'list': `flatten` holds a value's fields as the enclosing object's own, and `Inner[]` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
+Error [366..391]: @derive(Decode): field 'map': `flatten` holds a value's fields as the enclosing object's own, and `Map<string, number>` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
+Error [423..447]: @derive(Decode): field 'partial': `flatten` holds a value's fields as the enclosing object's own, and `Partial<Inner>` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
+Error [479..501]: @derive(Decode): field 'inline': `flatten` holds a value's fields as the enclosing object's own, and `{ x: number }` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
+Error [533..541]: @derive(Decode): field 'held': `flatten` holds a value's fields as the enclosing object's own, and `T` has none to hold: only a class, an interface, an object type alias or a `Record` can be flattened
+
+## Mapping
+
+original 30..73 -> expanded 860..903
+original 73..75 -> expanded 9057..9059
+original 105..178 -> expanded 9059..9132
+original 178..180 -> expanded 14977..14979
+original 210..247 -> expanded 14979..15016
+original 269..292 -> expanded 15016..15039
+original 314..338 -> expanded 15039..15063
+original 360..395 -> expanded 15063..15098
+original 417..451 -> expanded 15098..15132
+original 473..505 -> expanded 15132..15164
+original 527..545 -> expanded 15164..15182
+original 567..590 -> expanded 15182..15205
+original 612..642 -> expanded 15205..15235
+original 664..701 -> expanded 15235..15272
+generated 0..860 <- imports
+generated 903..2979 <- Encode
+generated 2979..8122 <- Decode
+generated 8122..9057 <- __convenience_const
+generated 9132..11151 <- Encode
+generated 11151..14494 <- Decode
+generated 14494..14977 <- __convenience_const
+
+## Metadata
+
+interface Inner: {"body_span":{"end":74,"start":55},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":72,"start":61},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Inner","span":{"end":74,"start":39},"type_params":[]}
+interface Flattened: {"body_span":{"end":701,"start":242},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":211,"start":181}}],"fields":[{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":270,"start":248}}],"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":288,"start":275},"ts_type":"string"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":315,"start":293}}],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":334,"start":320},"ts_type":"Inner[]"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":361,"start":339}}],"key":"Named","name":"map","optional":false,"readonly":false,"span":{"end":391,"start":366},"ts_type":"Map<string, number>"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":418,"start":396}}],"key":"Named","name":"partial","optional":false,"readonly":false,"span":{"end":447,"start":423},"ts_type":"Partial<Inner>"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":474,"start":452}}],"key":"Named","name":"inline","optional":false,"readonly":false,"span":{"end":501,"start":479},"ts_type":"{ x: number }"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":528,"start":506}}],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":541,"start":533},"ts_type":"T"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":568,"start":546}}],"key":"Named","name":"whole","optional":false,"readonly":false,"span":{"end":586,"start":573},"ts_type":"Inner"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":613,"start":591}}],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":638,"start":618},"ts_type":"Inner | null"},{"decorators":[{"args_src":"flatten","name":"endec","span":{"end":665,"start":643}}],"key":"Named","name":"rest","optional":false,"readonly":false,"span":{"end":699,"start":670},"ts_type":"Record<string, number>"}],"heritage":[],"methods":[],"name":"Flattened","span":{"end":701,"start":219},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+type Shape: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":139,"start":129},"ts_type":"'a'"},{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":149,"start":140},"ts_type":"number"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"kind","optional":false,"readonly":false,"span":{"end":166,"start":156},"ts_type":"'b'"},{"decorators":[],"key":"Named","name":"y","optional":false,"readonly":false,"span":{"end":176,"start":167},"ts_type":"number"}]}}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":106,"start":76}}],"name":"Shape","span":{"end":179,"start":114},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

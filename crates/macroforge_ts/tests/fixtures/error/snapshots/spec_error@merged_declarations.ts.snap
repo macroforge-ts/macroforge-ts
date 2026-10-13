@@ -1,0 +1,465 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/merged_declarations.ts
+---
+## Input
+
+/** @derive(Debug, PartialEq, Encode, Decode) */
+export interface Merged {
+    first: string;
+}
+
+export interface Merged {
+    second: number;
+}
+
+/** @derive(Debug, Clone) */
+export class Held {
+    name: string = '';
+}
+
+export interface Held {
+    extra: number;
+}
+
+/** @derive(Debug) */
+export enum Level {
+    Low
+}
+
+export enum Level {
+    High = 1
+}
+
+/** @derive(Debug) */
+export interface Single {
+    only: string;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { debuggedWithin as __mf_debuggedWithin, equalWithin as __mf_equalWithin, clonedWith as __mf_clonedWith } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+
+export interface Merged {
+    first: string;
+}
+
+export function mergedToString(value: Merged): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("first: " + String(value.first));
+        return "Merged { " + parts.join(", ") + " }";
+    });
+}
+
+export function mergedEquals(a: Merged, b: Merged): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => a.first === b.first);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function mergedEncode(value: Merged, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = mergedEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function mergedEncodeWithContext(value: Merged, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Merged" });
+    mergedEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function mergedEncodePartialWithContext(value: Partial<Merged>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Merged>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "Merged" };
+        mergedEncodeFields(value as Merged, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function mergedEncodeFields(value: Merged, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("first")) {
+        if (value.first !== undefined) {
+            result["first"] = value.first;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function mergedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Merged } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = mergedDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Merged.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function mergedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Merged | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function mergedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Merged> | __mf_PendingRef;
+export function mergedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Merged> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Merged.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "Merged.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "Merged") as Merged | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "Merged.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("first")) && !("first" in obj)) {
+        errors.push({ field: "first", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "Merged");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("first")) ? "first" in obj : (__fields.keeps("first") && obj["first"] !== undefined)) {
+        const __raw_first = obj["first"] as string;
+
+        if (!(typeof __raw_first === "string")) {
+            errors.push({ field: "first", message: __raw_first == null ? "Merged.first is required" : "expected string" });
+        } else {
+            instance.first = __raw_first;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as Merged;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function mergedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Merged>): Partial<Merged> | __mf_PendingRef {
+    return mergedDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function mergedValidateField<K extends keyof Merged>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function mergedValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function mergedValidateFields(partial: { readonly [K in keyof Merged]?: unknown }): Array<{ field: string; message: string }>;
+export function mergedValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function mergedHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "first");
+}
+
+export function mergedIs(obj: unknown): obj is Merged {
+    return mergedHasShape(obj) && mergedDecode(obj).success;
+}
+
+export const Merged: {
+  readonly toString: typeof mergedToString;
+  readonly equals: typeof mergedEquals;
+  readonly encode: typeof mergedEncode;
+  readonly encodeWithContext: typeof mergedEncodeWithContext;
+  readonly encodePartialWithContext: typeof mergedEncodePartialWithContext;
+  readonly decode: typeof mergedDecode;
+  readonly decodeWithContext: typeof mergedDecodeWithContext;
+  readonly decodePartialWithContext: typeof mergedDecodePartialWithContext;
+  readonly validateField: typeof mergedValidateField;
+  readonly validateFields: typeof mergedValidateFields;
+  readonly hasShape: typeof mergedHasShape;
+  readonly is: typeof mergedIs;
+} = {
+  toString: mergedToString,
+  equals: mergedEquals,
+  encode: mergedEncode,
+  encodeWithContext: mergedEncodeWithContext,
+  encodePartialWithContext: mergedEncodePartialWithContext,
+  decode: mergedDecode,
+  decodeWithContext: mergedDecodeWithContext,
+  decodePartialWithContext: mergedDecodePartialWithContext,
+  validateField: mergedValidateField,
+  validateFields: mergedValidateFields,
+  hasShape: mergedHasShape,
+  is: mergedIs
+};
+
+export interface Merged {
+    second: number;
+}
+
+
+export class Held {
+    name: string = '';
+
+    static toString(value: Held): string {
+        return __mf_debuggedWithin(value, () => {
+            const parts: string[] = [];
+        parts.push("name: " + String(value.name));
+            return "Held { " + parts.join(", ") + " }";
+        });
+    }
+
+    static clone(value: Held): Held {
+        return __mf_clonedWith(value, () => ({ name: value.name }));
+    }
+}
+
+export function heldToString(value: Held): string {
+    return Held.toString(value);
+}
+
+export function heldClone(value: Held): Held {
+    return Held.clone(value);
+}
+
+export interface Held {
+    extra: number;
+}
+
+
+export enum Level {
+    Low
+}
+
+export function levelToString(value: Level): string {
+
+    const held: unknown = value;
+    if (held === Level["Low"]) {
+        return "Level.Low";
+    }
+    return "Level(" + String(value) + ")";
+}
+
+export namespace Level {
+  export const toString: typeof levelToString = levelToString;
+}
+
+export enum Level {
+    High = 1
+}
+
+
+export interface Single {
+    only: string;
+}
+
+export function singleToString(value: Single): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("only: " + String(value.only));
+        return "Single { " + parts.join(", ") + " }";
+    });
+}
+
+export const Single: {
+  readonly toString: typeof singleToString;
+} = {
+  toString: singleToString
+};
+
+## DTS
+
+export interface Merged {
+	first: string;
+}
+export declare function mergedToString(value: Merged): string;
+export declare function mergedEquals(a: Merged, b: Merged): boolean;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function mergedEncode(value: Merged, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function mergedEncodeWithContext(value: Merged, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function mergedEncodePartialWithContext(value: Partial<Merged>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Merged>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function mergedDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: Merged;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function mergedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Merged | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function mergedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Merged> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function mergedDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Merged>): Partial<Merged> | __mf_PendingRef;
+export declare function mergedValidateField<K extends keyof Merged>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function mergedValidateFields(partial: { readonly [K in keyof Merged]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function mergedHasShape(obj: unknown): boolean;
+export declare function mergedIs(obj: unknown): obj is Merged;
+export declare const Merged: {
+	readonly toString: typeof mergedToString;
+	readonly equals: typeof mergedEquals;
+	readonly encode: typeof mergedEncode;
+	readonly encodeWithContext: typeof mergedEncodeWithContext;
+	readonly encodePartialWithContext: typeof mergedEncodePartialWithContext;
+	readonly decode: typeof mergedDecode;
+	readonly decodeWithContext: typeof mergedDecodeWithContext;
+	readonly decodePartialWithContext: typeof mergedDecodePartialWithContext;
+	readonly validateField: typeof mergedValidateField;
+	readonly validateFields: typeof mergedValidateFields;
+	readonly hasShape: typeof mergedHasShape;
+	readonly is: typeof mergedIs;
+};
+export interface Merged {
+	second: number;
+}
+export declare class Held {
+	name: string;
+	static toString(value: Held): string;
+	static clone(value: Held): Held;
+}
+export declare function heldToString(value: Held): string;
+export declare function heldClone(value: Held): Held;
+export interface Held {
+	extra: number;
+}
+export declare enum Level {
+	Low = 0
+}
+export declare function levelToString(value: Level): string;
+export declare namespace Level {
+	const toString: typeof levelToString;
+}
+export declare enum Level {
+	High = 1
+}
+export interface Single {
+	only: string;
+}
+export declare function singleToString(value: Single): string;
+export declare const Single: {
+	readonly toString: typeof singleToString;
+};
+
+## Diagnostics
+
+Error [5..46]: 'Merged' is declared 2 times in this module, which TypeScript merges into one type, and a derive reads only the declaration it is written on
+  help: declare the members of 'Merged' together
+Error [151..172]: 'Held' is declared 2 times in this module, which TypeScript merges into one type, and a derive reads only the declaration it is written on
+  help: declare the members of 'Held' together
+Error [272..286]: 'Level' is declared 2 times in this module, which TypeScript merges into one type, and a derive reads only the declaration it is written on
+  help: declare the members of 'Level' together
+
+## Mapping
+
+original 48..95 -> expanded 828..875
+original 95..146 -> expanded 9703..9754
+original 174..218 -> expanded 9754..9798
+original 218..219 -> expanded 10171..10172
+original 219..267 -> expanded 10340..10388
+original 288..318 -> expanded 10388..10418
+original 318..356 -> expanded 10710..10748
+original 377..423 -> expanded 10748..10794
+original 423..424 -> expanded 11148..11149
+generated 0..828 <- imports
+generated 875..1127 <- Debug
+generated 1127..1284 <- PartialEq
+generated 1284..3387 <- Encode
+generated 3387..8611 <- Decode
+generated 8611..9703 <- __convenience_const
+generated 9798..10057 <- Debug
+generated 10057..10171 <- Clone
+generated 10172..10260 <- Debug
+generated 10260..10340 <- Clone
+generated 10418..10619 <- Debug
+generated 10619..10710 <- __convenience_const
+generated 10794..11044 <- Debug
+generated 11044..11148 <- __convenience_const
+
+## Metadata
+
+class Held: {"body_span":{"end":220,"start":194},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":175,"start":147}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"name","optional":false,"readonly":false,"span":{"end":218,"start":200},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Held","span":{"end":220,"start":183},"superclass":null,"type_params":[]}
+interface Merged: {"body_span":{"end":96,"start":74},"decorators":[{"args_src":"Debug, PartialEq, Encode, Decode","name":"Derive","span":{"end":49,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"first","optional":false,"readonly":false,"span":{"end":94,"start":80},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Merged","span":{"end":96,"start":57},"type_params":[]}
+interface Merged: {"body_span":{"end":145,"start":122},"decorators":[],"fields":[{"decorators":[],"key":"Named","name":"second","optional":false,"readonly":false,"span":{"end":143,"start":128},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Merged","span":{"end":145,"start":105},"type_params":[]}
+interface Held: {"body_span":{"end":266,"start":244},"decorators":[],"fields":[{"decorators":[],"key":"Named","name":"extra","optional":false,"readonly":false,"span":{"end":264,"start":250},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Held","span":{"end":266,"start":229},"type_params":[]}
+interface Single: {"body_span":{"end":424,"start":403},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":378,"start":357}}],"fields":[{"decorators":[],"key":"Named","name":"only","optional":false,"readonly":false,"span":{"end":422,"start":409},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Single","span":{"end":424,"start":386},"type_params":[]}
+enum Level: {"body_span":{"end":319,"start":308},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":289,"start":268}}],"is_const":false,"is_declare":false,"name":"Level","span":{"end":319,"start":297},"variants":[{"decorators":[],"name":"Low","span":{"end":317,"start":314},"value":{"Number":0.0}}]}
+enum Level: {"body_span":{"end":355,"start":339},"decorators":[],"is_const":false,"is_declare":false,"name":"Level","span":{"end":355,"start":328},"variants":[{"decorators":[],"name":"High","span":{"end":353,"start":345},"value":{"Number":1.0}}]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

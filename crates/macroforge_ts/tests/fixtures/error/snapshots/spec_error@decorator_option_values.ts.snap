@@ -1,0 +1,270 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/decorator_option_values.ts
+---
+## Input
+
+/** @derive(Debug, Clone, PartialEq, Hash, PartialOrd, Ord, Eq) */
+export interface Values {
+    /** @debug({ rename: 5 }) */
+    numbered: string;
+    /** @debug({ rename: "" }) */
+    unnamed: string;
+    /** @debug({ skip: "yes" }) */
+    worded: string;
+    /** @hash({ skip: 1 }) */
+    counted: string;
+    /** @partialEq({ skip: null }) */
+    emptied: string;
+    /** @ord({ skip: "false" }) */
+    quoted: string;
+    /** @debug("shown") */
+    lone: string;
+    /** @debug({ skip: false, rename: "skip" }) */
+    kept: string;
+    /** @debug({ rename: "a" }) @debug({ rename: "b" }) */
+    twice: string;
+    /** @hash({ skip: true, skip: false }) */
+    both: string;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
+
+export interface Values {
+    
+    numbered: string;
+    
+    unnamed: string;
+    
+    worded: string;
+    
+    counted: string;
+    
+    emptied: string;
+    
+    quoted: string;
+    
+    lone: string;
+    
+    kept: string;
+    
+    twice: string;
+    
+    both: string;
+}
+
+export function valuesToString(value: Values): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("numbered: " + String(value.numbered));
+    parts.push(": " + String(value.unnamed));
+    parts.push("worded: " + String(value.worded));
+    parts.push("counted: " + String(value.counted));
+    parts.push("emptied: " + String(value.emptied));
+    parts.push("quoted: " + String(value.quoted));
+    parts.push("lone: " + String(value.lone));
+    parts.push("skip: " + String(value.kept));
+    parts.push("b: " + String(value.twice));
+    parts.push("both: " + String(value.both));
+        return "Values { " + parts.join(", ") + " }";
+    });
+}
+
+export function valuesClone(value: Values): Values {
+    return __mf_clonedWith(value, (): Values => ({
+	numbered: value.numbered,
+	unnamed: value.unnamed,
+	worded: value.worded,
+	counted: value.counted,
+	emptied: value.emptied,
+	quoted: value.quoted,
+	lone: value.lone,
+	kept: value.kept,
+	twice: value.twice,
+	both: value.both
+}));
+}
+
+export function valuesEquals(a: Values, b: Values): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => a.numbered === b.numbered && a.unnamed === b.unnamed && a.worded === b.worded && a.counted === b.counted && a.emptied === b.emptied && a.quoted === b.quoted && a.lone === b.lone && a.kept === b.kept && a.twice === b.twice && a.both === b.both);
+}
+
+export function valuesHashCode(value: Values): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + ((value.numbered ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.unnamed ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.worded ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.counted ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.emptied ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.quoted ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.lone ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.kept ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.twice ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+        return hash;
+    });
+}
+
+export function valuesPartialCompare(a: Values, b: Values): number | null {
+    if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
+    const cmp0 = (a.numbered < b.numbered ? -1 : a.numbered > b.numbered ? 1 : 0);
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = (a.unnamed < b.unnamed ? -1 : a.unnamed > b.unnamed ? 1 : 0);
+    if (cmp1 === null) return null;
+    if (cmp1 !== 0) return cmp1;
+    const cmp2 = (a.worded < b.worded ? -1 : a.worded > b.worded ? 1 : 0);
+    if (cmp2 === null) return null;
+    if (cmp2 !== 0) return cmp2;
+    const cmp3 = (a.counted < b.counted ? -1 : a.counted > b.counted ? 1 : 0);
+    if (cmp3 === null) return null;
+    if (cmp3 !== 0) return cmp3;
+    const cmp4 = (a.emptied < b.emptied ? -1 : a.emptied > b.emptied ? 1 : 0);
+    if (cmp4 === null) return null;
+    if (cmp4 !== 0) return cmp4;
+    const cmp5 = (a.quoted < b.quoted ? -1 : a.quoted > b.quoted ? 1 : 0);
+    if (cmp5 === null) return null;
+    if (cmp5 !== 0) return cmp5;
+    const cmp6 = (a.lone < b.lone ? -1 : a.lone > b.lone ? 1 : 0);
+    if (cmp6 === null) return null;
+    if (cmp6 !== 0) return cmp6;
+    const cmp7 = (a.kept < b.kept ? -1 : a.kept > b.kept ? 1 : 0);
+    if (cmp7 === null) return null;
+    if (cmp7 !== 0) return cmp7;
+    const cmp8 = (a.twice < b.twice ? -1 : a.twice > b.twice ? 1 : 0);
+    if (cmp8 === null) return null;
+    if (cmp8 !== 0) return cmp8;
+    const cmp9 = (a.both < b.both ? -1 : a.both > b.both ? 1 : 0);
+    if (cmp9 === null) return null;
+    if (cmp9 !== 0) return cmp9;
+        return 0;
+    });
+}
+
+export function valuesCompare(a: Values, b: Values): number {
+    if (a === b) return 0;
+    return __mf_comparedWithin(a, b, () => {
+    const cmp0 = a.numbered < b.numbered ? -1 : a.numbered > b.numbered ? 1 : 0;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = a.unnamed < b.unnamed ? -1 : a.unnamed > b.unnamed ? 1 : 0;
+    if (cmp1 !== 0) return cmp1;
+    const cmp2 = a.worded < b.worded ? -1 : a.worded > b.worded ? 1 : 0;
+    if (cmp2 !== 0) return cmp2;
+    const cmp3 = a.counted < b.counted ? -1 : a.counted > b.counted ? 1 : 0;
+    if (cmp3 !== 0) return cmp3;
+    const cmp4 = a.emptied < b.emptied ? -1 : a.emptied > b.emptied ? 1 : 0;
+    if (cmp4 !== 0) return cmp4;
+    const cmp5 = a.quoted < b.quoted ? -1 : a.quoted > b.quoted ? 1 : 0;
+    if (cmp5 !== 0) return cmp5;
+    const cmp6 = a.lone < b.lone ? -1 : a.lone > b.lone ? 1 : 0;
+    if (cmp6 !== 0) return cmp6;
+    const cmp7 = a.kept < b.kept ? -1 : a.kept > b.kept ? 1 : 0;
+    if (cmp7 !== 0) return cmp7;
+    const cmp8 = a.twice < b.twice ? -1 : a.twice > b.twice ? 1 : 0;
+    if (cmp8 !== 0) return cmp8;
+    const cmp9 = a.both < b.both ? -1 : a.both > b.both ? 1 : 0;
+    if (cmp9 !== 0) return cmp9;
+        return 0;
+    });
+}
+
+export const Values: {
+  readonly toString: typeof valuesToString;
+  readonly clone: typeof valuesClone;
+  readonly equals: typeof valuesEquals;
+  readonly hashCode: typeof valuesHashCode;
+  readonly partialCompare: typeof valuesPartialCompare;
+  readonly compare: typeof valuesCompare;
+} = {
+  toString: valuesToString,
+  clone: valuesClone,
+  equals: valuesEquals,
+  hashCode: valuesHashCode,
+  partialCompare: valuesPartialCompare,
+  compare: valuesCompare
+};
+
+## DTS
+
+export interface Values {
+	numbered: string;
+	unnamed: string;
+	worded: string;
+	counted: string;
+	emptied: string;
+	quoted: string;
+	lone: string;
+	kept: string;
+	twice: string;
+	both: string;
+}
+export declare function valuesToString(value: Values): string;
+export declare function valuesClone(value: Values): Values;
+export declare function valuesEquals(a: Values, b: Values): boolean;
+export declare function valuesHashCode(value: Values): number;
+export declare function valuesPartialCompare(a: Values, b: Values): number | null;
+export declare function valuesCompare(a: Values, b: Values): number;
+export declare const Values: {
+	readonly toString: typeof valuesToString;
+	readonly clone: typeof valuesClone;
+	readonly equals: typeof valuesEquals;
+	readonly hashCode: typeof valuesHashCode;
+	readonly partialCompare: typeof valuesPartialCompare;
+	readonly compare: typeof valuesCompare;
+};
+
+## Diagnostics
+
+Error [98..126]: `@debug`: `rename` takes a string literal, not `5`
+Error [153..182]: `@debug`: `rename` takes a string that is not empty
+Error [208..238]: `@debug`: `skip` takes `true` or `false`, not `"yes"`
+Error [263..288]: `@hash`: `skip` takes `true` or `false`, not `1`
+Error [314..347]: `@partialEq`: `skip` takes `true` or `false`, not `null`
+Error [373..403]: `@ord`: `skip` takes `true` or `false`, not `"false"`
+Error [428..450]: `@debug` takes `skip`, `rename`, not `"shown"`
+Error [542..596]: `@debug` is given `rename` more than once
+Error [620..661]: `@hash` is given `skip` more than once
+
+## Mapping
+
+original 66..97 -> expanded 223..254
+original 125..152 -> expanded 254..281
+original 181..207 -> expanded 281..307
+original 237..262 -> expanded 307..332
+original 287..313 -> expanded 332..358
+original 346..372 -> expanded 358..384
+original 402..427 -> expanded 384..409
+original 449..472 -> expanded 409..432
+original 518..541 -> expanded 432..455
+original 595..619 -> expanded 455..479
+original 660..680 -> expanded 479..499
+original 680..681 -> expanded 6446..6447
+generated 0..223 <- imports
+generated 499..1197 <- Debug
+generated 1197..1534 <- Clone
+generated 1534..1914 <- PartialEq
+generated 1914..3158 <- Hash
+generated 3158..4767 <- PartialOrd
+generated 4767..5982 <- Ord
+generated 5982..6446 <- __convenience_const
+
+## Metadata
+
+interface Values: {"body_span":{"end":681,"start":92},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, PartialOrd, Ord, Eq","name":"Derive","span":{"end":67,"start":1}}],"fields":[{"decorators":[{"args_src":"{ rename: 5 }","name":"debug","span":{"end":126,"start":98}}],"key":"Named","name":"numbered","optional":false,"readonly":false,"span":{"end":148,"start":131},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"\" }","name":"debug","span":{"end":182,"start":153}}],"key":"Named","name":"unnamed","optional":false,"readonly":false,"span":{"end":203,"start":187},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: \"yes\" }","name":"debug","span":{"end":238,"start":208}}],"key":"Named","name":"worded","optional":false,"readonly":false,"span":{"end":258,"start":243},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: 1 }","name":"hash","span":{"end":288,"start":263}}],"key":"Named","name":"counted","optional":false,"readonly":false,"span":{"end":309,"start":293},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: null }","name":"partialEq","span":{"end":347,"start":314}}],"key":"Named","name":"emptied","optional":false,"readonly":false,"span":{"end":368,"start":352},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: \"false\" }","name":"ord","span":{"end":403,"start":373}}],"key":"Named","name":"quoted","optional":false,"readonly":false,"span":{"end":423,"start":408},"ts_type":"string"},{"decorators":[{"args_src":"\"shown\"","name":"debug","span":{"end":450,"start":428}}],"key":"Named","name":"lone","optional":false,"readonly":false,"span":{"end":468,"start":455},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: false, rename: \"skip\" }","name":"debug","span":{"end":519,"start":473}}],"key":"Named","name":"kept","optional":false,"readonly":false,"span":{"end":537,"start":524},"ts_type":"string"},{"decorators":[{"args_src":"{ rename: \"a\" }","name":"debug","span":{"end":596,"start":542}},{"args_src":"{ rename: \"b\" }","name":"debug","span":{"end":596,"start":542}}],"key":"Named","name":"twice","optional":false,"readonly":false,"span":{"end":615,"start":601},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: true, skip: false }","name":"hash","span":{"end":661,"start":620}}],"key":"Named","name":"both","optional":false,"readonly":false,"span":{"end":679,"start":666},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Values","span":{"end":681,"start":75},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)
