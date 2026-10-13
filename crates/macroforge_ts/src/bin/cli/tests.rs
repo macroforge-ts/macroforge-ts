@@ -405,6 +405,45 @@ fn test_warm_cache_backfills_normalized_hash() {
     assert_eq!(entry.normalized_hash, normalized_content_hash(source));
 }
 
+/// The manifest of a project is written the same however its files came to
+/// be expanded: its entries in the order of their paths.
+#[test]
+fn test_manifest_entries_are_written_in_path_order() {
+    let mut manifest = CacheManifest::new(
+        env!("CARGO_PKG_VERSION").to_string(),
+        "none".to_string(),
+        "none".to_string(),
+        "none".to_string(),
+    );
+    for path in [
+        "src/zeta.ts",
+        "src/alpha.ts",
+        "src/models/user.ts",
+        "src/beta.ts",
+    ] {
+        manifest.entries.insert(
+            path.to_string(),
+            CacheEntry {
+                source_hash: path.to_string(),
+                has_macros: true,
+                normalized_hash: path.to_string(),
+            },
+        );
+    }
+
+    let written = serde_json::to_string(&manifest).unwrap();
+    let positions: Vec<usize> = [
+        "src/alpha.ts",
+        "src/beta.ts",
+        "src/models/user.ts",
+        "src/zeta.ts",
+    ]
+    .iter()
+    .map(|path| written.find(&format!("\"{path}\":")).unwrap())
+    .collect();
+    assert!(positions.is_sorted(), "{written}");
+}
+
 // =========================================================================
 // write_atomic tests
 // =========================================================================

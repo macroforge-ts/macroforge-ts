@@ -6,7 +6,7 @@ use macroforge_ts::host::project::{ProjectRegistries, expand_project_file};
 use macroforge_ts::ts_syn::abi::ir::type_registry::{RegistryRead, TypeRegistry};
 use sha2::{Digest, Sha256};
 use std::{
-    collections::{BTreeSet, HashMap},
+    collections::{BTreeMap, BTreeSet},
     fs,
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
@@ -37,9 +37,10 @@ pub(crate) struct CacheManifest {
     /// under `cli`, the Vite plugin's wasm under `wasm`. Each writer compares
     /// and updates only its own key, so neither discards the other's entries.
     #[serde(default)]
-    pub(crate) engine_hashes: HashMap<String, String>,
-    /// Per-file entries keyed by path relative to project root.
-    pub(crate) entries: HashMap<String, CacheEntry>,
+    pub(crate) engine_hashes: BTreeMap<String, String>,
+    /// Per-file entries keyed by path relative to project root. Ordered, so
+    /// the same project writes the same manifest.
+    pub(crate) entries: BTreeMap<String, CacheEntry>,
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
@@ -263,8 +264,8 @@ impl CacheManifest {
             version,
             config_hash,
             external_macro_hash,
-            engine_hashes: HashMap::from([(CLI_ENGINE_KEY.to_string(), engine_hash)]),
-            entries: HashMap::new(),
+            engine_hashes: BTreeMap::from([(CLI_ENGINE_KEY.to_string(), engine_hash)]),
+            entries: BTreeMap::new(),
         }
     }
 
