@@ -1424,7 +1424,7 @@ export function edgeOptionalDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             }
         }
         if ((__fields === undefined || __fields.requires("level")) && !("level" in obj && obj["level"] !== undefined)) {
-            instance.level = 1;
+            instance.level = (1) satisfies number;
         }
     }
 
@@ -2181,8 +2181,8 @@ export declare const EdgeRequired: {
 original 0..963 -> expanded 1641..2604
 original 963..1397 -> expanded 37296..37730
 original 1397..1640 -> expanded 60392..60635
-original 1640..1973 -> expanded 73359..73692
-original 1973..1974 -> expanded 92718..92719
+original 1640..1973 -> expanded 73378..73711
+original 1973..1974 -> expanded 92737..92738
 generated 0..1641 <- imports
 generated 2604..3710 <- Debug
 generated 3710..4816 <- Clone
@@ -2203,15 +2203,15 @@ generated 61040..61337 <- Clone
 generated 61337..61657 <- PartialEq
 generated 61657..62475 <- Hash
 generated 62475..65129 <- Encode
-generated 65129..71961 <- Decode
-generated 71961..73359 <- __convenience_const
-generated 73692..74295 <- Debug
-generated 74295..74715 <- Clone
-generated 74715..75303 <- PartialEq
-generated 75303..75931 <- Hash
-generated 75931..79212 <- Encode
-generated 79212..91320 <- Decode
-generated 91320..92718 <- __convenience_const
+generated 65129..71980 <- Decode
+generated 71980..73378 <- __convenience_const
+generated 73711..74314 <- Debug
+generated 74314..74734 <- Clone
+generated 74734..75322 <- PartialEq
+generated 75322..75950 <- Hash
+generated 75950..79231 <- Encode
+generated 79231..91339 <- Decode
+generated 91339..92737 <- __convenience_const
 
 ## Metadata
 

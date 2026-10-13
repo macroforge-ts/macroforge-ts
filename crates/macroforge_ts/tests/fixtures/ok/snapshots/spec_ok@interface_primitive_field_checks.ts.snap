@@ -248,7 +248,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.balance = ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
         })(obj["balance"]);
@@ -584,23 +584,23 @@ export {};
 
 original 22..216 -> expanded 581..775
 original 232..267 -> expanded 819..854
-original 267..269 -> expanded 13277..13279
-original 312..367 -> expanded 13279..13334
-original 367..369 -> expanded 16884..16886
-original 391..417 -> expanded 16886..16912
-original 417..418 -> expanded 19012..19013
+original 267..269 -> expanded 13281..13283
+original 312..367 -> expanded 13283..13338
+original 367..369 -> expanded 16888..16890
+original 391..417 -> expanded 16890..16916
+original 417..418 -> expanded 19016..19017
 generated 0..536 <- imports
 generated 536..581 <- $Newtype
 generated 775..819 <- $Newtype
-generated 854..12621 <- Decode
-generated 12621..13277 <- __convenience_const
-generated 13334..14042 <- Encode
-generated 14042..15954 <- Decode
-generated 15954..16148 <- Hash
-generated 16148..16251 <- Debug
-generated 16251..16884 <- __convenience_const
-generated 16912..18704 <- Decode
-generated 18704..19012 <- __convenience_const
+generated 854..12625 <- Decode
+generated 12625..13281 <- __convenience_const
+generated 13338..14046 <- Encode
+generated 14046..15958 <- Decode
+generated 15958..16152 <- Hash
+generated 16152..16255 <- Debug
+generated 16255..16888 <- __convenience_const
+generated 16916..18708 <- Decode
+generated 18708..19016 <- __convenience_const
 
 ## Metadata
 

@@ -342,7 +342,7 @@ export function specialScalarsDecodeWithContext(value: unknown, ctx: __mf_Decode
             instance.big = ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
         })(obj["big"]);
@@ -1667,11 +1667,11 @@ export declare const SpecialCollections: {
 ## Mapping
 
 original 0..390 -> expanded 1410..1800
-original 390..458 -> expanded 22444..22512
-original 458..543 -> expanded 25845..25930
-original 543..723 -> expanded 32701..32881
-original 723..1013 -> expanded 45404..45694
-original 1013..1014 -> expanded 66790..66791
+original 390..458 -> expanded 22448..22516
+original 458..543 -> expanded 25849..25934
+original 543..723 -> expanded 32705..32885
+original 723..1013 -> expanded 45408..45698
+original 1013..1014 -> expanded 66794..66795
 generated 0..1410 <- imports
 generated 1800..2319 <- Debug
 generated 2319..2597 <- Clone
@@ -1681,25 +1681,25 @@ generated 4172..6135 <- PartialOrd
 generated 6135..7732 <- Ord
 generated 7732..7934 <- Default
 generated 7934..10964 <- Encode
-generated 10964..20688 <- Decode
-generated 20688..22444 <- __convenience_const
-generated 22512..23276 <- Encode
-generated 23276..25258 <- Decode
-generated 25258..25845 <- __convenience_const
-generated 25930..27738 <- Encode
-generated 27738..32114 <- Decode
-generated 32114..32701 <- __convenience_const
-generated 32881..35587 <- Encode
-generated 35587..44280 <- Decode
-generated 44280..45404 <- __convenience_const
-generated 45694..46291 <- Debug
-generated 46291..46938 <- Clone
-generated 46938..48358 <- PartialEq
-generated 48358..50056 <- Hash
-generated 50056..50271 <- Default
-generated 50271..53599 <- Encode
-generated 53599..65106 <- Decode
-generated 65106..66790 <- __convenience_const
+generated 10964..20692 <- Decode
+generated 20692..22448 <- __convenience_const
+generated 22516..23280 <- Encode
+generated 23280..25262 <- Decode
+generated 25262..25849 <- __convenience_const
+generated 25934..27742 <- Encode
+generated 27742..32118 <- Decode
+generated 32118..32705 <- __convenience_const
+generated 32885..35591 <- Encode
+generated 35591..44284 <- Decode
+generated 44284..45408 <- __convenience_const
+generated 45698..46295 <- Debug
+generated 46295..46942 <- Clone
+generated 46942..48362 <- PartialEq
+generated 48362..50060 <- Hash
+generated 50060..50275 <- Default
+generated 50275..53603 <- Encode
+generated 53603..65110 <- Decode
+generated 65110..66794 <- __convenience_const
 
 ## Metadata
 

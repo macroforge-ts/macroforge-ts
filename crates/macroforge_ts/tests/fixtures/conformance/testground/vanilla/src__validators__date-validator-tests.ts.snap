@@ -121,7 +121,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
         {
             const __dateVal = (__raw_date instanceof Date ? __raw_date : typeof __raw_date === "string" ? new Date(__raw_date) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+            if (__dateVal === undefined) {
                 errors.push({ field: "date", message: __raw_date == null ? "ValidDateValidator.date is required" : "expected Date" });
             } else {if (__dateVal == null) { errors.push({ field: "date", message: "ValidDateValidator.date is required" }); } else {
                 if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "date", message: "ValidDateValidator.date must be a valid date" }); }
@@ -1441,31 +1441,31 @@ export declare function betweenDateValidatorIs(value: unknown): value is Between
 ## Mapping
 
 original 0..229 -> expanded 433..662
-original 229..230 -> expanded 6946..6947
-original 230..407 -> expanded 8879..9056
-original 407..408 -> expanded 15565..15566
-original 408..612 -> expanded 17588..17792
-original 612..613 -> expanded 24550..24551
-original 613..781 -> expanded 26708..26876
-original 781..782 -> expanded 33310..33311
-original 782..977 -> expanded 35288..35483
-original 977..978 -> expanded 42166..42167
-original 978..1157 -> expanded 44279..44458
-original 1157..1158 -> expanded 51077..51078
-original 1158..1159 -> expanded 53040..53041
+original 229..230 -> expanded 6898..6899
+original 230..407 -> expanded 8831..9008
+original 407..408 -> expanded 15517..15518
+original 408..612 -> expanded 17540..17744
+original 612..613 -> expanded 24502..24503
+original 613..781 -> expanded 26660..26828
+original 781..782 -> expanded 33262..33263
+original 782..977 -> expanded 35240..35435
+original 977..978 -> expanded 42118..42119
+original 978..1157 -> expanded 44231..44410
+original 1157..1158 -> expanded 51029..51030
+original 1158..1159 -> expanded 52992..52993
 generated 0..433 <- imports
-generated 662..6946 <- Decode
-generated 6947..8879 <- Decode
-generated 9056..15565 <- Decode
-generated 15566..17588 <- Decode
-generated 17792..24550 <- Decode
-generated 24551..26708 <- Decode
-generated 26876..33310 <- Decode
-generated 33311..35288 <- Decode
-generated 35483..42166 <- Decode
-generated 42167..44279 <- Decode
-generated 44458..51077 <- Decode
-generated 51078..53040 <- Decode
+generated 662..6898 <- Decode
+generated 6899..8831 <- Decode
+generated 9008..15517 <- Decode
+generated 15518..17540 <- Decode
+generated 17744..24502 <- Decode
+generated 24503..26660 <- Decode
+generated 26828..33262 <- Decode
+generated 33263..35240 <- Decode
+generated 35435..42118 <- Decode
+generated 42119..44231 <- Decode
+generated 44410..51029 <- Decode
+generated 51030..52992 <- Decode
 
 ## Metadata
 

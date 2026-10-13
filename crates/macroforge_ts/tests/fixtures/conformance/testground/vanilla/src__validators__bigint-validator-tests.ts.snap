@@ -121,7 +121,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             const __convertedVal = ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
         })(obj["value"]);
@@ -307,7 +307,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             const __convertedVal = ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
         })(obj["value"]);
@@ -493,7 +493,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             const __convertedVal = ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
         })(obj["value"]);
@@ -679,7 +679,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             const __convertedVal = ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
         })(obj["value"]);
@@ -865,7 +865,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             const __convertedVal = ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
         })(obj["value"]);
@@ -1051,7 +1051,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             const __convertedVal = ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
         })(obj["value"]);
@@ -1237,7 +1237,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             const __convertedVal = ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
         })(obj["value"]);
@@ -1423,7 +1423,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             const __convertedVal = ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
         })(obj["value"]);
@@ -1609,7 +1609,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             const __convertedVal = ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
         })(obj["value"]);
@@ -2173,43 +2173,43 @@ export declare function nonPositiveBigIntValidatorIs(value: unknown): value is N
 ## Mapping
 
 original 0..261 -> expanded 433..694
-original 261..262 -> expanded 7251..7252
-original 262..464 -> expanded 9304..9506
-original 464..465 -> expanded 16321..16322
-original 465..634 -> expanded 18509..18678
-original 634..635 -> expanded 25169..25170
-original 635..831 -> expanded 27177..27373
-original 831..832 -> expanded 34122..34123
-original 832..1001 -> expanded 36265..36434
-original 1001..1002 -> expanded 42960..42961
-original 1002..1165 -> expanded 44953..45116
-original 1165..1166 -> expanded 51580..51581
-original 1166..1338 -> expanded 53588..53760
-original 1338..1339 -> expanded 60308..60309
-original 1339..1502 -> expanded 62361..62524
-original 1502..1503 -> expanded 68988..68989
-original 1503..1675 -> expanded 70996..71168
-original 1675..1676 -> expanded 77716..77717
-original 1676..1677 -> expanded 79769..79770
+original 261..262 -> expanded 7255..7256
+original 262..464 -> expanded 9308..9510
+original 464..465 -> expanded 16329..16330
+original 465..634 -> expanded 18517..18686
+original 634..635 -> expanded 25181..25182
+original 635..831 -> expanded 27189..27385
+original 831..832 -> expanded 34138..34139
+original 832..1001 -> expanded 36281..36450
+original 1001..1002 -> expanded 42980..42981
+original 1002..1165 -> expanded 44973..45136
+original 1165..1166 -> expanded 51604..51605
+original 1166..1338 -> expanded 53612..53784
+original 1338..1339 -> expanded 60336..60337
+original 1339..1502 -> expanded 62389..62552
+original 1502..1503 -> expanded 69020..69021
+original 1503..1675 -> expanded 71028..71200
+original 1675..1676 -> expanded 77752..77753
+original 1676..1677 -> expanded 79805..79806
 generated 0..433 <- imports
-generated 694..7251 <- Decode
-generated 7252..9304 <- Decode
-generated 9506..16321 <- Decode
-generated 16322..18509 <- Decode
-generated 18678..25169 <- Decode
-generated 25170..27177 <- Decode
-generated 27373..34122 <- Decode
-generated 34123..36265 <- Decode
-generated 36434..42960 <- Decode
-generated 42961..44953 <- Decode
-generated 45116..51580 <- Decode
-generated 51581..53588 <- Decode
-generated 53760..60308 <- Decode
-generated 60309..62361 <- Decode
-generated 62524..68988 <- Decode
-generated 68989..70996 <- Decode
-generated 71168..77716 <- Decode
-generated 77717..79769 <- Decode
+generated 694..7255 <- Decode
+generated 7256..9308 <- Decode
+generated 9510..16329 <- Decode
+generated 16330..18517 <- Decode
+generated 18686..25181 <- Decode
+generated 25182..27189 <- Decode
+generated 27385..34138 <- Decode
+generated 34139..36281 <- Decode
+generated 36450..42980 <- Decode
+generated 42981..44973 <- Decode
+generated 45136..51604 <- Decode
+generated 51605..53612 <- Decode
+generated 53784..60336 <- Decode
+generated 60337..62389 <- Decode
+generated 62552..69020 <- Decode
+generated 69021..71028 <- Decode
+generated 71200..77752 <- Decode
+generated 77753..79805 <- Decode
 
 ## Metadata
 

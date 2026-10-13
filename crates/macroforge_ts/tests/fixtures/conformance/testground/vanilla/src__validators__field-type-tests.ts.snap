@@ -234,7 +234,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
             instance.balance = ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
         })(obj["balance"]);
@@ -466,7 +466,7 @@ export function centsDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext)
             __decoded = ((v) => {
 	const raw: unknown = v;
 	if (typeof raw === "bigint") return raw;
-	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
 	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
 	return BigInt(raw);
 })(value);
@@ -656,27 +656,27 @@ export {};
 
 original 0..373 -> expanded 626..999
 original 389..428 -> expanded 1043..1082
-original 428..535 -> expanded 13506..13613
-original 535..601 -> expanded 17170..17236
-original 617..618 -> expanded 17280..17281
-original 618..619 -> expanded 21265..21266
+original 428..535 -> expanded 13510..13617
+original 535..601 -> expanded 17174..17240
+original 617..618 -> expanded 17284..17285
+original 618..619 -> expanded 21273..21274
 generated 0..536 <- imports
 generated 536..581 <- $Newtype
 generated 581..626 <- $Newtype
 generated 999..1043 <- $Newtype
-generated 1082..12843 <- Decode
-generated 12843..13506 <- __convenience_const
-generated 13613..14321 <- Encode
-generated 14321..16233 <- Decode
-generated 16233..16427 <- Hash
-generated 16427..16530 <- Debug
-generated 16530..17170 <- __convenience_const
-generated 17236..17280 <- $Newtype
-generated 17281..18021 <- Encode
-generated 18021..20388 <- Decode
-generated 20388..20542 <- Hash
-generated 20542..20642 <- Debug
-generated 20642..21265 <- __convenience_const
+generated 1082..12847 <- Decode
+generated 12847..13510 <- __convenience_const
+generated 13617..14325 <- Encode
+generated 14325..16237 <- Decode
+generated 16237..16431 <- Hash
+generated 16431..16534 <- Debug
+generated 16534..17174 <- __convenience_const
+generated 17240..17284 <- $Newtype
+generated 17285..18025 <- Encode
+generated 18025..20396 <- Decode
+generated 20396..20550 <- Hash
+generated 20550..20650 <- Debug
+generated 20650..21273 <- __convenience_const
 
 ## Metadata
 

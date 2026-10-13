@@ -416,9 +416,8 @@ export function optionFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             instance.writeOnly = __raw_writeOnly;
         }
     }
-    if ((__fields === undefined || __fields.keeps("readOnly"))) {
-
-        instance.readOnly = "computed";
+    if ((__fields === undefined || __fields.requires("readOnly"))) {
+        instance.readOnly = ("computed") satisfies string;
     }
     if ((__fields === undefined || __fields.keeps("count"))) {
         if (("count" in obj && obj["count"] !== undefined)) {
@@ -431,7 +430,7 @@ export function optionFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             }
         }
         if ((__fields === undefined || __fields.requires("count")) && !("count" in obj && obj["count"] !== undefined)) {
-            instance.count = 0;
+            instance.count = (0) satisfies number;
         }
     }
     if ((__fields === undefined || __fields.keeps("status"))) {
@@ -445,7 +444,7 @@ export function optionFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             }
         }
         if ((__fields === undefined || __fields.requires("status")) && !("status" in obj && obj["status"] !== undefined)) {
-            instance.status = "pending";
+            instance.status = ("pending") satisfies string;
         }
     }
     if ((__fields === undefined || __fields.keeps("tags"))) {
@@ -474,7 +473,7 @@ export function optionFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             }
         }
         if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj && obj["tags"] !== undefined)) {
-            instance.tags = [];
+            instance.tags = ([]) satisfies string[];
         }
     }
     if ((__fields === undefined || __fields.keeps("item"))) {
@@ -502,7 +501,7 @@ export function optionFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
             }
         }
         if ((__fields === undefined || __fields.requires("item")) && !("item" in obj && obj["item"] !== undefined)) {
-            instance.item = edgeItemDefaultValue();
+            instance.item = (edgeItemDefaultValue()) satisfies EdgeItem;
         }
     }
     if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
@@ -2757,7 +2756,7 @@ export function optionValidatedDecodeWithContext(value: unknown, ctx: __mf_Decod
 
         {
             const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+            if (__dateVal === undefined) {
                 errors.push({ field: "at", message: __raw_at == null ? "OptionValidated.at is required" : "expected Date" });
             } else {if (__dateVal == null) { errors.push({ field: "at", message: "OptionValidated.at is required" }); } else {
                 if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "at", message: "OptionValidated.at must be a valid date" }); }
@@ -2773,7 +2772,7 @@ export function optionValidatedDecodeWithContext(value: unknown, ctx: __mf_Decod
             instance.maybeAt = null;
         } else {
             const __dateVal = (__raw_maybeAt instanceof Date ? __raw_maybeAt : typeof __raw_maybeAt === "string" ? new Date(__raw_maybeAt) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+            if (__dateVal === undefined) {
                 errors.push({ field: "maybeAt", message: "expected Date | null" });
             } else {if (__dateVal != null) {
                 if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "maybeAt", message: "OptionValidated.maybeAt must be a valid date" }); }
@@ -2796,7 +2795,7 @@ export function optionValidatedDecodeWithContext(value: unknown, ctx: __mf_Decod
             }
         }
         if ((__fields === undefined || __fields.requires("retries")) && !("retries" in obj && obj["retries"] !== undefined)) {
-            instance.retries = 3;
+            instance.retries = (3) satisfies number;
         }
     }
 
@@ -3302,7 +3301,7 @@ export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
             instance.big = ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
         })(obj["big"]);
@@ -4014,7 +4013,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             instance.big = ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
         })(obj["big"]);
@@ -5130,21 +5129,21 @@ original 680..1188 -> expanded 5449..5957
 original 1188..1439 -> expanded 6445..6696
 original 1439..1440 -> expanded 7020..7021
 original 1440..2512 -> expanded 7144..8216
-original 2512..2743 -> expanded 25739..25970
-original 2743..2920 -> expanded 36765..36942
-original 2920..3088 -> expanded 48047..48215
-original 3088..3089 -> expanded 56082..56083
-original 3089..3243 -> expanded 59305..59459
-original 3243..3431 -> expanded 69055..69243
-original 3431..3637 -> expanded 80081..80287
-original 3637..3837 -> expanded 92199..92399
-original 3837..3984 -> expanded 103930..104077
-original 3984..4627 -> expanded 114279..114922
-original 4627..5235 -> expanded 137324..137932
-original 5235..5710 -> expanded 171095..171570
-original 5710..6103 -> expanded 172152..172545
-original 6103..6104 -> expanded 195054..195055
-original 6104..6105 -> expanded 198491..198492
+original 2512..2743 -> expanded 25840..26071
+original 2743..2920 -> expanded 36866..37043
+original 2920..3088 -> expanded 48148..48316
+original 3088..3089 -> expanded 56183..56184
+original 3089..3243 -> expanded 59406..59560
+original 3243..3431 -> expanded 69156..69344
+original 3431..3637 -> expanded 80182..80388
+original 3637..3837 -> expanded 92300..92500
+original 3837..3984 -> expanded 104031..104178
+original 3984..4627 -> expanded 114380..115023
+original 4627..5235 -> expanded 137348..137956
+original 5235..5710 -> expanded 171123..171598
+original 5710..6103 -> expanded 172180..172573
+original 6103..6104 -> expanded 195086..195087
+original 6104..6105 -> expanded 198523..198524
 generated 0..1577 <- imports
 generated 2257..2678 <- Debug
 generated 2678..2924 <- Clone
@@ -5158,49 +5157,49 @@ generated 6301..6445 <- __convenience_const
 generated 6696..7020 <- Default
 generated 7021..7144 <- Default
 generated 8216..12016 <- Encode
-generated 12016..24657 <- Decode
-generated 24657..25739 <- __convenience_const
-generated 25970..28585 <- Encode
-generated 28585..35620 <- Decode
-generated 35620..36765 <- __convenience_const
-generated 36942..39529 <- Encode
-generated 39529..46986 <- Decode
-generated 46986..48047 <- __convenience_const
-generated 48215..49985 <- Encode
-generated 49985..50316 <- Encode
-generated 50316..56082 <- Decode
-generated 56083..57463 <- Encode
-generated 57463..59305 <- Decode
-generated 59459..61832 <- Encode
-generated 61832..67994 <- Decode
-generated 67994..69055 <- __convenience_const
-generated 69243..72126 <- Encode
-generated 72126..78936 <- Decode
-generated 78936..80081 <- __convenience_const
-generated 80287..83127 <- Encode
-generated 83127..90886 <- Decode
-generated 90886..92199 <- __convenience_const
-generated 92399..94994 <- Encode
-generated 94994..102848 <- Decode
-generated 102848..103930 <- __convenience_const
-generated 104077..106486 <- Encode
-generated 106486..113197 <- Decode
-generated 113197..114279 <- __convenience_const
-generated 114922..118427 <- Encode
-generated 118427..136179 <- Decode
-generated 136179..137324 <- __convenience_const
-generated 137932..144064 <- Encode
-generated 144064..170034 <- Decode
-generated 170034..171095 <- __convenience_const
-generated 171570..171996 <- Default
-generated 171996..172152 <- __convenience_const
-generated 172545..173294 <- Default
-generated 173294..177003 <- Encode
-generated 177003..177342 <- Encode
-generated 177342..195054 <- Decode
-generated 195055..195169 <- Default
-generated 195169..196589 <- Encode
-generated 196589..198491 <- Decode
+generated 12016..24758 <- Decode
+generated 24758..25840 <- __convenience_const
+generated 26071..28686 <- Encode
+generated 28686..35721 <- Decode
+generated 35721..36866 <- __convenience_const
+generated 37043..39630 <- Encode
+generated 39630..47087 <- Decode
+generated 47087..48148 <- __convenience_const
+generated 48316..50086 <- Encode
+generated 50086..50417 <- Encode
+generated 50417..56183 <- Decode
+generated 56184..57564 <- Encode
+generated 57564..59406 <- Decode
+generated 59560..61933 <- Encode
+generated 61933..68095 <- Decode
+generated 68095..69156 <- __convenience_const
+generated 69344..72227 <- Encode
+generated 72227..79037 <- Decode
+generated 79037..80182 <- __convenience_const
+generated 80388..83228 <- Encode
+generated 83228..90987 <- Decode
+generated 90987..92300 <- __convenience_const
+generated 92500..95095 <- Encode
+generated 95095..102949 <- Decode
+generated 102949..104031 <- __convenience_const
+generated 104178..106587 <- Encode
+generated 106587..113298 <- Decode
+generated 113298..114380 <- __convenience_const
+generated 115023..118528 <- Encode
+generated 118528..136203 <- Decode
+generated 136203..137348 <- __convenience_const
+generated 137956..144088 <- Encode
+generated 144088..170062 <- Decode
+generated 170062..171123 <- __convenience_const
+generated 171598..172024 <- Default
+generated 172024..172180 <- __convenience_const
+generated 172573..173322 <- Default
+generated 173322..177031 <- Encode
+generated 177031..177370 <- Encode
+generated 177370..195086 <- Decode
+generated 195087..195201 <- Default
+generated 195201..196621 <- Encode
+generated 196621..198523 <- Decode
 
 ## Metadata
 

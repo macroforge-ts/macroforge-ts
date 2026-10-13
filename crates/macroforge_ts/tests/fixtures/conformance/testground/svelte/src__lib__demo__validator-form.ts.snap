@@ -807,7 +807,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
         {
             const __dateVal = (__raw_startDate instanceof Date ? __raw_startDate : typeof __raw_startDate === "string" ? new Date(__raw_startDate) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+            if (__dateVal === undefined) {
                 errors.push({ field: "startDate", message: __raw_startDate == null ? "EventForm.startDate is required" : "expected Date" });
             } else {if (__dateVal == null) { errors.push({ field: "startDate", message: "EventForm.startDate is required" }); } else {
                 if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "startDate", message: "EventForm.startDate must be a valid date" }); }
@@ -822,7 +822,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
         {
             const __dateVal = (__raw_endDate instanceof Date ? __raw_endDate : typeof __raw_endDate === "string" ? new Date(__raw_endDate) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+            if (__dateVal === undefined) {
                 errors.push({ field: "endDate", message: __raw_endDate == null ? "EventForm.endDate is required" : "expected Date" });
             } else {if (__dateVal == null) { errors.push({ field: "endDate", message: "EventForm.endDate is required" }); } else {
                 if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "endDate", message: "EventForm.endDate must be a valid date" }); }
@@ -1218,15 +1218,15 @@ original 1252..1277 -> expanded 35431..35456
 original 1354..1381 -> expanded 35456..35483
 original 1423..1448 -> expanded 35483..35508
 original 1504..1531 -> expanded 35508..35535
-original 1531..1532 -> expanded 48652..48653
-original 1532..2731 -> expanded 50450..51649
+original 1531..1532 -> expanded 48556..48557
+original 1532..2731 -> expanded 50354..51553
 generated 0..501 <- imports
 generated 872..16570 <- Decode
 generated 16571..18533 <- Decode
 generated 18693..33571 <- Decode
 generated 33572..35399 <- Decode
-generated 35535..48652 <- Decode
-generated 48653..50450 <- Decode
+generated 35535..48556 <- Decode
+generated 48557..50354 <- Decode
 
 ## Metadata
 

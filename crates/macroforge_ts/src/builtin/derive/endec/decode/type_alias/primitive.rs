@@ -8,7 +8,9 @@ use crate::ts_syn::{MacroforgeError, TsStream, ts_ident};
 
 use convert_case::{Case, Casing};
 
-use crate::builtin::derive::endec::decode::helpers::decoded_keyword_test;
+use crate::builtin::derive::endec::decode::helpers::{
+    Reported, decoded_keyword_test, decoded_keyword_test_leaving,
+};
 use crate::builtin::derive::endec::decode::validation::{Missing, generate_field_validations};
 use crate::builtin::derive::endec::validators::ValidatorSpec;
 use crate::builtin::derive::endec::{TypeCategory, get_foreign_types};
@@ -97,7 +99,11 @@ pub(super) fn handle_primitive_type_alias(
     );
     // Only validators read the context; an unread parameter fails `noUnusedParameters`.
     let ctx_param = ts_ident!(if has_validators { "ctx" } else { "_ctx" });
-    let decoded_is_primitive = Expr::Source(decoded_keyword_test(primitive, "__decoded"));
+    let decoded_is_primitive = Expr::Source(decoded_keyword_test_leaving(
+        primitive,
+        "__decoded",
+        Reported::by(validators),
+    ));
     let value_is_primitive = Expr::Source(decoded_keyword_test(primitive, "value"));
 
     let mut result = ts_template! {

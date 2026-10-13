@@ -811,7 +811,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
         {
             const __dateVal = (__raw_startDate instanceof Date ? __raw_startDate : typeof __raw_startDate === "string" ? new Date(__raw_startDate) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+            if (__dateVal === undefined) {
                 errors.push({ field: "startDate", message: __raw_startDate == null ? "EventForm.startDate is required" : "expected Date" });
             } else {if (__dateVal == null) { errors.push({ field: "startDate", message: "EventForm.startDate is required" }); } else {
                 if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "startDate", message: "EventForm.startDate must be a valid date" }); }
@@ -826,7 +826,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
 
         {
             const __dateVal = (__raw_endDate instanceof Date ? __raw_endDate : typeof __raw_endDate === "string" ? new Date(__raw_endDate) : undefined);
-            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+            if (__dateVal === undefined) {
                 errors.push({ field: "endDate", message: __raw_endDate == null ? "EventForm.endDate is required" : "expected Date" });
             } else {if (__dateVal == null) { errors.push({ field: "endDate", message: "EventForm.endDate is required" }); } else {
                 if (isNaN(new Date(__dateVal).getTime())) { errors.push({ field: "endDate", message: "EventForm.endDate must be a valid date" }); }
@@ -1537,19 +1537,19 @@ original 840..841 -> expanded 17259..17260
 original 841..1291 -> expanded 19222..19672
 original 1291..1292 -> expanded 34550..34551
 original 1292..1677 -> expanded 36378..36763
-original 1677..1678 -> expanded 49880..49881
-original 1678..1821 -> expanded 51678..51821
-original 1821..1822 -> expanded 60908..60909
-original 1822..2740 -> expanded 62796..63714
+original 1677..1678 -> expanded 49784..49785
+original 1678..1821 -> expanded 51582..51725
+original 1821..1822 -> expanded 60812..60813
+original 1822..2740 -> expanded 62700..63618
 generated 0..721 <- imports
 generated 1561..17259 <- Decode
 generated 17260..19222 <- Decode
 generated 19672..34550 <- Decode
 generated 34551..36378 <- Decode
-generated 36763..49880 <- Decode
-generated 49881..51678 <- Decode
-generated 51821..60908 <- Decode
-generated 60909..62796 <- Decode
+generated 36763..49784 <- Decode
+generated 49785..51582 <- Decode
+generated 51725..60812 <- Decode
+generated 60813..62700 <- Decode
 
 ## Metadata
 

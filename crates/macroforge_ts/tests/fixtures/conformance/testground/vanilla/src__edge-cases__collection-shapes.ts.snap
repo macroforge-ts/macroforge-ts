@@ -2601,7 +2601,7 @@ export function collectionBigDecodeWithContext(value: unknown, ctx: __mf_DecodeC
             instance.total = ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
         })(obj["total"]);
@@ -2617,7 +2617,8 @@ export function collectionBigDecodeWithContext(value: unknown, ctx: __mf_DecodeC
                 instance.totals = __mf_decodeArray(__raw_totals, ctx, (__raw0) => ((v) => {
                         const raw: unknown = v;
                         if (typeof raw === "bigint") return raw;
-                        if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+                        // A number past the safe integers has lost digits already.
+                        if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
                         if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
                         return BigInt(raw);
                     })(__raw0));
@@ -2644,7 +2645,7 @@ export function collectionBigDecodeWithContext(value: unknown, ctx: __mf_DecodeC
             instance.maybeTotal = ((__raw: unknown) => __raw === null ? null : ((v) => {
         	const raw: unknown = v;
         	if (typeof raw === "bigint") return raw;
-        	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+        	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
         	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
         	return BigInt(raw);
         })(__raw))(obj["maybeTotal"]);
@@ -2660,7 +2661,8 @@ export function collectionBigDecodeWithContext(value: unknown, ctx: __mf_DecodeC
                 instance.byName = __mf_decodeMap(__raw_byName, ctx, (__key0) => __key0, (__raw0) => ((v) => {
                         const raw: unknown = v;
                         if (typeof raw === "bigint") return raw;
-                        if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+                        // A number past the safe integers has lost digits already.
+                        if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
                         if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
                         return BigInt(raw);
                     })(__raw0));
@@ -3129,7 +3131,7 @@ original 948..1410 -> expanded 44312..44774
 original 1410..1804 -> expanded 75947..76341
 original 1804..2219 -> expanded 101879..102294
 original 2219..2422 -> expanded 127094..127297
-original 2422..2423 -> expanded 144137..144138
+original 2422..2423 -> expanded 144321..144322
 generated 0..1675 <- imports
 generated 2108..2447 <- Debug
 generated 2447..2545 <- Clone
@@ -3178,8 +3180,8 @@ generated 127759..128010 <- Clone
 generated 128010..128661 <- PartialEq
 generated 128661..129609 <- Hash
 generated 129609..132543 <- Encode
-generated 132543..142710 <- Decode
-generated 142710..144137 <- __convenience_const
+generated 132543..142894 <- Decode
+generated 142894..144321 <- __convenience_const
 
 ## Metadata
 

@@ -9,7 +9,6 @@ use crate::macros::ts_template;
 use crate::ts_syn::{TsStream, ts_ident};
 
 use crate::builtin::derive::common::rendered;
-use crate::builtin::derive::endec::TypeCategory;
 use crate::builtin::derive::endec::decode::helpers::{
     nested_decode_fn_name, primitive_check, wrong_type_message,
 };
@@ -17,6 +16,7 @@ use crate::builtin::derive::endec::decode::types::{CompositeDecode, DecodeField,
 use crate::builtin::derive::endec::decode::validation::{Missing, generate_field_validations};
 use crate::builtin::derive::endec::union_guard::Direction;
 use crate::builtin::derive::endec::value_kind::EndecValueKind;
+use crate::builtin::derive::endec::{TypeCategory, Validator};
 use crate::builtin::return_types::DECODE_ERROR;
 
 /// Decodes `field`'s raw value, held in `__raw_{field}`, onto `instance`.
@@ -48,6 +48,17 @@ pub(super) fn decode_raw_value(field: &DecodeField, owner: &str) -> TsStream {
     })
     .into();
     let date_mismatch = wrong_type_message(field, &raw_var_name, owner);
+    // A `validDate` validator reports a date that is none, under its own
+    // message; without one the field's type refuses it.
+    let reports_invalid = field
+        .validators
+        .iter()
+        .any(|spec| spec.validator == Validator::ValidDate);
+    let no_date: Expr = Expr::Source(if reports_invalid {
+        "__dateVal === undefined".to_string()
+    } else {
+        "__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())".to_string()
+    });
     ts_template! {
         {#match &field.type_cat}
             {:case TypeCategory::Primitive}
@@ -90,7 +101,7 @@ pub(super) fn decode_raw_value(field: &DecodeField, owner: &str) -> TsStream {
             {:case TypeCategory::Date}
                 {
                     const __dateVal = @{&decoded_date};
-                    if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                    if (@{&no_date}) {
                         errors.push({ field: "@{field.json_key_text()}", message: @{&date_mismatch} });
                     } else {
                         {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, owner, field.missing())}{$typescript validation_code}{/if}
@@ -154,7 +165,7 @@ pub(super) fn decode_raw_value(field: &DecodeField, owner: &str) -> TsStream {
                             instance@{field.member} = null;
                         } else {
                             const __dateVal = @{&decoded_date};
-                            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                            if (@{&no_date}) {
                                 errors.push({ field: "@{field.json_key_text()}", message: @{&date_mismatch} });
                             } else {
                                 {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, owner, field.missing())}{$typescript validation_code}{/if}

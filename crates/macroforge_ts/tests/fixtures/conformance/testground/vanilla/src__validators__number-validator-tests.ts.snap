@@ -1205,7 +1205,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("valid")) ? "valid" in obj : (__fields.keeps("valid") && obj["valid"] !== undefined)) {
         const __raw_valid = obj["valid"] as number;
 
-        if (!(typeof __raw_valid === "number" && globalThis.Number.isFinite(__raw_valid))) {
+        if (!(typeof __raw_valid === "number" && (globalThis.Number.isFinite(__raw_valid) || globalThis.Number.isNaN(__raw_valid)))) {
             errors.push({ field: "valid", message: __raw_valid == null ? "NonNaNValidator.valid is required" : "expected number" });
         } else {
             if (__raw_valid == null) { errors.push({ field: "valid", message: "NonNaNValidator.valid is required" }); } else {
@@ -1386,7 +1386,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("finite")) ? "finite" in obj : (__fields.keeps("finite") && obj["finite"] !== undefined)) {
         const __raw_finite = obj["finite"] as number;
 
-        if (!(typeof __raw_finite === "number" && globalThis.Number.isFinite(__raw_finite))) {
+        if (!(typeof __raw_finite === "number")) {
             errors.push({ field: "finite", message: __raw_finite == null ? "FiniteValidator.finite is required" : "expected number" });
         } else {
             if (__raw_finite == null) { errors.push({ field: "finite", message: "FiniteValidator.finite is required" }); } else {
@@ -3305,22 +3305,22 @@ original 919..920 -> expanded 40941..40942
 original 920..1052 -> expanded 42844..42976
 original 1052..1053 -> expanded 49028..49029
 original 1053..1192 -> expanded 50871..51010
-original 1192..1193 -> expanded 57040..57041
-original 1193..1333 -> expanded 58928..59068
-original 1333..1334 -> expanded 65145..65146
-original 1334..1482 -> expanded 67033..67181
-original 1482..1483 -> expanded 73353..73354
-original 1483..1643 -> expanded 75271..75431
-original 1643..1644 -> expanded 81804..81805
-original 1644..1792 -> expanded 83767..83915
-original 1792..1793 -> expanded 90087..90088
-original 1793..1953 -> expanded 92005..92165
-original 1953..1954 -> expanded 98538..98539
-original 1954..2111 -> expanded 100501..100658
-original 2111..2112 -> expanded 106957..106958
-original 2112..2247 -> expanded 108905..109040
-original 2247..2248 -> expanded 115115..115116
-original 2248..2249 -> expanded 116988..116989
+original 1192..1193 -> expanded 57082..57083
+original 1193..1333 -> expanded 58970..59110
+original 1333..1334 -> expanded 65143..65144
+original 1334..1482 -> expanded 67031..67179
+original 1482..1483 -> expanded 73351..73352
+original 1483..1643 -> expanded 75269..75429
+original 1643..1644 -> expanded 81802..81803
+original 1644..1792 -> expanded 83765..83913
+original 1792..1793 -> expanded 90085..90086
+original 1793..1953 -> expanded 92003..92163
+original 1953..1954 -> expanded 98536..98537
+original 1954..2111 -> expanded 100499..100656
+original 2111..2112 -> expanded 106955..106956
+original 2112..2247 -> expanded 108903..109038
+original 2247..2248 -> expanded 115113..115114
+original 2248..2249 -> expanded 116986..116987
 generated 0..468 <- imports
 generated 714..6982 <- Decode
 generated 6983..8945 <- Decode
@@ -3334,22 +3334,22 @@ generated 34795..40941 <- Decode
 generated 40942..42844 <- Decode
 generated 42976..49028 <- Decode
 generated 49029..50871 <- Decode
-generated 51010..57040 <- Decode
-generated 57041..58928 <- Decode
-generated 59068..65145 <- Decode
-generated 65146..67033 <- Decode
-generated 67181..73353 <- Decode
-generated 73354..75271 <- Decode
-generated 75431..81804 <- Decode
-generated 81805..83767 <- Decode
-generated 83915..90087 <- Decode
-generated 90088..92005 <- Decode
-generated 92165..98538 <- Decode
-generated 98539..100501 <- Decode
-generated 100658..106957 <- Decode
-generated 106958..108905 <- Decode
-generated 109040..115115 <- Decode
-generated 115116..116988 <- Decode
+generated 51010..57082 <- Decode
+generated 57083..58970 <- Decode
+generated 59110..65143 <- Decode
+generated 65144..67031 <- Decode
+generated 67179..73351 <- Decode
+generated 73352..75269 <- Decode
+generated 75429..81802 <- Decode
+generated 81803..83765 <- Decode
+generated 83913..90085 <- Decode
+generated 90086..92003 <- Decode
+generated 92163..98536 <- Decode
+generated 98537..100499 <- Decode
+generated 100656..106955 <- Decode
+generated 106956..108903 <- Decode
+generated 109038..115113 <- Decode
+generated 115114..116986 <- Decode
 
 ## Metadata
 

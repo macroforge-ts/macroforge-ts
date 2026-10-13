@@ -73,7 +73,8 @@ const DOCUMENTED = [
     ['DocNegative', '< 0', [-1, -0.001], [0, 1]],
     ['DocNonPositive', '<= 0', [0, -1], [0.001]],
     ['DocFinite', 'not Infinity, -Infinity or NaN', [1, -1, 0], [Infinity, -Infinity, NaN]],
-    ['DocNonNaN', 'not NaN', [1, Infinity], [NaN]],
+    // An infinity is refused by `decode` itself, which takes finite numbers.
+    ['DocNonNaN', 'not NaN', [1], [NaN, Infinity]],
 
     // BigInt validators (bigints arrive as strings)
     ['DocPositiveBigInt', '> 0n', ['1'], ['0', '-1']],

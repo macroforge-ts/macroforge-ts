@@ -172,12 +172,11 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             }
         }
         if ((__fields === undefined || __fields.requires("retries")) && !("retries" in obj && obj["retries"] !== undefined)) {
-            instance.retries = 0;
+            instance.retries = (0) satisfies number;
         }
     }
-    if ((__fields === undefined || __fields.keeps("origin"))) {
-
-        instance.origin = "computed";
+    if ((__fields === undefined || __fields.requires("origin"))) {
+        instance.origin = ("computed") satisfies string;
     }
     if ((__fields === undefined || __fields.keeps("enabled"))) {
         if (("enabled" in obj && obj["enabled"] !== undefined)) {
@@ -190,7 +189,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             }
         }
         if ((__fields === undefined || __fields.requires("enabled")) && !("enabled" in obj && obj["enabled"] !== undefined)) {
-            instance.enabled = true;
+            instance.enabled = (true) satisfies boolean;
         }
     }
 
@@ -299,11 +298,11 @@ original 30..56 -> expanded 658..684
 original 88..114 -> expanded 684..710
 original 176..201 -> expanded 710..735
 original 235..259 -> expanded 735..759
-original 259..260 -> expanded 10239..10240
+original 259..260 -> expanded 10299..10300
 generated 0..658 <- imports
 generated 759..3234 <- Encode
-generated 3234..9248 <- Decode
-generated 9248..10239 <- __convenience_const
+generated 3234..9308 <- Decode
+generated 9308..10299 <- __convenience_const
 
 ## Metadata
 

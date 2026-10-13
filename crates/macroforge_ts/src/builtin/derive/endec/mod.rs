@@ -132,6 +132,10 @@
 //! - `greaterThan(n)`, `greaterThanOrEqualTo(n)`, `lessThan(n)`, `lessThanOrEqualTo(n)`, `between(min, max)`
 //! - `multipleOf(n)`, `uint8`, `finite`, `nonNaN`
 //!
+//! `decode` takes finite numbers only, so `finite` and `nonNaN` add no
+//! check to it: they give the refusal their own message, and check a value
+//! handed to `validateField`.
+//!
 //! ### BigInt Validators
 //! - `positiveBigInt`, `negativeBigInt`, `nonNegativeBigInt`, `nonPositiveBigInt`
 //! - `greaterThanBigInt(n)`, `greaterThanOrEqualToBigInt(n)`, `lessThanBigInt(n)`,

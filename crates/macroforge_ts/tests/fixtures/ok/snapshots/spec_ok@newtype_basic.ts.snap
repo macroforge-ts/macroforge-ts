@@ -95,7 +95,7 @@ export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters {
     const __decoded: unknown = value;
-    if (!((typeof __decoded === "number" && globalThis.Number.isFinite(__decoded)))) {
+    if (!(typeof __decoded === "number")) {
         throw new __mf_DecodeError([{ field: "_root", message: "Meters.decodeWithContext: expected number" }]);
     }
     const errors: Array<{ field: string; message: string }> = [];
@@ -367,7 +367,7 @@ export function centsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
             __decoded = ((v) => {
 	const raw: unknown = v;
 	if (typeof raw === "bigint") return raw;
-	if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+	if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
 	if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
 	return BigInt(raw);
 })(value);
@@ -560,17 +560,17 @@ export {};
 
 original 65..87 -> expanded 553..575
 original 103..104 -> expanded 619..620
-original 104..106 -> expanded 4068..4070
-original 209..233 -> expanded 4070..4094
-original 249..250 -> expanded 4138..4139
-original 250..252 -> expanded 7740..7742
-original 274..294 -> expanded 7742..7762
-original 311..312 -> expanded 7807..7808
-original 312..335 -> expanded 9889..9912
-original 360..363 -> expanded 9967..9970
-original 439..460 -> expanded 9970..9991
-original 476..477 -> expanded 10035..10036
-original 477..478 -> expanded 14243..14244
+original 104..106 -> expanded 4025..4027
+original 209..233 -> expanded 4027..4051
+original 249..250 -> expanded 4095..4096
+original 250..252 -> expanded 7697..7699
+original 274..294 -> expanded 7699..7719
+original 311..312 -> expanded 7764..7765
+original 312..335 -> expanded 9846..9869
+original 360..363 -> expanded 9924..9927
+original 439..460 -> expanded 9927..9948
+original 476..477 -> expanded 9992..9993
+original 477..478 -> expanded 14204..14205
 generated 0..328 <- imports
 generated 328..373 <- $Newtype
 generated 373..418 <- $Newtype
@@ -579,23 +579,23 @@ generated 463..508 <- $Newtype
 generated 508..553 <- $Newtype
 generated 575..619 <- $Newtype
 generated 620..1328 <- Encode
-generated 1328..3572 <- Decode
-generated 3572..4068 <- __convenience_const
-generated 4094..4138 <- $Newtype
-generated 4139..4863 <- Encode
-generated 4863..7040 <- Decode
-generated 7040..7126 <- Default
-generated 7126..7740 <- __convenience_const
-generated 7762..7807 <- $Newtype
-generated 7808..9583 <- Decode
-generated 9583..9889 <- __convenience_const
-generated 9912..9967 <- $Newtype
-generated 9991..10035 <- $Newtype
-generated 10036..10776 <- Encode
-generated 10776..13366 <- Decode
-generated 13366..13520 <- Hash
-generated 13520..13620 <- Debug
-generated 13620..14243 <- __convenience_const
+generated 1328..3529 <- Decode
+generated 3529..4025 <- __convenience_const
+generated 4051..4095 <- $Newtype
+generated 4096..4820 <- Encode
+generated 4820..6997 <- Decode
+generated 6997..7083 <- Default
+generated 7083..7697 <- __convenience_const
+generated 7719..7764 <- $Newtype
+generated 7765..9540 <- Decode
+generated 9540..9846 <- __convenience_const
+generated 9869..9924 <- $Newtype
+generated 9948..9992 <- $Newtype
+generated 9993..10733 <- Encode
+generated 10733..13327 <- Decode
+generated 13327..13481 <- Hash
+generated 13481..13581 <- Debug
+generated 13581..14204 <- __convenience_const
 
 ## Metadata
 

@@ -839,13 +839,16 @@ static #encodeFields(value: KeyedOptions, ctx: __mf_EncodeContext, result: Recor
         return keyedOptionsEncode(value, keepMetadata);
     }
 
-constructor(props: { count: number; userLabel?: string; hidden: boolean; weight: number; secret: string; noise: number; ignored: number; five: number }) {
+constructor(props: { count: number; userLabel?: string; hidden: boolean; derived?: number; weight: number; secret: string; noise: number; ignored: number; five: number }) {
 
     this.count = props.count;
     if (props.userLabel !== undefined) {
         this.userLabel = props.userLabel;
     }
     this.hidden = props.hidden;
+    if (props.derived !== undefined) {
+        this.derived = props.derived;
+    }
     this.weight = props.weight;
     this.secret = props.secret;
     this.noise = props.noise;
@@ -978,7 +981,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
             }
         }
         if ((__fields === undefined || __fields.requires("userLabel")) && !("user_label" in obj && obj["user_label"] !== undefined)) {
-            instance.userLabel = "";
+            instance.userLabel = ("") satisfies string;
         }
     }
     if ((__fields === undefined || __fields.requires("hidden")) ? "hidden" in obj : (__fields.keeps("hidden") && obj["hidden"] !== undefined)) {
@@ -989,6 +992,9 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         } else {
             instance.hidden = __raw_hidden;
         }
+    }
+    if ((__fields === undefined || __fields.requires("derived"))) {
+        instance.derived = (0) satisfies number;
     }
     if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
         const __raw_weight = obj["weight"] as number;
@@ -1915,6 +1921,7 @@ export declare class KeyedOptions {
 		count: number;
 		userLabel?: string;
 		hidden: boolean;
+		derived?: number;
 		weight: number;
 		secret: string;
 		noise: number;
@@ -2107,10 +2114,10 @@ original 0..387 -> expanded 1503..1890
 original 387..530 -> expanded 4929..5072
 original 530..912 -> expanded 7979..8361
 original 912..1603 -> expanded 31336..32027
-original 1603..1604 -> expanded 50957..50958
-original 1604..1731 -> expanded 54739..54866
-original 1731..2035 -> expanded 65062..65366
-original 2035..2036 -> expanded 81265..81266
+original 1603..1604 -> expanded 51200..51201
+original 1604..1731 -> expanded 54982..55109
+original 1731..2035 -> expanded 65305..65609
+original 2035..2036 -> expanded 81508..81509
 generated 0..1503 <- imports
 generated 1890..2195 <- Debug
 generated 2195..2281 <- Clone
@@ -2143,29 +2150,29 @@ generated 33838..35289 <- Hash
 generated 35289..35865 <- Default
 generated 35865..38927 <- Encode
 generated 38927..39258 <- Encode
-generated 39258..50957 <- Decode
-generated 50958..51070 <- Debug
-generated 51070..51182 <- Clone
-generated 51182..51303 <- PartialEq
-generated 51303..51415 <- Hash
-generated 51415..51517 <- Default
-generated 51517..52897 <- Encode
-generated 52897..54739 <- Decode
-generated 54866..55138 <- Debug
-generated 55138..55293 <- Clone
-generated 55293..55532 <- PartialEq
-generated 55532..55880 <- Hash
-generated 55880..55980 <- Default
-generated 55980..58159 <- Encode
-generated 58159..63626 <- Decode
-generated 63626..65062 <- __convenience_const
-generated 65366..65864 <- Debug
-generated 65864..66199 <- Clone
-generated 66199..66548 <- PartialEq
-generated 66548..66989 <- Hash
-generated 66989..70007 <- Encode
-generated 70007..79780 <- Decode
-generated 79780..81265 <- __convenience_const
+generated 39258..51200 <- Decode
+generated 51201..51313 <- Debug
+generated 51313..51425 <- Clone
+generated 51425..51546 <- PartialEq
+generated 51546..51658 <- Hash
+generated 51658..51760 <- Default
+generated 51760..53140 <- Encode
+generated 53140..54982 <- Decode
+generated 55109..55381 <- Debug
+generated 55381..55536 <- Clone
+generated 55536..55775 <- PartialEq
+generated 55775..56123 <- Hash
+generated 56123..56223 <- Default
+generated 56223..58402 <- Encode
+generated 58402..63869 <- Decode
+generated 63869..65305 <- __convenience_const
+generated 65609..66107 <- Debug
+generated 66107..66442 <- Clone
+generated 66442..66791 <- PartialEq
+generated 66791..67232 <- Hash
+generated 67232..70250 <- Encode
+generated 70250..80023 <- Decode
+generated 80023..81508 <- __convenience_const
 
 ## Metadata
 

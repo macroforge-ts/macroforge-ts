@@ -1541,7 +1541,8 @@ export function shelfDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
             const __result = pairDecodeWithContext<Date, bigint>(__raw_pair, ctx, __mf_decodeDate, (__raw0) => ((v) => {
                         const raw: unknown = v;
                         if (typeof raw === "bigint") return raw;
-                        if (typeof raw === "number" && Number.isInteger(raw)) return BigInt(raw);
+                        // A number past the safe integers has lost digits already.
+                        if (typeof raw === "number" && Number.isSafeInteger(raw)) return BigInt(raw);
                         if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) throw new TypeError("expected a whole number as text");
                         return BigInt(raw);
                     })(__raw0));
@@ -2006,7 +2007,7 @@ original 442..444 -> expanded 44315..44317
 original 474..518 -> expanded 44317..44361
 original 518..520 -> expanded 53809..53811
 original 550..803 -> expanded 53811..54064
-original 803..804 -> expanded 73440..73441
+original 803..804 -> expanded 73528..73529
 generated 0..939 <- imports
 generated 1024..4027 <- Encode
 generated 4027..13511 <- Decode
@@ -2029,8 +2030,8 @@ generated 44361..46769 <- Encode
 generated 46769..52839 <- Decode
 generated 52839..53809 <- __convenience_const
 generated 54064..57971 <- Encode
-generated 57971..72512 <- Decode
-generated 72512..73440 <- __convenience_const
+generated 57971..72600 <- Decode
+generated 72600..73528 <- __convenience_const
 
 ## Metadata
 

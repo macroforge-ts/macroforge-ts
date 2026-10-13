@@ -6,7 +6,7 @@ use convert_case::{Case, Casing};
 
 use super::super::uncodable::{TemplateHole, template_text};
 use super::super::value_kind::is_ts_literal;
-use super::super::{EndecFieldOptions, ValidatorSpec};
+use super::super::{EndecFieldOptions, Validator, ValidatorSpec};
 use super::types::DecodeField;
 use super::validation::Missing;
 use crate::builtin::derive::common::{js_string, primitive_keyword_test, rendered};
@@ -187,7 +187,7 @@ pub(super) fn primitive_check(
     raw: &str,
     context_name: &str,
 ) -> Option<PrimitiveCheck> {
-    let accepts = primitive_accepts(&field.ts_type, raw)?;
+    let accepts = primitive_accepts_leaving(&field.ts_type, raw, Reported::by(&field.validators))?;
     Some(PrimitiveCheck {
         mismatch: Expr::parse(&rendered(ts_template! { !(@{accepts}) }))
             .expect("primitive check should parse"),
@@ -200,6 +200,16 @@ pub(super) fn primitive_check(
 /// union of those. `None` for any other type, which has no single runtime
 /// test.
 pub(crate) fn primitive_accepts(ts_type: &str, raw: &str) -> Option<String> {
+    primitive_accepts_leaving(ts_type, raw, Reported::Nothing)
+}
+
+/// [`primitive_accepts`], passing the numbers `reported` says the value's
+/// validators refuse themselves.
+pub(crate) fn primitive_accepts_leaving(
+    ts_type: &str,
+    raw: &str,
+    reported: Reported,
+) -> Option<String> {
     let ts_type = ts_type.trim();
     let parts = split_top_level_union(ts_type).unwrap_or_else(|| vec![ts_type]);
     let accepts = parts
@@ -207,7 +217,7 @@ pub(crate) fn primitive_accepts(ts_type: &str, raw: &str) -> Option<String> {
         .map(|part| {
             let part = branded_base(part.trim());
             if typeof_primitive(part).is_some() || part == "symbol" {
-                Some(decoded_keyword_test(part, raw))
+                Some(decoded_keyword_test_leaving(part, raw, reported))
             } else if part == "object" {
                 Some(rendered(
                     ts_template! { (typeof @{raw} === "object" && @{raw} !== null) },
@@ -309,18 +319,61 @@ fn template_test(ts_type: &str, raw: &str) -> Option<String> {
     Some(format!("{spells}({raw}, [{texts}], [{holes}])"))
 }
 
+/// Which numbers that are not finite a value's validators report
+/// themselves. Its type's own test leaves those to them, so the message is
+/// the validator's, and still refuses the rest.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Reported {
+    /// None: the type's test refuses every number that is not finite.
+    Nothing,
+    /// `NaN`, under `nonNaN`.
+    NotANumber,
+    /// `NaN` and the infinities, under `finite`.
+    NonFinite,
+}
+
+impl Reported {
+    pub(crate) fn by(validators: &[ValidatorSpec]) -> Self {
+        let has = |wanted: &Validator| validators.iter().any(|spec| &spec.validator == wanted);
+        if has(&Validator::Finite) {
+            Self::NonFinite
+        } else if has(&Validator::NonNaN) {
+            Self::NotANumber
+        } else {
+            Self::Nothing
+        }
+    }
+}
+
 /// [`primitive_keyword_test`] for a value being decoded: a `number` has to
 /// be finite as well, since no encoding writes `NaN` or an infinity back.
 pub(crate) fn decoded_keyword_test(keyword: &str, value: &str) -> String {
+    decoded_keyword_test_leaving(keyword, value, Reported::Nothing)
+}
+
+/// [`decoded_keyword_test`], passing the numbers `reported` says the value's
+/// validators refuse themselves.
+pub(crate) fn decoded_keyword_test_leaving(
+    keyword: &str,
+    value: &str,
+    reported: Reported,
+) -> String {
     // A template literal type is told by its text, not by a `typeof`.
     if let Some(spells) = template_test(keyword.trim(), value) {
         return spells;
     }
     let test = primitive_keyword_test(keyword, value);
-    if keyword.trim() == "number" {
-        rendered(ts_template! { (@{test} && globalThis.Number.isFinite(@{value})) })
-    } else {
-        test
+    if keyword.trim() != "number" {
+        return test;
+    }
+    match reported {
+        Reported::Nothing => {
+            rendered(ts_template! { (@{test} && globalThis.Number.isFinite(@{value})) })
+        }
+        Reported::NotANumber => rendered(
+            ts_template! { (@{test} && (globalThis.Number.isFinite(@{value}) || globalThis.Number.isNaN(@{value}))) },
+        ),
+        Reported::NonFinite => test,
     }
 }
 
