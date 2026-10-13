@@ -137,3 +137,47 @@ Deno.test('the watcher reports a change that fails and follows a file that is re
         await Deno.remove(root, { recursive: true });
     }
 });
+
+/** The native CLI built from this checkout, which writes a project's registries. */
+const cli = Deno.env.get('MACROFORGE_CLI') ??
+    new URL('../../../target/debug/macroforge', import.meta.url).pathname;
+
+Deno.test('a project is expanded with the registry the CLI wrote for it', async () => {
+    const root = await Deno.realPath(await Deno.makeTempDir({ prefix: 'macroforge-deno-plugin-' }));
+    const warnings: string[] = [];
+    const warn = console.warn;
+    console.warn = (...said: unknown[]) => warnings.push(said.join(' '));
+    try {
+        await Deno.writeTextFile(join(root, 'deno.json'), '{}\n');
+        await Deno.writeTextFile(
+            join(root, 'base.ts'),
+            "export class Base {\n    id: string = '';\n}\n"
+        );
+        await Deno.writeTextFile(
+            join(root, 'child.ts'),
+            "import { Base } from './base.ts';\n\n/** @derive(Encode) */\nexport class Child extends Base {\n    name: string = '';\n}\n"
+        );
+        const encodesInherited = async () =>
+            (await Deno.readTextFile(join(root, 'out', 'child.ts'))).includes('result["id"]');
+
+        // Without a registry each file is expanded on its own, and it is said.
+        await expandProject({ root, outDir: 'out' });
+        assertEquals(await encodesInherited(), false);
+        assert(warnings.some((said) => said.includes('No type registry')), warnings.join('\n'));
+
+        const written = await new Deno.Command(cli, {
+            args: ['cache', root],
+            cwd: root,
+            stdout: 'piped',
+            stderr: 'piped'
+        }).output();
+        assert(written.success, new TextDecoder().decode(written.stderr));
+
+        const events = await expandProject({ root, outDir: 'out' });
+        assertEquals(events.filter((event) => event.failed), []);
+        assertEquals(await encodesInherited(), true, 'the field a class inherits is encoded');
+    } finally {
+        console.warn = warn;
+        await Deno.remove(root, { recursive: true });
+    }
+});

@@ -59,6 +59,10 @@ const stop = await watchProject({
 
 A file whose macros report an error, or that cannot be read or expanded at all, has `failed` set. Nothing is written to the mirror for it and the copy an earlier run wrote is removed, so the mirror never holds code its source no longer expands to. The run goes on to the next file, and the `expand` command exits with status 1. The watcher also removes the copy of a file that is deleted or renamed away.
 
+### Types across files
+
+A derive knows a type declared in another file through the project's type registry, which `macroforge cache` and `macroforge watch` write to `.macroforge/type-registry.json`. `expandProject` and `watchProject` read it from there, and the watcher reads it again when it is rewritten. Without it each file is expanded on its own, so a class is expanded without the fields it inherits from a class in another file, and a warning says so once for the project. Pass `typeRegistryJson` to hand in a registry of your own.
+
 The config file is read on **every** `expand()` call (it is not cached), so a long-running `watchProject` picks up `macroforge.config.ts` edits without a restart.
 
 ## Attribute macros

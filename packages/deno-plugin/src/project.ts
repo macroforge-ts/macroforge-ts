@@ -160,6 +160,85 @@ async function isThere(source: string): Promise<boolean> {
     }
 }
 
+/** The projects whose missing registry has been said: once each is enough. */
+const saidNoRegistry = new Set<string>();
+
+/** One of the files `macroforge cache` writes for the project at `root`. */
+async function writtenByCli(root: string, name: string): Promise<string | undefined> {
+    try {
+        return await Deno.readTextFile(path.join(root, '.macroforge', name));
+    } catch (error) {
+        if (error instanceof Deno.errors.NotFound) return undefined;
+        throw error;
+    }
+}
+
+/**
+ * `options` with the registries of the project at `root`, for a caller that
+ * hands none in: the ones `macroforge cache` and `macroforge watch` write
+ * under `.macroforge/`. A derive knows a type declared in another file
+ * through them alone, so a project without them is expanded with each file
+ * on its own, and a warning says so.
+ */
+async function withProjectRegistries(
+    root: string,
+    options: ExpandProjectOptions
+): Promise<ExpandProjectOptions> {
+    if (options.typeRegistryJson !== undefined || options.typeRegistryId !== undefined) {
+        return options;
+    }
+    const typeRegistryJson = await writtenByCli(root, 'type-registry.json');
+    if (typeRegistryJson === undefined) {
+        if (!saidNoRegistry.has(root)) {
+            saidNoRegistry.add(root);
+            console.warn(
+                `[@macroforge/deno-plugin] No type registry at ${
+                    path.join(root, '.macroforge', 'type-registry.json')
+                }: a type declared in another file is unknown to the derives, so a class is expanded without the fields it inherits from one. Run \`macroforge cache\` in the project to write it.`
+            );
+        }
+        return options;
+    }
+    // A registry lists its files by the paths they were scanned at.
+    const scannedElsewhere = scannedFiles(typeRegistryJson).find((file) =>
+        path.relative(root, file).startsWith('..')
+    );
+    if (scannedElsewhere !== undefined) {
+        console.warn(
+            `[@macroforge/deno-plugin] Ignoring .macroforge/type-registry.json: it was scanned at another location (it lists ${scannedElsewhere}). Run \`macroforge cache\` to write it again.`
+        );
+        return options;
+    }
+    const declarativeRegistryJson = options.declarativeRegistryJson ??
+        (options.declarativeRegistryId === undefined
+            ? await writtenByCli(root, 'declarative-registry.json')
+            : undefined);
+    return { ...options, typeRegistryJson, declarativeRegistryJson };
+}
+
+/** The files a type registry lists, each by the path it was scanned at. */
+function scannedFiles(typeRegistryJson: string): string[] {
+    const entries: unknown = JSON.parse(typeRegistryJson).entries;
+    if (typeof entries !== 'object' || entries === null) return [];
+    return Object.values(entries).flatMap((entry) =>
+        typeof entry === 'object' && entry !== null && 'file_path' in entry &&
+            typeof entry.file_path === 'string'
+            ? [entry.file_path]
+            : []
+    );
+}
+
+/** When the project's type registry was last written, or nothing where it is not there. */
+async function registryStamp(root: string): Promise<number | undefined> {
+    try {
+        return (await Deno.stat(path.join(root, '.macroforge', 'type-registry.json'))).mtime
+            ?.getTime();
+    } catch (error) {
+        if (error instanceof Deno.errors.NotFound) return undefined;
+        throw error;
+    }
+}
+
 /** The project `options` describe, with the paths the walk and the watch leave out. */
 function projectLayout(options: ExpandProjectOptions) {
     const root = path.resolve(options.root ?? Deno.cwd());
@@ -187,7 +266,7 @@ export async function expandProject(
 ): Promise<ExpandFileEvent[]> {
     const { root, outDir, skip, extensions, copyPassthrough } = projectLayout(options);
     const events: ExpandFileEvent[] = [];
-    const resident = residentRegistries(options);
+    const resident = residentRegistries(await withProjectRegistries(root, options));
     try {
         // Excluded directories are pruned rather than walked and filtered.
         for await (
@@ -225,7 +304,8 @@ export async function watchProject(
 
     await expandProject(options);
 
-    const resident = residentRegistries(options);
+    let resident = residentRegistries(await withProjectRegistries(root, options));
+    let stamp = await registryStamp(root);
     const watcher = Deno.watchFs(root, { recursive: true });
 
     (async () => {
@@ -233,6 +313,13 @@ export async function watchProject(
             // A save may arrive as a write, or as a file renamed over the old
             // one: what is at the path now says which it was.
             if (!['create', 'modify', 'rename', 'remove'].includes(event.kind)) continue;
+            // The registry `macroforge watch` rewrites is read again when it has.
+            const written = await registryStamp(root);
+            if (written !== stamp) {
+                stamp = written;
+                resident.release();
+                resident = residentRegistries(await withProjectRegistries(root, options));
+            }
             for (const changed of event.paths) {
                 if (!extensions.some((ext) => changed.endsWith(ext))) continue;
                 if (skip.some((pattern) => pattern.test(changed))) continue;
