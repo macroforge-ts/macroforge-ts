@@ -1,5 +1,5 @@
 use super::applicator::{ApplyResult, PatchApplicator};
-use super::helpers::dedupe_patches;
+use super::helpers::{dedupe_patches, write_in_line_endings_of};
 use crate::host::error::{MacroError, Result};
 use crate::ts_syn::abi::{MappingSegment, Patch, SourceMapping};
 
@@ -69,6 +69,7 @@ impl PatchCollector {
         } else {
             let mut patches = self.runtime_patches;
             dedupe_patches(&mut patches);
+            write_in_line_endings_of(source, &mut patches);
             PatchApplicator::new(source, patches)
                 .apply_with_mapping(macro_name)
                 .map_err(|error| MacroError::Patch(format!("Patch error: {error}")))?
@@ -78,6 +79,7 @@ impl PatchCollector {
         } else {
             let mut patches = self.type_patches;
             dedupe_patches(&mut patches);
+            write_in_line_endings_of(source, &mut patches);
             Some(
                 PatchApplicator::new(source, patches)
                     .apply()

@@ -99,3 +99,4 @@ mod tests;
 
 pub use applicator::{ApplyResult, PatchApplicator};
 pub use collector::PatchCollector;
+pub(crate) use helpers::in_line_endings_of;

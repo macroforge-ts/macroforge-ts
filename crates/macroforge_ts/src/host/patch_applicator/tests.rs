@@ -1,6 +1,6 @@
 use super::applicator::PatchApplicator;
 use super::collector::PatchCollector;
-use super::helpers::{dedupe_imports, dedupe_patches, parse_import_patch};
+use super::helpers::{dedupe_imports, dedupe_patches, in_line_endings_of, parse_import_patch};
 use crate::ts_syn::abi::{Patch, SpanIR};
 
 #[test]
@@ -534,5 +534,46 @@ fn test_dedupe_imports_different_modules_kept() {
         patches.len(),
         2,
         "imports from different modules should both be kept"
+    );
+}
+
+/// Generated code takes the line endings of the file it is written into, and
+/// its mapping measures it as it is written.
+#[test]
+fn generated_code_is_written_in_the_line_endings_of_its_source() {
+    assert_eq!(
+        in_line_endings_of("one\r\ntwo\r\n", "a\nb\r\nc\n"),
+        "a\r\nb\r\nc\r\n"
+    );
+    assert_eq!(in_line_endings_of("one\ntwo\n", "a\nb\n"), "a\nb\n");
+    assert_eq!(in_line_endings_of("one line", "a\nb\n"), "a\nb\n");
+
+    let source = "class Foo {\r\n}\r\n";
+    let mut collector = PatchCollector::new();
+    collector.add_runtime_patches(vec![Patch::Insert {
+        at: SpanIR::new(14, 14),
+        code: "  first(): void {}\n  second(): void {}\n".to_string(),
+        source_macro: Some("Test".to_string()),
+    }]);
+    let (runtime, _) = collector.apply(source, None).unwrap();
+    assert!(
+        !runtime.code.replace("\r\n", "").contains('\n'),
+        "{:?}",
+        runtime.code
+    );
+    assert!(
+        runtime
+            .code
+            .contains("  first(): void {}\r\n  second(): void {}\r\n")
+    );
+    let generated: u32 = runtime
+        .mapping
+        .generated_regions
+        .iter()
+        .map(|region| region.end - region.start)
+        .sum();
+    assert_eq!(
+        generated as usize,
+        "  first(): void {}\r\n  second(): void {}\r\n".len()
     );
 }

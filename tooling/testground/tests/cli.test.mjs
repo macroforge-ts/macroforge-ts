@@ -755,6 +755,41 @@ interface Item { id: string; }`
     }
 });
 
+Deno.test('CLI expand: a source that ends its lines with CRLF gets generated code that does', () => {
+    setupTmpDir();
+    try {
+        const inputFile = path.join(tmpDir, 'crlf.ts');
+        const outputFile = path.join(tmpDir, 'crlf.out.ts');
+        const typesFile = path.join(tmpDir, 'crlf.out.d.ts');
+        fs.writeFileSync(
+            inputFile,
+            [
+                "'use client';",
+                '/** @derive(Debug, Clone, Default, Encode, Decode) */',
+                'export interface Item {',
+                '    id: string;',
+                '    tags: string[];',
+                '}',
+                ''
+            ].join('\r\n')
+        );
+
+        const result = runCli(['expand', inputFile, '--out', outputFile, '--types-out', typesFile]);
+
+        assertEquals(result.success, true, `CLI should succeed. stderr: ${result.stderr}`);
+        for (const file of [outputFile, typesFile]) {
+            const written = fs.readFileSync(file, 'utf8');
+            assert(written.includes('\r\n'), `${file} keeps the CRLF line endings`);
+            assert(
+                !written.replaceAll('\r\n', '').includes('\n'),
+                `${file} has no line ending on its own LF`
+            );
+        }
+    } finally {
+        cleanupTmpDir();
+    }
+});
+
 Deno.test('CLI expand: respects --out flag for custom output path', () => {
     setupTmpDir();
     try {

@@ -2119,7 +2119,10 @@ impl MacroExpander {
         let (type_output, type_output_diagnostics) = match typed_source {
             Some(typed_source) => {
                 let surface = declarations::declaration_surface(&typed_source, file_name)?;
-                (Some(surface.code), surface.diagnostics)
+                let written =
+                    crate::host::patch_applicator::in_line_endings_of(source, &surface.code)
+                        .into_owned();
+                (Some(written), surface.diagnostics)
             }
             None => (None, Vec::new()),
         };
@@ -2129,6 +2132,7 @@ impl MacroExpander {
         // Emit all generated imports from the registry (namespace + type-only)
         let import_block =
             crate::host::import_registry::with_registry(|r| r.emit_generated_imports());
+        let import_block = crate::host::patch_applicator::in_line_endings_of(source, &import_block);
         // The imports go below what has to stay first in the file: a `#!`
         // line, `"use client"`, a `/// <reference>`.
         let imports_at = crate::ts_syn::preamble_end(&code);
