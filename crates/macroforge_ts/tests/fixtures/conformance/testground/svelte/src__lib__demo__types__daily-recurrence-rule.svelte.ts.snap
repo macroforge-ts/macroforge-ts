@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -69,7 +69,7 @@ function dailyRecurrenceRuleEncodeFields(value: DailyRecurrenceRule, _ctx: __mf_
 export function dailyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DailyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = dailyRecurrenceRuleDecodeWithContext(data, ctx);
@@ -154,7 +154,7 @@ export function dailyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_D
     if ((__fields === undefined || __fields.requires("quantityOfDays")) ? "quantityOfDays" in obj : (__fields.keeps("quantityOfDays") && obj["quantityOfDays"] !== undefined)) {
         const __raw_quantityOfDays = obj["quantityOfDays"] as number;
 
-        if (!(typeof __raw_quantityOfDays === "number")) {
+        if (!(typeof __raw_quantityOfDays === "number" && globalThis.Number.isFinite(__raw_quantityOfDays))) {
             errors.push({ field: "quantityOfDays", message: __raw_quantityOfDays == null ? "DailyRecurrenceRule.quantityOfDays is required" : "expected number" });
         } else {
             instance.quantityOfDays = __raw_quantityOfDays;
@@ -414,15 +414,15 @@ export declare const DailyRecurrenceRule: {
 
 ## Mapping
 
-original 0..58 -> expanded 807..865
-original 107..176 -> expanded 865..934
-original 176..177 -> expanded 14704..14705
-generated 0..807 <- imports
-generated 934..1057 <- Default
-generated 1057..3391 <- Encode
-generated 3391..9183 <- Decode
-generated 9183..13141 <- Gigaform
-generated 13141..14704 <- __convenience_const
+original 0..58 -> expanded 838..896
+original 107..176 -> expanded 896..965
+original 176..177 -> expanded 14792..14793
+generated 0..838 <- imports
+generated 965..1088 <- Default
+generated 1088..3422 <- Encode
+generated 3422..9271 <- Decode
+generated 9271..13229 <- Gigaform
+generated 13229..14792 <- __convenience_const
 
 ## Metadata
 

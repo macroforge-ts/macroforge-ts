@@ -13,7 +13,7 @@ true
 ## Output
 
 import { directionHueDecodeWithContext, directionHueEncodeWithContext } from "./direction-hue.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -72,7 +72,7 @@ function customEncodeFields(value: Custom, ctx: __mf_EncodeContext, result: Reco
 export function customDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Custom } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = customDecodeWithContext(data, ctx);
@@ -463,15 +463,15 @@ export declare const Custom: {
 
 ## Mapping
 
-original 0..119 -> expanded 965..1084
-original 168..231 -> expanded 1084..1147
-original 231..232 -> expanded 15406..15407
-generated 0..965 <- imports
-generated 1147..1239 <- Default
-generated 1239..3415 <- Encode
-generated 3415..9360 <- Decode
-generated 9360..14194 <- Gigaform
-generated 14194..15406 <- __convenience_const
+original 0..119 -> expanded 996..1115
+original 168..231 -> expanded 1115..1178
+original 231..232 -> expanded 15442..15443
+generated 0..996 <- imports
+generated 1178..1270 <- Default
+generated 1270..3446 <- Encode
+generated 3446..9396 <- Decode
+generated 9396..14230 <- Gigaform
+generated 14230..15442 <- __convenience_const
 
 ## Metadata
 

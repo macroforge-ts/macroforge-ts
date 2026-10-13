@@ -14,7 +14,7 @@ true
 
 import { accountDecodeWithContext, accountEncodeWithContext } from "./account.svelte";
 import { orderDecodeWithContext, orderEncodeWithContext } from "./order.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -97,7 +97,7 @@ function orderedEncodeFields(value: Ordered, ctx: __mf_EncodeContext, result: Re
 export function orderedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Ordered } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = orderedDecodeWithContext(data, ctx);
@@ -611,17 +611,17 @@ export declare const Ordered: {
 
 ## Mapping
 
-original 0..153 -> expanded 975..1128
-original 202..250 -> expanded 1128..1176
-original 269..300 -> expanded 1176..1207
-original 319..364 -> expanded 1207..1252
-original 364..365 -> expanded 19998..19999
-generated 0..975 <- imports
-generated 1252..1391 <- Default
-generated 1391..4105 <- Encode
-generated 4105..12465 <- Decode
-generated 12465..18759 <- Gigaform
-generated 18759..19998 <- __convenience_const
+original 0..153 -> expanded 1006..1159
+original 202..250 -> expanded 1159..1207
+original 269..300 -> expanded 1207..1238
+original 319..364 -> expanded 1238..1283
+original 364..365 -> expanded 20034..20035
+generated 0..1006 <- imports
+generated 1283..1422 <- Default
+generated 1422..4136 <- Encode
+generated 4136..12501 <- Decode
+generated 12501..18795 <- Gigaform
+generated 18795..20034 <- __convenience_const
 
 ## Metadata
 

@@ -15,7 +15,7 @@ true
 import { edgeCardDecodeWithContext, edgeCardEncodeWithContext, edgeItemDecodeWithContext, edgeItemEncodeWithContext } from "./edge-types";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
 import type { Encoder as __mf_Encoder, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeObject as __mf_decodeObject, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeDate as __mf_decodeDate, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeObject as __mf_decodeObject, decodeString as __mf_decodeString, decodeNumber as __mf_decodeNumber, decodeDate as __mf_decodeDate, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 /**
  * Generic types: parameters with constraints and defaults, parameters used
  * in every position a field can hold one, and fields that instantiate
@@ -168,7 +168,7 @@ function genericBoxEncodeFields<T>(value: GenericBox<T>, ctx: __mf_EncodeContext
 export function genericBoxDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericBox<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = genericBoxDecodeWithContext<T>(data, ctx, __decodeT);
@@ -603,7 +603,7 @@ function genericPairEncodeFields<Left, Right = Left>(value: GenericPair<Left, Ri
 export function genericPairDecode<Left, Right = Left>(input: unknown, opts?: __mf_DecodeOptions, __decodeLeft?: __mf_Decoder<Left>, __decodeRight?: __mf_Decoder<Right>): { success: true; value: GenericPair<Left, Right> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = genericPairDecodeWithContext<Left, Right>(data, ctx, __decodeLeft, __decodeRight);
@@ -886,7 +886,7 @@ function genericConstrainedEncodeFields<Item extends EdgeItem, Name extends stri
 export function genericConstrainedDecode<Item extends EdgeItem, Name extends string = string>(input: unknown, opts?: __mf_DecodeOptions, __decodeItem?: __mf_Decoder<Item>, __decodeName?: __mf_Decoder<Name>): { success: true; value: GenericConstrained<Item, Name> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = genericConstrainedDecodeWithContext<Item, Name>(data, ctx, __decodeItem, __decodeName);
@@ -1209,7 +1209,7 @@ constructor(props: { items: T[]; top: T | null; depth: number }) {
 static decode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericStack<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = GenericStack.decodeWithContext<T>(data, ctx, __decodeT);
@@ -1352,7 +1352,7 @@ static decodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?:
     if ((__fields === undefined || __fields.requires("depth")) ? "depth" in obj : (__fields.keeps("depth") && obj["depth"] !== undefined)) {
         const __raw_depth = obj["depth"] as number;
 
-        if (!(typeof __raw_depth === "number")) {
+        if (!(typeof __raw_depth === "number" && globalThis.Number.isFinite(__raw_depth))) {
             errors.push({ field: "depth", message: __raw_depth == null ? "GenericStack.depth is required" : "expected number" });
         } else {
             instance.depth = __raw_depth;
@@ -1521,7 +1521,7 @@ export function genericResultEncodeWithContext<Value, Failure>(value: GenericRes
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function genericResultDecode<Value, Failure>(input: unknown, opts?: __mf_DecodeOptions, __decodeValue?: __mf_Decoder<Value>, __decodeFailure?: __mf_Decoder<Failure>): { success: true; value: GenericResult<Value, Failure> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = genericResultDecodeWithContext<Value, Failure>(data, ctx, __decodeValue, __decodeFailure);
@@ -1664,7 +1664,7 @@ export function genericListEncodeWithContext<T>(value: GenericList<T>, ctx: __mf
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function genericListDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericList<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const result = genericListDecodeWithContext<T>(data, ctx, __decodeT);
@@ -1832,7 +1832,7 @@ export function genericMaybeEncodeWithContext<T>(value: GenericMaybe<T>, ctx: __
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function genericMaybeDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericMaybe<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = genericMaybeDecodeWithContext<T>(data, ctx, __decodeT);
@@ -2098,7 +2098,7 @@ function genericUsesEncodeFields(value: GenericUses, ctx: __mf_EncodeContext, re
 export function genericUsesDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GenericUses } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = genericUsesDecodeWithContext(data, ctx);
@@ -2589,7 +2589,7 @@ function genericWrapperEncodeFields<T>(value: GenericWrapper<T>, ctx: __mf_Encod
 export function genericWrapperDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: GenericWrapper<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = genericWrapperDecodeWithContext<T>(data, ctx, __decodeT);
@@ -3177,7 +3177,7 @@ function genericArgumentsEncodeFields(value: GenericArguments, ctx: __mf_EncodeC
 export function genericArgumentsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GenericArguments } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = genericArgumentsDecodeWithContext(data, ctx);
@@ -4462,105 +4462,105 @@ export declare const GenericArguments: {
 
 ## Mapping
 
-original 0..519 -> expanded 1620..2139
-original 519..669 -> expanded 26422..26572
-original 669..876 -> expanded 40069..40276
-original 876..1050 -> expanded 56892..57066
-original 1050..1051 -> expanded 69502..69503
-original 1051..1230 -> expanded 73641..73820
-original 1230..1327 -> expanded 81859..81956
-original 1327..1430 -> expanded 87955..88058
-original 1430..1885 -> expanded 93901..94356
-original 1885..2047 -> expanded 120899..121061
-original 2047..2172 -> expanded 134711..134836
-original 2172..2817 -> expanded 144096..144741
-original 2817..2818 -> expanded 180227..180228
-generated 0..1620 <- imports
-generated 2139..2864 <- Debug
-generated 2864..3589 <- Clone
-generated 3589..4606 <- PartialEq
-generated 4606..5619 <- Hash
-generated 5619..9874 <- Encode
-generated 9874..25082 <- Decode
-generated 25082..26422 <- __convenience_const
-generated 26572..26947 <- Debug
-generated 26947..27221 <- Clone
-generated 27221..27500 <- PartialEq
-generated 27500..27827 <- Hash
-generated 27827..30862 <- Encode
-generated 30862..38700 <- Decode
-generated 38700..40069 <- __convenience_const
-generated 40276..40765 <- Debug
-generated 40765..41164 <- Clone
-generated 41164..41711 <- PartialEq
-generated 41711..42216 <- Hash
-generated 42216..45708 <- Encode
-generated 45708..55320 <- Decode
-generated 55320..56892 <- __convenience_const
-generated 57066..57479 <- Debug
-generated 57479..57761 <- Clone
-generated 57761..58269 <- PartialEq
-generated 58269..58826 <- Hash
-generated 58826..59095 <- Default
-generated 59095..61292 <- Encode
-generated 61292..61669 <- Encode
-generated 61669..69502 <- Decode
-generated 69503..69624 <- Debug
-generated 69624..69748 <- Clone
-generated 69748..69881 <- PartialEq
-generated 69881..70002 <- Hash
-generated 70002..70113 <- Default
-generated 70113..71640 <- Encode
-generated 71640..73641 <- Decode
-generated 73820..73990 <- Debug
-generated 73990..74155 <- Clone
-generated 74155..74359 <- PartialEq
-generated 74359..74503 <- Hash
-generated 74503..76969 <- Encode
-generated 76969..80948 <- Decode
-generated 80948..81859 <- __convenience_const
-generated 81956..82094 <- Debug
-generated 82094..82240 <- Clone
-generated 82240..82562 <- PartialEq
-generated 82562..82744 <- Hash
-generated 82744..83830 <- Encode
-generated 83830..87086 <- Decode
-generated 87086..87955 <- __convenience_const
-generated 88058..88199 <- Debug
-generated 88199..88322 <- Clone
-generated 88322..88484 <- PartialEq
-generated 88484..88600 <- Hash
-generated 88600..90242 <- Encode
-generated 90242..93011 <- Decode
-generated 93011..93901 <- __convenience_const
-generated 94356..95216 <- Debug
-generated 95216..95894 <- Clone
-generated 95894..96813 <- PartialEq
-generated 96813..97873 <- Hash
-generated 97873..102304 <- Encode
-generated 102304..119530 <- Decode
-generated 119530..120899 <- __convenience_const
-generated 121061..121444 <- Debug
-generated 121444..121702 <- Clone
-generated 121702..122121 <- PartialEq
-generated 122121..122495 <- Hash
-generated 122495..125418 <- Encode
-generated 125418..133255 <- Decode
-generated 133255..134711 <- __convenience_const
-generated 134836..134983 <- Debug
-generated 134983..135112 <- Clone
-generated 135112..135280 <- PartialEq
-generated 135280..135400 <- Hash
-generated 135400..137798 <- Encode
-generated 137798..143164 <- Decode
-generated 143164..144096 <- __convenience_const
-generated 144741..146013 <- Debug
-generated 146013..146906 <- Clone
-generated 146906..147989 <- PartialEq
-generated 147989..149222 <- Hash
-generated 149222..155362 <- Encode
-generated 155362..178713 <- Decode
-generated 178713..180227 <- __convenience_const
+original 0..519 -> expanded 1651..2170
+original 519..669 -> expanded 26458..26608
+original 669..876 -> expanded 40110..40317
+original 876..1050 -> expanded 56938..57112
+original 1050..1051 -> expanded 69596..69597
+original 1051..1230 -> expanded 73735..73914
+original 1230..1327 -> expanded 81958..82055
+original 1327..1430 -> expanded 88059..88162
+original 1430..1885 -> expanded 94010..94465
+original 1885..2047 -> expanded 121013..121175
+original 2047..2172 -> expanded 134830..134955
+original 2172..2817 -> expanded 144215..144860
+original 2817..2818 -> expanded 180351..180352
+generated 0..1651 <- imports
+generated 2170..2895 <- Debug
+generated 2895..3620 <- Clone
+generated 3620..4637 <- PartialEq
+generated 4637..5650 <- Hash
+generated 5650..9905 <- Encode
+generated 9905..25118 <- Decode
+generated 25118..26458 <- __convenience_const
+generated 26608..26983 <- Debug
+generated 26983..27257 <- Clone
+generated 27257..27536 <- PartialEq
+generated 27536..27863 <- Hash
+generated 27863..30898 <- Encode
+generated 30898..38741 <- Decode
+generated 38741..40110 <- __convenience_const
+generated 40317..40806 <- Debug
+generated 40806..41205 <- Clone
+generated 41205..41752 <- PartialEq
+generated 41752..42257 <- Hash
+generated 42257..45749 <- Encode
+generated 45749..55366 <- Decode
+generated 55366..56938 <- __convenience_const
+generated 57112..57525 <- Debug
+generated 57525..57807 <- Clone
+generated 57807..58315 <- PartialEq
+generated 58315..58872 <- Hash
+generated 58872..59141 <- Default
+generated 59141..61338 <- Encode
+generated 61338..61715 <- Encode
+generated 61715..69596 <- Decode
+generated 69597..69718 <- Debug
+generated 69718..69842 <- Clone
+generated 69842..69975 <- PartialEq
+generated 69975..70096 <- Hash
+generated 70096..70207 <- Default
+generated 70207..71734 <- Encode
+generated 71734..73735 <- Decode
+generated 73914..74084 <- Debug
+generated 74084..74249 <- Clone
+generated 74249..74453 <- PartialEq
+generated 74453..74597 <- Hash
+generated 74597..77063 <- Encode
+generated 77063..81047 <- Decode
+generated 81047..81958 <- __convenience_const
+generated 82055..82193 <- Debug
+generated 82193..82339 <- Clone
+generated 82339..82661 <- PartialEq
+generated 82661..82843 <- Hash
+generated 82843..83929 <- Encode
+generated 83929..87190 <- Decode
+generated 87190..88059 <- __convenience_const
+generated 88162..88303 <- Debug
+generated 88303..88426 <- Clone
+generated 88426..88588 <- PartialEq
+generated 88588..88704 <- Hash
+generated 88704..90346 <- Encode
+generated 90346..93120 <- Decode
+generated 93120..94010 <- __convenience_const
+generated 94465..95325 <- Debug
+generated 95325..96003 <- Clone
+generated 96003..96922 <- PartialEq
+generated 96922..97982 <- Hash
+generated 97982..102413 <- Encode
+generated 102413..119644 <- Decode
+generated 119644..121013 <- __convenience_const
+generated 121175..121558 <- Debug
+generated 121558..121816 <- Clone
+generated 121816..122235 <- PartialEq
+generated 122235..122609 <- Hash
+generated 122609..125532 <- Encode
+generated 125532..133374 <- Decode
+generated 133374..134830 <- __convenience_const
+generated 134955..135102 <- Debug
+generated 135102..135231 <- Clone
+generated 135231..135399 <- PartialEq
+generated 135399..135519 <- Hash
+generated 135519..137917 <- Encode
+generated 137917..143283 <- Decode
+generated 143283..144215 <- __convenience_const
+generated 144860..146132 <- Debug
+generated 146132..147025 <- Clone
+generated 147025..148108 <- PartialEq
+generated 148108..149341 <- Hash
+generated 149341..155481 <- Encode
+generated 155481..178837 <- Decode
+generated 178837..180351 <- __convenience_const
 
 ## Metadata
 

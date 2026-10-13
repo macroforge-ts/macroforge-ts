@@ -35,7 +35,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, decodeChecked as __mf_decodeChecked, decodeDate as __mf_decodeDate, decodeRecord as __mf_decodeRecord, decodeNumber as __mf_decodeNumber } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue, decodeChecked as __mf_decodeChecked, decodeDate as __mf_decodeDate, decodeRecord as __mf_decodeRecord, decodeNumber as __mf_decodeNumber } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions, Encoder as __mf_Encoder, Decoder as __mf_Decoder } from "@macroforge/core/endec";
 
 interface Circle {
@@ -81,7 +81,7 @@ function circleEncodeFields(value: Circle, _ctx: __mf_EncodeContext, result: Rec
 export function circleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Circle } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = circleDecodeWithContext(data, ctx);
@@ -166,7 +166,7 @@ export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
     if ((__fields === undefined || __fields.requires("radius")) ? "radius" in obj : (__fields.keeps("radius") && obj["radius"] !== undefined)) {
         const __raw_radius = obj["radius"] as number;
 
-        if (!(typeof __raw_radius === "number")) {
+        if (!(typeof __raw_radius === "number" && globalThis.Number.isFinite(__raw_radius))) {
             errors.push({ field: "radius", message: __raw_radius == null ? "Circle.radius is required" : "expected number" });
         } else {
             instance.radius = __raw_radius;
@@ -449,7 +449,7 @@ export function slotEncodeWithContext<T>(value: Slot<T>, ctx: __mf_EncodeContext
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function slotDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Slot<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = slotDecodeWithContext<T>(data, ctx, __decodeT);
@@ -597,433 +597,6 @@ interface Canvas {
     counts: { [key: string]: number } | null;
 }
 
-/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export function canvasEncode(value: Canvas, keepMetadata?: boolean): string {
-    const ctx = __mf_EncodeContext.create();
-    const __raw = canvasEncodeWithContext(value, ctx);
-    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
-}
-
-/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export function canvasEncodeWithContext(value: Canvas, ctx: __mf_EncodeContext): Record<string, unknown> {
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return __mf_encodedReference(ctx, existingId);
-    }
-    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "Canvas" });
-    canvasEncodeFields(value, ctx, result, undefined);
-    return result;
-}
-
-/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export function canvasEncodePartialWithContext(value: Partial<Canvas>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Canvas>): Record<string, unknown> {
-    return __mf_encodeSelection(ctx, value, () => {
-        const result: Record<string, unknown> = { "__type": "Canvas" };
-        canvasEncodeFields(value as Canvas, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
-        return result;
-    });
-}
-
-function canvasEncodeFields(value: Canvas, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
-    if (__fields === undefined || __fields.keeps("when")) {
-        if (value.when !== undefined) {
-            result["when"] = value.when;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("tags")) {
-        if (value.tags !== undefined) {
-            result["tags"] = value.tags;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("size")) {
-        if (value.size !== undefined) {
-            result["size"] = value.size;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("shape")) {
-        if (value.shape !== undefined) {
-            result["shape"] = shapeEncodeWithContext(value.shape, ctx);
-        }
-    }
-    if (__fields === undefined || __fields.keeps("slot")) {
-        if (value.slot !== undefined) {
-            result["slot"] = slotEncodeWithContext<Date>(value.slot, ctx, (__arg0) => __arg0.toISOString());
-        }
-    }
-    if (__fields === undefined || __fields.keeps("link")) {
-        if (value.link !== undefined) {
-            result["link"] = (typeof value.link === "string" ? value.link : circleEncodeWithContext(value.link, ctx));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("callback")) {
-        if (value.callback !== undefined) {
-            result["callback"] = value.callback;
-        }
-    }
-    if (__fields === undefined || __fields.keeps("byDay")) {
-        if (value.byDay !== undefined) {
-            result["byDay"] = Object.fromEntries(Object.entries(value.byDay).map(([__key0, __item0]) => [__key0, __item0.toISOString()]));
-        }
-    }
-    if (__fields === undefined || __fields.keeps("counts")) {
-        if (value.counts !== undefined) {
-            result["counts"] = value.counts;
-        }
-    }
-}
-
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-export function canvasDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Canvas } | { success: false; errors: Array<{ field: string; message: string }> } {
-    try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
-        const ctx = __mf_DecodeContext.create();
-        const resultOrRef = canvasDecodeWithContext(data, ctx);
-
-        if (__mf_PendingRef.is(resultOrRef)) {
-            return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message: "Canvas.decode: root cannot be a forward reference"
-	}]
-});
-        }
-
-        ctx.applyPatches();
-        if (opts?.freeze) {
-            ctx.freezeAll();
-        }
-
-        const __errors = ctx.getErrors();
-        if (__errors.length > 0) {
-            return ({
-	success: false,
-	errors: __errors
-});
-        }
-
-        return ({
-	success: true,
-	value: resultOrRef
-});
-    } catch (e) {
-        if (e instanceof __mf_DecodeError) {
-            return ({
-	success: false,
-	errors: e.errors
-});
-        }
-        const message = e instanceof Error ? e.message : String(e);
-        return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message
-	}]
-});
-    }
-}
-/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function canvasDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Canvas | __mf_PendingRef;
-/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
-export function canvasDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Canvas> | __mf_PendingRef;
-export function canvasDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Canvas> | __mf_PendingRef {
-    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
-        throw new __mf_DecodeError([{ field: "_root", message: "Canvas.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
-    }
-    if (typeof value === "object" && value !== null && "__ref" in value) {
-        if (typeof value.__ref !== "number") {
-            throw new __mf_DecodeError([{ field: "__ref", message: "Canvas.decodeWithContext: __ref must be a number" }]);
-        }
-        return ctx.getOrDefer(value.__ref, "Canvas") as Canvas | __mf_PendingRef;
-    }
-
-    if (typeof value !== "object" || value === null || Array.isArray(value)) {
-        throw new __mf_DecodeError([{ field: "_root", message: "Canvas.decodeWithContext: expected an object" }]);
-    }
-
-    const obj = __mf_ownMembers(value);
-    const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("when")) && !("when" in obj)) {
-        errors.push({ field: "when", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("tags")) && !("tags" in obj)) {
-        errors.push({ field: "tags", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("size")) && !("size" in obj)) {
-        errors.push({ field: "size", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("shape")) && !("shape" in obj)) {
-        errors.push({ field: "shape", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("slot")) && !("slot" in obj)) {
-        errors.push({ field: "slot", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("link")) && !("link" in obj)) {
-        errors.push({ field: "link", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("callback")) && !("callback" in obj)) {
-        errors.push({ field: "callback", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("byDay")) && !("byDay" in obj)) {
-        errors.push({ field: "byDay", message: "missing required field" });
-    }
-    if ((__fields === undefined || __fields.requires("counts")) && !("counts" in obj)) {
-        errors.push({ field: "counts", message: "missing required field" });
-    }
-
-    const instance: any = {};
-
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Canvas");
-    }
-
-    ctx.trackForFreeze(instance);
-
-    if ((__fields === undefined || __fields.requires("when")) ? "when" in obj : (__fields.keeps("when") && obj["when"] !== undefined)) {
-        const __raw_when = obj["when"] as Date | string;
-        ctx.pushScope("when");
-        try {
-            const __result = (__mf_decodeChecked(__raw_when, (__raw_when instanceof Date) || (typeof __raw_when === "string"), "Date | string") as Date | string);
-            ctx.assignOrDefer(instance, "when", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "when" : "when." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "when", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("tags")) ? "tags" in obj : (__fields.keeps("tags") && obj["tags"] !== undefined)) {
-        const __raw_tags = obj["tags"] as string | string[];
-        ctx.pushScope("tags");
-        try {
-            const __result = (__mf_decodeChecked(__raw_tags, (typeof __raw_tags === "string") || (Array.isArray(__raw_tags) && __raw_tags.every((__member0: unknown) => typeof __member0 === "string")), "string | string[]") as string | string[]);
-            ctx.assignOrDefer(instance, "tags", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "tags" : "tags." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "tags", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("size")) ? "size" in obj : (__fields.keeps("size") && obj["size"] !== undefined)) {
-        const __raw_size = obj["size"] as number | 'auto';
-
-        if (!(typeof __raw_size === "number" || __raw_size === "auto")) {
-            errors.push({ field: "size", message: __raw_size == null ? "Canvas.size is required" : "expected number | 'auto'" });
-        } else {
-            instance.size = __raw_size;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("shape")) ? "shape" in obj : (__fields.keeps("shape") && obj["shape"] !== undefined)) {
-        const __raw_shape = obj["shape"] as Shape;
-
-        ctx.pushScope("shape");
-        try {
-            const __result = shapeDecodeWithContext(__raw_shape, ctx);
-            ctx.assignOrDefer(instance, "shape", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "shape" : "shape." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "shape", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("slot")) ? "slot" in obj : (__fields.keeps("slot") && obj["slot"] !== undefined)) {
-        const __raw_slot = obj["slot"] as Slot<Date>;
-
-        ctx.pushScope("slot");
-        try {
-            const __result = slotDecodeWithContext<Date>(__raw_slot, ctx, __mf_decodeDate);
-            ctx.assignOrDefer(instance, "slot", __result);
-        } catch (__e) {
-            if (__e instanceof __mf_DecodeError) {
-                for (const __err of __e.errors) {
-                    errors.push({
-                        field: __err.field === "_root" ? "slot" : "slot." + __err.field,
-                        message: __err.message
-                    });
-                }
-            } else {
-
-                errors.push({ field: "slot", message: __e instanceof Error ? __e.message : String(__e) });
-            }
-        } finally {
-            ctx.popScope();
-        }
-    }
-    if ((__fields === undefined || __fields.requires("link")) ? "link" in obj : (__fields.keeps("link") && obj["link"] !== undefined)) {
-        const __raw_link = obj["link"] as string | Circle;
-
-        if (typeof __raw_link === "string") {
-            instance.link = __raw_link;
-        } else {
-            ctx.pushScope("link");
-            try {
-                const __result = circleDecodeWithContext(__raw_link, ctx);
-                ctx.assignOrDefer(instance, "link", __result);
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "link" : "link." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                } else {
-
-                    errors.push({ field: "link", message: __e instanceof Error ? __e.message : String(__e) });
-                }
-            } finally {
-                ctx.popScope();
-            }
-        }
-    }
-    if ((__fields === undefined || __fields.requires("callback")) ? "callback" in obj : (__fields.keeps("callback") && obj["callback"] !== undefined)) {
-        const __raw_callback = obj["callback"] as () => Circle | null;
-
-        if (__raw_callback === null) {
-            instance.callback = null;
-        } else {
-            instance.callback = __raw_callback;
-        }
-    }
-    if ((__fields === undefined || __fields.requires("byDay")) ? "byDay" in obj : (__fields.keeps("byDay") && obj["byDay"] !== undefined)) {
-        const __raw_byDay = obj["byDay"] as { [key: string]: Date };
-        if (typeof __raw_byDay === "object" && __raw_byDay !== null) {
-            ctx.pushScope("byDay");
-            try {
-                instance.byDay = ((__mf_decodeRecord(__raw_byDay, ctx, __mf_decodeDate) as Record<string, Date>) as { [key: string]: Date });
-            } catch (__e) {
-                if (__e instanceof __mf_DecodeError) {
-                    for (const __err of __e.errors) {
-                        errors.push({
-                            field: __err.field === "_root" ? "byDay" : "byDay." + __err.field,
-                            message: __err.message
-                        });
-                    }
-                } else {
-                    throw __e;
-                }
-            } finally {
-                ctx.popScope();
-            }
-        } else {
-            errors.push({ field: "byDay", message: __raw_byDay == null ? "Canvas.byDay is required" : "expected { [key: string]: Date }" });
-        }
-    }
-    if ((__fields === undefined || __fields.requires("counts")) ? "counts" in obj : (__fields.keeps("counts") && obj["counts"] !== undefined)) {
-        const __raw_counts = obj["counts"] as { [key: string]: number } | null;
-
-        if (__raw_counts === null) {
-            instance.counts = null;
-        } else {
-            if (typeof __raw_counts === "object" && __raw_counts !== null) {
-                ctx.pushScope("counts");
-                try {
-                    instance.counts = ((__mf_decodeRecord(__raw_counts, ctx, __mf_decodeNumber) as Record<string, number>) as { [key: string]: number });
-                } catch (__e) {
-                    if (__e instanceof __mf_DecodeError) {
-                        for (const __err of __e.errors) {
-                            errors.push({
-                                field: __err.field === "_root" ? "counts" : "counts." + __err.field,
-                                message: __err.message
-                            });
-                        }
-                    } else {
-                        throw __e;
-                    }
-                } finally {
-                    ctx.popScope();
-                }
-            } else {
-                errors.push({ field: "counts", message: __raw_counts == null ? "Canvas.counts is required" : "expected { [key: string]: number }" });
-            }
-        }
-    }
-
-    ctx.pushErrors(errors);
-
-    return instance as Canvas;
-}
-
-/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
-export function canvasDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Canvas>): Partial<Canvas> | __mf_PendingRef {
-    return canvasDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
-}
-export function canvasValidateField<K extends keyof Canvas>(field: K, value: unknown): Array<{ field: string; message: string }>;
-export function canvasValidateField(): Array<{ field: string; message: string }> {
-    return [];
-}
-
-export function canvasValidateFields(partial: { readonly [K in keyof Canvas]?: unknown }): Array<{ field: string; message: string }>;
-export function canvasValidateFields(): Array<{ field: string; message: string }> {
-    return [];
-}
-export function canvasHasShape(obj: unknown): boolean {
-    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-        return false;
-    }
-    return __mf_holds(obj, "when") && __mf_holds(obj, "tags") && __mf_holds(obj, "size") && __mf_holds(obj, "shape") && __mf_holds(obj, "slot") && __mf_holds(obj, "link") && __mf_holds(obj, "callback") && __mf_holds(obj, "byDay") && __mf_holds(obj, "counts");
-}
-
-export function canvasIs(obj: unknown): obj is Canvas {
-    return canvasHasShape(obj) && canvasDecode(obj).success;
-}
-
-const Canvas: {
-  readonly encode: typeof canvasEncode;
-  readonly encodeWithContext: typeof canvasEncodeWithContext;
-  readonly encodePartialWithContext: typeof canvasEncodePartialWithContext;
-  readonly decode: typeof canvasDecode;
-  readonly decodeWithContext: typeof canvasDecodeWithContext;
-  readonly decodePartialWithContext: typeof canvasDecodePartialWithContext;
-  readonly validateField: typeof canvasValidateField;
-  readonly validateFields: typeof canvasValidateFields;
-  readonly hasShape: typeof canvasHasShape;
-  readonly is: typeof canvasIs;
-} = {
-  encode: canvasEncode,
-  encodeWithContext: canvasEncodeWithContext,
-  encodePartialWithContext: canvasEncodePartialWithContext,
-  decode: canvasDecode,
-  decodeWithContext: canvasDecodeWithContext,
-  decodePartialWithContext: canvasDecodePartialWithContext,
-  validateField: canvasValidateField,
-  validateFields: canvasValidateFields,
-  hasShape: canvasHasShape,
-  is: canvasIs
-};
-
 ## DTS
 
 interface Circle {
@@ -1102,83 +675,32 @@ export declare function slotDecode<T>(input: unknown, opts?: __mf_DecodeOptions,
 export declare function slotDecodeWithContext<T>(value: unknown, ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Slot<T> | __mf_PendingRef;
 export declare function slotHasShape(value: unknown): boolean;
 export declare function slotIs<T>(value: unknown): value is Slot<T>;
-interface Canvas {
-	when: Date | string;
-	tags: string | string[];
-	size: number | "auto";
-	shape: Shape;
-	slot: Slot<Date>;
-	link: string | Circle;
-	callback: () => Circle | null;
-	byDay: {
-		[key: string]: Date;
-	};
-	counts: {
-		[key: string]: number;
-	} | null;
-}
-/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-export declare function canvasEncode(value: Canvas, keepMetadata?: boolean): string;
-/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
-export declare function canvasEncodeWithContext(value: Canvas, ctx: __mf_EncodeContext): Record<string, unknown>;
-/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
-export declare function canvasEncodePartialWithContext(value: Partial<Canvas>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof Canvas>): Record<string, unknown>;
-/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
-export declare function canvasDecode(input: unknown, opts?: __mf_DecodeOptions): {
-	success: true;
-	value: Canvas;
-} | {
-	success: false;
-	errors: Array<{
-		field: string;
-		message: string;
-	}>;
-};
-/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export declare function canvasDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Canvas | __mf_PendingRef;
-/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
-export declare function canvasDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Canvas> | __mf_PendingRef;
-/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
-export declare function canvasDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Canvas>): Partial<Canvas> | __mf_PendingRef;
-export declare function canvasValidateField<K extends keyof Canvas>(field: K, value: unknown): Array<{
-	field: string;
-	message: string;
-}>;
-export declare function canvasValidateFields(partial: { readonly [K in keyof Canvas]?: unknown }): Array<{
-	field: string;
-	message: string;
-}>;
-export declare function canvasHasShape(obj: unknown): boolean;
-export declare function canvasIs(obj: unknown): obj is Canvas;
 export {};
 
 ## Diagnostics
 
-(none)
+Error [397..427]: @derive(Encode): `() => Circle` is a function, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [397..427]: @derive(Decode): `() => Circle | null` is a function, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
 
 ## Mapping
 
-original 30..71 -> expanded 908..949
-original 71..73 -> expanded 9240..9242
-original 103..133 -> expanded 9242..9272
-original 133..135 -> expanded 15654..15656
-original 165..192 -> expanded 15656..15683
-original 192..194 -> expanded 22310..22312
-original 224..510 -> expanded 22312..22598
-original 510..511 -> expanded 42005..42006
-generated 0..908 <- imports
-generated 949..3056 <- Encode
-generated 3056..8291 <- Decode
-generated 8291..9240 <- __convenience_const
-generated 9272..11008 <- Encode
-generated 11008..15178 <- Decode
-generated 15178..15654 <- __convenience_const
-generated 15683..17665 <- Encode
-generated 17665..21847 <- Decode
-generated 21847..22310 <- __convenience_const
-generated 22598..26255 <- Encode
-generated 26255..41056 <- Decode
-generated 41056..42005 <- __convenience_const
+original 30..71 -> expanded 939..980
+original 71..73 -> expanded 9320..9322
+original 103..133 -> expanded 9322..9352
+original 133..135 -> expanded 15734..15736
+original 165..192 -> expanded 15736..15763
+original 192..194 -> expanded 22395..22397
+original 224..511 -> expanded 22397..22684
+generated 0..939 <- imports
+generated 980..3087 <- Encode
+generated 3087..8371 <- Decode
+generated 8371..9320 <- __convenience_const
+generated 9352..11088 <- Encode
+generated 11088..15258 <- Decode
+generated 15258..15734 <- __convenience_const
+generated 15763..17745 <- Encode
+generated 17745..21932 <- Decode
+generated 21932..22395 <- __convenience_const
 
 ## Metadata
 

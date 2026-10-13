@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -83,7 +83,7 @@ function paidEncodeFields(value: Paid, _ctx: __mf_EncodeContext, result: Record<
 export function paidDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Paid } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = paidDecodeWithContext(data, ctx);
@@ -174,7 +174,7 @@ export function paidDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
     if ((__fields === undefined || __fields.requires("amount")) ? "amount" in obj : (__fields.keeps("amount") && obj["amount"] !== undefined)) {
         const __raw_amount = obj["amount"] as number | null;
 
-        if (!(typeof __raw_amount === "number" || __raw_amount === null)) {
+        if (!(typeof __raw_amount === "number" && globalThis.Number.isFinite(__raw_amount) || __raw_amount === null)) {
             errors.push({ field: "amount", message: "expected number | null" });
         } else {
             instance.amount = __raw_amount;
@@ -518,15 +518,15 @@ export declare const Paid: {
 
 ## Mapping
 
-original 0..58 -> expanded 807..865
-original 107..223 -> expanded 865..981
-original 223..224 -> expanded 17065..17066
-generated 0..807 <- imports
-generated 981..1122 <- Default
-generated 1122..3565 <- Encode
-generated 3565..10141 <- Decode
-generated 10141..15907 <- Gigaform
-generated 15907..17065 <- __convenience_const
+original 0..58 -> expanded 838..896
+original 107..223 -> expanded 896..1012
+original 223..224 -> expanded 17145..17146
+generated 0..838 <- imports
+generated 1012..1153 <- Default
+generated 1153..3596 <- Encode
+generated 3596..10221 <- Decode
+generated 10221..15987 <- Gigaform
+generated 15987..17145 <- __convenience_const
 
 ## Metadata
 

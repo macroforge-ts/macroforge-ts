@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface PersonName {
@@ -73,7 +73,7 @@ function personNameEncodeFields(value: PersonName, _ctx: __mf_EncodeContext, res
 export function personNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PersonName } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = personNameDecodeWithContext(data, ctx);
@@ -322,15 +322,15 @@ export declare const PersonName: {
 
 ## Mapping
 
-original 39..74 -> expanded 648..683
-original 115..143 -> expanded 683..711
-original 184..208 -> expanded 711..735
-original 208..209 -> expanded 12422..12423
-generated 0..648 <- imports
-generated 735..858 <- Default
-generated 858..3210 <- Encode
-generated 3210..11286 <- Decode
-generated 11286..12422 <- __convenience_const
+original 39..74 -> expanded 679..714
+original 115..143 -> expanded 714..742
+original 184..208 -> expanded 742..766
+original 208..209 -> expanded 12458..12459
+generated 0..679 <- imports
+generated 766..889 <- Default
+generated 889..3241 <- Encode
+generated 3241..11322 <- Decode
+generated 11322..12458 <- __convenience_const
 
 ## Metadata
 

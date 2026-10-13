@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, isMultipleOf as __mf_isMultipleOf, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, isMultipleOf as __mf_isMultipleOf, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * One class per validator in the endec validators documentation, each holding
@@ -34,7 +34,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocEmail } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocEmail.decodeWithContext(data, ctx);
@@ -214,7 +214,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocUrl } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocUrl.decodeWithContext(data, ctx);
@@ -394,7 +394,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocUuid } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocUuid.decodeWithContext(data, ctx);
@@ -574,7 +574,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocPattern } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocPattern.decodeWithContext(data, ctx);
@@ -754,7 +754,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocPatternWithSlash } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocPatternWithSlash.decodeWithContext(data, ctx);
@@ -934,7 +934,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocMinLength } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocMinLength.decodeWithContext(data, ctx);
@@ -1114,7 +1114,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocMaxLength } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocMaxLength.decodeWithContext(data, ctx);
@@ -1294,7 +1294,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocLength } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocLength.decodeWithContext(data, ctx);
@@ -1474,7 +1474,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocLengthRange } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocLengthRange.decodeWithContext(data, ctx);
@@ -1654,7 +1654,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocNonEmpty } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocNonEmpty.decodeWithContext(data, ctx);
@@ -1834,7 +1834,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocTrimmed } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocTrimmed.decodeWithContext(data, ctx);
@@ -2014,7 +2014,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocLowercase } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocLowercase.decodeWithContext(data, ctx);
@@ -2194,7 +2194,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocUppercase } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocUppercase.decodeWithContext(data, ctx);
@@ -2374,7 +2374,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocCapitalized } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocCapitalized.decodeWithContext(data, ctx);
@@ -2554,7 +2554,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocUncapitalized } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocUncapitalized.decodeWithContext(data, ctx);
@@ -2734,7 +2734,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocStartsWith } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocStartsWith.decodeWithContext(data, ctx);
@@ -2914,7 +2914,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocStartsWithQuote } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocStartsWithQuote.decodeWithContext(data, ctx);
@@ -3094,7 +3094,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocEndsWith } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocEndsWith.decodeWithContext(data, ctx);
@@ -3274,7 +3274,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocIncludes } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocIncludes.decodeWithContext(data, ctx);
@@ -3454,7 +3454,7 @@ constructor(props: { value: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocGreaterThan } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocGreaterThan.decodeWithContext(data, ctx);
@@ -3540,7 +3540,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_value === "number")) {
+        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
             errors.push({ field: "value", message: __raw_value == null ? "DocGreaterThan.value is required" : "expected number" });
         } else {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocGreaterThan.value is required" }); } else {
@@ -3634,7 +3634,7 @@ constructor(props: { value: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocGreaterThanOrEqualTo } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocGreaterThanOrEqualTo.decodeWithContext(data, ctx);
@@ -3720,7 +3720,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_value === "number")) {
+        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
             errors.push({ field: "value", message: __raw_value == null ? "DocGreaterThanOrEqualTo.value is required" : "expected number" });
         } else {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocGreaterThanOrEqualTo.value is required" }); } else {
@@ -3814,7 +3814,7 @@ constructor(props: { value: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocLessThan } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocLessThan.decodeWithContext(data, ctx);
@@ -3900,7 +3900,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_value === "number")) {
+        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
             errors.push({ field: "value", message: __raw_value == null ? "DocLessThan.value is required" : "expected number" });
         } else {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocLessThan.value is required" }); } else {
@@ -3994,7 +3994,7 @@ constructor(props: { value: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocLessThanOrEqualTo } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocLessThanOrEqualTo.decodeWithContext(data, ctx);
@@ -4080,7 +4080,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_value === "number")) {
+        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
             errors.push({ field: "value", message: __raw_value == null ? "DocLessThanOrEqualTo.value is required" : "expected number" });
         } else {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocLessThanOrEqualTo.value is required" }); } else {
@@ -4174,7 +4174,7 @@ constructor(props: { value: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocBetween } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocBetween.decodeWithContext(data, ctx);
@@ -4260,7 +4260,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_value === "number")) {
+        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
             errors.push({ field: "value", message: __raw_value == null ? "DocBetween.value is required" : "expected number" });
         } else {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocBetween.value is required" }); } else {
@@ -4354,7 +4354,7 @@ constructor(props: { value: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocInt } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocInt.decodeWithContext(data, ctx);
@@ -4440,7 +4440,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_value === "number")) {
+        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
             errors.push({ field: "value", message: __raw_value == null ? "DocInt.value is required" : "expected number" });
         } else {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocInt.value is required" }); } else {
@@ -4534,7 +4534,7 @@ constructor(props: { value: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocNonNegativeInt } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocNonNegativeInt.decodeWithContext(data, ctx);
@@ -4620,7 +4620,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_value === "number")) {
+        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
             errors.push({ field: "value", message: __raw_value == null ? "DocNonNegativeInt.value is required" : "expected number" });
         } else {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocNonNegativeInt.value is required" }); } else {
@@ -4714,7 +4714,7 @@ constructor(props: { value: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocUint8 } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocUint8.decodeWithContext(data, ctx);
@@ -4800,7 +4800,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_value === "number")) {
+        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
             errors.push({ field: "value", message: __raw_value == null ? "DocUint8.value is required" : "expected number" });
         } else {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocUint8.value is required" }); } else {
@@ -4894,7 +4894,7 @@ constructor(props: { value: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocMultipleOfDecimal } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocMultipleOfDecimal.decodeWithContext(data, ctx);
@@ -4980,7 +4980,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_value === "number")) {
+        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
             errors.push({ field: "value", message: __raw_value == null ? "DocMultipleOfDecimal.value is required" : "expected number" });
         } else {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocMultipleOfDecimal.value is required" }); } else {
@@ -5074,7 +5074,7 @@ constructor(props: { value: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocMultipleOfInteger } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocMultipleOfInteger.decodeWithContext(data, ctx);
@@ -5160,7 +5160,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_value === "number")) {
+        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
             errors.push({ field: "value", message: __raw_value == null ? "DocMultipleOfInteger.value is required" : "expected number" });
         } else {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocMultipleOfInteger.value is required" }); } else {
@@ -5254,7 +5254,7 @@ constructor(props: { value: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocPositive } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocPositive.decodeWithContext(data, ctx);
@@ -5340,7 +5340,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_value === "number")) {
+        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
             errors.push({ field: "value", message: __raw_value == null ? "DocPositive.value is required" : "expected number" });
         } else {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocPositive.value is required" }); } else {
@@ -5434,7 +5434,7 @@ constructor(props: { value: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocNonNegative } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocNonNegative.decodeWithContext(data, ctx);
@@ -5520,7 +5520,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_value === "number")) {
+        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
             errors.push({ field: "value", message: __raw_value == null ? "DocNonNegative.value is required" : "expected number" });
         } else {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocNonNegative.value is required" }); } else {
@@ -5614,7 +5614,7 @@ constructor(props: { value: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocNegative } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocNegative.decodeWithContext(data, ctx);
@@ -5700,7 +5700,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_value === "number")) {
+        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
             errors.push({ field: "value", message: __raw_value == null ? "DocNegative.value is required" : "expected number" });
         } else {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocNegative.value is required" }); } else {
@@ -5794,7 +5794,7 @@ constructor(props: { value: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocNonPositive } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocNonPositive.decodeWithContext(data, ctx);
@@ -5880,7 +5880,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_value === "number")) {
+        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
             errors.push({ field: "value", message: __raw_value == null ? "DocNonPositive.value is required" : "expected number" });
         } else {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocNonPositive.value is required" }); } else {
@@ -5974,7 +5974,7 @@ constructor(props: { value: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocFinite } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocFinite.decodeWithContext(data, ctx);
@@ -6060,7 +6060,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_value === "number")) {
+        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
             errors.push({ field: "value", message: __raw_value == null ? "DocFinite.value is required" : "expected number" });
         } else {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocFinite.value is required" }); } else {
@@ -6154,7 +6154,7 @@ constructor(props: { value: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocNonNaN } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocNonNaN.decodeWithContext(data, ctx);
@@ -6240,7 +6240,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_value === "number")) {
+        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
             errors.push({ field: "value", message: __raw_value == null ? "DocNonNaN.value is required" : "expected number" });
         } else {
             if (__raw_value == null) { errors.push({ field: "value", message: "DocNonNaN.value is required" }); } else {
@@ -6334,7 +6334,7 @@ constructor(props: { value: bigint }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocPositiveBigInt } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocPositiveBigInt.decodeWithContext(data, ctx);
@@ -6519,7 +6519,7 @@ constructor(props: { value: bigint }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocNonNegativeBigInt } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocNonNegativeBigInt.decodeWithContext(data, ctx);
@@ -6704,7 +6704,7 @@ constructor(props: { value: bigint }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocNegativeBigInt } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocNegativeBigInt.decodeWithContext(data, ctx);
@@ -6889,7 +6889,7 @@ constructor(props: { value: bigint }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocNonPositiveBigInt } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocNonPositiveBigInt.decodeWithContext(data, ctx);
@@ -7074,7 +7074,7 @@ constructor(props: { value: bigint }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocGreaterThanBigInt } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocGreaterThanBigInt.decodeWithContext(data, ctx);
@@ -7259,7 +7259,7 @@ constructor(props: { value: bigint }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocGreaterThanOrEqualToBigInt } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocGreaterThanOrEqualToBigInt.decodeWithContext(data, ctx);
@@ -7444,7 +7444,7 @@ constructor(props: { value: bigint }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocLessThanBigInt } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocLessThanBigInt.decodeWithContext(data, ctx);
@@ -7629,7 +7629,7 @@ constructor(props: { value: bigint }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocLessThanOrEqualToBigInt } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocLessThanOrEqualToBigInt.decodeWithContext(data, ctx);
@@ -7814,7 +7814,7 @@ constructor(props: { value: bigint }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocBetweenBigInt } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocBetweenBigInt.decodeWithContext(data, ctx);
@@ -7999,7 +7999,7 @@ constructor(props: { value: Date }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocValidDate } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocValidDate.decodeWithContext(data, ctx);
@@ -8181,7 +8181,7 @@ constructor(props: { value: Date }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocGreaterThanDate } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocGreaterThanDate.decodeWithContext(data, ctx);
@@ -8363,7 +8363,7 @@ constructor(props: { value: Date }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocGreaterThanOrEqualToDate } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocGreaterThanOrEqualToDate.decodeWithContext(data, ctx);
@@ -8545,7 +8545,7 @@ constructor(props: { value: Date }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocLessThanDate } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocLessThanDate.decodeWithContext(data, ctx);
@@ -8727,7 +8727,7 @@ constructor(props: { value: Date }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocLessThanOrEqualToDate } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocLessThanOrEqualToDate.decodeWithContext(data, ctx);
@@ -8909,7 +8909,7 @@ constructor(props: { value: Date }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocBetweenDate } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocBetweenDate.decodeWithContext(data, ctx);
@@ -9091,7 +9091,7 @@ constructor(props: { value: number[] }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocMinItems } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocMinItems.decodeWithContext(data, ctx);
@@ -9286,7 +9286,7 @@ constructor(props: { value: number[] }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocMaxItems } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocMaxItems.decodeWithContext(data, ctx);
@@ -9481,7 +9481,7 @@ constructor(props: { value: number[] }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocItemsCount } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocItemsCount.decodeWithContext(data, ctx);
@@ -9676,7 +9676,7 @@ constructor(props: { value: string | null }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocNullableMaxLength } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocNullableMaxLength.decodeWithContext(data, ctx);
@@ -9855,7 +9855,7 @@ constructor(props: { value: Date | null }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocNullableDate } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocNullableDate.decodeWithContext(data, ctx);
@@ -10039,7 +10039,7 @@ constructor(props: { value: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DocMessageEscaping } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = DocMessageEscaping.decodeWithContext(data, ctx);
@@ -13131,232 +13131,232 @@ export declare function docMessageEscapingIs(value: unknown): value is DocMessag
 
 ## Mapping
 
-original 0..320 -> expanded 505..825
-original 320..321 -> expanded 6709..6710
-original 321..428 -> expanded 8492..8599
-original 428..429 -> expanded 14362..14363
-original 429..538 -> expanded 16115..16224
-original 538..539 -> expanded 22190..22191
-original 539..668 -> expanded 23958..24087
-original 668..669 -> expanded 29999..30000
-original 669..802 -> expanded 31812..31945
-original 802..803 -> expanded 38064..38065
-original 803..925 -> expanded 40012..40134
-original 925..926 -> expanded 46077..46078
-original 926..1048 -> expanded 47920..48042
-original 1048..1049 -> expanded 53982..53983
-original 1049..1165 -> expanded 55825..55941
-original 1165..1166 -> expanded 61809..61810
-original 1166..1290 -> expanded 63607..63731
-original 1290..1291 -> expanded 69807..69808
-original 1291..1408 -> expanded 71680..71797
-original 1408..1409 -> expanded 77678..77679
-original 1409..1524 -> expanded 79506..79621
-original 1524..1525 -> expanded 85488..85489
-original 1525..1644 -> expanded 87301..87420
-original 1644..1645 -> expanded 93366..93367
-original 1645..1764 -> expanded 95209..95328
-original 1764..1765 -> expanded 101274..101275
-original 1765..1888 -> expanded 103117..103240
-original 1888..1889 -> expanded 109328..109329
-original 1889..2016 -> expanded 111201..111328
-original 2016..2017 -> expanded 117474..117475
-original 2017..2145 -> expanded 119377..119505
-original 2145..2146 -> expanded 125468..125469
-original 2146..2281 -> expanded 127326..127461
-original 2281..2282 -> expanded 133560..133561
-original 2282..2406 -> expanded 135493..135617
-original 2406..2407 -> expanded 141516..141517
-original 2407..2531 -> expanded 143344..143468
-original 2531..2532 -> expanded 149364..149365
-original 2532..2658 -> expanded 151192..151318
-original 2658..2659 -> expanded 157268..157269
-original 2659..2803 -> expanded 159141..159285
-original 2803..2804 -> expanded 165502..165503
-original 2804..2924 -> expanded 167510..167630
-original 2924..2925 -> expanded 173493..173494
-original 2925..3063 -> expanded 175321..175459
-original 3063..3064 -> expanded 181589..181590
-original 3064..3186 -> expanded 183552..183674
-original 3186..3187 -> expanded 189571..189572
-original 3187..3294 -> expanded 191384..191491
-original 3294..3295 -> expanded 197263..197264
-original 3295..3424 -> expanded 199016..199145
-original 3424..3425 -> expanded 205284..205285
-original 3425..3536 -> expanded 207202..207313
-original 3536..3537 -> expanded 213224..213225
-original 3537..3670 -> expanded 215007..215140
-original 3670..3671 -> expanded 221315..221316
-original 3671..3802 -> expanded 223278..223409
-original 3802..3803 -> expanded 229572..229573
-original 3803..3920 -> expanded 231535..231652
-original 3920..3921 -> expanded 237506..237507
-original 3921..4044 -> expanded 239334..239457
-original 4044..4045 -> expanded 245398..245399
-original 4045..4162 -> expanded 247271..247388
-original 4162..4163 -> expanded 253242..253243
-original 4163..4286 -> expanded 255070..255193
-original 4286..4287 -> expanded 261134..261135
-original 4287..4400 -> expanded 263007..263120
-original 4400..4401 -> expanded 268955..268956
-original 4401..4514 -> expanded 270753..270866
-original 4514..4515 -> expanded 276692..276693
-original 4515..4644 -> expanded 278490..278619
-original 4644..4645 -> expanded 284928..284929
-original 4645..4780 -> expanded 286846..286981
-original 4780..4781 -> expanded 293374..293375
-original 4781..4910 -> expanded 295337..295466
-original 4910..4911 -> expanded 301775..301776
-original 4911..5046 -> expanded 303693..303828
-original 5046..5047 -> expanded 310221..310222
-original 5047..5185 -> expanded 312184..312322
-original 5185..5186 -> expanded 318724..318725
-original 5186..5342 -> expanded 320687..320843
-original 5342..5343 -> expanded 327503..327504
-original 5343..5475 -> expanded 329601..329733
-original 5475..5476 -> expanded 336051..336052
-original 5476..5626 -> expanded 337969..338119
-original 5626..5627 -> expanded 344695..344696
-original 5627..5761 -> expanded 346748..346882
-original 5761..5762 -> expanded 353241..353242
-original 5762..5879 -> expanded 355144..355261
-original 5879..5880 -> expanded 361421..361422
-original 5880..6023 -> expanded 363264..363407
-original 6023..6024 -> expanded 369792..369793
-original 6024..6185 -> expanded 371725..371886
-original 6185..6186 -> expanded 378520..378521
-original 6186..6323 -> expanded 380588..380725
-original 6323..6324 -> expanded 387035..387036
-original 6324..6479 -> expanded 388923..389078
-original 6479..6480 -> expanded 395637..395638
-original 6480..6629 -> expanded 397660..397809
-original 6629..6630 -> expanded 404304..404305
-original 6630..6752 -> expanded 406177..406299
-original 6752..6753 -> expanded 412817..412818
-original 6753..6875 -> expanded 414645..414767
-original 6875..6876 -> expanded 421282..421283
-original 6876..7002 -> expanded 423110..423236
-original 7002..7003 -> expanded 429809..429810
-original 7003..7140 -> expanded 431667..431804
-original 7140..7141 -> expanded 437646..437647
-original 7141..7290 -> expanded 439609..439758
-original 7290..7291 -> expanded 445854..445855
-original 7291..7463 -> expanded 447742..447914
-original 7463..7464 -> expanded 453914..453915
-original 7464..7465 -> expanded 455847..455848
-generated 0..505 <- imports
-generated 825..6709 <- Decode
-generated 6710..8492 <- Decode
-generated 8599..14362 <- Decode
-generated 14363..16115 <- Decode
-generated 16224..22190 <- Decode
-generated 22191..23958 <- Decode
-generated 24087..29999 <- Decode
-generated 30000..31812 <- Decode
-generated 31945..38064 <- Decode
-generated 38065..40012 <- Decode
-generated 40134..46077 <- Decode
-generated 46078..47920 <- Decode
-generated 48042..53982 <- Decode
-generated 53983..55825 <- Decode
-generated 55941..61809 <- Decode
-generated 61810..63607 <- Decode
-generated 63731..69807 <- Decode
-generated 69808..71680 <- Decode
-generated 71797..77678 <- Decode
-generated 77679..79506 <- Decode
-generated 79621..85488 <- Decode
-generated 85489..87301 <- Decode
-generated 87420..93366 <- Decode
-generated 93367..95209 <- Decode
-generated 95328..101274 <- Decode
-generated 101275..103117 <- Decode
-generated 103240..109328 <- Decode
-generated 109329..111201 <- Decode
-generated 111328..117474 <- Decode
-generated 117475..119377 <- Decode
-generated 119505..125468 <- Decode
-generated 125469..127326 <- Decode
-generated 127461..133560 <- Decode
-generated 133561..135493 <- Decode
-generated 135617..141516 <- Decode
-generated 141517..143344 <- Decode
-generated 143468..149364 <- Decode
-generated 149365..151192 <- Decode
-generated 151318..157268 <- Decode
-generated 157269..159141 <- Decode
-generated 159285..165502 <- Decode
-generated 165503..167510 <- Decode
-generated 167630..173493 <- Decode
-generated 173494..175321 <- Decode
-generated 175459..181589 <- Decode
-generated 181590..183552 <- Decode
-generated 183674..189571 <- Decode
-generated 189572..191384 <- Decode
-generated 191491..197263 <- Decode
-generated 197264..199016 <- Decode
-generated 199145..205284 <- Decode
-generated 205285..207202 <- Decode
-generated 207313..213224 <- Decode
-generated 213225..215007 <- Decode
-generated 215140..221315 <- Decode
-generated 221316..223278 <- Decode
-generated 223409..229572 <- Decode
-generated 229573..231535 <- Decode
-generated 231652..237506 <- Decode
-generated 237507..239334 <- Decode
-generated 239457..245398 <- Decode
-generated 245399..247271 <- Decode
-generated 247388..253242 <- Decode
-generated 253243..255070 <- Decode
-generated 255193..261134 <- Decode
-generated 261135..263007 <- Decode
-generated 263120..268955 <- Decode
-generated 268956..270753 <- Decode
-generated 270866..276692 <- Decode
-generated 276693..278490 <- Decode
-generated 278619..284928 <- Decode
-generated 284929..286846 <- Decode
-generated 286981..293374 <- Decode
-generated 293375..295337 <- Decode
-generated 295466..301775 <- Decode
-generated 301776..303693 <- Decode
-generated 303828..310221 <- Decode
-generated 310222..312184 <- Decode
-generated 312322..318724 <- Decode
-generated 318725..320687 <- Decode
-generated 320843..327503 <- Decode
-generated 327504..329601 <- Decode
-generated 329733..336051 <- Decode
-generated 336052..337969 <- Decode
-generated 338119..344695 <- Decode
-generated 344696..346748 <- Decode
-generated 346882..353241 <- Decode
-generated 353242..355144 <- Decode
-generated 355261..361421 <- Decode
-generated 361422..363264 <- Decode
-generated 363407..369792 <- Decode
-generated 369793..371725 <- Decode
-generated 371886..378520 <- Decode
-generated 378521..380588 <- Decode
-generated 380725..387035 <- Decode
-generated 387036..388923 <- Decode
-generated 389078..395637 <- Decode
-generated 395638..397660 <- Decode
-generated 397809..404304 <- Decode
-generated 404305..406177 <- Decode
-generated 406299..412817 <- Decode
-generated 412818..414645 <- Decode
-generated 414767..421282 <- Decode
-generated 421283..423110 <- Decode
-generated 423236..429809 <- Decode
-generated 429810..431667 <- Decode
-generated 431804..437646 <- Decode
-generated 437647..439609 <- Decode
-generated 439758..445854 <- Decode
-generated 445855..447742 <- Decode
-generated 447914..453914 <- Decode
-generated 453915..455847 <- Decode
+original 0..320 -> expanded 536..856
+original 320..321 -> expanded 6745..6746
+original 321..428 -> expanded 8528..8635
+original 428..429 -> expanded 14403..14404
+original 429..538 -> expanded 16156..16265
+original 538..539 -> expanded 22236..22237
+original 539..668 -> expanded 24004..24133
+original 668..669 -> expanded 30050..30051
+original 669..802 -> expanded 31863..31996
+original 802..803 -> expanded 38120..38121
+original 803..925 -> expanded 40068..40190
+original 925..926 -> expanded 46138..46139
+original 926..1048 -> expanded 47981..48103
+original 1048..1049 -> expanded 54048..54049
+original 1049..1165 -> expanded 55891..56007
+original 1165..1166 -> expanded 61880..61881
+original 1166..1290 -> expanded 63678..63802
+original 1290..1291 -> expanded 69883..69884
+original 1291..1408 -> expanded 71756..71873
+original 1408..1409 -> expanded 77759..77760
+original 1409..1524 -> expanded 79587..79702
+original 1524..1525 -> expanded 85574..85575
+original 1525..1644 -> expanded 87387..87506
+original 1644..1645 -> expanded 93457..93458
+original 1645..1764 -> expanded 95300..95419
+original 1764..1765 -> expanded 101370..101371
+original 1765..1888 -> expanded 103213..103336
+original 1888..1889 -> expanded 109429..109430
+original 1889..2016 -> expanded 111302..111429
+original 2016..2017 -> expanded 117580..117581
+original 2017..2145 -> expanded 119483..119611
+original 2145..2146 -> expanded 125579..125580
+original 2146..2281 -> expanded 127437..127572
+original 2281..2282 -> expanded 133676..133677
+original 2282..2406 -> expanded 135609..135733
+original 2406..2407 -> expanded 141637..141638
+original 2407..2531 -> expanded 143465..143589
+original 2531..2532 -> expanded 149490..149491
+original 2532..2658 -> expanded 151318..151444
+original 2658..2659 -> expanded 157442..157443
+original 2659..2803 -> expanded 159315..159459
+original 2803..2804 -> expanded 165724..165725
+original 2804..2924 -> expanded 167732..167852
+original 2924..2925 -> expanded 173763..173764
+original 2925..3063 -> expanded 175591..175729
+original 3063..3064 -> expanded 181907..181908
+original 3064..3186 -> expanded 183870..183992
+original 3186..3187 -> expanded 189937..189938
+original 3187..3294 -> expanded 191750..191857
+original 3294..3295 -> expanded 197677..197678
+original 3295..3424 -> expanded 199430..199559
+original 3424..3425 -> expanded 205746..205747
+original 3425..3536 -> expanded 207664..207775
+original 3536..3537 -> expanded 213734..213735
+original 3537..3670 -> expanded 215517..215650
+original 3670..3671 -> expanded 221873..221874
+original 3671..3802 -> expanded 223836..223967
+original 3802..3803 -> expanded 230178..230179
+original 3803..3920 -> expanded 232141..232258
+original 3920..3921 -> expanded 238160..238161
+original 3921..4044 -> expanded 239988..240111
+original 4044..4045 -> expanded 246100..246101
+original 4045..4162 -> expanded 247973..248090
+original 4162..4163 -> expanded 253992..253993
+original 4163..4286 -> expanded 255820..255943
+original 4286..4287 -> expanded 261932..261933
+original 4287..4400 -> expanded 263805..263918
+original 4400..4401 -> expanded 269801..269802
+original 4401..4514 -> expanded 271599..271712
+original 4514..4515 -> expanded 277586..277587
+original 4515..4644 -> expanded 279384..279513
+original 4644..4645 -> expanded 285827..285828
+original 4645..4780 -> expanded 287745..287880
+original 4780..4781 -> expanded 294278..294279
+original 4781..4910 -> expanded 296241..296370
+original 4910..4911 -> expanded 302684..302685
+original 4911..5046 -> expanded 304602..304737
+original 5046..5047 -> expanded 311135..311136
+original 5047..5185 -> expanded 313098..313236
+original 5185..5186 -> expanded 319643..319644
+original 5186..5342 -> expanded 321606..321762
+original 5342..5343 -> expanded 328427..328428
+original 5343..5475 -> expanded 330525..330657
+original 5475..5476 -> expanded 336980..336981
+original 5476..5626 -> expanded 338898..339048
+original 5626..5627 -> expanded 345629..345630
+original 5627..5761 -> expanded 347682..347816
+original 5761..5762 -> expanded 354180..354181
+original 5762..5879 -> expanded 356083..356200
+original 5879..5880 -> expanded 362365..362366
+original 5880..6023 -> expanded 364208..364351
+original 6023..6024 -> expanded 370741..370742
+original 6024..6185 -> expanded 372674..372835
+original 6185..6186 -> expanded 379474..379475
+original 6186..6323 -> expanded 381542..381679
+original 6323..6324 -> expanded 387994..387995
+original 6324..6479 -> expanded 389882..390037
+original 6479..6480 -> expanded 396601..396602
+original 6480..6629 -> expanded 398624..398773
+original 6629..6630 -> expanded 405273..405274
+original 6630..6752 -> expanded 407146..407268
+original 6752..6753 -> expanded 413791..413792
+original 6753..6875 -> expanded 415619..415741
+original 6875..6876 -> expanded 422261..422262
+original 6876..7002 -> expanded 424089..424215
+original 7002..7003 -> expanded 430793..430794
+original 7003..7140 -> expanded 432651..432788
+original 7140..7141 -> expanded 438635..438636
+original 7141..7290 -> expanded 440598..440747
+original 7290..7291 -> expanded 446848..446849
+original 7291..7463 -> expanded 448736..448908
+original 7463..7464 -> expanded 454913..454914
+original 7464..7465 -> expanded 456846..456847
+generated 0..536 <- imports
+generated 856..6745 <- Decode
+generated 6746..8528 <- Decode
+generated 8635..14403 <- Decode
+generated 14404..16156 <- Decode
+generated 16265..22236 <- Decode
+generated 22237..24004 <- Decode
+generated 24133..30050 <- Decode
+generated 30051..31863 <- Decode
+generated 31996..38120 <- Decode
+generated 38121..40068 <- Decode
+generated 40190..46138 <- Decode
+generated 46139..47981 <- Decode
+generated 48103..54048 <- Decode
+generated 54049..55891 <- Decode
+generated 56007..61880 <- Decode
+generated 61881..63678 <- Decode
+generated 63802..69883 <- Decode
+generated 69884..71756 <- Decode
+generated 71873..77759 <- Decode
+generated 77760..79587 <- Decode
+generated 79702..85574 <- Decode
+generated 85575..87387 <- Decode
+generated 87506..93457 <- Decode
+generated 93458..95300 <- Decode
+generated 95419..101370 <- Decode
+generated 101371..103213 <- Decode
+generated 103336..109429 <- Decode
+generated 109430..111302 <- Decode
+generated 111429..117580 <- Decode
+generated 117581..119483 <- Decode
+generated 119611..125579 <- Decode
+generated 125580..127437 <- Decode
+generated 127572..133676 <- Decode
+generated 133677..135609 <- Decode
+generated 135733..141637 <- Decode
+generated 141638..143465 <- Decode
+generated 143589..149490 <- Decode
+generated 149491..151318 <- Decode
+generated 151444..157442 <- Decode
+generated 157443..159315 <- Decode
+generated 159459..165724 <- Decode
+generated 165725..167732 <- Decode
+generated 167852..173763 <- Decode
+generated 173764..175591 <- Decode
+generated 175729..181907 <- Decode
+generated 181908..183870 <- Decode
+generated 183992..189937 <- Decode
+generated 189938..191750 <- Decode
+generated 191857..197677 <- Decode
+generated 197678..199430 <- Decode
+generated 199559..205746 <- Decode
+generated 205747..207664 <- Decode
+generated 207775..213734 <- Decode
+generated 213735..215517 <- Decode
+generated 215650..221873 <- Decode
+generated 221874..223836 <- Decode
+generated 223967..230178 <- Decode
+generated 230179..232141 <- Decode
+generated 232258..238160 <- Decode
+generated 238161..239988 <- Decode
+generated 240111..246100 <- Decode
+generated 246101..247973 <- Decode
+generated 248090..253992 <- Decode
+generated 253993..255820 <- Decode
+generated 255943..261932 <- Decode
+generated 261933..263805 <- Decode
+generated 263918..269801 <- Decode
+generated 269802..271599 <- Decode
+generated 271712..277586 <- Decode
+generated 277587..279384 <- Decode
+generated 279513..285827 <- Decode
+generated 285828..287745 <- Decode
+generated 287880..294278 <- Decode
+generated 294279..296241 <- Decode
+generated 296370..302684 <- Decode
+generated 302685..304602 <- Decode
+generated 304737..311135 <- Decode
+generated 311136..313098 <- Decode
+generated 313236..319643 <- Decode
+generated 319644..321606 <- Decode
+generated 321762..328427 <- Decode
+generated 328428..330525 <- Decode
+generated 330657..336980 <- Decode
+generated 336981..338898 <- Decode
+generated 339048..345629 <- Decode
+generated 345630..347682 <- Decode
+generated 347816..354180 <- Decode
+generated 354181..356083 <- Decode
+generated 356200..362365 <- Decode
+generated 362366..364208 <- Decode
+generated 364351..370741 <- Decode
+generated 370742..372674 <- Decode
+generated 372835..379474 <- Decode
+generated 379475..381542 <- Decode
+generated 381679..387994 <- Decode
+generated 387995..389882 <- Decode
+generated 390037..396601 <- Decode
+generated 396602..398624 <- Decode
+generated 398773..405273 <- Decode
+generated 405274..407146 <- Decode
+generated 407268..413791 <- Decode
+generated 413792..415619 <- Decode
+generated 415741..422261 <- Decode
+generated 422262..424089 <- Decode
+generated 424215..430793 <- Decode
+generated 430794..432651 <- Decode
+generated 432788..438635 <- Decode
+generated 438636..440598 <- Decode
+generated 440747..446848 <- Decode
+generated 446849..448736 <- Decode
+generated 448908..454913 <- Decode
+generated 454914..456846 <- Decode
 
 ## Metadata
 

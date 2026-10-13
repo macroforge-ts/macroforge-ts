@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -79,7 +79,7 @@ function productDefaultsEncodeFields(value: ProductDefaults, _ctx: __mf_EncodeCo
 export function productDefaultsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ProductDefaults } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = productDefaultsDecodeWithContext(data, ctx);
@@ -167,7 +167,7 @@ export function productDefaultsDecodeWithContext(value: unknown, ctx: __mf_Decod
     if ((__fields === undefined || __fields.requires("price")) ? "price" in obj : (__fields.keeps("price") && obj["price"] !== undefined)) {
         const __raw_price = obj["price"] as number;
 
-        if (!(typeof __raw_price === "number")) {
+        if (!(typeof __raw_price === "number" && globalThis.Number.isFinite(__raw_price))) {
             errors.push({ field: "price", message: __raw_price == null ? "ProductDefaults.price is required" : "expected number" });
         } else {
             instance.price = __raw_price;
@@ -484,18 +484,18 @@ export declare const ProductDefaults: {
 
 ## Mapping
 
-original 0..58 -> expanded 807..865
-original 107..147 -> expanded 865..905
-original 211..235 -> expanded 905..929
-original 287..292 -> expanded 929..934
-original 333..360 -> expanded 934..961
-original 360..361 -> expanded 17079..17080
-generated 0..807 <- imports
-generated 961..1092 <- Default
-generated 1092..3515 <- Encode
-generated 3515..10809 <- Decode
-generated 10809..15624 <- Gigaform
-generated 15624..17079 <- __convenience_const
+original 0..58 -> expanded 838..896
+original 107..147 -> expanded 896..936
+original 211..235 -> expanded 936..960
+original 287..292 -> expanded 960..965
+original 333..360 -> expanded 965..992
+original 360..361 -> expanded 17158..17159
+generated 0..838 <- imports
+generated 992..1123 <- Default
+generated 1123..3546 <- Encode
+generated 3546..10888 <- Decode
+generated 10888..15703 <- Gigaform
+generated 15703..17158 <- __convenience_const
 
 ## Metadata
 

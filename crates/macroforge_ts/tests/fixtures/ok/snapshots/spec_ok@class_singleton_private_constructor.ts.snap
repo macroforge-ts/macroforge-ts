@@ -54,13 +54,13 @@ class Singleton {
         // Reset logic
     }
 
-    static toString(value: Singleton): string {
+    static toString(_value: Singleton): string {
         return "Singleton {}";
     }
 }
 
-export function singletonToString(value: Singleton): string {
-    return Singleton.toString(value);
+export function singletonToString(_value: Singleton): string {
+    return Singleton.toString(_value);
 }
 
 ## DTS
@@ -70,9 +70,9 @@ declare class Singleton {
 	private constructor();
 	static getInstance(): Singleton;
 	reset(): void;
-	static toString(value: Singleton): string;
+	static toString(_value: Singleton): string;
 }
-export declare function singletonToString(value: Singleton): string;
+export declare function singletonToString(_value: Singleton): string;
 export {};
 
 ## Diagnostics
@@ -83,10 +83,10 @@ export {};
 
 original 0..41 -> expanded 0..41
 original 62..412 -> expanded 41..391
-original 412..413 -> expanded 477..478
-original 413..414 -> expanded 581..582
-generated 391..477 <- Debug
-generated 478..581 <- Debug
+original 412..413 -> expanded 478..479
+original 413..414 -> expanded 584..585
+generated 391..478 <- Debug
+generated 479..584 <- Debug
 
 ## Metadata
 

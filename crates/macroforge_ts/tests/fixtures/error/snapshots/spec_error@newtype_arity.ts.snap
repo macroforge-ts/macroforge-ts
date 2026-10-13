@@ -14,7 +14,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Pair = $Newtype<number, string>;
@@ -22,7 +22,7 @@ type Pair = $Newtype<number, string>;
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function pairDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Pair } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const result = pairDecodeWithContext(data, ctx);
@@ -128,11 +128,11 @@ Error [36..60]: $Newtype takes exactly one type argument, got 2
 
 ## Mapping
 
-original 22..60 -> expanded 194..232
-original 60..61 -> expanded 2749..2750
-generated 0..194 <- imports
-generated 232..2450 <- Decode
-generated 2450..2749 <- __convenience_const
+original 22..60 -> expanded 225..263
+original 60..61 -> expanded 2785..2786
+generated 0..225 <- imports
+generated 263..2486 <- Decode
+generated 2486..2785 <- __convenience_const
 
 ## Metadata
 

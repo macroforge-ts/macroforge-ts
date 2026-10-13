@@ -32,7 +32,7 @@ true
 
 import { setDecodeWithContext, setEncodeWithContext } from "./collections";
 import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Set } from './collections';
 
@@ -111,7 +111,7 @@ function indexEncodeFields(value: Index, ctx: __mf_EncodeContext, result: Record
 export function indexDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Index } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = indexDecodeWithContext(data, ctx);
@@ -361,17 +361,17 @@ Error [133..140]: this module gives the name `Partial` to something of its own, 
 
 ## Mapping
 
-original 0..38 -> expanded 809..847
-original 59..96 -> expanded 847..884
-original 96..161 -> expanded 1227..1292
-original 191..243 -> expanded 1292..1344
-original 243..244 -> expanded 11341..11342
-generated 0..809 <- imports
-generated 884..1130 <- Debug
-generated 1130..1227 <- __convenience_const
-generated 1344..3646 <- Encode
-generated 3646..10413 <- Decode
-generated 10413..11341 <- __convenience_const
+original 0..38 -> expanded 840..878
+original 59..96 -> expanded 878..915
+original 96..161 -> expanded 1258..1323
+original 191..243 -> expanded 1323..1375
+original 243..244 -> expanded 11377..11378
+generated 0..840 <- imports
+generated 915..1161 <- Debug
+generated 1161..1258 <- __convenience_const
+generated 1375..3677 <- Encode
+generated 3677..10449 <- Decode
+generated 10449..11377 <- __convenience_const
 
 ## Metadata
 

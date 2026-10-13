@@ -16,7 +16,7 @@ import { dailyRecurrenceRuleDecodeWithContext, dailyRecurrenceRuleHasShape, dail
 import { monthlyRecurrenceRuleDecodeWithContext, monthlyRecurrenceRuleHasShape, monthlyRecurrenceRuleEncodeWithContext, monthlyRecurrenceRuleDefaultValue } from "./monthly-recurrence-rule.svelte";
 import { weeklyRecurrenceRuleDecodeWithContext, weeklyRecurrenceRuleHasShape, weeklyRecurrenceRuleEncodeWithContext, weeklyRecurrenceRuleDefaultValue } from "./weekly-recurrence-rule.svelte";
 import { yearlyRecurrenceRuleDecodeWithContext, yearlyRecurrenceRuleHasShape, yearlyRecurrenceRuleEncodeWithContext, yearlyRecurrenceRuleDefaultValue } from "./yearly-recurrence-rule.svelte";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -83,7 +83,7 @@ export function intervalEncodeWithContext(value: Interval, ctx: __mf_EncodeConte
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function intervalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Interval } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = intervalDecodeWithContext(data, ctx);
@@ -545,15 +545,15 @@ export declare const Interval: {
 
 ## Mapping
 
-original 0..367 -> expanded 1353..1720
-original 416..564 -> expanded 1720..1868
-original 564..565 -> expanded 18670..18671
-generated 0..1353 <- imports
-generated 1868..1968 <- Default
-generated 1968..4705 <- Encode
-generated 4705..11260 <- Decode
-generated 11260..17880 <- Gigaform
-generated 17880..18670 <- __convenience_const
+original 0..367 -> expanded 1384..1751
+original 416..564 -> expanded 1751..1899
+original 564..565 -> expanded 18706..18707
+generated 0..1384 <- imports
+generated 1899..1999 <- Default
+generated 1999..4736 <- Encode
+generated 4736..11296 <- Decode
+generated 11296..17916 <- Gigaform
+generated 17916..18706 <- __convenience_const
 
 ## Metadata
 

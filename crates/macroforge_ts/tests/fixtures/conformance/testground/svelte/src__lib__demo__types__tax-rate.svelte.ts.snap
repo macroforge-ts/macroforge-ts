@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -149,7 +149,7 @@ function taxRateEncodeFields(value: TaxRate, _ctx: __mf_EncodeContext, result: R
 export function taxRateDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TaxRate } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = taxRateDecodeWithContext(data, ctx);
@@ -294,7 +294,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("zip")) ? "zip" in obj : (__fields.keeps("zip") && obj["zip"] !== undefined)) {
         const __raw_zip = obj["zip"] as number;
 
-        if (!(typeof __raw_zip === "number")) {
+        if (!(typeof __raw_zip === "number" && globalThis.Number.isFinite(__raw_zip))) {
             errors.push({ field: "zip", message: __raw_zip == null ? "TaxRate.zip is required" : "expected number" });
         } else {
             instance.zip = __raw_zip;
@@ -1011,32 +1011,32 @@ export declare const TaxRate: {
 
 ## Mapping
 
-original 0..58 -> expanded 877..935
-original 107..139 -> expanded 935..967
-original 167..188 -> expanded 967..988
-original 229..234 -> expanded 988..993
-original 275..298 -> expanded 993..1016
-original 345..350 -> expanded 1016..1021
-original 391..419 -> expanded 1021..1049
-original 469..491 -> expanded 1049..1071
-original 532..537 -> expanded 1071..1076
-original 578..601 -> expanded 1076..1099
-original 644..649 -> expanded 1099..1104
-original 690..715 -> expanded 1104..1129
-original 757..762 -> expanded 1129..1134
-original 803..827 -> expanded 1134..1158
-original 872..900 -> expanded 1158..1186
-original 952..957 -> expanded 1186..1191
-original 998..1028 -> expanded 1191..1221
-original 1056..1061 -> expanded 1221..1226
-original 1080..1128 -> expanded 1226..1274
-original 1128..1129 -> expanded 37569..37570
-generated 0..877 <- imports
-generated 1274..1555 <- Default
-generated 1555..5182 <- Encode
-generated 5182..22866 <- Decode
-generated 22866..36330 <- Gigaform
-generated 36330..37569 <- __convenience_const
+original 0..58 -> expanded 908..966
+original 107..139 -> expanded 966..998
+original 167..188 -> expanded 998..1019
+original 229..234 -> expanded 1019..1024
+original 275..298 -> expanded 1024..1047
+original 345..350 -> expanded 1047..1052
+original 391..419 -> expanded 1052..1080
+original 469..491 -> expanded 1080..1102
+original 532..537 -> expanded 1102..1107
+original 578..601 -> expanded 1107..1130
+original 644..649 -> expanded 1130..1135
+original 690..715 -> expanded 1135..1160
+original 757..762 -> expanded 1160..1165
+original 803..827 -> expanded 1165..1189
+original 872..900 -> expanded 1189..1217
+original 952..957 -> expanded 1217..1222
+original 998..1028 -> expanded 1222..1252
+original 1056..1061 -> expanded 1252..1257
+original 1080..1128 -> expanded 1257..1305
+original 1128..1129 -> expanded 37646..37647
+generated 0..908 <- imports
+generated 1305..1586 <- Default
+generated 1586..5213 <- Encode
+generated 5213..22943 <- Decode
+generated 22943..36407 <- Gigaform
+generated 36407..37646 <- __convenience_const
 
 ## Metadata
 

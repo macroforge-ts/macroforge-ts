@@ -13,7 +13,7 @@ true
 ## Output
 
 import { coordinatesDecodeWithContext, coordinatesEncodeWithContext, coordinatesDefaultValue } from "./coordinates.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -154,7 +154,7 @@ function siteEncodeFields(value: Site, ctx: __mf_EncodeContext, result: Record<s
 export function siteDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Site } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = siteDecodeWithContext(data, ctx);
@@ -1100,20 +1100,20 @@ export declare const Site: {
 
 ## Mapping
 
-original 0..116 -> expanded 931..1047
-original 165..210 -> expanded 1047..1092
-original 251..353 -> expanded 1092..1194
-original 394..511 -> expanded 1194..1311
-original 552..595 -> expanded 1311..1354
-original 636..662 -> expanded 1354..1380
-original 703..796 -> expanded 1380..1473
-original 796..797 -> expanded 44688..44689
-generated 0..931 <- imports
-generated 1473..1907 <- Default
-generated 1907..6213 <- Encode
-generated 6213..25598 <- Decode
-generated 25598..43530 <- Gigaform
-generated 43530..44688 <- __convenience_const
+original 0..116 -> expanded 962..1078
+original 165..210 -> expanded 1078..1123
+original 251..353 -> expanded 1123..1225
+original 394..511 -> expanded 1225..1342
+original 552..595 -> expanded 1342..1385
+original 636..662 -> expanded 1385..1411
+original 703..796 -> expanded 1411..1504
+original 796..797 -> expanded 44724..44725
+generated 0..962 <- imports
+generated 1504..1938 <- Default
+generated 1938..6244 <- Encode
+generated 6244..25634 <- Decode
+generated 25634..43566 <- Gigaform
+generated 43566..44724 <- __convenience_const
 
 ## Metadata
 

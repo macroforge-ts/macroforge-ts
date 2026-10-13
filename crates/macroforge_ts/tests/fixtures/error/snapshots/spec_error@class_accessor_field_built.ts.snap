@@ -11,9 +11,9 @@ class Stepper {
     label: string = '';
 }
 
-/** @derive(Decode) */
-class Inherits extends Stepper {
-    extra: number = 0;
+/** @derive(PartialEq, Default, Decode) */
+class Dial {
+    accessor turn = 0;
 }
 
 ## Changed
@@ -22,9 +22,7 @@ true
 
 ## Output
 
-import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
-import { holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
-import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
+import { debuggedWithin as __mf_debuggedWithin, equalWithin as __mf_equalWithin } from "@macroforge/core/structural";
 
 class Stepper {
     accessor step: number = 1;
@@ -45,167 +43,17 @@ export function stepperToString(value: Stepper): string {
 }
 
 
-class Inherits extends Stepper {
-    extra: number = 0;
+class Dial {
+    accessor turn = 0;
 
-constructor(props: { extra: number }) {
-    super();
-    this.extra = props.extra;
-}
-
-/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Inherits } | { success: false; errors: Array<{ field: string; message: string }> } {
-    try {
-
-        const data = typeof input === "string" ? JSON.parse(input) : input;
-
-        const ctx = __mf_DecodeContext.create();
-        const resultOrRef = Inherits.decodeWithContext(data, ctx);
-
-        if (__mf_PendingRef.is(resultOrRef)) {
-            return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message: "Inherits.decode: root cannot be a forward reference"
-	}]
-});
-        }
-
-        ctx.applyPatches();
-        if (opts?.freeze) {
-            ctx.freezeAll();
-        }
-
-        const __errors = ctx.getErrors();
-        if (__errors.length > 0) {
-            return ({
-	success: false,
-	errors: __errors
-});
-        }
-
-        return ({
-	success: true,
-	value: resultOrRef
-});
-    } catch (e) {
-        if (e instanceof __mf_DecodeError) {
-            return ({
-	success: false,
-	errors: e.errors
-});
-        }
-        const message = e instanceof Error ? e.message : String(e);
-        return ({
-	success: false,
-	errors: [{
-		field: "_root",
-		message
-	}]
-});
+    static equals(a: Dial, b: Dial): boolean {
+        if (a === b) return true;
+        return __mf_equalWithin(a, b, () => a.turn === b.turn || a.turn !== a.turn && b.turn !== b.turn);
     }
 }
 
-/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Inherits | __mf_PendingRef;
-/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
-static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Inherits> | __mf_PendingRef;
-static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<Inherits> | __mf_PendingRef {
-    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
-        throw new __mf_DecodeError([{ field: "_root", message: "Inherits.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
-    }
-    if (typeof value === "object" && value !== null && "__ref" in value) {
-        if (typeof value.__ref !== "number") {
-            throw new __mf_DecodeError([{ field: "__ref", message: "Inherits.decodeWithContext: __ref must be a number" }]);
-        }
-        return ctx.getOrDefer(value.__ref, "Inherits") as Inherits | __mf_PendingRef;
-    }
-
-    if (typeof value !== "object" || value === null || Array.isArray(value)) {
-        throw new __mf_DecodeError([{ field: "_root", message: "Inherits.decodeWithContext: expected an object" }]);
-    }
-
-    const obj = __mf_ownMembers(value);
-    const errors: Array<{ field: string; message: string }> = [];
-    if ((__fields === undefined || __fields.requires("extra")) && !("extra" in obj)) {
-        errors.push({ field: "extra", message: "missing required field" });
-    }
-
-    const instance: any = Object.create(Inherits.prototype);
-
-    if (__fields === undefined && obj.__id !== undefined) {
-        ctx.register(obj.__id as number, instance, "Inherits");
-    }
-
-    ctx.trackForFreeze(instance);
-
-    if ((__fields === undefined || __fields.requires("extra")) ? "extra" in obj : (__fields.keeps("extra") && obj["extra"] !== undefined)) {
-        const __raw_extra = obj["extra"] as number;
-
-        if (!(typeof __raw_extra === "number")) {
-            errors.push({ field: "extra", message: __raw_extra == null ? "Inherits.extra is required" : "expected number" });
-        } else {
-            instance.extra = __raw_extra;
-        }
-    }
-
-    ctx.pushErrors(errors);
-
-    return instance;
-}
-static validateField<K extends keyof Inherits>(field: K, value: unknown): Array<{ field: string; message: string }>;
-static validateField(): Array<{ field: string; message: string }> {
-    return [];
-}
-
-static validateFields(partial: { readonly [K in keyof Inherits]?: unknown }): Array<{ field: string; message: string }>;
-static validateFields(): Array<{ field: string; message: string }> {
-    return [];
-}
-
-static hasShape(obj: unknown): boolean {
-    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
-        return false;
-    }
-    return __mf_holds(obj, "extra");
-}
-
-static is(obj: unknown): obj is Inherits {
-    if (obj instanceof Inherits) {
-        return true;
-    }
-    if (!Inherits.hasShape(obj)) {
-        return false;
-    }
-    const result = Inherits.decode(obj);
-    return result.success;
-}
-}
-
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-export function inheritsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Inherits } | { success: false; errors: Array<{ field: string; message: string }> } {
-    return Inherits.decode(input, opts);
-}
-
-/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export function inheritsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Inherits | __mf_PendingRef {
-    return Inherits.decodeWithContext(value, ctx);
-}
-
-/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
-export function inheritsHasShape(value: unknown): boolean {
-    return Inherits.hasShape(value);
-}
-
-/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
-export function inheritsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Inherits>): Partial<Inherits> | __mf_PendingRef {
-    return Inherits.decodeWithContext(value, ctx, __mf_fieldRequirement(fields));
-}
-
-/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
-export function inheritsIs(value: unknown): value is Inherits {
-    return Inherits.is(value);
+export function dialEquals(a: Dial, b: Dial): boolean {
+    return Dial.equals(a, b);
 }
 
 ## DTS
@@ -216,80 +64,37 @@ declare class Stepper {
 	static toString(value: Stepper): string;
 }
 export declare function stepperToString(value: Stepper): string;
-declare class Inherits extends Stepper {
-	extra: number;
-	constructor(props: {
-		extra: number;
-	});
-	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-	static decode(input: unknown, opts?: __mf_DecodeOptions): {
-		success: true;
-		value: Inherits;
-	} | {
-		success: false;
-		errors: Array<{
-			field: string;
-			message: string;
-		}>;
-	};
-	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): Inherits | __mf_PendingRef;
-	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
-	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<Inherits> | __mf_PendingRef;
-	static validateField<K extends keyof Inherits>(field: K, value: unknown): Array<{
-		field: string;
-		message: string;
-	}>;
-	static validateFields(partial: { readonly [K in keyof Inherits]?: unknown }): Array<{
-		field: string;
-		message: string;
-	}>;
-	static hasShape(obj: unknown): boolean;
-	static is(obj: unknown): obj is Inherits;
+declare class Dial {
+	accessor turn;
+	static equals(a: Dial, b: Dial): boolean;
 }
-/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
-export declare function inheritsDecode(input: unknown, opts?: __mf_DecodeOptions): {
-	success: true;
-	value: Inherits;
-} | {
-	success: false;
-	errors: Array<{
-		field: string;
-		message: string;
-	}>;
-};
-/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
-export declare function inheritsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Inherits | __mf_PendingRef;
-/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
-export declare function inheritsHasShape(value: unknown): boolean;
-/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
-export declare function inheritsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof Inherits>): Partial<Inherits> | __mf_PendingRef;
-/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
-export declare function inheritsIs(value: unknown): value is Inherits;
+export declare function dialEquals(a: Dial, b: Dial): boolean;
 export {};
 
 ## Diagnostics
 
 Error [5..26]: @derive(Clone): field 'step' of class 'Stepper' is an `accessor`, whose value is kept where only the class's constructor can set it up, and a derive builds an instance without running it
+Error [108..143]: @derive(Default): field 'turn' of class 'Dial' is an `accessor`, whose value is kept where only the class's constructor can set it up, and a derive builds an instance without running it
+Error [108..143]: @derive(Decode): field 'turn' of class 'Dial' is an `accessor`, whose value is kept where only the class's constructor can set it up, and a derive builds an instance without running it
 
 ## Mapping
 
-original 28..100 -> expanded 487..559
-original 100..101 -> expanded 877..878
-original 101..103 -> expanded 975..977
-original 125..182 -> expanded 977..1034
-original 182..183 -> expanded 5918..5919
-original 183..184 -> expanded 7701..7702
-generated 0..487 <- imports
-generated 559..877 <- Debug
-generated 878..975 <- Debug
-generated 1034..5918 <- Decode
-generated 5919..7701 <- Decode
+original 28..100 -> expanded 118..190
+original 100..101 -> expanded 508..509
+original 101..103 -> expanded 606..608
+original 145..182 -> expanded 608..645
+original 182..183 -> expanded 839..840
+original 183..184 -> expanded 929..930
+generated 0..118 <- imports
+generated 190..508 <- Debug
+generated 509..606 <- Debug
+generated 645..839 <- PartialEq
+generated 840..929 <- PartialEq
 
 ## Metadata
 
 class Stepper: {"body_span":{"end":102,"start":44},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":29,"start":1}}],"fields":[{"accessor":true,"decorators":[],"initializer":"1","key":"Named","name":"step","optional":false,"readonly":false,"span":{"end":76,"start":50},"ts_type":"number","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"label","optional":false,"readonly":false,"span":{"end":100,"start":81},"ts_type":"string","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Stepper","span":{"end":102,"start":30},"superclass":null,"type_params":[]}
-class Inherits: {"body_span":{"end":184,"start":158},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":126,"start":104}}],"fields":[{"accessor":false,"decorators":[],"initializer":"0","key":"Named","name":"extra","optional":false,"readonly":false,"span":{"end":182,"start":164},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":["Stepper"],"is_abstract":false,"methods":[],"name":"Inherits","span":{"end":184,"start":127},"superclass":"Stepper","type_params":[]}
+class Dial: {"body_span":{"end":184,"start":158},"decorators":[{"args_src":"PartialEq, Default, Decode","name":"Derive","span":{"end":146,"start":104}}],"fields":[{"accessor":true,"decorators":[],"initializer":"0","key":"Named","name":"turn","optional":false,"readonly":false,"span":{"end":182,"start":164},"ts_type":"number","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Dial","span":{"end":184,"start":147},"superclass":null,"type_params":[]}
 
 ## Registry reads
 

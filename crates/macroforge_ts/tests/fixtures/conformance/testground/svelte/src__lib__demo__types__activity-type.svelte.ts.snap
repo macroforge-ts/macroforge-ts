@@ -18,7 +18,7 @@ import { editedDecodeWithContext, editedHasShape, editedEncodeWithContext, edite
 import { paidDecodeWithContext, paidHasShape, paidEncodeWithContext, paidDefaultValue } from "./paid.svelte";
 import { sentDecodeWithContext, sentHasShape, sentEncodeWithContext, sentDefaultValue } from "./sent.svelte";
 import { viewedDecodeWithContext, viewedHasShape, viewedEncodeWithContext, viewedDefaultValue } from "./viewed.svelte";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -93,7 +93,7 @@ export function activityTypeEncodeWithContext(value: ActivityType, ctx: __mf_Enc
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function activityTypeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ActivityType } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = activityTypeDecodeWithContext(data, ctx);
@@ -639,15 +639,15 @@ export declare const ActivityType: {
 
 ## Mapping
 
-original 0..341 -> expanded 1305..1646
-original 390..512 -> expanded 1646..1768
-original 512..513 -> expanded 20084..20085
-generated 0..1305 <- imports
-generated 1768..1864 <- Default
-generated 1864..4905 <- Encode
-generated 4905..12146 <- Decode
-generated 12146..19218 <- Gigaform
-generated 19218..20084 <- __convenience_const
+original 0..341 -> expanded 1336..1677
+original 390..512 -> expanded 1677..1799
+original 512..513 -> expanded 20120..20121
+generated 0..1336 <- imports
+generated 1799..1895 <- Default
+generated 1895..4936 <- Encode
+generated 4936..12182 <- Decode
+generated 12182..19254 <- Gigaform
+generated 19254..20120 <- __convenience_const
 
 ## Metadata
 

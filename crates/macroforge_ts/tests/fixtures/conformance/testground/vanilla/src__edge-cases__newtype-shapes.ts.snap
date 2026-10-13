@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/newtype-shapes.ts
-sha256 a6d4bd15ff9d0c40849b445305b8433ac9f4109d1b6c91c359daa2dba8bc1fd7
+sha256 e1e8bae46bf57c4d561f2462b532ea3ba3fad47b7a8bdab75eaf90b11d72c8d5
 
 ## Changed
 
@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, parsedText as __mf_parsedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef, decodeString as __mf_decodeString } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
 declare const __mf_newtype_1: unique symbol;
@@ -22,10 +22,15 @@ declare const __mf_newtype_4: unique symbol;
 declare const __mf_newtype_5: unique symbol;
 declare const __mf_newtype_7: unique symbol;
 declare const __mf_newtype_6: unique symbol;
+declare const __mf_newtype_8: unique symbol;
+declare const __mf_newtype_9: unique symbol;
+declare const __mf_newtype_10: unique symbol;
+declare const __mf_newtype_11: unique symbol;
 /**
  * Newtypes over each primitive under every derive, and the fields and
  * collections that hold one: as an element, a map's key or value, a record's
- * value, nullable, optional and nested in another newtype.
+ * value, nullable, optional and nested in another newtype. Then newtypes over
+ * a date, an array, an object type and a tuple, coded as what they brand.
  */
 
 /** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
@@ -116,7 +121,7 @@ export function newTextDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function newTextDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): NewText {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "string") {
+    if (!(typeof __decoded === "string")) {
         throw new __mf_DecodeError([{ field: "_root", message: "NewText.decodeWithContext: expected string" }]);
     }
     return __decoded as NewText;
@@ -207,7 +212,7 @@ export function newCountEncodeWithContext(value: NewCount): unknown {
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function newCountDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewCount } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const result = newCountDecodeWithContext(data, ctx);
@@ -248,18 +253,18 @@ export function newCountDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function newCountDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): NewCount {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "number") {
+    if (!((typeof __decoded === "number" && globalThis.Number.isFinite(__decoded)))) {
         throw new __mf_DecodeError([{ field: "_root", message: "NewCount.decodeWithContext: expected number" }]);
     }
     return __decoded as NewCount;
 }
 
 export function newCountHasShape(value: unknown): boolean {
-    return typeof value === "number";
+    return (typeof value === "number" && globalThis.Number.isFinite(value));
 }
 
 export function newCountIs(value: unknown): value is NewCount {
-    return typeof value === "number";
+    return (typeof value === "number" && globalThis.Number.isFinite(value));
 }
 
 export const NewCount: {
@@ -393,7 +398,7 @@ export function newTotalDecodeWithContext(value: unknown, _ctx: __mf_DecodeConte
             throw new __mf_DecodeError([{ field: "_root", message: "NewTotal.decodeWithContext: expected bigint, " + String(__error) }]);
         }
     }
-    if (typeof __decoded !== "bigint") {
+    if (!(typeof __decoded === "bigint")) {
         throw new __mf_DecodeError([{ field: "_root", message: "NewTotal.decodeWithContext: expected bigint" }]);
     }
     return __decoded as NewTotal;
@@ -484,7 +489,7 @@ export function newFlagEncodeWithContext(value: NewFlag): unknown {
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function newFlagDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewFlag } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const result = newFlagDecodeWithContext(data, ctx);
@@ -525,7 +530,7 @@ export function newFlagDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function newFlagDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): NewFlag {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "boolean") {
+    if (!(typeof __decoded === "boolean")) {
         throw new __mf_DecodeError([{ field: "_root", message: "NewFlag.decodeWithContext: expected boolean" }]);
     }
     return __decoded as NewFlag;
@@ -659,7 +664,7 @@ export function newSlugDecode(input: unknown, opts?: __mf_DecodeOptions): { succ
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function newSlugDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NewSlug {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "string") {
+    if (!(typeof __decoded === "string")) {
         throw new __mf_DecodeError([{ field: "_root", message: "NewSlug.decodeWithContext: expected string" }]);
     }
     const errors: Array<{ field: string; message: string }> = [];
@@ -754,7 +759,7 @@ export function newNestedEncodeWithContext(value: NewNested): unknown {
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function newNestedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewNested } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const result = newNestedDecodeWithContext(data, ctx);
@@ -795,18 +800,18 @@ export function newNestedDecode(input: unknown, opts?: __mf_DecodeOptions): { su
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function newNestedDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): NewNested {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "number") {
+    if (!((typeof __decoded === "number" && globalThis.Number.isFinite(__decoded)))) {
         throw new __mf_DecodeError([{ field: "_root", message: "NewNested.decodeWithContext: expected number" }]);
     }
     return __decoded as NewNested;
 }
 
 export function newNestedHasShape(value: unknown): boolean {
-    return typeof value === "number";
+    return (typeof value === "number" && globalThis.Number.isFinite(value));
 }
 
 export function newNestedIs(value: unknown): value is NewNested {
-    return typeof value === "number";
+    return (typeof value === "number" && globalThis.Number.isFinite(value));
 }
 
 export const NewNested: {
@@ -927,7 +932,7 @@ export function newPlainDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function newPlainDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): NewPlain {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "string") {
+    if (!(typeof __decoded === "string")) {
         throw new __mf_DecodeError([{ field: "_root", message: "NewPlain.decodeWithContext: expected string" }]);
     }
     return __decoded as NewPlain;
@@ -1187,7 +1192,7 @@ function newHolderEncodeFields(value: NewHolder, ctx: __mf_EncodeContext, result
 export function newHolderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewHolder } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = newHolderDecodeWithContext(data, ctx);
@@ -1867,7 +1872,7 @@ function newLedgerEncodeFields(value: NewLedger, ctx: __mf_EncodeContext, result
 export function newLedgerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewLedger } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = newLedgerDecodeWithContext(data, ctx);
@@ -2061,6 +2066,718 @@ export const NewLedger: {
   is: newLedgerIs
 };
 
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type NewStamp = Date & { readonly [__mf_newtype_8]: true };
+
+export function newStampToString(value: NewStamp): string {
+    return "NewStamp(" + __mf_structuralDebug(value) + ")";
+}
+
+export function newStampClone(value: NewStamp): NewStamp {
+    return __mf_structuralClone(value);
+}
+
+export function newStampEquals(a: NewStamp, b: NewStamp): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function newStampHashCode(value: NewStamp): number {
+    return __mf_structuralHash(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function newStampEncode(value: NewStamp, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = newStampEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function newStampEncodeWithContext(value: NewStamp, ctx: __mf_EncodeContext): unknown;
+export function newStampEncodeWithContext(value: NewStamp): unknown {
+    return ((value: { value: Date }): unknown => {
+        const result: Record<string, unknown> = {};
+        result["value"] = value.value.toISOString();
+        return result.value;
+    })({ value });
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function newStampDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewStamp } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = newStampDecodeWithContext(data, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+export function newStampIs(value: unknown): value is NewStamp {
+    return newStampHasShape(value);
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function newStampDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NewStamp {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "NewStamp.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as NewStamp;
+    }
+    const obj: Record<string, unknown> = { _root: value };
+    const errors: Array<{ field: string; message: string }> = [];
+    const instance: any = {};
+
+    if ("_root" in obj) {
+        const __raw__root = obj["_root"] as string | Date;
+
+        {
+            const __dateVal = (__raw__root instanceof Date ? __raw__root : typeof __raw__root === "string" ? new Date(__raw__root) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "_root", message: __raw__root == null ? "NewStamp._root is required" : "expected Date" });
+            } else {
+                instance._root = __dateVal;
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+    return instance._root as NewStamp;
+}
+
+export function newStampHasShape(value: unknown): boolean {
+    return value instanceof Date || typeof value === "string";
+}
+
+export const NewStamp: {
+  readonly toString: typeof newStampToString;
+  readonly clone: typeof newStampClone;
+  readonly equals: typeof newStampEquals;
+  readonly hashCode: typeof newStampHashCode;
+  readonly encode: typeof newStampEncode;
+  readonly encodeWithContext: typeof newStampEncodeWithContext;
+  readonly decode: typeof newStampDecode;
+  readonly is: typeof newStampIs;
+  readonly decodeWithContext: typeof newStampDecodeWithContext;
+  readonly hasShape: typeof newStampHasShape;
+} = {
+  toString: newStampToString,
+  clone: newStampClone,
+  equals: newStampEquals,
+  hashCode: newStampHashCode,
+  encode: newStampEncode,
+  encodeWithContext: newStampEncodeWithContext,
+  decode: newStampDecode,
+  is: newStampIs,
+  decodeWithContext: newStampDecodeWithContext,
+  hasShape: newStampHasShape
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type NewTags = string[] & { readonly [__mf_newtype_9]: true };
+
+export function newTagsToString(value: NewTags): string {
+    return "NewTags(" + __mf_structuralDebug(value) + ")";
+}
+
+export function newTagsClone(value: NewTags): NewTags {
+    return __mf_structuralClone(value);
+}
+
+export function newTagsEquals(a: NewTags, b: NewTags): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function newTagsHashCode(value: NewTags): number {
+    return __mf_structuralHash(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function newTagsEncode(value: NewTags, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = newTagsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function newTagsEncodeWithContext(value: NewTags, ctx: __mf_EncodeContext): unknown;
+export function newTagsEncodeWithContext(value: NewTags): unknown {
+    return ((value: { value: string[] }): unknown => {
+        const result: Record<string, unknown> = {};
+        result["value"] = value.value;
+        return result.value;
+    })({ value });
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function newTagsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewTags } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = newTagsDecodeWithContext(data, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+export function newTagsIs(value: unknown): value is NewTags {
+    return newTagsHasShape(value);
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function newTagsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NewTags {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "NewTags.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as NewTags;
+    }
+    const obj: Record<string, unknown> = { _root: value };
+    const errors: Array<{ field: string; message: string }> = [];
+    const instance: any = {};
+
+    if ("_root" in obj) {
+        const __raw__root = obj["_root"] as string[];
+        if (Array.isArray(__raw__root)) {
+            ctx.pushScope("_root");
+            try {
+                instance._root = __mf_decodeArray(__raw__root, ctx, __mf_decodeString);
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "_root" : "_root." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "_root", message: __raw__root == null ? "NewTags._root is required" : "expected string[]" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+    return instance._root as NewTags;
+}
+
+export function newTagsHasShape(value: unknown): boolean {
+    return Array.isArray(value);
+}
+
+export const NewTags: {
+  readonly toString: typeof newTagsToString;
+  readonly clone: typeof newTagsClone;
+  readonly equals: typeof newTagsEquals;
+  readonly hashCode: typeof newTagsHashCode;
+  readonly encode: typeof newTagsEncode;
+  readonly encodeWithContext: typeof newTagsEncodeWithContext;
+  readonly decode: typeof newTagsDecode;
+  readonly is: typeof newTagsIs;
+  readonly decodeWithContext: typeof newTagsDecodeWithContext;
+  readonly hasShape: typeof newTagsHasShape;
+} = {
+  toString: newTagsToString,
+  clone: newTagsClone,
+  equals: newTagsEquals,
+  hashCode: newTagsHashCode,
+  encode: newTagsEncode,
+  encodeWithContext: newTagsEncodeWithContext,
+  decode: newTagsDecode,
+  is: newTagsIs,
+  decodeWithContext: newTagsDecodeWithContext,
+  hasShape: newTagsHasShape
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type NewPoint = { x: number; at: Date } & { readonly [__mf_newtype_10]: true };
+
+export function newPointToString(value: NewPoint): string {
+    return "NewPoint(" + __mf_structuralDebug(value) + ")";
+}
+
+export function newPointClone(value: NewPoint): NewPoint {
+    return __mf_structuralClone(value);
+}
+
+export function newPointEquals(a: NewPoint, b: NewPoint): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function newPointHashCode(value: NewPoint): number {
+    return __mf_structuralHash(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function newPointEncode(value: NewPoint, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = newPointEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function newPointEncodeWithContext(value: NewPoint, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "NewPoint" });
+    newPointEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function newPointEncodePartialWithContext(value: Partial<NewPoint>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NewPoint>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "NewPoint" };
+        newPointEncodeFields(value as NewPoint, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function newPointEncodeFields(value: NewPoint, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("x")) {
+        if (value.x !== undefined) {
+            result["x"] = value.x;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("at")) {
+        if (value.at !== undefined) {
+            result["at"] = value.at.toISOString();
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function newPointDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewPoint } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = newPointDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "NewPoint.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function newPointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NewPoint | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function newPointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<NewPoint> | __mf_PendingRef;
+export function newPointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<NewPoint> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "NewPoint.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "NewPoint.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "NewPoint") as NewPoint | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "NewPoint.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("x")) && !("x" in obj)) {
+        errors.push({ field: "x", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
+        errors.push({ field: "at", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "NewPoint");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
+        const __raw_x = obj["x"] as number;
+
+        if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
+            errors.push({ field: "x", message: __raw_x == null ? "NewPoint.x is required" : "expected number" });
+        } else {
+            instance.x = __raw_x;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("at")) ? "at" in obj : (__fields.keeps("at") && obj["at"] !== undefined)) {
+        const __raw_at = obj["at"] as string | Date;
+
+        {
+            const __dateVal = (__raw_at instanceof Date ? __raw_at : typeof __raw_at === "string" ? new Date(__raw_at) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "at", message: __raw_at == null ? "NewPoint.at is required" : "expected Date" });
+            } else {
+                instance.at = __dateVal;
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as NewPoint;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function newPointDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NewPoint>): Partial<NewPoint> | __mf_PendingRef {
+    return newPointDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function newPointValidateField<K extends keyof NewPoint>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function newPointValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function newPointValidateFields(partial: { readonly [K in keyof NewPoint]?: unknown }): Array<{ field: string; message: string }>;
+export function newPointValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function newPointHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "x") && __mf_holds(obj, "at");
+}
+
+export function newPointIs(obj: unknown): obj is NewPoint {
+    return newPointHasShape(obj) && newPointDecode(obj).success;
+}
+
+export const NewPoint: {
+  readonly toString: typeof newPointToString;
+  readonly clone: typeof newPointClone;
+  readonly equals: typeof newPointEquals;
+  readonly hashCode: typeof newPointHashCode;
+  readonly encode: typeof newPointEncode;
+  readonly encodeWithContext: typeof newPointEncodeWithContext;
+  readonly encodePartialWithContext: typeof newPointEncodePartialWithContext;
+  readonly decode: typeof newPointDecode;
+  readonly decodeWithContext: typeof newPointDecodeWithContext;
+  readonly decodePartialWithContext: typeof newPointDecodePartialWithContext;
+  readonly validateField: typeof newPointValidateField;
+  readonly validateFields: typeof newPointValidateFields;
+  readonly hasShape: typeof newPointHasShape;
+  readonly is: typeof newPointIs;
+} = {
+  toString: newPointToString,
+  clone: newPointClone,
+  equals: newPointEquals,
+  hashCode: newPointHashCode,
+  encode: newPointEncode,
+  encodeWithContext: newPointEncodeWithContext,
+  encodePartialWithContext: newPointEncodePartialWithContext,
+  decode: newPointDecode,
+  decodeWithContext: newPointDecodeWithContext,
+  decodePartialWithContext: newPointDecodePartialWithContext,
+  validateField: newPointValidateField,
+  validateFields: newPointValidateFields,
+  hasShape: newPointHasShape,
+  is: newPointIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type NewPair = [number, Date] & { readonly [__mf_newtype_11]: true };
+
+export function newPairToString(value: NewPair): string {
+    return "NewPair(" + __mf_structuralDebug(value) + ")";
+}
+
+export function newPairClone(value: NewPair): NewPair {
+    return __mf_structuralClone(value);
+}
+
+export function newPairEquals(a: NewPair, b: NewPair): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function newPairHashCode(value: NewPair): number {
+    return __mf_structuralHash(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function newPairEncode(value: NewPair, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = newPairEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function newPairEncodeWithContext(value: NewPair, ctx: __mf_EncodeContext): unknown;
+export function newPairEncodeWithContext(value: NewPair): unknown {
+    const __view: { e0: number; e1: Date } = {
+        e0: value[0],
+        e1: value[1],
+    };
+    return ((value: { e0: number; e1: Date }): unknown[] => {
+        const result: Record<string, unknown> = {};
+        result["e0"] = value.e0;
+        result["e1"] = value.e1.toISOString();
+        const __tuple: unknown[] = [];
+        if ("e0" in result) {
+            __tuple.push(result.e0);
+        }
+        if ("e1" in result) {
+            __tuple.push(result.e1);
+        }
+        return __tuple;
+    })(__view);
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function newPairDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NewPair } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = newPairDecodeWithContext(data, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+export function newPairIs(value: unknown): value is NewPair {
+    return newPairHasShape(value);
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function newPairDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NewPair {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "NewPair.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as NewPair;
+    }
+    if (!Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "NewPair.decodeWithContext: expected an array" }]);
+    }
+    const errors: Array<{ field: string; message: string }> = [];
+    if (value.length <= 0) {
+        errors.push({ field: "0", message: "missing required element" });
+    }
+    if (value.length <= 1) {
+        errors.push({ field: "1", message: "missing required element" });
+    }
+    if (value.length > 2) {
+        errors.push({ field: "_root", message: "too many elements" });
+    }
+    const obj: Record<string, unknown> = {};
+    for (let __index = 0; __index < Math.min(value.length, 2); __index++) {
+        obj[__index] = value[__index];
+    }
+
+    const tuple: unknown[] = [];
+    const instance: any = {};
+    Object.defineProperty(instance, "e0", {
+        get: () => tuple[0],
+        set: (item: unknown) => {
+            tuple[0] = item;
+        }
+    });
+    Object.defineProperty(instance, "e1", {
+        get: () => tuple[1],
+        set: (item: unknown) => {
+            tuple[1] = item;
+        }
+    });
+    ctx.trackForFreeze(tuple);
+
+    if ("0" in obj) {
+        const __raw_e0 = obj["0"] as number;
+
+        if (!(typeof __raw_e0 === "number" && globalThis.Number.isFinite(__raw_e0))) {
+            errors.push({ field: "0", message: __raw_e0 == null ? "NewPair.0 is required" : "expected number" });
+        } else {
+            instance.e0 = __raw_e0;
+        }
+    }
+    if ("1" in obj) {
+        const __raw_e1 = obj["1"] as string | Date;
+
+        {
+            const __dateVal = (__raw_e1 instanceof Date ? __raw_e1 : typeof __raw_e1 === "string" ? new Date(__raw_e1) : undefined);
+            if (__dateVal === undefined || globalThis.Number.isNaN(__dateVal.getTime())) {
+                errors.push({ field: "1", message: __raw_e1 == null ? "NewPair.1 is required" : "expected Date" });
+            } else {
+                instance.e1 = __dateVal;
+            }
+        }
+    }
+
+    ctx.pushErrors(errors);
+    return tuple as NewPair;
+}
+
+export function newPairHasShape(value: unknown): boolean {
+    return Array.isArray(value) && value.length >= 2 && value.length <= 2;
+}
+
+export const NewPair: {
+  readonly toString: typeof newPairToString;
+  readonly clone: typeof newPairClone;
+  readonly equals: typeof newPairEquals;
+  readonly hashCode: typeof newPairHashCode;
+  readonly encode: typeof newPairEncode;
+  readonly encodeWithContext: typeof newPairEncodeWithContext;
+  readonly decode: typeof newPairDecode;
+  readonly is: typeof newPairIs;
+  readonly decodeWithContext: typeof newPairDecodeWithContext;
+  readonly hasShape: typeof newPairHasShape;
+} = {
+  toString: newPairToString,
+  clone: newPairClone,
+  equals: newPairEquals,
+  hashCode: newPairHashCode,
+  encode: newPairEncode,
+  encodeWithContext: newPairEncodeWithContext,
+  decode: newPairDecode,
+  is: newPairIs,
+  decodeWithContext: newPairDecodeWithContext,
+  hasShape: newPairHasShape
+};
+
 ## DTS
 
 declare const __mf_newtype_1: unique symbol;
@@ -2070,10 +2787,15 @@ declare const __mf_newtype_4: unique symbol;
 declare const __mf_newtype_5: unique symbol;
 declare const __mf_newtype_7: unique symbol;
 declare const __mf_newtype_6: unique symbol;
+declare const __mf_newtype_8: unique symbol;
+declare const __mf_newtype_9: unique symbol;
+declare const __mf_newtype_10: unique symbol;
+declare const __mf_newtype_11: unique symbol;
 /**
 * Newtypes over each primitive under every derive, and the fields and
 * collections that hold one: as an element, a map's key or value, a record's
-* value, nullable, optional and nested in another newtype.
+* value, nullable, optional and nested in another newtype. Then newtypes over
+* a date, an array, an object type and a tuple, coded as what they brand.
 */
 /** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
 export type NewText = string & {
@@ -2541,6 +3263,183 @@ export declare const NewLedger: {
 	readonly hasShape: typeof newLedgerHasShape;
 	readonly is: typeof newLedgerIs;
 };
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type NewStamp = Date & {
+	readonly [__mf_newtype_8]: true;
+};
+export declare function newStampToString(value: NewStamp): string;
+export declare function newStampClone(value: NewStamp): NewStamp;
+export declare function newStampEquals(a: NewStamp, b: NewStamp): boolean;
+export declare function newStampHashCode(value: NewStamp): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function newStampEncode(value: NewStamp, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function newStampEncodeWithContext(value: NewStamp, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function newStampDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NewStamp;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare function newStampIs(value: unknown): value is NewStamp;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function newStampDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NewStamp;
+export declare function newStampHasShape(value: unknown): boolean;
+export declare const NewStamp: {
+	readonly toString: typeof newStampToString;
+	readonly clone: typeof newStampClone;
+	readonly equals: typeof newStampEquals;
+	readonly hashCode: typeof newStampHashCode;
+	readonly encode: typeof newStampEncode;
+	readonly encodeWithContext: typeof newStampEncodeWithContext;
+	readonly decode: typeof newStampDecode;
+	readonly is: typeof newStampIs;
+	readonly decodeWithContext: typeof newStampDecodeWithContext;
+	readonly hasShape: typeof newStampHasShape;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type NewTags = string[] & {
+	readonly [__mf_newtype_9]: true;
+};
+export declare function newTagsToString(value: NewTags): string;
+export declare function newTagsClone(value: NewTags): NewTags;
+export declare function newTagsEquals(a: NewTags, b: NewTags): boolean;
+export declare function newTagsHashCode(value: NewTags): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function newTagsEncode(value: NewTags, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function newTagsEncodeWithContext(value: NewTags, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function newTagsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NewTags;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare function newTagsIs(value: unknown): value is NewTags;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function newTagsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NewTags;
+export declare function newTagsHasShape(value: unknown): boolean;
+export declare const NewTags: {
+	readonly toString: typeof newTagsToString;
+	readonly clone: typeof newTagsClone;
+	readonly equals: typeof newTagsEquals;
+	readonly hashCode: typeof newTagsHashCode;
+	readonly encode: typeof newTagsEncode;
+	readonly encodeWithContext: typeof newTagsEncodeWithContext;
+	readonly decode: typeof newTagsDecode;
+	readonly is: typeof newTagsIs;
+	readonly decodeWithContext: typeof newTagsDecodeWithContext;
+	readonly hasShape: typeof newTagsHasShape;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type NewPoint = {
+	x: number;
+	at: Date;
+} & {
+	readonly [__mf_newtype_10]: true;
+};
+export declare function newPointToString(value: NewPoint): string;
+export declare function newPointClone(value: NewPoint): NewPoint;
+export declare function newPointEquals(a: NewPoint, b: NewPoint): boolean;
+export declare function newPointHashCode(value: NewPoint): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function newPointEncode(value: NewPoint, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function newPointEncodeWithContext(value: NewPoint, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function newPointEncodePartialWithContext(value: Partial<NewPoint>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NewPoint>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function newPointDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NewPoint;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function newPointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NewPoint | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function newPointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<NewPoint> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function newPointDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NewPoint>): Partial<NewPoint> | __mf_PendingRef;
+export declare function newPointValidateField<K extends keyof NewPoint>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function newPointValidateFields(partial: { readonly [K in keyof NewPoint]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function newPointHasShape(obj: unknown): boolean;
+export declare function newPointIs(obj: unknown): obj is NewPoint;
+export declare const NewPoint: {
+	readonly toString: typeof newPointToString;
+	readonly clone: typeof newPointClone;
+	readonly equals: typeof newPointEquals;
+	readonly hashCode: typeof newPointHashCode;
+	readonly encode: typeof newPointEncode;
+	readonly encodeWithContext: typeof newPointEncodeWithContext;
+	readonly encodePartialWithContext: typeof newPointEncodePartialWithContext;
+	readonly decode: typeof newPointDecode;
+	readonly decodeWithContext: typeof newPointDecodeWithContext;
+	readonly decodePartialWithContext: typeof newPointDecodePartialWithContext;
+	readonly validateField: typeof newPointValidateField;
+	readonly validateFields: typeof newPointValidateFields;
+	readonly hasShape: typeof newPointHasShape;
+	readonly is: typeof newPointIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type NewPair = [number, Date] & {
+	readonly [__mf_newtype_11]: true;
+};
+export declare function newPairToString(value: NewPair): string;
+export declare function newPairClone(value: NewPair): NewPair;
+export declare function newPairEquals(a: NewPair, b: NewPair): boolean;
+export declare function newPairHashCode(value: NewPair): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function newPairEncode(value: NewPair, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function newPairEncodeWithContext(value: NewPair, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function newPairDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NewPair;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare function newPairIs(value: unknown): value is NewPair;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function newPairDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NewPair;
+export declare function newPairHasShape(value: unknown): boolean;
+export declare const NewPair: {
+	readonly toString: typeof newPairToString;
+	readonly clone: typeof newPairClone;
+	readonly equals: typeof newPairEquals;
+	readonly hashCode: typeof newPairHashCode;
+	readonly encode: typeof newPairEncode;
+	readonly encodeWithContext: typeof newPairEncodeWithContext;
+	readonly decode: typeof newPairDecode;
+	readonly is: typeof newPairIs;
+	readonly decodeWithContext: typeof newPairDecodeWithContext;
+	readonly hasShape: typeof newPairHasShape;
+};
 export {};
 
 ## Diagnostics
@@ -2549,150 +3448,203 @@ export {};
 
 ## Mapping
 
-original 0..332 -> expanded 1542..1874
-original 348..349 -> expanded 1918..1919
-original 349..466 -> expanded 6249..6366
-original 482..483 -> expanded 6410..6411
-original 483..600 -> expanded 10916..11033
-original 616..617 -> expanded 11077..11078
-original 617..733 -> expanded 16094..16210
-original 750..751 -> expanded 16255..16256
-original 751..926 -> expanded 20511..20686
-original 942..943 -> expanded 20730..20731
-original 943..1061 -> expanded 25419..25537
-original 1087..1088 -> expanded 25619..25620
-original 1088..1212 -> expanded 30190..30314
-original 1212..1670 -> expanded 34709..35167
-original 1670..1844 -> expanded 68487..68661
-original 1844..1983 -> expanded 71295..71434
-original 1983..1984 -> expanded 83581..83582
-generated 0..1227 <- imports
-generated 1227..1272 <- $Newtype
-generated 1272..1317 <- $Newtype
-generated 1317..1362 <- $Newtype
-generated 1362..1407 <- $Newtype
-generated 1407..1452 <- $Newtype
-generated 1452..1497 <- $Newtype
-generated 1497..1542 <- $Newtype
-generated 1874..1918 <- $Newtype
-generated 1919..2025 <- Debug
-generated 2025..2102 <- Clone
-generated 2102..2220 <- PartialEq
-generated 2220..2375 <- Hash
-generated 2375..2496 <- PartialOrd
-generated 2496..2603 <- Ord
-generated 2603..2681 <- Default
-generated 2681..3397 <- Encode
-generated 3397..5206 <- Decode
-generated 5206..6249 <- __convenience_const
-generated 6366..6410 <- $Newtype
-generated 6411..6520 <- Debug
-generated 6520..6600 <- Clone
-generated 6600..6721 <- PartialEq
-generated 6721..6919 <- Hash
-generated 6919..7084 <- PartialOrd
-generated 7084..7239 <- Ord
-generated 7239..7319 <- Default
-generated 7319..8043 <- Encode
-generated 8043..9846 <- Decode
-generated 9846..10916 <- __convenience_const
-generated 11033..11077 <- $Newtype
-generated 11078..11187 <- Debug
-generated 11187..11267 <- Clone
-generated 11267..11388 <- PartialEq
-generated 11388..11548 <- Hash
-generated 11548..11672 <- PartialOrd
-generated 11672..11782 <- Ord
-generated 11782..11863 <- Default
-generated 11863..12627 <- Encode
-generated 12627..15024 <- Decode
-generated 15024..16094 <- __convenience_const
-generated 16210..16255 <- $Newtype
-generated 16256..16362 <- Debug
-generated 16362..16439 <- Clone
-generated 16439..16557 <- PartialEq
-generated 16557..16650 <- Hash
-generated 16650..16769 <- PartialOrd
-generated 16769..16874 <- Ord
-generated 16874..16955 <- Default
-generated 16955..17671 <- Encode
-generated 17671..19468 <- Decode
-generated 19468..20511 <- __convenience_const
-generated 20686..20730 <- $Newtype
-generated 20731..20837 <- Debug
-generated 20837..20914 <- Clone
-generated 20914..21032 <- PartialEq
-generated 21032..21187 <- Hash
-generated 21187..21308 <- PartialOrd
-generated 21308..21415 <- Ord
-generated 21415..21497 <- Default
-generated 21497..22213 <- Encode
-generated 22213..24376 <- Decode
-generated 24376..25419 <- __convenience_const
-generated 25537..25619 <- $Newtype
-generated 25620..25732 <- Debug
-generated 25732..25815 <- Clone
-generated 25815..25939 <- PartialEq
-generated 25939..26139 <- Hash
-generated 26139..26307 <- PartialOrd
-generated 26307..26465 <- Ord
-generated 26465..26548 <- Default
-generated 26548..27280 <- Encode
-generated 27280..29093 <- Decode
-generated 29093..30190 <- __convenience_const
-generated 30314..30423 <- Debug
-generated 30423..30503 <- Clone
-generated 30503..30624 <- PartialEq
-generated 30624..30781 <- Hash
-generated 30781..30905 <- PartialOrd
-generated 30905..31015 <- Ord
-generated 31015..31096 <- Default
-generated 31096..31820 <- Encode
-generated 31820..33639 <- Decode
-generated 33639..34709 <- __convenience_const
-generated 35167..36385 <- Debug
-generated 36385..37374 <- Clone
-generated 37374..38740 <- PartialEq
-generated 38740..40118 <- Hash
-generated 40118..40625 <- Default
-generated 40625..45600 <- Encode
-generated 45600..67082 <- Decode
-generated 67082..68487 <- __convenience_const
-generated 68661..69106 <- Debug
-generated 69106..69371 <- Clone
-generated 69371..69655 <- PartialEq
-generated 69655..70350 <- PartialOrd
-generated 70350..70859 <- Ord
-generated 70859..71295 <- __convenience_const
-generated 71434..71793 <- Debug
-generated 71793..72016 <- Clone
-generated 72016..72410 <- PartialEq
-generated 72410..72764 <- Hash
-generated 72764..75166 <- Encode
-generated 75166..82270 <- Decode
-generated 82270..83581 <- __convenience_const
+original 0..426 -> expanded 1790..2216
+original 442..443 -> expanded 2260..2261
+original 443..560 -> expanded 6594..6711
+original 576..577 -> expanded 6755..6756
+original 577..694 -> expanded 11390..11507
+original 710..711 -> expanded 11551..11552
+original 711..827 -> expanded 16571..16687
+original 844..845 -> expanded 16732..16733
+original 845..1020 -> expanded 20996..21171
+original 1036..1037 -> expanded 21215..21216
+original 1037..1155 -> expanded 25907..26025
+original 1181..1182 -> expanded 26107..26108
+original 1182..1306 -> expanded 30807..30931
+original 1306..1764 -> expanded 35329..35787
+original 1764..1938 -> expanded 69112..69286
+original 1938..2077 -> expanded 71920..72059
+original 2077..2164 -> expanded 84211..84298
+original 2178..2179 -> expanded 84340..84341
+original 2179..2265 -> expanded 89331..89417
+original 2283..2284 -> expanded 89463..89464
+original 2284..2371 -> expanded 94747..94834
+original 2404..2405 -> expanded 94896..94897
+original 2405..2491 -> expanded 105005..105091
+original 2515..2516 -> expanded 105144..105145
+original 2516..2517 -> expanded 111665..111666
+generated 0..1293 <- imports
+generated 1293..1338 <- $Newtype
+generated 1338..1383 <- $Newtype
+generated 1383..1428 <- $Newtype
+generated 1428..1473 <- $Newtype
+generated 1473..1518 <- $Newtype
+generated 1518..1563 <- $Newtype
+generated 1563..1608 <- $Newtype
+generated 1608..1653 <- $Newtype
+generated 1653..1698 <- $Newtype
+generated 1698..1744 <- $Newtype
+generated 1744..1790 <- $Newtype
+generated 2216..2260 <- $Newtype
+generated 2261..2367 <- Debug
+generated 2367..2444 <- Clone
+generated 2444..2562 <- PartialEq
+generated 2562..2717 <- Hash
+generated 2717..2838 <- PartialOrd
+generated 2838..2945 <- Ord
+generated 2945..3023 <- Default
+generated 3023..3739 <- Encode
+generated 3739..5551 <- Decode
+generated 5551..6594 <- __convenience_const
+generated 6711..6755 <- $Newtype
+generated 6756..6865 <- Debug
+generated 6865..6945 <- Clone
+generated 6945..7066 <- PartialEq
+generated 7066..7264 <- Hash
+generated 7264..7429 <- PartialOrd
+generated 7429..7584 <- Ord
+generated 7584..7664 <- Default
+generated 7664..8388 <- Encode
+generated 8388..10320 <- Decode
+generated 10320..11390 <- __convenience_const
+generated 11507..11551 <- $Newtype
+generated 11552..11661 <- Debug
+generated 11661..11741 <- Clone
+generated 11741..11862 <- PartialEq
+generated 11862..12022 <- Hash
+generated 12022..12146 <- PartialOrd
+generated 12146..12256 <- Ord
+generated 12256..12337 <- Default
+generated 12337..13101 <- Encode
+generated 13101..15501 <- Decode
+generated 15501..16571 <- __convenience_const
+generated 16687..16732 <- $Newtype
+generated 16733..16839 <- Debug
+generated 16839..16916 <- Clone
+generated 16916..17034 <- PartialEq
+generated 17034..17127 <- Hash
+generated 17127..17246 <- PartialOrd
+generated 17246..17351 <- Ord
+generated 17351..17432 <- Default
+generated 17432..18148 <- Encode
+generated 18148..19953 <- Decode
+generated 19953..20996 <- __convenience_const
+generated 21171..21215 <- $Newtype
+generated 21216..21322 <- Debug
+generated 21322..21399 <- Clone
+generated 21399..21517 <- PartialEq
+generated 21517..21672 <- Hash
+generated 21672..21793 <- PartialOrd
+generated 21793..21900 <- Ord
+generated 21900..21982 <- Default
+generated 21982..22698 <- Encode
+generated 22698..24864 <- Decode
+generated 24864..25907 <- __convenience_const
+generated 26025..26107 <- $Newtype
+generated 26108..26220 <- Debug
+generated 26220..26303 <- Clone
+generated 26303..26427 <- PartialEq
+generated 26427..26627 <- Hash
+generated 26627..26795 <- PartialOrd
+generated 26795..26953 <- Ord
+generated 26953..27036 <- Default
+generated 27036..27768 <- Encode
+generated 27768..29710 <- Decode
+generated 29710..30807 <- __convenience_const
+generated 30931..31040 <- Debug
+generated 31040..31120 <- Clone
+generated 31120..31241 <- PartialEq
+generated 31241..31398 <- Hash
+generated 31398..31522 <- PartialOrd
+generated 31522..31632 <- Ord
+generated 31632..31713 <- Default
+generated 31713..32437 <- Encode
+generated 32437..34259 <- Decode
+generated 34259..35329 <- __convenience_const
+generated 35787..37005 <- Debug
+generated 37005..37994 <- Clone
+generated 37994..39360 <- PartialEq
+generated 39360..40738 <- Hash
+generated 40738..41245 <- Default
+generated 41245..46220 <- Encode
+generated 46220..67707 <- Decode
+generated 67707..69112 <- __convenience_const
+generated 69286..69731 <- Debug
+generated 69731..69996 <- Clone
+generated 69996..70280 <- PartialEq
+generated 70280..70975 <- PartialOrd
+generated 70975..71484 <- Ord
+generated 71484..71920 <- __convenience_const
+generated 72059..72418 <- Debug
+generated 72418..72641 <- Clone
+generated 72641..73035 <- PartialEq
+generated 73035..73389 <- Hash
+generated 73389..75791 <- Encode
+generated 75791..82900 <- Decode
+generated 82900..84211 <- __convenience_const
+generated 84298..84340 <- $Newtype
+generated 84341..84464 <- Debug
+generated 84464..84566 <- Clone
+generated 84566..84707 <- PartialEq
+generated 84707..84809 <- Hash
+generated 84809..85803 <- Encode
+generated 85803..88525 <- Decode
+generated 88525..89331 <- __convenience_const
+generated 89417..89463 <- $Newtype
+generated 89464..89584 <- Debug
+generated 89584..89683 <- Clone
+generated 89683..89821 <- PartialEq
+generated 89821..89921 <- Hash
+generated 89921..90898 <- Encode
+generated 90898..93962 <- Decode
+generated 93962..94747 <- __convenience_const
+generated 94834..94896 <- $Newtype
+generated 94897..95020 <- Debug
+generated 95020..95122 <- Clone
+generated 95122..95263 <- PartialEq
+generated 95263..95365 <- Hash
+generated 95365..97645 <- Encode
+generated 97645..103723 <- Decode
+generated 103723..105005 <- __convenience_const
+generated 105091..105144 <- $Newtype
+generated 105145..105265 <- Debug
+generated 105265..105364 <- Clone
+generated 105364..105502 <- PartialEq
+generated 105502..105602 <- Hash
+generated 105602..106910 <- Encode
+generated 106910..110880 <- Decode
+generated 110880..111665 <- __convenience_const
 
 ## Metadata
 
-interface NewHolder: {"body_span":{"end":2182,"start":1824},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1796,"start":1726}}],"fields":[{"decorators":[],"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":1844,"start":1830},"ts_type":"NewText"},{"decorators":[],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":1865,"start":1849},"ts_type":"NewCount"},{"decorators":[],"key":"Named","name":"flag","optional":false,"readonly":false,"span":{"end":1884,"start":1870},"ts_type":"NewFlag"},{"decorators":[],"key":"Named","name":"slug","optional":false,"readonly":false,"span":{"end":1903,"start":1889},"ts_type":"NewSlug"},{"decorators":[],"key":"Named","name":"nested","optional":false,"readonly":false,"span":{"end":1926,"start":1908},"ts_type":"NewNested"},{"decorators":[],"key":"Named","name":"plain","optional":false,"readonly":false,"span":{"end":1947,"start":1931},"ts_type":"NewPlain"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":1974,"start":1952},"ts_type":"NewSlug | null"},{"decorators":[],"key":"Named","name":"later","optional":false,"readonly":false,"span":{"end":2007,"start":1979},"ts_type":"NewCount | undefined"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":2031,"start":2012},"ts_type":"NewText"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":2052,"start":2036},"ts_type":"NewSlug[]"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":2075,"start":2057},"ts_type":"Set<NewText>"},{"decorators":[],"key":"Named","name":"bySlug","optional":false,"readonly":false,"span":{"end":2111,"start":2080},"ts_type":"Map<NewSlug, NewCount>"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":2149,"start":2116},"ts_type":"Record<string, NewCount>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":2180,"start":2154},"ts_type":"[NewText, NewCount]"}],"heritage":[],"methods":[],"name":"NewHolder","span":{"end":2182,"start":1804},"type_params":[]}
-interface NewOrdered: {"body_span":{"end":2356,"start":2273},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":2244,"start":2184}}],"fields":[{"decorators":[],"key":"Named","name":"slug","optional":false,"readonly":false,"span":{"end":2293,"start":2279},"ts_type":"NewSlug"},{"decorators":[],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":2314,"start":2298},"ts_type":"NewCount"},{"decorators":[],"key":"Named","name":"total","optional":false,"readonly":false,"span":{"end":2335,"start":2319},"ts_type":"NewTotal"},{"decorators":[],"key":"Named","name":"flag","optional":false,"readonly":false,"span":{"end":2354,"start":2340},"ts_type":"NewFlag"}],"heritage":[],"methods":[],"name":"NewOrdered","span":{"end":2356,"start":2252},"type_params":[]}
-interface NewLedger: {"body_span":{"end":2495,"start":2447},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2419,"start":2358}}],"fields":[{"decorators":[],"key":"Named","name":"total","optional":false,"readonly":false,"span":{"end":2469,"start":2453},"ts_type":"NewTotal"},{"decorators":[],"key":"Named","name":"totals","optional":false,"readonly":false,"span":{"end":2493,"start":2474},"ts_type":"NewTotal[]"}],"heritage":[],"methods":[],"name":"NewLedger","span":{"end":2495,"start":2427},"type_params":[]}
-type NewText: {"body":{"Newtype":{"Alias":"string"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":625,"start":534}}],"name":"NewText","span":{"end":693,"start":633},"type_params":[]}
-type NewCount: {"body":{"Newtype":{"Alias":"number"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":786,"start":695}}],"name":"NewCount","span":{"end":855,"start":794},"type_params":[]}
-type NewTotal: {"body":{"Newtype":{"Alias":"bigint"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":948,"start":857}}],"name":"NewTotal","span":{"end":1017,"start":956},"type_params":[]}
-type NewFlag: {"body":{"Newtype":{"Alias":"boolean"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1110,"start":1019}}],"name":"NewFlag","span":{"end":1179,"start":1118},"type_params":[]}
-type NewSlug: {"body":{"Newtype":{"Alias":"string"}},"decorators":[{"args_src":"\"slug\"","name":"default","span":{"end":1331,"start":1308}},{"args_src":"nonEmpty, lowercase","name":"endec","span":{"end":1307,"start":1273}},{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1272,"start":1181}}],"name":"NewSlug","span":{"end":1399,"start":1339},"type_params":[]}
-type NewNested: {"body":{"Newtype":{"Newtype":{"Alias":"number"}}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1492,"start":1401}}],"name":"NewNested","span":{"end":1600,"start":1500},"type_params":[]}
-type NewPlain: {"body":{"Alias":"string"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1693,"start":1602}}],"name":"NewPlain","span":{"end":1724,"start":1701},"type_params":[]}
+interface NewHolder: {"body_span":{"end":2458,"start":2100},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":2072,"start":2002}}],"fields":[{"decorators":[],"key":"Named","name":"text","optional":false,"readonly":false,"span":{"end":2120,"start":2106},"ts_type":"NewText"},{"decorators":[],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":2141,"start":2125},"ts_type":"NewCount"},{"decorators":[],"key":"Named","name":"flag","optional":false,"readonly":false,"span":{"end":2160,"start":2146},"ts_type":"NewFlag"},{"decorators":[],"key":"Named","name":"slug","optional":false,"readonly":false,"span":{"end":2179,"start":2165},"ts_type":"NewSlug"},{"decorators":[],"key":"Named","name":"nested","optional":false,"readonly":false,"span":{"end":2202,"start":2184},"ts_type":"NewNested"},{"decorators":[],"key":"Named","name":"plain","optional":false,"readonly":false,"span":{"end":2223,"start":2207},"ts_type":"NewPlain"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":2250,"start":2228},"ts_type":"NewSlug | null"},{"decorators":[],"key":"Named","name":"later","optional":false,"readonly":false,"span":{"end":2283,"start":2255},"ts_type":"NewCount | undefined"},{"decorators":[],"key":"Named","name":"optional","optional":true,"readonly":false,"span":{"end":2307,"start":2288},"ts_type":"NewText"},{"decorators":[],"key":"Named","name":"list","optional":false,"readonly":false,"span":{"end":2328,"start":2312},"ts_type":"NewSlug[]"},{"decorators":[],"key":"Named","name":"set","optional":false,"readonly":false,"span":{"end":2351,"start":2333},"ts_type":"Set<NewText>"},{"decorators":[],"key":"Named","name":"bySlug","optional":false,"readonly":false,"span":{"end":2387,"start":2356},"ts_type":"Map<NewSlug, NewCount>"},{"decorators":[],"key":"Named","name":"record","optional":false,"readonly":false,"span":{"end":2425,"start":2392},"ts_type":"Record<string, NewCount>"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":2456,"start":2430},"ts_type":"[NewText, NewCount]"}],"heritage":[],"methods":[],"name":"NewHolder","span":{"end":2458,"start":2080},"type_params":[]}
+interface NewOrdered: {"body_span":{"end":2632,"start":2549},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, PartialOrd, Ord","name":"Derive","span":{"end":2520,"start":2460}}],"fields":[{"decorators":[],"key":"Named","name":"slug","optional":false,"readonly":false,"span":{"end":2569,"start":2555},"ts_type":"NewSlug"},{"decorators":[],"key":"Named","name":"count","optional":false,"readonly":false,"span":{"end":2590,"start":2574},"ts_type":"NewCount"},{"decorators":[],"key":"Named","name":"total","optional":false,"readonly":false,"span":{"end":2611,"start":2595},"ts_type":"NewTotal"},{"decorators":[],"key":"Named","name":"flag","optional":false,"readonly":false,"span":{"end":2630,"start":2616},"ts_type":"NewFlag"}],"heritage":[],"methods":[],"name":"NewOrdered","span":{"end":2632,"start":2528},"type_params":[]}
+interface NewLedger: {"body_span":{"end":2771,"start":2723},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2695,"start":2634}}],"fields":[{"decorators":[],"key":"Named","name":"total","optional":false,"readonly":false,"span":{"end":2745,"start":2729},"ts_type":"NewTotal"},{"decorators":[],"key":"Named","name":"totals","optional":false,"readonly":false,"span":{"end":2769,"start":2750},"ts_type":"NewTotal[]"}],"heritage":[],"methods":[],"name":"NewLedger","span":{"end":2771,"start":2703},"type_params":[]}
+type NewText: {"body":{"Newtype":{"Alias":"string"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":901,"start":810}}],"name":"NewText","span":{"end":969,"start":909},"type_params":[]}
+type NewCount: {"body":{"Newtype":{"Alias":"number"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1062,"start":971}}],"name":"NewCount","span":{"end":1131,"start":1070},"type_params":[]}
+type NewTotal: {"body":{"Newtype":{"Alias":"bigint"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1224,"start":1133}}],"name":"NewTotal","span":{"end":1293,"start":1232},"type_params":[]}
+type NewFlag: {"body":{"Newtype":{"Alias":"boolean"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1386,"start":1295}}],"name":"NewFlag","span":{"end":1455,"start":1394},"type_params":[]}
+type NewSlug: {"body":{"Newtype":{"Alias":"string"}},"decorators":[{"args_src":"\"slug\"","name":"default","span":{"end":1607,"start":1584}},{"args_src":"nonEmpty, lowercase","name":"endec","span":{"end":1583,"start":1549}},{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1548,"start":1457}}],"name":"NewSlug","span":{"end":1675,"start":1615},"type_params":[]}
+type NewNested: {"body":{"Newtype":{"Newtype":{"Alias":"number"}}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1768,"start":1677}}],"name":"NewNested","span":{"end":1876,"start":1776},"type_params":[]}
+type NewPlain: {"body":{"Alias":"string"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":1969,"start":1878}}],"name":"NewPlain","span":{"end":2000,"start":1977},"type_params":[]}
+type NewStamp: {"body":{"Newtype":{"Alias":"Date"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2834,"start":2773}}],"name":"NewStamp","span":{"end":2901,"start":2842},"type_params":[]}
+type NewTags: {"body":{"Newtype":{"Alias":"string[]"}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":2964,"start":2903}}],"name":"NewTags","span":{"end":3034,"start":2972},"type_params":[]}
+type NewPoint: {"body":{"Newtype":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"x","optional":false,"readonly":false,"span":{"end":3133,"start":3123},"ts_type":"number"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":3142,"start":3134},"ts_type":"Date"}]}}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":3097,"start":3036}}],"name":"NewPoint","span":{"end":3184,"start":3105},"type_params":[]}
+type NewPair: {"body":{"Newtype":{"Tuple":["number","Date"]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":3247,"start":3186}}],"name":"NewPair","span":{"end":3324,"start":3255},"type_params":[]}
 
 ## Registry reads
 
+Name("Date")
 Name("Map")
 Name("NewCount")
 Name("NewFlag")
 Name("NewNested")
+Name("NewPair")
 Name("NewPlain")
+Name("NewPoint")
 Name("NewSlug")
+Name("NewStamp")
+Name("NewTags")
 Name("NewText")
 Name("NewTotal")
 Name("Record")

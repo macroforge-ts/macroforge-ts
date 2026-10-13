@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -83,7 +83,7 @@ function colorEncodeFields(value: Color, _ctx: __mf_EncodeContext, result: Recor
 export function colorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Color } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = colorDecodeWithContext(data, ctx);
@@ -174,7 +174,7 @@ export function colorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("red")) ? "red" in obj : (__fields.keeps("red") && obj["red"] !== undefined)) {
         const __raw_red = obj["red"] as number;
 
-        if (!(typeof __raw_red === "number")) {
+        if (!(typeof __raw_red === "number" && globalThis.Number.isFinite(__raw_red))) {
             errors.push({ field: "red", message: __raw_red == null ? "Color.red is required" : "expected number" });
         } else {
             instance.red = __raw_red;
@@ -183,7 +183,7 @@ export function colorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("green")) ? "green" in obj : (__fields.keeps("green") && obj["green"] !== undefined)) {
         const __raw_green = obj["green"] as number;
 
-        if (!(typeof __raw_green === "number")) {
+        if (!(typeof __raw_green === "number" && globalThis.Number.isFinite(__raw_green))) {
             errors.push({ field: "green", message: __raw_green == null ? "Color.green is required" : "expected number" });
         } else {
             instance.green = __raw_green;
@@ -192,7 +192,7 @@ export function colorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("blue")) ? "blue" in obj : (__fields.keeps("blue") && obj["blue"] !== undefined)) {
         const __raw_blue = obj["blue"] as number;
 
-        if (!(typeof __raw_blue === "number")) {
+        if (!(typeof __raw_blue === "number" && globalThis.Number.isFinite(__raw_blue))) {
             errors.push({ field: "blue", message: __raw_blue == null ? "Color.blue is required" : "expected number" });
         } else {
             instance.blue = __raw_blue;
@@ -526,15 +526,15 @@ export declare const Color: {
 
 ## Mapping
 
-original 0..58 -> expanded 807..865
-original 107..188 -> expanded 865..946
-original 188..189 -> expanded 16808..16809
-generated 0..807 <- imports
-generated 946..1065 <- Default
-generated 1065..3463 <- Encode
-generated 3463..9879 <- Decode
-generated 9879..15623 <- Gigaform
-generated 15623..16808 <- __convenience_const
+original 0..58 -> expanded 838..896
+original 107..188 -> expanded 896..977
+original 188..189 -> expanded 16970..16971
+generated 0..838 <- imports
+generated 977..1096 <- Default
+generated 1096..3494 <- Encode
+generated 3494..10041 <- Decode
+generated 10041..15785 <- Gigaform
+generated 15785..16970 <- __convenience_const
 
 ## Metadata
 

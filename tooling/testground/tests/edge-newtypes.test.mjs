@@ -166,3 +166,35 @@ Deno.test('bigint newtypes are written as their digits and read back from them',
     assert(mod.newLedgerEquals(ledger, mod.newLedgerClone(ledger)));
     assertStrictEquals(mod.newLedgerHashCode(ledger), mod.newLedgerHashCode({ ...ledger }));
 });
+
+Deno.test('a newtype over a date, an array, an object or a tuple is coded as what it brands', () => {
+    const at = new Date('2024-01-01T00:00:00.000Z');
+
+    assertStrictEquals(mod.newStampEncode(at), '"2024-01-01T00:00:00.000Z"');
+    const stamp = decoded(mod.newStampDecode(mod.newStampEncode(at)));
+    assert(stamp instanceof Date);
+    assertStrictEquals(stamp.getTime(), at.getTime());
+    assert(!mod.newStampDecode('never').success);
+    assert(!mod.newStampDecode(5).success);
+    assert(mod.newStampEquals(at, mod.newStampClone(at)));
+
+    assertEquals(decoded(mod.newTagsDecode(mod.newTagsEncode(['a', 'b']))), ['a', 'b']);
+    assertEquals(errorFields(mod.newTagsDecode(['a', 1])), ['_root[1]']);
+    assert(!mod.newTagsDecode('a').success);
+
+    const point = { x: 1, at };
+    assertEquals(JSON.parse(mod.newPointEncode(point)), { x: 1, at: '2024-01-01T00:00:00.000Z' });
+    const read = decoded(mod.newPointDecode(mod.newPointEncode(point)));
+    assertEquals(read, point);
+    assert(read.at instanceof Date);
+    assertEquals(errorFields(mod.newPointDecode({ x: 'one', at: at.toISOString() })), ['x']);
+    assertEquals(errorFields(mod.newPointDecode({ x: 1 })), ['at']);
+    assert(mod.newPointEquals(point, mod.newPointClone(point)));
+    assertStrictEquals(mod.newPointHashCode(point), mod.newPointHashCode(read));
+
+    assertEquals(JSON.parse(mod.newPairEncode([2, at])), [2, '2024-01-01T00:00:00.000Z']);
+    const pair = decoded(mod.newPairDecode(mod.newPairEncode([2, at])));
+    assert(pair[1] instanceof Date);
+    assert(!mod.newPairDecode([2]).success);
+    assert(!mod.newPairDecode(['two', at.toISOString()]).success);
+});

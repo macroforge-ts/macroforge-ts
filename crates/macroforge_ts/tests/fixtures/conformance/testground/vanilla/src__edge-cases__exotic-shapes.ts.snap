@@ -1,0 +1,1504 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/edge-cases/exotic-shapes.ts
+sha256 a7b310c4f11b7296f5d7c3f4c1d6dbd854e1b3eeaced779a5a5a004451160fc3
+
+## Changed
+
+true
+
+## Output
+
+import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, spellsTemplate as __mf_spellsTemplate, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+/**
+ * Types at the edge of what a type can say: template literal types, `object`,
+ * a lone `null`, unions of literals of several kinds, types with nothing in
+ * them, and an interface that declares methods.
+ */
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface ExoticScalars {
+    id: `id-${number}`;
+    tag: `${string}-${boolean}`;
+    held: object;
+    nothing: null;
+    choice: 'a' | 'b' | 3 | true;
+}
+
+export function exoticScalarsToString(value: ExoticScalars): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("id: " + String(value.id));
+    parts.push("tag: " + String(value.tag));
+    parts.push("held: " + __mf_structuralDebug(value.held));
+    parts.push("nothing: " + String(value.nothing));
+    parts.push("choice: " + __mf_structuralDebug(value.choice));
+        return "ExoticScalars { " + parts.join(", ") + " }";
+    });
+}
+
+export function exoticScalarsClone(value: ExoticScalars): ExoticScalars {
+    return __mf_clonedWith(value, (): ExoticScalars => ({
+	id: value.id,
+	tag: value.tag,
+	held: __mf_structuralClone(value.held),
+	nothing: value.nothing,
+	choice: __mf_structuralClone(value.choice)
+}));
+}
+
+export function exoticScalarsEquals(a: ExoticScalars, b: ExoticScalars): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => a.id === b.id && a.tag === b.tag && __mf_structuralEquals(a.held, b.held) && a.nothing === b.nothing && __mf_structuralEquals(a.choice, b.choice));
+}
+
+export function exoticScalarsHashCode(value: ExoticScalars): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + ((value.tag ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.held))) | 0;
+    hash = (hash * 31 + (0)) | 0;
+    hash = (hash * 31 + (__mf_structuralHash(value.choice))) | 0;
+        return hash;
+    });
+}
+
+export function exoticScalarsDefaultValue(): ExoticScalars {
+    return {
+        id: `id-0`,
+        tag: `-false`,
+        held: ({}),
+        nothing: null,
+        choice: "a",
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function exoticScalarsEncode(value: ExoticScalars, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = exoticScalarsEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function exoticScalarsEncodeWithContext(value: ExoticScalars, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ExoticScalars" });
+    exoticScalarsEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function exoticScalarsEncodePartialWithContext(value: Partial<ExoticScalars>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticScalars>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "ExoticScalars" };
+        exoticScalarsEncodeFields(value as ExoticScalars, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function exoticScalarsEncodeFields(value: ExoticScalars, _ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("id")) {
+        if (value.id !== undefined) {
+            result["id"] = value.id;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("tag")) {
+        if (value.tag !== undefined) {
+            result["tag"] = value.tag;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("held")) {
+        if (value.held !== undefined) {
+            result["held"] = value.held;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("nothing")) {
+        if (value.nothing !== undefined) {
+            result["nothing"] = value.nothing;
+        }
+    }
+    if (__fields === undefined || __fields.keeps("choice")) {
+        if (value.choice !== undefined) {
+            result["choice"] = value.choice;
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function exoticScalarsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticScalars } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = exoticScalarsDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ExoticScalars.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function exoticScalarsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticScalars | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function exoticScalarsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ExoticScalars> | __mf_PendingRef;
+export function exoticScalarsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ExoticScalars> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ExoticScalars.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ExoticScalars.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "ExoticScalars") as ExoticScalars | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ExoticScalars.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("id")) && !("id" in obj)) {
+        errors.push({ field: "id", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("tag")) && !("tag" in obj)) {
+        errors.push({ field: "tag", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("held")) && !("held" in obj)) {
+        errors.push({ field: "held", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("nothing")) && !("nothing" in obj)) {
+        errors.push({ field: "nothing", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("choice")) && !("choice" in obj)) {
+        errors.push({ field: "choice", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "ExoticScalars");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
+        const __raw_id = obj["id"] as `id-${number}`;
+
+        if (!__mf_spellsTemplate(__raw_id, ["id-", ""], ["number"])) {
+            errors.push({ field: "id", message: __raw_id == null ? "ExoticScalars.id is required" : "expected `id-${number}`" });
+        } else {
+            instance.id = __raw_id;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("tag")) ? "tag" in obj : (__fields.keeps("tag") && obj["tag"] !== undefined)) {
+        const __raw_tag = obj["tag"] as `${string}-${boolean}`;
+
+        if (!__mf_spellsTemplate(__raw_tag, [
+        	"",
+        	"-",
+        	""
+        ], ["string", ["true", "false"]])) {
+            errors.push({ field: "tag", message: __raw_tag == null ? "ExoticScalars.tag is required" : "expected `${string}-${boolean}`" });
+        } else {
+            instance.tag = __raw_tag;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("held")) ? "held" in obj : (__fields.keeps("held") && obj["held"] !== undefined)) {
+        const __raw_held = obj["held"] as object;
+
+        if (!(typeof __raw_held === "object" && __raw_held !== null)) {
+            errors.push({ field: "held", message: __raw_held == null ? "ExoticScalars.held is required" : "expected object" });
+        } else {
+            instance.held = __raw_held;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("nothing")) ? "nothing" in obj : (__fields.keeps("nothing") && obj["nothing"] !== undefined)) {
+        const __raw_nothing = obj["nothing"] as null;
+
+        if (!(__raw_nothing === null)) {
+            errors.push({ field: "nothing", message: __raw_nothing == null ? "ExoticScalars.nothing is required" : "expected null" });
+        } else {
+            instance.nothing = __raw_nothing;
+        }
+    }
+    if ((__fields === undefined || __fields.requires("choice")) ? "choice" in obj : (__fields.keeps("choice") && obj["choice"] !== undefined)) {
+        const __raw_choice = obj["choice"] as 'a' | 'b' | 3 | true;
+
+        if (!(__raw_choice === "a" || __raw_choice === "b" || __raw_choice === 3 || __raw_choice === true)) {
+            errors.push({ field: "choice", message: __raw_choice == null ? "ExoticScalars.choice is required" : "expected 'a' | 'b' | 3 | true" });
+        } else {
+            instance.choice = __raw_choice;
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as ExoticScalars;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function exoticScalarsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ExoticScalars>): Partial<ExoticScalars> | __mf_PendingRef {
+    return exoticScalarsDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function exoticScalarsValidateField<K extends keyof ExoticScalars>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function exoticScalarsValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function exoticScalarsValidateFields(partial: { readonly [K in keyof ExoticScalars]?: unknown }): Array<{ field: string; message: string }>;
+export function exoticScalarsValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function exoticScalarsHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "id") && __mf_holds(obj, "tag") && __mf_holds(obj, "held") && __mf_holds(obj, "nothing") && __mf_holds(obj, "choice");
+}
+
+export function exoticScalarsIs(obj: unknown): obj is ExoticScalars {
+    return exoticScalarsHasShape(obj) && exoticScalarsDecode(obj).success;
+}
+
+export const ExoticScalars: {
+  readonly toString: typeof exoticScalarsToString;
+  readonly clone: typeof exoticScalarsClone;
+  readonly equals: typeof exoticScalarsEquals;
+  readonly hashCode: typeof exoticScalarsHashCode;
+  readonly defaultValue: typeof exoticScalarsDefaultValue;
+  readonly encode: typeof exoticScalarsEncode;
+  readonly encodeWithContext: typeof exoticScalarsEncodeWithContext;
+  readonly encodePartialWithContext: typeof exoticScalarsEncodePartialWithContext;
+  readonly decode: typeof exoticScalarsDecode;
+  readonly decodeWithContext: typeof exoticScalarsDecodeWithContext;
+  readonly decodePartialWithContext: typeof exoticScalarsDecodePartialWithContext;
+  readonly validateField: typeof exoticScalarsValidateField;
+  readonly validateFields: typeof exoticScalarsValidateFields;
+  readonly hasShape: typeof exoticScalarsHasShape;
+  readonly is: typeof exoticScalarsIs;
+} = {
+  toString: exoticScalarsToString,
+  clone: exoticScalarsClone,
+  equals: exoticScalarsEquals,
+  hashCode: exoticScalarsHashCode,
+  defaultValue: exoticScalarsDefaultValue,
+  encode: exoticScalarsEncode,
+  encodeWithContext: exoticScalarsEncodeWithContext,
+  encodePartialWithContext: exoticScalarsEncodePartialWithContext,
+  decode: exoticScalarsDecode,
+  decodeWithContext: exoticScalarsDecodeWithContext,
+  decodePartialWithContext: exoticScalarsDecodePartialWithContext,
+  validateField: exoticScalarsValidateField,
+  validateFields: exoticScalarsValidateFields,
+  hasShape: exoticScalarsHasShape,
+  is: exoticScalarsIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type ExoticCode = `code-${bigint}`;
+
+export function exoticCodeToString(value: ExoticCode): string {
+    return "ExoticCode(" + __mf_structuralDebug(value) + ")";
+}
+
+export function exoticCodeClone(value: ExoticCode): ExoticCode {
+    return __mf_structuralClone(value);
+}
+
+export function exoticCodeEquals(a: ExoticCode, b: ExoticCode): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export function exoticCodeHashCode(value: ExoticCode): number {
+    return __mf_structuralHash(value);
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function exoticCodeEncode(value: ExoticCode, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = exoticCodeEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function exoticCodeEncodeWithContext(value: ExoticCode, ctx: __mf_EncodeContext): unknown;
+export function exoticCodeEncodeWithContext(value: ExoticCode): unknown {
+    return ((value: { value: `code-${bigint}` }): unknown => {
+        const result: Record<string, unknown> = {};
+        result["value"] = value.value;
+        return result.value;
+    })({ value });
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function exoticCodeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticCode } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = __mf_textOrValue(input, exoticCodeHasShape);
+
+        const ctx = __mf_DecodeContext.create();
+        const result = exoticCodeDecodeWithContext(data, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+export function exoticCodeIs(value: unknown): value is ExoticCode {
+    return exoticCodeHasShape(value);
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function exoticCodeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticCode {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ExoticCode.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as ExoticCode;
+    }
+    const obj: Record<string, unknown> = { _root: value };
+    const errors: Array<{ field: string; message: string }> = [];
+    const instance: any = {};
+
+    if ("_root" in obj) {
+        const __raw__root = obj["_root"] as `code-${bigint}`;
+
+        if (!__mf_spellsTemplate(__raw__root, ["code-", ""], ["bigint"])) {
+            errors.push({ field: "_root", message: __raw__root == null ? "ExoticCode._root is required" : "expected `code-${bigint}`" });
+        } else {
+            instance._root = __raw__root;
+        }
+    }
+
+    ctx.pushErrors(errors);
+    return instance._root as ExoticCode;
+}
+
+export function exoticCodeHasShape(value: unknown): boolean {
+    return value != null;
+}
+
+export const ExoticCode: {
+  readonly toString: typeof exoticCodeToString;
+  readonly clone: typeof exoticCodeClone;
+  readonly equals: typeof exoticCodeEquals;
+  readonly hashCode: typeof exoticCodeHashCode;
+  readonly encode: typeof exoticCodeEncode;
+  readonly encodeWithContext: typeof exoticCodeEncodeWithContext;
+  readonly decode: typeof exoticCodeDecode;
+  readonly is: typeof exoticCodeIs;
+  readonly decodeWithContext: typeof exoticCodeDecodeWithContext;
+  readonly hasShape: typeof exoticCodeHasShape;
+} = {
+  toString: exoticCodeToString,
+  clone: exoticCodeClone,
+  equals: exoticCodeEquals,
+  hashCode: exoticCodeHashCode,
+  encode: exoticCodeEncode,
+  encodeWithContext: exoticCodeEncodeWithContext,
+  decode: exoticCodeDecode,
+  is: exoticCodeIs,
+  decodeWithContext: exoticCodeDecodeWithContext,
+  hasShape: exoticCodeHasShape
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export type ExoticNone = [];
+
+export function exoticNoneToString(value: ExoticNone): string {
+    return "ExoticNone(" + __mf_structuralDebug(value) + ")";
+}
+
+export function exoticNoneClone(_value: ExoticNone): ExoticNone {
+    return [];
+}
+
+export function exoticNoneEquals(a: ExoticNone, b: ExoticNone): boolean {
+    if (a === b) return true;
+    return true;
+}
+
+export function exoticNoneHashCode(_value: ExoticNone): number {
+    return 1;
+}
+
+export function exoticNoneDefaultValue(): ExoticNone {
+    return [] as ExoticNone;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function exoticNoneEncode(value: ExoticNone, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = exoticNoneEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function exoticNoneEncodeWithContext(value: ExoticNone, ctx: __mf_EncodeContext): unknown;
+export function exoticNoneEncodeWithContext(_value: ExoticNone): unknown {
+    return [];
+}
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function exoticNoneDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticNone } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const result = exoticNoneDecodeWithContext(data, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: result
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+export function exoticNoneIs(value: unknown): value is ExoticNone {
+    return exoticNoneHasShape(value);
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function exoticNoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticNone {
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ExoticNone.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref) as ExoticNone;
+    }
+    if (!Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ExoticNone.decodeWithContext: expected an array" }]);
+    }
+    const errors: Array<{ field: string; message: string }> = [];
+    if (value.length > 0) {
+        errors.push({ field: "_root", message: "too many elements" });
+    }
+    const obj: Record<string, unknown> = {};
+    for (let __index = 0; __index < Math.min(value.length, 0); __index++) {
+        obj[__index] = value[__index];
+    }
+
+    const tuple: unknown[] = [];
+    ctx.trackForFreeze(tuple);
+
+    
+
+    ctx.pushErrors(errors);
+    return tuple as ExoticNone;
+}
+
+export function exoticNoneHasShape(value: unknown): boolean {
+    return Array.isArray(value) && value.length >= 0 && value.length <= 0;
+}
+
+export const ExoticNone: {
+  readonly toString: typeof exoticNoneToString;
+  readonly clone: typeof exoticNoneClone;
+  readonly equals: typeof exoticNoneEquals;
+  readonly hashCode: typeof exoticNoneHashCode;
+  readonly defaultValue: typeof exoticNoneDefaultValue;
+  readonly encode: typeof exoticNoneEncode;
+  readonly encodeWithContext: typeof exoticNoneEncodeWithContext;
+  readonly decode: typeof exoticNoneDecode;
+  readonly is: typeof exoticNoneIs;
+  readonly decodeWithContext: typeof exoticNoneDecodeWithContext;
+  readonly hasShape: typeof exoticNoneHasShape;
+} = {
+  toString: exoticNoneToString,
+  clone: exoticNoneClone,
+  equals: exoticNoneEquals,
+  hashCode: exoticNoneHashCode,
+  defaultValue: exoticNoneDefaultValue,
+  encode: exoticNoneEncode,
+  encodeWithContext: exoticNoneEncodeWithContext,
+  decode: exoticNoneDecode,
+  is: exoticNoneIs,
+  decodeWithContext: exoticNoneDecodeWithContext,
+  hasShape: exoticNoneHasShape
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface ExoticEmpty {}
+
+export function exoticEmptyToString(_value: ExoticEmpty): string {
+    return "ExoticEmpty {}";
+}
+
+export function exoticEmptyClone(value: ExoticEmpty): ExoticEmpty {
+    return __mf_clonedWith(value, (): ExoticEmpty => ({}));
+}
+
+export function exoticEmptyEquals(a: ExoticEmpty, b: ExoticEmpty): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => true);
+}
+
+export function exoticEmptyHashCode(value: ExoticEmpty): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+        return hash;
+    });
+}
+
+export function exoticEmptyDefaultValue(): ExoticEmpty {
+    return {
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function exoticEmptyEncode(value: ExoticEmpty, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = exoticEmptyEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function exoticEmptyEncodeWithContext(value: ExoticEmpty, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ExoticEmpty" });
+    exoticEmptyEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function exoticEmptyEncodePartialWithContext(value: Partial<ExoticEmpty>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticEmpty>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "ExoticEmpty" };
+        exoticEmptyEncodeFields(value as ExoticEmpty, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function exoticEmptyEncodeFields(_value: ExoticEmpty, _ctx: __mf_EncodeContext, _result: Record<string, unknown>, ___fields: __mf_FieldRequirement | undefined): void {
+
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function exoticEmptyDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticEmpty } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = exoticEmptyDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ExoticEmpty.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function exoticEmptyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticEmpty | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function exoticEmptyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ExoticEmpty> | __mf_PendingRef;
+export function exoticEmptyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ExoticEmpty> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ExoticEmpty.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ExoticEmpty.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "ExoticEmpty") as ExoticEmpty | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ExoticEmpty.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "ExoticEmpty");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    
+
+    ctx.pushErrors(errors);
+
+    return instance as ExoticEmpty;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function exoticEmptyDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ExoticEmpty>): Partial<ExoticEmpty> | __mf_PendingRef {
+    return exoticEmptyDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function exoticEmptyValidateField<K extends keyof ExoticEmpty>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function exoticEmptyValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function exoticEmptyValidateFields(partial: { readonly [K in keyof ExoticEmpty]?: unknown }): Array<{ field: string; message: string }>;
+export function exoticEmptyValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function exoticEmptyHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return true;
+}
+
+export function exoticEmptyIs(obj: unknown): obj is ExoticEmpty {
+    return exoticEmptyHasShape(obj) && exoticEmptyDecode(obj).success;
+}
+
+export const ExoticEmpty: {
+  readonly toString: typeof exoticEmptyToString;
+  readonly clone: typeof exoticEmptyClone;
+  readonly equals: typeof exoticEmptyEquals;
+  readonly hashCode: typeof exoticEmptyHashCode;
+  readonly defaultValue: typeof exoticEmptyDefaultValue;
+  readonly encode: typeof exoticEmptyEncode;
+  readonly encodeWithContext: typeof exoticEmptyEncodeWithContext;
+  readonly encodePartialWithContext: typeof exoticEmptyEncodePartialWithContext;
+  readonly decode: typeof exoticEmptyDecode;
+  readonly decodeWithContext: typeof exoticEmptyDecodeWithContext;
+  readonly decodePartialWithContext: typeof exoticEmptyDecodePartialWithContext;
+  readonly validateField: typeof exoticEmptyValidateField;
+  readonly validateFields: typeof exoticEmptyValidateFields;
+  readonly hasShape: typeof exoticEmptyHasShape;
+  readonly is: typeof exoticEmptyIs;
+} = {
+  toString: exoticEmptyToString,
+  clone: exoticEmptyClone,
+  equals: exoticEmptyEquals,
+  hashCode: exoticEmptyHashCode,
+  defaultValue: exoticEmptyDefaultValue,
+  encode: exoticEmptyEncode,
+  encodeWithContext: exoticEmptyEncodeWithContext,
+  encodePartialWithContext: exoticEmptyEncodePartialWithContext,
+  decode: exoticEmptyDecode,
+  decodeWithContext: exoticEmptyDecodeWithContext,
+  decodePartialWithContext: exoticEmptyDecodePartialWithContext,
+  validateField: exoticEmptyValidateField,
+  validateFields: exoticEmptyValidateFields,
+  hasShape: exoticEmptyHasShape,
+  is: exoticEmptyIs
+};
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export class ExoticBlank {
+    static toString(_value: ExoticBlank): string {
+        return "ExoticBlank {}";
+    }
+
+    static clone(value: ExoticBlank): ExoticBlank {
+        return __mf_clonedWith(value, () => ({}));
+    }
+
+    static equals(a: ExoticBlank, b: ExoticBlank): boolean {
+        if (a === b) return true;
+        return __mf_equalWithin(a, b, () => true);
+    }
+
+    static hashCode(value: ExoticBlank): number {
+        return __mf_hashedWithin(value, () => {
+            let hash = 17;
+            return hash;
+        });
+    }
+
+    static defaultValue(): ExoticBlank {
+        const fields: {  } = {
+        };
+        return __mf_instanceOf(ExoticBlank.prototype, fields);
+    }
+
+/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+static encodeWithContext(value: ExoticBlank, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "ExoticBlank" });
+    ExoticBlank.#encodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+static encodePartialWithContext(value: Partial<ExoticBlank>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticBlank>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "ExoticBlank" };
+        ExoticBlank.#encodeFields(value as ExoticBlank, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+static #encodeFields(_value: ExoticBlank, _ctx: __mf_EncodeContext, _result: Record<string, unknown>, ___fields: __mf_FieldRequirement | undefined): void {
+    
+}
+
+    /** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+    static encode(value: ExoticBlank, keepMetadata?: boolean): string {
+        return exoticBlankEncode(value, keepMetadata);
+    }
+
+constructor(_props: {  }) {
+
+}
+
+/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticBlank } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = ExoticBlank.decodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ExoticBlank.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticBlank | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ExoticBlank> | __mf_PendingRef;
+static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<ExoticBlank> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ExoticBlank.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "ExoticBlank.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "ExoticBlank") as ExoticBlank | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "ExoticBlank.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+
+    const instance: any = Object.create(ExoticBlank.prototype);
+
+    if (__fields === undefined && obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance, "ExoticBlank");
+    }
+
+    ctx.trackForFreeze(instance);
+
+
+
+    ctx.pushErrors(errors);
+
+    return instance;
+}
+static validateField<K extends keyof ExoticBlank>(field: K, value: unknown): Array<{ field: string; message: string }>;
+static validateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static validateFields(partial: { readonly [K in keyof ExoticBlank]?: unknown }): Array<{ field: string; message: string }>;
+static validateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return true;
+}
+
+static is(obj: unknown): obj is ExoticBlank {
+    if (obj instanceof ExoticBlank) {
+        return true;
+    }
+    if (!ExoticBlank.hasShape(obj)) {
+        return false;
+    }
+    const result = ExoticBlank.decode(obj);
+    return result.success;
+}
+}
+
+export function exoticBlankToString(_value: ExoticBlank): string {
+    return ExoticBlank.toString(_value);
+}
+
+export function exoticBlankClone(value: ExoticBlank): ExoticBlank {
+    return ExoticBlank.clone(value);
+}
+
+export function exoticBlankEquals(a: ExoticBlank, b: ExoticBlank): boolean {
+    return ExoticBlank.equals(a, b);
+}
+
+export function exoticBlankHashCode(value: ExoticBlank): number {
+    return ExoticBlank.hashCode(value);
+}
+
+export function exoticBlankDefaultValue(): ExoticBlank {
+    return ExoticBlank.defaultValue();
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function exoticBlankEncode(value: ExoticBlank, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = exoticBlankEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function exoticBlankEncodeWithContext(value: ExoticBlank, ctx: __mf_EncodeContext): Record<string, unknown> {
+    return ExoticBlank.encodeWithContext(value, ctx);
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function exoticBlankEncodePartialWithContext(value: Partial<ExoticBlank>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticBlank>): Record<string, unknown> {
+    return ExoticBlank.encodePartialWithContext(value, ctx, fields);
+}
+
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export function exoticBlankDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ExoticBlank } | { success: false; errors: Array<{ field: string; message: string }> } {
+    return ExoticBlank.decode(input, opts);
+}
+
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function exoticBlankDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticBlank | __mf_PendingRef {
+    return ExoticBlank.decodeWithContext(value, ctx);
+}
+
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export function exoticBlankHasShape(value: unknown): boolean {
+    return ExoticBlank.hasShape(value);
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function exoticBlankDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ExoticBlank>): Partial<ExoticBlank> | __mf_PendingRef {
+    return ExoticBlank.decodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export function exoticBlankIs(value: unknown): value is ExoticBlank {
+    return ExoticBlank.is(value);
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash) */
+export interface ExoticMethods {
+    id: string;
+    describe(): string;
+    maybe?(): void;
+}
+
+export function exoticMethodsToString(value: ExoticMethods): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("id: " + String(value.id));
+    parts.push("describe: " + String(value.describe));
+    parts.push("maybe: " + String(value.maybe));
+        return "ExoticMethods { " + parts.join(", ") + " }";
+    });
+}
+
+export function exoticMethodsClone(value: ExoticMethods): ExoticMethods {
+    return __mf_clonedWith(value, (): ExoticMethods => ({
+	id: value.id,
+	describe: value.describe,
+	..."maybe" in value ? { maybe: value.maybe } : {}
+}));
+}
+
+export function exoticMethodsEquals(a: ExoticMethods, b: ExoticMethods): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => a.id === b.id && a.describe === b.describe && a.maybe === b.maybe);
+}
+
+export function exoticMethodsHashCode(value: ExoticMethods): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + ((value.id ?? "").split("").reduce<number>((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+    hash = (hash * 31 + (0)) | 0;
+    hash = (hash * 31 + (0)) | 0;
+        return hash;
+    });
+}
+
+export const ExoticMethods: {
+  readonly toString: typeof exoticMethodsToString;
+  readonly clone: typeof exoticMethodsClone;
+  readonly equals: typeof exoticMethodsEquals;
+  readonly hashCode: typeof exoticMethodsHashCode;
+} = {
+  toString: exoticMethodsToString,
+  clone: exoticMethodsClone,
+  equals: exoticMethodsEquals,
+  hashCode: exoticMethodsHashCode
+};
+
+## DTS
+
+/**
+* Types at the edge of what a type can say: template literal types, `object`,
+* a lone `null`, unions of literals of several kinds, types with nothing in
+* them, and an interface that declares methods.
+*/
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface ExoticScalars {
+	id: `id-${number}`;
+	tag: `${string}-${boolean}`;
+	held: object;
+	nothing: null;
+	choice: "a" | "b" | 3 | true;
+}
+export declare function exoticScalarsToString(value: ExoticScalars): string;
+export declare function exoticScalarsClone(value: ExoticScalars): ExoticScalars;
+export declare function exoticScalarsEquals(a: ExoticScalars, b: ExoticScalars): boolean;
+export declare function exoticScalarsHashCode(value: ExoticScalars): number;
+export declare function exoticScalarsDefaultValue(): ExoticScalars;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function exoticScalarsEncode(value: ExoticScalars, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function exoticScalarsEncodeWithContext(value: ExoticScalars, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function exoticScalarsEncodePartialWithContext(value: Partial<ExoticScalars>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticScalars>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function exoticScalarsDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticScalars;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function exoticScalarsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticScalars | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function exoticScalarsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ExoticScalars> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function exoticScalarsDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ExoticScalars>): Partial<ExoticScalars> | __mf_PendingRef;
+export declare function exoticScalarsValidateField<K extends keyof ExoticScalars>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function exoticScalarsValidateFields(partial: { readonly [K in keyof ExoticScalars]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function exoticScalarsHasShape(obj: unknown): boolean;
+export declare function exoticScalarsIs(obj: unknown): obj is ExoticScalars;
+export declare const ExoticScalars: {
+	readonly toString: typeof exoticScalarsToString;
+	readonly clone: typeof exoticScalarsClone;
+	readonly equals: typeof exoticScalarsEquals;
+	readonly hashCode: typeof exoticScalarsHashCode;
+	readonly defaultValue: typeof exoticScalarsDefaultValue;
+	readonly encode: typeof exoticScalarsEncode;
+	readonly encodeWithContext: typeof exoticScalarsEncodeWithContext;
+	readonly encodePartialWithContext: typeof exoticScalarsEncodePartialWithContext;
+	readonly decode: typeof exoticScalarsDecode;
+	readonly decodeWithContext: typeof exoticScalarsDecodeWithContext;
+	readonly decodePartialWithContext: typeof exoticScalarsDecodePartialWithContext;
+	readonly validateField: typeof exoticScalarsValidateField;
+	readonly validateFields: typeof exoticScalarsValidateFields;
+	readonly hasShape: typeof exoticScalarsHasShape;
+	readonly is: typeof exoticScalarsIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type ExoticCode = `code-${bigint}`;
+export declare function exoticCodeToString(value: ExoticCode): string;
+export declare function exoticCodeClone(value: ExoticCode): ExoticCode;
+export declare function exoticCodeEquals(a: ExoticCode, b: ExoticCode): boolean;
+export declare function exoticCodeHashCode(value: ExoticCode): number;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function exoticCodeEncode(value: ExoticCode, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function exoticCodeEncodeWithContext(value: ExoticCode, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function exoticCodeDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticCode;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare function exoticCodeIs(value: unknown): value is ExoticCode;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function exoticCodeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticCode;
+export declare function exoticCodeHasShape(value: unknown): boolean;
+export declare const ExoticCode: {
+	readonly toString: typeof exoticCodeToString;
+	readonly clone: typeof exoticCodeClone;
+	readonly equals: typeof exoticCodeEquals;
+	readonly hashCode: typeof exoticCodeHashCode;
+	readonly encode: typeof exoticCodeEncode;
+	readonly encodeWithContext: typeof exoticCodeEncodeWithContext;
+	readonly decode: typeof exoticCodeDecode;
+	readonly is: typeof exoticCodeIs;
+	readonly decodeWithContext: typeof exoticCodeDecodeWithContext;
+	readonly hasShape: typeof exoticCodeHasShape;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export type ExoticNone = [];
+export declare function exoticNoneToString(value: ExoticNone): string;
+export declare function exoticNoneClone(_value: ExoticNone): ExoticNone;
+export declare function exoticNoneEquals(a: ExoticNone, b: ExoticNone): boolean;
+export declare function exoticNoneHashCode(_value: ExoticNone): number;
+export declare function exoticNoneDefaultValue(): ExoticNone;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function exoticNoneEncode(value: ExoticNone, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function exoticNoneEncodeWithContext(value: ExoticNone, ctx: __mf_EncodeContext): unknown;
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function exoticNoneDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticNone;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+export declare function exoticNoneIs(value: unknown): value is ExoticNone;
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function exoticNoneDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticNone;
+export declare function exoticNoneHasShape(value: unknown): boolean;
+export declare const ExoticNone: {
+	readonly toString: typeof exoticNoneToString;
+	readonly clone: typeof exoticNoneClone;
+	readonly equals: typeof exoticNoneEquals;
+	readonly hashCode: typeof exoticNoneHashCode;
+	readonly defaultValue: typeof exoticNoneDefaultValue;
+	readonly encode: typeof exoticNoneEncode;
+	readonly encodeWithContext: typeof exoticNoneEncodeWithContext;
+	readonly decode: typeof exoticNoneDecode;
+	readonly is: typeof exoticNoneIs;
+	readonly decodeWithContext: typeof exoticNoneDecodeWithContext;
+	readonly hasShape: typeof exoticNoneHasShape;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface ExoticEmpty {}
+export declare function exoticEmptyToString(_value: ExoticEmpty): string;
+export declare function exoticEmptyClone(value: ExoticEmpty): ExoticEmpty;
+export declare function exoticEmptyEquals(a: ExoticEmpty, b: ExoticEmpty): boolean;
+export declare function exoticEmptyHashCode(value: ExoticEmpty): number;
+export declare function exoticEmptyDefaultValue(): ExoticEmpty;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function exoticEmptyEncode(value: ExoticEmpty, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function exoticEmptyEncodeWithContext(value: ExoticEmpty, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function exoticEmptyEncodePartialWithContext(value: Partial<ExoticEmpty>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticEmpty>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function exoticEmptyDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticEmpty;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function exoticEmptyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticEmpty | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function exoticEmptyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ExoticEmpty> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function exoticEmptyDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ExoticEmpty>): Partial<ExoticEmpty> | __mf_PendingRef;
+export declare function exoticEmptyValidateField<K extends keyof ExoticEmpty>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function exoticEmptyValidateFields(partial: { readonly [K in keyof ExoticEmpty]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function exoticEmptyHasShape(obj: unknown): boolean;
+export declare function exoticEmptyIs(obj: unknown): obj is ExoticEmpty;
+export declare const ExoticEmpty: {
+	readonly toString: typeof exoticEmptyToString;
+	readonly clone: typeof exoticEmptyClone;
+	readonly equals: typeof exoticEmptyEquals;
+	readonly hashCode: typeof exoticEmptyHashCode;
+	readonly defaultValue: typeof exoticEmptyDefaultValue;
+	readonly encode: typeof exoticEmptyEncode;
+	readonly encodeWithContext: typeof exoticEmptyEncodeWithContext;
+	readonly encodePartialWithContext: typeof exoticEmptyEncodePartialWithContext;
+	readonly decode: typeof exoticEmptyDecode;
+	readonly decodeWithContext: typeof exoticEmptyDecodeWithContext;
+	readonly decodePartialWithContext: typeof exoticEmptyDecodePartialWithContext;
+	readonly validateField: typeof exoticEmptyValidateField;
+	readonly validateFields: typeof exoticEmptyValidateFields;
+	readonly hasShape: typeof exoticEmptyHasShape;
+	readonly is: typeof exoticEmptyIs;
+};
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export declare class ExoticBlank {
+	#private;
+	static toString(_value: ExoticBlank): string;
+	static clone(value: ExoticBlank): ExoticBlank;
+	static equals(a: ExoticBlank, b: ExoticBlank): boolean;
+	static hashCode(value: ExoticBlank): number;
+	static defaultValue(): ExoticBlank;
+	/** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+	static encodeWithContext(value: ExoticBlank, ctx: __mf_EncodeContext): Record<string, unknown>;
+	/** @internal Encodes the fields a partial value has, with an existing context. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+	static encodePartialWithContext(value: Partial<ExoticBlank>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticBlank>): Record<string, unknown>;
+	/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+	static encode(value: ExoticBlank, keepMetadata?: boolean): string;
+	constructor(_props: {});
+	/** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+	static decode(input: unknown, opts?: __mf_DecodeOptions): {
+		success: true;
+		value: ExoticBlank;
+	} | {
+		success: false;
+		errors: Array<{
+			field: string;
+			message: string;
+		}>;
+	};
+	/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticBlank | __mf_PendingRef;
+	/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+	static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<ExoticBlank> | __mf_PendingRef;
+	static validateField<K extends keyof ExoticBlank>(field: K, value: unknown): Array<{
+		field: string;
+		message: string;
+	}>;
+	static validateFields(partial: { readonly [K in keyof ExoticBlank]?: unknown }): Array<{
+		field: string;
+		message: string;
+	}>;
+	static hasShape(obj: unknown): boolean;
+	static is(obj: unknown): obj is ExoticBlank;
+}
+export declare function exoticBlankToString(_value: ExoticBlank): string;
+export declare function exoticBlankClone(value: ExoticBlank): ExoticBlank;
+export declare function exoticBlankEquals(a: ExoticBlank, b: ExoticBlank): boolean;
+export declare function exoticBlankHashCode(value: ExoticBlank): number;
+export declare function exoticBlankDefaultValue(): ExoticBlank;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function exoticBlankEncode(value: ExoticBlank, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function exoticBlankEncodeWithContext(value: ExoticBlank, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function exoticBlankEncodePartialWithContext(value: Partial<ExoticBlank>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof ExoticBlank>): Record<string, unknown>;
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+export declare function exoticBlankDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: ExoticBlank;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function exoticBlankDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): ExoticBlank | __mf_PendingRef;
+/** Whether a value has the fields of this class, which a union with other members tells it apart by. @param value - The value to check  */
+export declare function exoticBlankHasShape(value: unknown): boolean;
+/** Decodes a `Partial`, `Pick` or `Omit` of this class with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function exoticBlankDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof ExoticBlank>): Partial<ExoticBlank> | __mf_PendingRef;
+/** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
+export declare function exoticBlankIs(value: unknown): value is ExoticBlank;
+/** @derive(Debug, Clone, PartialEq, Hash) */
+export interface ExoticMethods {
+	id: string;
+	describe(): string;
+	maybe?(): void;
+}
+export declare function exoticMethodsToString(value: ExoticMethods): string;
+export declare function exoticMethodsClone(value: ExoticMethods): ExoticMethods;
+export declare function exoticMethodsEquals(a: ExoticMethods, b: ExoticMethods): boolean;
+export declare function exoticMethodsHashCode(value: ExoticMethods): number;
+export declare const ExoticMethods: {
+	readonly toString: typeof exoticMethodsToString;
+	readonly clone: typeof exoticMethodsClone;
+	readonly equals: typeof exoticMethodsEquals;
+	readonly hashCode: typeof exoticMethodsHashCode;
+};
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..447 -> expanded 1130..1577
+original 447..553 -> expanded 16026..16132
+original 553..654 -> expanded 20993..21094
+original 654..758 -> expanded 25967..26071
+original 758..857 -> expanded 34948..35047
+original 857..858 -> expanded 41730..41731
+original 858..1000 -> expanded 45472..45614
+original 1000..1001 -> expanded 47159..47160
+generated 0..1130 <- imports
+generated 1577..2068 <- Debug
+generated 2068..2350 <- Clone
+generated 2350..2654 <- PartialEq
+generated 2654..3222 <- Hash
+generated 3222..3413 <- Default
+generated 3413..6253 <- Encode
+generated 6253..14497 <- Decode
+generated 14497..16026 <- __convenience_const
+generated 16132..16261 <- Debug
+generated 16261..16369 <- Clone
+generated 16369..16516 <- PartialEq
+generated 16516..16622 <- Hash
+generated 16622..17628 <- Encode
+generated 17628..20145 <- Decode
+generated 20145..20993 <- __convenience_const
+generated 21094..21223 <- Debug
+generated 21223..21307 <- Clone
+generated 21307..21431 <- PartialEq
+generated 21431..21513 <- Hash
+generated 21513..21600 <- Default
+generated 21600..22420 <- Encode
+generated 22420..25023 <- Decode
+generated 25023..25967 <- __convenience_const
+generated 26071..26170 <- Debug
+generated 26170..26301 <- Clone
+generated 26301..26458 <- PartialEq
+generated 26458..26623 <- Hash
+generated 26623..26703 <- Default
+generated 26703..28724 <- Encode
+generated 28724..33481 <- Decode
+generated 33481..34948 <- __convenience_const
+generated 35047..35138 <- Debug
+generated 35138..35248 <- Clone
+generated 35248..35401 <- PartialEq
+generated 35401..35570 <- Hash
+generated 35570..35723 <- Default
+generated 35723..37142 <- Encode
+generated 37142..37471 <- Encode
+generated 37471..41730 <- Decode
+generated 41731..41842 <- Debug
+generated 41842..41950 <- Clone
+generated 41950..42067 <- PartialEq
+generated 42067..42176 <- Hash
+generated 42176..42275 <- Default
+generated 42275..43645 <- Encode
+generated 43645..45472 <- Decode
+generated 45614..45985 <- Debug
+generated 45985..46218 <- Clone
+generated 46218..46442 <- PartialEq
+generated 46442..46796 <- Hash
+generated 46796..47159 <- __convenience_const
+
+## Metadata
+
+class ExoticBlank: {"body_span":{"end":859,"start":857},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":831,"start":761}}],"fields":[],"heritage":[],"is_abstract":false,"methods":[],"name":"ExoticBlank","span":{"end":859,"start":839},"superclass":null,"type_params":[]}
+interface ExoticScalars: {"body_span":{"end":448,"start":317},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":285,"start":215}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":342,"start":323},"ts_type":"`id-${number}`"},{"decorators":[],"key":"Named","name":"tag","optional":false,"readonly":false,"span":{"end":375,"start":347},"ts_type":"`${string}-${boolean}`"},{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":393,"start":380},"ts_type":"object"},{"decorators":[],"key":"Named","name":"nothing","optional":false,"readonly":false,"span":{"end":412,"start":398},"ts_type":"null"},{"decorators":[],"key":"Named","name":"choice","optional":false,"readonly":false,"span":{"end":446,"start":417},"ts_type":"'a' | 'b' | 3 | true"}],"heritage":[],"methods":[],"name":"ExoticScalars","span":{"end":448,"start":293},"type_params":[]}
+interface ExoticEmpty: {"body_span":{"end":759,"start":757},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":727,"start":657}}],"fields":[],"heritage":[],"methods":[],"name":"ExoticEmpty","span":{"end":759,"start":735},"type_params":[]}
+interface ExoticMethods: {"body_span":{"end":1001,"start":938},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":906,"start":861}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":955,"start":944},"ts_type":"string"}],"heritage":[],"methods":[{"decorators":[],"name":"describe","optional":false,"params_src":"","return_type_src":"string","span":{"end":979,"start":960},"type_params":[]},{"decorators":[],"name":"maybe","optional":true,"params_src":"","return_type_src":"void","span":{"end":999,"start":984},"type_params":[]}],"name":"ExoticMethods","span":{"end":1001,"start":914},"type_params":[]}
+type ExoticCode: {"body":{"Other":"`code-${bigint}`"},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":511,"start":450}}],"name":"ExoticCode","span":{"end":554,"start":519},"type_params":[]}
+type ExoticNone: {"body":{"Tuple":[]},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":626,"start":556}}],"name":"ExoticNone","span":{"end":655,"start":634},"type_params":[]}
+
+## Registry reads
+
+Name("'a' | 'b' | 3 | true")
+Name("ExoticCode")
+Name("ExoticNone")
+Name("`${string}-${boolean}`")
+Name("`id-${number}`")
+Name("object")
+Name("true")
+
+## Buildtime dependencies
+
+(none)

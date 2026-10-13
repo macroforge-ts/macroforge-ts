@@ -25,7 +25,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Circle {
@@ -71,7 +71,7 @@ function circleEncodeFields(value: Circle, _ctx: __mf_EncodeContext, result: Rec
 export function circleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Circle } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = circleDecodeWithContext(data, ctx);
@@ -156,7 +156,7 @@ export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
     if ((__fields === undefined || __fields.requires("radius")) ? "radius" in obj : (__fields.keeps("radius") && obj["radius"] !== undefined)) {
         const __raw_radius = obj["radius"] as number;
 
-        if (!(typeof __raw_radius === "number")) {
+        if (!(typeof __raw_radius === "number" && globalThis.Number.isFinite(__raw_radius))) {
             errors.push({ field: "radius", message: __raw_radius == null ? "Circle.radius is required" : "expected number" });
         } else {
             instance.radius = __raw_radius;
@@ -260,7 +260,7 @@ function squareEncodeFields(value: Square, _ctx: __mf_EncodeContext, result: Rec
 export function squareDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Square } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = squareDecodeWithContext(data, ctx);
@@ -345,7 +345,7 @@ export function squareDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
     if ((__fields === undefined || __fields.requires("side")) ? "side" in obj : (__fields.keeps("side") && obj["side"] !== undefined)) {
         const __raw_side = obj["side"] as number;
 
-        if (!(typeof __raw_side === "number")) {
+        if (!(typeof __raw_side === "number" && globalThis.Number.isFinite(__raw_side))) {
             errors.push({ field: "side", message: __raw_side == null ? "Square.side is required" : "expected number" });
         } else {
             instance.side = __raw_side;
@@ -448,7 +448,7 @@ export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): u
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function shapeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Shape } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = shapeDecodeWithContext(data, ctx);
@@ -661,22 +661,22 @@ export {};
 
 ## Mapping
 
-original 30..71 -> expanded 687..728
-original 71..73 -> expanded 9019..9021
-original 103..142 -> expanded 9021..9060
-original 142..144 -> expanded 17311..17313
-original 222..252 -> expanded 17313..17343
-original 252..253 -> expanded 23261..23262
-generated 0..687 <- imports
-generated 728..2835 <- Encode
-generated 2835..8070 <- Decode
-generated 8070..9019 <- __convenience_const
-generated 9060..11159 <- Encode
-generated 11159..16362 <- Decode
-generated 16362..17311 <- __convenience_const
-generated 17343..19335 <- Encode
-generated 19335..22785 <- Decode
-generated 22785..23261 <- __convenience_const
+original 30..71 -> expanded 718..759
+original 71..73 -> expanded 9099..9101
+original 103..142 -> expanded 9101..9140
+original 142..144 -> expanded 17438..17440
+original 222..252 -> expanded 17440..17470
+original 252..253 -> expanded 23393..23394
+generated 0..718 <- imports
+generated 759..2866 <- Encode
+generated 2866..8150 <- Decode
+generated 8150..9099 <- __convenience_const
+generated 9140..11239 <- Encode
+generated 11239..16489 <- Decode
+generated 16489..17438 <- __convenience_const
+generated 17470..19462 <- Encode
+generated 19462..22917 <- Decode
+generated 22917..23393 <- __convenience_const
 
 ## Metadata
 

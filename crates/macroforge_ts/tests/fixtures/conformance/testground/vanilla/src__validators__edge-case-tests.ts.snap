@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Edge case test classes for comprehensive decoder validation testing.
@@ -33,7 +33,7 @@ constructor(props: { text: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MultipleValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = MultipleValidatorsTest.decodeWithContext(data, ctx);
@@ -220,7 +220,7 @@ constructor(props: { email: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomMessageTest } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = CustomMessageTest.decodeWithContext(data, ctx);
@@ -401,7 +401,7 @@ constructor(props: { email: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MixedValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = MixedValidatorsTest.decodeWithContext(data, ctx);
@@ -585,7 +585,7 @@ constructor(props: { username: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CombinedStringValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = CombinedStringValidatorsTest.decodeWithContext(data, ctx);
@@ -772,7 +772,7 @@ constructor(props: { score: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CombinedNumberValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = CombinedNumberValidatorsTest.decodeWithContext(data, ctx);
@@ -858,7 +858,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
         const __raw_score = obj["score"] as number;
 
-        if (!(typeof __raw_score === "number")) {
+        if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
             errors.push({ field: "score", message: __raw_score == null ? "CombinedNumberValidatorsTest.score is required" : "expected number" });
         } else {
             if (__raw_score == null) { errors.push({ field: "score", message: "CombinedNumberValidatorsTest.score is required" }); } else {
@@ -1216,28 +1216,28 @@ export declare function combinedNumberValidatorsTestIs(value: unknown): value is
 
 ## Mapping
 
-original 0..274 -> expanded 402..676
-original 274..275 -> expanded 7660..7661
-original 275..480 -> expanded 9653..9858
-original 480..481 -> expanded 15943..15944
-original 481..702 -> expanded 17861..18082
-original 702..703 -> expanded 24568..24569
-original 703..904 -> expanded 26516..26717
-original 904..905 -> expanded 34158..34159
-original 905..1094 -> expanded 36241..36430
-original 1094..1095 -> expanded 43595..43596
-original 1095..1096 -> expanded 45678..45679
-generated 0..402 <- imports
-generated 676..7660 <- Decode
-generated 7661..9653 <- Decode
-generated 9858..15943 <- Decode
-generated 15944..17861 <- Decode
-generated 18082..24568 <- Decode
-generated 24569..26516 <- Decode
-generated 26717..34158 <- Decode
-generated 34159..36241 <- Decode
-generated 36430..43595 <- Decode
-generated 43596..45678 <- Decode
+original 0..274 -> expanded 433..707
+original 274..275 -> expanded 7696..7697
+original 275..480 -> expanded 9689..9894
+original 480..481 -> expanded 15984..15985
+original 481..702 -> expanded 17902..18123
+original 702..703 -> expanded 24614..24615
+original 703..904 -> expanded 26562..26763
+original 904..905 -> expanded 34209..34210
+original 905..1094 -> expanded 36292..36481
+original 1094..1095 -> expanded 43694..43695
+original 1095..1096 -> expanded 45777..45778
+generated 0..433 <- imports
+generated 707..7696 <- Decode
+generated 7697..9689 <- Decode
+generated 9894..15984 <- Decode
+generated 15985..17902 <- Decode
+generated 18123..24614 <- Decode
+generated 24615..26562 <- Decode
+generated 26763..34209 <- Decode
+generated 34210..36292 <- Decode
+generated 36481..43694 <- Decode
+generated 43695..45777 <- Decode
 
 ## Metadata
 

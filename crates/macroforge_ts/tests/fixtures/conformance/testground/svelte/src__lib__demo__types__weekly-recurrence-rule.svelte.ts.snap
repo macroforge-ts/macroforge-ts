@@ -13,7 +13,7 @@ true
 ## Output
 
 import { weekdayDecodeWithContext, weekdayEncodeWithContext } from "./weekday.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -79,7 +79,7 @@ function weeklyRecurrenceRuleEncodeFields(value: WeeklyRecurrenceRule, ctx: __mf
 export function weeklyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: WeeklyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = weeklyRecurrenceRuleDecodeWithContext(data, ctx);
@@ -167,7 +167,7 @@ export function weeklyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_
     if ((__fields === undefined || __fields.requires("quantityOfWeeks")) ? "quantityOfWeeks" in obj : (__fields.keeps("quantityOfWeeks") && obj["quantityOfWeeks"] !== undefined)) {
         const __raw_quantityOfWeeks = obj["quantityOfWeeks"] as number;
 
-        if (!(typeof __raw_quantityOfWeeks === "number")) {
+        if (!(typeof __raw_quantityOfWeeks === "number" && globalThis.Number.isFinite(__raw_quantityOfWeeks))) {
             errors.push({ field: "quantityOfWeeks", message: __raw_quantityOfWeeks == null ? "WeeklyRecurrenceRule.quantityOfWeeks is required" : "expected number" });
         } else {
             instance.quantityOfWeeks = __raw_quantityOfWeeks;
@@ -519,15 +519,15 @@ export declare const WeeklyRecurrenceRule: {
 
 ## Mapping
 
-original 0..108 -> expanded 949..1057
-original 157..258 -> expanded 1057..1158
-original 258..259 -> expanded 19359..19360
-generated 0..949 <- imports
-generated 1158..1306 <- Default
-generated 1306..3888 <- Encode
-generated 3888..11094 <- Decode
-generated 11094..17769 <- Gigaform
-generated 17769..19359 <- __convenience_const
+original 0..108 -> expanded 980..1088
+original 157..258 -> expanded 1088..1189
+original 258..259 -> expanded 19448..19449
+generated 0..980 <- imports
+generated 1189..1337 <- Default
+generated 1337..3919 <- Encode
+generated 3919..11183 <- Decode
+generated 11183..17858 <- Gigaform
+generated 17858..19448 <- __convenience_const
 
 ## Metadata
 

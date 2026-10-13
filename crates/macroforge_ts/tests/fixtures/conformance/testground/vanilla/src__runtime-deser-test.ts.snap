@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** @derive(Decode) */
 export interface Inner {
@@ -25,7 +25,7 @@ export interface Inner {
 export function innerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Inner } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = innerDecodeWithContext(data, ctx);
@@ -137,7 +137,7 @@ export function innerDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
         const __raw_score = obj["score"] as number;
 
-        if (!(typeof __raw_score === "number")) {
+        if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
             errors.push({ field: "score", message: __raw_score == null ? "Inner.score is required" : "expected number" });
         } else {
             instance.score = __raw_score;
@@ -200,7 +200,7 @@ export interface Container {
 export function containerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Container } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = containerDecodeWithContext(data, ctx);
@@ -533,14 +533,14 @@ export {};
 
 ## Mapping
 
-original 0..107 -> expanded 435..542
-original 107..182 -> expanded 7920..7995
-original 182..2159 -> expanded 14644..16621
-generated 0..435 <- imports
-generated 542..7287 <- Decode
-generated 7287..7920 <- __convenience_const
-generated 7995..13951 <- Decode
-generated 13951..14644 <- __convenience_const
+original 0..107 -> expanded 466..573
+original 107..182 -> expanded 7999..8074
+original 182..2159 -> expanded 14728..16705
+generated 0..466 <- imports
+generated 573..7366 <- Decode
+generated 7366..7999 <- __convenience_const
+generated 8074..14035 <- Decode
+generated 14035..14728 <- __convenience_const
 
 ## Metadata
 

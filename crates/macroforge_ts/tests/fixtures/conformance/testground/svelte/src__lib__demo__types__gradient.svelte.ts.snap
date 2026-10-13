@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -69,7 +69,7 @@ function gradientEncodeFields(value: Gradient, _ctx: __mf_EncodeContext, result:
 export function gradientDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Gradient } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = gradientDecodeWithContext(data, ctx);
@@ -154,7 +154,7 @@ export function gradientDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     if ((__fields === undefined || __fields.requires("startHue")) ? "startHue" in obj : (__fields.keeps("startHue") && obj["startHue"] !== undefined)) {
         const __raw_startHue = obj["startHue"] as number;
 
-        if (!(typeof __raw_startHue === "number")) {
+        if (!(typeof __raw_startHue === "number" && globalThis.Number.isFinite(__raw_startHue))) {
             errors.push({ field: "startHue", message: __raw_startHue == null ? "Gradient.startHue is required" : "expected number" });
         } else {
             instance.startHue = __raw_startHue;
@@ -414,15 +414,15 @@ export declare const Gradient: {
 
 ## Mapping
 
-original 0..58 -> expanded 807..865
-original 107..159 -> expanded 865..917
-original 159..160 -> expanded 13277..13278
-generated 0..807 <- imports
-generated 917..1012 <- Default
-generated 1012..3157 <- Encode
-generated 3157..8490 <- Decode
-generated 8490..12011 <- Gigaform
-generated 12011..13277 <- __convenience_const
+original 0..58 -> expanded 838..896
+original 107..159 -> expanded 896..948
+original 159..160 -> expanded 13359..13360
+generated 0..838 <- imports
+generated 948..1043 <- Default
+generated 1043..3188 <- Encode
+generated 3188..8572 <- Decode
+generated 8572..12093 <- Gigaform
+generated 12093..13359 <- __convenience_const
 
 ## Metadata
 

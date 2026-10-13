@@ -14,7 +14,7 @@ true
 
 import { edgeLabeledDecodePartialWithContext, edgeNodeDecodePartialWithContext, edgeProfileDecodePartialWithContext, edgeStrictDecodePartialWithContext, edgeLabeledEncodePartialWithContext, edgeNodeEncodePartialWithContext, edgeProfileEncodePartialWithContext, edgeStrictEncodePartialWithContext, edgeCardDecodePartialWithContext, edgeItemDecodePartialWithContext, edgeCardEncodePartialWithContext, edgeItemEncodePartialWithContext } from "./edge-types";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, requireKeys as __mf_requireKeys } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, requireKeys as __mf_requireKeys } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * `Partial`, `Pick` and `Omit` of types from another module, wherever a
@@ -225,7 +225,7 @@ function edgePartialsEncodeFields(value: EdgePartials, ctx: __mf_EncodeContext, 
 export function edgePartialsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EdgePartials } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = edgePartialsDecodeWithContext(data, ctx);
@@ -851,7 +851,7 @@ function edgeRenamedPartialsEncodeFields(value: EdgeRenamedPartials, ctx: __mf_E
 export function edgeRenamedPartialsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EdgeRenamedPartials } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = edgeRenamedPartialsDecodeWithContext(data, ctx);
@@ -1300,7 +1300,7 @@ function edgeOptionalEncodeFields(value: EdgeOptional, _ctx: __mf_EncodeContext,
 export function edgeOptionalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EdgeOptional } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = edgeOptionalDecodeWithContext(data, ctx);
@@ -1406,7 +1406,7 @@ export function edgeOptionalDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         if (("years" in obj && obj["years"] !== undefined)) {
             const __raw_age = obj["years"] as number;
 
-            if (!(typeof __raw_age === "number")) {
+            if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
                 errors.push({ field: "years", message: "expected number" });
             } else {
                 instance.age = __raw_age;
@@ -1417,7 +1417,7 @@ export function edgeOptionalDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         if (("level" in obj && obj["level"] !== undefined)) {
             const __raw_level = obj["level"] as number;
 
-            if (!(typeof __raw_level === "number")) {
+            if (!(typeof __raw_level === "number" && globalThis.Number.isFinite(__raw_level))) {
                 errors.push({ field: "level", message: "expected number" });
             } else {
                 instance.level = __raw_level;
@@ -1608,7 +1608,7 @@ function edgeRequiredEncodeFields(value: EdgeRequired, ctx: __mf_EncodeContext, 
 export function edgeRequiredDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EdgeRequired } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = edgeRequiredDecodeWithContext(data, ctx);
@@ -2178,40 +2178,40 @@ export declare const EdgeRequired: {
 
 ## Mapping
 
-original 0..963 -> expanded 1610..2573
-original 963..1397 -> expanded 37260..37694
-original 1397..1640 -> expanded 60351..60594
-original 1640..1973 -> expanded 73229..73562
-original 1973..1974 -> expanded 92583..92584
-generated 0..1610 <- imports
-generated 2573..3679 <- Debug
-generated 3679..4785 <- Clone
-generated 4785..6849 <- PartialEq
-generated 6849..8490 <- Hash
-generated 8490..13772 <- Encode
-generated 13772..35862 <- Decode
-generated 35862..37260 <- __convenience_const
-generated 37694..38466 <- Debug
-generated 38466..38999 <- Clone
-generated 38999..39542 <- PartialEq
-generated 39542..40256 <- Hash
-generated 40256..44213 <- Encode
-generated 44213..58750 <- Decode
-generated 58750..60351 <- __convenience_const
-generated 60594..60999 <- Debug
-generated 60999..61296 <- Clone
-generated 61296..61616 <- PartialEq
-generated 61616..62434 <- Hash
-generated 62434..65088 <- Encode
-generated 65088..71831 <- Decode
-generated 71831..73229 <- __convenience_const
-generated 73562..74165 <- Debug
-generated 74165..74585 <- Clone
-generated 74585..75173 <- PartialEq
-generated 75173..75801 <- Hash
-generated 75801..79082 <- Encode
-generated 79082..91185 <- Decode
-generated 91185..92583 <- __convenience_const
+original 0..963 -> expanded 1641..2604
+original 963..1397 -> expanded 37296..37730
+original 1397..1640 -> expanded 60392..60635
+original 1640..1973 -> expanded 73359..73692
+original 1973..1974 -> expanded 92718..92719
+generated 0..1641 <- imports
+generated 2604..3710 <- Debug
+generated 3710..4816 <- Clone
+generated 4816..6880 <- PartialEq
+generated 6880..8521 <- Hash
+generated 8521..13803 <- Encode
+generated 13803..35898 <- Decode
+generated 35898..37296 <- __convenience_const
+generated 37730..38502 <- Debug
+generated 38502..39035 <- Clone
+generated 39035..39578 <- PartialEq
+generated 39578..40292 <- Hash
+generated 40292..44249 <- Encode
+generated 44249..58791 <- Decode
+generated 58791..60392 <- __convenience_const
+generated 60635..61040 <- Debug
+generated 61040..61337 <- Clone
+generated 61337..61657 <- PartialEq
+generated 61657..62475 <- Hash
+generated 62475..65129 <- Encode
+generated 65129..71961 <- Decode
+generated 71961..73359 <- __convenience_const
+generated 73692..74295 <- Debug
+generated 74295..74715 <- Clone
+generated 74715..75303 <- PartialEq
+generated 75303..75931 <- Hash
+generated 75931..79212 <- Encode
+generated 79212..91320 <- Decode
+generated 91320..92718 <- __convenience_const
 
 ## Metadata
 

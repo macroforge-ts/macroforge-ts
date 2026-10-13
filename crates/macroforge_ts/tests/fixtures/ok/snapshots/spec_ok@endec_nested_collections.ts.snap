@@ -27,7 +27,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeDate as __mf_decodeDate, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeNumberKey as __mf_decodeNumberKey, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, decodeObject as __mf_decodeObject, decodeChecked as __mf_decodeChecked } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeDate as __mf_decodeDate, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeNumberKey as __mf_decodeNumberKey, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, decodeObject as __mf_decodeObject, decodeChecked as __mf_decodeChecked } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Item {
@@ -73,7 +73,7 @@ function itemEncodeFields(value: Item, _ctx: __mf_EncodeContext, result: Record<
 export function itemDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Item } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = itemDecodeWithContext(data, ctx);
@@ -298,7 +298,7 @@ function nestedEncodeFields(value: Nested, ctx: __mf_EncodeContext, result: Reco
 export function nestedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Nested } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = nestedDecodeWithContext(data, ctx);
@@ -711,17 +711,17 @@ export {};
 
 ## Mapping
 
-original 30..65 -> expanded 951..986
-original 65..67 -> expanded 9059..9061
-original 97..358 -> expanded 9061..9322
-original 358..359 -> expanded 28418..28419
-generated 0..951 <- imports
-generated 986..3047 <- Encode
-generated 3047..8152 <- Decode
-generated 8152..9059 <- __convenience_const
-generated 9322..13057 <- Encode
-generated 13057..27469 <- Decode
-generated 27469..28418 <- __convenience_const
+original 30..65 -> expanded 982..1017
+original 65..67 -> expanded 9095..9097
+original 97..358 -> expanded 9097..9358
+original 358..359 -> expanded 28459..28460
+generated 0..982 <- imports
+generated 1017..3078 <- Encode
+generated 3078..8188 <- Decode
+generated 8188..9095 <- __convenience_const
+generated 9358..13093 <- Encode
+generated 13093..27510 <- Decode
+generated 27510..28459 <- __convenience_const
 
 ## Metadata
 

@@ -1,7 +1,8 @@
 /**
  * Newtypes over each primitive under every derive, and the fields and
  * collections that hold one: as an element, a map's key or value, a record's
- * value, nullable, optional and nested in another newtype.
+ * value, nullable, optional and nested in another newtype. Then newtypes over
+ * a date, an array, an object type and a tuple, coded as what they brand.
  */
 
 /** @derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
@@ -58,3 +59,15 @@ export interface NewLedger {
     total: NewTotal;
     totals: NewTotal[];
 }
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type NewStamp = $Newtype<Date>;
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type NewTags = $Newtype<string[]>;
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type NewPoint = $Newtype<{ x: number; at: Date }>;
+
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
+export type NewPair = $Newtype<[number, Date]>;

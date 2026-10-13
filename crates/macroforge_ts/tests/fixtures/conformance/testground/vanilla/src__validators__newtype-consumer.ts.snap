@@ -13,7 +13,7 @@ true
 ## Output
 
 import { metersDecodeWithContext, metersEncodeWithContext } from "./newtype-validator-tests.ts";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Consumes newtypes from another module, so the type-check covers exported
@@ -72,7 +72,7 @@ function tripEncodeFields(value: Trip, ctx: __mf_EncodeContext, result: Record<s
 export function tripDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Trip } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = tripDecodeWithContext(data, ctx);
@@ -334,12 +334,12 @@ export declare function greet(name: string): string;
 
 ## Mapping
 
-original 0..324 -> expanded 778..1102
-original 324..674 -> expanded 11182..11532
-generated 0..778 <- imports
-generated 1102..3409 <- Encode
-generated 3409..10268 <- Decode
-generated 10268..11182 <- __convenience_const
+original 0..324 -> expanded 809..1133
+original 324..674 -> expanded 11218..11568
+generated 0..809 <- imports
+generated 1133..3440 <- Encode
+generated 3440..10304 <- Decode
+generated 10304..11218 <- __convenience_const
 
 ## Metadata
 

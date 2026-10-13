@@ -22,7 +22,7 @@ import { paymentDecodeWithContext, paymentEncodeWithContext } from "./payment.sv
 import { promotionDecodeWithContext, promotionEncodeWithContext } from "./promotion.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { __foreign__dateTimeDateTimeDefault, __foreign__optionOptionDefault, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeDecode, __foreign__optionOptionDecode } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeNumber as __mf_decodeNumber, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeNumber as __mf_decodeNumber, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -326,7 +326,7 @@ function orderEncodeFields(value: Order, ctx: __mf_EncodeContext, result: Record
 export function orderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Order } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = orderDecodeWithContext(data, ctx);
@@ -554,7 +554,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("number")) ? "number" in obj : (__fields.keeps("number") && obj["number"] !== undefined)) {
         const __raw_number = obj["number"] as number;
 
-        if (!(typeof __raw_number === "number")) {
+        if (!(typeof __raw_number === "number" && globalThis.Number.isFinite(__raw_number))) {
             errors.push({ field: "number", message: __raw_number == null ? "Order.number is required" : "expected number" });
         } else {
             instance.number = __raw_number;
@@ -704,7 +704,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("upsale")) ? "upsale" in obj : (__fields.keeps("upsale") && obj["upsale"] !== undefined)) {
         const __raw_upsale = obj["upsale"] as number;
 
-        if (!(typeof __raw_upsale === "number")) {
+        if (!(typeof __raw_upsale === "number" && globalThis.Number.isFinite(__raw_upsale))) {
             errors.push({ field: "upsale", message: __raw_upsale == null ? "Order.upsale is required" : "expected number" });
         } else {
             instance.upsale = __raw_upsale;
@@ -829,7 +829,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
         const __raw_balance = obj["balance"] as number;
 
-        if (!(typeof __raw_balance === "number")) {
+        if (!(typeof __raw_balance === "number" && globalThis.Number.isFinite(__raw_balance))) {
             errors.push({ field: "balance", message: __raw_balance == null ? "Order.balance is required" : "expected number" });
         } else {
             instance.balance = __raw_balance;
@@ -845,7 +845,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("total")) ? "total" in obj : (__fields.keeps("total") && obj["total"] !== undefined)) {
         const __raw_total = obj["total"] as number;
 
-        if (!(typeof __raw_total === "number")) {
+        if (!(typeof __raw_total === "number" && globalThis.Number.isFinite(__raw_total))) {
             errors.push({ field: "total", message: __raw_total == null ? "Order.total is required" : "expected number" });
         } else {
             instance.total = __raw_total;
@@ -912,7 +912,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("discount")) ? "discount" in obj : (__fields.keeps("discount") && obj["discount"] !== undefined)) {
         const __raw_discount = obj["discount"] as number;
 
-        if (!(typeof __raw_discount === "number")) {
+        if (!(typeof __raw_discount === "number" && globalThis.Number.isFinite(__raw_discount))) {
             errors.push({ field: "discount", message: __raw_discount == null ? "Order.discount is required" : "expected number" });
         } else {
             instance.discount = __raw_discount;
@@ -921,7 +921,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("tip")) ? "tip" in obj : (__fields.keeps("tip") && obj["tip"] !== undefined)) {
         const __raw_tip = obj["tip"] as number;
 
-        if (!(typeof __raw_tip === "number")) {
+        if (!(typeof __raw_tip === "number" && globalThis.Number.isFinite(__raw_tip))) {
             errors.push({ field: "tip", message: __raw_tip == null ? "Order.tip is required" : "expected number" });
         } else {
             instance.tip = __raw_tip;
@@ -2387,55 +2387,55 @@ export declare const Order: {
 
 ## Mapping
 
-original 0..570 -> expanded 1941..2511
-original 619..649 -> expanded 2511..2541
-original 677..698 -> expanded 2541..2562
-original 796..801 -> expanded 2562..2567
-original 820..856 -> expanded 2567..2603
-original 1031..1036 -> expanded 2603..2608
-original 1063..1091 -> expanded 2608..2636
-original 1119..1144 -> expanded 2636..2661
-original 1172..1216 -> expanded 2661..2705
-original 1264..1269 -> expanded 2705..2710
-original 1310..1340 -> expanded 2710..2740
-original 1386..1391 -> expanded 2740..2745
-original 1432..1460 -> expanded 2745..2773
-original 1531..1536 -> expanded 2773..2778
-original 1577..1606 -> expanded 2778..2807
-original 1707..1712 -> expanded 2807..2812
-original 1731..1769 -> expanded 2812..2850
-original 1834..1839 -> expanded 2850..2855
-original 1880..1904 -> expanded 2855..2879
-original 1972..1977 -> expanded 2879..2884
-original 2018..2045 -> expanded 2884..2911
-original 2090..2118 -> expanded 2911..2939
-original 2169..2200 -> expanded 2939..2970
-original 2248..2253 -> expanded 2970..2975
-original 2294..2323 -> expanded 2975..3004
-original 2351..2376 -> expanded 3004..3029
-original 2404..2445 -> expanded 3029..3070
-original 2551..2556 -> expanded 3070..3075
-original 2575..2619 -> expanded 3075..3119
-original 2710..2756 -> expanded 3119..3165
-original 2784..2834 -> expanded 3165..3215
-original 2862..2916 -> expanded 3215..3269
-original 2944..2970 -> expanded 3269..3295
-original 3014..3047 -> expanded 3295..3328
-original 3075..3099 -> expanded 3328..3352
-original 3148..3153 -> expanded 3352..3357
-original 3172..3202 -> expanded 3357..3387
-original 3261..3302 -> expanded 3387..3428
-original 3347..3385 -> expanded 3428..3466
-original 3413..3440 -> expanded 3466..3493
-original 3468..3490 -> expanded 3493..3515
-original 3518..3552 -> expanded 3515..3549
-original 3552..3553 -> expanded 93886..93887
-generated 0..1941 <- imports
-generated 3549..4350 <- Default
-generated 4350..12239 <- Encode
-generated 12239..49978 <- Decode
-generated 49978..92701 <- Gigaform
-generated 92701..93886 <- __convenience_const
+original 0..570 -> expanded 1972..2542
+original 619..649 -> expanded 2542..2572
+original 677..698 -> expanded 2572..2593
+original 796..801 -> expanded 2593..2598
+original 820..856 -> expanded 2598..2634
+original 1031..1036 -> expanded 2634..2639
+original 1063..1091 -> expanded 2639..2667
+original 1119..1144 -> expanded 2667..2692
+original 1172..1216 -> expanded 2692..2736
+original 1264..1269 -> expanded 2736..2741
+original 1310..1340 -> expanded 2741..2771
+original 1386..1391 -> expanded 2771..2776
+original 1432..1460 -> expanded 2776..2804
+original 1531..1536 -> expanded 2804..2809
+original 1577..1606 -> expanded 2809..2838
+original 1707..1712 -> expanded 2838..2843
+original 1731..1769 -> expanded 2843..2881
+original 1834..1839 -> expanded 2881..2886
+original 1880..1904 -> expanded 2886..2910
+original 1972..1977 -> expanded 2910..2915
+original 2018..2045 -> expanded 2915..2942
+original 2090..2118 -> expanded 2942..2970
+original 2169..2200 -> expanded 2970..3001
+original 2248..2253 -> expanded 3001..3006
+original 2294..2323 -> expanded 3006..3035
+original 2351..2376 -> expanded 3035..3060
+original 2404..2445 -> expanded 3060..3101
+original 2551..2556 -> expanded 3101..3106
+original 2575..2619 -> expanded 3106..3150
+original 2710..2756 -> expanded 3150..3196
+original 2784..2834 -> expanded 3196..3246
+original 2862..2916 -> expanded 3246..3300
+original 2944..2970 -> expanded 3300..3326
+original 3014..3047 -> expanded 3326..3359
+original 3075..3099 -> expanded 3359..3383
+original 3148..3153 -> expanded 3383..3388
+original 3172..3202 -> expanded 3388..3418
+original 3261..3302 -> expanded 3418..3459
+original 3347..3385 -> expanded 3459..3497
+original 3413..3440 -> expanded 3497..3524
+original 3468..3490 -> expanded 3524..3546
+original 3518..3552 -> expanded 3546..3580
+original 3552..3553 -> expanded 94185..94186
+generated 0..1972 <- imports
+generated 3580..4381 <- Default
+generated 4381..12270 <- Encode
+generated 12270..50277 <- Decode
+generated 50277..93000 <- Gigaform
+generated 93000..94185 <- __convenience_const
 
 ## Metadata
 

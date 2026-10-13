@@ -18,7 +18,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface Point {
@@ -131,7 +131,7 @@ function pointEncodeFields(value: Point, _ctx: __mf_EncodeContext, result: Recor
 export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = pointDecodeWithContext(data, ctx);
@@ -219,7 +219,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
         const __raw_x = obj["x"] as number;
 
-        if (!(typeof __raw_x === "number")) {
+        if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
             errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
         } else {
             instance.x = __raw_x;
@@ -228,7 +228,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("y")) ? "y" in obj : (__fields.keeps("y") && obj["y"] !== undefined)) {
         const __raw_y = obj["y"] as number;
 
-        if (!(typeof __raw_y === "number")) {
+        if (!(typeof __raw_y === "number" && globalThis.Number.isFinite(__raw_y))) {
             errors.push({ field: "y", message: __raw_y == null ? "Point.y is required" : "expected number" });
         } else {
             instance.y = __raw_y;
@@ -374,19 +374,19 @@ export declare const Point: {
 
 ## Mapping
 
-original 91..148 -> expanded 871..928
-original 148..149 -> expanded 12464..12465
-generated 0..871 <- imports
-generated 928..1210 <- Debug
-generated 1210..1343 <- Clone
-generated 1343..1568 <- PartialEq
-generated 1568..2043 <- Hash
-generated 2043..2571 <- PartialOrd
-generated 2571..3013 <- Ord
-generated 3013..3109 <- Default
-generated 3109..5326 <- Encode
-generated 5326..11023 <- Decode
-generated 11023..12464 <- __convenience_const
+original 91..148 -> expanded 902..959
+original 148..149 -> expanded 12578..12579
+generated 0..902 <- imports
+generated 959..1241 <- Debug
+generated 1241..1374 <- Clone
+generated 1374..1599 <- PartialEq
+generated 1599..2074 <- Hash
+generated 2074..2602 <- PartialOrd
+generated 2602..3044 <- Ord
+generated 3044..3140 <- Default
+generated 3140..5357 <- Encode
+generated 5357..11137 <- Decode
+generated 11137..12578 <- __convenience_const
 
 ## Metadata
 

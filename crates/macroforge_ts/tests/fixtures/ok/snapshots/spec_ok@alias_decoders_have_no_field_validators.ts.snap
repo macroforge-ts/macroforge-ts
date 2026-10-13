@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Meters = number;
@@ -26,7 +26,7 @@ type Meters = number;
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const result = metersDecodeWithContext(data, ctx);
@@ -67,7 +67,7 @@ export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "number") {
+    if (!((typeof __decoded === "number" && globalThis.Number.isFinite(__decoded)))) {
         throw new __mf_DecodeError([{ field: "_root", message: "Meters.decodeWithContext: expected number" }]);
     }
     const errors: Array<{ field: string; message: string }> = [];
@@ -77,11 +77,11 @@ export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
 }
 
 export function metersHasShape(value: unknown): boolean {
-    return typeof value === "number";
+    return (typeof value === "number" && globalThis.Number.isFinite(value));
 }
 
 export function metersIs(value: unknown): value is Meters {
-    return typeof value === "number" && metersDecode(value).success;
+    return (typeof value === "number" && globalThis.Number.isFinite(value)) && metersDecode(value).success;
 }
 
 const Meters: {
@@ -102,7 +102,7 @@ type Span = [number, number];
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function spanDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Span } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const result = spanDecodeWithContext(data, ctx);
@@ -189,7 +189,7 @@ export function spanDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
     if ("0" in obj) {
         const __raw_e0 = obj["0"] as number;
 
-        if (!(typeof __raw_e0 === "number")) {
+        if (!(typeof __raw_e0 === "number" && globalThis.Number.isFinite(__raw_e0))) {
             errors.push({ field: "0", message: __raw_e0 == null ? "Span.0 is required" : "expected number" });
         } else {
             instance.e0 = __raw_e0;
@@ -198,7 +198,7 @@ export function spanDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): 
     if ("1" in obj) {
         const __raw_e1 = obj["1"] as number;
 
-        if (!(typeof __raw_e1 === "number")) {
+        if (!(typeof __raw_e1 === "number" && globalThis.Number.isFinite(__raw_e1))) {
             errors.push({ field: "1", message: __raw_e1 == null ? "Span.1 is required" : "expected number" });
         } else {
             instance.e1 = __raw_e1;
@@ -267,15 +267,15 @@ export {};
 
 ## Mapping
 
-original 49..71 -> expanded 194..216
-original 71..73 -> expanded 2540..2542
-original 95..125 -> expanded 2542..2572
-original 125..126 -> expanded 6532..6533
-generated 0..194 <- imports
-generated 216..2223 <- Decode
-generated 2223..2540 <- __convenience_const
-generated 2572..6233 <- Decode
-generated 6233..6532 <- __convenience_const
+original 49..71 -> expanded 225..247
+original 71..73 -> expanded 2700..2702
+original 95..125 -> expanded 2702..2732
+original 125..126 -> expanded 6777..6778
+generated 0..225 <- imports
+generated 247..2383 <- Decode
+generated 2383..2700 <- __convenience_const
+generated 2732..6478 <- Decode
+generated 6478..6777 <- __convenience_const
 
 ## Metadata
 

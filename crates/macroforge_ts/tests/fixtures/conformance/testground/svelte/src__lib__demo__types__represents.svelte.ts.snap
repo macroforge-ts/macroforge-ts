@@ -14,7 +14,7 @@ true
 
 import { accountDecodeWithContext, accountEncodeWithContext } from "./account.svelte";
 import { employeeDecodeWithContext, employeeEncodeWithContext } from "./employee.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -97,7 +97,7 @@ function representsEncodeFields(value: Represents, ctx: __mf_EncodeContext, resu
 export function representsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Represents } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = representsDecodeWithContext(data, ctx);
@@ -611,17 +611,17 @@ export declare const Represents: {
 
 ## Mapping
 
-original 0..159 -> expanded 984..1143
-original 208..243 -> expanded 1143..1178
-original 262..294 -> expanded 1178..1210
-original 313..383 -> expanded 1210..1280
-original 383..384 -> expanded 20653..20654
-generated 0..984 <- imports
-generated 1280..1432 <- Default
-generated 1432..4222 <- Encode
-generated 4222..12802 <- Decode
-generated 12802..19333 <- Gigaform
-generated 19333..20653 <- __convenience_const
+original 0..159 -> expanded 1015..1174
+original 208..243 -> expanded 1174..1209
+original 262..294 -> expanded 1209..1241
+original 313..383 -> expanded 1241..1311
+original 383..384 -> expanded 20689..20690
+generated 0..1015 <- imports
+generated 1311..1463 <- Default
+generated 1463..4253 <- Encode
+generated 4253..12838 <- Decode
+generated 12838..19369 <- Gigaform
+generated 19369..20689 <- __convenience_const
 
 ## Metadata
 

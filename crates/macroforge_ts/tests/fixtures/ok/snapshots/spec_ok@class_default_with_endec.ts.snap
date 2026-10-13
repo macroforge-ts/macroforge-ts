@@ -18,7 +18,7 @@ true
 ## Output
 
 import { instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export class Account {
@@ -81,7 +81,7 @@ constructor(props: { name: string; balance: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = Account.decodeWithContext(data, ctx);
@@ -179,7 +179,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
         const __raw_balance = obj["balance"] as number;
 
-        if (!(typeof __raw_balance === "number")) {
+        if (!(typeof __raw_balance === "number" && globalThis.Number.isFinite(__raw_balance))) {
             errors.push({ field: "balance", message: __raw_balance == null ? "Account.balance is required" : "expected number" });
         } else {
             instance.balance = __raw_balance;
@@ -340,17 +340,17 @@ export declare function accountIs(value: unknown): value is Account;
 
 ## Mapping
 
-original 39..111 -> expanded 725..797
-original 111..112 -> expanded 8596..8597
-original 112..113 -> expanded 11781..11782
-generated 0..725 <- imports
-generated 797..1017 <- Default
-generated 1017..2718 <- Encode
-generated 2718..3039 <- Encode
-generated 3039..8596 <- Decode
-generated 8597..8684 <- Default
-generated 8684..10014 <- Encode
-generated 10014..11781 <- Decode
+original 39..111 -> expanded 756..828
+original 111..112 -> expanded 8677..8678
+original 112..113 -> expanded 11862..11863
+generated 0..756 <- imports
+generated 828..1048 <- Default
+generated 1048..2749 <- Encode
+generated 2749..3070 <- Encode
+generated 3070..8677 <- Decode
+generated 8678..8765 <- Default
+generated 8765..10095 <- Encode
+generated 10095..11862 <- Decode
 
 ## Metadata
 

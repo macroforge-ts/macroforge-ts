@@ -36,7 +36,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 const KEY = 'computed';
 
@@ -99,7 +99,7 @@ function keyedEncodeFields(value: Keyed, _ctx: __mf_EncodeContext, result: Recor
 export function keyedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Keyed } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = keyedDecodeWithContext(data, ctx);
@@ -196,7 +196,7 @@ export function keyedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("[KEY]")) ? "[KEY]" in obj : (__fields.keeps("[KEY]") && obj["[KEY]"] !== undefined)) {
         const __raw_$5bKEY$5d = obj["[KEY]"] as number;
 
-        if (!(typeof __raw_$5bKEY$5d === "number")) {
+        if (!(typeof __raw_$5bKEY$5d === "number" && globalThis.Number.isFinite(__raw_$5bKEY$5d))) {
             errors.push({ field: "[KEY]", message: __raw_$5bKEY$5d == null ? "Keyed.[KEY] is required" : "expected number" });
         } else {
             instance["[KEY]"] = __raw_$5bKEY$5d;
@@ -336,20 +336,20 @@ Error [440..485]: @derive(Decode): `{ id: string; [key: string]: Date }` has the
 
 ## Mapping
 
-original 0..25 -> expanded 648..673
-original 53..117 -> expanded 673..737
-original 148..213 -> expanded 737..802
-original 243..287 -> expanded 802..846
-original 287..289 -> expanded 9813..9815
-original 312..383 -> expanded 9815..9886
-original 383..385 -> expanded 10074..10076
-original 415..487 -> expanded 10076..10148
-generated 0..648 <- imports
-generated 846..3089 <- Encode
-generated 3089..8885 <- Decode
-generated 8885..9813 <- __convenience_const
-generated 9886..9964 <- Default
-generated 9964..10074 <- __convenience_const
+original 0..25 -> expanded 679..704
+original 53..117 -> expanded 704..768
+original 148..213 -> expanded 768..833
+original 243..287 -> expanded 833..877
+original 287..289 -> expanded 9896..9898
+original 312..383 -> expanded 9898..9969
+original 383..385 -> expanded 10157..10159
+original 415..487 -> expanded 10159..10231
+generated 0..679 <- imports
+generated 877..3120 <- Encode
+generated 3120..8968 <- Decode
+generated 8968..9896 <- __convenience_const
+generated 9969..10047 <- Default
+generated 10047..10157 <- __convenience_const
 
 ## Metadata
 

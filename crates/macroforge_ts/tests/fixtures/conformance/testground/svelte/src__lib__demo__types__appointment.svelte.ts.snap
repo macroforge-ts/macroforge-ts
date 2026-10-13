@@ -18,7 +18,7 @@ import { recurrenceRuleDecodeWithContext, recurrenceRuleEncodeWithContext } from
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { statusDecodeWithContext, statusEncodeWithContext } from "./status.svelte";
 import { __foreign__dateTimeDateTimeDefault, __foreign__optionOptionDefault, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeDecode, __foreign__optionOptionDecode } from "#macroforge/config";
-import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -195,7 +195,7 @@ function appointmentEncodeFields(value: Appointment, ctx: __mf_EncodeContext, re
 export function appointmentDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Appointment } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = appointmentDecodeWithContext(data, ctx);
@@ -370,7 +370,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     if ((__fields === undefined || __fields.requires("duration")) ? "duration" in obj : (__fields.keeps("duration") && obj["duration"] !== undefined)) {
         const __raw_duration = obj["duration"] as number;
 
-        if (!(typeof __raw_duration === "number")) {
+        if (!(typeof __raw_duration === "number" && globalThis.Number.isFinite(__raw_duration))) {
             errors.push({ field: "duration", message: __raw_duration == null ? "Appointment.duration is required" : "expected number" });
         } else {
             instance.duration = __raw_duration;
@@ -388,7 +388,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     if ((__fields === undefined || __fields.requires("offsetMs")) ? "offsetMs" in obj : (__fields.keeps("offsetMs") && obj["offsetMs"] !== undefined)) {
         const __raw_offsetMs = obj["offsetMs"] as number;
 
-        if (!(typeof __raw_offsetMs === "number")) {
+        if (!(typeof __raw_offsetMs === "number" && globalThis.Number.isFinite(__raw_offsetMs))) {
             errors.push({ field: "offsetMs", message: __raw_offsetMs == null ? "Appointment.offsetMs is required" : "expected number" });
         } else {
             instance.offsetMs = __raw_offsetMs;
@@ -1343,33 +1343,33 @@ export declare const Appointment: {
 
 ## Mapping
 
-original 0..359 -> expanded 1589..1948
-original 408..444 -> expanded 1948..1984
-original 472..493 -> expanded 1984..2005
-original 535..540 -> expanded 2005..2010
-original 581..605 -> expanded 2010..2034
-original 784..789 -> expanded 2034..2039
-original 817..842 -> expanded 2039..2064
-original 889..925 -> expanded 2064..2100
-original 980..1007 -> expanded 2100..2127
-original 1053..1080 -> expanded 2127..2154
-original 1108..1135 -> expanded 2154..2181
-original 1181..1207 -> expanded 2181..2207
-original 1255..1283 -> expanded 2207..2235
-original 1372..1418 -> expanded 2235..2281
-original 1471..1476 -> expanded 2281..2286
-original 1495..1529 -> expanded 2286..2320
-original 1581..1626 -> expanded 2320..2365
-original 1654..1659 -> expanded 2365..2370
-original 1732..1757 -> expanded 2370..2395
-original 1785..1830 -> expanded 2395..2440
-original 1830..1831 -> expanded 50315..50316
-generated 0..1589 <- imports
-generated 2440..2992 <- Default
-generated 2992..7789 <- Encode
-generated 7789..25908 <- Decode
-generated 25908..48968 <- Gigaform
-generated 48968..50315 <- __convenience_const
+original 0..359 -> expanded 1620..1979
+original 408..444 -> expanded 1979..2015
+original 472..493 -> expanded 2015..2036
+original 535..540 -> expanded 2036..2041
+original 581..605 -> expanded 2041..2065
+original 784..789 -> expanded 2065..2070
+original 817..842 -> expanded 2070..2095
+original 889..925 -> expanded 2095..2131
+original 980..1007 -> expanded 2131..2158
+original 1053..1080 -> expanded 2158..2185
+original 1108..1135 -> expanded 2185..2212
+original 1181..1207 -> expanded 2212..2238
+original 1255..1283 -> expanded 2238..2266
+original 1372..1418 -> expanded 2266..2312
+original 1471..1476 -> expanded 2312..2317
+original 1495..1529 -> expanded 2317..2351
+original 1581..1626 -> expanded 2351..2396
+original 1654..1659 -> expanded 2396..2401
+original 1732..1757 -> expanded 2401..2426
+original 1785..1830 -> expanded 2426..2471
+original 1830..1831 -> expanded 50443..50444
+generated 0..1620 <- imports
+generated 2471..3023 <- Default
+generated 3023..7820 <- Encode
+generated 7820..26036 <- Decode
+generated 26036..49096 <- Gigaform
+generated 49096..50443 <- __convenience_const
 
 ## Metadata
 

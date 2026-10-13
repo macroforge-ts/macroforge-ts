@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -90,7 +90,7 @@ function metadataEncodeFields(value: Metadata, _ctx: __mf_EncodeContext, result:
 export function metadataDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Metadata } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = metadataDecodeWithContext(data, ctx);
@@ -596,15 +596,15 @@ export declare const Metadata: {
 
 ## Mapping
 
-original 0..58 -> expanded 897..955
-original 107..239 -> expanded 955..1087
-original 239..240 -> expanded 20668..20669
-generated 0..897 <- imports
-generated 1087..1253 <- Default
-generated 1253..3913 <- Encode
-generated 3913..11904 <- Decode
-generated 11904..19402 <- Gigaform
-generated 19402..20668 <- __convenience_const
+original 0..58 -> expanded 928..986
+original 107..239 -> expanded 986..1118
+original 239..240 -> expanded 20704..20705
+generated 0..928 <- imports
+generated 1118..1284 <- Default
+generated 1284..3944 <- Encode
+generated 3944..11940 <- Decode
+generated 11940..19438 <- Gigaform
+generated 19438..20704 <- __convenience_const
 
 ## Metadata
 

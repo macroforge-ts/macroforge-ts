@@ -13,7 +13,7 @@ true
 ## Output
 
 import { instanceOf as __mf_instanceOf, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
-import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 // Default on classes whose fields have initializers, derived beside Decode,
 // whose constructor takes arguments.
@@ -58,7 +58,7 @@ constructor(props: { theme: string; retries?: number; label?: string; tags: stri
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = Settings.decodeWithContext(data, ctx);
@@ -163,7 +163,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
         if (("retries" in obj && obj["retries"] !== undefined)) {
             const __raw_retries = obj["retries"] as number;
 
-            if (!(typeof __raw_retries === "number")) {
+            if (!(typeof __raw_retries === "number" && globalThis.Number.isFinite(__raw_retries))) {
                 errors.push({ field: "retries", message: "expected number" });
             } else {
                 instance.retries = __raw_retries;
@@ -208,7 +208,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("limit")) ? "limit" in obj : (__fields.keeps("limit") && obj["limit"] !== undefined)) {
         const __raw_limit = obj["limit"] as number;
 
-        if (!(typeof __raw_limit === "number")) {
+        if (!(typeof __raw_limit === "number" && globalThis.Number.isFinite(__raw_limit))) {
             errors.push({ field: "limit", message: __raw_limit == null ? "Settings.limit is required" : "expected number" });
         } else {
             instance.limit = __raw_limit;
@@ -217,7 +217,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("createdAt")) ? "createdAt" in obj : (__fields.keeps("createdAt") && obj["createdAt"] !== undefined)) {
         const __raw_createdAt = obj["createdAt"] as number;
 
-        if (!(typeof __raw_createdAt === "number")) {
+        if (!(typeof __raw_createdAt === "number" && globalThis.Number.isFinite(__raw_createdAt))) {
             errors.push({ field: "createdAt", message: __raw_createdAt == null ? "Settings.createdAt is required" : "expected number" });
         } else {
             instance.createdAt = __raw_createdAt;
@@ -399,7 +399,7 @@ constructor(props: { count: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Counter } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = Counter.decodeWithContext(data, ctx);
@@ -485,7 +485,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
         const __raw_count = obj["count"] as number;
 
-        if (!(typeof __raw_count === "number")) {
+        if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
             errors.push({ field: "count", message: __raw_count == null ? "Counter.count is required" : "expected number" });
         } else {
             instance.count = __raw_count;
@@ -761,39 +761,39 @@ export declare function counterDefaultValue(): Counter;
 
 ## Mapping
 
-original 0..396 -> expanded 970..1366
-original 396..397 -> expanded 10363..10364
-original 397..579 -> expanded 12236..12418
-original 579..580 -> expanded 12691..12692
-original 580..752 -> expanded 12779..12951
-original 752..753 -> expanded 21557..21558
-original 753..754 -> expanded 25354..25355
-generated 0..970 <- imports
-generated 1366..1732 <- Default
-generated 1732..10363 <- Decode
-generated 10364..10454 <- Default
-generated 10454..12236 <- Decode
-generated 12418..12691 <- Default
-generated 12692..12779 <- Default
-generated 12951..13218 <- Debug
-generated 13218..13340 <- Clone
-generated 13340..13546 <- PartialEq
-generated 13546..13888 <- Hash
-generated 13888..14305 <- PartialOrd
-generated 14305..14668 <- Ord
-generated 14668..16204 <- Encode
-generated 16204..16525 <- Encode
-generated 16525..21377 <- Decode
-generated 21377..21557 <- Default
-generated 21558..21655 <- Debug
-generated 21655..21747 <- Clone
-generated 21747..21848 <- PartialEq
-generated 21848..21945 <- Hash
-generated 21945..22068 <- PartialOrd
-generated 22068..22170 <- Ord
-generated 22170..23500 <- Encode
-generated 23500..25267 <- Decode
-generated 25267..25354 <- Default
+original 0..396 -> expanded 1001..1397
+original 396..397 -> expanded 10534..10535
+original 397..579 -> expanded 12407..12589
+original 579..580 -> expanded 12862..12863
+original 580..752 -> expanded 12950..13122
+original 752..753 -> expanded 21776..21777
+original 753..754 -> expanded 25573..25574
+generated 0..1001 <- imports
+generated 1397..1763 <- Default
+generated 1763..10534 <- Decode
+generated 10535..10625 <- Default
+generated 10625..12407 <- Decode
+generated 12589..12862 <- Default
+generated 12863..12950 <- Default
+generated 13122..13389 <- Debug
+generated 13389..13511 <- Clone
+generated 13511..13717 <- PartialEq
+generated 13717..14059 <- Hash
+generated 14059..14476 <- PartialOrd
+generated 14476..14839 <- Ord
+generated 14839..16375 <- Encode
+generated 16375..16696 <- Encode
+generated 16696..21596 <- Decode
+generated 21596..21776 <- Default
+generated 21777..21874 <- Debug
+generated 21874..21966 <- Clone
+generated 21966..22067 <- PartialEq
+generated 22067..22164 <- Hash
+generated 22164..22287 <- PartialOrd
+generated 22287..22389 <- Ord
+generated 22389..23719 <- Encode
+generated 23719..25486 <- Decode
+generated 25486..25573 <- Default
 
 ## Metadata
 

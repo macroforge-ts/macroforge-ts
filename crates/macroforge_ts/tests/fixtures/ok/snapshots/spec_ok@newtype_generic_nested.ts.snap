@@ -80,7 +80,7 @@ export function idDecode<T>(input: unknown, opts?: __mf_DecodeOptions): { succes
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function idDecodeWithContext<T>(value: unknown, _ctx: __mf_DecodeContext, __decodeT?: __mf_Decoder<T>): Id<T> {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "string") {
+    if (!(typeof __decoded === "string")) {
         throw new __mf_DecodeError([{ field: "_root", message: "Id.decodeWithContext: expected string" }]);
     }
     return __decoded as Id<T>;
@@ -162,17 +162,17 @@ export {};
 
 original 30..51 -> expanded 482..503
 original 67..68 -> expanded 547..548
-original 68..89 -> expanded 3533..3554
-original 115..117 -> expanded 3636..3638
+original 68..89 -> expanded 3536..3557
+original 115..117 -> expanded 3639..3641
 generated 0..347 <- imports
 generated 347..392 <- $Newtype
 generated 392..437 <- $Newtype
 generated 437..482 <- $Newtype
 generated 503..547 <- $Newtype
 generated 548..1277 <- Encode
-generated 1277..3089 <- Decode
-generated 3089..3533 <- __convenience_const
-generated 3554..3636 <- $Newtype
+generated 1277..3092 <- Decode
+generated 3092..3536 <- __convenience_const
+generated 3557..3639 <- $Newtype
 
 ## Metadata
 

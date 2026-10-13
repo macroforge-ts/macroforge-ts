@@ -13,6 +13,20 @@ export interface SpecialScalars {
     list: number[];
 }
 
+/** @derive(Encode, Decode) */
+export type SpecialNumber = number;
+
+/** @derive(Encode, Decode) */
+export type SpecialEither = number | SpecialCarried;
+
+/** @derive(Encode, Decode) */
+export interface SpecialCarried {
+    data: unknown;
+    amounts: Record<string, number>;
+    pair: [number, string];
+    mixed: string | number;
+}
+
 /** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
 export interface SpecialCollections {
     set: Set<number>;

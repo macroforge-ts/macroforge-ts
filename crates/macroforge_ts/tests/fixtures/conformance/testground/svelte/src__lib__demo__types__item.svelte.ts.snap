@@ -15,7 +15,7 @@ true
 import { productDecodeWithContext, productEncodeWithContext } from "./product.svelte";
 import { recordLinkDecodeWithContext, recordLinkHasShape, recordLinkEncodeWithContext, recordLinkDefaultValue } from "./record-link.svelte";
 import { serviceDecodeWithContext, serviceEncodeWithContext } from "./service.svelte";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -73,7 +73,7 @@ export function itemEncodeWithContext(value: Item, ctx: __mf_EncodeContext): unk
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function itemDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Item } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = itemDecodeWithContext(data, ctx);
@@ -452,15 +452,15 @@ export declare const Item: {
 
 ## Mapping
 
-original 0..213 -> expanded 900..1113
-original 262..340 -> expanded 1113..1191
-original 340..341 -> expanded 14604..14605
-generated 0..900 <- imports
-generated 1191..1252 <- Default
-generated 1252..3817 <- Encode
-generated 3817..9362 <- Decode
-generated 9362..13890 <- Gigaform
-generated 13890..14604 <- __convenience_const
+original 0..213 -> expanded 931..1144
+original 262..340 -> expanded 1144..1222
+original 340..341 -> expanded 14640..14641
+generated 0..931 <- imports
+generated 1222..1283 <- Default
+generated 1283..3848 <- Encode
+generated 3848..9398 <- Decode
+generated 9398..13926 <- Gigaform
+generated 13926..14640 <- __convenience_const
 
 ## Metadata
 

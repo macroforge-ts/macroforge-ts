@@ -13,7 +13,7 @@ true
 ## Output
 
 import { rowHeightDecodeWithContext, rowHeightEncodeWithContext } from "./row-height.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -94,7 +94,7 @@ function scheduleSettingsEncodeFields(value: ScheduleSettings, ctx: __mf_EncodeC
 export function scheduleSettingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ScheduleSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = scheduleSettingsDecodeWithContext(data, ctx);
@@ -188,7 +188,7 @@ export function scheduleSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
     if ((__fields === undefined || __fields.requires("daysPerWeek")) ? "daysPerWeek" in obj : (__fields.keeps("daysPerWeek") && obj["daysPerWeek"] !== undefined)) {
         const __raw_daysPerWeek = obj["daysPerWeek"] as number;
 
-        if (!(typeof __raw_daysPerWeek === "number")) {
+        if (!(typeof __raw_daysPerWeek === "number" && globalThis.Number.isFinite(__raw_daysPerWeek))) {
             errors.push({ field: "daysPerWeek", message: __raw_daysPerWeek == null ? "ScheduleSettings.daysPerWeek is required" : "expected number" });
         } else {
             instance.daysPerWeek = __raw_daysPerWeek;
@@ -639,16 +639,16 @@ export declare const ScheduleSettings: {
 
 ## Mapping
 
-original 0..113 -> expanded 991..1104
-original 162..228 -> expanded 1104..1170
-original 253..343 -> expanded 1170..1260
-original 343..344 -> expanded 23905..23906
-generated 0..991 <- imports
-generated 1260..1460 <- Default
-generated 1460..4332 <- Encode
-generated 4332..13366 <- Decode
-generated 13366..22423 <- Gigaform
-generated 22423..23905 <- __convenience_const
+original 0..113 -> expanded 1022..1135
+original 162..228 -> expanded 1135..1201
+original 253..343 -> expanded 1201..1291
+original 343..344 -> expanded 23990..23991
+generated 0..1022 <- imports
+generated 1291..1491 <- Default
+generated 1491..4363 <- Encode
+generated 4363..13451 <- Decode
+generated 13451..22508 <- Gigaform
+generated 22508..23990 <- __convenience_const
 
 ## Metadata
 

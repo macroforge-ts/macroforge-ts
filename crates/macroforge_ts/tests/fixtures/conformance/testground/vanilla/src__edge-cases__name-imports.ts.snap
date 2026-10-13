@@ -14,7 +14,7 @@ true
 
 import { point2DDecodeWithContext, point2DEncodeWithContext, point2DDefaultValue, point2DHashCode, point2DEquals, point2DClone, point2DToString } from "./name-shapes";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Types named in lowercase, held from another module: their functions are
@@ -140,7 +140,7 @@ function nameImportsEncodeFields(value: NameImports, ctx: __mf_EncodeContext, re
 export function nameImportsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NameImports } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = nameImportsDecodeWithContext(data, ctx);
@@ -469,17 +469,17 @@ export declare const NameImports: {
 
 ## Mapping
 
-original 0..372 -> expanded 1103..1475
-original 372..373 -> expanded 18291..18292
-generated 0..1103 <- imports
-generated 1475..2005 <- Debug
-generated 2005..2479 <- Clone
-generated 2479..3217 <- PartialEq
-generated 3217..3902 <- Hash
-generated 3902..4087 <- Default
-generated 4087..7005 <- Encode
-generated 7005..16824 <- Decode
-generated 16824..18291 <- __convenience_const
+original 0..372 -> expanded 1134..1506
+original 372..373 -> expanded 18327..18328
+generated 0..1134 <- imports
+generated 1506..2036 <- Debug
+generated 2036..2510 <- Clone
+generated 2510..3248 <- PartialEq
+generated 3248..3933 <- Hash
+generated 3933..4118 <- Default
+generated 4118..7036 <- Encode
+generated 7036..16860 <- Decode
+generated 16860..18327 <- __convenience_const
 
 ## Metadata
 

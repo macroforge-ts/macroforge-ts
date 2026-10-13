@@ -29,7 +29,7 @@ import { serviceDecodeWithContext, serviceHasShape, serviceEncodeWithContext, se
 import { siteDecodeWithContext, siteHasShape, siteEncodeWithContext, siteDefaultValue } from "./site.svelte";
 import { taxRateDecodeWithContext, taxRateHasShape, taxRateEncodeWithContext, taxRateDefaultValue } from "./tax-rate.svelte";
 import { userDecodeWithContext, userHasShape, userEncodeWithContext, userDefaultValue } from "./user.svelte";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -148,7 +148,7 @@ export function targetEncodeWithContext(value: Target, ctx: __mf_EncodeContext):
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function targetDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Target } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = targetDecodeWithContext(data, ctx);
@@ -1156,15 +1156,15 @@ export declare const Target: {
 
 ## Mapping
 
-original 0..887 -> expanded 2696..3583
-original 936..1209 -> expanded 3583..3856
-original 1209..1210 -> expanded 38071..38072
-generated 0..2696 <- imports
-generated 3856..3940 <- Default
-generated 3940..9801 <- Encode
-generated 9801..23689 <- Decode
-generated 23689..37319 <- Gigaform
-generated 37319..38071 <- __convenience_const
+original 0..887 -> expanded 2727..3614
+original 936..1209 -> expanded 3614..3887
+original 1209..1210 -> expanded 38107..38108
+generated 0..2727 <- imports
+generated 3887..3971 <- Default
+generated 3971..9832 <- Encode
+generated 9832..23725 <- Decode
+generated 23725..37355 <- Gigaform
+generated 37355..38107 <- __convenience_const
 
 ## Metadata
 

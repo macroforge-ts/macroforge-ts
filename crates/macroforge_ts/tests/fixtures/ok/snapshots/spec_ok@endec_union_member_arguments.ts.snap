@@ -32,7 +32,7 @@ true
 ## Output
 
 import type { Encoder as __mf_Encoder, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeDate as __mf_decodeDate, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeDate as __mf_decodeDate, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 
 interface Box<T> {
     held: T;
@@ -77,7 +77,7 @@ function boxEncodeFields<T>(value: Box<T>, ctx: __mf_EncodeContext, result: Reco
 export function boxDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Box<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = boxDecodeWithContext<T>(data, ctx, __decodeT);
@@ -279,7 +279,7 @@ function circleEncodeFields(value: Circle, _ctx: __mf_EncodeContext, result: Rec
 export function circleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Circle } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = circleDecodeWithContext(data, ctx);
@@ -364,7 +364,7 @@ export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
     if ((__fields === undefined || __fields.requires("radius")) ? "radius" in obj : (__fields.keeps("radius") && obj["radius"] !== undefined)) {
         const __raw_radius = obj["radius"] as number;
 
-        if (!(typeof __raw_radius === "number")) {
+        if (!(typeof __raw_radius === "number" && globalThis.Number.isFinite(__raw_radius))) {
             errors.push({ field: "radius", message: __raw_radius == null ? "Circle.radius is required" : "expected number" });
         } else {
             instance.radius = __raw_radius;
@@ -467,7 +467,7 @@ export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): u
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function shapeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Shape } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = shapeDecodeWithContext(data, ctx);
@@ -833,7 +833,7 @@ export function taggedEncodeWithContext<T>(value: Tagged<T>, ctx: __mf_EncodeCon
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function taggedDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Tagged<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = taggedDecodeWithContext<T>(data, ctx, __decodeT);
@@ -1108,32 +1108,32 @@ export {};
 
 ## Mapping
 
-original 30..64 -> expanded 801..835
-original 64..66 -> expanded 9884..9886
-original 96..137 -> expanded 9886..9927
-original 137..139 -> expanded 18218..18220
-original 169..202 -> expanded 18220..18253
-original 202..204 -> expanded 25785..25787
-original 234..269 -> expanded 25787..25822
-original 269..271 -> expanded 33147..33149
-original 332..409 -> expanded 33149..33226
-original 409..410 -> expanded 39538..39539
-generated 0..801 <- imports
-generated 835..3133 <- Encode
-generated 3133..8998 <- Decode
-generated 8998..9884 <- __convenience_const
-generated 9927..12034 <- Encode
-generated 12034..17269 <- Decode
-generated 17269..18218 <- __convenience_const
-generated 18253..20445 <- Encode
-generated 20445..25309 <- Decode
-generated 25309..25785 <- __convenience_const
-generated 25822..27917 <- Encode
-generated 27917..32645 <- Decode
-generated 32645..33147 <- __convenience_const
-generated 33226..35167 <- Encode
-generated 35167..38917 <- Decode
-generated 38917..39538 <- __convenience_const
+original 30..64 -> expanded 832..866
+original 64..66 -> expanded 9920..9922
+original 96..137 -> expanded 9922..9963
+original 137..139 -> expanded 18303..18305
+original 169..202 -> expanded 18305..18338
+original 202..204 -> expanded 25875..25877
+original 234..269 -> expanded 25877..25912
+original 269..271 -> expanded 33237..33239
+original 332..409 -> expanded 33239..33316
+original 409..410 -> expanded 39633..39634
+generated 0..832 <- imports
+generated 866..3164 <- Encode
+generated 3164..9034 <- Decode
+generated 9034..9920 <- __convenience_const
+generated 9963..12070 <- Encode
+generated 12070..17354 <- Decode
+generated 17354..18303 <- __convenience_const
+generated 18338..20530 <- Encode
+generated 20530..25399 <- Decode
+generated 25399..25875 <- __convenience_const
+generated 25912..28007 <- Encode
+generated 28007..32735 <- Decode
+generated 32735..33237 <- __convenience_const
+generated 33316..35257 <- Encode
+generated 35257..39012 <- Decode
+generated 39012..39633 <- __convenience_const
 
 ## Metadata
 

@@ -13,7 +13,7 @@ true
 ## Output
 
 import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemDefaultValue, edgeItemHashCode, edgeItemEquals, edgeItemClone, edgeCardDecodeWithContext, edgeCardEncodeWithContext, edgeCardHashCode, edgeCardEquals, edgeCardClone, edgeItemToString } from "./edge-types";
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, decodeDate as __mf_decodeDate, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef, decodeNumberKey as __mf_decodeNumberKey, decodeChecked as __mf_decodeChecked, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeNumber as __mf_decodeNumber, decodeArray as __mf_decodeArray, decodeDate as __mf_decodeDate, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef, decodeNumberKey as __mf_decodeNumberKey, decodeChecked as __mf_decodeChecked, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, structuralClone as __mf_structuralClone, clonedWith as __mf_clonedWith, structuralEquals as __mf_structuralEquals, equalWithin as __mf_equalWithin, structuralHash as __mf_structuralHash, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
@@ -364,7 +364,7 @@ function collectionNestedEncodeFields(value: CollectionNested, ctx: __mf_EncodeC
 export function collectionNestedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CollectionNested } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = collectionNestedDecodeWithContext(data, ctx);
@@ -991,7 +991,7 @@ function collectionKeysEncodeFields(value: CollectionKeys, ctx: __mf_EncodeConte
 export function collectionKeysDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CollectionKeys } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = collectionKeysDecodeWithContext(data, ctx);
@@ -1560,7 +1560,7 @@ function collectionUnionsEncodeFields(value: CollectionUnions, ctx: __mf_EncodeC
 export function collectionUnionsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CollectionUnions } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = collectionUnionsDecodeWithContext(data, ctx);
@@ -1665,7 +1665,7 @@ export function collectionUnionsDecodeWithContext(value: unknown, ctx: __mf_Deco
         if (Array.isArray(__raw_mixed)) {
             ctx.pushScope("mixed");
             try {
-                instance.mixed = __mf_decodeArray(__raw_mixed, ctx, (__raw0) => (__mf_decodeChecked(__raw0, typeof __raw0 === "string" || typeof __raw0 === "number", "string | number") as string | number));
+                instance.mixed = __mf_decodeArray(__raw_mixed, ctx, (__raw0) => (__mf_decodeChecked(__raw0, typeof __raw0 === "string" || (typeof __raw0 === "number" && globalThis.Number.isFinite(__raw0)), "string | number") as string | number));
             } catch (__e) {
                 if (__e instanceof __mf_DecodeError) {
                     for (const __err of __e.errors) {
@@ -2042,7 +2042,7 @@ function collectionTuplesEncodeFields(value: CollectionTuples, ctx: __mf_EncodeC
 export function collectionTuplesDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CollectionTuples } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = collectionTuplesDecodeWithContext(data, ctx);
@@ -2505,7 +2505,7 @@ function collectionBigEncodeFields(value: CollectionBig, _ctx: __mf_EncodeContex
 export function collectionBigDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CollectionBig } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = collectionBigDecodeWithContext(data, ctx);
@@ -3123,63 +3123,63 @@ export declare const CollectionBig: {
 
 ## Mapping
 
-original 0..433 -> expanded 1644..2077
-original 433..948 -> expanded 5949..6464
-original 948..1410 -> expanded 44276..44738
-original 1410..1804 -> expanded 75740..76134
-original 1804..2219 -> expanded 101627..102042
-original 2219..2422 -> expanded 126837..127040
-original 2422..2423 -> expanded 143875..143876
-generated 0..1644 <- imports
-generated 2077..2416 <- Debug
-generated 2416..2514 <- Clone
-generated 2514..2623 <- PartialEq
-generated 2623..2794 <- Hash
-generated 2794..3018 <- PartialOrd
-generated 3018..3228 <- Ord
-generated 3228..3327 <- Default
-generated 3327..3785 <- Encode
-generated 3785..4904 <- Decode
-generated 4904..5949 <- __convenience_const
-generated 6464..7733 <- Debug
-generated 7733..9365 <- Clone
-generated 9365..13703 <- PartialEq
-generated 13703..16633 <- Hash
-generated 16633..16994 <- Default
-generated 16994..21965 <- Encode
-generated 21965..42654 <- Decode
-generated 42654..44276 <- __convenience_const
-generated 44738..45651 <- Debug
-generated 45651..46445 <- Clone
-generated 46445..48718 <- PartialEq
-generated 48718..50577 <- Hash
-generated 50577..50987 <- Default
-generated 50987..55392 <- Encode
-generated 55392..74180 <- Decode
-generated 74180..75740 <- __convenience_const
-generated 76134..76868 <- Debug
-generated 76868..77670 <- Clone
-generated 77670..79388 <- PartialEq
-generated 79388..80673 <- Hash
-generated 80673..80942 <- Default
-generated 80942..84842 <- Encode
-generated 84842..100005 <- Decode
-generated 100005..101627 <- __convenience_const
-generated 102042..102811 <- Debug
-generated 102811..103364 <- Clone
-generated 103364..104079 <- PartialEq
-generated 104079..104858 <- Hash
-generated 104858..105195 <- Default
-generated 105195..108935 <- Encode
-generated 108935..125215 <- Decode
-generated 125215..126837 <- __convenience_const
-generated 127040..127502 <- Debug
-generated 127502..127753 <- Clone
-generated 127753..128404 <- PartialEq
-generated 128404..129352 <- Hash
-generated 129352..132286 <- Encode
-generated 132286..142448 <- Decode
-generated 142448..143875 <- __convenience_const
+original 0..433 -> expanded 1675..2108
+original 433..948 -> expanded 5980..6495
+original 948..1410 -> expanded 44312..44774
+original 1410..1804 -> expanded 75781..76175
+original 1804..2219 -> expanded 101713..102128
+original 2219..2422 -> expanded 126928..127131
+original 2422..2423 -> expanded 143971..143972
+generated 0..1675 <- imports
+generated 2108..2447 <- Debug
+generated 2447..2545 <- Clone
+generated 2545..2654 <- PartialEq
+generated 2654..2825 <- Hash
+generated 2825..3049 <- PartialOrd
+generated 3049..3259 <- Ord
+generated 3259..3358 <- Default
+generated 3358..3816 <- Encode
+generated 3816..4935 <- Decode
+generated 4935..5980 <- __convenience_const
+generated 6495..7764 <- Debug
+generated 7764..9396 <- Clone
+generated 9396..13734 <- PartialEq
+generated 13734..16664 <- Hash
+generated 16664..17025 <- Default
+generated 17025..21996 <- Encode
+generated 21996..42690 <- Decode
+generated 42690..44312 <- __convenience_const
+generated 44774..45687 <- Debug
+generated 45687..46481 <- Clone
+generated 46481..48754 <- PartialEq
+generated 48754..50613 <- Hash
+generated 50613..51023 <- Default
+generated 51023..55428 <- Encode
+generated 55428..74221 <- Decode
+generated 74221..75781 <- __convenience_const
+generated 76175..76909 <- Debug
+generated 76909..77711 <- Clone
+generated 77711..79429 <- PartialEq
+generated 79429..80714 <- Hash
+generated 80714..80983 <- Default
+generated 80983..84883 <- Encode
+generated 84883..100091 <- Decode
+generated 100091..101713 <- __convenience_const
+generated 102128..102897 <- Debug
+generated 102897..103450 <- Clone
+generated 103450..104165 <- PartialEq
+generated 104165..104944 <- Hash
+generated 104944..105281 <- Default
+generated 105281..109021 <- Encode
+generated 109021..125306 <- Decode
+generated 125306..126928 <- __convenience_const
+generated 127131..127593 <- Debug
+generated 127593..127844 <- Clone
+generated 127844..128495 <- PartialEq
+generated 128495..129443 <- Hash
+generated 129443..132377 <- Encode
+generated 132377..142544 <- Decode
+generated 142544..143971 <- __convenience_const
 
 ## Metadata
 

@@ -14,7 +14,7 @@ true
 
 import { edgeItemDecodeWithContext, edgeItemEncodeWithContext, edgeItemHashCode, edgeItemEquals, edgeItemClone, edgeItemToString } from "./edge-types";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeMap as __mf_decodeMap, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Class members a derive has to tell from plain fields: visibility
@@ -167,7 +167,7 @@ constructor(props: { open: string; fixed: string; optional?: string; definite: n
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassMembers } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = ClassMembers.decodeWithContext(data, ctx);
@@ -291,7 +291,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("definite")) ? "definite" in obj : (__fields.keeps("definite") && obj["definite"] !== undefined)) {
         const __raw_definite = obj["definite"] as number;
 
-        if (!(typeof __raw_definite === "number")) {
+        if (!(typeof __raw_definite === "number" && globalThis.Number.isFinite(__raw_definite))) {
             errors.push({ field: "definite", message: __raw_definite == null ? "ClassMembers.definite is required" : "expected number" });
         } else {
             instance.definite = __raw_definite;
@@ -567,7 +567,7 @@ constructor(props: { name: string; guarded: number; hidden: boolean; sealed: str
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassGuarded } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = ClassGuarded.decodeWithContext(data, ctx);
@@ -671,7 +671,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("guarded")) ? "guarded" in obj : (__fields.keeps("guarded") && obj["guarded"] !== undefined)) {
         const __raw_guarded = obj["guarded"] as number;
 
-        if (!(typeof __raw_guarded === "number")) {
+        if (!(typeof __raw_guarded === "number" && globalThis.Number.isFinite(__raw_guarded))) {
             errors.push({ field: "guarded", message: __raw_guarded == null ? "ClassGuarded.guarded is required" : "expected number" });
         } else {
             instance.guarded = __raw_guarded;
@@ -912,7 +912,7 @@ static #encodeFields(value: ClassConstructed, _ctx: __mf_EncodeContext, result: 
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassConstructed } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = ClassConstructed.decodeWithContext(data, ctx);
@@ -1010,7 +1010,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("weight")) ? "weight" in obj : (__fields.keeps("weight") && obj["weight"] !== undefined)) {
         const __raw_weight = obj["weight"] as number;
 
-        if (!(typeof __raw_weight === "number")) {
+        if (!(typeof __raw_weight === "number" && globalThis.Number.isFinite(__raw_weight))) {
             errors.push({ field: "weight", message: __raw_weight == null ? "ClassConstructed.weight is required" : "expected number" });
         } else {
             instance.weight = __raw_weight;
@@ -1220,7 +1220,7 @@ static #encodeFields(value: ClassParameters, _ctx: __mf_EncodeContext, result: R
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassParameters } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = ClassParameters.decodeWithContext(data, ctx);
@@ -1321,7 +1321,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("rank")) ? "rank" in obj : (__fields.keeps("rank") && obj["rank"] !== undefined)) {
         const __raw_rank = obj["rank"] as number;
 
-        if (!(typeof __raw_rank === "number")) {
+        if (!(typeof __raw_rank === "number" && globalThis.Number.isFinite(__raw_rank))) {
             errors.push({ field: "rank", message: __raw_rank == null ? "ClassParameters.rank is required" : "expected number" });
         } else {
             instance.rank = __raw_rank;
@@ -1509,7 +1509,7 @@ constructor(props: { id: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassBase } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = ClassBase.decodeWithContext(data, ctx);
@@ -1785,7 +1785,7 @@ constructor(props: { id: string; extra: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassDerived } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = ClassDerived.decodeWithContext(data, ctx);
@@ -1883,7 +1883,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("extra")) ? "extra" in obj : (__fields.keeps("extra") && obj["extra"] !== undefined)) {
         const __raw_extra = obj["extra"] as number;
 
-        if (!(typeof __raw_extra === "number")) {
+        if (!(typeof __raw_extra === "number" && globalThis.Number.isFinite(__raw_extra))) {
             errors.push({ field: "extra", message: __raw_extra == null ? "ClassDerived.extra is required" : "expected number" });
         } else {
             instance.extra = __raw_extra;
@@ -2165,7 +2165,7 @@ constructor(props: { card: ClassMembers; cards: ClassMembers[]; byName: Map<stri
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassHolder } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = ClassHolder.decodeWithContext(data, ctx);
@@ -2652,7 +2652,7 @@ static #encodeFields(value: ClassInferred, _ctx: __mf_EncodeContext, result: Rec
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassInferred } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = ClassInferred.decodeWithContext(data, ctx);
@@ -2774,7 +2774,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
         const __raw_count = obj["count"] as number;
 
-        if (!(typeof __raw_count === "number")) {
+        if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
             errors.push({ field: "count", message: __raw_count == null ? "ClassInferred.count is required" : "expected number" });
         } else {
             instance.count = __raw_count;
@@ -2814,7 +2814,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("offset")) ? "offset" in obj : (__fields.keeps("offset") && obj["offset"] !== undefined)) {
         const __raw_offset = obj["offset"] as number;
 
-        if (!(typeof __raw_offset === "number")) {
+        if (!(typeof __raw_offset === "number" && globalThis.Number.isFinite(__raw_offset))) {
             errors.push({ field: "offset", message: __raw_offset == null ? "ClassInferred.offset is required" : "expected number" });
         } else {
             instance.offset = __raw_offset;
@@ -2868,7 +2868,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("ratio")) ? "ratio" in obj : (__fields.keeps("ratio") && obj["ratio"] !== undefined)) {
         const __raw_ratio = obj["ratio"] as number;
 
-        if (!(typeof __raw_ratio === "number")) {
+        if (!(typeof __raw_ratio === "number" && globalThis.Number.isFinite(__raw_ratio))) {
             errors.push({ field: "ratio", message: __raw_ratio == null ? "ClassInferred.ratio is required" : "expected number" });
         } else {
             instance.ratio = __raw_ratio;
@@ -2904,7 +2904,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("secret")) ? "secret" in obj : (__fields.keeps("secret") && obj["secret"] !== undefined)) {
         const __raw_secret = obj["secret"] as number;
 
-        if (!(typeof __raw_secret === "number")) {
+        if (!(typeof __raw_secret === "number" && globalThis.Number.isFinite(__raw_secret))) {
             errors.push({ field: "secret", message: __raw_secret == null ? "ClassInferred.secret is required" : "expected number" });
         } else {
             instance.secret = __raw_secret;
@@ -3156,7 +3156,7 @@ function classEntityEncodeFields(value: ClassEntity, _ctx: __mf_EncodeContext, r
 export function classEntityDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassEntity } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = classEntityDecodeWithContext(data, ctx);
@@ -3398,7 +3398,7 @@ function classDatedEncodeFields(value: ClassDated, _ctx: __mf_EncodeContext, res
 export function classDatedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassDated } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = classDatedDecodeWithContext(data, ctx);
@@ -3661,7 +3661,7 @@ function classAccountEncodeFields(value: ClassAccount, _ctx: __mf_EncodeContext,
 export function classAccountDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ClassAccount } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = classAccountDecodeWithContext(data, ctx);
@@ -3785,7 +3785,7 @@ export function classAccountDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
     if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
         const __raw_balance = obj["balance"] as number;
 
-        if (!(typeof __raw_balance === "number")) {
+        if (!(typeof __raw_balance === "number" && globalThis.Number.isFinite(__raw_balance))) {
             errors.push({ field: "balance", message: __raw_balance == null ? "ClassAccount.balance is required" : "expected number" });
         } else {
             instance.balance = __raw_balance;
@@ -4718,203 +4718,203 @@ export declare const ClassAccount: {
 
 ## Mapping
 
-original 0..878 -> expanded 1221..2099
-original 878..879 -> expanded 15632..15633
-original 879..1249 -> expanded 19414..19784
-original 1249..1250 -> expanded 32861..32862
-original 1250..1529 -> expanded 36908..37187
-original 1529..1530 -> expanded 47529..47530
-original 1530..1820 -> expanded 51776..52066
-original 1820..1821 -> expanded 62282..62283
-original 1821..1940 -> expanded 66190..66309
-original 1940..1941 -> expanded 74021..74022
-original 1941..2083 -> expanded 77677..77819
-original 2083..2084 -> expanded 86880..86881
-original 2084..2239 -> expanded 90662..90817
-original 2239..2240 -> expanded 91889..91890
-original 2240..2510 -> expanded 92466..92736
-original 2510..2511 -> expanded 107939..107940
-original 2511..2990 -> expanded 111679..112158
-original 2990..2991 -> expanded 134543..134544
-original 2991..3149 -> expanded 138367..138525
-original 3149..3150 -> expanded 139833..139834
-original 3150..3289 -> expanded 140410..140549
-original 3289..3407 -> expanded 151479..151597
-original 3407..3587 -> expanded 161716..161896
-original 3587..3588 -> expanded 175384..175385
-generated 0..1221 <- imports
-generated 2099..2635 <- Debug
-generated 2635..2985 <- Clone
-generated 2985..3529 <- PartialEq
-generated 3529..4422 <- Hash
-generated 4422..4743 <- Default
-generated 4743..7045 <- Encode
-generated 7045..7376 <- Encode
-generated 7376..15632 <- Decode
-generated 15633..15745 <- Debug
-generated 15745..15857 <- Clone
-generated 15857..15978 <- PartialEq
-generated 15978..16090 <- Hash
-generated 16090..16192 <- Default
-generated 16192..17572 <- Encode
-generated 17572..19414 <- Decode
-generated 19784..20226 <- Debug
-generated 20226..20468 <- Clone
-generated 20468..20769 <- PartialEq
-generated 20769..21433 <- Hash
-generated 21433..22331 <- PartialOrd
-generated 22331..23049 <- Ord
-generated 23049..23368 <- Default
-generated 23368..25444 <- Encode
-generated 25444..25775 <- Encode
-generated 25775..32861 <- Decode
-generated 32862..32974 <- Debug
-generated 32974..33086 <- Clone
-generated 33086..33207 <- PartialEq
-generated 33207..33319 <- Hash
-generated 33319..33462 <- PartialOrd
-generated 33462..33584 <- Ord
-generated 33584..33686 <- Default
-generated 33686..35066 <- Encode
-generated 35066..36908 <- Decode
-generated 37187..37527 <- Debug
-generated 37527..37715 <- Clone
-generated 37715..37970 <- PartialEq
-generated 37970..38448 <- Hash
-generated 38448..39045 <- PartialOrd
-generated 39045..39546 <- Ord
-generated 39546..39784 <- Default
-generated 39784..41566 <- Encode
-generated 41566..41905 <- Encode
-generated 41905..47529 <- Decode
-generated 47530..47654 <- Debug
-generated 47654..47782 <- Clone
-generated 47782..47919 <- PartialEq
-generated 47919..48043 <- Hash
-generated 48043..48202 <- PartialOrd
-generated 48202..48340 <- Ord
-generated 48340..48454 <- Default
-generated 48454..49874 <- Encode
-generated 49874..51776 <- Decode
-generated 52066..52453 <- Debug
-generated 52453..52664 <- Clone
-generated 52664..52928 <- PartialEq
-generated 52928..53523 <- Hash
-generated 53523..53799 <- Default
-generated 53799..55725 <- Encode
-generated 55725..56062 <- Encode
-generated 56062..62282 <- Decode
-generated 62283..62404 <- Debug
-generated 62404..62528 <- Clone
-generated 62528..62661 <- PartialEq
-generated 62661..62782 <- Hash
-generated 62782..62893 <- Default
-generated 62893..64303 <- Encode
-generated 64303..66190 <- Decode
-generated 66309..66574 <- Debug
-generated 66574..66694 <- Clone
-generated 66694..66852 <- PartialEq
-generated 66852..67140 <- Hash
-generated 67140..67319 <- Default
-generated 67319..68861 <- Encode
-generated 68861..69186 <- Encode
-generated 69186..74021 <- Decode
-generated 74022..74125 <- Debug
-generated 74125..74225 <- Clone
-generated 74225..74334 <- PartialEq
-generated 74334..74437 <- Hash
-generated 74437..74530 <- Default
-generated 74530..75880 <- Encode
-generated 75880..77677 <- Decode
-generated 77819..78143 <- Debug
-generated 78143..78315 <- Clone
-generated 78315..78550 <- PartialEq
-generated 78550..79018 <- Hash
-generated 79018..79240 <- Default
-generated 79240..80970 <- Encode
-generated 80970..81301 <- Encode
-generated 81301..86880 <- Decode
-generated 86881..86993 <- Debug
-generated 86993..87105 <- Clone
-generated 87105..87226 <- PartialEq
-generated 87226..87338 <- Hash
-generated 87338..87440 <- Default
-generated 87440..88820 <- Encode
-generated 88820..90662 <- Decode
-generated 90817..91094 <- Debug
-generated 91094..91226 <- Clone
-generated 91226..91396 <- PartialEq
-generated 91396..91690 <- Hash
-generated 91690..91889 <- Default
-generated 91890..92005 <- Debug
-generated 92005..92121 <- Clone
-generated 92121..92246 <- PartialEq
-generated 92246..92361 <- Hash
-generated 92361..92466 <- Default
-generated 92736..93296 <- Debug
-generated 93296..93833 <- Clone
-generated 93833..94629 <- PartialEq
-generated 94629..95347 <- Hash
-generated 95347..95724 <- Default
-generated 95724..98046 <- Encode
-generated 98046..98375 <- Encode
-generated 98375..107939 <- Decode
-generated 107940..108049 <- Debug
-generated 108049..108157 <- Clone
-generated 108157..108274 <- PartialEq
-generated 108274..108383 <- Hash
-generated 108383..108482 <- Default
-generated 108482..109852 <- Encode
-generated 109852..111679 <- Decode
-generated 112158..113069 <- Debug
-generated 113069..113579 <- Clone
-generated 113579..114484 <- PartialEq
-generated 114484..116479 <- Hash
-generated 116479..117093 <- Default
-generated 117093..120625 <- Encode
-generated 120625..120958 <- Encode
-generated 120958..134543 <- Decode
-generated 134544..134659 <- Debug
-generated 134659..134775 <- Clone
-generated 134775..134900 <- PartialEq
-generated 134900..135015 <- Hash
-generated 135015..135120 <- Default
-generated 135120..136510 <- Encode
-generated 136510..138367 <- Decode
-generated 138525..138861 <- Debug
-generated 138861..139045 <- Clone
-generated 139045..139244 <- PartialEq
-generated 139244..139576 <- Hash
-generated 139576..139833 <- Default
-generated 139834..139949 <- Debug
-generated 139949..140065 <- Clone
-generated 140065..140190 <- PartialEq
-generated 140190..140305 <- Hash
-generated 140305..140410 <- Default
-generated 140549..140857 <- Debug
-generated 140857..141022 <- Clone
-generated 141022..141209 <- PartialEq
-generated 141209..141610 <- Hash
-generated 141610..141724 <- Default
-generated 141724..144047 <- Encode
-generated 144047..150012 <- Decode
-generated 150012..151479 <- __convenience_const
-generated 151597..151855 <- Debug
-generated 151855..152016 <- Clone
-generated 152016..152273 <- PartialEq
-generated 152273..152491 <- Hash
-generated 152491..152593 <- Default
-generated 152593..154758 <- Encode
-generated 154758..160280 <- Decode
-generated 160280..161716 <- __convenience_const
-generated 161896..162303 <- Debug
-generated 162303..162532 <- Clone
-generated 162532..162918 <- PartialEq
-generated 162918..163555 <- Hash
-generated 163555..163722 <- Default
-generated 163722..166392 <- Encode
-generated 166392..173886 <- Decode
-generated 173886..175384 <- __convenience_const
+original 0..878 -> expanded 1252..2130
+original 878..879 -> expanded 15714..15715
+original 879..1249 -> expanded 19496..19866
+original 1249..1250 -> expanded 32993..32994
+original 1250..1529 -> expanded 37040..37319
+original 1529..1530 -> expanded 47710..47711
+original 1530..1820 -> expanded 51957..52247
+original 1820..1821 -> expanded 62510..62511
+original 1821..1940 -> expanded 66418..66537
+original 1940..1941 -> expanded 74254..74255
+original 1941..2083 -> expanded 77910..78052
+original 2083..2084 -> expanded 87161..87162
+original 2084..2239 -> expanded 90943..91098
+original 2239..2240 -> expanded 92170..92171
+original 2240..2510 -> expanded 92747..93017
+original 2510..2511 -> expanded 108225..108226
+original 2511..2990 -> expanded 111965..112444
+original 2990..2991 -> expanded 135008..135009
+original 2991..3149 -> expanded 138832..138990
+original 3149..3150 -> expanded 140298..140299
+original 3150..3289 -> expanded 140875..141014
+original 3289..3407 -> expanded 151949..152067
+original 3407..3587 -> expanded 162191..162371
+original 3587..3588 -> expanded 175909..175910
+generated 0..1252 <- imports
+generated 2130..2666 <- Debug
+generated 2666..3016 <- Clone
+generated 3016..3560 <- PartialEq
+generated 3560..4453 <- Hash
+generated 4453..4774 <- Default
+generated 4774..7076 <- Encode
+generated 7076..7407 <- Encode
+generated 7407..15714 <- Decode
+generated 15715..15827 <- Debug
+generated 15827..15939 <- Clone
+generated 15939..16060 <- PartialEq
+generated 16060..16172 <- Hash
+generated 16172..16274 <- Default
+generated 16274..17654 <- Encode
+generated 17654..19496 <- Decode
+generated 19866..20308 <- Debug
+generated 20308..20550 <- Clone
+generated 20550..20851 <- PartialEq
+generated 20851..21515 <- Hash
+generated 21515..22413 <- PartialOrd
+generated 22413..23131 <- Ord
+generated 23131..23450 <- Default
+generated 23450..25526 <- Encode
+generated 25526..25857 <- Encode
+generated 25857..32993 <- Decode
+generated 32994..33106 <- Debug
+generated 33106..33218 <- Clone
+generated 33218..33339 <- PartialEq
+generated 33339..33451 <- Hash
+generated 33451..33594 <- PartialOrd
+generated 33594..33716 <- Ord
+generated 33716..33818 <- Default
+generated 33818..35198 <- Encode
+generated 35198..37040 <- Decode
+generated 37319..37659 <- Debug
+generated 37659..37847 <- Clone
+generated 37847..38102 <- PartialEq
+generated 38102..38580 <- Hash
+generated 38580..39177 <- PartialOrd
+generated 39177..39678 <- Ord
+generated 39678..39916 <- Default
+generated 39916..41698 <- Encode
+generated 41698..42037 <- Encode
+generated 42037..47710 <- Decode
+generated 47711..47835 <- Debug
+generated 47835..47963 <- Clone
+generated 47963..48100 <- PartialEq
+generated 48100..48224 <- Hash
+generated 48224..48383 <- PartialOrd
+generated 48383..48521 <- Ord
+generated 48521..48635 <- Default
+generated 48635..50055 <- Encode
+generated 50055..51957 <- Decode
+generated 52247..52634 <- Debug
+generated 52634..52845 <- Clone
+generated 52845..53109 <- PartialEq
+generated 53109..53704 <- Hash
+generated 53704..53980 <- Default
+generated 53980..55906 <- Encode
+generated 55906..56243 <- Encode
+generated 56243..62510 <- Decode
+generated 62511..62632 <- Debug
+generated 62632..62756 <- Clone
+generated 62756..62889 <- PartialEq
+generated 62889..63010 <- Hash
+generated 63010..63121 <- Default
+generated 63121..64531 <- Encode
+generated 64531..66418 <- Decode
+generated 66537..66802 <- Debug
+generated 66802..66922 <- Clone
+generated 66922..67080 <- PartialEq
+generated 67080..67368 <- Hash
+generated 67368..67547 <- Default
+generated 67547..69089 <- Encode
+generated 69089..69414 <- Encode
+generated 69414..74254 <- Decode
+generated 74255..74358 <- Debug
+generated 74358..74458 <- Clone
+generated 74458..74567 <- PartialEq
+generated 74567..74670 <- Hash
+generated 74670..74763 <- Default
+generated 74763..76113 <- Encode
+generated 76113..77910 <- Decode
+generated 78052..78376 <- Debug
+generated 78376..78548 <- Clone
+generated 78548..78783 <- PartialEq
+generated 78783..79251 <- Hash
+generated 79251..79473 <- Default
+generated 79473..81203 <- Encode
+generated 81203..81534 <- Encode
+generated 81534..87161 <- Decode
+generated 87162..87274 <- Debug
+generated 87274..87386 <- Clone
+generated 87386..87507 <- PartialEq
+generated 87507..87619 <- Hash
+generated 87619..87721 <- Default
+generated 87721..89101 <- Encode
+generated 89101..90943 <- Decode
+generated 91098..91375 <- Debug
+generated 91375..91507 <- Clone
+generated 91507..91677 <- PartialEq
+generated 91677..91971 <- Hash
+generated 91971..92170 <- Default
+generated 92171..92286 <- Debug
+generated 92286..92402 <- Clone
+generated 92402..92527 <- PartialEq
+generated 92527..92642 <- Hash
+generated 92642..92747 <- Default
+generated 93017..93577 <- Debug
+generated 93577..94114 <- Clone
+generated 94114..94910 <- PartialEq
+generated 94910..95628 <- Hash
+generated 95628..96005 <- Default
+generated 96005..98327 <- Encode
+generated 98327..98656 <- Encode
+generated 98656..108225 <- Decode
+generated 108226..108335 <- Debug
+generated 108335..108443 <- Clone
+generated 108443..108560 <- PartialEq
+generated 108560..108669 <- Hash
+generated 108669..108768 <- Default
+generated 108768..110138 <- Encode
+generated 110138..111965 <- Decode
+generated 112444..113355 <- Debug
+generated 113355..113865 <- Clone
+generated 113865..114770 <- PartialEq
+generated 114770..116765 <- Hash
+generated 116765..117379 <- Default
+generated 117379..120911 <- Encode
+generated 120911..121244 <- Encode
+generated 121244..135008 <- Decode
+generated 135009..135124 <- Debug
+generated 135124..135240 <- Clone
+generated 135240..135365 <- PartialEq
+generated 135365..135480 <- Hash
+generated 135480..135585 <- Default
+generated 135585..136975 <- Encode
+generated 136975..138832 <- Decode
+generated 138990..139326 <- Debug
+generated 139326..139510 <- Clone
+generated 139510..139709 <- PartialEq
+generated 139709..140041 <- Hash
+generated 140041..140298 <- Default
+generated 140299..140414 <- Debug
+generated 140414..140530 <- Clone
+generated 140530..140655 <- PartialEq
+generated 140655..140770 <- Hash
+generated 140770..140875 <- Default
+generated 141014..141322 <- Debug
+generated 141322..141487 <- Clone
+generated 141487..141674 <- PartialEq
+generated 141674..142075 <- Hash
+generated 142075..142189 <- Default
+generated 142189..144512 <- Encode
+generated 144512..150482 <- Decode
+generated 150482..151949 <- __convenience_const
+generated 152067..152325 <- Debug
+generated 152325..152486 <- Clone
+generated 152486..152743 <- PartialEq
+generated 152743..152961 <- Hash
+generated 152961..153063 <- Default
+generated 153063..155228 <- Encode
+generated 155228..160755 <- Decode
+generated 160755..162191 <- __convenience_const
+generated 162371..162778 <- Debug
+generated 162778..163007 <- Clone
+generated 163007..163393 <- PartialEq
+generated 163393..164030 <- Hash
+generated 164030..164197 <- Default
+generated 164197..166867 <- Encode
+generated 166867..174411 <- Decode
+generated 174411..175909 <- __convenience_const
 
 ## Metadata
 

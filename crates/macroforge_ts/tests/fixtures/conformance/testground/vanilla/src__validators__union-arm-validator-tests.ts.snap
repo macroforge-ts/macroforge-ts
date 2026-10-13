@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds } from "@macroforge/core/endec";
+import { textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Untagged unions whose primitive arms carry their own validators.
@@ -89,7 +89,7 @@ export function contactDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
         ctx.pushErrors(errors);
         return value as Contact;
     }
-    if (typeof value === "number") {
+    if ((typeof value === "number" && globalThis.Number.isFinite(value))) {
         return value as Contact;
     }
 
@@ -99,7 +99,7 @@ export function contactDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     }]);
 }
 export function contactHasShape(value: unknown): boolean {
-                return typeof value === "string" || typeof value === "number";
+                return typeof value === "string" || (typeof value === "number" && globalThis.Number.isFinite(value));
 }
 export function contactIs(value: unknown): value is Contact {
     return contactHasShape(value) && contactDecode(value).success;
@@ -126,7 +126,7 @@ export interface Phone {
 export function phoneDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Phone } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = phoneDecodeWithContext(data, ctx);
@@ -632,20 +632,20 @@ export declare const Fallback: {
 
 ## Mapping
 
-original 0..159 -> expanded 435..594
-original 159..230 -> expanded 3686..3757
-original 230..343 -> expanded 9592..9705
-original 343..428 -> expanded 14520..14605
-original 428..429 -> expanded 17920..17921
-generated 0..435 <- imports
-generated 594..3353 <- Decode
-generated 3353..3686 <- __convenience_const
-generated 3757..8959 <- Decode
-generated 8959..9592 <- __convenience_const
-generated 9705..14169 <- Decode
-generated 14169..14520 <- __convenience_const
-generated 14605..17578 <- Decode
-generated 17578..17920 <- __convenience_const
+original 0..159 -> expanded 466..625
+original 159..230 -> expanded 3795..3866
+original 230..343 -> expanded 9706..9819
+original 343..428 -> expanded 14634..14719
+original 428..429 -> expanded 18034..18035
+generated 0..466 <- imports
+generated 625..3462 <- Decode
+generated 3462..3795 <- __convenience_const
+generated 3866..9073 <- Decode
+generated 9073..9706 <- __convenience_const
+generated 9819..14283 <- Decode
+generated 14283..14634 <- __convenience_const
+generated 14719..17692 <- Decode
+generated 17692..18034 <- __convenience_const
 
 ## Metadata
 

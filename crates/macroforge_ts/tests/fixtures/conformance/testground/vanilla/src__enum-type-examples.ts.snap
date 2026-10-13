@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
@@ -336,7 +336,7 @@ function pointEncodeFields(value: Point, _ctx: __mf_EncodeContext, result: Recor
 export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = pointDecodeWithContext(data, ctx);
@@ -424,7 +424,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
         const __raw_x = obj["x"] as number;
 
-        if (!(typeof __raw_x === "number")) {
+        if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
             errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
         } else {
             instance.x = __raw_x;
@@ -433,7 +433,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("y")) ? "y" in obj : (__fields.keeps("y") && obj["y"] !== undefined)) {
         const __raw_y = obj["y"] as number;
 
-        if (!(typeof __raw_y === "number")) {
+        if (!(typeof __raw_y === "number" && globalThis.Number.isFinite(__raw_y))) {
             errors.push({ field: "y", message: __raw_y == null ? "Point.y is required" : "expected number" });
         } else {
             instance.y = __raw_y;
@@ -608,7 +608,7 @@ function userProfileEncodeFields(value: UserProfile, _ctx: __mf_EncodeContext, r
 export function userProfileDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserProfile } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = userProfileDecodeWithContext(data, ctx);
@@ -732,7 +732,7 @@ export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
         const __raw_age = obj["age"] as number;
 
-        if (!(typeof __raw_age === "number")) {
+        if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
             errors.push({ field: "age", message: __raw_age == null ? "UserProfile.age is required" : "expected number" });
         } else {
             instance.age = __raw_age;
@@ -1207,56 +1207,56 @@ export declare function demoTypeFunctions();
 
 ## Mapping
 
-original 0..527 -> expanded 904..1431
-original 527..675 -> expanded 4285..4433
-original 675..766 -> expanded 7650..7741
-original 766..950 -> expanded 8571..8755
-original 950..1143 -> expanded 18979..19172
-original 1143..1267 -> expanded 33166..33290
-original 1267..1364 -> expanded 35105..35202
-original 1364..3696 -> expanded 35803..38135
-generated 0..904 <- imports
-generated 1431..1799 <- Debug
-generated 1799..1873 <- Clone
-generated 1873..1958 <- PartialEq
-generated 1958..2113 <- Hash
-generated 2113..2523 <- Encode
-generated 2523..3662 <- Decode
-generated 3662..4285 <- __convenience_const
-generated 4433..4886 <- Debug
-generated 4886..4966 <- Clone
-generated 4966..5057 <- PartialEq
-generated 5057..5259 <- Hash
-generated 5259..5681 <- Encode
-generated 5681..6989 <- Decode
-generated 6989..7650 <- __convenience_const
-generated 7741..8082 <- Debug
-generated 8082..8164 <- PartialEq
-generated 8164..8360 <- Hash
-generated 8360..8571 <- __convenience_const
-generated 8755..9037 <- Debug
-generated 9037..9170 <- Clone
-generated 9170..9395 <- PartialEq
-generated 9395..9870 <- Hash
-generated 9870..12087 <- Encode
-generated 12087..17784 <- Decode
-generated 17784..18979 <- __convenience_const
-generated 19172..19641 <- Debug
-generated 19641..19883 <- Clone
-generated 19883..20193 <- PartialEq
-generated 20193..20948 <- Hash
-generated 20948..23782 <- Encode
-generated 23782..31797 <- Decode
-generated 31797..33166 <- __convenience_const
-generated 33290..33634 <- Debug
-generated 33634..33808 <- Clone
-generated 33808..34101 <- PartialEq
-generated 34101..34751 <- Hash
-generated 34751..35105 <- __convenience_const
-generated 35202..35314 <- Debug
-generated 35314..35438 <- PartialEq
-generated 35438..35542 <- Hash
-generated 35542..35803 <- __convenience_const
+original 0..527 -> expanded 935..1462
+original 527..675 -> expanded 4316..4464
+original 675..766 -> expanded 7681..7772
+original 766..950 -> expanded 8602..8786
+original 950..1143 -> expanded 19093..19286
+original 1143..1267 -> expanded 33326..33450
+original 1267..1364 -> expanded 35265..35362
+original 1364..3696 -> expanded 35963..38295
+generated 0..935 <- imports
+generated 1462..1830 <- Debug
+generated 1830..1904 <- Clone
+generated 1904..1989 <- PartialEq
+generated 1989..2144 <- Hash
+generated 2144..2554 <- Encode
+generated 2554..3693 <- Decode
+generated 3693..4316 <- __convenience_const
+generated 4464..4917 <- Debug
+generated 4917..4997 <- Clone
+generated 4997..5088 <- PartialEq
+generated 5088..5290 <- Hash
+generated 5290..5712 <- Encode
+generated 5712..7020 <- Decode
+generated 7020..7681 <- __convenience_const
+generated 7772..8113 <- Debug
+generated 8113..8195 <- PartialEq
+generated 8195..8391 <- Hash
+generated 8391..8602 <- __convenience_const
+generated 8786..9068 <- Debug
+generated 9068..9201 <- Clone
+generated 9201..9426 <- PartialEq
+generated 9426..9901 <- Hash
+generated 9901..12118 <- Encode
+generated 12118..17898 <- Decode
+generated 17898..19093 <- __convenience_const
+generated 19286..19755 <- Debug
+generated 19755..19997 <- Clone
+generated 19997..20307 <- PartialEq
+generated 20307..21062 <- Hash
+generated 21062..23896 <- Encode
+generated 23896..31957 <- Decode
+generated 31957..33326 <- __convenience_const
+generated 33450..33794 <- Debug
+generated 33794..33968 <- Clone
+generated 33968..34261 <- PartialEq
+generated 34261..34911 <- Hash
+generated 34911..35265 <- __convenience_const
+generated 35362..35474 <- Debug
+generated 35474..35598 <- PartialEq
+generated 35598..35702 <- Hash
+generated 35702..35963 <- __convenience_const
 
 ## Metadata
 

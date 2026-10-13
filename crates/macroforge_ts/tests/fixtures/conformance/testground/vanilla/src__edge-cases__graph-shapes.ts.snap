@@ -14,7 +14,7 @@ true
 
 import { edgeItemDecodePartialWithContext, edgeItemDecodeWithContext, edgeItemEncodePartialWithContext, edgeItemEncodeWithContext } from "./edge-types";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin, structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeRecord as __mf_decodeRecord, decodeTuple as __mf_decodeTuple } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Object graphs rather than trees: a value held twice, a child pointing back
@@ -170,7 +170,7 @@ function graphTreeEncodeFields(value: GraphTree, ctx: __mf_EncodeContext, result
 export function graphTreeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphTree } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = graphTreeDecodeWithContext(data, ctx);
@@ -507,7 +507,7 @@ constructor(props: { name: string; best: GraphPerson | null; friends: GraphPerso
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphPerson } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = GraphPerson.decodeWithContext(data, ctx);
@@ -887,7 +887,7 @@ function graphSharedEncodeFields(value: GraphShared, ctx: __mf_EncodeContext, re
 export function graphSharedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphShared } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = graphSharedDecodeWithContext(data, ctx);
@@ -1305,7 +1305,7 @@ function graphLoopEncodeFields(value: GraphLoop, ctx: __mf_EncodeContext, result
 export function graphLoopDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphLoop } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = graphLoopDecodeWithContext(data, ctx);
@@ -1629,7 +1629,7 @@ function graphPatchedEncodeFields(value: GraphPatched, ctx: __mf_EncodeContext, 
 export function graphPatchedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphPatched } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = graphPatchedDecodeWithContext(data, ctx);
@@ -1891,7 +1891,7 @@ function graphPatchedFirstEncodeFields(value: GraphPatchedFirst, ctx: __mf_Encod
 export function graphPatchedFirstDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GraphPatchedFirst } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = graphPatchedFirstDecodeWithContext(data, ctx);
@@ -2444,49 +2444,49 @@ export declare const GraphPatchedFirst: {
 
 ## Mapping
 
-original 0..435 -> expanded 1269..1704
-original 435..711 -> expanded 17873..18149
-original 711..712 -> expanded 34611..34612
-original 712..998 -> expanded 38252..38538
-original 998..1238 -> expanded 58418..58658
-original 1238..1389 -> expanded 73336..73487
-original 1389..1511 -> expanded 85610..85732
-original 1511..1512 -> expanded 96605..96606
-generated 0..1269 <- imports
-generated 1704..2166 <- Debug
-generated 2166..2454 <- Clone
-generated 2454..2946 <- PartialEq
-generated 2946..3451 <- Hash
-generated 3451..4767 <- PartialOrd
-generated 4767..5813 <- Ord
-generated 5813..8417 <- Encode
-generated 8417..16386 <- Decode
-generated 16386..17873 <- __convenience_const
-generated 18149..18765 <- Debug
-generated 18765..19378 <- Clone
-generated 19378..20344 <- PartialEq
-generated 20344..21264 <- Hash
-generated 21264..23790 <- Encode
-generated 23790..24119 <- Encode
-generated 24119..34611 <- Decode
-generated 34612..34721 <- Debug
-generated 34721..34829 <- Clone
-generated 34829..34946 <- PartialEq
-generated 34946..35055 <- Hash
-generated 35055..36425 <- Encode
-generated 36425..38252 <- Decode
-generated 38538..42388 <- Encode
-generated 42388..57357 <- Decode
-generated 57357..58418 <- __convenience_const
-generated 58658..61753 <- Encode
-generated 61753..72317 <- Decode
-generated 72317..73336 <- __convenience_const
-generated 73487..76145 <- Encode
-generated 76145..84528 <- Decode
-generated 84528..85610 <- __convenience_const
-generated 85732..88231 <- Encode
-generated 88231..95418 <- Decode
-generated 95418..96605 <- __convenience_const
+original 0..435 -> expanded 1300..1735
+original 435..711 -> expanded 17909..18185
+original 711..712 -> expanded 34652..34653
+original 712..998 -> expanded 38293..38579
+original 998..1238 -> expanded 58464..58704
+original 1238..1389 -> expanded 73387..73538
+original 1389..1511 -> expanded 85666..85788
+original 1511..1512 -> expanded 96666..96667
+generated 0..1300 <- imports
+generated 1735..2197 <- Debug
+generated 2197..2485 <- Clone
+generated 2485..2977 <- PartialEq
+generated 2977..3482 <- Hash
+generated 3482..4798 <- PartialOrd
+generated 4798..5844 <- Ord
+generated 5844..8448 <- Encode
+generated 8448..16422 <- Decode
+generated 16422..17909 <- __convenience_const
+generated 18185..18801 <- Debug
+generated 18801..19414 <- Clone
+generated 19414..20380 <- PartialEq
+generated 20380..21300 <- Hash
+generated 21300..23826 <- Encode
+generated 23826..24155 <- Encode
+generated 24155..34652 <- Decode
+generated 34653..34762 <- Debug
+generated 34762..34870 <- Clone
+generated 34870..34987 <- PartialEq
+generated 34987..35096 <- Hash
+generated 35096..36466 <- Encode
+generated 36466..38293 <- Decode
+generated 38579..42429 <- Encode
+generated 42429..57403 <- Decode
+generated 57403..58464 <- __convenience_const
+generated 58704..61799 <- Encode
+generated 61799..72368 <- Decode
+generated 72368..73387 <- __convenience_const
+generated 73538..76196 <- Encode
+generated 76196..84584 <- Decode
+generated 84584..85666 <- __convenience_const
+generated 85788..88287 <- Encode
+generated 88287..95479 <- Decode
+generated 95479..96666 <- __convenience_const
 
 ## Metadata
 

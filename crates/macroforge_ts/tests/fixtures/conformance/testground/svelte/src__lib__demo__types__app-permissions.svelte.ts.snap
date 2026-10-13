@@ -15,7 +15,7 @@ true
 import { applicationsDecodeWithContext, applicationsEncodeWithContext } from "./applications.svelte";
 import { pageDecodeWithContext, pageEncodeWithContext } from "./page.svelte";
 import { tableDecodeWithContext, tableEncodeWithContext } from "./table.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -90,7 +90,7 @@ function appPermissionsEncodeFields(value: AppPermissions, ctx: __mf_EncodeConte
 export function appPermissionsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AppPermissions } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = appPermissionsDecodeWithContext(data, ctx);
@@ -671,15 +671,15 @@ export declare const AppPermissions: {
 
 ## Mapping
 
-original 0..206 -> expanded 1123..1329
-original 255..378 -> expanded 1329..1452
-original 378..379 -> expanded 24840..24841
-generated 0..1123 <- imports
-generated 1452..1601 <- Default
-generated 1601..4340 <- Encode
-generated 4340..13195 <- Decode
-generated 13195..23412 <- Gigaform
-generated 23412..24840 <- __convenience_const
+original 0..206 -> expanded 1154..1360
+original 255..378 -> expanded 1360..1483
+original 378..379 -> expanded 24876..24877
+generated 0..1154 <- imports
+generated 1483..1632 <- Default
+generated 1632..4371 <- Encode
+generated 4371..13231 <- Decode
+generated 13231..23448 <- Gigaform
+generated 23448..24876 <- __convenience_const
 
 ## Metadata
 

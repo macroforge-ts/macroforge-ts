@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -76,7 +76,7 @@ function coordinatesEncodeFields(value: Coordinates, _ctx: __mf_EncodeContext, r
 export function coordinatesDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Coordinates } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = coordinatesDecodeWithContext(data, ctx);
@@ -164,7 +164,7 @@ export function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     if ((__fields === undefined || __fields.requires("lat")) ? "lat" in obj : (__fields.keeps("lat") && obj["lat"] !== undefined)) {
         const __raw_lat = obj["lat"] as number;
 
-        if (!(typeof __raw_lat === "number")) {
+        if (!(typeof __raw_lat === "number" && globalThis.Number.isFinite(__raw_lat))) {
             errors.push({ field: "lat", message: __raw_lat == null ? "Coordinates.lat is required" : "expected number" });
         } else {
             instance.lat = __raw_lat;
@@ -173,7 +173,7 @@ export function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     if ((__fields === undefined || __fields.requires("lng")) ? "lng" in obj : (__fields.keeps("lng") && obj["lng"] !== undefined)) {
         const __raw_lng = obj["lng"] as number;
 
-        if (!(typeof __raw_lng === "number")) {
+        if (!(typeof __raw_lng === "number" && globalThis.Number.isFinite(__raw_lng))) {
             errors.push({ field: "lng", message: __raw_lng == null ? "Coordinates.lng is required" : "expected number" });
         } else {
             instance.lng = __raw_lng;
@@ -470,15 +470,15 @@ export declare const Coordinates: {
 
 ## Mapping
 
-original 0..58 -> expanded 807..865
-original 107..174 -> expanded 865..932
-original 174..175 -> expanded 15322..15323
-generated 0..807 <- imports
-generated 932..1044 <- Default
-generated 1044..3367 <- Encode
-generated 3367..9332 <- Decode
-generated 9332..13975 <- Gigaform
-generated 13975..15322 <- __convenience_const
+original 0..58 -> expanded 838..896
+original 107..174 -> expanded 896..963
+original 174..175 -> expanded 15440..15441
+generated 0..838 <- imports
+generated 963..1075 <- Default
+generated 1075..3398 <- Encode
+generated 3398..9450 <- Decode
+generated 9450..14093 <- Gigaform
+generated 14093..15440 <- __convenience_const
 
 ## Metadata
 

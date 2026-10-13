@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -76,7 +76,7 @@ function directionHueEncodeFields(value: DirectionHue, _ctx: __mf_EncodeContext,
 export function directionHueDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DirectionHue } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = directionHueDecodeWithContext(data, ctx);
@@ -164,7 +164,7 @@ export function directionHueDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
     if ((__fields === undefined || __fields.requires("bearing")) ? "bearing" in obj : (__fields.keeps("bearing") && obj["bearing"] !== undefined)) {
         const __raw_bearing = obj["bearing"] as number;
 
-        if (!(typeof __raw_bearing === "number")) {
+        if (!(typeof __raw_bearing === "number" && globalThis.Number.isFinite(__raw_bearing))) {
             errors.push({ field: "bearing", message: __raw_bearing == null ? "DirectionHue.bearing is required" : "expected number" });
         } else {
             instance.bearing = __raw_bearing;
@@ -173,7 +173,7 @@ export function directionHueDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
     if ((__fields === undefined || __fields.requires("hue")) ? "hue" in obj : (__fields.keeps("hue") && obj["hue"] !== undefined)) {
         const __raw_hue = obj["hue"] as number;
 
-        if (!(typeof __raw_hue === "number")) {
+        if (!(typeof __raw_hue === "number" && globalThis.Number.isFinite(__raw_hue))) {
             errors.push({ field: "hue", message: __raw_hue == null ? "DirectionHue.hue is required" : "expected number" });
         } else {
             instance.hue = __raw_hue;
@@ -470,15 +470,15 @@ export declare const DirectionHue: {
 
 ## Mapping
 
-original 0..58 -> expanded 807..865
-original 107..179 -> expanded 865..937
-original 179..180 -> expanded 15623..15624
-generated 0..807 <- imports
-generated 937..1055 <- Default
-generated 1055..3409 <- Encode
-generated 3409..9472 <- Decode
-generated 9472..14249 <- Gigaform
-generated 14249..15623 <- __convenience_const
+original 0..58 -> expanded 838..896
+original 107..179 -> expanded 896..968
+original 179..180 -> expanded 15745..15746
+generated 0..838 <- imports
+generated 968..1086 <- Default
+generated 1086..3440 <- Encode
+generated 3440..9594 <- Decode
+generated 9594..14371 <- Gigaform
+generated 14371..15745 <- __convenience_const
 
 ## Metadata
 

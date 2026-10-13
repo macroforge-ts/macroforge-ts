@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /** import macro { JSON } from "@testground/macro"; */
 
@@ -112,7 +112,7 @@ constructor(props: { id: string; name: string; role: string; favoriteMacro: 'Der
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MacroUser } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = MacroUser.decodeWithContext(data, ctx);
@@ -442,20 +442,20 @@ export declare const showcaseUserJson: unknown;
 
 ## Mapping
 
-original 0..56 -> expanded 733..789
-original 93..123 -> expanded 789..819
-original 158..278 -> expanded 819..939
-original 307..330 -> expanded 939..962
-original 330..331 -> expanded 12693..12694
-original 331..683 -> expanded 15944..16296
-generated 0..733 <- imports
-generated 962..1455 <- Debug
-generated 1455..3838 <- Encode
-generated 3838..4163 <- Encode
-generated 4163..12693 <- Decode
-generated 12694..12797 <- Debug
-generated 12797..14147 <- Encode
-generated 14147..15944 <- Decode
+original 0..56 -> expanded 764..820
+original 93..123 -> expanded 820..850
+original 158..278 -> expanded 850..970
+original 307..330 -> expanded 970..993
+original 330..331 -> expanded 12729..12730
+original 331..683 -> expanded 15980..16332
+generated 0..764 <- imports
+generated 993..1486 <- Debug
+generated 1486..3869 <- Encode
+generated 3869..4194 <- Encode
+generated 4194..12729 <- Decode
+generated 12730..12833 <- Debug
+generated 12833..14183 <- Encode
+generated 14183..15980 <- Decode
 
 ## Metadata
 

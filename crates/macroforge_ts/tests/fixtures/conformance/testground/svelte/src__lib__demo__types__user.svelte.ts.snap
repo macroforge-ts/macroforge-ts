@@ -16,7 +16,7 @@ import { appPermissionsDecodeWithContext, appPermissionsEncodeWithContext, appPe
 import { settingsDecodeWithContext, settingsEncodeWithContext, settingsDefaultValue } from "./settings.svelte";
 import { userRoleDecodeWithContext, userRoleEncodeWithContext } from "./user-role.svelte";
 import { __foreign__optionOptionDefault, __foreign__dateTimeDateTimeDefault, __foreign__optionOptionEncode, __foreign__dateTimeDateTimeEncode, __foreign__optionOptionDecode, __foreign__dateTimeDateTimeDecode } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -187,7 +187,7 @@ function userEncodeFields(value: User, ctx: __mf_EncodeContext, result: Record<s
 export function userDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = userDecodeWithContext(data, ctx);
@@ -1505,18 +1505,18 @@ export declare const User: {
 
 ## Mapping
 
-original 0..325 -> expanded 1376..1701
-original 374..453 -> expanded 1701..1780
-original 494..522 -> expanded 1780..1808
-original 563..690 -> expanded 1808..1935
-original 722..1102 -> expanded 1935..2315
-original 1102..1103 -> expanded 58560..58561
-generated 0..1376 <- imports
-generated 2315..3111 <- Default
-generated 3111..8343 <- Encode
-generated 8343..27062 <- Decode
-generated 27062..57402 <- Gigaform
-generated 57402..58560 <- __convenience_const
+original 0..325 -> expanded 1407..1732
+original 374..453 -> expanded 1732..1811
+original 494..522 -> expanded 1811..1839
+original 563..690 -> expanded 1839..1966
+original 722..1102 -> expanded 1966..2346
+original 1102..1103 -> expanded 58596..58597
+generated 0..1407 <- imports
+generated 2346..3142 <- Default
+generated 3142..8374 <- Encode
+generated 8374..27098 <- Decode
+generated 27098..57438 <- Gigaform
+generated 57438..58596 <- __convenience_const
 
 ## Metadata
 

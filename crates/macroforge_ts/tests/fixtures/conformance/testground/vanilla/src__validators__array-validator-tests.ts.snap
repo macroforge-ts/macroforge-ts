@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Array validator test classes for comprehensive decoder validation testing.
@@ -33,7 +33,7 @@ constructor(props: { items: Array<string> }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MaxItemsValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = MaxItemsValidator.decodeWithContext(data, ctx);
@@ -229,7 +229,7 @@ constructor(props: { items: Array<string> }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MinItemsValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = MinItemsValidator.decodeWithContext(data, ctx);
@@ -425,7 +425,7 @@ constructor(props: { items: Array<string> }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ItemsCountValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = ItemsCountValidator.decodeWithContext(data, ctx);
@@ -774,20 +774,20 @@ export declare function itemsCountValidatorIs(value: unknown): value is ItemsCou
 
 ## Mapping
 
-original 0..240 -> expanded 470..710
-original 240..241 -> expanded 7406..7407
-original 241..396 -> expanded 9324..9479
-original 396..397 -> expanded 16178..16179
-original 397..558 -> expanded 18096..18257
-original 558..559 -> expanded 25011..25012
-original 559..560 -> expanded 26959..26960
-generated 0..470 <- imports
-generated 710..7406 <- Decode
-generated 7407..9324 <- Decode
-generated 9479..16178 <- Decode
-generated 16179..18096 <- Decode
-generated 18257..25011 <- Decode
-generated 25012..26959 <- Decode
+original 0..240 -> expanded 501..741
+original 240..241 -> expanded 7442..7443
+original 241..396 -> expanded 9360..9515
+original 396..397 -> expanded 16219..16220
+original 397..558 -> expanded 18137..18298
+original 558..559 -> expanded 25057..25058
+original 559..560 -> expanded 27005..27006
+generated 0..501 <- imports
+generated 741..7442 <- Decode
+generated 7443..9360 <- Decode
+generated 9515..16219 <- Decode
+generated 16220..18137 <- Decode
+generated 18298..25057 <- Decode
+generated 25058..27005 <- Decode
 
 ## Metadata
 

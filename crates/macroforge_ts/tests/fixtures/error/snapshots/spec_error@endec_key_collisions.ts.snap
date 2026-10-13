@@ -38,7 +38,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Renamed {
@@ -104,7 +104,7 @@ function innerEncodeFields(value: Inner, _ctx: __mf_EncodeContext, result: Recor
 export function innerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Inner } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = innerDecodeWithContext(data, ctx);
@@ -314,7 +314,7 @@ function flatEncodeFields(value: Flat, ctx: __mf_EncodeContext, result: Record<s
 export function flatDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Flat } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = flatDecodeWithContext(data, ctx);
@@ -399,7 +399,7 @@ export function flatDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
     if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as number;
 
-        if (!(typeof __raw_id === "number")) {
+        if (!(typeof __raw_id === "number" && globalThis.Number.isFinite(__raw_id))) {
             errors.push({ field: "id", message: __raw_id == null ? "Flat.id is required" : "expected number" });
         } else {
             instance.id = __raw_id;
@@ -562,21 +562,21 @@ Error [248..266]: @derive(Decode): fields 'userName' and 'user_name' are both re
 
 ## Mapping
 
-original 30..55 -> expanded 648..673
-original 88..129 -> expanded 673..714
-original 159..269 -> expanded 714..824
-original 299..353 -> expanded 824..878
-original 353..355 -> expanded 9800..9802
-original 385..423 -> expanded 9802..9840
-original 445..465 -> expanded 9840..9860
-original 465..466 -> expanded 18883..18884
-generated 0..648 <- imports
-generated 878..3111 <- Encode
-generated 3111..8872 <- Decode
-generated 8872..9800 <- __convenience_const
-generated 9860..12237 <- Encode
-generated 12237..17976 <- Decode
-generated 17976..18883 <- __convenience_const
+original 30..55 -> expanded 679..704
+original 88..129 -> expanded 704..745
+original 159..269 -> expanded 745..855
+original 299..353 -> expanded 855..909
+original 353..355 -> expanded 9836..9838
+original 385..423 -> expanded 9838..9876
+original 445..465 -> expanded 9876..9896
+original 465..466 -> expanded 18964..18965
+generated 0..679 <- imports
+generated 909..3142 <- Encode
+generated 3142..8908 <- Decode
+generated 8908..9836 <- __convenience_const
+generated 9896..12273 <- Encode
+generated 12273..18057 <- Decode
+generated 18057..18964 <- __convenience_const
 
 ## Metadata
 

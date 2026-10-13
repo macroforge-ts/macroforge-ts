@@ -23,7 +23,7 @@ true
 
 ## Output
 
-import { ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface UserProfile {
@@ -41,7 +41,7 @@ interface UserProfile {
 export function userProfileDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserProfile } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = userProfileDecodeWithContext(data, ctx);
@@ -155,7 +155,7 @@ export function userProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         if (("age" in obj && obj["age"] !== undefined)) {
             const __raw_age = obj["age"] as number;
 
-            if (!(typeof __raw_age === "number")) {
+            if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
                 errors.push({ field: "age", message: "expected number" });
             } else {
                 if (__raw_age != null) {
@@ -293,14 +293,14 @@ export {};
 
 ## Mapping
 
-original 22..51 -> expanded 402..431
-original 71..96 -> expanded 431..456
-original 138..166 -> expanded 456..484
-original 189..209 -> expanded 484..504
-original 209..210 -> expanded 10799..10800
-generated 0..402 <- imports
-generated 504..10083 <- Decode
-generated 10083..10799 <- __convenience_const
+original 22..51 -> expanded 433..462
+original 71..96 -> expanded 462..487
+original 138..166 -> expanded 487..515
+original 189..209 -> expanded 515..535
+original 209..210 -> expanded 10876..10877
+generated 0..433 <- imports
+generated 535..10160 <- Decode
+generated 10160..10876 <- __convenience_const
 
 ## Metadata
 

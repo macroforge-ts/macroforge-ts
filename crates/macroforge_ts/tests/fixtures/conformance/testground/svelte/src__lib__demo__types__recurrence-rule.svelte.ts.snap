@@ -14,7 +14,7 @@ true
 
 import { intervalDecodeWithContext, intervalEncodeWithContext, intervalDefaultValue } from "./interval.svelte";
 import { recurrenceEndDecodeWithContext, recurrenceEndEncodeWithContext } from "./recurrence-end.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -102,7 +102,7 @@ function recurrenceRuleEncodeFields(value: RecurrenceRule, ctx: __mf_EncodeConte
 export function recurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: RecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = recurrenceRuleDecodeWithContext(data, ctx);
@@ -717,15 +717,15 @@ export declare const RecurrenceRule: {
 
 ## Mapping
 
-original 0..172 -> expanded 1093..1265
-original 221..446 -> expanded 1265..1490
-original 446..447 -> expanded 27704..27705
-generated 0..1093 <- imports
-generated 1490..1747 <- Default
-generated 1747..4921 <- Encode
-generated 4921..16700 <- Decode
-generated 16700..26276 <- Gigaform
-generated 26276..27704 <- __convenience_const
+original 0..172 -> expanded 1124..1296
+original 221..446 -> expanded 1296..1521
+original 446..447 -> expanded 27740..27741
+generated 0..1124 <- imports
+generated 1521..1778 <- Default
+generated 1778..4952 <- Encode
+generated 4952..16736 <- Decode
+generated 16736..26312 <- Gigaform
+generated 26312..27740 <- __convenience_const
 
 ## Metadata
 

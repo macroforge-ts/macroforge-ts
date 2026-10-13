@@ -20,7 +20,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Headers {
@@ -163,7 +163,7 @@ function headersEncodeFields(value: Headers, _ctx: __mf_EncodeContext, result: R
 export function headersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Headers } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = headersDecodeWithContext(data, ctx);
@@ -266,7 +266,7 @@ export function headersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("x request id")) ? "x request id" in obj : (__fields.keeps("x request id") && obj["x request id"] !== undefined)) {
         const __raw_x$20request$20id = obj["x request id"] as number;
 
-        if (!(typeof __raw_x$20request$20id === "number")) {
+        if (!(typeof __raw_x$20request$20id === "number" && globalThis.Number.isFinite(__raw_x$20request$20id))) {
             errors.push({ field: "x request id", message: __raw_x$20request$20id == null ? "Headers.x request id is required" : "expected number" });
         } else {
             instance["x request id"] = __raw_x$20request$20id;
@@ -414,19 +414,19 @@ export {};
 
 ## Mapping
 
-original 91..204 -> expanded 871..984
-original 204..205 -> expanded 16099..16100
-generated 0..871 <- imports
-generated 984..1415 <- Debug
-generated 1415..1649 <- Clone
-generated 1649..2004 <- PartialEq
-generated 2004..2671 <- Hash
-generated 2671..3617 <- PartialOrd
-generated 3617..4399 <- Ord
-generated 4399..4565 <- Default
-generated 4565..7224 <- Encode
-generated 7224..14595 <- Decode
-generated 14595..16099 <- __convenience_const
+original 91..204 -> expanded 902..1015
+original 204..205 -> expanded 16189..16190
+generated 0..902 <- imports
+generated 1015..1446 <- Debug
+generated 1446..1680 <- Clone
+generated 1680..2035 <- PartialEq
+generated 2035..2702 <- Hash
+generated 2702..3648 <- PartialOrd
+generated 3648..4430 <- Ord
+generated 4430..4596 <- Default
+generated 4596..7255 <- Encode
+generated 7255..14685 <- Decode
+generated 14685..16189 <- __convenience_const
 
 ## Metadata
 

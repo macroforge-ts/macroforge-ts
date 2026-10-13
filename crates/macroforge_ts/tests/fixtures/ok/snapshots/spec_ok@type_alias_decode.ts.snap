@@ -17,7 +17,7 @@ true
 
 ## Output
 
-import { ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Settings = {
@@ -29,7 +29,7 @@ type Settings = {
 export function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = settingsDecodeWithContext(data, ctx);
@@ -221,11 +221,11 @@ export {};
 
 ## Mapping
 
-original 22..84 -> expanded 402..464
-original 84..85 -> expanded 7110..7111
-generated 0..402 <- imports
-generated 464..6439 <- Decode
-generated 6439..7110 <- __convenience_const
+original 22..84 -> expanded 433..495
+original 84..85 -> expanded 7146..7147
+generated 0..433 <- imports
+generated 495..6475 <- Decode
+generated 6475..7146 <- __convenience_const
 
 ## Metadata
 

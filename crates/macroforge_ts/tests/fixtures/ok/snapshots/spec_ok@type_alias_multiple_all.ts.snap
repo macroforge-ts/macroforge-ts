@@ -18,7 +18,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Coordinate = {
@@ -100,7 +100,7 @@ function coordinateEncodeFields(value: Coordinate, _ctx: __mf_EncodeContext, res
 export function coordinateDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Coordinate } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = coordinateDecodeWithContext(data, ctx);
@@ -188,7 +188,7 @@ export function coordinateDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     if ((__fields === undefined || __fields.requires("lat")) ? "lat" in obj : (__fields.keeps("lat") && obj["lat"] !== undefined)) {
         const __raw_lat = obj["lat"] as number;
 
-        if (!(typeof __raw_lat === "number")) {
+        if (!(typeof __raw_lat === "number" && globalThis.Number.isFinite(__raw_lat))) {
             errors.push({ field: "lat", message: __raw_lat == null ? "Coordinate.lat is required" : "expected number" });
         } else {
             instance.lat = __raw_lat;
@@ -197,7 +197,7 @@ export function coordinateDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     if ((__fields === undefined || __fields.requires("lng")) ? "lng" in obj : (__fields.keeps("lng") && obj["lng"] !== undefined)) {
         const __raw_lng = obj["lng"] as number;
 
-        if (!(typeof __raw_lng === "number")) {
+        if (!(typeof __raw_lng === "number" && globalThis.Number.isFinite(__raw_lng))) {
             errors.push({ field: "lng", message: __raw_lng == null ? "Coordinate.lng is required" : "expected number" });
         } else {
             instance.lng = __raw_lng;
@@ -316,16 +316,16 @@ export {};
 
 ## Mapping
 
-original 61..118 -> expanded 832..889
-original 118..119 -> expanded 11688..11689
-generated 0..832 <- imports
-generated 889..1194 <- Debug
-generated 1194..1355 <- Clone
-generated 1355..1619 <- PartialEq
-generated 1619..2116 <- Hash
-generated 2116..4424 <- Encode
-generated 4424..10355 <- Decode
-generated 10355..11688 <- __convenience_const
+original 61..118 -> expanded 863..920
+original 118..119 -> expanded 11806..11807
+generated 0..863 <- imports
+generated 920..1225 <- Debug
+generated 1225..1386 <- Clone
+generated 1386..1650 <- PartialEq
+generated 1650..2147 <- Hash
+generated 2147..4455 <- Encode
+generated 4455..10473 <- Decode
+generated 10473..11806 <- __convenience_const
 
 ## Metadata
 

@@ -17,7 +17,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 class Config {
@@ -72,7 +72,7 @@ constructor(props: { host: string; port: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Config } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = Config.decodeWithContext(data, ctx);
@@ -170,7 +170,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("port")) ? "port" in obj : (__fields.keeps("port") && obj["port"] !== undefined)) {
         const __raw_port = obj["port"] as number;
 
-        if (!(typeof __raw_port === "number")) {
+        if (!(typeof __raw_port === "number" && globalThis.Number.isFinite(__raw_port))) {
             errors.push({ field: "port", message: __raw_port == null ? "Config.port is required" : "expected number" });
         } else {
             instance.port = __raw_port;
@@ -326,15 +326,15 @@ export {};
 
 ## Mapping
 
-original 30..82 -> expanded 648..700
-original 82..83 -> expanded 8178..8179
-original 83..84 -> expanded 11251..11252
-generated 0..648 <- imports
-generated 700..2380 <- Encode
-generated 2380..2699 <- Encode
-generated 2699..8178 <- Decode
-generated 8179..9499 <- Encode
-generated 9499..11251 <- Decode
+original 30..82 -> expanded 679..731
+original 82..83 -> expanded 8256..8257
+original 83..84 -> expanded 11329..11330
+generated 0..679 <- imports
+generated 731..2411 <- Encode
+generated 2411..2730 <- Encode
+generated 2730..8256 <- Decode
+generated 8257..9577 <- Encode
+generated 9577..11329 <- Decode
 
 ## Metadata
 

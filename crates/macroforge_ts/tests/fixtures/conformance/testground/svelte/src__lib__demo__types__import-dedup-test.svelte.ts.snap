@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { equalWithin as __mf_equalWithin, comparedWithin as __mf_comparedWithin } from "@macroforge/core/structural";
 /**
@@ -47,7 +47,7 @@ export interface UserWithDecode {
 export function userWithDecodeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserWithDecode } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = userWithDecodeDecodeWithContext(data, ctx);
@@ -147,7 +147,7 @@ export function userWithDecodeDecodeWithContext(value: unknown, ctx: __mf_Decode
     if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
         const __raw_age = obj["age"] as number;
 
-        if (!(typeof __raw_age === "number")) {
+        if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
             errors.push({ field: "age", message: __raw_age == null ? "UserWithDecode.age is required" : "expected number" });
         } else {
             instance.age = __raw_age;
@@ -255,7 +255,7 @@ export interface FullFeaturedType {
 export function fullFeaturedTypeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: FullFeaturedType } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = fullFeaturedTypeDecodeWithContext(data, ctx);
@@ -346,7 +346,7 @@ export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_Deco
     if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as number;
 
-        if (!(typeof __raw_id === "number")) {
+        if (!(typeof __raw_id === "number" && globalThis.Number.isFinite(__raw_id))) {
             errors.push({ field: "id", message: __raw_id == null ? "FullFeaturedType.id is required" : "expected number" });
         } else {
             instance.id = __raw_id;
@@ -364,7 +364,7 @@ export function fullFeaturedTypeDecodeWithContext(value: unknown, ctx: __mf_Deco
     if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
         const __raw_score = obj["score"] as number;
 
-        if (!(typeof __raw_score === "number")) {
+        if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
             errors.push({ field: "score", message: __raw_score == null ? "FullFeaturedType.score is required" : "expected number" });
         } else {
             instance.score = __raw_score;
@@ -453,7 +453,7 @@ export interface TypeA {
 export function typeADecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TypeA } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = typeADecodeWithContext(data, ctx);
@@ -601,7 +601,7 @@ export interface TypeB {
 export function typeBDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TypeB } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = typeBDecodeWithContext(data, ctx);
@@ -686,7 +686,7 @@ export function typeBDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("fieldB")) ? "fieldB" in obj : (__fields.keeps("fieldB") && obj["fieldB"] !== undefined)) {
         const __raw_fieldB = obj["fieldB"] as number;
 
-        if (!(typeof __raw_fieldB === "number")) {
+        if (!(typeof __raw_fieldB === "number" && globalThis.Number.isFinite(__raw_fieldB))) {
             errors.push({ field: "fieldB", message: __raw_fieldB == null ? "TypeB.fieldB is required" : "expected number" });
         } else {
             instance.fieldB = __raw_fieldB;
@@ -979,36 +979,36 @@ export declare function verifyImports(): void;
 
 ## Mapping
 
-original 0..745 -> expanded 520..1265
-original 767..857 -> expanded 1265..1355
-original 857..921 -> expanded 8854..8918
-original 958..1034 -> expanded 8918..8994
-original 1034..1084 -> expanded 10078..10128
-original 1129..1221 -> expanded 10128..10220
-original 1221..1291 -> expanded 19081..19151
-original 1313..1360 -> expanded 19151..19198
-original 1360..1362 -> expanded 25033..25035
-original 1384..1431 -> expanded 25035..25082
-original 1431..1433 -> expanded 30917..30919
-original 1470..1517 -> expanded 30919..30966
-original 1517..2163 -> expanded 31760..32406
-generated 0..520 <- imports
-generated 1355..8086 <- Decode
-generated 8086..8854 <- __convenience_const
-generated 8994..9262 <- PartialEq
-generated 9262..9846 <- PartialOrd
-generated 9846..10078 <- __convenience_const
-generated 10220..17021 <- Decode
-generated 17021..17332 <- PartialEq
-generated 17332..18083 <- PartialOrd
-generated 18083..19081 <- __convenience_const
-generated 19198..24400 <- Decode
-generated 24400..25033 <- __convenience_const
-generated 25082..30284 <- Decode
-generated 30284..30917 <- __convenience_const
-generated 30966..31172 <- PartialEq
-generated 31172..31573 <- PartialOrd
-generated 31573..31760 <- __convenience_const
+original 0..745 -> expanded 551..1296
+original 767..857 -> expanded 1296..1386
+original 857..921 -> expanded 8931..8995
+original 958..1034 -> expanded 8995..9071
+original 1034..1084 -> expanded 10155..10205
+original 1129..1221 -> expanded 10205..10297
+original 1221..1291 -> expanded 19246..19316
+original 1313..1360 -> expanded 19316..19363
+original 1360..1362 -> expanded 25203..25205
+original 1384..1431 -> expanded 25205..25252
+original 1431..1433 -> expanded 31136..31138
+original 1470..1517 -> expanded 31138..31185
+original 1517..2163 -> expanded 31979..32625
+generated 0..551 <- imports
+generated 1386..8163 <- Decode
+generated 8163..8931 <- __convenience_const
+generated 9071..9339 <- PartialEq
+generated 9339..9923 <- PartialOrd
+generated 9923..10155 <- __convenience_const
+generated 10297..17186 <- Decode
+generated 17186..17497 <- PartialEq
+generated 17497..18248 <- PartialOrd
+generated 18248..19246 <- __convenience_const
+generated 19363..24570 <- Decode
+generated 24570..25203 <- __convenience_const
+generated 25252..30503 <- Decode
+generated 30503..31136 <- __convenience_const
+generated 31185..31391 <- PartialEq
+generated 31391..31792 <- PartialOrd
+generated 31792..31979 <- __convenience_const
 
 ## Metadata
 

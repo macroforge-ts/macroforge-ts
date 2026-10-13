@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -69,7 +69,7 @@ function yearlyRecurrenceRuleEncodeFields(value: YearlyRecurrenceRule, _ctx: __m
 export function yearlyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: YearlyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = yearlyRecurrenceRuleDecodeWithContext(data, ctx);
@@ -154,7 +154,7 @@ export function yearlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_
     if ((__fields === undefined || __fields.requires("quantityOfYears")) ? "quantityOfYears" in obj : (__fields.keeps("quantityOfYears") && obj["quantityOfYears"] !== undefined)) {
         const __raw_quantityOfYears = obj["quantityOfYears"] as number;
 
-        if (!(typeof __raw_quantityOfYears === "number")) {
+        if (!(typeof __raw_quantityOfYears === "number" && globalThis.Number.isFinite(__raw_quantityOfYears))) {
             errors.push({ field: "quantityOfYears", message: __raw_quantityOfYears == null ? "YearlyRecurrenceRule.quantityOfYears is required" : "expected number" });
         } else {
             instance.quantityOfYears = __raw_quantityOfYears;
@@ -414,15 +414,15 @@ export declare const YearlyRecurrenceRule: {
 
 ## Mapping
 
-original 0..58 -> expanded 807..865
-original 107..178 -> expanded 865..936
-original 178..179 -> expanded 14856..14857
-generated 0..807 <- imports
-generated 936..1062 <- Default
-generated 1062..3415 <- Encode
-generated 3415..9256 <- Decode
-generated 9256..13266 <- Gigaform
-generated 13266..14856 <- __convenience_const
+original 0..58 -> expanded 838..896
+original 107..178 -> expanded 896..967
+original 178..179 -> expanded 14945..14946
+generated 0..838 <- imports
+generated 967..1093 <- Default
+generated 1093..3446 <- Encode
+generated 3446..9345 <- Decode
+generated 9345..13355 <- Gigaform
+generated 13355..14945 <- __convenience_const
 
 ## Metadata
 

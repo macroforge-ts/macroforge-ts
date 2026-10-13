@@ -19,7 +19,7 @@ true
 ## Output
 
 import { metadataDecodeWithContext, metadataEncodeWithContext, metadataDefaultValue } from "./metadata.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Metadata } from './metadata.svelte';
 
@@ -73,7 +73,7 @@ function userEncodeFields(value: User, ctx: __mf_EncodeContext, result: Record<s
 export function userDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = userDecodeWithContext(data, ctx);
@@ -294,14 +294,14 @@ export declare const User: {
 
 ## Mapping
 
-original 0..47 -> expanded 760..807
-original 86..136 -> expanded 807..857
-original 136..137 -> expanded 9762..9763
-generated 0..760 <- imports
-generated 857..965 <- Default
-generated 965..3081 <- Encode
-generated 3081..8764 <- Decode
-generated 8764..9762 <- __convenience_const
+original 0..47 -> expanded 791..838
+original 86..136 -> expanded 838..888
+original 136..137 -> expanded 9798..9799
+generated 0..791 <- imports
+generated 888..996 <- Default
+generated 996..3112 <- Encode
+generated 3112..8800 <- Decode
+generated 8800..9798 <- __convenience_const
 
 ## Metadata
 

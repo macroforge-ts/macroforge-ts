@@ -15,7 +15,7 @@ true
 
 ## Output
 
-import { DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 
@@ -24,7 +24,7 @@ type Meters = number & { readonly [__mf_newtype_1]: true };
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const result = metersDecodeWithContext(data, ctx);
@@ -65,7 +65,7 @@ export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "number") {
+    if (!((typeof __decoded === "number" && globalThis.Number.isFinite(__decoded)))) {
         throw new __mf_DecodeError([{ field: "_root", message: "Meters.decodeWithContext: expected number" }]);
     }
     const errors: Array<{ field: string; message: string }> = [];
@@ -75,11 +75,11 @@ export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
 }
 
 export function metersHasShape(value: unknown): boolean {
-    return typeof value === "number";
+    return (typeof value === "number" && globalThis.Number.isFinite(value));
 }
 
 export function metersIs(value: unknown): value is Meters {
-    return typeof value === "number" && metersDecode(value).success;
+    return (typeof value === "number" && globalThis.Number.isFinite(value)) && metersDecode(value).success;
 }
 
 const Meters: {
@@ -123,14 +123,14 @@ Error [5..29]: @derive(Default) on 'Meters' requires @default(value): its valida
 
 ## Mapping
 
-original 55..70 -> expanded 239..254
-original 86..87 -> expanded 298..299
-original 87..88 -> expanded 2620..2621
-generated 0..194 <- imports
-generated 194..239 <- $Newtype
-generated 254..298 <- $Newtype
-generated 299..2303 <- Decode
-generated 2303..2620 <- __convenience_const
+original 55..70 -> expanded 270..285
+original 86..87 -> expanded 329..330
+original 87..88 -> expanded 2780..2781
+generated 0..225 <- imports
+generated 225..270 <- $Newtype
+generated 285..329 <- $Newtype
+generated 330..2463 <- Decode
+generated 2463..2780 <- __convenience_const
 
 ## Metadata
 

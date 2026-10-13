@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Validator form model for E2E testing in Svelte.
@@ -51,7 +51,7 @@ constructor(props: { email: string; password: string; username: string; age: num
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserRegistrationForm } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = UserRegistrationForm.decodeWithContext(data, ctx);
@@ -189,7 +189,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
         const __raw_age = obj["age"] as number;
 
-        if (!(typeof __raw_age === "number")) {
+        if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
             errors.push({ field: "age", message: __raw_age == null ? "UserRegistrationForm.age is required" : "expected number" });
         } else {
             if (__raw_age == null) { errors.push({ field: "age", message: "UserRegistrationForm.age is required" }); } else {
@@ -370,7 +370,7 @@ constructor(props: { name: string; price: number; quantity: number; tags: Array<
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ProductForm } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = ProductForm.decodeWithContext(data, ctx);
@@ -481,7 +481,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("price")) ? "price" in obj : (__fields.keeps("price") && obj["price"] !== undefined)) {
         const __raw_price = obj["price"] as number;
 
-        if (!(typeof __raw_price === "number")) {
+        if (!(typeof __raw_price === "number" && globalThis.Number.isFinite(__raw_price))) {
             errors.push({ field: "price", message: __raw_price == null ? "ProductForm.price is required" : "expected number" });
         } else {
             if (__raw_price == null) { errors.push({ field: "price", message: "ProductForm.price is required" }); } else {
@@ -494,7 +494,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("quantity")) ? "quantity" in obj : (__fields.keeps("quantity") && obj["quantity"] !== undefined)) {
         const __raw_quantity = obj["quantity"] as number;
 
-        if (!(typeof __raw_quantity === "number")) {
+        if (!(typeof __raw_quantity === "number" && globalThis.Number.isFinite(__raw_quantity))) {
             errors.push({ field: "quantity", message: __raw_quantity == null ? "ProductForm.quantity is required" : "expected number" });
         } else {
             if (__raw_quantity == null) { errors.push({ field: "quantity", message: "ProductForm.quantity is required" }); } else {
@@ -697,7 +697,7 @@ constructor(props: { title: string; startDate: Date; endDate: Date; maxAttendees
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EventForm } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = EventForm.decodeWithContext(data, ctx);
@@ -834,7 +834,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("maxAttendees")) ? "maxAttendees" in obj : (__fields.keeps("maxAttendees") && obj["maxAttendees"] !== undefined)) {
         const __raw_maxAttendees = obj["maxAttendees"] as number;
 
-        if (!(typeof __raw_maxAttendees === "number")) {
+        if (!(typeof __raw_maxAttendees === "number" && globalThis.Number.isFinite(__raw_maxAttendees))) {
             errors.push({ field: "maxAttendees", message: __raw_maxAttendees == null ? "EventForm.maxAttendees is required" : "expected number" });
         } else {
             if (__raw_maxAttendees == null) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees is required" }); } else {
@@ -1196,37 +1196,37 @@ export declare function validateEvent(data: unknown): ValidationResult<EventForm
 
 ## Mapping
 
-original 0..204 -> expanded 470..674
-original 226..267 -> expanded 674..715
-original 305..330 -> expanded 715..740
-original 392..420 -> expanded 740..768
-original 529..557 -> expanded 768..796
-original 613..636 -> expanded 796..819
-original 672..694 -> expanded 819..841
-original 694..695 -> expanded 16493..16494
-original 695..697 -> expanded 18456..18458
-original 719..751 -> expanded 18458..18490
-original 810..834 -> expanded 18490..18514
-original 896..921 -> expanded 18514..18539
-original 972..1000 -> expanded 18539..18567
-original 1059..1090 -> expanded 18567..18598
-original 1127..1145 -> expanded 18598..18616
-original 1145..1146 -> expanded 33400..33401
-original 1146..1148 -> expanded 35228..35230
-original 1170..1200 -> expanded 35230..35260
-original 1252..1277 -> expanded 35260..35285
-original 1354..1381 -> expanded 35285..35312
-original 1423..1448 -> expanded 35312..35337
-original 1504..1531 -> expanded 35337..35364
-original 1531..1532 -> expanded 48426..48427
-original 1532..2731 -> expanded 50224..51423
-generated 0..470 <- imports
-generated 841..16493 <- Decode
-generated 16494..18456 <- Decode
-generated 18616..33400 <- Decode
-generated 33401..35228 <- Decode
-generated 35364..48426 <- Decode
-generated 48427..50224 <- Decode
+original 0..204 -> expanded 501..705
+original 226..267 -> expanded 705..746
+original 305..330 -> expanded 746..771
+original 392..420 -> expanded 771..799
+original 529..557 -> expanded 799..827
+original 613..636 -> expanded 827..850
+original 672..694 -> expanded 850..872
+original 694..695 -> expanded 16570..16571
+original 695..697 -> expanded 18533..18535
+original 719..751 -> expanded 18535..18567
+original 810..834 -> expanded 18567..18591
+original 896..921 -> expanded 18591..18616
+original 972..1000 -> expanded 18616..18644
+original 1059..1090 -> expanded 18644..18675
+original 1127..1145 -> expanded 18675..18693
+original 1145..1146 -> expanded 33571..33572
+original 1146..1148 -> expanded 35399..35401
+original 1170..1200 -> expanded 35401..35431
+original 1252..1277 -> expanded 35431..35456
+original 1354..1381 -> expanded 35456..35483
+original 1423..1448 -> expanded 35483..35508
+original 1504..1531 -> expanded 35508..35535
+original 1531..1532 -> expanded 48652..48653
+original 1532..2731 -> expanded 50450..51649
+generated 0..501 <- imports
+generated 872..16570 <- Decode
+generated 16571..18533 <- Decode
+generated 18693..33571 <- Decode
+generated 33572..35399 <- Decode
+generated 35535..48652 <- Decode
+generated 48653..50450 <- Decode
 
 ## Metadata
 

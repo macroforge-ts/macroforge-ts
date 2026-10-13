@@ -17,7 +17,7 @@ import { commissionsDecodeWithContext, commissionsEncodeWithContext } from "./co
 import { overviewSettingsDecodeWithContext, overviewSettingsEncodeWithContext, overviewSettingsDefaultValue } from "./overview-settings.svelte";
 import { pageDecodeWithContext, pageEncodeWithContext } from "./page.svelte";
 import { scheduleSettingsDecodeWithContext, scheduleSettingsEncodeWithContext, scheduleSettingsDefaultValue } from "./schedule-settings.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -158,7 +158,7 @@ function settingsEncodeFields(value: Settings, ctx: __mf_EncodeContext, result: 
 export function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = settingsDecodeWithContext(data, ctx);
@@ -1415,16 +1415,16 @@ export declare const Settings: {
 
 ## Mapping
 
-original 0..379 -> expanded 1413..1792
-original 428..976 -> expanded 1792..2340
-original 1003..1025 -> expanded 2340..2362
-original 1025..1026 -> expanded 59511..59512
-generated 0..1413 <- imports
-generated 2362..3110 <- Default
-generated 3110..8297 <- Encode
-generated 8297..29870 <- Decode
-generated 29870..58245 <- Gigaform
-generated 58245..59511 <- __convenience_const
+original 0..379 -> expanded 1444..1823
+original 428..976 -> expanded 1823..2371
+original 1003..1025 -> expanded 2371..2393
+original 1025..1026 -> expanded 59547..59548
+generated 0..1444 <- imports
+generated 2393..3141 <- Default
+generated 3141..8328 <- Encode
+generated 8328..29906 <- Decode
+generated 29906..58281 <- Gigaform
+generated 58281..59547 <- __convenience_const
 
 ## Metadata
 

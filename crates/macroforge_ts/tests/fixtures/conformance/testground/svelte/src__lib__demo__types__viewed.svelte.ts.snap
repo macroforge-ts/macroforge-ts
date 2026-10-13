@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -76,7 +76,7 @@ function viewedEncodeFields(value: Viewed, _ctx: __mf_EncodeContext, result: Rec
 export function viewedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Viewed } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = viewedDecodeWithContext(data, ctx);
@@ -164,7 +164,7 @@ export function viewedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
     if ((__fields === undefined || __fields.requires("durationSeconds")) ? "durationSeconds" in obj : (__fields.keeps("durationSeconds") && obj["durationSeconds"] !== undefined)) {
         const __raw_durationSeconds = obj["durationSeconds"] as number | null;
 
-        if (!(typeof __raw_durationSeconds === "number" || __raw_durationSeconds === null)) {
+        if (!(typeof __raw_durationSeconds === "number" && globalThis.Number.isFinite(__raw_durationSeconds) || __raw_durationSeconds === null)) {
             errors.push({ field: "durationSeconds", message: "expected number | null" });
         } else {
             instance.durationSeconds = __raw_durationSeconds;
@@ -466,15 +466,15 @@ export declare const Viewed: {
 
 ## Mapping
 
-original 0..58 -> expanded 807..865
-original 107..198 -> expanded 865..956
-original 198..199 -> expanded 15371..15372
-generated 0..807 <- imports
-generated 956..1079 <- Default
-generated 1079..3387 <- Encode
-generated 3387..9385 <- Decode
-generated 9385..14159 <- Gigaform
-generated 14159..15371 <- __convenience_const
+original 0..58 -> expanded 838..896
+original 107..198 -> expanded 896..987
+original 198..199 -> expanded 15460..15461
+generated 0..838 <- imports
+generated 987..1110 <- Default
+generated 1110..3418 <- Encode
+generated 3418..9474 <- Decode
+generated 9474..14248 <- Gigaform
+generated 14248..15460 <- __convenience_const
 
 ## Metadata
 

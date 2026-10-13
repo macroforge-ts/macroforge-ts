@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * BigInt validator test classes for comprehensive decoder validation testing.
@@ -33,7 +33,7 @@ constructor(props: { value: bigint }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = GreaterThanBigIntValidator.decodeWithContext(data, ctx);
@@ -219,7 +219,7 @@ constructor(props: { value: bigint }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = GreaterThanOrEqualToBigIntValidator.decodeWithContext(data, ctx);
@@ -405,7 +405,7 @@ constructor(props: { value: bigint }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = LessThanBigIntValidator.decodeWithContext(data, ctx);
@@ -591,7 +591,7 @@ constructor(props: { value: bigint }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = LessThanOrEqualToBigIntValidator.decodeWithContext(data, ctx);
@@ -777,7 +777,7 @@ constructor(props: { value: bigint }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: BetweenBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = BetweenBigIntValidator.decodeWithContext(data, ctx);
@@ -963,7 +963,7 @@ constructor(props: { value: bigint }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PositiveBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = PositiveBigIntValidator.decodeWithContext(data, ctx);
@@ -1149,7 +1149,7 @@ constructor(props: { value: bigint }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NonNegativeBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = NonNegativeBigIntValidator.decodeWithContext(data, ctx);
@@ -1335,7 +1335,7 @@ constructor(props: { value: bigint }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NegativeBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = NegativeBigIntValidator.decodeWithContext(data, ctx);
@@ -1521,7 +1521,7 @@ constructor(props: { value: bigint }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NonPositiveBigIntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = NonPositiveBigIntValidator.decodeWithContext(data, ctx);
@@ -2172,44 +2172,44 @@ export declare function nonPositiveBigIntValidatorIs(value: unknown): value is N
 
 ## Mapping
 
-original 0..261 -> expanded 402..663
-original 261..262 -> expanded 7215..7216
-original 262..464 -> expanded 9268..9470
-original 464..465 -> expanded 16280..16281
-original 465..634 -> expanded 18468..18637
-original 634..635 -> expanded 25123..25124
-original 635..831 -> expanded 27131..27327
-original 831..832 -> expanded 34071..34072
-original 832..1001 -> expanded 36214..36383
-original 1001..1002 -> expanded 42904..42905
-original 1002..1165 -> expanded 44897..45060
-original 1165..1166 -> expanded 51519..51520
-original 1166..1338 -> expanded 53527..53699
-original 1338..1339 -> expanded 60242..60243
-original 1339..1502 -> expanded 62295..62458
-original 1502..1503 -> expanded 68917..68918
-original 1503..1675 -> expanded 70925..71097
-original 1675..1676 -> expanded 77640..77641
-original 1676..1677 -> expanded 79693..79694
-generated 0..402 <- imports
-generated 663..7215 <- Decode
-generated 7216..9268 <- Decode
-generated 9470..16280 <- Decode
-generated 16281..18468 <- Decode
-generated 18637..25123 <- Decode
-generated 25124..27131 <- Decode
-generated 27327..34071 <- Decode
-generated 34072..36214 <- Decode
-generated 36383..42904 <- Decode
-generated 42905..44897 <- Decode
-generated 45060..51519 <- Decode
-generated 51520..53527 <- Decode
-generated 53699..60242 <- Decode
-generated 60243..62295 <- Decode
-generated 62458..68917 <- Decode
-generated 68918..70925 <- Decode
-generated 71097..77640 <- Decode
-generated 77641..79693 <- Decode
+original 0..261 -> expanded 433..694
+original 261..262 -> expanded 7251..7252
+original 262..464 -> expanded 9304..9506
+original 464..465 -> expanded 16321..16322
+original 465..634 -> expanded 18509..18678
+original 634..635 -> expanded 25169..25170
+original 635..831 -> expanded 27177..27373
+original 831..832 -> expanded 34122..34123
+original 832..1001 -> expanded 36265..36434
+original 1001..1002 -> expanded 42960..42961
+original 1002..1165 -> expanded 44953..45116
+original 1165..1166 -> expanded 51580..51581
+original 1166..1338 -> expanded 53588..53760
+original 1338..1339 -> expanded 60308..60309
+original 1339..1502 -> expanded 62361..62524
+original 1502..1503 -> expanded 68988..68989
+original 1503..1675 -> expanded 70996..71168
+original 1675..1676 -> expanded 77716..77717
+original 1676..1677 -> expanded 79769..79770
+generated 0..433 <- imports
+generated 694..7251 <- Decode
+generated 7252..9304 <- Decode
+generated 9506..16321 <- Decode
+generated 16322..18509 <- Decode
+generated 18678..25169 <- Decode
+generated 25170..27177 <- Decode
+generated 27373..34122 <- Decode
+generated 34123..36265 <- Decode
+generated 36434..42960 <- Decode
+generated 42961..44953 <- Decode
+generated 45116..51580 <- Decode
+generated 51581..53588 <- Decode
+generated 53760..60308 <- Decode
+generated 60309..62361 <- Decode
+generated 62524..68988 <- Decode
+generated 68989..70996 <- Decode
+generated 71168..77716 <- Decode
+generated 77717..79769 <- Decode
 
 ## Metadata
 

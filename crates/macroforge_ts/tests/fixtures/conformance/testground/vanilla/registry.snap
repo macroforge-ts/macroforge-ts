@@ -1,7 +1,7 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
 ---
-## Types (343)
+## Types (356)
 
 Address f0d229a1409690d0
 AddressPatch 9f24746fc3a6b7e7
@@ -172,6 +172,12 @@ EnumRepeated 64f69590618c71cd
 EnumSigned 71a9cd6803853995
 EnumText 4c33559a6c6d570d
 EventForm 4d877d8eb4f3cf6b
+ExoticBlank 68f73e1e565adf21
+ExoticCode 248dc763cb29d8c5
+ExoticEmpty 29ec77822abf5783
+ExoticMethods bdd9664e4bf73f0c
+ExoticNone 92189999c5fc4a27
+ExoticScalars fec79349e952ef17
 Fallback f82b11d1ac8c53a3
 FiniteValidator 0e1bca3b4e63e438
 FormModel 15fe3e9429c488ff
@@ -245,16 +251,20 @@ NameQuotedClass 04b87e0cac2b97ea
 NegativeBigIntValidator bcf8aa19a6031857
 NegativeValidator 40e6f6dab58fd58b
 NestedDeserResults 91fe907622707348
-NewCount ee9ee3a40165e0a4
-NewFlag 520b039510081038
-NewHolder e445412f79ce70f6
-NewLedger 1a1f5e208dd69190
-NewNested 37c18d5f0bc5c822
-NewOrdered b5d632966a0bee79
-NewPlain 10dc081c83fe5f8f
-NewSlug 259d74cca3fac5d6
-NewText d5d4200dac9dcd8b
-NewTotal df1eba83e832ced5
+NewCount 5ac197d63e1293d3
+NewFlag e7030e0303c109f8
+NewHolder 65e9b25a946776d1
+NewLedger 032d87a2eaba4170
+NewNested 1f0deed88388bbb2
+NewOrdered 9b787d9f38f4db24
+NewPair f97e039a40c74ce6
+NewPlain 56212fa286947cf7
+NewPoint 84943c8a6ebfd6ae
+NewSlug 08b5070eb710607e
+NewStamp 91f330d5e909efb2
+NewTags cfc3aeb7b338b00e
+NewText dac9c47e5a0b239a
+NewTotal 729fa17c3f47ff42
 NonEmptyValidator 9f5071af9f065123
 NonNaNValidator ef3d6f1cc2845468
 NonNegativeBigIntValidator f3b5d774823eab30
@@ -316,7 +326,10 @@ Shelf 0269f73daa1b1af7
 Signal e7b2eef9980d83db
 Slot 628ae4d6824d74c4
 Span 03e85be0b2397e02
-SpecialCollections 02899b02f0348a28
+SpecialCarried 370b6bb3aa89e0df
+SpecialCollections c30fa999873c258b
+SpecialEither 97f07d738d44b9d1
+SpecialNumber 9df4ef48e3a64e22
 SpecialScalars 1686c9cd968b1621
 StartsWithValidator c6890986f32f6aed
 Status 2f4efe4e234e41c2
@@ -347,7 +360,7 @@ Version a97656860d12bbc3
 Wall 5a067be59c2d4675
 point2D 697bb407a60739cf
 
-## Qualified types (346)
+## Qualified types (359)
 
 src/all-macros-test.ts::AllMacrosTestClass 0a3bab42a552ef1b
 src/attributes-test.ts::ServerStatus a6f77a8f50f170a0
@@ -432,6 +445,12 @@ src/edge-cases/enum-shapes.ts::EnumOrdered 56209b5da80f07f4
 src/edge-cases/enum-shapes.ts::EnumRepeated 64f69590618c71cd
 src/edge-cases/enum-shapes.ts::EnumSigned 71a9cd6803853995
 src/edge-cases/enum-shapes.ts::EnumText 4c33559a6c6d570d
+src/edge-cases/exotic-shapes.ts::ExoticBlank 68f73e1e565adf21
+src/edge-cases/exotic-shapes.ts::ExoticCode 248dc763cb29d8c5
+src/edge-cases/exotic-shapes.ts::ExoticEmpty 29ec77822abf5783
+src/edge-cases/exotic-shapes.ts::ExoticMethods bdd9664e4bf73f0c
+src/edge-cases/exotic-shapes.ts::ExoticNone 92189999c5fc4a27
+src/edge-cases/exotic-shapes.ts::ExoticScalars fec79349e952ef17
 src/edge-cases/generic-shapes.ts::GenericArguments 95d56c3917b0c5a2
 src/edge-cases/generic-shapes.ts::GenericBox 8f6fb2e6767594b3
 src/edge-cases/generic-shapes.ts::GenericConstrained b8dd574808a68793
@@ -459,16 +478,20 @@ src/edge-cases/name-shapes.ts::NamePrototype 84cc0970d4858bcf
 src/edge-cases/name-shapes.ts::NameQuoted 6ce819379349d86a
 src/edge-cases/name-shapes.ts::NameQuotedClass 04b87e0cac2b97ea
 src/edge-cases/name-shapes.ts::point2D 697bb407a60739cf
-src/edge-cases/newtype-shapes.ts::NewCount ee9ee3a40165e0a4
-src/edge-cases/newtype-shapes.ts::NewFlag 520b039510081038
-src/edge-cases/newtype-shapes.ts::NewHolder e445412f79ce70f6
-src/edge-cases/newtype-shapes.ts::NewLedger 1a1f5e208dd69190
-src/edge-cases/newtype-shapes.ts::NewNested 37c18d5f0bc5c822
-src/edge-cases/newtype-shapes.ts::NewOrdered b5d632966a0bee79
-src/edge-cases/newtype-shapes.ts::NewPlain 10dc081c83fe5f8f
-src/edge-cases/newtype-shapes.ts::NewSlug 259d74cca3fac5d6
-src/edge-cases/newtype-shapes.ts::NewText d5d4200dac9dcd8b
-src/edge-cases/newtype-shapes.ts::NewTotal df1eba83e832ced5
+src/edge-cases/newtype-shapes.ts::NewCount 5ac197d63e1293d3
+src/edge-cases/newtype-shapes.ts::NewFlag e7030e0303c109f8
+src/edge-cases/newtype-shapes.ts::NewHolder 65e9b25a946776d1
+src/edge-cases/newtype-shapes.ts::NewLedger 032d87a2eaba4170
+src/edge-cases/newtype-shapes.ts::NewNested 1f0deed88388bbb2
+src/edge-cases/newtype-shapes.ts::NewOrdered 9b787d9f38f4db24
+src/edge-cases/newtype-shapes.ts::NewPair f97e039a40c74ce6
+src/edge-cases/newtype-shapes.ts::NewPlain 56212fa286947cf7
+src/edge-cases/newtype-shapes.ts::NewPoint 84943c8a6ebfd6ae
+src/edge-cases/newtype-shapes.ts::NewSlug 08b5070eb710607e
+src/edge-cases/newtype-shapes.ts::NewStamp 91f330d5e909efb2
+src/edge-cases/newtype-shapes.ts::NewTags cfc3aeb7b338b00e
+src/edge-cases/newtype-shapes.ts::NewText dac9c47e5a0b239a
+src/edge-cases/newtype-shapes.ts::NewTotal 729fa17c3f47ff42
 src/edge-cases/option-shapes.ts::OptionCamel f9967b3236f33eec
 src/edge-cases/option-shapes.ts::OptionDefaultKinds 7fd81ac9695d3294
 src/edge-cases/option-shapes.ts::OptionDefaults 9bcb0ad8c1354c93
@@ -489,7 +512,10 @@ src/edge-cases/partial-shapes.ts::EdgeOptional bea200717fb8f47c
 src/edge-cases/partial-shapes.ts::EdgePartials 0711c1b800211943
 src/edge-cases/partial-shapes.ts::EdgeRenamedPartials 8f688234bc75c2f4
 src/edge-cases/partial-shapes.ts::EdgeRequired 6774560ee1c72ee5
-src/edge-cases/special-shapes.ts::SpecialCollections 02899b02f0348a28
+src/edge-cases/special-shapes.ts::SpecialCarried 370b6bb3aa89e0df
+src/edge-cases/special-shapes.ts::SpecialCollections c30fa999873c258b
+src/edge-cases/special-shapes.ts::SpecialEither 97f07d738d44b9d1
+src/edge-cases/special-shapes.ts::SpecialNumber 9df4ef48e3a64e22
 src/edge-cases/special-shapes.ts::SpecialScalars 1686c9cd968b1621
 src/enum-type-examples.ts::ApiStatus 57f42a116e057cb5
 src/enum-type-examples.ts::Color 0731359c6ec3936f

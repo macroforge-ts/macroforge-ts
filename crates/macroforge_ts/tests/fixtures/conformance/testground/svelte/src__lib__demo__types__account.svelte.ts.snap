@@ -22,7 +22,7 @@ import { representsDecodeWithContext, representsEncodeWithContext } from "./repr
 import { sectorDecodeWithContext, sectorEncodeWithContext } from "./sector.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { taxRateDecodeWithContext, taxRateEncodeWithContext } from "./tax-rate.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -265,7 +265,7 @@ function accountEncodeFields(value: Account, ctx: __mf_EncodeContext, result: Re
 export function accountDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = accountDecodeWithContext(data, ctx);
@@ -2065,44 +2065,44 @@ export declare const Account: {
 
 ## Mapping
 
-original 0..551 -> expanded 1867..2418
-original 600..632 -> expanded 2418..2450
-original 660..681 -> expanded 2450..2471
-original 781..786 -> expanded 2471..2476
-original 805..841 -> expanded 2476..2512
-original 890..895 -> expanded 2512..2517
-original 914..944 -> expanded 2517..2547
-original 1033..1078 -> expanded 2547..2592
-original 1106..1139 -> expanded 2592..2625
-original 1167..1198 -> expanded 2625..2656
-original 1258..1306 -> expanded 2656..2704
-original 1438..1473 -> expanded 2704..2739
-original 1654..1659 -> expanded 2739..2744
-original 1689..1714 -> expanded 2744..2769
-original 1759..1789 -> expanded 2769..2799
-original 1842..1879 -> expanded 2799..2836
-original 1927..1950 -> expanded 2836..2859
-original 2021..2026 -> expanded 2859..2864
-original 2067..2096 -> expanded 2864..2893
-original 2124..2149 -> expanded 2893..2918
-original 2200..2231 -> expanded 2918..2949
-original 2279..2307 -> expanded 2949..2977
-original 2379..2384 -> expanded 2977..2982
-original 2425..2455 -> expanded 2982..3012
-original 2522..2527 -> expanded 3012..3017
-original 2568..2594 -> expanded 3017..3043
-original 2643..2674 -> expanded 3043..3074
-original 2747..2752 -> expanded 3074..3079
-original 2793..2824 -> expanded 3079..3110
-original 2865..2895 -> expanded 3110..3140
-original 2923..2948 -> expanded 3140..3165
-original 2948..2949 -> expanded 80147..80148
-generated 0..1867 <- imports
-generated 3165..3795 <- Default
-generated 3795..10074 <- Encode
-generated 10074..41189 <- Decode
-generated 41189..78908 <- Gigaform
-generated 78908..80147 <- __convenience_const
+original 0..551 -> expanded 1898..2449
+original 600..632 -> expanded 2449..2481
+original 660..681 -> expanded 2481..2502
+original 781..786 -> expanded 2502..2507
+original 805..841 -> expanded 2507..2543
+original 890..895 -> expanded 2543..2548
+original 914..944 -> expanded 2548..2578
+original 1033..1078 -> expanded 2578..2623
+original 1106..1139 -> expanded 2623..2656
+original 1167..1198 -> expanded 2656..2687
+original 1258..1306 -> expanded 2687..2735
+original 1438..1473 -> expanded 2735..2770
+original 1654..1659 -> expanded 2770..2775
+original 1689..1714 -> expanded 2775..2800
+original 1759..1789 -> expanded 2800..2830
+original 1842..1879 -> expanded 2830..2867
+original 1927..1950 -> expanded 2867..2890
+original 2021..2026 -> expanded 2890..2895
+original 2067..2096 -> expanded 2895..2924
+original 2124..2149 -> expanded 2924..2949
+original 2200..2231 -> expanded 2949..2980
+original 2279..2307 -> expanded 2980..3008
+original 2379..2384 -> expanded 3008..3013
+original 2425..2455 -> expanded 3013..3043
+original 2522..2527 -> expanded 3043..3048
+original 2568..2594 -> expanded 3048..3074
+original 2643..2674 -> expanded 3074..3105
+original 2747..2752 -> expanded 3105..3110
+original 2793..2824 -> expanded 3110..3141
+original 2865..2895 -> expanded 3141..3171
+original 2923..2948 -> expanded 3171..3196
+original 2948..2949 -> expanded 80183..80184
+generated 0..1898 <- imports
+generated 3196..3826 <- Default
+generated 3826..10105 <- Encode
+generated 10105..41225 <- Decode
+generated 41225..78944 <- Gigaform
+generated 78944..80183 <- __convenience_const
 
 ## Metadata
 

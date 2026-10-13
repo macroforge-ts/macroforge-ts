@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin, instanceOf as __mf_instanceOf, structuralDebug as __mf_structuralDebug } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * The types the edge-case modules build on. They live in a module of their
@@ -131,7 +131,7 @@ function edgeItemEncodeFields(value: EdgeItem, _ctx: __mf_EncodeContext, result:
 export function edgeItemDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EdgeItem } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = edgeItemDecodeWithContext(data, ctx);
@@ -228,7 +228,7 @@ export function edgeItemDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
         const __raw_score = obj["score"] as number;
 
-        if (!(typeof __raw_score === "number")) {
+        if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
             errors.push({ field: "score", message: __raw_score == null ? "EdgeItem.score is required" : "expected number" });
         } else {
             instance.score = __raw_score;
@@ -396,7 +396,7 @@ constructor(props: { title: string; items: EdgeItem[] }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EdgeCard } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = EdgeCard.decodeWithContext(data, ctx);
@@ -732,7 +732,7 @@ function edgeProfileEncodeFields(value: EdgeProfile, _ctx: __mf_EncodeContext, r
 export function edgeProfileDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EdgeProfile } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = edgeProfileDecodeWithContext(data, ctx);
@@ -895,7 +895,7 @@ export function edgeProfileDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
         if (("level" in obj && obj["level"] !== undefined)) {
             const __raw_level = obj["level"] as number;
 
-            if (!(typeof __raw_level === "number")) {
+            if (!(typeof __raw_level === "number" && globalThis.Number.isFinite(__raw_level))) {
                 errors.push({ field: "level", message: "expected number" });
             } else {
                 instance.level = __raw_level;
@@ -1060,7 +1060,7 @@ function edgeStrictEncodeFields(value: EdgeStrict, _ctx: __mf_EncodeContext, res
 export function edgeStrictDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EdgeStrict } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = edgeStrictDecodeWithContext(data, ctx);
@@ -1314,7 +1314,7 @@ function edgeLabeledEncodeFields(value: EdgeLabeled, ctx: __mf_EncodeContext, re
 export function edgeLabeledDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EdgeLabeled } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = edgeLabeledDecodeWithContext(data, ctx);
@@ -1563,7 +1563,7 @@ function edgeNodeEncodeFields(value: EdgeNode, ctx: __mf_EncodeContext, result: 
 export function edgeNodeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EdgeNode } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = edgeNodeDecodeWithContext(data, ctx);
@@ -2140,68 +2140,68 @@ export declare const EdgeNode: {
 
 ## Mapping
 
-original 0..314 -> expanded 1011..1325
-original 314..463 -> expanded 13241..13390
-original 463..464 -> expanded 23302..23303
-original 464..822 -> expanded 26916..27274
-original 822..994 -> expanded 44486..44658
-original 994..1158 -> expanded 55520..55684
-original 1158..1296 -> expanded 66656..66794
-original 1296..1297 -> expanded 78149..78150
-generated 0..1011 <- imports
-generated 1325..1626 <- Debug
-generated 1626..1781 <- Clone
-generated 1781..2009 <- PartialEq
-generated 2009..2458 <- Hash
-generated 2458..2986 <- PartialOrd
-generated 2986..3426 <- Ord
-generated 3426..3534 <- Default
-generated 3534..5816 <- Encode
-generated 5816..11695 <- Decode
-generated 11695..13241 <- __convenience_const
-generated 13390..13749 <- Debug
-generated 13749..13960 <- Clone
-generated 13960..14357 <- PartialEq
-generated 14357..14781 <- Hash
-generated 14781..15006 <- Default
-generated 15006..16769 <- Encode
-generated 16769..17092 <- Encode
-generated 17092..23302 <- Decode
-generated 23303..23403 <- Debug
-generated 23403..23499 <- Clone
-generated 23499..23604 <- PartialEq
-generated 23604..23704 <- Hash
-generated 23704..23794 <- Default
-generated 23794..25134 <- Encode
-generated 25134..26916 <- Decode
-generated 27274..27822 <- Debug
-generated 27822..28160 <- Clone
-generated 28160..28810 <- PartialEq
-generated 28810..29794 <- Hash
-generated 29794..32836 <- Encode
-generated 32836..43117 <- Decode
-generated 43117..44486 <- __convenience_const
-generated 44658..44963 <- Debug
-generated 44963..45124 <- Clone
-generated 45124..45308 <- PartialEq
-generated 45308..45707 <- Hash
-generated 45707..48015 <- Encode
-generated 48015..54180 <- Decode
-generated 54180..55520 <- __convenience_const
-generated 55684..56012 <- Debug
-generated 56012..56202 <- Clone
-generated 56202..56412 <- PartialEq
-generated 56412..56760 <- Hash
-generated 56760..59260 <- Encode
-generated 59260..65287 <- Decode
-generated 65287..66656 <- __convenience_const
-generated 66794..67151 <- Debug
-generated 67151..67357 <- Clone
-generated 67357..67609 <- PartialEq
-generated 67609..67973 <- Hash
-generated 67973..70319 <- Encode
-generated 70319..76867 <- Decode
-generated 76867..78149 <- __convenience_const
+original 0..314 -> expanded 1042..1356
+original 314..463 -> expanded 13320..13469
+original 463..464 -> expanded 23386..23387
+original 464..822 -> expanded 27000..27358
+original 822..994 -> expanded 44618..44790
+original 994..1158 -> expanded 55657..55821
+original 1158..1296 -> expanded 66798..66936
+original 1296..1297 -> expanded 78296..78297
+generated 0..1042 <- imports
+generated 1356..1657 <- Debug
+generated 1657..1812 <- Clone
+generated 1812..2040 <- PartialEq
+generated 2040..2489 <- Hash
+generated 2489..3017 <- PartialOrd
+generated 3017..3457 <- Ord
+generated 3457..3565 <- Default
+generated 3565..5847 <- Encode
+generated 5847..11774 <- Decode
+generated 11774..13320 <- __convenience_const
+generated 13469..13828 <- Debug
+generated 13828..14039 <- Clone
+generated 14039..14436 <- PartialEq
+generated 14436..14860 <- Hash
+generated 14860..15085 <- Default
+generated 15085..16848 <- Encode
+generated 16848..17171 <- Encode
+generated 17171..23386 <- Decode
+generated 23387..23487 <- Debug
+generated 23487..23583 <- Clone
+generated 23583..23688 <- PartialEq
+generated 23688..23788 <- Hash
+generated 23788..23878 <- Default
+generated 23878..25218 <- Encode
+generated 25218..27000 <- Decode
+generated 27358..27906 <- Debug
+generated 27906..28244 <- Clone
+generated 28244..28894 <- PartialEq
+generated 28894..29878 <- Hash
+generated 29878..32920 <- Encode
+generated 32920..43249 <- Decode
+generated 43249..44618 <- __convenience_const
+generated 44790..45095 <- Debug
+generated 45095..45256 <- Clone
+generated 45256..45440 <- PartialEq
+generated 45440..45839 <- Hash
+generated 45839..48147 <- Encode
+generated 48147..54317 <- Decode
+generated 54317..55657 <- __convenience_const
+generated 55821..56149 <- Debug
+generated 56149..56339 <- Clone
+generated 56339..56549 <- PartialEq
+generated 56549..56897 <- Hash
+generated 56897..59397 <- Encode
+generated 59397..65429 <- Decode
+generated 65429..66798 <- __convenience_const
+generated 66936..67293 <- Debug
+generated 67293..67499 <- Clone
+generated 67499..67751 <- PartialEq
+generated 67751..68115 <- Hash
+generated 68115..70461 <- Encode
+generated 70461..77014 <- Decode
+generated 77014..78296 <- __convenience_const
 
 ## Metadata
 

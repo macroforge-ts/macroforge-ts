@@ -23,7 +23,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export enum Stage {
@@ -129,7 +129,7 @@ function jobEncodeFields(value: Job, ctx: __mf_EncodeContext, result: Record<str
 export function jobDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Job } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = jobDecodeWithContext(data, ctx);
@@ -366,17 +366,17 @@ export declare const Job: {
 
 ## Mapping
 
-original 30..106 -> expanded 681..757
-original 106..108 -> expanded 2653..2655
-original 138..181 -> expanded 2655..2698
-original 181..182 -> expanded 11274..11275
-generated 0..681 <- imports
-generated 757..1161 <- Encode
-generated 1161..2286 <- Decode
-generated 2286..2653 <- __convenience_const
-generated 2698..4784 <- Encode
-generated 4784..10381 <- Decode
-generated 10381..11274 <- __convenience_const
+original 30..106 -> expanded 712..788
+original 106..108 -> expanded 2684..2686
+original 138..181 -> expanded 2686..2729
+original 181..182 -> expanded 11310..11311
+generated 0..712 <- imports
+generated 788..1192 <- Encode
+generated 1192..2317 <- Decode
+generated 2317..2684 <- __convenience_const
+generated 2729..4815 <- Encode
+generated 4815..10417 <- Decode
+generated 10417..11310 <- __convenience_const
 
 ## Metadata
 

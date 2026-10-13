@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 export interface Order {
@@ -71,7 +71,7 @@ function orderEncodeFields(value: Order, _ctx: __mf_EncodeContext, result: Recor
 export function orderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Order } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = orderDecodeWithContext(data, ctx);
@@ -168,7 +168,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("quantity")) ? "quantity" in obj : (__fields.keeps("quantity") && obj["quantity"] !== undefined)) {
         const __raw_quantity = obj["quantity"] as number;
 
-        if (!(typeof __raw_quantity === "number")) {
+        if (!(typeof __raw_quantity === "number" && globalThis.Number.isFinite(__raw_quantity))) {
             errors.push({ field: "quantity", message: __raw_quantity == null ? "Order.quantity is required" : "expected number" });
         } else {
             instance.quantity = __raw_quantity;
@@ -290,13 +290,13 @@ export declare const Order: {
 
 ## Mapping
 
-original 39..104 -> expanded 648..713
-original 104..105 -> expanded 9913..9914
-generated 0..648 <- imports
-generated 713..818 <- Default
-generated 818..3067 <- Encode
-generated 3067..8892 <- Decode
-generated 8892..9913 <- __convenience_const
+original 39..104 -> expanded 679..744
+original 104..105 -> expanded 9995..9996
+generated 0..679 <- imports
+generated 744..849 <- Default
+generated 849..3098 <- Encode
+generated 3098..8974 <- Decode
+generated 8974..9995 <- __convenience_const
 
 ## Metadata
 

@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 import { Derive } from '@macro/derive';
 
@@ -35,7 +35,7 @@ constructor(props: { val: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Data } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = Data.decodeWithContext(data, ctx);
@@ -121,7 +121,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("val")) ? "val" in obj : (__fields.keeps("val") && obj["val"] !== undefined)) {
         const __raw_val = obj["val"] as number;
 
-        if (!(typeof __raw_val === "number")) {
+        if (!(typeof __raw_val === "number" && globalThis.Number.isFinite(__raw_val))) {
             errors.push({ field: "val", message: __raw_val == null ? "Data.val is required" : "expected number" });
         } else {
             instance.val = __raw_val;
@@ -246,13 +246,13 @@ export {};
 
 ## Mapping
 
-original 0..41 -> expanded 402..443
-original 63..94 -> expanded 443..474
-original 94..95 -> expanded 5228..5229
-original 95..96 -> expanded 6951..6952
-generated 0..402 <- imports
-generated 474..5228 <- Decode
-generated 5229..6951 <- Decode
+original 0..41 -> expanded 433..474
+original 63..94 -> expanded 474..505
+original 94..95 -> expanded 5305..5306
+original 95..96 -> expanded 7028..7029
+generated 0..433 <- imports
+generated 505..5305 <- Decode
+generated 5306..7028 <- Decode
 
 ## Metadata
 

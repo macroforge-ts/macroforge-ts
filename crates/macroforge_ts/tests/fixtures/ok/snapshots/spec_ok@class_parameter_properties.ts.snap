@@ -21,7 +21,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 class Point {
@@ -120,7 +120,7 @@ static #encodeFields(value: Point, _ctx: __mf_EncodeContext, result: Record<stri
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = Point.decodeWithContext(data, ctx);
@@ -212,7 +212,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
         const __raw_x = obj["x"] as number;
 
-        if (!(typeof __raw_x === "number")) {
+        if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
             errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
         } else {
             instance.x = __raw_x;
@@ -221,7 +221,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("y")) ? "y" in obj : (__fields.keeps("y") && obj["y"] !== undefined)) {
         const __raw_y = obj["y"] as number;
 
-        if (!(typeof __raw_y === "number")) {
+        if (!(typeof __raw_y === "number" && globalThis.Number.isFinite(__raw_y))) {
             errors.push({ field: "y", message: __raw_y == null ? "Point.y is required" : "expected number" });
         } else {
             instance.y = __raw_y;
@@ -414,25 +414,25 @@ export {};
 
 ## Mapping
 
-original 70..206 -> expanded 863..999
-original 206..207 -> expanded 10650..10651
-original 207..208 -> expanded 14138..14139
-generated 0..863 <- imports
-generated 999..1352 <- Debug
-generated 1352..1529 <- Clone
-generated 1529..1779 <- PartialEq
-generated 1779..2396 <- Hash
-generated 2396..2637 <- Default
-generated 2637..4445 <- Encode
-generated 4445..4762 <- Encode
-generated 4762..10650 <- Decode
-generated 10651..10742 <- Debug
-generated 10742..10826 <- Clone
-generated 10826..10919 <- PartialEq
-generated 10919..11010 <- Hash
-generated 11010..11091 <- Default
-generated 11091..12401 <- Encode
-generated 12401..14138 <- Decode
+original 70..206 -> expanded 894..1030
+original 206..207 -> expanded 10764..10765
+original 207..208 -> expanded 14252..14253
+generated 0..894 <- imports
+generated 1030..1383 <- Debug
+generated 1383..1560 <- Clone
+generated 1560..1810 <- PartialEq
+generated 1810..2427 <- Hash
+generated 2427..2668 <- Default
+generated 2668..4476 <- Encode
+generated 4476..4793 <- Encode
+generated 4793..10764 <- Decode
+generated 10765..10856 <- Debug
+generated 10856..10940 <- Clone
+generated 10940..11033 <- PartialEq
+generated 11033..11124 <- Hash
+generated 11124..11205 <- Default
+generated 11205..12515 <- Encode
+generated 12515..14252 <- Decode
 
 ## Metadata
 

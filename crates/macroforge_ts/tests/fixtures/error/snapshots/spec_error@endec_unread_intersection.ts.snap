@@ -1,0 +1,91 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/endec_unread_intersection.ts
+---
+## Input
+
+import type { Named, Dated } from './elsewhere';
+
+/** @derive(Clone, PartialEq, Encode, Decode) */
+export type Both = Named & Dated;
+
+/** @derive(Encode, Decode) */
+export type Mixed = Named & { extra: number };
+
+## Changed
+
+true
+
+## Output
+
+import { structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals } from "@macroforge/core/structural";
+import type { Named, Dated } from './elsewhere';
+
+
+export type Both = Named & Dated;
+
+export function bothClone(value: Both): Both {
+    return __mf_structuralClone(value);
+}
+
+export function bothEquals(a: Both, b: Both): boolean {
+    if (a === b) return true;
+    return __mf_structuralEquals(a, b);
+}
+
+export const Both: {
+  readonly clone: typeof bothClone;
+  readonly equals: typeof bothEquals;
+} = {
+  clone: bothClone,
+  equals: bothEquals
+};
+
+
+export type Mixed = Named & { extra: number };
+
+## DTS
+
+import type { Named, Dated } from "./elsewhere";
+export type Both = Named & Dated;
+export declare function bothClone(value: Both): Both;
+export declare function bothEquals(a: Both, b: Both): boolean;
+export declare const Both: {
+	readonly clone: typeof bothClone;
+	readonly equals: typeof bothEquals;
+};
+export type Mixed = Named & {
+	extra: number;
+};
+
+## Diagnostics
+
+Error [107..133]: @derive(Encode): type 'Both' is an intersection with a member whose fields are not known here, so its values cannot be coded field by field; declare the member in this project, or write its fields out
+Error [107..133]: @derive(Decode): type 'Both' is an intersection with a member whose fields are not known here, so its values cannot be coded field by field; declare the member in this project, or write its fields out
+Error [173..212]: @derive(Encode): type 'Mixed' is an intersection with a member whose fields are not known here, so its values cannot be coded field by field; declare the member in this project, or write its fields out
+Error [173..212]: @derive(Decode): type 'Mixed' is an intersection with a member whose fields are not known here, so its values cannot be coded field by field; declare the member in this project, or write its fields out
+
+## Mapping
+
+original 0..50 -> expanded 130..180
+original 98..132 -> expanded 180..214
+original 132..134 -> expanded 579..581
+original 164..212 -> expanded 581..629
+generated 0..130 <- imports
+generated 214..304 <- Clone
+generated 304..433 <- PartialEq
+generated 433..579 <- __convenience_const
+
+## Metadata
+
+type Both: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"Named"}},{"decorators":[],"kind":{"TypeRef":"Dated"}}]},"decorators":[{"args_src":"Clone, PartialEq, Encode, Decode","name":"Derive","span":{"end":99,"start":51}}],"name":"Both","span":{"end":133,"start":107},"type_params":[]}
+type Mixed: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"Named"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"key":"Named","name":"extra","optional":false,"readonly":false,"span":{"end":209,"start":196},"ts_type":"number"}]}}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":165,"start":135}}],"name":"Mixed","span":{"end":212,"start":173},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

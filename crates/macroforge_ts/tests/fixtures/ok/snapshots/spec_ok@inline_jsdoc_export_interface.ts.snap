@@ -16,7 +16,7 @@ true
 
 ## Output
 
-import { ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
  export interface User {
     name: string;
@@ -27,7 +27,7 @@ import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_Fi
 export function userDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = userDecodeWithContext(data, ctx);
@@ -124,7 +124,7 @@ export function userDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
     if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
         const __raw_age = obj["age"] as number;
 
-        if (!(typeof __raw_age === "number")) {
+        if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
             errors.push({ field: "age", message: __raw_age == null ? "User.age is required" : "expected number" });
         } else {
             instance.age = __raw_age;
@@ -227,11 +227,11 @@ export declare const User: {
 
 ## Mapping
 
-original 22..83 -> expanded 402..463
-original 83..84 -> expanded 6824..6825
-generated 0..402 <- imports
-generated 463..6206 <- Decode
-generated 6206..6824 <- __convenience_const
+original 22..83 -> expanded 433..494
+original 83..84 -> expanded 6901..6902
+generated 0..433 <- imports
+generated 494..6283 <- Decode
+generated 6283..6901 <- __convenience_const
 
 ## Metadata
 

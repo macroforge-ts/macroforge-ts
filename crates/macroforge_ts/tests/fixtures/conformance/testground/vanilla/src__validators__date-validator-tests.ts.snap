@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Date validator test classes for comprehensive decoder validation testing.
@@ -33,7 +33,7 @@ constructor(props: { date: Date }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ValidDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = ValidDateValidator.decodeWithContext(data, ctx);
@@ -216,7 +216,7 @@ constructor(props: { date: Date }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = GreaterThanDateValidator.decodeWithContext(data, ctx);
@@ -399,7 +399,7 @@ constructor(props: { date: Date }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = GreaterThanOrEqualToDateValidator.decodeWithContext(data, ctx);
@@ -582,7 +582,7 @@ constructor(props: { date: Date }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = LessThanDateValidator.decodeWithContext(data, ctx);
@@ -765,7 +765,7 @@ constructor(props: { date: Date }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = LessThanOrEqualToDateValidator.decodeWithContext(data, ctx);
@@ -948,7 +948,7 @@ constructor(props: { date: Date }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: BetweenDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = BetweenDateValidator.decodeWithContext(data, ctx);
@@ -1440,32 +1440,32 @@ export declare function betweenDateValidatorIs(value: unknown): value is Between
 
 ## Mapping
 
-original 0..229 -> expanded 402..631
-original 229..230 -> expanded 6910..6911
-original 230..407 -> expanded 8843..9020
-original 407..408 -> expanded 15524..15525
-original 408..612 -> expanded 17547..17751
-original 612..613 -> expanded 24504..24505
-original 613..781 -> expanded 26662..26830
-original 781..782 -> expanded 33259..33260
-original 782..977 -> expanded 35237..35432
-original 977..978 -> expanded 42110..42111
-original 978..1157 -> expanded 44223..44402
-original 1157..1158 -> expanded 51016..51017
-original 1158..1159 -> expanded 52979..52980
-generated 0..402 <- imports
-generated 631..6910 <- Decode
-generated 6911..8843 <- Decode
-generated 9020..15524 <- Decode
-generated 15525..17547 <- Decode
-generated 17751..24504 <- Decode
-generated 24505..26662 <- Decode
-generated 26830..33259 <- Decode
-generated 33260..35237 <- Decode
-generated 35432..42110 <- Decode
-generated 42111..44223 <- Decode
-generated 44402..51016 <- Decode
-generated 51017..52979 <- Decode
+original 0..229 -> expanded 433..662
+original 229..230 -> expanded 6946..6947
+original 230..407 -> expanded 8879..9056
+original 407..408 -> expanded 15565..15566
+original 408..612 -> expanded 17588..17792
+original 612..613 -> expanded 24550..24551
+original 613..781 -> expanded 26708..26876
+original 781..782 -> expanded 33310..33311
+original 782..977 -> expanded 35288..35483
+original 977..978 -> expanded 42166..42167
+original 978..1157 -> expanded 44279..44458
+original 1157..1158 -> expanded 51077..51078
+original 1158..1159 -> expanded 53040..53041
+generated 0..433 <- imports
+generated 662..6946 <- Decode
+generated 6947..8879 <- Decode
+generated 9056..15565 <- Decode
+generated 15566..17588 <- Decode
+generated 17792..24550 <- Decode
+generated 24551..26708 <- Decode
+generated 26876..33310 <- Decode
+generated 33311..35288 <- Decode
+generated 35483..42166 <- Decode
+generated 42167..44279 <- Decode
+generated 44458..51077 <- Decode
+generated 51078..53040 <- Decode
 
 ## Metadata
 

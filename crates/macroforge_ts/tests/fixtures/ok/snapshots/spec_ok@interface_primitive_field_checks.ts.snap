@@ -32,7 +32,7 @@ true
 
 ## Output
 
-import { ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 
@@ -54,7 +54,7 @@ interface Profile {
 export function profileDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Profile } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = profileDecodeWithContext(data, ctx);
@@ -172,7 +172,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
         const __raw_age = obj["age"] as number;
 
-        if (!(typeof __raw_age === "number")) {
+        if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
             errors.push({ field: "age", message: __raw_age == null ? "Profile.age is required" : "expected number" });
         } else {
             instance.age = __raw_age;
@@ -228,7 +228,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("rank")) || (__fields.keeps("rank") && obj["rank"] !== undefined)) {
         const __raw_rank = obj["rank"] as number | undefined;
 
-        if (!(typeof __raw_rank === "number" || __raw_rank === undefined)) {
+        if (!(typeof __raw_rank === "number" && globalThis.Number.isFinite(__raw_rank) || __raw_rank === undefined)) {
             errors.push({ field: "rank", message: "expected number | undefined" });
         } else {
             instance.rank = __raw_rank;
@@ -237,7 +237,7 @@ export function profileDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("height")) ? "height" in obj : (__fields.keeps("height") && obj["height"] !== undefined)) {
         const __raw_height = obj["height"] as number & { readonly [__mf_newtype_1]: true };
 
-        if (!(typeof __raw_height === "number")) {
+        if (!(typeof __raw_height === "number" && globalThis.Number.isFinite(__raw_height))) {
             errors.push({ field: "height", message: __raw_height == null ? "Profile.height is required" : "expected number & { readonly [__mf_newtype_1]: true }" });
         } else {
             instance.height = __raw_height;
@@ -333,7 +333,7 @@ export function taggedEncodeWithContext(value: Tagged): unknown {
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function taggedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Tagged } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const result = taggedDecodeWithContext(data, ctx);
@@ -374,18 +374,18 @@ export function taggedDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function taggedDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Tagged {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "number") {
+    if (!((typeof __decoded === "number" && globalThis.Number.isFinite(__decoded)))) {
         throw new __mf_DecodeError([{ field: "_root", message: "Tagged.decodeWithContext: expected number" }]);
     }
     return __decoded as Tagged;
 }
 
 export function taggedHasShape(value: unknown): boolean {
-    return typeof value === "number";
+    return (typeof value === "number" && globalThis.Number.isFinite(value));
 }
 
 export function taggedIs(value: unknown): value is Tagged {
-    return typeof value === "number";
+    return (typeof value === "number" && globalThis.Number.isFinite(value));
 }
 
 export function taggedHashCode(value: Tagged): number {
@@ -463,7 +463,7 @@ export function looseDecode(input: unknown, opts?: __mf_DecodeOptions): { succes
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function looseDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Loose {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "string") {
+    if (!(typeof __decoded === "string")) {
         throw new __mf_DecodeError([{ field: "_root", message: "Loose.decodeWithContext: expected string" }]);
     }
     return __decoded as Loose;
@@ -582,25 +582,25 @@ export {};
 
 ## Mapping
 
-original 22..216 -> expanded 550..744
-original 232..267 -> expanded 788..823
-original 267..269 -> expanded 13114..13116
-original 312..367 -> expanded 13116..13171
-original 367..369 -> expanded 16592..16594
-original 391..417 -> expanded 16594..16620
-original 417..418 -> expanded 18717..18718
-generated 0..505 <- imports
-generated 505..550 <- $Newtype
-generated 744..788 <- $Newtype
-generated 823..12458 <- Decode
-generated 12458..13114 <- __convenience_const
-generated 13171..13879 <- Encode
-generated 13879..15662 <- Decode
-generated 15662..15856 <- Hash
-generated 15856..15959 <- Debug
-generated 15959..16592 <- __convenience_const
-generated 16620..18409 <- Decode
-generated 18409..18717 <- __convenience_const
+original 22..216 -> expanded 581..775
+original 232..267 -> expanded 819..854
+original 267..269 -> expanded 13277..13279
+original 312..367 -> expanded 13279..13334
+original 367..369 -> expanded 16884..16886
+original 391..417 -> expanded 16886..16912
+original 417..418 -> expanded 19012..19013
+generated 0..536 <- imports
+generated 536..581 <- $Newtype
+generated 775..819 <- $Newtype
+generated 854..12621 <- Decode
+generated 12621..13277 <- __convenience_const
+generated 13334..14042 <- Encode
+generated 14042..15954 <- Decode
+generated 15954..16148 <- Hash
+generated 16148..16251 <- Debug
+generated 16251..16884 <- __convenience_const
+generated 16912..18704 <- Decode
+generated 18704..19012 <- __convenience_const
 
 ## Metadata
 

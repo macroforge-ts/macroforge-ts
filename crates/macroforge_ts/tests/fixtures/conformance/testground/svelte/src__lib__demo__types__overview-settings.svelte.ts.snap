@@ -15,7 +15,7 @@ true
 import { columnConfigDecodeWithContext, columnConfigEncodeWithContext } from "./column-config.svelte";
 import { overviewDisplayDecodeWithContext, overviewDisplayEncodeWithContext } from "./overview-display.svelte";
 import { rowHeightDecodeWithContext, rowHeightEncodeWithContext } from "./row-height.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -99,7 +99,7 @@ function overviewSettingsEncodeFields(value: OverviewSettings, ctx: __mf_EncodeC
 export function overviewSettingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OverviewSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = overviewSettingsDecodeWithContext(data, ctx);
@@ -239,7 +239,7 @@ export function overviewSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
     if ((__fields === undefined || __fields.requires("perPage")) ? "perPage" in obj : (__fields.keeps("perPage") && obj["perPage"] !== undefined)) {
         const __raw_perPage = obj["perPage"] as number;
 
-        if (!(typeof __raw_perPage === "number")) {
+        if (!(typeof __raw_perPage === "number" && globalThis.Number.isFinite(__raw_perPage))) {
             errors.push({ field: "perPage", message: __raw_perPage == null ? "OverviewSettings.perPage is required" : "expected number" });
         } else {
             instance.perPage = __raw_perPage;
@@ -699,17 +699,17 @@ export declare const OverviewSettings: {
 
 ## Mapping
 
-original 0..239 -> expanded 1171..1410
-original 288..329 -> expanded 1410..1451
-original 354..385 -> expanded 1451..1482
-original 409..504 -> expanded 1482..1577
-original 504..505 -> expanded 25988..25989
-generated 0..1171 <- imports
-generated 1577..1771 <- Default
-generated 1771..4712 <- Encode
-generated 4712..14148 <- Decode
-generated 14148..24506 <- Gigaform
-generated 24506..25988 <- __convenience_const
+original 0..239 -> expanded 1202..1441
+original 288..329 -> expanded 1441..1482
+original 354..385 -> expanded 1482..1513
+original 409..504 -> expanded 1513..1608
+original 504..505 -> expanded 26069..26070
+generated 0..1202 <- imports
+generated 1608..1802 <- Default
+generated 1802..4743 <- Encode
+generated 4743..14229 <- Decode
+generated 14229..24587 <- Gigaform
+generated 24587..26069 <- __convenience_const
 
 ## Metadata
 

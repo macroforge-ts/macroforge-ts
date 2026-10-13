@@ -16,7 +16,7 @@ import { cardinalDecodeWithContext, cardinalHasShape, cardinalEncodeWithContext,
 import { customDecodeWithContext, customHasShape, customEncodeWithContext, customDefaultValue } from "./custom.svelte";
 import { gradientDecodeWithContext, gradientHasShape, gradientEncodeWithContext, gradientDefaultValue } from "./gradient.svelte";
 import { ordinalDecodeWithContext, ordinalHasShape, ordinalEncodeWithContext, ordinalDefaultValue } from "./ordinal.svelte";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -83,7 +83,7 @@ export function colorsConfigEncodeWithContext(value: ColorsConfig, ctx: __mf_Enc
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function colorsConfigDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ColorsConfig } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = colorsConfigDecodeWithContext(data, ctx);
@@ -545,15 +545,15 @@ export declare const ColorsConfig: {
 
 ## Mapping
 
-original 0..257 -> expanded 1090..1347
-original 306..407 -> expanded 1347..1448
-original 407..408 -> expanded 16861..16862
-generated 0..1090 <- imports
-generated 1448..1545 <- Default
-generated 1545..4098 <- Encode
-generated 4098..10149 <- Decode
-generated 10149..15995 <- Gigaform
-generated 15995..16861 <- __convenience_const
+original 0..257 -> expanded 1121..1378
+original 306..407 -> expanded 1378..1479
+original 407..408 -> expanded 16897..16898
+generated 0..1121 <- imports
+generated 1479..1576 <- Default
+generated 1576..4129 <- Encode
+generated 4129..10185 <- Decode
+generated 10185..16031 <- Gigaform
+generated 16031..16897 <- __convenience_const
 
 ## Metadata
 

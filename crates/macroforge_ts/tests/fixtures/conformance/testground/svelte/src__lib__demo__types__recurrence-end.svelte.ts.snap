@@ -118,7 +118,7 @@ export function recurrenceEndDecodeWithContext(value: unknown, ctx: __mf_DecodeC
     }
 
     
-    if (typeof value === "number") {
+    if ((typeof value === "number" && globalThis.Number.isFinite(value))) {
         return value as RecurrenceEnd;
     }
     if (typeof value === "string") {
@@ -131,7 +131,7 @@ export function recurrenceEndDecodeWithContext(value: unknown, ctx: __mf_DecodeC
     }]);
 }
 export function recurrenceEndHasShape(value: unknown): boolean {
-                return typeof value === "number" || typeof value === "string";
+                return (typeof value === "number" && globalThis.Number.isFinite(value)) || typeof value === "string";
 }
 export function recurrenceEndIs(value: unknown): value is RecurrenceEnd {
     return recurrenceEndHasShape(value);
@@ -384,13 +384,13 @@ export declare const RecurrenceEnd: {
 
 original 0..58 -> expanded 618..676
 original 107..171 -> expanded 676..740
-original 171..172 -> expanded 10095..10096
+original 171..172 -> expanded 10173..10174
 generated 0..618 <- imports
 generated 740..818 <- Default
 generated 818..2214 <- Encode
-generated 2214..4801 <- Decode
-generated 4801..9210 <- Gigaform
-generated 9210..10095 <- __convenience_const
+generated 2214..4879 <- Decode
+generated 4879..9288 <- Gigaform
+generated 9288..10173 <- __convenience_const
 
 ## Metadata
 

@@ -19,7 +19,7 @@ true
 
 ## Output
 
-import { holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 import { Derive } from '@macro/derive';
 
@@ -38,7 +38,7 @@ constructor(props: { name: string; age: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = User.decodeWithContext(data, ctx);
@@ -136,7 +136,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
         const __raw_age = obj["age"] as number;
 
-        if (!(typeof __raw_age === "number")) {
+        if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
             errors.push({ field: "age", message: __raw_age == null ? "User.age is required" : "expected number" });
         } else {
             instance.age = __raw_age;
@@ -263,13 +263,13 @@ export {};
 
 ## Mapping
 
-original 0..41 -> expanded 402..443
-original 63..112 -> expanded 443..492
-original 112..113 -> expanded 5910..5911
-original 113..114 -> expanded 7633..7634
-generated 0..402 <- imports
-generated 492..5910 <- Decode
-generated 5911..7633 <- Decode
+original 0..41 -> expanded 433..474
+original 63..112 -> expanded 474..523
+original 112..113 -> expanded 5987..5988
+original 113..114 -> expanded 7710..7711
+generated 0..433 <- imports
+generated 523..5987 <- Decode
+generated 5988..7710 <- Decode
 
 ## Metadata
 

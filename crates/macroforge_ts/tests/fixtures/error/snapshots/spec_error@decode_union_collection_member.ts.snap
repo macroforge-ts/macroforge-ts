@@ -19,7 +19,7 @@ true
 
 ## Output
 
-import { ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Item {
@@ -30,7 +30,7 @@ interface Item {
 export function itemDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Item } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = itemDecodeWithContext(data, ctx);
@@ -212,12 +212,12 @@ Error [83..114]: @derive(Decode): member `Item[]` of union 'OneOrMany' has no de
 
 ## Mapping
 
-original 22..57 -> expanded 402..437
-original 57..59 -> expanded 6153..6155
-original 81..114 -> expanded 6155..6188
-generated 0..402 <- imports
-generated 437..5542 <- Decode
-generated 5542..6153 <- __convenience_const
+original 22..57 -> expanded 433..468
+original 57..59 -> expanded 6189..6191
+original 81..114 -> expanded 6191..6224
+generated 0..433 <- imports
+generated 468..5578 <- Decode
+generated 5578..6189 <- __convenience_const
 
 ## Metadata
 

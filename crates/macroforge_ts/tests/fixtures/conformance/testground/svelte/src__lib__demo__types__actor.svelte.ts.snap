@@ -15,7 +15,7 @@ true
 import { accountDecodeWithContext, accountHasShape, accountEncodeWithContext, accountDefaultValue } from "./account.svelte";
 import { employeeDecodeWithContext, employeeHasShape, employeeEncodeWithContext, employeeDefaultValue } from "./employee.svelte";
 import { userDecodeWithContext, userHasShape, userEncodeWithContext, userDefaultValue } from "./user.svelte";
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -75,7 +75,7 @@ export function actorEncodeWithContext(value: Actor, ctx: __mf_EncodeContext): u
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function actorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Actor } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = actorDecodeWithContext(data, ctx);
@@ -495,15 +495,15 @@ export declare const Actor: {
 
 ## Mapping
 
-original 0..202 -> expanded 950..1152
-original 251..314 -> expanded 1152..1215
-original 314..315 -> expanded 14166..14167
-generated 0..950 <- imports
-generated 1215..1294 <- Default
-generated 1294..3542 <- Encode
-generated 3542..8752 <- Decode
-generated 8752..13433 <- Gigaform
-generated 13433..14166 <- __convenience_const
+original 0..202 -> expanded 981..1183
+original 251..314 -> expanded 1183..1246
+original 314..315 -> expanded 14202..14203
+generated 0..981 <- imports
+generated 1246..1325 <- Default
+generated 1325..3573 <- Encode
+generated 3573..8788 <- Decode
+generated 8788..13469 <- Gigaform
+generated 13469..14202 <- __convenience_const
 
 ## Metadata
 

@@ -1,0 +1,148 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/error/endec_uncodable_types.ts
+---
+## Input
+
+/** @derive(Encode, Decode) */
+interface Holder {
+    callback: (value: number) => void;
+    mark: symbol;
+    keys: keyof Holder;
+    mode: Config['mode'];
+    flags: { [K in 'a' | 'b']: boolean };
+    listeners: Array<() => void>;
+    describe(): string;
+    /** @endec({ skip: true }) */
+    skipped: () => void;
+    carried: unknown;
+    version: `v-${Version}`;
+    pair: `${number}${number}`;
+    known: `v-${1 | 2}-${'a' | 'b'}`;
+}
+
+/** @derive(Encode, Decode) */
+type Handler = (value: number) => string;
+
+/** @derive(Decode) */
+type Picked<T> = T extends string ? { text: T } : { other: T };
+
+/** @derive(Default) */
+interface Patterned {
+    id: `id-${Kind}`;
+    described(): string;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { spellsTemplate as __mf_spellsTemplate, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, parsedText as __mf_parsedText } from "@macroforge/core/endec";
+import type { Decoder as __mf_Decoder } from "@macroforge/core/endec";
+
+interface Holder {
+    callback: (value: number) => void;
+    mark: symbol;
+    keys: keyof Holder;
+    mode: Config['mode'];
+    flags: { [K in 'a' | 'b']: boolean };
+    listeners: Array<() => void>;
+    describe(): string;
+    
+    skipped: () => void;
+    carried: unknown;
+    version: `v-${Version}`;
+    pair: `${number}${number}`;
+    known: `v-${1 | 2}-${'a' | 'b'}`;
+}
+
+
+type Handler = (value: number) => string;
+
+
+type Picked<T> = T extends string ? { text: T } : { other: T };
+
+
+interface Patterned {
+    id: `id-${Kind}`;
+    described(): string;
+}
+
+## DTS
+
+interface Holder {
+	callback: (value: number) => void;
+	mark: symbol;
+	keys: keyof Holder;
+	mode: Config["mode"];
+	flags: { [K in "a" | "b"]: boolean };
+	listeners: Array<() => void>;
+	describe(): string;
+	skipped: () => void;
+	carried: unknown;
+	version: `v-${Version}`;
+	pair: `${number}${number}`;
+	known: `v-${1 | 2}-${"a" | "b"}`;
+}
+type Handler = (value: number) => string;
+type Picked<T> = T extends string ? {
+	text: T;
+} : {
+	other: T;
+};
+interface Patterned {
+	id: `id-${Kind}`;
+	described(): string;
+}
+
+## Diagnostics
+
+Error [55..89]: @derive(Encode): `(value: number) => void` is a function, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [94..107]: @derive(Encode): `symbol` is a symbol, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [112..131]: @derive(Encode): `keyof Holder` is a `keyof` type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [136..157]: @derive(Encode): `Config['mode']` is an indexed access type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [162..199]: @derive(Encode): `{ [K in 'a' | 'b']: boolean }` is a mapped type, whose members only the type checker can read; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [204..233]: @derive(Encode): `() => void` is a function, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [343..367]: @derive(Encode): ``v-${Version}`` is a template literal type whose `${Version}` takes text a derive cannot check; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [372..399]: @derive(Encode): ``${number}${number}`` is a template literal type with two holes side by side, which nothing tells apart; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [238..257]: @derive(Encode): `() => string` is a function, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [55..89]: @derive(Decode): `(value: number) => void` is a function, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [94..107]: @derive(Decode): `symbol` is a symbol, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [112..131]: @derive(Decode): `keyof Holder` is a `keyof` type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [136..157]: @derive(Decode): `Config['mode']` is an indexed access type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [162..199]: @derive(Decode): `{ [K in 'a' | 'b']: boolean }` is a mapped type, whose members only the type checker can read; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [204..233]: @derive(Decode): `() => void` is a function, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [343..367]: @derive(Decode): ``v-${Version}`` is a template literal type whose `${Version}` takes text a derive cannot check; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [372..399]: @derive(Decode): ``${number}${number}`` is a template literal type with two holes side by side, which nothing tells apart; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [238..257]: @derive(Decode): `() => string` is a function, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [472..513]: @derive(Encode): `(value: number) => string` is a function, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [472..513]: @derive(Decode): `(value: number) => string` is a function, which JSON has no form for; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [538..601]: @derive(Decode): `T extends string ? { text: T } : { other: T }` is a conditional type, which only the type checker can resolve; code the field that holds it with `encodeWith` and `decodeWith`, or leave it out with `skip`
+Error [653..670]: @derive(Default) on 'Patterned': field 'id' has type ``id-${Kind}``, whose `${Kind}` names no text a default could hold; add @default(value)
+
+## Mapping
+
+original 30..261 -> expanded 278..509
+original 290..440 -> expanded 509..659
+original 470..514 -> expanded 659..703
+original 536..602 -> expanded 703..769
+original 625..697 -> expanded 769..841
+generated 0..278 <- imports
+
+## Metadata
+
+interface Holder: {"body_span":{"end":439,"start":49},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"fields":[{"decorators":[],"key":"Named","name":"callback","optional":false,"readonly":false,"span":{"end":89,"start":55},"ts_type":"(value: number) => void"},{"decorators":[],"key":"Named","name":"mark","optional":false,"readonly":false,"span":{"end":107,"start":94},"ts_type":"symbol"},{"decorators":[],"key":"Named","name":"keys","optional":false,"readonly":false,"span":{"end":131,"start":112},"ts_type":"keyof Holder"},{"decorators":[],"key":"Named","name":"mode","optional":false,"readonly":false,"span":{"end":157,"start":136},"ts_type":"Config['mode']"},{"decorators":[],"key":"Named","name":"flags","optional":false,"readonly":false,"span":{"end":199,"start":162},"ts_type":"{ [K in 'a' | 'b']: boolean }"},{"decorators":[],"key":"Named","name":"listeners","optional":false,"readonly":false,"span":{"end":233,"start":204},"ts_type":"Array<() => void>"},{"decorators":[{"args_src":"{ skip: true }","name":"endec","span":{"end":291,"start":262}}],"key":"Named","name":"skipped","optional":false,"readonly":false,"span":{"end":316,"start":296},"ts_type":"() => void"},{"decorators":[],"key":"Named","name":"carried","optional":false,"readonly":false,"span":{"end":338,"start":321},"ts_type":"unknown"},{"decorators":[],"key":"Named","name":"version","optional":false,"readonly":false,"span":{"end":367,"start":343},"ts_type":"`v-${Version}`"},{"decorators":[],"key":"Named","name":"pair","optional":false,"readonly":false,"span":{"end":399,"start":372},"ts_type":"`${number}${number}`"},{"decorators":[],"key":"Named","name":"known","optional":false,"readonly":false,"span":{"end":437,"start":404},"ts_type":"`v-${1 | 2}-${'a' | 'b'}`"}],"heritage":[],"methods":[{"decorators":[],"name":"describe","optional":false,"params_src":"","return_type_src":"string","span":{"end":257,"start":238},"type_params":[]}],"name":"Holder","span":{"end":439,"start":32},"type_params":[]}
+interface Patterned: {"body_span":{"end":697,"start":647},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":626,"start":603}}],"fields":[{"decorators":[],"key":"Named","name":"id","optional":false,"readonly":false,"span":{"end":670,"start":653},"ts_type":"`id-${Kind}`"}],"heritage":[],"methods":[{"decorators":[],"name":"described","optional":false,"params_src":"","return_type_src":"string","span":{"end":695,"start":675},"type_params":[]}],"name":"Patterned","span":{"end":697,"start":627},"type_params":[]}
+type Handler: {"body":{"Other":"(value: number) => string"},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":471,"start":441}}],"name":"Handler","span":{"end":513,"start":472},"type_params":[]}
+type Picked: {"body":{"Other":"T extends string ? { text: T } : { other: T }"},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":537,"start":515}}],"name":"Picked","span":{"end":601,"start":538},"type_params":[{"constraint":null,"default":null,"is_const":false,"name":"T"}]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

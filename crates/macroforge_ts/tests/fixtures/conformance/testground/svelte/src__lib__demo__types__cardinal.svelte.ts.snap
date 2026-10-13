@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -90,7 +90,7 @@ function cardinalEncodeFields(value: Cardinal, _ctx: __mf_EncodeContext, result:
 export function cardinalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Cardinal } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = cardinalDecodeWithContext(data, ctx);
@@ -184,7 +184,7 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     if ((__fields === undefined || __fields.requires("north")) ? "north" in obj : (__fields.keeps("north") && obj["north"] !== undefined)) {
         const __raw_north = obj["north"] as number;
 
-        if (!(typeof __raw_north === "number")) {
+        if (!(typeof __raw_north === "number" && globalThis.Number.isFinite(__raw_north))) {
             errors.push({ field: "north", message: __raw_north == null ? "Cardinal.north is required" : "expected number" });
         } else {
             instance.north = __raw_north;
@@ -193,7 +193,7 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     if ((__fields === undefined || __fields.requires("east")) ? "east" in obj : (__fields.keeps("east") && obj["east"] !== undefined)) {
         const __raw_east = obj["east"] as number;
 
-        if (!(typeof __raw_east === "number")) {
+        if (!(typeof __raw_east === "number" && globalThis.Number.isFinite(__raw_east))) {
             errors.push({ field: "east", message: __raw_east == null ? "Cardinal.east is required" : "expected number" });
         } else {
             instance.east = __raw_east;
@@ -202,7 +202,7 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     if ((__fields === undefined || __fields.requires("south")) ? "south" in obj : (__fields.keeps("south") && obj["south"] !== undefined)) {
         const __raw_south = obj["south"] as number;
 
-        if (!(typeof __raw_south === "number")) {
+        if (!(typeof __raw_south === "number" && globalThis.Number.isFinite(__raw_south))) {
             errors.push({ field: "south", message: __raw_south == null ? "Cardinal.south is required" : "expected number" });
         } else {
             instance.south = __raw_south;
@@ -211,7 +211,7 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     if ((__fields === undefined || __fields.requires("west")) ? "west" in obj : (__fields.keeps("west") && obj["west"] !== undefined)) {
         const __raw_west = obj["west"] as number;
 
-        if (!(typeof __raw_west === "number")) {
+        if (!(typeof __raw_west === "number" && globalThis.Number.isFinite(__raw_west))) {
             errors.push({ field: "west", message: __raw_west == null ? "Cardinal.west is required" : "expected number" });
         } else {
             instance.west = __raw_west;
@@ -582,15 +582,15 @@ export declare const Cardinal: {
 
 ## Mapping
 
-original 0..58 -> expanded 807..865
-original 107..211 -> expanded 865..969
-original 211..212 -> expanded 19251..19252
-generated 0..807 <- imports
-generated 969..1113 <- Default
-generated 1113..3721 <- Encode
-generated 3721..10900 <- Decode
-generated 10900..17985 <- Gigaform
-generated 17985..19251 <- __convenience_const
+original 0..58 -> expanded 838..896
+original 107..211 -> expanded 896..1000
+original 211..212 -> expanded 19457..19458
+generated 0..838 <- imports
+generated 1000..1144 <- Default
+generated 1144..3752 <- Encode
+generated 3752..11106 <- Decode
+generated 11106..18191 <- Gigaform
+generated 18191..19457 <- __convenience_const
 
 ## Metadata
 

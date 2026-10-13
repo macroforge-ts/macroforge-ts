@@ -13,7 +13,7 @@ true
 ## Output
 
 import { personNameDecodeWithContext, personNameEncodeWithContext, personNameDefaultValue } from "./person-name.js";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import type { PersonName } from './person-name.js';
 
@@ -74,7 +74,7 @@ function customerEncodeFields(value: Customer, ctx: __mf_EncodeContext, result: 
 export function customerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Customer } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = customerDecodeWithContext(data, ctx);
@@ -308,14 +308,14 @@ export declare const Customer: {
 
 ## Mapping
 
-original 0..53 -> expanded 765..818
-original 92..163 -> expanded 818..889
-original 163..164 -> expanded 10828..10829
-generated 0..765 <- imports
-generated 889..1022 <- Default
-generated 1022..3345 <- Encode
-generated 3345..9738 <- Decode
-generated 9738..10828 <- __convenience_const
+original 0..53 -> expanded 796..849
+original 92..163 -> expanded 849..920
+original 163..164 -> expanded 10864..10865
+generated 0..796 <- imports
+generated 920..1053 <- Default
+generated 1053..3376 <- Encode
+generated 3376..9774 <- Decode
+generated 9774..10864 <- __convenience_const
 
 ## Metadata
 

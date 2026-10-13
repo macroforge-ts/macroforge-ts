@@ -4,7 +4,7 @@ class Stepper {
     label: string = '';
 }
 
-/** @derive(Decode) */
-class Inherits extends Stepper {
-    extra: number = 0;
+/** @derive(PartialEq, Default, Decode) */
+class Dial {
+    accessor turn = 0;
 }

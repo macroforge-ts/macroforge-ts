@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Comprehensive test class demonstrating all available macros.
@@ -149,7 +149,7 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AllMacrosTestClass } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = AllMacrosTestClass.decodeWithContext(data, ctx);
@@ -250,7 +250,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("id")) ? "id" in obj : (__fields.keeps("id") && obj["id"] !== undefined)) {
         const __raw_id = obj["id"] as number;
 
-        if (!(typeof __raw_id === "number")) {
+        if (!(typeof __raw_id === "number" && globalThis.Number.isFinite(__raw_id))) {
             errors.push({ field: "id", message: __raw_id == null ? "AllMacrosTestClass.id is required" : "expected number" });
         } else {
             instance.id = __raw_id;
@@ -295,7 +295,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("score")) ? "score" in obj : (__fields.keeps("score") && obj["score"] !== undefined)) {
         const __raw_score = obj["score"] as number;
 
-        if (!(typeof __raw_score === "number")) {
+        if (!(typeof __raw_score === "number" && globalThis.Number.isFinite(__raw_score))) {
             errors.push({ field: "score", message: __raw_score == null ? "AllMacrosTestClass.score is required" : "expected number" });
         } else {
             instance.score = __raw_score;
@@ -500,23 +500,23 @@ export declare const testInstance: unknown;
 
 ## Mapping
 
-original 0..449 -> expanded 832..1281
-original 449..450 -> expanded 14917..14918
-original 450..695 -> expanded 18831..19076
-generated 0..832 <- imports
-generated 1281..1788 <- Debug
-generated 1788..2104 <- Clone
-generated 2104..2495 <- PartialEq
-generated 2495..3458 <- Hash
-generated 3458..5918 <- Encode
-generated 5918..6261 <- Encode
-generated 6261..14917 <- Decode
-generated 14918..15048 <- Debug
-generated 15048..15184 <- Clone
-generated 15184..15329 <- PartialEq
-generated 15329..15459 <- Hash
-generated 15459..16899 <- Encode
-generated 16899..18831 <- Decode
+original 0..449 -> expanded 863..1312
+original 449..450 -> expanded 15036..15037
+original 450..695 -> expanded 18950..19195
+generated 0..863 <- imports
+generated 1312..1819 <- Debug
+generated 1819..2135 <- Clone
+generated 2135..2526 <- PartialEq
+generated 2526..3489 <- Hash
+generated 3489..5949 <- Encode
+generated 5949..6292 <- Encode
+generated 6292..15036 <- Decode
+generated 15037..15167 <- Debug
+generated 15167..15303 <- Clone
+generated 15303..15448 <- PartialEq
+generated 15448..15578 <- Hash
+generated 15578..17018 <- Encode
+generated 17018..18950 <- Decode
 
 ## Metadata
 

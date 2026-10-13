@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * String validator test classes for comprehensive decoder validation testing.
@@ -34,7 +34,7 @@ constructor(props: { email: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EmailValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = EmailValidator.decodeWithContext(data, ctx);
@@ -215,7 +215,7 @@ constructor(props: { url: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UrlValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = UrlValidator.decodeWithContext(data, ctx);
@@ -396,7 +396,7 @@ constructor(props: { id: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UuidValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = UuidValidator.decodeWithContext(data, ctx);
@@ -577,7 +577,7 @@ constructor(props: { shortText: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MaxLengthValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = MaxLengthValidator.decodeWithContext(data, ctx);
@@ -758,7 +758,7 @@ constructor(props: { longText: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MinLengthValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = MinLengthValidator.decodeWithContext(data, ctx);
@@ -939,7 +939,7 @@ constructor(props: { fixedText: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LengthValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = LengthValidator.decodeWithContext(data, ctx);
@@ -1120,7 +1120,7 @@ constructor(props: { rangedText: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LengthRangeValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = LengthRangeValidator.decodeWithContext(data, ctx);
@@ -1301,7 +1301,7 @@ constructor(props: { code: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PatternValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = PatternValidator.decodeWithContext(data, ctx);
@@ -1482,7 +1482,7 @@ constructor(props: { required: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NonEmptyValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = NonEmptyValidator.decodeWithContext(data, ctx);
@@ -1663,7 +1663,7 @@ constructor(props: { trimmed: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TrimmedValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = TrimmedValidator.decodeWithContext(data, ctx);
@@ -1844,7 +1844,7 @@ constructor(props: { lower: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LowercaseValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = LowercaseValidator.decodeWithContext(data, ctx);
@@ -2025,7 +2025,7 @@ constructor(props: { upper: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UppercaseValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = UppercaseValidator.decodeWithContext(data, ctx);
@@ -2206,7 +2206,7 @@ constructor(props: { cap: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CapitalizedValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = CapitalizedValidator.decodeWithContext(data, ctx);
@@ -2387,7 +2387,7 @@ constructor(props: { uncap: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UncapitalizedValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = UncapitalizedValidator.decodeWithContext(data, ctx);
@@ -2568,7 +2568,7 @@ constructor(props: { secureUrl: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: StartsWithValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = StartsWithValidator.decodeWithContext(data, ctx);
@@ -2749,7 +2749,7 @@ constructor(props: { filename: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EndsWithValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = EndsWithValidator.decodeWithContext(data, ctx);
@@ -2930,7 +2930,7 @@ constructor(props: { emailLike: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: IncludesValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = IncludesValidator.decodeWithContext(data, ctx);
@@ -3993,76 +3993,76 @@ export declare function includesValidatorIs(value: unknown): value is IncludesVa
 
 ## Mapping
 
-original 0..276 -> expanded 402..678
-original 276..277 -> expanded 6718..6719
-original 277..405 -> expanded 8591..8719
-original 405..406 -> expanded 14564..14565
-original 406..536 -> expanded 16407..16537
-original 536..537 -> expanded 22548..22549
-original 537..693 -> expanded 24406..24562
-original 693..694 -> expanded 30812..30813
-original 694..848 -> expanded 32745..32899
-original 848..849 -> expanded 39109..39110
-original 849..1003 -> expanded 41042..41196
-original 1003..1004 -> expanded 47368..47369
-original 1004..1190 -> expanded 49256..49442
-original 1190..1191 -> expanded 55870..55871
-original 1191..1346 -> expanded 57833..57988
-original 1346..1347 -> expanded 64019..64020
-original 1347..1495 -> expanded 65922..66070
-original 1495..1496 -> expanded 72218..72219
-original 1496..1640 -> expanded 74136..74280
-original 1640..1641 -> expanded 80379..80380
-original 1641..1789 -> expanded 82282..82430
-original 1789..1790 -> expanded 88532..88533
-original 1790..1938 -> expanded 90465..90613
-original 1938..1939 -> expanded 96715..96716
-original 1939..2091 -> expanded 98648..98800
-original 2091..2092 -> expanded 104966..104967
-original 2092..2252 -> expanded 106929..107089
-original 2252..2253 -> expanded 113391..113392
-original 2253..2420 -> expanded 115384..115551
-original 2420..2421 -> expanded 121848..121849
-original 2421..2578 -> expanded 123796..123953
-original 2578..2579 -> expanded 130131..130132
-original 2579..2733 -> expanded 132049..132203
-original 2733..2734 -> expanded 138391..138392
-original 2734..2735 -> expanded 140309..140310
-generated 0..402 <- imports
-generated 678..6718 <- Decode
-generated 6719..8591 <- Decode
-generated 8719..14564 <- Decode
-generated 14565..16407 <- Decode
-generated 16537..22548 <- Decode
-generated 22549..24406 <- Decode
-generated 24562..30812 <- Decode
-generated 30813..32745 <- Decode
-generated 32899..39109 <- Decode
-generated 39110..41042 <- Decode
-generated 41196..47368 <- Decode
-generated 47369..49256 <- Decode
-generated 49442..55870 <- Decode
-generated 55871..57833 <- Decode
-generated 57988..64019 <- Decode
-generated 64020..65922 <- Decode
-generated 66070..72218 <- Decode
-generated 72219..74136 <- Decode
-generated 74280..80379 <- Decode
-generated 80380..82282 <- Decode
-generated 82430..88532 <- Decode
-generated 88533..90465 <- Decode
-generated 90613..96715 <- Decode
-generated 96716..98648 <- Decode
-generated 98800..104966 <- Decode
-generated 104967..106929 <- Decode
-generated 107089..113391 <- Decode
-generated 113392..115384 <- Decode
-generated 115551..121848 <- Decode
-generated 121849..123796 <- Decode
-generated 123953..130131 <- Decode
-generated 130132..132049 <- Decode
-generated 132203..138391 <- Decode
-generated 138392..140309 <- Decode
+original 0..276 -> expanded 433..709
+original 276..277 -> expanded 6754..6755
+original 277..405 -> expanded 8627..8755
+original 405..406 -> expanded 14605..14606
+original 406..536 -> expanded 16448..16578
+original 536..537 -> expanded 22594..22595
+original 537..693 -> expanded 24452..24608
+original 693..694 -> expanded 30863..30864
+original 694..848 -> expanded 32796..32950
+original 848..849 -> expanded 39165..39166
+original 849..1003 -> expanded 41098..41252
+original 1003..1004 -> expanded 47429..47430
+original 1004..1190 -> expanded 49317..49503
+original 1190..1191 -> expanded 55936..55937
+original 1191..1346 -> expanded 57899..58054
+original 1346..1347 -> expanded 64090..64091
+original 1347..1495 -> expanded 65993..66141
+original 1495..1496 -> expanded 72294..72295
+original 1496..1640 -> expanded 74212..74356
+original 1640..1641 -> expanded 80460..80461
+original 1641..1789 -> expanded 82363..82511
+original 1789..1790 -> expanded 88618..88619
+original 1790..1938 -> expanded 90551..90699
+original 1938..1939 -> expanded 96806..96807
+original 1939..2091 -> expanded 98739..98891
+original 2091..2092 -> expanded 105062..105063
+original 2092..2252 -> expanded 107025..107185
+original 2252..2253 -> expanded 113492..113493
+original 2253..2420 -> expanded 115485..115652
+original 2420..2421 -> expanded 121954..121955
+original 2421..2578 -> expanded 123902..124059
+original 2578..2579 -> expanded 130242..130243
+original 2579..2733 -> expanded 132160..132314
+original 2733..2734 -> expanded 138507..138508
+original 2734..2735 -> expanded 140425..140426
+generated 0..433 <- imports
+generated 709..6754 <- Decode
+generated 6755..8627 <- Decode
+generated 8755..14605 <- Decode
+generated 14606..16448 <- Decode
+generated 16578..22594 <- Decode
+generated 22595..24452 <- Decode
+generated 24608..30863 <- Decode
+generated 30864..32796 <- Decode
+generated 32950..39165 <- Decode
+generated 39166..41098 <- Decode
+generated 41252..47429 <- Decode
+generated 47430..49317 <- Decode
+generated 49503..55936 <- Decode
+generated 55937..57899 <- Decode
+generated 58054..64090 <- Decode
+generated 64091..65993 <- Decode
+generated 66141..72294 <- Decode
+generated 72295..74212 <- Decode
+generated 74356..80460 <- Decode
+generated 80461..82363 <- Decode
+generated 82511..88618 <- Decode
+generated 88619..90551 <- Decode
+generated 90699..96806 <- Decode
+generated 96807..98739 <- Decode
+generated 98891..105062 <- Decode
+generated 105063..107025 <- Decode
+generated 107185..113492 <- Decode
+generated 113493..115485 <- Decode
+generated 115652..121954 <- Decode
+generated 121955..123902 <- Decode
+generated 124059..130242 <- Decode
+generated 130243..132160 <- Decode
+generated 132314..138507 <- Decode
+generated 138508..140425 <- Decode
 
 ## Metadata
 

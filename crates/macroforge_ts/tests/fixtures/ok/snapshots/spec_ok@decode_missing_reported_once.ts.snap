@@ -21,7 +21,7 @@ true
 
 ## Output
 
-import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Account {
@@ -37,7 +37,7 @@ interface Account {
 export function accountDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = accountDecodeWithContext(data, ctx);
@@ -140,7 +140,7 @@ export function accountDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
         const __raw_balance = obj["balance"] as number;
 
-        if (!(typeof __raw_balance === "number")) {
+        if (!(typeof __raw_balance === "number" && globalThis.Number.isFinite(__raw_balance))) {
             errors.push({ field: "balance", message: __raw_balance == null ? "Account.balance is required" : "expected number" });
         } else {
             instance.balance = __raw_balance;
@@ -295,11 +295,11 @@ export {};
 
 ## Mapping
 
-original 22..172 -> expanded 470..620
-original 172..173 -> expanded 10125..10126
-generated 0..470 <- imports
-generated 620..9469 <- Decode
-generated 9469..10125 <- __convenience_const
+original 22..172 -> expanded 501..651
+original 172..173 -> expanded 10206..10207
+generated 0..501 <- imports
+generated 651..9550 <- Decode
+generated 9550..10206 <- __convenience_const
 
 ## Metadata
 

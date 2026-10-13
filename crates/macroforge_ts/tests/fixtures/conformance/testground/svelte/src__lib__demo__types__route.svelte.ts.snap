@@ -13,7 +13,7 @@ true
 ## Output
 
 import { employeeDecodeWithContext, employeeEncodeWithContext } from "./employee.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -145,7 +145,7 @@ function routeEncodeFields(value: Route, ctx: __mf_EncodeContext, result: Record
 export function routeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Route } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = routeDecodeWithContext(data, ctx);
@@ -352,7 +352,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("defaultDurationHours")) ? "defaultDurationHours" in obj : (__fields.keeps("defaultDurationHours") && obj["defaultDurationHours"] !== undefined)) {
         const __raw_defaultDurationHours = obj["defaultDurationHours"] as number;
 
-        if (!(typeof __raw_defaultDurationHours === "number")) {
+        if (!(typeof __raw_defaultDurationHours === "number" && globalThis.Number.isFinite(__raw_defaultDurationHours))) {
             errors.push({ field: "defaultDurationHours", message: __raw_defaultDurationHours == null ? "Route.defaultDurationHours is required" : "expected number" });
         } else {
             instance.defaultDurationHours = __raw_defaultDurationHours;
@@ -1039,18 +1039,18 @@ export declare const Route: {
 
 ## Mapping
 
-original 0..110 -> expanded 987..1097
-original 159..270 -> expanded 1097..1208
-original 311..334 -> expanded 1208..1231
-original 375..399 -> expanded 1231..1255
-original 440..601 -> expanded 1255..1416
-original 601..602 -> expanded 38438..38439
-generated 0..987 <- imports
-generated 1416..1724 <- Default
-generated 1724..5631 <- Encode
-generated 5631..21769 <- Decode
-generated 21769..37253 <- Gigaform
-generated 37253..38438 <- __convenience_const
+original 0..110 -> expanded 1018..1128
+original 159..270 -> expanded 1128..1239
+original 311..334 -> expanded 1239..1262
+original 375..399 -> expanded 1262..1286
+original 440..601 -> expanded 1286..1447
+original 601..602 -> expanded 38532..38533
+generated 0..1018 <- imports
+generated 1447..1755 <- Default
+generated 1755..5662 <- Encode
+generated 5662..21863 <- Decode
+generated 21863..37347 <- Gigaform
+generated 37347..38532 <- __convenience_const
 
 ## Metadata
 

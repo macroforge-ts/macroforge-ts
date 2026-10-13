@@ -13,7 +13,7 @@ true
 ## Output
 
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralCompare as __mf_structuralCompare, comparedWithin as __mf_comparedWithin, instanceOf as __mf_instanceOf, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeMap as __mf_decodeMap } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeMap as __mf_decodeMap } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions, Encoder as __mf_Encoder, Decoder as __mf_Decoder } from "@macroforge/core/endec";
 /**
  * Names that can collide with what a derive generates or that need quoting:
@@ -429,7 +429,7 @@ function nameLocalsEncodeFields(value: NameLocals, _ctx: __mf_EncodeContext, res
 export function nameLocalsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NameLocals } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = nameLocalsDecodeWithContext(data, ctx);
@@ -643,7 +643,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     if ((__fields === undefined || __fields.requires("hash")) ? "hash" in obj : (__fields.keeps("hash") && obj["hash"] !== undefined)) {
         const __raw_hash = obj["hash"] as number;
 
-        if (!(typeof __raw_hash === "number")) {
+        if (!(typeof __raw_hash === "number" && globalThis.Number.isFinite(__raw_hash))) {
             errors.push({ field: "hash", message: __raw_hash == null ? "NameLocals.hash is required" : "expected number" });
         } else {
             instance.hash = __raw_hash;
@@ -676,7 +676,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     if ((__fields === undefined || __fields.requires("a")) ? "a" in obj : (__fields.keeps("a") && obj["a"] !== undefined)) {
         const __raw_a = obj["a"] as number;
 
-        if (!(typeof __raw_a === "number")) {
+        if (!(typeof __raw_a === "number" && globalThis.Number.isFinite(__raw_a))) {
             errors.push({ field: "a", message: __raw_a == null ? "NameLocals.a is required" : "expected number" });
         } else {
             instance.a = __raw_a;
@@ -685,7 +685,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     if ((__fields === undefined || __fields.requires("b")) ? "b" in obj : (__fields.keeps("b") && obj["b"] !== undefined)) {
         const __raw_b = obj["b"] as number;
 
-        if (!(typeof __raw_b === "number")) {
+        if (!(typeof __raw_b === "number" && globalThis.Number.isFinite(__raw_b))) {
             errors.push({ field: "b", message: __raw_b == null ? "NameLocals.b is required" : "expected number" });
         } else {
             instance.b = __raw_b;
@@ -739,7 +739,7 @@ export function nameLocalsDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     if ((__fields === undefined || __fields.requires("idx")) ? "idx" in obj : (__fields.keeps("idx") && obj["idx"] !== undefined)) {
         const __raw_idx = obj["idx"] as number;
 
-        if (!(typeof __raw_idx === "number")) {
+        if (!(typeof __raw_idx === "number" && globalThis.Number.isFinite(__raw_idx))) {
             errors.push({ field: "idx", message: __raw_idx == null ? "NameLocals.idx is required" : "expected number" });
         } else {
             instance.idx = __raw_idx;
@@ -1083,7 +1083,7 @@ function nameQuotedEncodeFields(value: NameQuoted, _ctx: __mf_EncodeContext, res
 export function nameQuotedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NameQuoted } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = nameQuotedDecodeWithContext(data, ctx);
@@ -1210,7 +1210,7 @@ export function nameQuotedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     if ((__fields === undefined || __fields.requires("with space")) ? "with space" in obj : (__fields.keeps("with space") && obj["with space"] !== undefined)) {
         const __raw_with$20space = obj["with space"] as number;
 
-        if (!(typeof __raw_with$20space === "number")) {
+        if (!(typeof __raw_with$20space === "number" && globalThis.Number.isFinite(__raw_with$20space))) {
             errors.push({ field: "with space", message: __raw_with$20space == null ? "NameQuoted.with space is required" : "expected number" });
         } else {
             instance["with space"] = __raw_with$20space;
@@ -1246,7 +1246,7 @@ export function nameQuotedDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     if ((__fields === undefined || __fields.requires("default")) ? "default" in obj : (__fields.keeps("default") && obj["default"] !== undefined)) {
         const __raw_default = obj["default"] as number;
 
-        if (!(typeof __raw_default === "number")) {
+        if (!(typeof __raw_default === "number" && globalThis.Number.isFinite(__raw_default))) {
             errors.push({ field: "default", message: __raw_default == null ? "NameQuoted.default is required" : "expected number" });
         } else {
             instance.default = __raw_default;
@@ -1476,7 +1476,7 @@ constructor(props: { "kebab-key": string; class: string; default: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NameQuotedClass } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = NameQuotedClass.decodeWithContext(data, ctx);
@@ -1586,7 +1586,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("default")) ? "default" in obj : (__fields.keeps("default") && obj["default"] !== undefined)) {
         const __raw_default = obj["default"] as number;
 
-        if (!(typeof __raw_default === "number")) {
+        if (!(typeof __raw_default === "number" && globalThis.Number.isFinite(__raw_default))) {
             errors.push({ field: "default", message: __raw_default == null ? "NameQuotedClass.default is required" : "expected number" });
         } else {
             instance.default = __raw_default;
@@ -1781,7 +1781,7 @@ function httpResponseEncodeFields(value: HTTPResponse, _ctx: __mf_EncodeContext,
 export function httpResponseDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: HTTPResponse } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = httpResponseDecodeWithContext(data, ctx);
@@ -1866,7 +1866,7 @@ export function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
     if ((__fields === undefined || __fields.requires("statusCode")) ? "statusCode" in obj : (__fields.keeps("statusCode") && obj["statusCode"] !== undefined)) {
         const __raw_statusCode = obj["statusCode"] as number;
 
-        if (!(typeof __raw_statusCode === "number")) {
+        if (!(typeof __raw_statusCode === "number" && globalThis.Number.isFinite(__raw_statusCode))) {
             errors.push({ field: "statusCode", message: __raw_statusCode == null ? "HTTPResponse.statusCode is required" : "expected number" });
         } else {
             instance.statusCode = __raw_statusCode;
@@ -2051,7 +2051,7 @@ function point2DEncodeFields(value: point2D, _ctx: __mf_EncodeContext, result: R
 export function point2DDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: point2D } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = point2DDecodeWithContext(data, ctx);
@@ -2139,7 +2139,7 @@ export function point2DDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
         const __raw_x = obj["x"] as number;
 
-        if (!(typeof __raw_x === "number")) {
+        if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
             errors.push({ field: "x", message: __raw_x == null ? "point2D.x is required" : "expected number" });
         } else {
             instance.x = __raw_x;
@@ -2148,7 +2148,7 @@ export function point2DDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("y")) ? "y" in obj : (__fields.keeps("y") && obj["y"] !== undefined)) {
         const __raw_y = obj["y"] as number;
 
-        if (!(typeof __raw_y === "number")) {
+        if (!(typeof __raw_y === "number" && globalThis.Number.isFinite(__raw_y))) {
             errors.push({ field: "y", message: __raw_y == null ? "point2D.y is required" : "expected number" });
         } else {
             instance.y = __raw_y;
@@ -2339,7 +2339,7 @@ function nameHolderEncodeFields(value: NameHolder, ctx: __mf_EncodeContext, resu
 export function nameHolderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NameHolder } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = nameHolderDecodeWithContext(data, ctx);
@@ -2689,7 +2689,7 @@ function nameParamsEncodeFields<K, Key, T, Value>(value: NameParams<K, Key, T, V
 export function nameParamsDecode<K, Key, T, Value>(input: unknown, opts?: __mf_DecodeOptions, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>, __decodeValue?: __mf_Decoder<Value>): { success: true; value: NameParams<K, Key, T, Value> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = nameParamsDecodeWithContext<K, Key, T, Value>(data, ctx, __decodeK, __decodeKey, __decodeT, __decodeValue);
@@ -3028,7 +3028,7 @@ constructor(props: { key: K | null; other: Key | null; held: T[] }) {
 static decode<K, Key, T>(input: unknown, opts?: __mf_DecodeOptions, __decodeK?: __mf_Decoder<K>, __decodeKey?: __mf_Decoder<Key>, __decodeT?: __mf_Decoder<T>): { success: true; value: NameParamsClass<K, Key, T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = NameParamsClass.decodeWithContext<K, Key, T>(data, ctx, __decodeK, __decodeKey, __decodeT);
@@ -3413,7 +3413,7 @@ function namePrototypeEncodeFields(value: NamePrototype, _ctx: __mf_EncodeContex
 export function namePrototypeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NamePrototype } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = namePrototypeDecodeWithContext(data, ctx);
@@ -3531,7 +3531,7 @@ export function namePrototypeDecodeWithContext(value: unknown, ctx: __mf_DecodeC
     if ((__fields === undefined || __fields.requires("valueOf")) ? "valueOf" in obj : (__fields.keeps("valueOf") && obj["valueOf"] !== undefined)) {
         const __raw_valueOf = obj["valueOf"] as number;
 
-        if (!(typeof __raw_valueOf === "number")) {
+        if (!(typeof __raw_valueOf === "number" && globalThis.Number.isFinite(__raw_valueOf))) {
             errors.push({ field: "valueOf", message: __raw_valueOf == null ? "NamePrototype.valueOf is required" : "expected number" });
         } else {
             instance.valueOf = __raw_valueOf;
@@ -3549,7 +3549,7 @@ export function namePrototypeDecodeWithContext(value: unknown, ctx: __mf_DecodeC
     if ((__fields === undefined || __fields.requires("length")) ? "length" in obj : (__fields.keeps("length") && obj["length"] !== undefined)) {
         const __raw_length = obj["length"] as number;
 
-        if (!(typeof __raw_length === "number")) {
+        if (!(typeof __raw_length === "number" && globalThis.Number.isFinite(__raw_length))) {
             errors.push({ field: "length", message: __raw_length == null ? "NamePrototype.length is required" : "expected number" });
         } else {
             instance.length = __raw_length;
@@ -4441,110 +4441,110 @@ export declare const NamePrototype: {
 
 ## Mapping
 
-original 0..765 -> expanded 1258..2023
-original 765..1152 -> expanded 38898..39285
-original 1152..1335 -> expanded 65829..66012
-original 1335..1336 -> expanded 76671..76672
-original 1336..1487 -> expanded 80579..80730
-original 1487..1639 -> expanded 92156..92308
-original 1639..1856 -> expanded 104052..104269
-original 1856..2031 -> expanded 120933..121108
-original 2031..2213 -> expanded 138843..139025
-original 2213..2214 -> expanded 152882..152883
-original 2214..2456 -> expanded 157831..158073
-original 2456..2457 -> expanded 174185..174186
-generated 0..1258 <- imports
-generated 2023..3120 <- Debug
-generated 3120..3607 <- Clone
-generated 3607..4639 <- PartialEq
-generated 4639..7274 <- Hash
-generated 7274..11485 <- PartialOrd
-generated 11485..14738 <- Ord
-generated 14738..15140 <- Default
-generated 15140..19984 <- Encode
-generated 19984..37282 <- Decode
-generated 37282..38898 <- __convenience_const
-generated 39285..40155 <- Debug
-generated 40155..40611 <- Clone
-generated 40611..41251 <- PartialEq
-generated 41251..42897 <- Hash
-generated 42897..45130 <- PartialOrd
-generated 45130..46895 <- Ord
-generated 46895..47241 <- Default
-generated 47241..51309 <- Encode
-generated 51309..64213 <- Decode
-generated 64213..65829 <- __convenience_const
-generated 66012..66416 <- Debug
-generated 66416..66646 <- Clone
-generated 66646..66942 <- PartialEq
-generated 66942..67553 <- Hash
-generated 67553..67841 <- Default
-generated 67841..69801 <- Encode
-generated 69801..70138 <- Encode
-generated 70138..76671 <- Decode
-generated 76672..76793 <- Debug
-generated 76793..76917 <- Clone
-generated 76917..77050 <- PartialEq
-generated 77050..77171 <- Hash
-generated 77171..77282 <- Default
-generated 77282..78692 <- Encode
-generated 78692..80579 <- Decode
-generated 80730..81010 <- Debug
-generated 81010..81175 <- Clone
-generated 81175..81426 <- PartialEq
-generated 81426..81781 <- Hash
-generated 81781..82243 <- PartialOrd
-generated 82243..82655 <- Ord
-generated 82655..82760 <- Default
-generated 82760..84973 <- Encode
-generated 84973..90470 <- Decode
-generated 90470..92156 <- __convenience_const
-generated 92308..92596 <- Debug
-generated 92596..92737 <- Clone
-generated 92737..92968 <- PartialEq
-generated 92968..93447 <- Hash
-generated 93447..93981 <- PartialOrd
-generated 93981..94429 <- Ord
-generated 94429..94529 <- Default
-generated 94529..96776 <- Encode
-generated 96776..102541 <- Decode
-generated 102541..104052 <- __convenience_const
-generated 104269..104774 <- Debug
-generated 104774..105232 <- Clone
-generated 105232..105940 <- PartialEq
-generated 105940..106614 <- Hash
-generated 106614..106826 <- Default
-generated 106826..109737 <- Encode
-generated 109737..119497 <- Decode
-generated 119497..120933 <- __convenience_const
-generated 121108..121607 <- Debug
-generated 121607..122000 <- Clone
-generated 122000..122545 <- PartialEq
-generated 122545..123070 <- Hash
-generated 123070..126866 <- Encode
-generated 126866..137503 <- Decode
-generated 137503..138843 <- __convenience_const
-generated 139025..139472 <- Debug
-generated 139472..139804 <- Clone
-generated 139804..140310 <- PartialEq
-generated 140310..140777 <- Hash
-generated 140777..143403 <- Encode
-generated 143403..143888 <- Encode
-generated 143888..152882 <- Decode
-generated 152883..153037 <- Debug
-generated 153037..153205 <- Clone
-generated 153205..153382 <- PartialEq
-generated 153382..153536 <- Hash
-generated 153536..155423 <- Encode
-generated 155423..157831 <- Decode
-generated 158073..158631 <- Debug
-generated 158631..158936 <- Clone
-generated 158936..159377 <- PartialEq
-generated 159377..160336 <- Hash
-generated 160336..160555 <- Default
-generated 160555..163648 <- Encode
-generated 163648..172656 <- Decode
-generated 172656..174185 <- __convenience_const
+original 0..765 -> expanded 1289..2054
+original 765..1152 -> expanded 39095..39482
+original 1152..1335 -> expanded 66126..66309
+original 1335..1336 -> expanded 77018..77019
+original 1336..1487 -> expanded 80926..81077
+original 1487..1639 -> expanded 92556..92708
+original 1639..1856 -> expanded 104535..104752
+original 1856..2031 -> expanded 121421..121596
+original 2031..2213 -> expanded 139336..139518
+original 2213..2214 -> expanded 153380..153381
+original 2214..2456 -> expanded 158329..158571
+original 2456..2457 -> expanded 174777..174778
+generated 0..1289 <- imports
+generated 2054..3151 <- Debug
+generated 3151..3638 <- Clone
+generated 3638..4670 <- PartialEq
+generated 4670..7305 <- Hash
+generated 7305..11516 <- PartialOrd
+generated 11516..14769 <- Ord
+generated 14769..15171 <- Default
+generated 15171..20015 <- Encode
+generated 20015..37479 <- Decode
+generated 37479..39095 <- __convenience_const
+generated 39482..40352 <- Debug
+generated 40352..40808 <- Clone
+generated 40808..41448 <- PartialEq
+generated 41448..43094 <- Hash
+generated 43094..45327 <- PartialOrd
+generated 45327..47092 <- Ord
+generated 47092..47438 <- Default
+generated 47438..51506 <- Encode
+generated 51506..64510 <- Decode
+generated 64510..66126 <- __convenience_const
+generated 66309..66713 <- Debug
+generated 66713..66943 <- Clone
+generated 66943..67239 <- PartialEq
+generated 67239..67850 <- Hash
+generated 67850..68138 <- Default
+generated 68138..70098 <- Encode
+generated 70098..70435 <- Encode
+generated 70435..77018 <- Decode
+generated 77019..77140 <- Debug
+generated 77140..77264 <- Clone
+generated 77264..77397 <- PartialEq
+generated 77397..77518 <- Hash
+generated 77518..77629 <- Default
+generated 77629..79039 <- Encode
+generated 79039..80926 <- Decode
+generated 81077..81357 <- Debug
+generated 81357..81522 <- Clone
+generated 81522..81773 <- PartialEq
+generated 81773..82128 <- Hash
+generated 82128..82590 <- PartialOrd
+generated 82590..83002 <- Ord
+generated 83002..83107 <- Default
+generated 83107..85320 <- Encode
+generated 85320..90870 <- Decode
+generated 90870..92556 <- __convenience_const
+generated 92708..92996 <- Debug
+generated 92996..93137 <- Clone
+generated 93137..93368 <- PartialEq
+generated 93368..93847 <- Hash
+generated 93847..94381 <- PartialOrd
+generated 94381..94829 <- Ord
+generated 94829..94929 <- Default
+generated 94929..97176 <- Encode
+generated 97176..103024 <- Decode
+generated 103024..104535 <- __convenience_const
+generated 104752..105257 <- Debug
+generated 105257..105715 <- Clone
+generated 105715..106423 <- PartialEq
+generated 106423..107097 <- Hash
+generated 107097..107309 <- Default
+generated 107309..110220 <- Encode
+generated 110220..119985 <- Decode
+generated 119985..121421 <- __convenience_const
+generated 121596..122095 <- Debug
+generated 122095..122488 <- Clone
+generated 122488..123033 <- PartialEq
+generated 123033..123558 <- Hash
+generated 123558..127354 <- Encode
+generated 127354..137996 <- Decode
+generated 137996..139336 <- __convenience_const
+generated 139518..139965 <- Debug
+generated 139965..140297 <- Clone
+generated 140297..140803 <- PartialEq
+generated 140803..141270 <- Hash
+generated 141270..143896 <- Encode
+generated 143896..144381 <- Encode
+generated 144381..153380 <- Decode
+generated 153381..153535 <- Debug
+generated 153535..153703 <- Clone
+generated 153703..153880 <- PartialEq
+generated 153880..154034 <- Hash
+generated 154034..155921 <- Encode
+generated 155921..158329 <- Decode
+generated 158571..159129 <- Debug
+generated 159129..159434 <- Clone
+generated 159434..159875 <- PartialEq
+generated 159875..160834 <- Hash
+generated 160834..161053 <- Default
+generated 161053..164146 <- Encode
+generated 164146..173248 <- Decode
+generated 173248..174777 <- __convenience_const
 
 ## Metadata
 

@@ -51,7 +51,7 @@ true
 ## Output
 
 import type { Encoder as __mf_Encoder, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, Decoder as __mf_Decoder, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeObject as __mf_decodeObject, decodeDate as __mf_decodeDate, decodeString as __mf_decodeString } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeObject as __mf_decodeObject, decodeDate as __mf_decodeDate, decodeString as __mf_decodeString } from "@macroforge/core/endec";
 
 interface Box<T> {
     held: T;
@@ -114,7 +114,7 @@ function boxEncodeFields<T>(value: Box<T>, ctx: __mf_EncodeContext, result: Reco
 export function boxDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Box<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = boxDecodeWithContext<T>(data, ctx, __decodeT);
@@ -399,7 +399,7 @@ constructor(props: { items: T[] }) {
 static decode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Stack<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = Stack.decodeWithContext<T>(data, ctx, __decodeT);
@@ -630,7 +630,7 @@ export function outcomeEncodeWithContext<Value, Failure>(value: Outcome<Value, F
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function outcomeDecode<Value, Failure>(input: unknown, opts?: __mf_DecodeOptions, __decodeValue?: __mf_Decoder<Value>, __decodeFailure?: __mf_Decoder<Failure>): { success: true; value: Outcome<Value, Failure> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = outcomeDecodeWithContext<Value, Failure>(data, ctx, __decodeValue, __decodeFailure);
@@ -766,7 +766,7 @@ export function maybeEncodeWithContext<T>(value: Maybe<T>, ctx: __mf_EncodeConte
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function maybeDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Maybe<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = maybeDecodeWithContext<T>(data, ctx, __decodeT);
@@ -896,7 +896,7 @@ export function pairEncodeWithContext<Left, Right>(value: Pair<Left, Right>, ctx
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function pairDecode<Left, Right>(input: unknown, opts?: __mf_DecodeOptions, __decodeLeft?: __mf_Decoder<Left>, __decodeRight?: __mf_Decoder<Right>): { success: true; value: Pair<Left, Right> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const result = pairDecodeWithContext<Left, Right>(data, ctx, __decodeLeft, __decodeRight);
@@ -1093,7 +1093,7 @@ function wrapperEncodeFields<T>(value: Wrapper<T>, ctx: __mf_EncodeContext, resu
 export function wrapperDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Wrapper<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = wrapperDecodeWithContext<T>(data, ctx, __decodeT);
@@ -1338,7 +1338,7 @@ function shelfEncodeFields(value: Shelf, ctx: __mf_EncodeContext, result: Record
 export function shelfDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Shelf } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = shelfDecodeWithContext(data, ctx);
@@ -1992,45 +1992,45 @@ export {};
 
 ## Mapping
 
-original 30..115 -> expanded 908..993
-original 115..117 -> expanded 14361..14363
-original 147..186 -> expanded 14363..14402
-original 186..187 -> expanded 22172..22173
-original 187..189 -> expanded 25526..25528
-original 219..312 -> expanded 25528..25621
-original 312..314 -> expanded 32448..32450
-original 344..370 -> expanded 32450..32476
-original 370..372 -> expanded 37216..37218
-original 402..442 -> expanded 37218..37258
-original 442..444 -> expanded 44259..44261
-original 474..518 -> expanded 44261..44305
-original 518..520 -> expanded 53748..53750
-original 550..803 -> expanded 53750..54003
-original 803..804 -> expanded 73374..73375
-generated 0..908 <- imports
-generated 993..3996 <- Encode
-generated 3996..13475 <- Decode
-generated 13475..14361 <- __convenience_const
-generated 14402..16138 <- Encode
-generated 16138..16501 <- Encode
-generated 16501..22172 <- Decode
-generated 22173..23630 <- Encode
-generated 23630..25526 <- Decode
-generated 25621..28057 <- Encode
-generated 28057..31946 <- Decode
-generated 31946..32448 <- __convenience_const
-generated 32476..34083 <- Encode
-generated 34083..36740 <- Decode
-generated 36740..37216 <- __convenience_const
-generated 37258..38817 <- Encode
-generated 38817..43796 <- Decode
-generated 43796..44259 <- __convenience_const
-generated 44305..46713 <- Encode
-generated 46713..52778 <- Decode
-generated 52778..53748 <- __convenience_const
-generated 54003..57910 <- Encode
-generated 57910..72446 <- Decode
-generated 72446..73374 <- __convenience_const
+original 30..115 -> expanded 939..1024
+original 115..117 -> expanded 14397..14399
+original 147..186 -> expanded 14399..14438
+original 186..187 -> expanded 22213..22214
+original 187..189 -> expanded 25567..25569
+original 219..312 -> expanded 25569..25662
+original 312..314 -> expanded 32494..32496
+original 344..370 -> expanded 32496..32522
+original 370..372 -> expanded 37267..37269
+original 402..442 -> expanded 37269..37309
+original 442..444 -> expanded 44315..44317
+original 474..518 -> expanded 44317..44361
+original 518..520 -> expanded 53809..53811
+original 550..803 -> expanded 53811..54064
+original 803..804 -> expanded 73440..73441
+generated 0..939 <- imports
+generated 1024..4027 <- Encode
+generated 4027..13511 <- Decode
+generated 13511..14397 <- __convenience_const
+generated 14438..16174 <- Encode
+generated 16174..16537 <- Encode
+generated 16537..22213 <- Decode
+generated 22214..23671 <- Encode
+generated 23671..25567 <- Decode
+generated 25662..28098 <- Encode
+generated 28098..31992 <- Decode
+generated 31992..32494 <- __convenience_const
+generated 32522..34129 <- Encode
+generated 34129..36791 <- Decode
+generated 36791..37267 <- __convenience_const
+generated 37309..38868 <- Encode
+generated 38868..43852 <- Decode
+generated 43852..44315 <- __convenience_const
+generated 44361..46769 <- Encode
+generated 46769..52839 <- Decode
+generated 52839..53809 <- __convenience_const
+generated 54064..57971 <- Encode
+generated 57971..72512 <- Decode
+generated 72512..73440 <- __convenience_const
 
 ## Metadata
 

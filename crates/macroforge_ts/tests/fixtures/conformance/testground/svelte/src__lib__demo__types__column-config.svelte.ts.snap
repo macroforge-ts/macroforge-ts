@@ -13,7 +13,7 @@ true
 ## Output
 
 import { dataPathDecodeWithContext, dataPathEncodeWithContext, dataPathDefaultValue } from "./data-path.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -79,7 +79,7 @@ function columnConfigEncodeFields(value: ColumnConfig, ctx: __mf_EncodeContext, 
 export function columnConfigDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ColumnConfig } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = columnConfigDecodeWithContext(data, ctx);
@@ -515,16 +515,16 @@ export declare const ColumnConfig: {
 
 ## Mapping
 
-original 0..110 -> expanded 920..1030
-original 159..196 -> expanded 1030..1067
-original 237..284 -> expanded 1067..1114
-original 284..285 -> expanded 17884..17885
-generated 0..920 <- imports
-generated 1114..1259 <- Default
-generated 1259..3664 <- Encode
-generated 3664..11230 <- Decode
-generated 11230..16510 <- Gigaform
-generated 16510..17884 <- __convenience_const
+original 0..110 -> expanded 951..1061
+original 159..196 -> expanded 1061..1098
+original 237..284 -> expanded 1098..1145
+original 284..285 -> expanded 17920..17921
+generated 0..951 <- imports
+generated 1145..1290 <- Default
+generated 1290..3695 <- Encode
+generated 3695..11266 <- Decode
+generated 11266..16546 <- Gigaform
+generated 16546..17920 <- __convenience_const
 
 ## Metadata
 

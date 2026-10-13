@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
+import { holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 import { isMultipleOfThree as __mf_isMultipleOfThree__shared_validators } from "./shared-validators";
 /**
@@ -44,7 +44,7 @@ constructor(props: { evenNumber: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomNumberValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = CustomNumberValidator.decodeWithContext(data, ctx);
@@ -130,7 +130,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("evenNumber")) ? "evenNumber" in obj : (__fields.keeps("evenNumber") && obj["evenNumber"] !== undefined)) {
         const __raw_evenNumber = obj["evenNumber"] as number;
 
-        if (!(typeof __raw_evenNumber === "number")) {
+        if (!(typeof __raw_evenNumber === "number" && globalThis.Number.isFinite(__raw_evenNumber))) {
             errors.push({ field: "evenNumber", message: __raw_evenNumber == null ? "CustomNumberValidator.evenNumber is required" : "expected number" });
         } else {
             if (__raw_evenNumber == null) { errors.push({ field: "evenNumber", message: "CustomNumberValidator.evenNumber is required" }); } else {
@@ -225,7 +225,7 @@ constructor(props: { username: string }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomStringValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = CustomStringValidator.decodeWithContext(data, ctx);
@@ -407,7 +407,7 @@ constructor(props: { count: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ImportedCustomValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = ImportedCustomValidator.decodeWithContext(data, ctx);
@@ -493,7 +493,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
         const __raw_count = obj["count"] as number;
 
-        if (!(typeof __raw_count === "number")) {
+        if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
             errors.push({ field: "count", message: __raw_count == null ? "ImportedCustomValidator.count is required" : "expected number" });
         } else {
             if (__raw_count == null) { errors.push({ field: "count", message: "ImportedCustomValidator.count is required" }); } else {
@@ -587,7 +587,7 @@ constructor(props: { evenNumber: number }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomWithMessageValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = CustomWithMessageValidator.decodeWithContext(data, ctx);
@@ -673,7 +673,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("evenNumber")) ? "evenNumber" in obj : (__fields.keeps("evenNumber") && obj["evenNumber"] !== undefined)) {
         const __raw_evenNumber = obj["evenNumber"] as number;
 
-        if (!(typeof __raw_evenNumber === "number")) {
+        if (!(typeof __raw_evenNumber === "number" && globalThis.Number.isFinite(__raw_evenNumber))) {
             errors.push({ field: "evenNumber", message: __raw_evenNumber == null ? "CustomWithMessageValidator.evenNumber is required" : "expected number" });
         } else {
             if (__raw_evenNumber == null) { errors.push({ field: "evenNumber", message: "CustomWithMessageValidator.evenNumber is required" }); } else {
@@ -975,24 +975,24 @@ export declare function customWithMessageValidatorIs(value: unknown): value is C
 
 ## Mapping
 
-original 0..536 -> expanded 504..1040
-original 536..537 -> expanded 7402..7403
-original 537..709 -> expanded 9380..9552
-original 709..710 -> expanded 15894..15895
-original 710..1016 -> expanded 17872..18178
-original 1016..1017 -> expanded 24545..24546
-original 1017..1206 -> expanded 26553..26742
-original 1206..1207 -> expanded 33078..33079
-original 1207..1208 -> expanded 35131..35132
-generated 0..504 <- imports
-generated 1040..7402 <- Decode
-generated 7403..9380 <- Decode
-generated 9552..15894 <- Decode
-generated 15895..17872 <- Decode
-generated 18178..24545 <- Decode
-generated 24546..26553 <- Decode
-generated 26742..33078 <- Decode
-generated 33079..35131 <- Decode
+original 0..536 -> expanded 535..1071
+original 536..537 -> expanded 7486..7487
+original 537..709 -> expanded 9464..9636
+original 709..710 -> expanded 15983..15984
+original 710..1016 -> expanded 17961..18267
+original 1016..1017 -> expanded 24682..24683
+original 1017..1206 -> expanded 26690..26879
+original 1206..1207 -> expanded 33268..33269
+original 1207..1208 -> expanded 35321..35322
+generated 0..535 <- imports
+generated 1071..7486 <- Decode
+generated 7487..9464 <- Decode
+generated 9636..15983 <- Decode
+generated 15984..17961 <- Decode
+generated 18267..24682 <- Decode
+generated 24683..26690 <- Decode
+generated 26879..33268 <- Decode
+generated 33269..35321 <- Decode
 
 ## Metadata
 

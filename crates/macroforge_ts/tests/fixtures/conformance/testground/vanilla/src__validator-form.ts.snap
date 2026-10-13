@@ -14,7 +14,7 @@ true
 
 import { centsDecodeWithContext, metersDecodeWithContext, usernameDecodeWithContext } from "./validators/newtype-validator-tests.ts";
 import { contactDecodeWithContext } from "./validators/union-arm-validator-tests.ts";
-import { holds as __mf_holds, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { holds as __mf_holds, ownMembers as __mf_ownMembers, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 /**
  * Validator form model for E2E testing.
@@ -55,7 +55,7 @@ constructor(props: { email: string; password: string; username: string; age: num
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserRegistrationForm } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = UserRegistrationForm.decodeWithContext(data, ctx);
@@ -193,7 +193,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("age")) ? "age" in obj : (__fields.keeps("age") && obj["age"] !== undefined)) {
         const __raw_age = obj["age"] as number;
 
-        if (!(typeof __raw_age === "number")) {
+        if (!(typeof __raw_age === "number" && globalThis.Number.isFinite(__raw_age))) {
             errors.push({ field: "age", message: __raw_age == null ? "UserRegistrationForm.age is required" : "expected number" });
         } else {
             if (__raw_age == null) { errors.push({ field: "age", message: "UserRegistrationForm.age is required" }); } else {
@@ -374,7 +374,7 @@ constructor(props: { name: string; price: number; quantity: number; tags: Array<
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ProductForm } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = ProductForm.decodeWithContext(data, ctx);
@@ -485,7 +485,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("price")) ? "price" in obj : (__fields.keeps("price") && obj["price"] !== undefined)) {
         const __raw_price = obj["price"] as number;
 
-        if (!(typeof __raw_price === "number")) {
+        if (!(typeof __raw_price === "number" && globalThis.Number.isFinite(__raw_price))) {
             errors.push({ field: "price", message: __raw_price == null ? "ProductForm.price is required" : "expected number" });
         } else {
             if (__raw_price == null) { errors.push({ field: "price", message: "ProductForm.price is required" }); } else {
@@ -498,7 +498,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("quantity")) ? "quantity" in obj : (__fields.keeps("quantity") && obj["quantity"] !== undefined)) {
         const __raw_quantity = obj["quantity"] as number;
 
-        if (!(typeof __raw_quantity === "number")) {
+        if (!(typeof __raw_quantity === "number" && globalThis.Number.isFinite(__raw_quantity))) {
             errors.push({ field: "quantity", message: __raw_quantity == null ? "ProductForm.quantity is required" : "expected number" });
         } else {
             if (__raw_quantity == null) { errors.push({ field: "quantity", message: "ProductForm.quantity is required" }); } else {
@@ -701,7 +701,7 @@ constructor(props: { title: string; startDate: Date; endDate: Date; maxAttendees
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EventForm } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = EventForm.decodeWithContext(data, ctx);
@@ -838,7 +838,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("maxAttendees")) ? "maxAttendees" in obj : (__fields.keeps("maxAttendees") && obj["maxAttendees"] !== undefined)) {
         const __raw_maxAttendees = obj["maxAttendees"] as number;
 
-        if (!(typeof __raw_maxAttendees === "number")) {
+        if (!(typeof __raw_maxAttendees === "number" && globalThis.Number.isFinite(__raw_maxAttendees))) {
             errors.push({ field: "maxAttendees", message: __raw_maxAttendees == null ? "EventForm.maxAttendees is required" : "expected number" });
         } else {
             if (__raw_maxAttendees == null) { errors.push({ field: "maxAttendees", message: "EventForm.maxAttendees is required" }); } else {
@@ -983,7 +983,7 @@ constructor(props: { runner: Username; distance: Meters; cents: Cents; contact: 
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MeasurementForm } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = MeasurementForm.decodeWithContext(data, ctx);
@@ -1532,24 +1532,24 @@ export declare function validateMeasurement(data: unknown): ValidationResult<Mea
 
 ## Mapping
 
-original 0..840 -> expanded 690..1530
-original 840..841 -> expanded 17182..17183
-original 841..1291 -> expanded 19145..19595
-original 1291..1292 -> expanded 34379..34380
-original 1292..1677 -> expanded 36207..36592
-original 1677..1678 -> expanded 49654..49655
-original 1678..1821 -> expanded 51452..51595
-original 1821..1822 -> expanded 60677..60678
-original 1822..2740 -> expanded 62565..63483
-generated 0..690 <- imports
-generated 1530..17182 <- Decode
-generated 17183..19145 <- Decode
-generated 19595..34379 <- Decode
-generated 34380..36207 <- Decode
-generated 36592..49654 <- Decode
-generated 49655..51452 <- Decode
-generated 51595..60677 <- Decode
-generated 60678..62565 <- Decode
+original 0..840 -> expanded 721..1561
+original 840..841 -> expanded 17259..17260
+original 841..1291 -> expanded 19222..19672
+original 1291..1292 -> expanded 34550..34551
+original 1292..1677 -> expanded 36378..36763
+original 1677..1678 -> expanded 49880..49881
+original 1678..1821 -> expanded 51678..51821
+original 1821..1822 -> expanded 60908..60909
+original 1822..2740 -> expanded 62796..63714
+generated 0..721 <- imports
+generated 1561..17259 <- Decode
+generated 17260..19222 <- Decode
+generated 19672..34550 <- Decode
+generated 34551..36378 <- Decode
+generated 36763..49880 <- Decode
+generated 49881..51678 <- Decode
+generated 51821..60908 <- Decode
+generated 60909..62796 <- Decode
 
 ## Metadata
 

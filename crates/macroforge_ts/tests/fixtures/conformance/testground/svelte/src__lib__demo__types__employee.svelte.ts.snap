@@ -17,7 +17,7 @@ import { jobTitleDecodeWithContext, jobTitleEncodeWithContext } from "./job-titl
 import { phoneNumberDecodeWithContext, phoneNumberEncodeWithContext } from "./phone-number.svelte";
 import { routeDecodeWithContext, routeEncodeWithContext } from "./route.svelte";
 import { settingsDecodeWithContext, settingsEncodeWithContext, settingsDefaultValue } from "./settings.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -205,7 +205,7 @@ function employeeEncodeFields(value: Employee, ctx: __mf_EncodeContext, result: 
 export function employeeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Employee } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = employeeDecodeWithContext(data, ctx);
@@ -504,7 +504,7 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     if ((__fields === undefined || __fields.requires("ratePerHour")) ? "ratePerHour" in obj : (__fields.keeps("ratePerHour") && obj["ratePerHour"] !== undefined)) {
         const __raw_ratePerHour = obj["ratePerHour"] as number;
 
-        if (!(typeof __raw_ratePerHour === "number")) {
+        if (!(typeof __raw_ratePerHour === "number" && globalThis.Number.isFinite(__raw_ratePerHour))) {
             errors.push({ field: "ratePerHour", message: __raw_ratePerHour == null ? "Employee.ratePerHour is required" : "expected number" });
         } else {
             instance.ratePerHour = __raw_ratePerHour;
@@ -1585,21 +1585,21 @@ export declare const Employee: {
 
 ## Mapping
 
-original 0..310 -> expanded 1381..1691
-original 359..437 -> expanded 1691..1769
-original 478..533 -> expanded 1769..1824
-original 574..597 -> expanded 1824..1847
-original 626..670 -> expanded 1847..1891
-original 711..737 -> expanded 1891..1917
-original 778..805 -> expanded 1917..1944
-original 824..1070 -> expanded 1944..2190
-original 1070..1071 -> expanded 60533..60534
-generated 0..1381 <- imports
-generated 2190..2710 <- Default
-generated 2710..7984 <- Encode
-generated 7984..31950 <- Decode
-generated 31950..59267 <- Gigaform
-generated 59267..60533 <- __convenience_const
+original 0..310 -> expanded 1412..1722
+original 359..437 -> expanded 1722..1800
+original 478..533 -> expanded 1800..1855
+original 574..597 -> expanded 1855..1878
+original 626..670 -> expanded 1878..1922
+original 711..737 -> expanded 1922..1948
+original 778..805 -> expanded 1948..1975
+original 824..1070 -> expanded 1975..2221
+original 1070..1071 -> expanded 60618..60619
+generated 0..1412 <- imports
+generated 2221..2741 <- Default
+generated 2741..8015 <- Encode
+generated 8015..32035 <- Decode
+generated 32035..59352 <- Gigaform
+generated 59352..60618 <- __convenience_const
 
 ## Metadata
 

@@ -16,7 +16,7 @@ import { colorsConfigDecodeWithContext, colorsConfigEncodeWithContext, colorsCon
 import { phoneNumberDecodeWithContext, phoneNumberEncodeWithContext } from "./phone-number.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { taxRateDecodeWithContext, taxRateEncodeWithContext } from "./tax-rate.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -287,7 +287,7 @@ function companyEncodeFields(value: Company, ctx: __mf_EncodeContext, result: Re
 export function companyDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Company } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = companyDecodeWithContext(data, ctx);
@@ -576,7 +576,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("referenceNumber")) ? "referenceNumber" in obj : (__fields.keeps("referenceNumber") && obj["referenceNumber"] !== undefined)) {
         const __raw_referenceNumber = obj["referenceNumber"] as number;
 
-        if (!(typeof __raw_referenceNumber === "number")) {
+        if (!(typeof __raw_referenceNumber === "number" && globalThis.Number.isFinite(__raw_referenceNumber))) {
             errors.push({ field: "referenceNumber", message: __raw_referenceNumber == null ? "Company.referenceNumber is required" : "expected number" });
         } else {
             instance.referenceNumber = __raw_referenceNumber;
@@ -645,7 +645,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("defaultAreaCode")) ? "defaultAreaCode" in obj : (__fields.keeps("defaultAreaCode") && obj["defaultAreaCode"] !== undefined)) {
         const __raw_defaultAreaCode = obj["defaultAreaCode"] as number;
 
-        if (!(typeof __raw_defaultAreaCode === "number")) {
+        if (!(typeof __raw_defaultAreaCode === "number" && globalThis.Number.isFinite(__raw_defaultAreaCode))) {
             errors.push({ field: "defaultAreaCode", message: __raw_defaultAreaCode == null ? "Company.defaultAreaCode is required" : "expected number" });
         } else {
             instance.defaultAreaCode = __raw_defaultAreaCode;
@@ -783,7 +783,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("scheduleInterval")) ? "scheduleInterval" in obj : (__fields.keeps("scheduleInterval") && obj["scheduleInterval"] !== undefined)) {
         const __raw_scheduleInterval = obj["scheduleInterval"] as number;
 
-        if (!(typeof __raw_scheduleInterval === "number")) {
+        if (!(typeof __raw_scheduleInterval === "number" && globalThis.Number.isFinite(__raw_scheduleInterval))) {
             errors.push({ field: "scheduleInterval", message: __raw_scheduleInterval == null ? "Company.scheduleInterval is required" : "expected number" });
         } else {
             instance.scheduleInterval = __raw_scheduleInterval;
@@ -2212,28 +2212,28 @@ export declare const Company: {
 
 ## Mapping
 
-original 0..270 -> expanded 1257..1527
-original 319..367 -> expanded 1527..1575
-original 408..436 -> expanded 1575..1603
-original 455..525 -> expanded 1603..1673
-original 566..588 -> expanded 1673..1695
-original 629..653 -> expanded 1695..1719
-original 694..720 -> expanded 1719..1745
-original 761..814 -> expanded 1745..1798
-original 855..912 -> expanded 1798..1855
-original 931..970 -> expanded 1855..1894
-original 1011..1077 -> expanded 1894..1960
-original 1118..1155 -> expanded 1960..1997
-original 1196..1231 -> expanded 1997..2032
-original 1272..1352 -> expanded 2032..2112
-original 1393..1783 -> expanded 2112..2502
-original 1783..1784 -> expanded 97703..97704
-generated 0..1257 <- imports
-generated 2502..3452 <- Default
-generated 3452..11477 <- Encode
-generated 11477..53126 <- Decode
-generated 53126..96464 <- Gigaform
-generated 96464..97703 <- __convenience_const
+original 0..270 -> expanded 1288..1558
+original 319..367 -> expanded 1558..1606
+original 408..436 -> expanded 1606..1634
+original 455..525 -> expanded 1634..1704
+original 566..588 -> expanded 1704..1726
+original 629..653 -> expanded 1726..1750
+original 694..720 -> expanded 1750..1776
+original 761..814 -> expanded 1776..1829
+original 855..912 -> expanded 1829..1886
+original 931..970 -> expanded 1886..1925
+original 1011..1077 -> expanded 1925..1991
+original 1118..1155 -> expanded 1991..2028
+original 1196..1231 -> expanded 2028..2063
+original 1272..1352 -> expanded 2063..2143
+original 1393..1783 -> expanded 2143..2533
+original 1783..1784 -> expanded 97899..97900
+generated 0..1288 <- imports
+generated 2533..3483 <- Default
+generated 3483..11508 <- Encode
+generated 11508..53322 <- Decode
+generated 53322..96660 <- Gigaform
+generated 96660..97899 <- __convenience_const
 
 ## Metadata
 

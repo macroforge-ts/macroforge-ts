@@ -98,6 +98,74 @@ Deno.test('encode refuses a number or a date that JSON cannot write', () => {
     assert(mod.specialScalarsEquals(back.value, scalars({ value: -0, big: 2n ** 80n })));
 });
 
+Deno.test('decode refuses the numbers encode cannot write back', () => {
+    const encoded = JSON.parse(mod.specialScalarsEncode(scalars()));
+    const fieldsOf = (result) => {
+        assert(!result.success, 'expected the decode to fail');
+        return [...new Set(result.errors.map((error) => error.field))];
+    };
+
+    // Handed in as values.
+    for (const odd of [NaN, Infinity, -Infinity]) {
+        assertEquals(fieldsOf(mod.specialScalarsDecode({ ...encoded, value: odd })), ['value']);
+        assertEquals(fieldsOf(mod.specialScalarsDecode({ ...encoded, list: [1, odd] })), [
+            'list[1]'
+        ]);
+        assert(!mod.specialNumberDecode(odd).success, String(odd));
+        assert(!mod.specialNumberIs(odd), String(odd));
+        assert(!mod.specialEitherDecode(odd).success, String(odd));
+        const carried = { data: null, amounts: { a: odd }, pair: [odd, ''], mixed: odd };
+        assertEquals(fieldsOf(mod.specialCarriedDecode(carried)), [
+            'amounts.a',
+            'pair[0]',
+            'mixed'
+        ]);
+    }
+
+    // Spelled in JSON text, where a literal too large for a number parses to an infinity.
+    const text = mod.specialScalarsEncode(scalars());
+    for (
+        const literal of [
+            '1e999',
+            '-1e999',
+            '1E+400',
+            `1${'0'.repeat(400)}`,
+            `1${'0'.repeat(250)}e99`
+        ]
+    ) {
+        const spelled = text.replace('"value":1', `"value":${literal}`);
+        assert(spelled !== text);
+        assertEquals(fieldsOf(mod.specialScalarsDecode(spelled)), ['_root'], literal);
+        assert(!mod.specialNumberDecode(literal).success, literal);
+        // A field carried as it is holds no such number either.
+        const carried = `{"data":{"deep":[${literal}]},"amounts":{},"pair":[1,""],"mixed":""}`;
+        assertEquals(fieldsOf(mod.specialCarriedDecode(carried)), ['_root'], literal);
+    }
+
+    // Large numbers that fit, and text that only looks like one, are read as they are.
+    for (
+        const literal of [
+            '1e308',
+            '1.7976931348623157e308',
+            '1e-999',
+            '123456789012345678901234567890'
+        ]
+    ) {
+        const result = mod.specialNumberDecode(literal);
+        assert(result.success, literal);
+        assertStrictEquals(result.value, Number(literal));
+    }
+    const lookalike = {
+        data: '1e999',
+        amounts: {},
+        pair: [1, `e${'9'.repeat(300)}`],
+        mixed: '1e999'
+    };
+    const read = mod.specialCarriedDecode(mod.specialCarriedEncode(lookalike));
+    assert(read.success, JSON.stringify(read.errors));
+    assertEquals(read.value, lookalike);
+});
+
 Deno.test('a collection is equal and hashes alike whatever order it was filled in', () => {
     const filled = (set, entries) => ({
         set: new Set(set),

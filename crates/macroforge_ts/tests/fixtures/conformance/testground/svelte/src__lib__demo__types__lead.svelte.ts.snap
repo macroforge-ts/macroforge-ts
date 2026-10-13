@@ -22,7 +22,7 @@ import { representsDecodeWithContext, representsEncodeWithContext } from "./repr
 import { sectorDecodeWithContext, sectorEncodeWithContext } from "./sector.svelte";
 import { siteDecodeWithContext, siteEncodeWithContext } from "./site.svelte";
 import { taxRateEncodeWithContext } from "./tax-rate.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeString as __mf_decodeString, decodeTuple as __mf_decodeTuple, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -349,7 +349,7 @@ function leadEncodeFields(value: Lead, ctx: __mf_EncodeContext, result: Record<s
 export function leadDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Lead } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = leadDecodeWithContext(data, ctx);
@@ -536,7 +536,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
     if ((__fields === undefined || __fields.requires("number")) ? "number" in obj : (__fields.keeps("number") && obj["number"] !== undefined)) {
         const __raw_number = obj["number"] as number | null;
 
-        if (!(typeof __raw_number === "number" || __raw_number === null)) {
+        if (!(typeof __raw_number === "number" && globalThis.Number.isFinite(__raw_number) || __raw_number === null)) {
             errors.push({ field: "number", message: "expected number | null" });
         } else {
             instance.number = __raw_number;
@@ -554,7 +554,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
     if ((__fields === undefined || __fields.requires("probability")) ? "probability" in obj : (__fields.keeps("probability") && obj["probability"] !== undefined)) {
         const __raw_probability = obj["probability"] as number;
 
-        if (!(typeof __raw_probability === "number")) {
+        if (!(typeof __raw_probability === "number" && globalThis.Number.isFinite(__raw_probability))) {
             errors.push({ field: "probability", message: __raw_probability == null ? "Lead.probability is required" : "expected number" });
         } else {
             instance.probability = __raw_probability;
@@ -604,7 +604,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_value === "number")) {
+        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
             errors.push({ field: "value", message: __raw_value == null ? "Lead.value is required" : "expected number" });
         } else {
             instance.value = __raw_value;
@@ -2584,57 +2584,57 @@ export declare const Lead: {
 
 ## Mapping
 
-original 0..572 -> expanded 1850..2422
-original 621..650 -> expanded 2422..2451
-original 678..699 -> expanded 2451..2472
-original 727..759 -> expanded 2472..2504
-original 787..815 -> expanded 2504..2532
-original 883..913 -> expanded 2532..2562
-original 1106..1111 -> expanded 2562..2567
-original 1136..1165 -> expanded 2567..2596
-original 1214..1247 -> expanded 2596..2629
-original 1298..1333 -> expanded 2629..2664
-original 1397..1421 -> expanded 2664..2688
-original 1718..1723 -> expanded 2688..2693
-original 1746..1773 -> expanded 2693..2720
-original 1816..1821 -> expanded 2720..2725
-original 1862..1887 -> expanded 2725..2750
-original 1939..1976 -> expanded 2750..2787
-original 2004..2009 -> expanded 2787..2792
-original 2042..2071 -> expanded 2792..2821
-original 2118..2146 -> expanded 2821..2849
-original 2174..2209 -> expanded 2849..2884
-original 2309..2354 -> expanded 2884..2929
-original 2535..2540 -> expanded 2929..2934
-original 2570..2595 -> expanded 2934..2959
-original 2727..2759 -> expanded 2959..2991
-original 2812..2849 -> expanded 2991..3028
-original 2897..2920 -> expanded 3028..3051
-original 2991..3027 -> expanded 3051..3087
-original 3076..3081 -> expanded 3087..3092
-original 3100..3130 -> expanded 3092..3122
-original 3175..3180 -> expanded 3122..3127
-original 3221..3244 -> expanded 3127..3150
-original 3295..3326 -> expanded 3150..3181
-original 3374..3402 -> expanded 3181..3209
-original 3491..3536 -> expanded 3209..3254
-original 3564..3595 -> expanded 3254..3285
-original 3667..3672 -> expanded 3285..3290
-original 3713..3743 -> expanded 3290..3320
-original 3810..3815 -> expanded 3320..3325
-original 3856..3882 -> expanded 3325..3351
-original 3931..3962 -> expanded 3351..3382
-original 4035..4040 -> expanded 3382..3387
-original 4081..4112 -> expanded 3387..3418
-original 4153..4183 -> expanded 3418..3448
-original 4243..4288 -> expanded 3448..3493
-original 4288..4289 -> expanded 98757..98758
-generated 0..1850 <- imports
-generated 3493..4355 <- Default
-generated 4355..12284 <- Encode
-generated 12284..49578 <- Decode
-generated 49578..97599 <- Gigaform
-generated 97599..98757 <- __convenience_const
+original 0..572 -> expanded 1881..2453
+original 621..650 -> expanded 2453..2482
+original 678..699 -> expanded 2482..2503
+original 727..759 -> expanded 2503..2535
+original 787..815 -> expanded 2535..2563
+original 883..913 -> expanded 2563..2593
+original 1106..1111 -> expanded 2593..2598
+original 1136..1165 -> expanded 2598..2627
+original 1214..1247 -> expanded 2627..2660
+original 1298..1333 -> expanded 2660..2695
+original 1397..1421 -> expanded 2695..2719
+original 1718..1723 -> expanded 2719..2724
+original 1746..1773 -> expanded 2724..2751
+original 1816..1821 -> expanded 2751..2756
+original 1862..1887 -> expanded 2756..2781
+original 1939..1976 -> expanded 2781..2818
+original 2004..2009 -> expanded 2818..2823
+original 2042..2071 -> expanded 2823..2852
+original 2118..2146 -> expanded 2852..2880
+original 2174..2209 -> expanded 2880..2915
+original 2309..2354 -> expanded 2915..2960
+original 2535..2540 -> expanded 2960..2965
+original 2570..2595 -> expanded 2965..2990
+original 2727..2759 -> expanded 2990..3022
+original 2812..2849 -> expanded 3022..3059
+original 2897..2920 -> expanded 3059..3082
+original 2991..3027 -> expanded 3082..3118
+original 3076..3081 -> expanded 3118..3123
+original 3100..3130 -> expanded 3123..3153
+original 3175..3180 -> expanded 3153..3158
+original 3221..3244 -> expanded 3158..3181
+original 3295..3326 -> expanded 3181..3212
+original 3374..3402 -> expanded 3212..3240
+original 3491..3536 -> expanded 3240..3285
+original 3564..3595 -> expanded 3285..3316
+original 3667..3672 -> expanded 3316..3321
+original 3713..3743 -> expanded 3321..3351
+original 3810..3815 -> expanded 3351..3356
+original 3856..3882 -> expanded 3356..3382
+original 3931..3962 -> expanded 3382..3413
+original 4035..4040 -> expanded 3413..3418
+original 4081..4112 -> expanded 3418..3449
+original 4153..4183 -> expanded 3449..3479
+original 4243..4288 -> expanded 3479..3524
+original 4288..4289 -> expanded 98929..98930
+generated 0..1881 <- imports
+generated 3524..4386 <- Default
+generated 4386..12315 <- Encode
+generated 12315..49750 <- Decode
+generated 49750..97771 <- Gigaform
+generated 97771..98929 <- __convenience_const
 
 ## Metadata
 

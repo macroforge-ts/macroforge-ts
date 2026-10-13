@@ -22,7 +22,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions, FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 
@@ -43,7 +43,7 @@ export function metersEncodeWithContext(value: Meters): unknown {
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const result = metersDecodeWithContext(data, ctx);
@@ -84,7 +84,7 @@ export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "number") {
+    if (!((typeof __decoded === "number" && globalThis.Number.isFinite(__decoded)))) {
         throw new __mf_DecodeError([{ field: "_root", message: "Meters.decodeWithContext: expected number" }]);
     }
     const errors: Array<{ field: string; message: string }> = [];
@@ -94,11 +94,11 @@ export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
 }
 
 export function metersHasShape(value: unknown): boolean {
-    return typeof value === "number";
+    return (typeof value === "number" && globalThis.Number.isFinite(value));
 }
 
 export function metersIs(value: unknown): value is Meters {
-    return typeof value === "number" && metersDecode(value).success;
+    return (typeof value === "number" && globalThis.Number.isFinite(value)) && metersDecode(value).success;
 }
 
 const Meters: {
@@ -173,7 +173,7 @@ function runEncodeFields(value: Run, ctx: __mf_EncodeContext, result: Record<str
 export function runDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Run } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = runDecodeWithContext(data, ctx);
@@ -455,20 +455,20 @@ export {};
 
 ## Mapping
 
-original 57..72 -> expanded 726..741
-original 88..89 -> expanded 785..786
-original 89..91 -> expanded 3990..3992
-original 121..196 -> expanded 3992..4067
-original 196..197 -> expanded 15382..15383
-generated 0..681 <- imports
-generated 681..726 <- $Newtype
-generated 741..785 <- $Newtype
-generated 786..1494 <- Encode
-generated 1494..3501 <- Decode
-generated 3501..3990 <- __convenience_const
-generated 4067..6574 <- Encode
-generated 6574..14496 <- Decode
-generated 14496..15382 <- __convenience_const
+original 57..72 -> expanded 757..772
+original 88..89 -> expanded 816..817
+original 89..91 -> expanded 4150..4152
+original 121..196 -> expanded 4152..4227
+original 196..197 -> expanded 15547..15548
+generated 0..712 <- imports
+generated 712..757 <- $Newtype
+generated 772..816 <- $Newtype
+generated 817..1525 <- Encode
+generated 1525..3661 <- Decode
+generated 3661..4150 <- __convenience_const
+generated 4227..6734 <- Encode
+generated 6734..14661 <- Decode
+generated 14661..15547 <- __convenience_const
 
 ## Metadata
 

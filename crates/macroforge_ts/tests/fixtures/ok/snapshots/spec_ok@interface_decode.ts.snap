@@ -17,7 +17,7 @@ true
 
 ## Output
 
-import { ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, fieldRequirement as __mf_fieldRequirement, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Point {
@@ -29,7 +29,7 @@ interface Point {
 export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = pointDecodeWithContext(data, ctx);
@@ -117,7 +117,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
         const __raw_x = obj["x"] as number;
 
-        if (!(typeof __raw_x === "number")) {
+        if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
             errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
         } else {
             instance.x = __raw_x;
@@ -126,7 +126,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("y")) ? "y" in obj : (__fields.keeps("y") && obj["y"] !== undefined)) {
         const __raw_y = obj["y"] as number;
 
-        if (!(typeof __raw_y === "number")) {
+        if (!(typeof __raw_y === "number" && globalThis.Number.isFinite(__raw_y))) {
             errors.push({ field: "y", message: __raw_y == null ? "Point.y is required" : "expected number" });
         } else {
             instance.y = __raw_y;
@@ -221,11 +221,11 @@ export {};
 
 ## Mapping
 
-original 22..72 -> expanded 402..452
-original 72..73 -> expanded 6775..6776
-generated 0..402 <- imports
-generated 452..6149 <- Decode
-generated 6149..6775 <- __convenience_const
+original 22..72 -> expanded 433..483
+original 72..73 -> expanded 6889..6890
+generated 0..433 <- imports
+generated 483..6263 <- Decode
+generated 6263..6889 <- __convenience_const
 
 ## Metadata
 

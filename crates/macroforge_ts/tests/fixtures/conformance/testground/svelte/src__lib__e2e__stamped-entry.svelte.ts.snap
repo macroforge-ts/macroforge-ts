@@ -13,7 +13,7 @@ true
 ## Output
 
 import { slugDecodeWithContext, slugEncodeWithContext, slugDecode, stampedDecode, slugDefaultValue } from "./stamp";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedLiteral as __mf_decodedLiteral, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodedLiteral as __mf_decodedLiteral, decodeArray as __mf_decodeArray } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { DateTime } from "effect";
 import { __foreign__dateTimeDateTimeDefault, __foreign__dateTimeDateTimeEncode, __foreign__dateTimeDateTimeHasShape, __foreign__dateTimeDateTimeDecode } from "#macroforge/config";
@@ -76,7 +76,7 @@ function noteEncodeFields(value: Note, _ctx: __mf_EncodeContext, result: Record<
 export function noteDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Note } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = noteDecodeWithContext(data, ctx);
@@ -273,7 +273,7 @@ function labelEncodeFields(value: Label, ctx: __mf_EncodeContext, result: Record
 export function labelDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Label } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = labelDecodeWithContext(data, ctx);
@@ -522,7 +522,7 @@ function stampedEntryEncodeFields(value: StampedEntry, ctx: __mf_EncodeContext, 
 export function stampedEntryDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: StampedEntry } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = stampedEntryDecodeWithContext(data, ctx);
@@ -1001,29 +1001,29 @@ export declare const StampedEntry: {
 
 ## Mapping
 
-original 0..341 -> expanded 1052..1393
-original 380..424 -> expanded 1393..1437
-original 424..426 -> expanded 9725..9727
-original 465..508 -> expanded 9727..9770
-original 508..510 -> expanded 18647..18649
-original 549..680 -> expanded 18649..18780
-original 703..724 -> expanded 18780..18801
-original 759..782 -> expanded 18801..18824
-original 825..853 -> expanded 18824..18852
-original 853..854 -> expanded 36806..36807
-generated 0..1052 <- imports
-generated 1437..1521 <- Default
-generated 1521..3590 <- Encode
-generated 3590..8727 <- Decode
-generated 8727..9725 <- __convenience_const
-generated 9770..9872 <- Default
-generated 9872..11983 <- Encode
-generated 11983..17626 <- Decode
-generated 17626..18647 <- __convenience_const
-generated 18852..19238 <- Default
-generated 19238..22867 <- Encode
-generated 22867..35624 <- Decode
-generated 35624..36806 <- __convenience_const
+original 0..341 -> expanded 1083..1424
+original 380..424 -> expanded 1424..1468
+original 424..426 -> expanded 9761..9763
+original 465..508 -> expanded 9763..9806
+original 508..510 -> expanded 18688..18690
+original 549..680 -> expanded 18690..18821
+original 703..724 -> expanded 18821..18842
+original 759..782 -> expanded 18842..18865
+original 825..853 -> expanded 18865..18893
+original 853..854 -> expanded 36852..36853
+generated 0..1083 <- imports
+generated 1468..1552 <- Default
+generated 1552..3621 <- Encode
+generated 3621..8763 <- Decode
+generated 8763..9761 <- __convenience_const
+generated 9806..9908 <- Default
+generated 9908..12019 <- Encode
+generated 12019..17667 <- Decode
+generated 17667..18688 <- __convenience_const
+generated 18893..19279 <- Default
+generated 19279..22908 <- Encode
+generated 22908..35670 <- Decode
+generated 35670..36852 <- __convenience_const
 
 ## Metadata
 

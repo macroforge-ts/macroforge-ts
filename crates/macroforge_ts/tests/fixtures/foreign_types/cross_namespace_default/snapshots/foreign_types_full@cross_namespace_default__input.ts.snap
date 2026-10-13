@@ -21,7 +21,7 @@ true
 ## Output
 
 import { __foreign__dateTimeUtcDefault, __foreign__dateTimeUtcEncode, __foreign__dateTimeUtcDecode } from "#macroforge/config";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { DateTime } from 'effect';
 
@@ -83,7 +83,7 @@ function fooEncodeFields(value: Foo, _ctx: __mf_EncodeContext, result: Record<st
 export function fooDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Foo } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = fooDecodeWithContext(data, ctx);
@@ -301,15 +301,15 @@ export declare const Foo: {
 
 ## Mapping
 
-original 0..36 -> expanded 776..812
-original 75..103 -> expanded 812..840
-original 134..181 -> expanded 840..887
-original 181..182 -> expanded 9960..9961
-generated 0..776 <- imports
-generated 887..1031 <- Default
-generated 1031..3284 <- Encode
-generated 3284..8985 <- Decode
-generated 8985..9960 <- __convenience_const
+original 0..36 -> expanded 807..843
+original 75..103 -> expanded 843..871
+original 134..181 -> expanded 871..918
+original 181..182 -> expanded 9996..9997
+generated 0..807 <- imports
+generated 918..1062 <- Default
+generated 1062..3315 <- Encode
+generated 3315..9021 <- Decode
+generated 9021..9996 <- __convenience_const
 
 ## Metadata
 

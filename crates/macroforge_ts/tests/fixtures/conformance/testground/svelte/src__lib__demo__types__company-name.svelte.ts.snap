@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -71,7 +71,7 @@ function companyNameEncodeFields(value: CompanyName, _ctx: __mf_EncodeContext, r
 export function companyNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CompanyName } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = companyNameDecodeWithContext(data, ctx);
@@ -427,17 +427,17 @@ export declare const CompanyName: {
 
 ## Mapping
 
-original 0..58 -> expanded 807..865
-original 107..143 -> expanded 865..901
-original 192..197 -> expanded 901..906
-original 238..265 -> expanded 906..933
-original 265..266 -> expanded 14560..14561
-generated 0..807 <- imports
-generated 933..1038 <- Default
-generated 1038..3240 <- Encode
-generated 3240..9737 <- Decode
-generated 9737..13213 <- Gigaform
-generated 13213..14560 <- __convenience_const
+original 0..58 -> expanded 838..896
+original 107..143 -> expanded 896..932
+original 192..197 -> expanded 932..937
+original 238..265 -> expanded 937..964
+original 265..266 -> expanded 14596..14597
+generated 0..838 <- imports
+generated 964..1069 <- Default
+generated 1069..3271 <- Encode
+generated 3271..9773 <- Decode
+generated 9773..13249 <- Gigaform
+generated 13249..14596 <- __convenience_const
 
 ## Metadata
 

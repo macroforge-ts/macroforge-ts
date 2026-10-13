@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodedLiteral as __mf_decodedLiteral, decodeTuple as __mf_decodeTuple, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, decodedLiteral as __mf_decodedLiteral, decodeTuple as __mf_decodeTuple, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions, Encoder as __mf_Encoder, Decoder as __mf_Decoder } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController, ArrayFieldController } from "@testground/macro/gigaform";
@@ -163,7 +163,7 @@ function userEncodeFields(value: User, ctx: __mf_EncodeContext, result: Record<s
 export function userDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = userDecodeWithContext(data, ctx);
@@ -1248,7 +1248,7 @@ function serviceEncodeFields(value: Service, ctx: __mf_EncodeContext, result: Re
 export function serviceDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Service } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = serviceDecodeWithContext(data, ctx);
@@ -2038,7 +2038,7 @@ function serviceDefaultsEncodeFields(value: ServiceDefaults, _ctx: __mf_EncodeCo
 export function serviceDefaultsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ServiceDefaults } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = serviceDefaultsDecodeWithContext(data, ctx);
@@ -2126,7 +2126,7 @@ export function serviceDefaultsDecodeWithContext(value: unknown, ctx: __mf_Decod
     if ((__fields === undefined || __fields.requires("price")) ? "price" in obj : (__fields.keeps("price") && obj["price"] !== undefined)) {
         const __raw_price = obj["price"] as number;
 
-        if (!(typeof __raw_price === "number")) {
+        if (!(typeof __raw_price === "number" && globalThis.Number.isFinite(__raw_price))) {
             errors.push({ field: "price", message: __raw_price == null ? "ServiceDefaults.price is required" : "expected number" });
         } else {
             instance.price = __raw_price;
@@ -2432,7 +2432,7 @@ function didEncodeFields(value: Did, ctx: __mf_EncodeContext, result: Record<str
 export function didDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Did } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = didDecodeWithContext(data, ctx);
@@ -3015,7 +3015,7 @@ function personNameEncodeFields(value: PersonName, _ctx: __mf_EncodeContext, res
 export function personNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PersonName } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = personNameDecodeWithContext(data, ctx);
@@ -3390,7 +3390,7 @@ function promotionEncodeFields(value: Promotion, _ctx: __mf_EncodeContext, resul
 export function promotionDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Promotion } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = promotionDecodeWithContext(data, ctx);
@@ -3810,7 +3810,7 @@ function siteEncodeFields(value: Site, ctx: __mf_EncodeContext, result: Record<s
 export function siteDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Site } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = siteDecodeWithContext(data, ctx);
@@ -4688,7 +4688,7 @@ function metadataEncodeFields(value: Metadata, _ctx: __mf_EncodeContext, result:
 export function metadataDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Metadata } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = metadataDecodeWithContext(data, ctx);
@@ -5146,7 +5146,7 @@ function columnConfigEncodeFields(value: ColumnConfig, ctx: __mf_EncodeContext, 
 export function columnConfigDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ColumnConfig } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = columnConfigDecodeWithContext(data, ctx);
@@ -5568,7 +5568,7 @@ function phoneNumberEncodeFields(value: PhoneNumber, _ctx: __mf_EncodeContext, r
 export function phoneNumberDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PhoneNumber } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = phoneNumberDecodeWithContext(data, ctx);
@@ -6068,7 +6068,7 @@ function gradientEncodeFields(value: Gradient, _ctx: __mf_EncodeContext, result:
 export function gradientDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Gradient } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = gradientDecodeWithContext(data, ctx);
@@ -6153,7 +6153,7 @@ export function gradientDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     if ((__fields === undefined || __fields.requires("startHue")) ? "startHue" in obj : (__fields.keeps("startHue") && obj["startHue"] !== undefined)) {
         const __raw_startHue = obj["startHue"] as number;
 
-        if (!(typeof __raw_startHue === "number")) {
+        if (!(typeof __raw_startHue === "number" && globalThis.Number.isFinite(__raw_startHue))) {
             errors.push({ field: "startHue", message: __raw_startHue == null ? "Gradient.startHue is required" : "expected number" });
         } else {
             instance.startHue = __raw_startHue;
@@ -6443,7 +6443,7 @@ function productEncodeFields(value: Product, ctx: __mf_EncodeContext, result: Re
 export function productDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Product } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = productDecodeWithContext(data, ctx);
@@ -7182,7 +7182,7 @@ function yearlyRecurrenceRuleEncodeFields(value: YearlyRecurrenceRule, _ctx: __m
 export function yearlyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: YearlyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = yearlyRecurrenceRuleDecodeWithContext(data, ctx);
@@ -7267,7 +7267,7 @@ export function yearlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_
     if ((__fields === undefined || __fields.requires("quantityOfYears")) ? "quantityOfYears" in obj : (__fields.keeps("quantityOfYears") && obj["quantityOfYears"] !== undefined)) {
         const __raw_quantityOfYears = obj["quantityOfYears"] as number;
 
-        if (!(typeof __raw_quantityOfYears === "number")) {
+        if (!(typeof __raw_quantityOfYears === "number" && globalThis.Number.isFinite(__raw_quantityOfYears))) {
             errors.push({ field: "quantityOfYears", message: __raw_quantityOfYears == null ? "YearlyRecurrenceRule.quantityOfYears is required" : "expected number" });
         } else {
             instance.quantityOfYears = __raw_quantityOfYears;
@@ -7492,7 +7492,7 @@ function appointmentNotificationsEncodeFields(value: AppointmentNotifications, _
 export function appointmentNotificationsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AppointmentNotifications } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = appointmentNotificationsDecodeWithContext(data, ctx);
@@ -7867,7 +7867,7 @@ function directionHueEncodeFields(value: DirectionHue, _ctx: __mf_EncodeContext,
 export function directionHueDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DirectionHue } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = directionHueDecodeWithContext(data, ctx);
@@ -7955,7 +7955,7 @@ export function directionHueDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
     if ((__fields === undefined || __fields.requires("bearing")) ? "bearing" in obj : (__fields.keeps("bearing") && obj["bearing"] !== undefined)) {
         const __raw_bearing = obj["bearing"] as number;
 
-        if (!(typeof __raw_bearing === "number")) {
+        if (!(typeof __raw_bearing === "number" && globalThis.Number.isFinite(__raw_bearing))) {
             errors.push({ field: "bearing", message: __raw_bearing == null ? "DirectionHue.bearing is required" : "expected number" });
         } else {
             instance.bearing = __raw_bearing;
@@ -7964,7 +7964,7 @@ export function directionHueDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
     if ((__fields === undefined || __fields.requires("hue")) ? "hue" in obj : (__fields.keeps("hue") && obj["hue"] !== undefined)) {
         const __raw_hue = obj["hue"] as number;
 
-        if (!(typeof __raw_hue === "number")) {
+        if (!(typeof __raw_hue === "number" && globalThis.Number.isFinite(__raw_hue))) {
             errors.push({ field: "hue", message: __raw_hue == null ? "DirectionHue.hue is required" : "expected number" });
         } else {
             instance.hue = __raw_hue;
@@ -8228,7 +8228,7 @@ function monthlyRecurrenceRuleEncodeFields(value: MonthlyRecurrenceRule, _ctx: _
 export function monthlyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MonthlyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = monthlyRecurrenceRuleDecodeWithContext(data, ctx);
@@ -8319,7 +8319,7 @@ export function monthlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf
     if ((__fields === undefined || __fields.requires("quantityOfMonths")) ? "quantityOfMonths" in obj : (__fields.keeps("quantityOfMonths") && obj["quantityOfMonths"] !== undefined)) {
         const __raw_quantityOfMonths = obj["quantityOfMonths"] as number;
 
-        if (!(typeof __raw_quantityOfMonths === "number")) {
+        if (!(typeof __raw_quantityOfMonths === "number" && globalThis.Number.isFinite(__raw_quantityOfMonths))) {
             errors.push({ field: "quantityOfMonths", message: __raw_quantityOfMonths == null ? "MonthlyRecurrenceRule.quantityOfMonths is required" : "expected number" });
         } else {
             instance.quantityOfMonths = __raw_quantityOfMonths;
@@ -8328,7 +8328,7 @@ export function monthlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf
     if ((__fields === undefined || __fields.requires("day")) ? "day" in obj : (__fields.keeps("day") && obj["day"] !== undefined)) {
         const __raw_day = obj["day"] as number;
 
-        if (!(typeof __raw_day === "number")) {
+        if (!(typeof __raw_day === "number" && globalThis.Number.isFinite(__raw_day))) {
             errors.push({ field: "day", message: __raw_day == null ? "MonthlyRecurrenceRule.day is required" : "expected number" });
         } else {
             instance.day = __raw_day;
@@ -8653,7 +8653,7 @@ function representsEncodeFields(value: Represents, ctx: __mf_EncodeContext, resu
 export function representsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Represents } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = representsDecodeWithContext(data, ctx);
@@ -9116,7 +9116,7 @@ function paymentEncodeFields(value: Payment, _ctx: __mf_EncodeContext, result: R
 export function paymentDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Payment } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = paymentDecodeWithContext(data, ctx);
@@ -9532,7 +9532,7 @@ function settingsEncodeFields(value: Settings, ctx: __mf_EncodeContext, result: 
 export function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = settingsDecodeWithContext(data, ctx);
@@ -10710,7 +10710,7 @@ function colorEncodeFields(value: Color, _ctx: __mf_EncodeContext, result: Recor
 export function colorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Color } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = colorDecodeWithContext(data, ctx);
@@ -10801,7 +10801,7 @@ export function colorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("red")) ? "red" in obj : (__fields.keeps("red") && obj["red"] !== undefined)) {
         const __raw_red = obj["red"] as number;
 
-        if (!(typeof __raw_red === "number")) {
+        if (!(typeof __raw_red === "number" && globalThis.Number.isFinite(__raw_red))) {
             errors.push({ field: "red", message: __raw_red == null ? "Color.red is required" : "expected number" });
         } else {
             instance.red = __raw_red;
@@ -10810,7 +10810,7 @@ export function colorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("green")) ? "green" in obj : (__fields.keeps("green") && obj["green"] !== undefined)) {
         const __raw_green = obj["green"] as number;
 
-        if (!(typeof __raw_green === "number")) {
+        if (!(typeof __raw_green === "number" && globalThis.Number.isFinite(__raw_green))) {
             errors.push({ field: "green", message: __raw_green == null ? "Color.green is required" : "expected number" });
         } else {
             instance.green = __raw_green;
@@ -10819,7 +10819,7 @@ export function colorDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("blue")) ? "blue" in obj : (__fields.keeps("blue") && obj["blue"] !== undefined)) {
         const __raw_blue = obj["blue"] as number;
 
-        if (!(typeof __raw_blue === "number")) {
+        if (!(typeof __raw_blue === "number" && globalThis.Number.isFinite(__raw_blue))) {
             errors.push({ field: "blue", message: __raw_blue == null ? "Color.blue is required" : "expected number" });
         } else {
             instance.blue = __raw_blue;
@@ -11103,7 +11103,7 @@ function companyNameEncodeFields(value: CompanyName, _ctx: __mf_EncodeContext, r
 export function companyNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CompanyName } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = companyNameDecodeWithContext(data, ctx);
@@ -11528,7 +11528,7 @@ function appointmentEncodeFields(value: Appointment, ctx: __mf_EncodeContext, re
 export function appointmentDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Appointment } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = appointmentDecodeWithContext(data, ctx);
@@ -11705,7 +11705,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     if ((__fields === undefined || __fields.requires("duration")) ? "duration" in obj : (__fields.keeps("duration") && obj["duration"] !== undefined)) {
         const __raw_duration = obj["duration"] as number;
 
-        if (!(typeof __raw_duration === "number")) {
+        if (!(typeof __raw_duration === "number" && globalThis.Number.isFinite(__raw_duration))) {
             errors.push({ field: "duration", message: __raw_duration == null ? "Appointment.duration is required" : "expected number" });
         } else {
             instance.duration = __raw_duration;
@@ -11723,7 +11723,7 @@ export function appointmentDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     if ((__fields === undefined || __fields.requires("offsetMs")) ? "offsetMs" in obj : (__fields.keeps("offsetMs") && obj["offsetMs"] !== undefined)) {
         const __raw_offsetMs = obj["offsetMs"] as number;
 
-        if (!(typeof __raw_offsetMs === "number")) {
+        if (!(typeof __raw_offsetMs === "number" && globalThis.Number.isFinite(__raw_offsetMs))) {
             errors.push({ field: "offsetMs", message: __raw_offsetMs == null ? "Appointment.offsetMs is required" : "expected number" });
         } else {
             instance.offsetMs = __raw_offsetMs;
@@ -12547,7 +12547,7 @@ function packageEncodeFields(value: Package, _ctx: __mf_EncodeContext, result: R
 export function packageDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Package } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = packageDecodeWithContext(data, ctx);
@@ -12907,7 +12907,7 @@ function scheduleSettingsEncodeFields(value: ScheduleSettings, ctx: __mf_EncodeC
 export function scheduleSettingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ScheduleSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = scheduleSettingsDecodeWithContext(data, ctx);
@@ -13001,7 +13001,7 @@ export function scheduleSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
     if ((__fields === undefined || __fields.requires("daysPerWeek")) ? "daysPerWeek" in obj : (__fields.keeps("daysPerWeek") && obj["daysPerWeek"] !== undefined)) {
         const __raw_daysPerWeek = obj["daysPerWeek"] as number;
 
-        if (!(typeof __raw_daysPerWeek === "number")) {
+        if (!(typeof __raw_daysPerWeek === "number" && globalThis.Number.isFinite(__raw_daysPerWeek))) {
             errors.push({ field: "daysPerWeek", message: __raw_daysPerWeek == null ? "ScheduleSettings.daysPerWeek is required" : "expected number" });
         } else {
             instance.daysPerWeek = __raw_daysPerWeek;
@@ -13395,7 +13395,7 @@ function dailyRecurrenceRuleEncodeFields(value: DailyRecurrenceRule, _ctx: __mf_
 export function dailyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DailyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = dailyRecurrenceRuleDecodeWithContext(data, ctx);
@@ -13480,7 +13480,7 @@ export function dailyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_D
     if ((__fields === undefined || __fields.requires("quantityOfDays")) ? "quantityOfDays" in obj : (__fields.keeps("quantityOfDays") && obj["quantityOfDays"] !== undefined)) {
         const __raw_quantityOfDays = obj["quantityOfDays"] as number;
 
-        if (!(typeof __raw_quantityOfDays === "number")) {
+        if (!(typeof __raw_quantityOfDays === "number" && globalThis.Number.isFinite(__raw_quantityOfDays))) {
             errors.push({ field: "quantityOfDays", message: __raw_quantityOfDays == null ? "DailyRecurrenceRule.quantityOfDays is required" : "expected number" });
         } else {
             instance.quantityOfDays = __raw_quantityOfDays;
@@ -13724,7 +13724,7 @@ function signUpCredentialsEncodeFields(value: SignUpCredentials, ctx: __mf_Encod
 export function signUpCredentialsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SignUpCredentials } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = signUpCredentialsDecodeWithContext(data, ctx);
@@ -14347,7 +14347,7 @@ function overviewSettingsEncodeFields(value: OverviewSettings, ctx: __mf_EncodeC
 export function overviewSettingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OverviewSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = overviewSettingsDecodeWithContext(data, ctx);
@@ -14487,7 +14487,7 @@ export function overviewSettingsDecodeWithContext(value: unknown, ctx: __mf_Deco
     if ((__fields === undefined || __fields.requires("perPage")) ? "perPage" in obj : (__fields.keeps("perPage") && obj["perPage"] !== undefined)) {
         const __raw_perPage = obj["perPage"] as number;
 
-        if (!(typeof __raw_perPage === "number")) {
+        if (!(typeof __raw_perPage === "number" && globalThis.Number.isFinite(__raw_perPage))) {
             errors.push({ field: "perPage", message: __raw_perPage == null ? "OverviewSettings.perPage is required" : "expected number" });
         } else {
             instance.perPage = __raw_perPage;
@@ -14889,7 +14889,7 @@ function firstNameEncodeFields(value: FirstName, _ctx: __mf_EncodeContext, resul
 export function firstNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: FirstName } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = firstNameDecodeWithContext(data, ctx);
@@ -15377,7 +15377,7 @@ function accountEncodeFields(value: Account, ctx: __mf_EncodeContext, result: Re
 export function accountDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = accountDecodeWithContext(data, ctx);
@@ -17054,7 +17054,7 @@ function editedEncodeFields(value: Edited, _ctx: __mf_EncodeContext, result: Rec
 export function editedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Edited } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = editedDecodeWithContext(data, ctx);
@@ -17685,7 +17685,7 @@ function orderEncodeFields(value: Order, ctx: __mf_EncodeContext, result: Record
 export function orderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Order } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = orderDecodeWithContext(data, ctx);
@@ -17913,7 +17913,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("number")) ? "number" in obj : (__fields.keeps("number") && obj["number"] !== undefined)) {
         const __raw_number = obj["number"] as number;
 
-        if (!(typeof __raw_number === "number")) {
+        if (!(typeof __raw_number === "number" && globalThis.Number.isFinite(__raw_number))) {
             errors.push({ field: "number", message: __raw_number == null ? "Order.number is required" : "expected number" });
         } else {
             instance.number = __raw_number;
@@ -18063,7 +18063,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("upsale")) ? "upsale" in obj : (__fields.keeps("upsale") && obj["upsale"] !== undefined)) {
         const __raw_upsale = obj["upsale"] as number;
 
-        if (!(typeof __raw_upsale === "number")) {
+        if (!(typeof __raw_upsale === "number" && globalThis.Number.isFinite(__raw_upsale))) {
             errors.push({ field: "upsale", message: __raw_upsale == null ? "Order.upsale is required" : "expected number" });
         } else {
             instance.upsale = __raw_upsale;
@@ -18190,7 +18190,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("balance")) ? "balance" in obj : (__fields.keeps("balance") && obj["balance"] !== undefined)) {
         const __raw_balance = obj["balance"] as number;
 
-        if (!(typeof __raw_balance === "number")) {
+        if (!(typeof __raw_balance === "number" && globalThis.Number.isFinite(__raw_balance))) {
             errors.push({ field: "balance", message: __raw_balance == null ? "Order.balance is required" : "expected number" });
         } else {
             instance.balance = __raw_balance;
@@ -18208,7 +18208,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("total")) ? "total" in obj : (__fields.keeps("total") && obj["total"] !== undefined)) {
         const __raw_total = obj["total"] as number;
 
-        if (!(typeof __raw_total === "number")) {
+        if (!(typeof __raw_total === "number" && globalThis.Number.isFinite(__raw_total))) {
             errors.push({ field: "total", message: __raw_total == null ? "Order.total is required" : "expected number" });
         } else {
             instance.total = __raw_total;
@@ -18280,7 +18280,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("discount")) ? "discount" in obj : (__fields.keeps("discount") && obj["discount"] !== undefined)) {
         const __raw_discount = obj["discount"] as number;
 
-        if (!(typeof __raw_discount === "number")) {
+        if (!(typeof __raw_discount === "number" && globalThis.Number.isFinite(__raw_discount))) {
             errors.push({ field: "discount", message: __raw_discount == null ? "Order.discount is required" : "expected number" });
         } else {
             instance.discount = __raw_discount;
@@ -18289,7 +18289,7 @@ export function orderDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("tip")) ? "tip" in obj : (__fields.keeps("tip") && obj["tip"] !== undefined)) {
         const __raw_tip = obj["tip"] as number;
 
-        if (!(typeof __raw_tip === "number")) {
+        if (!(typeof __raw_tip === "number" && globalThis.Number.isFinite(__raw_tip))) {
             errors.push({ field: "tip", message: __raw_tip == null ? "Order.tip is required" : "expected number" });
         } else {
             instance.tip = __raw_tip;
@@ -19549,7 +19549,7 @@ function commentedEncodeFields(value: Commented, _ctx: __mf_EncodeContext, resul
 export function commentedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Commented } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = commentedDecodeWithContext(data, ctx);
@@ -19902,7 +19902,7 @@ function customEncodeFields(value: Custom, ctx: __mf_EncodeContext, result: Reco
 export function customDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Custom } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = customDecodeWithContext(data, ctx);
@@ -20265,7 +20265,7 @@ function colorsEncodeFields(value: Colors, _ctx: __mf_EncodeContext, result: Rec
 export function colorsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Colors } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = colorsDecodeWithContext(data, ctx);
@@ -20699,7 +20699,7 @@ function productDefaultsEncodeFields(value: ProductDefaults, _ctx: __mf_EncodeCo
 export function productDefaultsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ProductDefaults } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = productDefaultsDecodeWithContext(data, ctx);
@@ -20787,7 +20787,7 @@ export function productDefaultsDecodeWithContext(value: unknown, ctx: __mf_Decod
     if ((__fields === undefined || __fields.requires("price")) ? "price" in obj : (__fields.keeps("price") && obj["price"] !== undefined)) {
         const __raw_price = obj["price"] as number;
 
-        if (!(typeof __raw_price === "number")) {
+        if (!(typeof __raw_price === "number" && globalThis.Number.isFinite(__raw_price))) {
             errors.push({ field: "price", message: __raw_price == null ? "ProductDefaults.price is required" : "expected number" });
         } else {
             instance.price = __raw_price;
@@ -21063,7 +21063,7 @@ function viewedEncodeFields(value: Viewed, _ctx: __mf_EncodeContext, result: Rec
 export function viewedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Viewed } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = viewedDecodeWithContext(data, ctx);
@@ -21151,7 +21151,7 @@ export function viewedDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
     if ((__fields === undefined || __fields.requires("durationSeconds")) ? "durationSeconds" in obj : (__fields.keeps("durationSeconds") && obj["durationSeconds"] !== undefined)) {
         const __raw_durationSeconds = obj["durationSeconds"] as number | null;
 
-        if (!(typeof __raw_durationSeconds === "number" || __raw_durationSeconds === null)) {
+        if (!(typeof __raw_durationSeconds === "number" && globalThis.Number.isFinite(__raw_durationSeconds) || __raw_durationSeconds === null)) {
             errors.push({ field: "durationSeconds", message: "expected number | null" });
         } else {
             instance.durationSeconds = __raw_durationSeconds;
@@ -21412,7 +21412,7 @@ function weeklyRecurrenceRuleEncodeFields(value: WeeklyRecurrenceRule, ctx: __mf
 export function weeklyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: WeeklyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = weeklyRecurrenceRuleDecodeWithContext(data, ctx);
@@ -21500,7 +21500,7 @@ export function weeklyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf_
     if ((__fields === undefined || __fields.requires("quantityOfWeeks")) ? "quantityOfWeeks" in obj : (__fields.keeps("quantityOfWeeks") && obj["quantityOfWeeks"] !== undefined)) {
         const __raw_quantityOfWeeks = obj["quantityOfWeeks"] as number;
 
-        if (!(typeof __raw_quantityOfWeeks === "number")) {
+        if (!(typeof __raw_quantityOfWeeks === "number" && globalThis.Number.isFinite(__raw_quantityOfWeeks))) {
             errors.push({ field: "quantityOfWeeks", message: __raw_quantityOfWeeks == null ? "WeeklyRecurrenceRule.quantityOfWeeks is required" : "expected number" });
         } else {
             instance.quantityOfWeeks = __raw_quantityOfWeeks;
@@ -21817,7 +21817,7 @@ function paidEncodeFields(value: Paid, _ctx: __mf_EncodeContext, result: Record<
 export function paidDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Paid } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = paidDecodeWithContext(data, ctx);
@@ -21908,7 +21908,7 @@ export function paidDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
     if ((__fields === undefined || __fields.requires("amount")) ? "amount" in obj : (__fields.keeps("amount") && obj["amount"] !== undefined)) {
         const __raw_amount = obj["amount"] as number | null;
 
-        if (!(typeof __raw_amount === "number" || __raw_amount === null)) {
+        if (!(typeof __raw_amount === "number" && globalThis.Number.isFinite(__raw_amount) || __raw_amount === null)) {
             errors.push({ field: "amount", message: "expected number | null" });
         } else {
             instance.amount = __raw_amount;
@@ -22280,7 +22280,7 @@ function taxRateEncodeFields(value: TaxRate, _ctx: __mf_EncodeContext, result: R
 export function taxRateDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TaxRate } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = taxRateDecodeWithContext(data, ctx);
@@ -22425,7 +22425,7 @@ export function taxRateDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("zip")) ? "zip" in obj : (__fields.keeps("zip") && obj["zip"] !== undefined)) {
         const __raw_zip = obj["zip"] as number;
 
-        if (!(typeof __raw_zip === "number")) {
+        if (!(typeof __raw_zip === "number" && globalThis.Number.isFinite(__raw_zip))) {
             errors.push({ field: "zip", message: __raw_zip == null ? "TaxRate.zip is required" : "expected number" });
         } else {
             instance.zip = __raw_zip;
@@ -23083,7 +23083,7 @@ function addressEncodeFields(value: Address, _ctx: __mf_EncodeContext, result: R
 export function addressDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Address } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = addressDecodeWithContext(data, ctx);
@@ -23822,7 +23822,7 @@ function leadEncodeFields(value: Lead, ctx: __mf_EncodeContext, result: Record<s
 export function leadDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Lead } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = leadDecodeWithContext(data, ctx);
@@ -24009,7 +24009,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
     if ((__fields === undefined || __fields.requires("number")) ? "number" in obj : (__fields.keeps("number") && obj["number"] !== undefined)) {
         const __raw_number = obj["number"] as number | null;
 
-        if (!(typeof __raw_number === "number" || __raw_number === null)) {
+        if (!(typeof __raw_number === "number" && globalThis.Number.isFinite(__raw_number) || __raw_number === null)) {
             errors.push({ field: "number", message: "expected number | null" });
         } else {
             instance.number = __raw_number;
@@ -24027,7 +24027,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
     if ((__fields === undefined || __fields.requires("probability")) ? "probability" in obj : (__fields.keeps("probability") && obj["probability"] !== undefined)) {
         const __raw_probability = obj["probability"] as number;
 
-        if (!(typeof __raw_probability === "number")) {
+        if (!(typeof __raw_probability === "number" && globalThis.Number.isFinite(__raw_probability))) {
             errors.push({ field: "probability", message: __raw_probability == null ? "Lead.probability is required" : "expected number" });
         } else {
             instance.probability = __raw_probability;
@@ -24077,7 +24077,7 @@ export function leadDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, _
     if ((__fields === undefined || __fields.requires("value")) ? "value" in obj : (__fields.keeps("value") && obj["value"] !== undefined)) {
         const __raw_value = obj["value"] as number;
 
-        if (!(typeof __raw_value === "number")) {
+        if (!(typeof __raw_value === "number" && globalThis.Number.isFinite(__raw_value))) {
             errors.push({ field: "value", message: __raw_value == null ? "Lead.value is required" : "expected number" });
         } else {
             instance.value = __raw_value;
@@ -25893,7 +25893,7 @@ function appPermissionsEncodeFields(value: AppPermissions, ctx: __mf_EncodeConte
 export function appPermissionsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AppPermissions } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = appPermissionsDecodeWithContext(data, ctx);
@@ -26628,7 +26628,7 @@ function companyEncodeFields(value: Company, ctx: __mf_EncodeContext, result: Re
 export function companyDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Company } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = companyDecodeWithContext(data, ctx);
@@ -26917,7 +26917,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("referenceNumber")) ? "referenceNumber" in obj : (__fields.keeps("referenceNumber") && obj["referenceNumber"] !== undefined)) {
         const __raw_referenceNumber = obj["referenceNumber"] as number;
 
-        if (!(typeof __raw_referenceNumber === "number")) {
+        if (!(typeof __raw_referenceNumber === "number" && globalThis.Number.isFinite(__raw_referenceNumber))) {
             errors.push({ field: "referenceNumber", message: __raw_referenceNumber == null ? "Company.referenceNumber is required" : "expected number" });
         } else {
             instance.referenceNumber = __raw_referenceNumber;
@@ -26986,7 +26986,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("defaultAreaCode")) ? "defaultAreaCode" in obj : (__fields.keeps("defaultAreaCode") && obj["defaultAreaCode"] !== undefined)) {
         const __raw_defaultAreaCode = obj["defaultAreaCode"] as number;
 
-        if (!(typeof __raw_defaultAreaCode === "number")) {
+        if (!(typeof __raw_defaultAreaCode === "number" && globalThis.Number.isFinite(__raw_defaultAreaCode))) {
             errors.push({ field: "defaultAreaCode", message: __raw_defaultAreaCode == null ? "Company.defaultAreaCode is required" : "expected number" });
         } else {
             instance.defaultAreaCode = __raw_defaultAreaCode;
@@ -27124,7 +27124,7 @@ export function companyDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("scheduleInterval")) ? "scheduleInterval" in obj : (__fields.keeps("scheduleInterval") && obj["scheduleInterval"] !== undefined)) {
         const __raw_scheduleInterval = obj["scheduleInterval"] as number;
 
-        if (!(typeof __raw_scheduleInterval === "number")) {
+        if (!(typeof __raw_scheduleInterval === "number" && globalThis.Number.isFinite(__raw_scheduleInterval))) {
             errors.push({ field: "scheduleInterval", message: __raw_scheduleInterval == null ? "Company.scheduleInterval is required" : "expected number" });
         } else {
             instance.scheduleInterval = __raw_scheduleInterval;
@@ -28442,7 +28442,7 @@ function ordinalEncodeFields(value: Ordinal, _ctx: __mf_EncodeContext, result: R
 export function ordinalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Ordinal } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = ordinalDecodeWithContext(data, ctx);
@@ -28548,7 +28548,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("north")) ? "north" in obj : (__fields.keeps("north") && obj["north"] !== undefined)) {
         const __raw_north = obj["north"] as number;
 
-        if (!(typeof __raw_north === "number")) {
+        if (!(typeof __raw_north === "number" && globalThis.Number.isFinite(__raw_north))) {
             errors.push({ field: "north", message: __raw_north == null ? "Ordinal.north is required" : "expected number" });
         } else {
             instance.north = __raw_north;
@@ -28557,7 +28557,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("northeast")) ? "northeast" in obj : (__fields.keeps("northeast") && obj["northeast"] !== undefined)) {
         const __raw_northeast = obj["northeast"] as number;
 
-        if (!(typeof __raw_northeast === "number")) {
+        if (!(typeof __raw_northeast === "number" && globalThis.Number.isFinite(__raw_northeast))) {
             errors.push({ field: "northeast", message: __raw_northeast == null ? "Ordinal.northeast is required" : "expected number" });
         } else {
             instance.northeast = __raw_northeast;
@@ -28566,7 +28566,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("east")) ? "east" in obj : (__fields.keeps("east") && obj["east"] !== undefined)) {
         const __raw_east = obj["east"] as number;
 
-        if (!(typeof __raw_east === "number")) {
+        if (!(typeof __raw_east === "number" && globalThis.Number.isFinite(__raw_east))) {
             errors.push({ field: "east", message: __raw_east == null ? "Ordinal.east is required" : "expected number" });
         } else {
             instance.east = __raw_east;
@@ -28575,7 +28575,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("southeast")) ? "southeast" in obj : (__fields.keeps("southeast") && obj["southeast"] !== undefined)) {
         const __raw_southeast = obj["southeast"] as number;
 
-        if (!(typeof __raw_southeast === "number")) {
+        if (!(typeof __raw_southeast === "number" && globalThis.Number.isFinite(__raw_southeast))) {
             errors.push({ field: "southeast", message: __raw_southeast == null ? "Ordinal.southeast is required" : "expected number" });
         } else {
             instance.southeast = __raw_southeast;
@@ -28584,7 +28584,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("south")) ? "south" in obj : (__fields.keeps("south") && obj["south"] !== undefined)) {
         const __raw_south = obj["south"] as number;
 
-        if (!(typeof __raw_south === "number")) {
+        if (!(typeof __raw_south === "number" && globalThis.Number.isFinite(__raw_south))) {
             errors.push({ field: "south", message: __raw_south == null ? "Ordinal.south is required" : "expected number" });
         } else {
             instance.south = __raw_south;
@@ -28593,7 +28593,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("southwest")) ? "southwest" in obj : (__fields.keeps("southwest") && obj["southwest"] !== undefined)) {
         const __raw_southwest = obj["southwest"] as number;
 
-        if (!(typeof __raw_southwest === "number")) {
+        if (!(typeof __raw_southwest === "number" && globalThis.Number.isFinite(__raw_southwest))) {
             errors.push({ field: "southwest", message: __raw_southwest == null ? "Ordinal.southwest is required" : "expected number" });
         } else {
             instance.southwest = __raw_southwest;
@@ -28602,7 +28602,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("west")) ? "west" in obj : (__fields.keeps("west") && obj["west"] !== undefined)) {
         const __raw_west = obj["west"] as number;
 
-        if (!(typeof __raw_west === "number")) {
+        if (!(typeof __raw_west === "number" && globalThis.Number.isFinite(__raw_west))) {
             errors.push({ field: "west", message: __raw_west == null ? "Ordinal.west is required" : "expected number" });
         } else {
             instance.west = __raw_west;
@@ -28611,7 +28611,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("northwest")) ? "northwest" in obj : (__fields.keeps("northwest") && obj["northwest"] !== undefined)) {
         const __raw_northwest = obj["northwest"] as number;
 
-        if (!(typeof __raw_northwest === "number")) {
+        if (!(typeof __raw_northwest === "number" && globalThis.Number.isFinite(__raw_northwest))) {
             errors.push({ field: "northwest", message: __raw_northwest == null ? "Ordinal.northwest is required" : "expected number" });
         } else {
             instance.northwest = __raw_northwest;
@@ -29059,7 +29059,7 @@ function passwordEncodeFields(value: Password, _ctx: __mf_EncodeContext, result:
 export function passwordDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Password } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = passwordDecodeWithContext(data, ctx);
@@ -29371,7 +29371,7 @@ function createdEncodeFields(value: Created, _ctx: __mf_EncodeContext, result: R
 export function createdDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Created } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = createdDecodeWithContext(data, ctx);
@@ -29793,7 +29793,7 @@ function employeeEncodeFields(value: Employee, ctx: __mf_EncodeContext, result: 
 export function employeeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Employee } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = employeeDecodeWithContext(data, ctx);
@@ -30092,7 +30092,7 @@ export function employeeDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     if ((__fields === undefined || __fields.requires("ratePerHour")) ? "ratePerHour" in obj : (__fields.keeps("ratePerHour") && obj["ratePerHour"] !== undefined)) {
         const __raw_ratePerHour = obj["ratePerHour"] as number;
 
-        if (!(typeof __raw_ratePerHour === "number")) {
+        if (!(typeof __raw_ratePerHour === "number" && globalThis.Number.isFinite(__raw_ratePerHour))) {
             errors.push({ field: "ratePerHour", message: __raw_ratePerHour == null ? "Employee.ratePerHour is required" : "expected number" });
         } else {
             instance.ratePerHour = __raw_ratePerHour;
@@ -31065,7 +31065,7 @@ function commissionsEncodeFields(value: Commissions, _ctx: __mf_EncodeContext, r
 export function commissionsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Commissions } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = commissionsDecodeWithContext(data, ctx);
@@ -31450,7 +31450,7 @@ function numberEncodeFields(value: Number, _ctx: __mf_EncodeContext, result: Rec
 export function numberDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Number } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = numberDecodeWithContext(data, ctx);
@@ -31881,7 +31881,7 @@ function dataPathEncodeFields(value: DataPath, _ctx: __mf_EncodeContext, result:
 export function dataPathDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DataPath } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = dataPathDecodeWithContext(data, ctx);
@@ -32319,7 +32319,7 @@ function routeEncodeFields(value: Route, ctx: __mf_EncodeContext, result: Record
 export function routeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Route } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = routeDecodeWithContext(data, ctx);
@@ -32526,7 +32526,7 @@ export function routeDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("defaultDurationHours")) ? "defaultDurationHours" in obj : (__fields.keeps("defaultDurationHours") && obj["defaultDurationHours"] !== undefined)) {
         const __raw_defaultDurationHours = obj["defaultDurationHours"] as number;
 
-        if (!(typeof __raw_defaultDurationHours === "number")) {
+        if (!(typeof __raw_defaultDurationHours === "number" && globalThis.Number.isFinite(__raw_defaultDurationHours))) {
             errors.push({ field: "defaultDurationHours", message: __raw_defaultDurationHours == null ? "Route.defaultDurationHours is required" : "expected number" });
         } else {
             instance.defaultDurationHours = __raw_defaultDurationHours;
@@ -33145,7 +33145,7 @@ function emailPartsEncodeFields(value: EmailParts, _ctx: __mf_EncodeContext, res
 export function emailPartsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EmailParts } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = emailPartsDecodeWithContext(data, ctx);
@@ -33576,7 +33576,7 @@ function sentEncodeFields(value: Sent, _ctx: __mf_EncodeContext, result: Record<
 export function sentDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Sent } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = sentDecodeWithContext(data, ctx);
@@ -33940,7 +33940,7 @@ function billedItemEncodeFields(value: BilledItem, ctx: __mf_EncodeContext, resu
 export function billedItemDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: BilledItem } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = billedItemDecodeWithContext(data, ctx);
@@ -34057,7 +34057,7 @@ export function billedItemDecodeWithContext(value: unknown, ctx: __mf_DecodeCont
     if ((__fields === undefined || __fields.requires("quantity")) ? "quantity" in obj : (__fields.keeps("quantity") && obj["quantity"] !== undefined)) {
         const __raw_quantity = obj["quantity"] as number;
 
-        if (!(typeof __raw_quantity === "number")) {
+        if (!(typeof __raw_quantity === "number" && globalThis.Number.isFinite(__raw_quantity))) {
             errors.push({ field: "quantity", message: __raw_quantity == null ? "BilledItem.quantity is required" : "expected number" });
         } else {
             instance.quantity = __raw_quantity;
@@ -34411,7 +34411,7 @@ function coordinatesEncodeFields(value: Coordinates, _ctx: __mf_EncodeContext, r
 export function coordinatesDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Coordinates } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = coordinatesDecodeWithContext(data, ctx);
@@ -34499,7 +34499,7 @@ export function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     if ((__fields === undefined || __fields.requires("lat")) ? "lat" in obj : (__fields.keeps("lat") && obj["lat"] !== undefined)) {
         const __raw_lat = obj["lat"] as number;
 
-        if (!(typeof __raw_lat === "number")) {
+        if (!(typeof __raw_lat === "number" && globalThis.Number.isFinite(__raw_lat))) {
             errors.push({ field: "lat", message: __raw_lat == null ? "Coordinates.lat is required" : "expected number" });
         } else {
             instance.lat = __raw_lat;
@@ -34508,7 +34508,7 @@ export function coordinatesDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     if ((__fields === undefined || __fields.requires("lng")) ? "lng" in obj : (__fields.keeps("lng") && obj["lng"] !== undefined)) {
         const __raw_lng = obj["lng"] as number;
 
-        if (!(typeof __raw_lng === "number")) {
+        if (!(typeof __raw_lng === "number" && globalThis.Number.isFinite(__raw_lng))) {
             errors.push({ field: "lng", message: __raw_lng == null ? "Coordinates.lng is required" : "expected number" });
         } else {
             instance.lng = __raw_lng;
@@ -34780,7 +34780,7 @@ function orderedEncodeFields(value: Ordered, ctx: __mf_EncodeContext, result: Re
 export function orderedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Ordered } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = orderedDecodeWithContext(data, ctx);
@@ -35246,7 +35246,7 @@ function emailEncodeFields(value: Email, _ctx: __mf_EncodeContext, result: Recor
 export function emailDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Email } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = emailDecodeWithContext(data, ctx);
@@ -35633,7 +35633,7 @@ function recurrenceRuleEncodeFields(value: RecurrenceRule, ctx: __mf_EncodeConte
 export function recurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: RecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = recurrenceRuleDecodeWithContext(data, ctx);
@@ -36187,7 +36187,7 @@ function lastNameEncodeFields(value: LastName, _ctx: __mf_EncodeContext, result:
 export function lastNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LastName } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = lastNameDecodeWithContext(data, ctx);
@@ -36520,7 +36520,7 @@ function cardinalEncodeFields(value: Cardinal, _ctx: __mf_EncodeContext, result:
 export function cardinalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Cardinal } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = cardinalDecodeWithContext(data, ctx);
@@ -36614,7 +36614,7 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     if ((__fields === undefined || __fields.requires("north")) ? "north" in obj : (__fields.keeps("north") && obj["north"] !== undefined)) {
         const __raw_north = obj["north"] as number;
 
-        if (!(typeof __raw_north === "number")) {
+        if (!(typeof __raw_north === "number" && globalThis.Number.isFinite(__raw_north))) {
             errors.push({ field: "north", message: __raw_north == null ? "Cardinal.north is required" : "expected number" });
         } else {
             instance.north = __raw_north;
@@ -36623,7 +36623,7 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     if ((__fields === undefined || __fields.requires("east")) ? "east" in obj : (__fields.keeps("east") && obj["east"] !== undefined)) {
         const __raw_east = obj["east"] as number;
 
-        if (!(typeof __raw_east === "number")) {
+        if (!(typeof __raw_east === "number" && globalThis.Number.isFinite(__raw_east))) {
             errors.push({ field: "east", message: __raw_east == null ? "Cardinal.east is required" : "expected number" });
         } else {
             instance.east = __raw_east;
@@ -36632,7 +36632,7 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     if ((__fields === undefined || __fields.requires("south")) ? "south" in obj : (__fields.keeps("south") && obj["south"] !== undefined)) {
         const __raw_south = obj["south"] as number;
 
-        if (!(typeof __raw_south === "number")) {
+        if (!(typeof __raw_south === "number" && globalThis.Number.isFinite(__raw_south))) {
             errors.push({ field: "south", message: __raw_south == null ? "Cardinal.south is required" : "expected number" });
         } else {
             instance.south = __raw_south;
@@ -36641,7 +36641,7 @@ export function cardinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     if ((__fields === undefined || __fields.requires("west")) ? "west" in obj : (__fields.keeps("west") && obj["west"] !== undefined)) {
         const __raw_west = obj["west"] as number;
 
-        if (!(typeof __raw_west === "number")) {
+        if (!(typeof __raw_west === "number" && globalThis.Number.isFinite(__raw_west))) {
             errors.push({ field: "west", message: __raw_west == null ? "Cardinal.west is required" : "expected number" });
         } else {
             instance.west = __raw_west;
@@ -36961,7 +36961,7 @@ export function intervalEncodeWithContext(value: Interval, ctx: __mf_EncodeConte
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function intervalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Interval } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = intervalDecodeWithContext(data, ctx);
@@ -38368,7 +38368,7 @@ export function targetEncodeWithContext(value: Target, ctx: __mf_EncodeContext):
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function targetDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Target } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = targetDecodeWithContext(data, ctx);
@@ -39181,7 +39181,7 @@ export function recurrenceEndDecodeWithContext(value: unknown, ctx: __mf_DecodeC
     }
 
     
-    if (typeof value === "number") {
+    if ((typeof value === "number" && globalThis.Number.isFinite(value))) {
         return value as RecurrenceEnd;
     }
     if (typeof value === "string") {
@@ -39194,7 +39194,7 @@ export function recurrenceEndDecodeWithContext(value: unknown, ctx: __mf_DecodeC
     }]);
 }
 export function recurrenceEndHasShape(value: unknown): boolean {
-                return typeof value === "number" || typeof value === "string";
+                return (typeof value === "number" && globalThis.Number.isFinite(value)) || typeof value === "string";
 }
 export function recurrenceEndIs(value: unknown): value is RecurrenceEnd {
     return recurrenceEndHasShape(value);
@@ -41240,7 +41240,7 @@ export function accountNameEncodeWithContext(value: AccountName, ctx: __mf_Encod
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function accountNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AccountName } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = accountNameDecodeWithContext(data, ctx);
@@ -42415,7 +42415,7 @@ export function colorsConfigEncodeWithContext(value: ColorsConfig, ctx: __mf_Enc
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function colorsConfigDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ColorsConfig } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = colorsConfigDecodeWithContext(data, ctx);
@@ -43101,7 +43101,7 @@ export function activityTypeEncodeWithContext(value: ActivityType, ctx: __mf_Enc
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function activityTypeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ActivityType } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = activityTypeDecodeWithContext(data, ctx);
@@ -44604,7 +44604,7 @@ export function itemEncodeWithContext(value: Item, ctx: __mf_EncodeContext): unk
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function itemDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Item } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = itemDecodeWithContext(data, ctx);
@@ -45070,7 +45070,7 @@ export function actorEncodeWithContext(value: Actor, ctx: __mf_EncodeContext): u
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function actorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Actor } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = actorDecodeWithContext(data, ctx);
@@ -54834,865 +54834,865 @@ export declare const Actor: {
 
 ## Mapping
 
-original 0..58 -> expanded 1161..1219
-original 107..178 -> expanded 1219..1290
-original 219..247 -> expanded 1290..1318
-original 288..399 -> expanded 1318..1429
-original 431..672 -> expanded 1429..1670
-original 672..674 -> expanded 48437..48439
-original 723..755 -> expanded 48439..48471
-original 783..804 -> expanded 48471..48492
-original 845..850 -> expanded 48492..48497
-original 891..914 -> expanded 48497..48520
-original 961..966 -> expanded 48520..48525
-original 1007..1035 -> expanded 48525..48553
-original 1100..1131 -> expanded 48553..48584
-original 1199..1233 -> expanded 48584..48618
-original 1297..1327 -> expanded 48618..48648
-original 1372..1398 -> expanded 48648..48674
-original 1447..1477 -> expanded 48674..48704
-original 1524..1552 -> expanded 48704..48732
-original 1601..1666 -> expanded 48732..48797
-original 1666..1668 -> expanded 83990..83992
-original 1717..1757 -> expanded 83992..84032
-original 1821..1845 -> expanded 84032..84056
-original 1897..1902 -> expanded 84056..84061
-original 1943..1970 -> expanded 84061..84088
-original 1970..1972 -> expanded 100206..100208
-original 2021..2049 -> expanded 100208..100236
-original 2068..2097 -> expanded 100236..100265
-original 2116..2244 -> expanded 100265..100393
-original 2244..2246 -> expanded 124402..124404
-original 2295..2330 -> expanded 124404..124439
-original 2377..2382 -> expanded 124439..124444
-original 2423..2451 -> expanded 124444..124472
-original 2497..2502 -> expanded 124472..124477
-original 2543..2567 -> expanded 124477..124501
-original 2567..2569 -> expanded 140914..140916
-original 2618..2683 -> expanded 140916..140981
-original 2683..2685 -> expanded 154857..154859
-original 2734..2779 -> expanded 154859..154904
-original 2820..2922 -> expanded 154904..155006
-original 2963..3080 -> expanded 155006..155123
-original 3121..3164 -> expanded 155123..155166
-original 3205..3231 -> expanded 155166..155192
-original 3272..3365 -> expanded 155192..155285
-original 3365..3367 -> expanded 198500..198502
-original 3416..3548 -> expanded 198502..198634
-original 3548..3550 -> expanded 218215..218217
-original 3599..3636 -> expanded 218217..218254
-original 3677..3724 -> expanded 218254..218301
-original 3724..3726 -> expanded 235071..235073
-original 3775..3811 -> expanded 235073..235109
-original 3854..3878 -> expanded 235109..235133
-original 3948..3953 -> expanded 235133..235138
-original 3994..4022 -> expanded 235138..235166
-original 4065..4070 -> expanded 235166..235171
-original 4111..4136 -> expanded 235171..235196
-original 4183..4210 -> expanded 235196..235223
-original 4257..4281 -> expanded 235223..235247
-original 4281..4283 -> expanded 257805..257807
-original 4332..4384 -> expanded 257807..257859
-original 4384..4386 -> expanded 270219..270221
-original 4435..4467 -> expanded 270221..270253
-original 4495..4516 -> expanded 270253..270274
-original 4557..4562 -> expanded 270274..270279
-original 4603..4626 -> expanded 270279..270302
-original 4673..4678 -> expanded 270302..270307
-original 4719..4747 -> expanded 270307..270335
-original 4812..4843 -> expanded 270335..270366
-original 4911..4945 -> expanded 270366..270400
-original 5009..5039 -> expanded 270400..270430
-original 5084..5110 -> expanded 270430..270456
-original 5159..5189 -> expanded 270456..270486
-original 5236..5292 -> expanded 270486..270542
-original 5292..5294 -> expanded 303599..303601
-original 5343..5414 -> expanded 303601..303672
-original 5414..5416 -> expanded 317592..317594
-original 5465..5514 -> expanded 317594..317643
-original 5555..5609 -> expanded 317643..317697
-original 5650..5696 -> expanded 317697..317743
-original 5696..5698 -> expanded 338630..338632
-original 5747..5819 -> expanded 338632..338704
-original 5819..5821 -> expanded 353390..353392
-original 5870..5963 -> expanded 353392..353485
-original 6004..6024 -> expanded 353485..353505
-original 6024..6026 -> expanded 372363..372365
-original 6075..6110 -> expanded 372365..372400
-original 6129..6161 -> expanded 372400..372432
-original 6180..6250 -> expanded 372432..372502
-original 6250..6252 -> expanded 391875..391877
-original 6301..6364 -> expanded 391877..391940
-original 6364..6366 -> expanded 405608..405610
-original 6415..6963 -> expanded 405610..406158
-original 6990..7012 -> expanded 406158..406180
-original 7012..7014 -> expanded 463329..463331
-original 7063..7144 -> expanded 463331..463412
-original 7144..7146 -> expanded 479274..479276
-original 7195..7231 -> expanded 479276..479312
-original 7280..7285 -> expanded 479312..479317
-original 7326..7353 -> expanded 479317..479344
-original 7353..7355 -> expanded 492971..492973
-original 7404..7440 -> expanded 492973..493009
-original 7468..7489 -> expanded 493009..493030
-original 7531..7536 -> expanded 493030..493035
-original 7577..7601 -> expanded 493035..493059
-original 7780..7785 -> expanded 493059..493064
-original 7813..7838 -> expanded 493064..493089
-original 7885..7910 -> expanded 493089..493114
-original 7965..7992 -> expanded 493114..493141
-original 8038..8065 -> expanded 493141..493168
-original 8093..8120 -> expanded 493168..493195
-original 8166..8192 -> expanded 493195..493221
-original 8240..8268 -> expanded 493221..493249
-original 8357..8403 -> expanded 493249..493295
-original 8456..8461 -> expanded 493295..493300
-original 8480..8514 -> expanded 493300..493334
-original 8566..8603 -> expanded 493334..493371
-original 8631..8636 -> expanded 493371..493376
-original 8709..8734 -> expanded 493376..493401
-original 8762..8807 -> expanded 493401..493446
-original 8807..8809 -> expanded 539832..539834
-original 8858..8890 -> expanded 539834..539866
-original 8918..8939 -> expanded 539866..539887
-original 8984..9004 -> expanded 539887..539907
-original 9004..9006 -> expanded 553575..553577
-original 9055..9121 -> expanded 553577..553643
-original 9146..9236 -> expanded 553643..553733
-original 9236..9238 -> expanded 576378..576380
-original 9287..9356 -> expanded 576380..576449
-original 9356..9358 -> expanded 590219..590221
-original 9407..9568 -> expanded 590221..590382
-original 9568..9570 -> expanded 616751..616753
-original 9619..9660 -> expanded 616753..616794
-original 9685..9716 -> expanded 616794..616825
-original 9740..9835 -> expanded 616825..616920
-original 9835..9837 -> expanded 641331..641333
-original 9886..9920 -> expanded 641333..641367
-original 9961..9981 -> expanded 641367..641387
-original 9981..9983 -> expanded 654381..654383
-original 10032..10064 -> expanded 654383..654415
-original 10092..10113 -> expanded 654415..654436
-original 10213..10218 -> expanded 654436..654441
-original 10237..10273 -> expanded 654441..654477
-original 10322..10327 -> expanded 654477..654482
-original 10346..10376 -> expanded 654482..654512
-original 10465..10510 -> expanded 654512..654557
-original 10538..10571 -> expanded 654557..654590
-original 10599..10630 -> expanded 654590..654621
-original 10690..10738 -> expanded 654621..654669
-original 10870..10905 -> expanded 654669..654704
-original 11086..11091 -> expanded 654704..654709
-original 11121..11146 -> expanded 654709..654734
-original 11191..11221 -> expanded 654734..654764
-original 11274..11311 -> expanded 654764..654801
-original 11359..11382 -> expanded 654801..654824
-original 11453..11458 -> expanded 654824..654829
-original 11499..11528 -> expanded 654829..654858
-original 11556..11581 -> expanded 654858..654883
-original 11632..11663 -> expanded 654883..654914
-original 11711..11739 -> expanded 654914..654942
-original 11811..11816 -> expanded 654942..654947
-original 11857..11887 -> expanded 654947..654977
-original 11954..11959 -> expanded 654977..654982
-original 12000..12026 -> expanded 654982..655008
-original 12075..12106 -> expanded 655008..655039
-original 12179..12184 -> expanded 655039..655044
-original 12225..12256 -> expanded 655044..655075
-original 12297..12327 -> expanded 655075..655105
-original 12355..12380 -> expanded 655105..655130
-original 12380..12382 -> expanded 732112..732114
-original 12431..12462 -> expanded 732114..732145
-original 12503..12586 -> expanded 732145..732228
-original 12586..12588 -> expanded 749226..749228
-original 12637..12667 -> expanded 749228..749258
-original 12695..12716 -> expanded 749258..749279
-original 12814..12819 -> expanded 749279..749284
-original 12838..12874 -> expanded 749284..749320
-original 13049..13054 -> expanded 749320..749325
-original 13081..13109 -> expanded 749325..749353
-original 13137..13162 -> expanded 749353..749378
-original 13190..13234 -> expanded 749378..749422
-original 13282..13287 -> expanded 749422..749427
-original 13328..13358 -> expanded 749427..749457
-original 13404..13409 -> expanded 749457..749462
-original 13450..13478 -> expanded 749462..749490
-original 13549..13554 -> expanded 749490..749495
-original 13595..13624 -> expanded 749495..749524
-original 13725..13730 -> expanded 749524..749529
-original 13749..13787 -> expanded 749529..749567
-original 13852..13857 -> expanded 749567..749572
-original 13898..13922 -> expanded 749572..749596
-original 13990..13995 -> expanded 749596..749601
-original 14036..14063 -> expanded 749601..749628
-original 14108..14136 -> expanded 749628..749656
-original 14187..14218 -> expanded 749656..749687
-original 14266..14271 -> expanded 749687..749692
-original 14312..14341 -> expanded 749692..749721
-original 14369..14394 -> expanded 749721..749746
-original 14422..14452 -> expanded 749746..749776
-original 14558..14563 -> expanded 749776..749781
-original 14582..14626 -> expanded 749781..749825
-original 14717..14763 -> expanded 749825..749871
-original 14791..14841 -> expanded 749871..749921
-original 14869..14923 -> expanded 749921..749975
-original 14951..14977 -> expanded 749975..750001
-original 15021..15043 -> expanded 750001..750023
-original 15071..15095 -> expanded 750023..750047
-original 15144..15149 -> expanded 750047..750052
-original 15168..15198 -> expanded 750052..750082
-original 15257..15298 -> expanded 750082..750123
-original 15343..15348 -> expanded 750123..750128
-original 15389..15412 -> expanded 750128..750151
-original 15440..15467 -> expanded 750151..750178
-original 15495..15517 -> expanded 750178..750200
-original 15545..15579 -> expanded 750200..750234
-original 15579..15581 -> expanded 839212..839214
-original 15630..15664 -> expanded 839214..839248
-original 15705..15756 -> expanded 839248..839299
-original 15756..15758 -> expanded 854446..854448
-original 15807..15870 -> expanded 854448..854511
-original 15870..15872 -> expanded 868770..868772
-original 15921..15952 -> expanded 868772..868803
-original 15993..16016 -> expanded 868803..868826
-original 16057..16081 -> expanded 868826..868850
-original 16122..16144 -> expanded 868850..868872
-original 16144..16146 -> expanded 887206..887208
-original 16195..16235 -> expanded 887208..887248
-original 16299..16323 -> expanded 887248..887272
-original 16375..16380 -> expanded 887272..887277
-original 16421..16448 -> expanded 887277..887304
-original 16448..16450 -> expanded 903422..903424
-original 16499..16590 -> expanded 903424..903515
-original 16590..16592 -> expanded 917930..917932
-original 16641..16742 -> expanded 917932..918033
-original 16742..16744 -> expanded 936234..936236
-original 16793..16909 -> expanded 936236..936352
-original 16909..16911 -> expanded 952436..952438
-original 16960..16992 -> expanded 952438..952470
-original 17020..17041 -> expanded 952470..952491
-original 17082..17087 -> expanded 952491..952496
-original 17128..17151 -> expanded 952496..952519
-original 17198..17203 -> expanded 952519..952524
-original 17244..17272 -> expanded 952524..952552
-original 17322..17344 -> expanded 952552..952574
-original 17385..17390 -> expanded 952574..952579
-original 17431..17454 -> expanded 952579..952602
-original 17497..17502 -> expanded 952602..952607
-original 17543..17568 -> expanded 952607..952632
-original 17610..17615 -> expanded 952632..952637
-original 17656..17680 -> expanded 952637..952661
-original 17725..17753 -> expanded 952661..952689
-original 17805..17810 -> expanded 952689..952694
-original 17851..17881 -> expanded 952694..952724
-original 17909..17914 -> expanded 952724..952729
-original 17933..17981 -> expanded 952729..952777
-original 17981..17983 -> expanded 989072..989074
-original 18032..18064 -> expanded 989074..989106
-original 18105..18130 -> expanded 989106..989131
-original 18171..18194 -> expanded 989131..989154
-original 18235..18259 -> expanded 989154..989178
-original 18300..18323 -> expanded 989178..989201
-original 18323..18325 -> expanded 1010584..1010586
-original 18374..18403 -> expanded 1010586..1010615
-original 18431..18452 -> expanded 1010615..1010636
-original 18480..18512 -> expanded 1010636..1010668
-original 18540..18568 -> expanded 1010668..1010696
-original 18636..18666 -> expanded 1010696..1010726
-original 18859..18864 -> expanded 1010726..1010731
-original 18889..18918 -> expanded 1010731..1010760
-original 18967..19000 -> expanded 1010760..1010793
-original 19051..19086 -> expanded 1010793..1010828
-original 19150..19174 -> expanded 1010828..1010852
-original 19471..19476 -> expanded 1010852..1010857
-original 19499..19526 -> expanded 1010857..1010884
-original 19569..19574 -> expanded 1010884..1010889
-original 19615..19640 -> expanded 1010889..1010914
-original 19692..19729 -> expanded 1010914..1010951
-original 19757..19762 -> expanded 1010951..1010956
-original 19795..19824 -> expanded 1010956..1010985
-original 19871..19899 -> expanded 1010985..1011013
-original 19927..19962 -> expanded 1011013..1011048
-original 20062..20107 -> expanded 1011048..1011093
-original 20288..20293 -> expanded 1011093..1011098
-original 20323..20348 -> expanded 1011098..1011123
-original 20480..20512 -> expanded 1011123..1011155
-original 20565..20602 -> expanded 1011155..1011192
-original 20650..20673 -> expanded 1011192..1011215
-original 20744..20780 -> expanded 1011215..1011251
-original 20829..20834 -> expanded 1011251..1011256
-original 20853..20883 -> expanded 1011256..1011286
-original 20928..20933 -> expanded 1011286..1011291
-original 20974..20997 -> expanded 1011291..1011314
-original 21048..21079 -> expanded 1011314..1011345
-original 21127..21155 -> expanded 1011345..1011373
-original 21244..21289 -> expanded 1011373..1011418
-original 21317..21348 -> expanded 1011418..1011449
-original 21420..21425 -> expanded 1011449..1011454
-original 21466..21496 -> expanded 1011454..1011484
-original 21563..21568 -> expanded 1011484..1011489
-original 21609..21635 -> expanded 1011489..1011515
-original 21684..21715 -> expanded 1011515..1011546
-original 21788..21793 -> expanded 1011546..1011551
-original 21834..21865 -> expanded 1011551..1011582
-original 21906..21936 -> expanded 1011582..1011612
-original 21996..22041 -> expanded 1011612..1011657
-original 22041..22043 -> expanded 1106921..1106923
-original 22092..22215 -> expanded 1106923..1107046
-original 22215..22217 -> expanded 1130434..1130436
-original 22266..22314 -> expanded 1130436..1130484
-original 22355..22383 -> expanded 1130484..1130512
-original 22402..22472 -> expanded 1130512..1130582
-original 22513..22535 -> expanded 1130582..1130604
-original 22576..22600 -> expanded 1130604..1130628
-original 22641..22667 -> expanded 1130628..1130654
-original 22708..22761 -> expanded 1130654..1130707
-original 22802..22859 -> expanded 1130707..1130764
-original 22878..22917 -> expanded 1130764..1130803
-original 22958..23024 -> expanded 1130803..1130869
-original 23065..23102 -> expanded 1130869..1130906
-original 23143..23178 -> expanded 1130906..1130941
-original 23219..23299 -> expanded 1130941..1131021
-original 23340..23730 -> expanded 1131021..1131411
-original 23730..23732 -> expanded 1226612..1226614
-original 23781..23976 -> expanded 1226614..1226809
-original 23976..23978 -> expanded 1253959..1253961
-original 24027..24060 -> expanded 1253961..1253994
-original 24101..24125 -> expanded 1253994..1254018
-original 24125..24127 -> expanded 1267146..1267148
-original 24176..24237 -> expanded 1267148..1267209
-original 24237..24239 -> expanded 1279406..1279408
-original 24288..24366 -> expanded 1279408..1279486
-original 24407..24462 -> expanded 1279486..1279541
-original 24503..24526 -> expanded 1279541..1279564
-original 24555..24599 -> expanded 1279564..1279608
-original 24640..24666 -> expanded 1279608..1279634
-original 24707..24734 -> expanded 1279634..1279661
-original 24753..24999 -> expanded 1279661..1279907
-original 24999..25001 -> expanded 1338250..1338252
-original 25050..25086 -> expanded 1338252..1338288
-original 25127..25156 -> expanded 1338288..1338317
-original 25197..25221 -> expanded 1338317..1338341
-original 25221..25223 -> expanded 1354926..1354928
-original 25272..25303 -> expanded 1354928..1354959
-original 25344..25374 -> expanded 1354959..1354989
-original 25415..25442 -> expanded 1354989..1355016
-original 25483..25510 -> expanded 1355016..1355043
-original 25510..25512 -> expanded 1374277..1374279
-original 25561..25646 -> expanded 1374279..1374364
-original 25646..25648 -> expanded 1389697..1389699
-original 25697..25808 -> expanded 1389699..1389810
-original 25849..25872 -> expanded 1389810..1389833
-original 25913..25937 -> expanded 1389833..1389857
-original 25978..26139 -> expanded 1389857..1390018
-original 26139..26141 -> expanded 1427040..1427042
-original 26190..26225 -> expanded 1427042..1427077
-original 26266..26290 -> expanded 1427077..1427101
-original 26331..26360 -> expanded 1427101..1427130
-original 26401..26431 -> expanded 1427130..1427160
-original 26431..26433 -> expanded 1446822..1446824
-original 26482..26565 -> expanded 1446824..1446907
-original 26565..26567 -> expanded 1460646..1460648
-original 26616..26651 -> expanded 1460648..1460683
-original 26762..26767 -> expanded 1460683..1460688
-original 26786..26807 -> expanded 1460688..1460709
-original 26871..26898 -> expanded 1460709..1460736
-original 26942..26967 -> expanded 1460736..1460761
-original 27012..27035 -> expanded 1460761..1460784
-original 27035..27037 -> expanded 1480446..1480448
-original 27086..27153 -> expanded 1480448..1480515
-original 27153..27155 -> expanded 1494905..1494907
-original 27204..27252 -> expanded 1494907..1494955
-original 27271..27302 -> expanded 1494955..1494986
-original 27321..27366 -> expanded 1494986..1495031
-original 27366..27368 -> expanded 1513777..1513779
-original 27417..27447 -> expanded 1513779..1513809
-original 27495..27523 -> expanded 1513809..1513837
-original 27565..27570 -> expanded 1513837..1513842
-original 27620..27647 -> expanded 1513842..1513869
-original 27647..27649 -> expanded 1529477..1529479
-original 27698..27923 -> expanded 1529479..1529704
-original 27923..27925 -> expanded 1555918..1555920
-original 27974..28007 -> expanded 1555920..1555953
-original 28048..28068 -> expanded 1555953..1555973
-original 28068..28070 -> expanded 1568861..1568863
-original 28119..28223 -> expanded 1568863..1568967
-original 28223..28225 -> expanded 1587249..1587251
-original 28274..28422 -> expanded 1587251..1587399
-original 28422..28424 -> expanded 1604201..1604203
-original 28473..29237 -> expanded 1604203..1604967
-original 29237..29239 -> expanded 1637856..1637858
-original 29288..29450 -> expanded 1637858..1638020
-original 29450..29452 -> expanded 1649594..1649596
-original 29501..29774 -> expanded 1649596..1649869
-original 29774..29776 -> expanded 1684084..1684086
-original 29825..29889 -> expanded 1684086..1684150
-original 29889..29891 -> expanded 1693505..1693507
-original 29940..30004 -> expanded 1693507..1693571
-original 30004..30006 -> expanded 1702282..1702284
-original 30055..30133 -> expanded 1702284..1702362
-original 30133..30135 -> expanded 1712178..1712180
-original 30184..30251 -> expanded 1712180..1712247
-original 30251..30253 -> expanded 1720481..1720483
-original 30302..30454 -> expanded 1720483..1720635
-original 30454..30456 -> expanded 1732488..1732490
-original 30505..30578 -> expanded 1732490..1732563
-original 30578..30580 -> expanded 1741367..1741369
-original 30629..30747 -> expanded 1741369..1741487
-original 30747..30749 -> expanded 1751588..1751590
-original 30798..30930 -> expanded 1751590..1751722
-original 30930..30932 -> expanded 1762577..1762579
-original 31114..31182 -> expanded 1762579..1762647
-original 31182..31184 -> expanded 1775029..1775031
-original 31233..31299 -> expanded 1775031..1775097
-original 31299..31301 -> expanded 1783854..1783856
-original 31350..31517 -> expanded 1783856..1784023
-original 31517..31519 -> expanded 1796783..1796785
-original 31568..31708 -> expanded 1796785..1796925
-original 31708..31710 -> expanded 1807586..1807588
-original 31759..31860 -> expanded 1807588..1807689
-original 31860..31862 -> expanded 1823102..1823104
-original 31911..32025 -> expanded 1823104..1823218
-original 32025..32027 -> expanded 1833784..1833786
-original 32076..32198 -> expanded 1833786..1833908
-original 32198..32200 -> expanded 1852224..1852226
-original 32249..32352 -> expanded 1852226..1852329
-original 32352..32354 -> expanded 1862104..1862106
-original 32403..32479 -> expanded 1862106..1862182
-original 32479..32481 -> expanded 1871349..1871351
-original 32530..32848 -> expanded 1871351..1871669
-original 32848..32850 -> expanded 1891021..1891023
-original 32899..32977 -> expanded 1891023..1891101
-original 32977..32979 -> expanded 1904514..1904516
-original 33018..33074 -> expanded 1904516..1904572
-original 33074..33076 -> expanded 1909506..1909508
-original 33125..33188 -> expanded 1909508..1909571
-original 33188..33189 -> expanded 1922522..1922523
-generated 0..1161 <- imports
-generated 1670..2158 <- Default
-generated 2158..6810 <- Encode
-generated 6810..25449 <- Decode
-generated 25449..47279 <- Gigaform
-generated 47279..48437 <- __convenience_const
-generated 48797..49142 <- Default
-generated 49142..52988 <- Encode
-generated 52988..67275 <- Decode
-generated 67275..82751 <- Gigaform
-generated 82751..83990 <- __convenience_const
-generated 84088..84219 <- Default
-generated 84219..86642 <- Encode
-generated 86642..93936 <- Decode
-generated 93936..98751 <- Gigaform
-generated 98751..100206 <- __convenience_const
-generated 100393..100603 <- Default
-generated 100603..103674 <- Encode
-generated 103674..113888 <- Decode
-generated 113888..123271 <- Gigaform
-generated 123271..124402 <- __convenience_const
-generated 124501..124624 <- Default
-generated 124624..126976 <- Encode
-generated 126976..135052 <- Decode
-generated 135052..139594 <- Gigaform
-generated 139594..140914 <- __convenience_const
-generated 140981..141091 <- Default
-generated 141091..143384 <- Encode
-generated 143384..149281 <- Decode
-generated 149281..153564 <- Gigaform
-generated 153564..154857 <- __convenience_const
-generated 155285..155719 <- Default
-generated 155719..160025 <- Encode
-generated 160025..179410 <- Decode
-generated 179410..197342 <- Gigaform
-generated 197342..198500 <- __convenience_const
-generated 198634..198800 <- Default
-generated 198800..201460 <- Encode
-generated 201460..209451 <- Decode
-generated 209451..216949 <- Gigaform
-generated 216949..218215 <- __convenience_const
-generated 218301..218446 <- Default
-generated 218446..220851 <- Encode
-generated 220851..228417 <- Decode
-generated 228417..233697 <- Gigaform
-generated 233697..235071 <- __convenience_const
-generated 235247..235439 <- Default
-generated 235439..238293 <- Encode
-generated 238293..248337 <- Decode
-generated 248337..256458 <- Gigaform
-generated 256458..257805 <- __convenience_const
-generated 257859..257954 <- Default
-generated 257954..260099 <- Encode
-generated 260099..265432 <- Decode
-generated 265432..268953 <- Gigaform
-generated 268953..270219 <- __convenience_const
-generated 270542..270860 <- Default
-generated 270860..274521 <- Encode
-generated 274521..288091 <- Decode
-generated 288091..302360 <- Gigaform
-generated 302360..303599 <- __convenience_const
-generated 303672..303798 <- Default
-generated 303798..306151 <- Encode
-generated 306151..311992 <- Decode
-generated 311992..316002 <- Gigaform
-generated 316002..317592 <- __convenience_const
-generated 317743..317942 <- Default
-generated 317942..320696 <- Encode
-generated 320696..331020 <- Decode
-generated 331020..336932 <- Gigaform
-generated 336932..338630 <- __convenience_const
-generated 338704..338822 <- Default
-generated 338822..341176 <- Encode
-generated 341176..347239 <- Decode
-generated 347239..352016 <- Gigaform
-generated 352016..353390 <- __convenience_const
-generated 353505..353668 <- Default
-generated 353668..356350 <- Encode
-generated 356350..364433 <- Decode
-generated 364433..370746 <- Gigaform
-generated 370746..372363 <- __convenience_const
-generated 372502..372654 <- Default
-generated 372654..375444 <- Encode
-generated 375444..384024 <- Decode
-generated 384024..390555 <- Gigaform
-generated 390555..391875 <- __convenience_const
-generated 391940..392046 <- Default
-generated 392046..394309 <- Encode
-generated 394309..400138 <- Decode
-generated 400138..404369 <- Gigaform
-generated 404369..405608 <- __convenience_const
-generated 406180..406928 <- Default
-generated 406928..412115 <- Encode
-generated 412115..433688 <- Decode
-generated 433688..462063 <- Gigaform
-generated 462063..463329 <- __convenience_const
-generated 463412..463531 <- Default
-generated 463531..465929 <- Encode
-generated 465929..472345 <- Decode
-generated 472345..478089 <- Gigaform
-generated 478089..479274 <- __convenience_const
-generated 479344..479449 <- Default
-generated 479449..481651 <- Encode
-generated 481651..488148 <- Decode
-generated 488148..491624 <- Gigaform
-generated 491624..492971 <- __convenience_const
-generated 493446..493936 <- Default
-generated 493936..498667 <- Encode
-generated 498667..516911 <- Decode
-generated 516911..538485 <- Gigaform
-generated 538485..539832 <- __convenience_const
-generated 539907..540013 <- Default
-generated 540013..542276 <- Encode
-generated 542276..548105 <- Decode
-generated 548105..552336 <- Gigaform
-generated 552336..553575 <- __convenience_const
-generated 553733..553933 <- Default
-generated 553933..556805 <- Encode
-generated 556805..565839 <- Decode
-generated 565839..574896 <- Gigaform
-generated 574896..576378 <- __convenience_const
-generated 576449..576572 <- Default
-generated 576572..578906 <- Encode
-generated 578906..584698 <- Decode
-generated 584698..588656 <- Gigaform
-generated 588656..590219 <- __convenience_const
-generated 590382..590670 <- Default
-generated 590670..593772 <- Encode
-generated 593772..604083 <- Decode
-generated 604083..615242 <- Gigaform
-generated 615242..616751 <- __convenience_const
-generated 616920..617114 <- Default
-generated 617114..620055 <- Encode
-generated 620055..629491 <- Decode
-generated 629491..639849 <- Gigaform
-generated 639849..641331 <- __convenience_const
-generated 641387..641481 <- Default
-generated 641481..643625 <- Encode
-generated 643625..649810 <- Decode
-generated 649810..653088 <- Gigaform
-generated 653088..654381 <- __convenience_const
-generated 655130..655760 <- Default
-generated 655760..662039 <- Encode
-generated 662039..693154 <- Decode
-generated 693154..730873 <- Gigaform
-generated 730873..732112 <- __convenience_const
-generated 732228..732369 <- Default
-generated 732369..734834 <- Encode
-generated 734834..742422 <- Decode
-generated 742422..748014 <- Gigaform
-generated 748014..749226 <- __convenience_const
-generated 750234..750937 <- Default
-generated 750937..758725 <- Encode
-generated 758725..797520 <- Decode
-generated 797520..838027 <- Gigaform
-generated 838027..839212 <- __convenience_const
-generated 839299..839419 <- Default
-generated 839419..841744 <- Encode
-generated 841744..848688 <- Decode
-generated 848688..853153 <- Gigaform
-generated 853153..854446 <- __convenience_const
-generated 854511..854603 <- Default
-generated 854603..856779 <- Encode
-generated 856779..862724 <- Decode
-generated 862724..867558 <- Gigaform
-generated 867558..868770 <- __convenience_const
-generated 868872..868999 <- Default
-generated 868999..871424 <- Encode
-generated 871424..880640 <- Decode
-generated 880640..885994 <- Gigaform
-generated 885994..887206 <- __convenience_const
-generated 887304..887435 <- Default
-generated 887435..889858 <- Encode
-generated 889858..897152 <- Decode
-generated 897152..901967 <- Gigaform
-generated 901967..903422 <- __convenience_const
-generated 903515..903638 <- Default
-generated 903638..905946 <- Encode
-generated 905946..911944 <- Decode
-generated 911944..916718 <- Gigaform
-generated 916718..917930 <- __convenience_const
-generated 918033..918181 <- Default
-generated 918181..920763 <- Encode
-generated 920763..927969 <- Decode
-generated 927969..934644 <- Gigaform
-generated 934644..936234 <- __convenience_const
-generated 936352..936493 <- Default
-generated 936493..938936 <- Encode
-generated 938936..945512 <- Decode
-generated 945512..951278 <- Gigaform
-generated 951278..952436 <- __convenience_const
-generated 952777..953058 <- Default
-generated 953058..956685 <- Encode
-generated 956685..974369 <- Decode
-generated 974369..987833 <- Gigaform
-generated 987833..989072 <- __convenience_const
-generated 989201..989351 <- Default
-generated 989351..991960 <- Encode
-generated 991960..1002856 <- Decode
-generated 1002856..1009345 <- Gigaform
-generated 1009345..1010584 <- __convenience_const
-generated 1011657..1012519 <- Default
-generated 1012519..1020448 <- Encode
-generated 1020448..1057742 <- Decode
-generated 1057742..1105763 <- Gigaform
-generated 1105763..1106921 <- __convenience_const
-generated 1107046..1107195 <- Default
-generated 1107195..1109934 <- Encode
-generated 1109934..1118789 <- Decode
-generated 1118789..1129006 <- Gigaform
-generated 1129006..1130434 <- __convenience_const
-generated 1131411..1132361 <- Default
-generated 1132361..1140386 <- Encode
-generated 1140386..1182035 <- Decode
-generated 1182035..1225373 <- Gigaform
-generated 1225373..1226612 <- __convenience_const
-generated 1226809..1227039 <- Default
-generated 1227039..1230340 <- Encode
-generated 1230340..1240303 <- Decode
-generated 1240303..1252720 <- Gigaform
-generated 1252720..1253959 <- __convenience_const
-generated 1254018..1254114 <- Default
-generated 1254114..1256259 <- Encode
-generated 1256259..1262543 <- Decode
-generated 1262543..1265880 <- Gigaform
-generated 1265880..1267146 <- __convenience_const
-generated 1267209..1267308 <- Default
-generated 1267308..1269450 <- Encode
-generated 1269450..1274778 <- Decode
-generated 1274778..1278167 <- Gigaform
-generated 1278167..1279406 <- __convenience_const
-generated 1279907..1280427 <- Default
-generated 1280427..1285701 <- Encode
-generated 1285701..1309667 <- Decode
-generated 1309667..1336984 <- Gigaform
-generated 1336984..1338250 <- __convenience_const
-generated 1338341..1338467 <- Default
-generated 1338467..1340838 <- Encode
-generated 1340838..1348992 <- Decode
-generated 1348992..1353579 <- Gigaform
-generated 1353579..1354926 <- __convenience_const
-generated 1355043..1355185 <- Default
-generated 1355185..1357670 <- Encode
-generated 1357670..1367396 <- Decode
-generated 1367396..1373065 <- Gigaform
-generated 1373065..1374277 <- __convenience_const
-generated 1374364..1374481 <- Default
-generated 1374481..1376787 <- Encode
-generated 1376787..1383360 <- Decode
-generated 1383360..1388431 <- Gigaform
-generated 1388431..1389697 <- __convenience_const
-generated 1390018..1390326 <- Default
-generated 1390326..1394233 <- Encode
-generated 1394233..1410371 <- Decode
-generated 1410371..1425855 <- Gigaform
-generated 1425855..1427040 <- __convenience_const
-generated 1427160..1427309 <- Default
-generated 1427309..1429850 <- Encode
-generated 1429850..1439746 <- Decode
-generated 1439746..1445502 <- Gigaform
-generated 1445502..1446822 <- __convenience_const
-generated 1446907..1447020 <- Default
-generated 1447020..1449274 <- Encode
-generated 1449274..1455118 <- Decode
-generated 1455118..1459488 <- Gigaform
-generated 1459488..1460646 <- __convenience_const
-generated 1460784..1460946 <- Default
-generated 1460946..1463631 <- Encode
-generated 1463631..1471436 <- Decode
-generated 1471436..1479126 <- Gigaform
-generated 1479126..1480446 <- __convenience_const
-generated 1480515..1480627 <- Default
-generated 1480627..1482950 <- Encode
-generated 1482950..1488915 <- Decode
-generated 1488915..1493558 <- Gigaform
-generated 1493558..1494905 <- __convenience_const
-generated 1495031..1495170 <- Default
-generated 1495170..1497884 <- Encode
-generated 1497884..1506244 <- Decode
-generated 1506244..1512538 <- Gigaform
-generated 1512538..1513777 <- __convenience_const
-generated 1513869..1513987 <- Default
-generated 1513987..1516272 <- Encode
-generated 1516272..1523715 <- Decode
-generated 1523715..1528292 <- Gigaform
-generated 1528292..1529477 <- __convenience_const
-generated 1529704..1529961 <- Default
-generated 1529961..1533135 <- Encode
-generated 1533135..1544914 <- Decode
-generated 1544914..1554490 <- Gigaform
-generated 1554490..1555918 <- __convenience_const
-generated 1555973..1556065 <- Default
-generated 1556065..1558194 <- Encode
-generated 1558194..1564342 <- Decode
-generated 1564342..1567595 <- Gigaform
-generated 1567595..1568861 <- __convenience_const
-generated 1568967..1569111 <- Default
-generated 1569111..1571719 <- Encode
-generated 1571719..1578898 <- Decode
-generated 1578898..1585983 <- Gigaform
-generated 1585983..1587249 <- __convenience_const
-generated 1587399..1587499 <- Default
-generated 1587499..1590236 <- Encode
-generated 1590236..1596791 <- Decode
-generated 1596791..1603411 <- Gigaform
-generated 1603411..1604201 <- __convenience_const
-generated 1604967..1605046 <- Default
-generated 1605046..1606397 <- Encode
-generated 1606397..1611869 <- Decode
-generated 1611869..1637142 <- Gigaform
-generated 1637142..1637856 <- __convenience_const
-generated 1638020..1638102 <- Default
-generated 1638102..1639473 <- Encode
-generated 1639473..1641687 <- Decode
-generated 1641687..1648804 <- Gigaform
-generated 1648804..1649594 <- __convenience_const
-generated 1649869..1649953 <- Default
-generated 1649953..1655814 <- Encode
-generated 1655814..1669702 <- Decode
-generated 1669702..1683332 <- Gigaform
-generated 1683332..1684084 <- __convenience_const
-generated 1684150..1684228 <- Default
-generated 1684228..1685624 <- Encode
-generated 1685624..1688211 <- Decode
-generated 1688211..1692620 <- Gigaform
-generated 1692620..1693505 <- __convenience_const
-generated 1693571..1693658 <- Default
-generated 1693658..1695064 <- Encode
-generated 1695064..1696852 <- Decode
-generated 1696852..1701359 <- Gigaform
-generated 1701359..1702282 <- __convenience_const
-generated 1702362..1702442 <- Default
-generated 1702442..1703833 <- Encode
-generated 1703833..1705735 <- Decode
-generated 1705735..1711312 <- Gigaform
-generated 1711312..1712178 <- __convenience_const
-generated 1712247..1712323 <- Default
-generated 1712323..1713684 <- Encode
-generated 1713684..1715415 <- Decode
-generated 1715415..1719729 <- Gigaform
-generated 1719729..1720481 <- __convenience_const
-generated 1720635..1720708 <- Default
-generated 1720708..1722074 <- Encode
-generated 1722074..1724258 <- Decode
-generated 1724258..1731717 <- Gigaform
-generated 1731717..1732488 <- __convenience_const
-generated 1732563..1732637 <- Default
-generated 1732637..1733998 <- Encode
-generated 1733998..1735793 <- Decode
-generated 1735793..1740615 <- Gigaform
-generated 1740615..1741367 <- __convenience_const
-generated 1741487..1741570 <- Default
-generated 1741570..1742941 <- Encode
-generated 1742941..1744921 <- Decode
-generated 1744921..1750798 <- Gigaform
-generated 1750798..1751588 <- __convenience_const
-generated 1751722..1751797 <- Default
-generated 1751797..1753173 <- Encode
-generated 1753173..1755245 <- Decode
-generated 1755245..1761768 <- Gigaform
-generated 1761768..1762577 <- __convenience_const
-generated 1762647..1762745 <- Default
-generated 1762745..1764801 <- Encode
-generated 1764801..1769629 <- Decode
-generated 1769629..1774182 <- Gigaform
-generated 1774182..1775029 <- __convenience_const
-generated 1775097..1775172 <- Default
-generated 1775172..1776543 <- Encode
-generated 1776543..1778319 <- Decode
-generated 1778319..1783064 <- Gigaform
-generated 1783064..1783854 <- __convenience_const
-generated 1784023..1784105 <- Default
-generated 1784105..1785496 <- Encode
-generated 1785496..1787795 <- Decode
-generated 1787795..1795917 <- Gigaform
-generated 1795917..1796783 <- __convenience_const
-generated 1796925..1797004 <- Default
-generated 1797004..1798375 <- Encode
-generated 1798375..1800465 <- Decode
-generated 1800465..1806796 <- Gigaform
-generated 1806796..1807586 <- __convenience_const
-generated 1807689..1807786 <- Default
-generated 1807786..1810339 <- Encode
-generated 1810339..1816390 <- Decode
-generated 1816390..1822236 <- Gigaform
-generated 1822236..1823102 <- __convenience_const
-generated 1823218..1823298 <- Default
-generated 1823298..1824684 <- Encode
-generated 1824684..1826682 <- Decode
-generated 1826682..1832937 <- Gigaform
-generated 1832937..1833784 <- __convenience_const
-generated 1833908..1834004 <- Default
-generated 1834004..1837045 <- Encode
-generated 1837045..1844286 <- Decode
-generated 1844286..1851358 <- Gigaform
-generated 1851358..1852224 <- __convenience_const
-generated 1852329..1852406 <- Default
-generated 1852406..1853782 <- Encode
-generated 1853782..1855695 <- Decode
-generated 1855695..1861295 <- Gigaform
-generated 1861295..1862104 <- __convenience_const
-generated 1862182..1862263 <- Default
-generated 1862263..1863644 <- Encode
-generated 1863644..1865486 <- Decode
-generated 1865486..1870521 <- Gigaform
-generated 1870521..1871349 <- __convenience_const
-generated 1871669..1871739 <- Default
-generated 1871739..1873095 <- Encode
-generated 1873095..1876247 <- Decode
-generated 1876247..1890288 <- Gigaform
-generated 1890288..1891021 <- __convenience_const
-generated 1891101..1891162 <- Default
-generated 1891162..1893727 <- Encode
-generated 1893727..1899272 <- Decode
-generated 1899272..1903800 <- Gigaform
-generated 1903800..1904514 <- __convenience_const
-generated 1904572..1904651 <- Default
-generated 1904651..1906113 <- Encode
-generated 1906113..1908862 <- Decode
-generated 1908862..1909506 <- __convenience_const
-generated 1909571..1909650 <- Default
-generated 1909650..1911898 <- Encode
-generated 1911898..1917108 <- Decode
-generated 1917108..1921789 <- Gigaform
-generated 1921789..1922522 <- __convenience_const
+original 0..58 -> expanded 1192..1250
+original 107..178 -> expanded 1250..1321
+original 219..247 -> expanded 1321..1349
+original 288..399 -> expanded 1349..1460
+original 431..672 -> expanded 1460..1701
+original 672..674 -> expanded 48473..48475
+original 723..755 -> expanded 48475..48507
+original 783..804 -> expanded 48507..48528
+original 845..850 -> expanded 48528..48533
+original 891..914 -> expanded 48533..48556
+original 961..966 -> expanded 48556..48561
+original 1007..1035 -> expanded 48561..48589
+original 1100..1131 -> expanded 48589..48620
+original 1199..1233 -> expanded 48620..48654
+original 1297..1327 -> expanded 48654..48684
+original 1372..1398 -> expanded 48684..48710
+original 1447..1477 -> expanded 48710..48740
+original 1524..1552 -> expanded 48740..48768
+original 1601..1666 -> expanded 48768..48833
+original 1666..1668 -> expanded 84031..84033
+original 1717..1757 -> expanded 84033..84073
+original 1821..1845 -> expanded 84073..84097
+original 1897..1902 -> expanded 84097..84102
+original 1943..1970 -> expanded 84102..84129
+original 1970..1972 -> expanded 100295..100297
+original 2021..2049 -> expanded 100297..100325
+original 2068..2097 -> expanded 100325..100354
+original 2116..2244 -> expanded 100354..100482
+original 2244..2246 -> expanded 124496..124498
+original 2295..2330 -> expanded 124498..124533
+original 2377..2382 -> expanded 124533..124538
+original 2423..2451 -> expanded 124538..124566
+original 2497..2502 -> expanded 124566..124571
+original 2543..2567 -> expanded 124571..124595
+original 2567..2569 -> expanded 141013..141015
+original 2618..2683 -> expanded 141015..141080
+original 2683..2685 -> expanded 154961..154963
+original 2734..2779 -> expanded 154963..155008
+original 2820..2922 -> expanded 155008..155110
+original 2963..3080 -> expanded 155110..155227
+original 3121..3164 -> expanded 155227..155270
+original 3205..3231 -> expanded 155270..155296
+original 3272..3365 -> expanded 155296..155389
+original 3365..3367 -> expanded 198609..198611
+original 3416..3548 -> expanded 198611..198743
+original 3548..3550 -> expanded 218329..218331
+original 3599..3636 -> expanded 218331..218368
+original 3677..3724 -> expanded 218368..218415
+original 3724..3726 -> expanded 235190..235192
+original 3775..3811 -> expanded 235192..235228
+original 3854..3878 -> expanded 235228..235252
+original 3948..3953 -> expanded 235252..235257
+original 3994..4022 -> expanded 235257..235285
+original 4065..4070 -> expanded 235285..235290
+original 4111..4136 -> expanded 235290..235315
+original 4183..4210 -> expanded 235315..235342
+original 4257..4281 -> expanded 235342..235366
+original 4281..4283 -> expanded 257929..257931
+original 4332..4384 -> expanded 257931..257983
+original 4384..4386 -> expanded 270394..270396
+original 4435..4467 -> expanded 270396..270428
+original 4495..4516 -> expanded 270428..270449
+original 4557..4562 -> expanded 270449..270454
+original 4603..4626 -> expanded 270454..270477
+original 4673..4678 -> expanded 270477..270482
+original 4719..4747 -> expanded 270482..270510
+original 4812..4843 -> expanded 270510..270541
+original 4911..4945 -> expanded 270541..270575
+original 5009..5039 -> expanded 270575..270605
+original 5084..5110 -> expanded 270605..270631
+original 5159..5189 -> expanded 270631..270661
+original 5236..5292 -> expanded 270661..270717
+original 5292..5294 -> expanded 303779..303781
+original 5343..5414 -> expanded 303781..303852
+original 5414..5416 -> expanded 317830..317832
+original 5465..5514 -> expanded 317832..317881
+original 5555..5609 -> expanded 317881..317935
+original 5650..5696 -> expanded 317935..317981
+original 5696..5698 -> expanded 338873..338875
+original 5747..5819 -> expanded 338875..338947
+original 5819..5821 -> expanded 353724..353726
+original 5870..5963 -> expanded 353726..353819
+original 6004..6024 -> expanded 353819..353839
+original 6024..6026 -> expanded 372797..372799
+original 6075..6110 -> expanded 372799..372834
+original 6129..6161 -> expanded 372834..372866
+original 6180..6250 -> expanded 372866..372936
+original 6250..6252 -> expanded 392314..392316
+original 6301..6364 -> expanded 392316..392379
+original 6364..6366 -> expanded 406052..406054
+original 6415..6963 -> expanded 406054..406602
+original 6990..7012 -> expanded 406602..406624
+original 7012..7014 -> expanded 463778..463780
+original 7063..7144 -> expanded 463780..463861
+original 7144..7146 -> expanded 479854..479856
+original 7195..7231 -> expanded 479856..479892
+original 7280..7285 -> expanded 479892..479897
+original 7326..7353 -> expanded 479897..479924
+original 7353..7355 -> expanded 493556..493558
+original 7404..7440 -> expanded 493558..493594
+original 7468..7489 -> expanded 493594..493615
+original 7531..7536 -> expanded 493615..493620
+original 7577..7601 -> expanded 493620..493644
+original 7780..7785 -> expanded 493644..493649
+original 7813..7838 -> expanded 493649..493674
+original 7885..7910 -> expanded 493674..493699
+original 7965..7992 -> expanded 493699..493726
+original 8038..8065 -> expanded 493726..493753
+original 8093..8120 -> expanded 493753..493780
+original 8166..8192 -> expanded 493780..493806
+original 8240..8268 -> expanded 493806..493834
+original 8357..8403 -> expanded 493834..493880
+original 8456..8461 -> expanded 493880..493885
+original 8480..8514 -> expanded 493885..493919
+original 8566..8603 -> expanded 493919..493956
+original 8631..8636 -> expanded 493956..493961
+original 8709..8734 -> expanded 493961..493986
+original 8762..8807 -> expanded 493986..494031
+original 8807..8809 -> expanded 540514..540516
+original 8858..8890 -> expanded 540516..540548
+original 8918..8939 -> expanded 540548..540569
+original 8984..9004 -> expanded 540569..540589
+original 9004..9006 -> expanded 554262..554264
+original 9055..9121 -> expanded 554264..554330
+original 9146..9236 -> expanded 554330..554420
+original 9236..9238 -> expanded 577119..577121
+original 9287..9356 -> expanded 577121..577190
+original 9356..9358 -> expanded 591017..591019
+original 9407..9568 -> expanded 591019..591180
+original 9568..9570 -> expanded 617554..617556
+original 9619..9660 -> expanded 617556..617597
+original 9685..9716 -> expanded 617597..617628
+original 9740..9835 -> expanded 617628..617723
+original 9835..9837 -> expanded 642184..642186
+original 9886..9920 -> expanded 642186..642220
+original 9961..9981 -> expanded 642220..642240
+original 9981..9983 -> expanded 655239..655241
+original 10032..10064 -> expanded 655241..655273
+original 10092..10113 -> expanded 655273..655294
+original 10213..10218 -> expanded 655294..655299
+original 10237..10273 -> expanded 655299..655335
+original 10322..10327 -> expanded 655335..655340
+original 10346..10376 -> expanded 655340..655370
+original 10465..10510 -> expanded 655370..655415
+original 10538..10571 -> expanded 655415..655448
+original 10599..10630 -> expanded 655448..655479
+original 10690..10738 -> expanded 655479..655527
+original 10870..10905 -> expanded 655527..655562
+original 11086..11091 -> expanded 655562..655567
+original 11121..11146 -> expanded 655567..655592
+original 11191..11221 -> expanded 655592..655622
+original 11274..11311 -> expanded 655622..655659
+original 11359..11382 -> expanded 655659..655682
+original 11453..11458 -> expanded 655682..655687
+original 11499..11528 -> expanded 655687..655716
+original 11556..11581 -> expanded 655716..655741
+original 11632..11663 -> expanded 655741..655772
+original 11711..11739 -> expanded 655772..655800
+original 11811..11816 -> expanded 655800..655805
+original 11857..11887 -> expanded 655805..655835
+original 11954..11959 -> expanded 655835..655840
+original 12000..12026 -> expanded 655840..655866
+original 12075..12106 -> expanded 655866..655897
+original 12179..12184 -> expanded 655897..655902
+original 12225..12256 -> expanded 655902..655933
+original 12297..12327 -> expanded 655933..655963
+original 12355..12380 -> expanded 655963..655988
+original 12380..12382 -> expanded 732975..732977
+original 12431..12462 -> expanded 732977..733008
+original 12503..12586 -> expanded 733008..733091
+original 12586..12588 -> expanded 750094..750096
+original 12637..12667 -> expanded 750096..750126
+original 12695..12716 -> expanded 750126..750147
+original 12814..12819 -> expanded 750147..750152
+original 12838..12874 -> expanded 750152..750188
+original 13049..13054 -> expanded 750188..750193
+original 13081..13109 -> expanded 750193..750221
+original 13137..13162 -> expanded 750221..750246
+original 13190..13234 -> expanded 750246..750290
+original 13282..13287 -> expanded 750290..750295
+original 13328..13358 -> expanded 750295..750325
+original 13404..13409 -> expanded 750325..750330
+original 13450..13478 -> expanded 750330..750358
+original 13549..13554 -> expanded 750358..750363
+original 13595..13624 -> expanded 750363..750392
+original 13725..13730 -> expanded 750392..750397
+original 13749..13787 -> expanded 750397..750435
+original 13852..13857 -> expanded 750435..750440
+original 13898..13922 -> expanded 750440..750464
+original 13990..13995 -> expanded 750464..750469
+original 14036..14063 -> expanded 750469..750496
+original 14108..14136 -> expanded 750496..750524
+original 14187..14218 -> expanded 750524..750555
+original 14266..14271 -> expanded 750555..750560
+original 14312..14341 -> expanded 750560..750589
+original 14369..14394 -> expanded 750589..750614
+original 14422..14452 -> expanded 750614..750644
+original 14558..14563 -> expanded 750644..750649
+original 14582..14626 -> expanded 750649..750693
+original 14717..14763 -> expanded 750693..750739
+original 14791..14841 -> expanded 750739..750789
+original 14869..14923 -> expanded 750789..750843
+original 14951..14977 -> expanded 750843..750869
+original 15021..15043 -> expanded 750869..750891
+original 15071..15095 -> expanded 750891..750915
+original 15144..15149 -> expanded 750915..750920
+original 15168..15198 -> expanded 750920..750950
+original 15257..15298 -> expanded 750950..750991
+original 15343..15348 -> expanded 750991..750996
+original 15389..15412 -> expanded 750996..751019
+original 15440..15467 -> expanded 751019..751046
+original 15495..15517 -> expanded 751046..751068
+original 15545..15579 -> expanded 751068..751102
+original 15579..15581 -> expanded 840348..840350
+original 15630..15664 -> expanded 840350..840384
+original 15705..15756 -> expanded 840384..840435
+original 15756..15758 -> expanded 855587..855589
+original 15807..15870 -> expanded 855589..855652
+original 15870..15872 -> expanded 869916..869918
+original 15921..15952 -> expanded 869918..869949
+original 15993..16016 -> expanded 869949..869972
+original 16057..16081 -> expanded 869972..869996
+original 16122..16144 -> expanded 869996..870018
+original 16144..16146 -> expanded 888357..888359
+original 16195..16235 -> expanded 888359..888399
+original 16299..16323 -> expanded 888399..888423
+original 16375..16380 -> expanded 888423..888428
+original 16421..16448 -> expanded 888428..888455
+original 16448..16450 -> expanded 904621..904623
+original 16499..16590 -> expanded 904623..904714
+original 16590..16592 -> expanded 919187..919189
+original 16641..16742 -> expanded 919189..919290
+original 16742..16744 -> expanded 937549..937551
+original 16793..16909 -> expanded 937551..937667
+original 16909..16911 -> expanded 953800..953802
+original 16960..16992 -> expanded 953802..953834
+original 17020..17041 -> expanded 953834..953855
+original 17082..17087 -> expanded 953855..953860
+original 17128..17151 -> expanded 953860..953883
+original 17198..17203 -> expanded 953883..953888
+original 17244..17272 -> expanded 953888..953916
+original 17322..17344 -> expanded 953916..953938
+original 17385..17390 -> expanded 953938..953943
+original 17431..17454 -> expanded 953943..953966
+original 17497..17502 -> expanded 953966..953971
+original 17543..17568 -> expanded 953971..953996
+original 17610..17615 -> expanded 953996..954001
+original 17656..17680 -> expanded 954001..954025
+original 17725..17753 -> expanded 954025..954053
+original 17805..17810 -> expanded 954053..954058
+original 17851..17881 -> expanded 954058..954088
+original 17909..17914 -> expanded 954088..954093
+original 17933..17981 -> expanded 954093..954141
+original 17981..17983 -> expanded 990482..990484
+original 18032..18064 -> expanded 990484..990516
+original 18105..18130 -> expanded 990516..990541
+original 18171..18194 -> expanded 990541..990564
+original 18235..18259 -> expanded 990564..990588
+original 18300..18323 -> expanded 990588..990611
+original 18323..18325 -> expanded 1011999..1012001
+original 18374..18403 -> expanded 1012001..1012030
+original 18431..18452 -> expanded 1012030..1012051
+original 18480..18512 -> expanded 1012051..1012083
+original 18540..18568 -> expanded 1012083..1012111
+original 18636..18666 -> expanded 1012111..1012141
+original 18859..18864 -> expanded 1012141..1012146
+original 18889..18918 -> expanded 1012146..1012175
+original 18967..19000 -> expanded 1012175..1012208
+original 19051..19086 -> expanded 1012208..1012243
+original 19150..19174 -> expanded 1012243..1012267
+original 19471..19476 -> expanded 1012267..1012272
+original 19499..19526 -> expanded 1012272..1012299
+original 19569..19574 -> expanded 1012299..1012304
+original 19615..19640 -> expanded 1012304..1012329
+original 19692..19729 -> expanded 1012329..1012366
+original 19757..19762 -> expanded 1012366..1012371
+original 19795..19824 -> expanded 1012371..1012400
+original 19871..19899 -> expanded 1012400..1012428
+original 19927..19962 -> expanded 1012428..1012463
+original 20062..20107 -> expanded 1012463..1012508
+original 20288..20293 -> expanded 1012508..1012513
+original 20323..20348 -> expanded 1012513..1012538
+original 20480..20512 -> expanded 1012538..1012570
+original 20565..20602 -> expanded 1012570..1012607
+original 20650..20673 -> expanded 1012607..1012630
+original 20744..20780 -> expanded 1012630..1012666
+original 20829..20834 -> expanded 1012666..1012671
+original 20853..20883 -> expanded 1012671..1012701
+original 20928..20933 -> expanded 1012701..1012706
+original 20974..20997 -> expanded 1012706..1012729
+original 21048..21079 -> expanded 1012729..1012760
+original 21127..21155 -> expanded 1012760..1012788
+original 21244..21289 -> expanded 1012788..1012833
+original 21317..21348 -> expanded 1012833..1012864
+original 21420..21425 -> expanded 1012864..1012869
+original 21466..21496 -> expanded 1012869..1012899
+original 21563..21568 -> expanded 1012899..1012904
+original 21609..21635 -> expanded 1012904..1012930
+original 21684..21715 -> expanded 1012930..1012961
+original 21788..21793 -> expanded 1012961..1012966
+original 21834..21865 -> expanded 1012966..1012997
+original 21906..21936 -> expanded 1012997..1013027
+original 21996..22041 -> expanded 1013027..1013072
+original 22041..22043 -> expanded 1108477..1108479
+original 22092..22215 -> expanded 1108479..1108602
+original 22215..22217 -> expanded 1131995..1131997
+original 22266..22314 -> expanded 1131997..1132045
+original 22355..22383 -> expanded 1132045..1132073
+original 22402..22472 -> expanded 1132073..1132143
+original 22513..22535 -> expanded 1132143..1132165
+original 22576..22600 -> expanded 1132165..1132189
+original 22641..22667 -> expanded 1132189..1132215
+original 22708..22761 -> expanded 1132215..1132268
+original 22802..22859 -> expanded 1132268..1132325
+original 22878..22917 -> expanded 1132325..1132364
+original 22958..23024 -> expanded 1132364..1132430
+original 23065..23102 -> expanded 1132430..1132467
+original 23143..23178 -> expanded 1132467..1132502
+original 23219..23299 -> expanded 1132502..1132582
+original 23340..23730 -> expanded 1132582..1132972
+original 23730..23732 -> expanded 1228338..1228340
+original 23781..23976 -> expanded 1228340..1228535
+original 23976..23978 -> expanded 1256048..1256050
+original 24027..24060 -> expanded 1256050..1256083
+original 24101..24125 -> expanded 1256083..1256107
+original 24125..24127 -> expanded 1269240..1269242
+original 24176..24237 -> expanded 1269242..1269303
+original 24237..24239 -> expanded 1281505..1281507
+original 24288..24366 -> expanded 1281507..1281585
+original 24407..24462 -> expanded 1281585..1281640
+original 24503..24526 -> expanded 1281640..1281663
+original 24555..24599 -> expanded 1281663..1281707
+original 24640..24666 -> expanded 1281707..1281733
+original 24707..24734 -> expanded 1281733..1281760
+original 24753..24999 -> expanded 1281760..1282006
+original 24999..25001 -> expanded 1340403..1340405
+original 25050..25086 -> expanded 1340405..1340441
+original 25127..25156 -> expanded 1340441..1340470
+original 25197..25221 -> expanded 1340470..1340494
+original 25221..25223 -> expanded 1357084..1357086
+original 25272..25303 -> expanded 1357086..1357117
+original 25344..25374 -> expanded 1357117..1357147
+original 25415..25442 -> expanded 1357147..1357174
+original 25483..25510 -> expanded 1357174..1357201
+original 25510..25512 -> expanded 1376440..1376442
+original 25561..25646 -> expanded 1376442..1376527
+original 25646..25648 -> expanded 1391865..1391867
+original 25697..25808 -> expanded 1391867..1391978
+original 25849..25872 -> expanded 1391978..1392001
+original 25913..25937 -> expanded 1392001..1392025
+original 25978..26139 -> expanded 1392025..1392186
+original 26139..26141 -> expanded 1429271..1429273
+original 26190..26225 -> expanded 1429273..1429308
+original 26266..26290 -> expanded 1429308..1429332
+original 26331..26360 -> expanded 1429332..1429361
+original 26401..26431 -> expanded 1429361..1429391
+original 26431..26433 -> expanded 1449058..1449060
+original 26482..26565 -> expanded 1449060..1449143
+original 26565..26567 -> expanded 1462887..1462889
+original 26616..26651 -> expanded 1462889..1462924
+original 26762..26767 -> expanded 1462924..1462929
+original 26786..26807 -> expanded 1462929..1462950
+original 26871..26898 -> expanded 1462950..1462977
+original 26942..26967 -> expanded 1462977..1463002
+original 27012..27035 -> expanded 1463002..1463025
+original 27035..27037 -> expanded 1482738..1482740
+original 27086..27153 -> expanded 1482740..1482807
+original 27153..27155 -> expanded 1497284..1497286
+original 27204..27252 -> expanded 1497286..1497334
+original 27271..27302 -> expanded 1497334..1497365
+original 27321..27366 -> expanded 1497365..1497410
+original 27366..27368 -> expanded 1516161..1516163
+original 27417..27447 -> expanded 1516163..1516193
+original 27495..27523 -> expanded 1516193..1516221
+original 27565..27570 -> expanded 1516221..1516226
+original 27620..27647 -> expanded 1516226..1516253
+original 27647..27649 -> expanded 1531866..1531868
+original 27698..27923 -> expanded 1531868..1532093
+original 27923..27925 -> expanded 1558312..1558314
+original 27974..28007 -> expanded 1558314..1558347
+original 28048..28068 -> expanded 1558347..1558367
+original 28068..28070 -> expanded 1571260..1571262
+original 28119..28223 -> expanded 1571262..1571366
+original 28223..28225 -> expanded 1589823..1589825
+original 28274..28422 -> expanded 1589825..1589973
+original 28422..28424 -> expanded 1606780..1606782
+original 28473..29237 -> expanded 1606782..1607546
+original 29237..29239 -> expanded 1640435..1640437
+original 29288..29450 -> expanded 1640437..1640599
+original 29450..29452 -> expanded 1652173..1652175
+original 29501..29774 -> expanded 1652175..1652448
+original 29774..29776 -> expanded 1686668..1686670
+original 29825..29889 -> expanded 1686670..1686734
+original 29889..29891 -> expanded 1696167..1696169
+original 29940..30004 -> expanded 1696169..1696233
+original 30004..30006 -> expanded 1704944..1704946
+original 30055..30133 -> expanded 1704946..1705024
+original 30133..30135 -> expanded 1714840..1714842
+original 30184..30251 -> expanded 1714842..1714909
+original 30251..30253 -> expanded 1723143..1723145
+original 30302..30454 -> expanded 1723145..1723297
+original 30454..30456 -> expanded 1735150..1735152
+original 30505..30578 -> expanded 1735152..1735225
+original 30578..30580 -> expanded 1744029..1744031
+original 30629..30747 -> expanded 1744031..1744149
+original 30747..30749 -> expanded 1754250..1754252
+original 30798..30930 -> expanded 1754252..1754384
+original 30930..30932 -> expanded 1765239..1765241
+original 31114..31182 -> expanded 1765241..1765309
+original 31182..31184 -> expanded 1777696..1777698
+original 31233..31299 -> expanded 1777698..1777764
+original 31299..31301 -> expanded 1786521..1786523
+original 31350..31517 -> expanded 1786523..1786690
+original 31517..31519 -> expanded 1799450..1799452
+original 31568..31708 -> expanded 1799452..1799592
+original 31708..31710 -> expanded 1810253..1810255
+original 31759..31860 -> expanded 1810255..1810356
+original 31860..31862 -> expanded 1825774..1825776
+original 31911..32025 -> expanded 1825776..1825890
+original 32025..32027 -> expanded 1836456..1836458
+original 32076..32198 -> expanded 1836458..1836580
+original 32198..32200 -> expanded 1854901..1854903
+original 32249..32352 -> expanded 1854903..1855006
+original 32352..32354 -> expanded 1864781..1864783
+original 32403..32479 -> expanded 1864783..1864859
+original 32479..32481 -> expanded 1874026..1874028
+original 32530..32848 -> expanded 1874028..1874346
+original 32848..32850 -> expanded 1893698..1893700
+original 32899..32977 -> expanded 1893700..1893778
+original 32977..32979 -> expanded 1907196..1907198
+original 33018..33074 -> expanded 1907198..1907254
+original 33074..33076 -> expanded 1912188..1912190
+original 33125..33188 -> expanded 1912190..1912253
+original 33188..33189 -> expanded 1925209..1925210
+generated 0..1192 <- imports
+generated 1701..2189 <- Default
+generated 2189..6841 <- Encode
+generated 6841..25485 <- Decode
+generated 25485..47315 <- Gigaform
+generated 47315..48473 <- __convenience_const
+generated 48833..49178 <- Default
+generated 49178..53024 <- Encode
+generated 53024..67316 <- Decode
+generated 67316..82792 <- Gigaform
+generated 82792..84031 <- __convenience_const
+generated 84129..84260 <- Default
+generated 84260..86683 <- Encode
+generated 86683..94025 <- Decode
+generated 94025..98840 <- Gigaform
+generated 98840..100295 <- __convenience_const
+generated 100482..100692 <- Default
+generated 100692..103763 <- Encode
+generated 103763..113982 <- Decode
+generated 113982..123365 <- Gigaform
+generated 123365..124496 <- __convenience_const
+generated 124595..124718 <- Default
+generated 124718..127070 <- Encode
+generated 127070..135151 <- Decode
+generated 135151..139693 <- Gigaform
+generated 139693..141013 <- __convenience_const
+generated 141080..141190 <- Default
+generated 141190..143483 <- Encode
+generated 143483..149385 <- Decode
+generated 149385..153668 <- Gigaform
+generated 153668..154961 <- __convenience_const
+generated 155389..155823 <- Default
+generated 155823..160129 <- Encode
+generated 160129..179519 <- Decode
+generated 179519..197451 <- Gigaform
+generated 197451..198609 <- __convenience_const
+generated 198743..198909 <- Default
+generated 198909..201569 <- Encode
+generated 201569..209565 <- Decode
+generated 209565..217063 <- Gigaform
+generated 217063..218329 <- __convenience_const
+generated 218415..218560 <- Default
+generated 218560..220965 <- Encode
+generated 220965..228536 <- Decode
+generated 228536..233816 <- Gigaform
+generated 233816..235190 <- __convenience_const
+generated 235366..235558 <- Default
+generated 235558..238412 <- Encode
+generated 238412..248461 <- Decode
+generated 248461..256582 <- Gigaform
+generated 256582..257929 <- __convenience_const
+generated 257983..258078 <- Default
+generated 258078..260223 <- Encode
+generated 260223..265607 <- Decode
+generated 265607..269128 <- Gigaform
+generated 269128..270394 <- __convenience_const
+generated 270717..271035 <- Default
+generated 271035..274696 <- Encode
+generated 274696..288271 <- Decode
+generated 288271..302540 <- Gigaform
+generated 302540..303779 <- __convenience_const
+generated 303852..303978 <- Default
+generated 303978..306331 <- Encode
+generated 306331..312230 <- Decode
+generated 312230..316240 <- Gigaform
+generated 316240..317830 <- __convenience_const
+generated 317981..318180 <- Default
+generated 318180..320934 <- Encode
+generated 320934..331263 <- Decode
+generated 331263..337175 <- Gigaform
+generated 337175..338873 <- __convenience_const
+generated 338947..339065 <- Default
+generated 339065..341419 <- Encode
+generated 341419..347573 <- Decode
+generated 347573..352350 <- Gigaform
+generated 352350..353724 <- __convenience_const
+generated 353839..354002 <- Default
+generated 354002..356684 <- Encode
+generated 356684..364867 <- Decode
+generated 364867..371180 <- Gigaform
+generated 371180..372797 <- __convenience_const
+generated 372936..373088 <- Default
+generated 373088..375878 <- Encode
+generated 375878..384463 <- Decode
+generated 384463..390994 <- Gigaform
+generated 390994..392314 <- __convenience_const
+generated 392379..392485 <- Default
+generated 392485..394748 <- Encode
+generated 394748..400582 <- Decode
+generated 400582..404813 <- Gigaform
+generated 404813..406052 <- __convenience_const
+generated 406624..407372 <- Default
+generated 407372..412559 <- Encode
+generated 412559..434137 <- Decode
+generated 434137..462512 <- Gigaform
+generated 462512..463778 <- __convenience_const
+generated 463861..463980 <- Default
+generated 463980..466378 <- Encode
+generated 466378..472925 <- Decode
+generated 472925..478669 <- Gigaform
+generated 478669..479854 <- __convenience_const
+generated 479924..480029 <- Default
+generated 480029..482231 <- Encode
+generated 482231..488733 <- Decode
+generated 488733..492209 <- Gigaform
+generated 492209..493556 <- __convenience_const
+generated 494031..494521 <- Default
+generated 494521..499252 <- Encode
+generated 499252..517593 <- Decode
+generated 517593..539167 <- Gigaform
+generated 539167..540514 <- __convenience_const
+generated 540589..540695 <- Default
+generated 540695..542958 <- Encode
+generated 542958..548792 <- Decode
+generated 548792..553023 <- Gigaform
+generated 553023..554262 <- __convenience_const
+generated 554420..554620 <- Default
+generated 554620..557492 <- Encode
+generated 557492..566580 <- Decode
+generated 566580..575637 <- Gigaform
+generated 575637..577119 <- __convenience_const
+generated 577190..577313 <- Default
+generated 577313..579647 <- Encode
+generated 579647..585496 <- Decode
+generated 585496..589454 <- Gigaform
+generated 589454..591017 <- __convenience_const
+generated 591180..591468 <- Default
+generated 591468..594570 <- Encode
+generated 594570..604886 <- Decode
+generated 604886..616045 <- Gigaform
+generated 616045..617554 <- __convenience_const
+generated 617723..617917 <- Default
+generated 617917..620858 <- Encode
+generated 620858..630344 <- Decode
+generated 630344..640702 <- Gigaform
+generated 640702..642184 <- __convenience_const
+generated 642240..642334 <- Default
+generated 642334..644478 <- Encode
+generated 644478..650668 <- Decode
+generated 650668..653946 <- Gigaform
+generated 653946..655239 <- __convenience_const
+generated 655988..656618 <- Default
+generated 656618..662897 <- Encode
+generated 662897..694017 <- Decode
+generated 694017..731736 <- Gigaform
+generated 731736..732975 <- __convenience_const
+generated 733091..733232 <- Default
+generated 733232..735697 <- Encode
+generated 735697..743290 <- Decode
+generated 743290..748882 <- Gigaform
+generated 748882..750094 <- __convenience_const
+generated 751102..751805 <- Default
+generated 751805..759593 <- Encode
+generated 759593..798656 <- Decode
+generated 798656..839163 <- Gigaform
+generated 839163..840348 <- __convenience_const
+generated 840435..840555 <- Default
+generated 840555..842880 <- Encode
+generated 842880..849829 <- Decode
+generated 849829..854294 <- Gigaform
+generated 854294..855587 <- __convenience_const
+generated 855652..855744 <- Default
+generated 855744..857920 <- Encode
+generated 857920..863870 <- Decode
+generated 863870..868704 <- Gigaform
+generated 868704..869916 <- __convenience_const
+generated 870018..870145 <- Default
+generated 870145..872570 <- Encode
+generated 872570..881791 <- Decode
+generated 881791..887145 <- Gigaform
+generated 887145..888357 <- __convenience_const
+generated 888455..888586 <- Default
+generated 888586..891009 <- Encode
+generated 891009..898351 <- Decode
+generated 898351..903166 <- Gigaform
+generated 903166..904621 <- __convenience_const
+generated 904714..904837 <- Default
+generated 904837..907145 <- Encode
+generated 907145..913201 <- Decode
+generated 913201..917975 <- Gigaform
+generated 917975..919187 <- __convenience_const
+generated 919290..919438 <- Default
+generated 919438..922020 <- Encode
+generated 922020..929284 <- Decode
+generated 929284..935959 <- Gigaform
+generated 935959..937549 <- __convenience_const
+generated 937667..937808 <- Default
+generated 937808..940251 <- Encode
+generated 940251..946876 <- Decode
+generated 946876..952642 <- Gigaform
+generated 952642..953800 <- __convenience_const
+generated 954141..954422 <- Default
+generated 954422..958049 <- Encode
+generated 958049..975779 <- Decode
+generated 975779..989243 <- Gigaform
+generated 989243..990482 <- __convenience_const
+generated 990611..990761 <- Default
+generated 990761..993370 <- Encode
+generated 993370..1004271 <- Decode
+generated 1004271..1010760 <- Gigaform
+generated 1010760..1011999 <- __convenience_const
+generated 1013072..1013934 <- Default
+generated 1013934..1021863 <- Encode
+generated 1021863..1059298 <- Decode
+generated 1059298..1107319 <- Gigaform
+generated 1107319..1108477 <- __convenience_const
+generated 1108602..1108751 <- Default
+generated 1108751..1111490 <- Encode
+generated 1111490..1120350 <- Decode
+generated 1120350..1130567 <- Gigaform
+generated 1130567..1131995 <- __convenience_const
+generated 1132972..1133922 <- Default
+generated 1133922..1141947 <- Encode
+generated 1141947..1183761 <- Decode
+generated 1183761..1227099 <- Gigaform
+generated 1227099..1228338 <- __convenience_const
+generated 1228535..1228765 <- Default
+generated 1228765..1232066 <- Encode
+generated 1232066..1242392 <- Decode
+generated 1242392..1254809 <- Gigaform
+generated 1254809..1256048 <- __convenience_const
+generated 1256107..1256203 <- Default
+generated 1256203..1258348 <- Encode
+generated 1258348..1264637 <- Decode
+generated 1264637..1267974 <- Gigaform
+generated 1267974..1269240 <- __convenience_const
+generated 1269303..1269402 <- Default
+generated 1269402..1271544 <- Encode
+generated 1271544..1276877 <- Decode
+generated 1276877..1280266 <- Gigaform
+generated 1280266..1281505 <- __convenience_const
+generated 1282006..1282526 <- Default
+generated 1282526..1287800 <- Encode
+generated 1287800..1311820 <- Decode
+generated 1311820..1339137 <- Gigaform
+generated 1339137..1340403 <- __convenience_const
+generated 1340494..1340620 <- Default
+generated 1340620..1342991 <- Encode
+generated 1342991..1351150 <- Decode
+generated 1351150..1355737 <- Gigaform
+generated 1355737..1357084 <- __convenience_const
+generated 1357201..1357343 <- Default
+generated 1357343..1359828 <- Encode
+generated 1359828..1369559 <- Decode
+generated 1369559..1375228 <- Gigaform
+generated 1375228..1376440 <- __convenience_const
+generated 1376527..1376644 <- Default
+generated 1376644..1378950 <- Encode
+generated 1378950..1385528 <- Decode
+generated 1385528..1390599 <- Gigaform
+generated 1390599..1391865 <- __convenience_const
+generated 1392186..1392494 <- Default
+generated 1392494..1396401 <- Encode
+generated 1396401..1412602 <- Decode
+generated 1412602..1428086 <- Gigaform
+generated 1428086..1429271 <- __convenience_const
+generated 1429391..1429540 <- Default
+generated 1429540..1432081 <- Encode
+generated 1432081..1441982 <- Decode
+generated 1441982..1447738 <- Gigaform
+generated 1447738..1449058 <- __convenience_const
+generated 1449143..1449256 <- Default
+generated 1449256..1451510 <- Encode
+generated 1451510..1457359 <- Decode
+generated 1457359..1461729 <- Gigaform
+generated 1461729..1462887 <- __convenience_const
+generated 1463025..1463187 <- Default
+generated 1463187..1465872 <- Encode
+generated 1465872..1473728 <- Decode
+generated 1473728..1481418 <- Gigaform
+generated 1481418..1482738 <- __convenience_const
+generated 1482807..1482919 <- Default
+generated 1482919..1485242 <- Encode
+generated 1485242..1491294 <- Decode
+generated 1491294..1495937 <- Gigaform
+generated 1495937..1497284 <- __convenience_const
+generated 1497410..1497549 <- Default
+generated 1497549..1500263 <- Encode
+generated 1500263..1508628 <- Decode
+generated 1508628..1514922 <- Gigaform
+generated 1514922..1516161 <- __convenience_const
+generated 1516253..1516371 <- Default
+generated 1516371..1518656 <- Encode
+generated 1518656..1526104 <- Decode
+generated 1526104..1530681 <- Gigaform
+generated 1530681..1531866 <- __convenience_const
+generated 1532093..1532350 <- Default
+generated 1532350..1535524 <- Encode
+generated 1535524..1547308 <- Decode
+generated 1547308..1556884 <- Gigaform
+generated 1556884..1558312 <- __convenience_const
+generated 1558367..1558459 <- Default
+generated 1558459..1560588 <- Encode
+generated 1560588..1566741 <- Decode
+generated 1566741..1569994 <- Gigaform
+generated 1569994..1571260 <- __convenience_const
+generated 1571366..1571510 <- Default
+generated 1571510..1574118 <- Encode
+generated 1574118..1581472 <- Decode
+generated 1581472..1588557 <- Gigaform
+generated 1588557..1589823 <- __convenience_const
+generated 1589973..1590073 <- Default
+generated 1590073..1592810 <- Encode
+generated 1592810..1599370 <- Decode
+generated 1599370..1605990 <- Gigaform
+generated 1605990..1606780 <- __convenience_const
+generated 1607546..1607625 <- Default
+generated 1607625..1608976 <- Encode
+generated 1608976..1614448 <- Decode
+generated 1614448..1639721 <- Gigaform
+generated 1639721..1640435 <- __convenience_const
+generated 1640599..1640681 <- Default
+generated 1640681..1642052 <- Encode
+generated 1642052..1644266 <- Decode
+generated 1644266..1651383 <- Gigaform
+generated 1651383..1652173 <- __convenience_const
+generated 1652448..1652532 <- Default
+generated 1652532..1658393 <- Encode
+generated 1658393..1672286 <- Decode
+generated 1672286..1685916 <- Gigaform
+generated 1685916..1686668 <- __convenience_const
+generated 1686734..1686812 <- Default
+generated 1686812..1688208 <- Encode
+generated 1688208..1690873 <- Decode
+generated 1690873..1695282 <- Gigaform
+generated 1695282..1696167 <- __convenience_const
+generated 1696233..1696320 <- Default
+generated 1696320..1697726 <- Encode
+generated 1697726..1699514 <- Decode
+generated 1699514..1704021 <- Gigaform
+generated 1704021..1704944 <- __convenience_const
+generated 1705024..1705104 <- Default
+generated 1705104..1706495 <- Encode
+generated 1706495..1708397 <- Decode
+generated 1708397..1713974 <- Gigaform
+generated 1713974..1714840 <- __convenience_const
+generated 1714909..1714985 <- Default
+generated 1714985..1716346 <- Encode
+generated 1716346..1718077 <- Decode
+generated 1718077..1722391 <- Gigaform
+generated 1722391..1723143 <- __convenience_const
+generated 1723297..1723370 <- Default
+generated 1723370..1724736 <- Encode
+generated 1724736..1726920 <- Decode
+generated 1726920..1734379 <- Gigaform
+generated 1734379..1735150 <- __convenience_const
+generated 1735225..1735299 <- Default
+generated 1735299..1736660 <- Encode
+generated 1736660..1738455 <- Decode
+generated 1738455..1743277 <- Gigaform
+generated 1743277..1744029 <- __convenience_const
+generated 1744149..1744232 <- Default
+generated 1744232..1745603 <- Encode
+generated 1745603..1747583 <- Decode
+generated 1747583..1753460 <- Gigaform
+generated 1753460..1754250 <- __convenience_const
+generated 1754384..1754459 <- Default
+generated 1754459..1755835 <- Encode
+generated 1755835..1757907 <- Decode
+generated 1757907..1764430 <- Gigaform
+generated 1764430..1765239 <- __convenience_const
+generated 1765309..1765407 <- Default
+generated 1765407..1767463 <- Encode
+generated 1767463..1772296 <- Decode
+generated 1772296..1776849 <- Gigaform
+generated 1776849..1777696 <- __convenience_const
+generated 1777764..1777839 <- Default
+generated 1777839..1779210 <- Encode
+generated 1779210..1780986 <- Decode
+generated 1780986..1785731 <- Gigaform
+generated 1785731..1786521 <- __convenience_const
+generated 1786690..1786772 <- Default
+generated 1786772..1788163 <- Encode
+generated 1788163..1790462 <- Decode
+generated 1790462..1798584 <- Gigaform
+generated 1798584..1799450 <- __convenience_const
+generated 1799592..1799671 <- Default
+generated 1799671..1801042 <- Encode
+generated 1801042..1803132 <- Decode
+generated 1803132..1809463 <- Gigaform
+generated 1809463..1810253 <- __convenience_const
+generated 1810356..1810453 <- Default
+generated 1810453..1813006 <- Encode
+generated 1813006..1819062 <- Decode
+generated 1819062..1824908 <- Gigaform
+generated 1824908..1825774 <- __convenience_const
+generated 1825890..1825970 <- Default
+generated 1825970..1827356 <- Encode
+generated 1827356..1829354 <- Decode
+generated 1829354..1835609 <- Gigaform
+generated 1835609..1836456 <- __convenience_const
+generated 1836580..1836676 <- Default
+generated 1836676..1839717 <- Encode
+generated 1839717..1846963 <- Decode
+generated 1846963..1854035 <- Gigaform
+generated 1854035..1854901 <- __convenience_const
+generated 1855006..1855083 <- Default
+generated 1855083..1856459 <- Encode
+generated 1856459..1858372 <- Decode
+generated 1858372..1863972 <- Gigaform
+generated 1863972..1864781 <- __convenience_const
+generated 1864859..1864940 <- Default
+generated 1864940..1866321 <- Encode
+generated 1866321..1868163 <- Decode
+generated 1868163..1873198 <- Gigaform
+generated 1873198..1874026 <- __convenience_const
+generated 1874346..1874416 <- Default
+generated 1874416..1875772 <- Encode
+generated 1875772..1878924 <- Decode
+generated 1878924..1892965 <- Gigaform
+generated 1892965..1893698 <- __convenience_const
+generated 1893778..1893839 <- Default
+generated 1893839..1896404 <- Encode
+generated 1896404..1901954 <- Decode
+generated 1901954..1906482 <- Gigaform
+generated 1906482..1907196 <- __convenience_const
+generated 1907254..1907333 <- Default
+generated 1907333..1908795 <- Encode
+generated 1908795..1911544 <- Decode
+generated 1911544..1912188 <- __convenience_const
+generated 1912253..1912332 <- Default
+generated 1912332..1914580 <- Encode
+generated 1914580..1919795 <- Decode
+generated 1919795..1924476 <- Gigaform
+generated 1924476..1925209 <- __convenience_const
 
 ## Metadata
 

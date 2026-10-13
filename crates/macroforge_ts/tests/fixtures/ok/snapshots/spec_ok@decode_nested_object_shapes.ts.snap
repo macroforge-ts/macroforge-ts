@@ -51,7 +51,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeArray as __mf_decodeArray, decodeRecord as __mf_decodeRecord, decodeMap as __mf_decodeMap, decodeNumber as __mf_decodeNumber, derivedEncoder as __mf_derivedEncoder, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions, Encoder as __mf_Encoder, Decoder as __mf_Decoder } from "@macroforge/core/endec";
 /**
  * Nested values encoded and decoded through an interface and an object type
@@ -103,7 +103,7 @@ function pointEncodeFields(value: Point, _ctx: __mf_EncodeContext, result: Recor
 export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = pointDecodeWithContext(data, ctx);
@@ -188,7 +188,7 @@ export function pointDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, 
     if ((__fields === undefined || __fields.requires("x")) ? "x" in obj : (__fields.keeps("x") && obj["x"] !== undefined)) {
         const __raw_x = obj["x"] as number;
 
-        if (!(typeof __raw_x === "number")) {
+        if (!(typeof __raw_x === "number" && globalThis.Number.isFinite(__raw_x))) {
             errors.push({ field: "x", message: __raw_x == null ? "Point.x is required" : "expected number" });
         } else {
             if (__raw_x == null) { errors.push({ field: "x", message: "Point.x is required" }); } else {
@@ -319,7 +319,7 @@ function routeEncodeFields(value: Route, ctx: __mf_EncodeContext, result: Record
 export function routeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Route } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = routeDecodeWithContext(data, ctx);
@@ -585,7 +585,7 @@ function labeledEncodeFields(value: Labeled, ctx: __mf_EncodeContext, result: Re
 export function labeledDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Labeled } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = labeledDecodeWithContext(data, ctx);
@@ -796,7 +796,7 @@ function boxEncodeFields<T>(value: Box<T>, ctx: __mf_EncodeContext, result: Reco
 export function boxDecode<T>(input: unknown, opts?: __mf_DecodeOptions, __decodeT?: __mf_Decoder<T>): { success: true; value: Box<T> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = boxDecodeWithContext<T>(data, ctx, __decodeT);
@@ -1016,7 +1016,7 @@ function pairEncodeFields<A, B>(value: Pair<A, B>, ctx: __mf_EncodeContext, resu
 export function pairDecode<A, B>(input: unknown, opts?: __mf_DecodeOptions, __decodeA?: __mf_Decoder<A>, __decodeB?: __mf_Decoder<B>): { success: true; value: Pair<A, B> } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = pairDecodeWithContext<A, B>(data, ctx, __decodeA, __decodeB);
@@ -1700,40 +1700,40 @@ export declare const Outcome: {
 
 ## Mapping
 
-original 0..152 -> expanded 902..1054
-original 182..212 -> expanded 1054..1084
-original 238..255 -> expanded 1084..1101
-original 255..257 -> expanded 10025..10027
-original 287..400 -> expanded 10027..10140
-original 400..402 -> expanded 22039..22041
-original 432..483 -> expanded 22041..22092
-original 505..526 -> expanded 22092..22113
-original 526..528 -> expanded 31416..31418
-original 558..619 -> expanded 31418..31479
-original 619..621 -> expanded 41355..41357
-original 651..710 -> expanded 41357..41416
-original 710..712 -> expanded 52379..52381
-original 742..784 -> expanded 52381..52423
-original 784..785 -> expanded 59755..59756
-generated 0..902 <- imports
-generated 1101..3173 <- Encode
-generated 3173..9090 <- Decode
-generated 9090..10025 <- __convenience_const
-generated 10140..12749 <- Encode
-generated 12749..21104 <- Decode
-generated 21104..22039 <- __convenience_const
-generated 22113..24550 <- Encode
-generated 24550..30439 <- Decode
-generated 30439..31416 <- __convenience_const
-generated 31479..33943 <- Encode
-generated 33943..40462 <- Decode
-generated 40462..41355 <- __convenience_const
-generated 41416..44146 <- Encode
-generated 44146..51465 <- Decode
-generated 51465..52379 <- __convenience_const
-generated 52423..54518 <- Encode
-generated 54518..59246 <- Decode
-generated 59246..59755 <- __convenience_const
+original 0..152 -> expanded 933..1085
+original 182..212 -> expanded 1085..1115
+original 238..255 -> expanded 1115..1132
+original 255..257 -> expanded 10100..10102
+original 287..400 -> expanded 10102..10215
+original 400..402 -> expanded 22119..22121
+original 432..483 -> expanded 22121..22172
+original 505..526 -> expanded 22172..22193
+original 526..528 -> expanded 31501..31503
+original 558..619 -> expanded 31503..31564
+original 619..621 -> expanded 41445..41447
+original 651..710 -> expanded 41447..41506
+original 710..712 -> expanded 52474..52476
+original 742..784 -> expanded 52476..52518
+original 784..785 -> expanded 59850..59851
+generated 0..933 <- imports
+generated 1132..3204 <- Encode
+generated 3204..9165 <- Decode
+generated 9165..10100 <- __convenience_const
+generated 10215..12824 <- Encode
+generated 12824..21184 <- Decode
+generated 21184..22119 <- __convenience_const
+generated 22193..24630 <- Encode
+generated 24630..30524 <- Decode
+generated 30524..31501 <- __convenience_const
+generated 31564..34028 <- Encode
+generated 34028..40552 <- Decode
+generated 40552..41445 <- __convenience_const
+generated 41506..44236 <- Encode
+generated 44236..51560 <- Decode
+generated 51560..52474 <- __convenience_const
+generated 52518..54613 <- Encode
+generated 54613..59341 <- Decode
+generated 59341..59850 <- __convenience_const
 
 ## Metadata
 

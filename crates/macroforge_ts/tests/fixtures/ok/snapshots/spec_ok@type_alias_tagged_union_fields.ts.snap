@@ -17,7 +17,7 @@ true
 
 ## Output
 
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeDate as __mf_decodeDate, decodeString as __mf_decodeString, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeNumber as __mf_decodeNumber, decodeObject as __mf_decodeObject, decodeDate as __mf_decodeDate, decodeString as __mf_decodeString, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Shape =
@@ -73,7 +73,7 @@ export function shapeEncodeWithContext(value: Shape, ctx: __mf_EncodeContext): u
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function shapeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Shape } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = shapeDecodeWithContext(data, ctx);
@@ -234,12 +234,12 @@ export {};
 
 ## Mapping
 
-original 61..165 -> expanded 562..666
-original 165..166 -> expanded 6811..6812
-generated 0..562 <- imports
-generated 666..2725 <- Encode
-generated 2725..6199 <- Decode
-generated 6199..6811 <- __convenience_const
+original 61..165 -> expanded 593..697
+original 165..166 -> expanded 6847..6848
+generated 0..593 <- imports
+generated 697..2756 <- Encode
+generated 2756..6235 <- Decode
+generated 6235..6847 <- __convenience_const
 
 ## Metadata
 

@@ -13,7 +13,7 @@ true
 ## Output
 
 import { serviceDefaultsDecodeWithContext, serviceDefaultsEncodeWithContext, serviceDefaultsDefaultValue } from "./service-defaults.svelte";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -154,7 +154,7 @@ function serviceEncodeFields(value: Service, ctx: __mf_EncodeContext, result: Re
 export function serviceDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Service } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = serviceDecodeWithContext(data, ctx);
@@ -1019,27 +1019,27 @@ export declare const Service: {
 
 ## Mapping
 
-original 0..125 -> expanded 948..1073
-original 174..206 -> expanded 1073..1105
-original 234..255 -> expanded 1105..1126
-original 296..301 -> expanded 1126..1131
-original 342..365 -> expanded 1131..1154
-original 412..417 -> expanded 1154..1159
-original 458..486 -> expanded 1159..1187
-original 551..582 -> expanded 1187..1218
-original 650..684 -> expanded 1218..1252
-original 750..780 -> expanded 1252..1282
-original 825..851 -> expanded 1282..1308
-original 900..930 -> expanded 1308..1338
-original 977..1005 -> expanded 1338..1366
-original 1054..1119 -> expanded 1366..1431
-original 1119..1120 -> expanded 36624..36625
-generated 0..948 <- imports
-generated 1431..1776 <- Default
-generated 1776..5622 <- Encode
-generated 5622..19909 <- Decode
-generated 19909..35385 <- Gigaform
-generated 35385..36624 <- __convenience_const
+original 0..125 -> expanded 979..1104
+original 174..206 -> expanded 1104..1136
+original 234..255 -> expanded 1136..1157
+original 296..301 -> expanded 1157..1162
+original 342..365 -> expanded 1162..1185
+original 412..417 -> expanded 1185..1190
+original 458..486 -> expanded 1190..1218
+original 551..582 -> expanded 1218..1249
+original 650..684 -> expanded 1249..1283
+original 750..780 -> expanded 1283..1313
+original 825..851 -> expanded 1313..1339
+original 900..930 -> expanded 1339..1369
+original 977..1005 -> expanded 1369..1397
+original 1054..1119 -> expanded 1397..1462
+original 1119..1120 -> expanded 36660..36661
+generated 0..979 <- imports
+generated 1462..1807 <- Default
+generated 1807..5653 <- Encode
+generated 5653..19945 <- Decode
+generated 19945..35421 <- Gigaform
+generated 35421..36660 <- __convenience_const
 
 ## Metadata
 

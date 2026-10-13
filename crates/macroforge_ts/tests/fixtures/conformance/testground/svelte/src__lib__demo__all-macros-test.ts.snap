@@ -13,7 +13,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Comprehensive test class for Svelte testground.
@@ -123,7 +123,7 @@ function svelteAllMacrosTestEncodeFields(value: SvelteAllMacrosTest, _ctx: __mf_
 export function svelteAllMacrosTestDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SvelteAllMacrosTest } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = svelteAllMacrosTestDecodeWithContext(data, ctx);
@@ -259,7 +259,7 @@ export function svelteAllMacrosTestDecodeWithContext(value: unknown, ctx: __mf_D
     if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
         const __raw_count = obj["count"] as number;
 
-        if (!(typeof __raw_count === "number")) {
+        if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
             errors.push({ field: "count", message: __raw_count == null ? "SvelteAllMacrosTest.count is required" : "expected number" });
         } else {
             instance.count = __raw_count;
@@ -401,18 +401,18 @@ export declare const svelteTestInstance: unknown;
 
 ## Mapping
 
-original 0..60 -> expanded 832..892
-original 121..165 -> expanded 892..936
-original 200..261 -> expanded 936..997
-original 290..353 -> expanded 997..1060
-original 353..886 -> expanded 15162..15695
-generated 0..832 <- imports
-generated 1060..1553 <- Debug
-generated 1553..1846 <- Clone
-generated 1846..2209 <- PartialEq
-generated 2209..5320 <- Encode
-generated 5320..14268 <- Decode
-generated 14268..15162 <- Hash
+original 0..60 -> expanded 863..923
+original 121..165 -> expanded 923..967
+original 200..261 -> expanded 967..1028
+original 290..353 -> expanded 1028..1091
+original 353..886 -> expanded 15241..15774
+generated 0..863 <- imports
+generated 1091..1584 <- Debug
+generated 1584..1877 <- Clone
+generated 1877..2240 <- PartialEq
+generated 2240..5351 <- Encode
+generated 5351..14347 <- Decode
+generated 14347..15241 <- Hash
 
 ## Metadata
 

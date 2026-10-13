@@ -29,7 +29,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, textOrValue as __mf_textOrValue } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 declare const __mf_newtype_1: unique symbol;
 declare const __mf_newtype_2: unique symbol;
@@ -54,7 +54,7 @@ export function metersEncodeWithContext(value: Meters): unknown {
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const result = metersDecodeWithContext(data, ctx);
@@ -95,7 +95,7 @@ export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "number") {
+    if (!((typeof __decoded === "number" && globalThis.Number.isFinite(__decoded)))) {
         throw new __mf_DecodeError([{ field: "_root", message: "Meters.decodeWithContext: expected number" }]);
     }
     const errors: Array<{ field: string; message: string }> = [];
@@ -106,11 +106,11 @@ export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
 }
 
 export function metersHasShape(value: unknown): boolean {
-    return typeof value === "number";
+    return (typeof value === "number" && globalThis.Number.isFinite(value));
 }
 
 export function metersIs(value: unknown): value is Meters {
-    return typeof value === "number" && metersDecode(value).success;
+    return (typeof value === "number" && globalThis.Number.isFinite(value)) && metersDecode(value).success;
 }
 
 export const Meters: {
@@ -188,7 +188,7 @@ export function usernameDecode(input: unknown, opts?: __mf_DecodeOptions): { suc
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function usernameDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Username {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "string") {
+    if (!(typeof __decoded === "string")) {
         throw new __mf_DecodeError([{ field: "_root", message: "Username.decodeWithContext: expected string" }]);
     }
     const errors: Array<{ field: string; message: string }> = [];
@@ -234,7 +234,7 @@ export type Flag = boolean & { readonly [__mf_newtype_3]: true };
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function flagDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Flag } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const result = flagDecodeWithContext(data, ctx);
@@ -275,7 +275,7 @@ export function flagDecode(input: unknown, opts?: __mf_DecodeOptions): { success
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function flagDecodeWithContext(value: unknown, _ctx: __mf_DecodeContext): Flag {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "boolean") {
+    if (!(typeof __decoded === "boolean")) {
         throw new __mf_DecodeError([{ field: "_root", message: "Flag.decodeWithContext: expected boolean" }]);
     }
     return __decoded as Flag;
@@ -375,7 +375,7 @@ export function centsDecodeWithContext(value: unknown, ctx: __mf_DecodeContext):
             throw new __mf_DecodeError([{ field: "_root", message: "Cents.decodeWithContext: expected bigint, " + String(__error) }]);
         }
     }
-    if (typeof __decoded !== "bigint") {
+    if (!(typeof __decoded === "bigint")) {
         throw new __mf_DecodeError([{ field: "_root", message: "Cents.decodeWithContext: expected bigint" }]);
     }
     const errors: Array<{ field: string; message: string }> = [];
@@ -558,44 +558,44 @@ export {};
 
 ## Mapping
 
-original 65..87 -> expanded 522..544
-original 103..104 -> expanded 588..589
-original 104..106 -> expanded 3908..3910
-original 209..233 -> expanded 3910..3934
-original 249..250 -> expanded 3978..3979
-original 250..252 -> expanded 7577..7579
-original 274..294 -> expanded 7579..7599
-original 311..312 -> expanded 7644..7645
-original 312..335 -> expanded 9718..9741
-original 360..363 -> expanded 9796..9799
-original 439..460 -> expanded 9799..9820
-original 476..477 -> expanded 9864..9865
-original 477..478 -> expanded 14069..14070
-generated 0..297 <- imports
-generated 297..342 <- $Newtype
-generated 342..387 <- $Newtype
-generated 387..432 <- $Newtype
-generated 432..477 <- $Newtype
-generated 477..522 <- $Newtype
-generated 544..588 <- $Newtype
-generated 589..1297 <- Encode
-generated 1297..3412 <- Decode
-generated 3412..3908 <- __convenience_const
-generated 3934..3978 <- $Newtype
-generated 3979..4703 <- Encode
-generated 4703..6877 <- Decode
-generated 6877..6963 <- Default
-generated 6963..7577 <- __convenience_const
-generated 7599..7644 <- $Newtype
-generated 7645..9412 <- Decode
-generated 9412..9718 <- __convenience_const
-generated 9741..9796 <- $Newtype
-generated 9820..9864 <- $Newtype
-generated 9865..10605 <- Encode
-generated 10605..13192 <- Decode
-generated 13192..13346 <- Hash
-generated 13346..13446 <- Debug
-generated 13446..14069 <- __convenience_const
+original 65..87 -> expanded 553..575
+original 103..104 -> expanded 619..620
+original 104..106 -> expanded 4068..4070
+original 209..233 -> expanded 4070..4094
+original 249..250 -> expanded 4138..4139
+original 250..252 -> expanded 7740..7742
+original 274..294 -> expanded 7742..7762
+original 311..312 -> expanded 7807..7808
+original 312..335 -> expanded 9889..9912
+original 360..363 -> expanded 9967..9970
+original 439..460 -> expanded 9970..9991
+original 476..477 -> expanded 10035..10036
+original 477..478 -> expanded 14243..14244
+generated 0..328 <- imports
+generated 328..373 <- $Newtype
+generated 373..418 <- $Newtype
+generated 418..463 <- $Newtype
+generated 463..508 <- $Newtype
+generated 508..553 <- $Newtype
+generated 575..619 <- $Newtype
+generated 620..1328 <- Encode
+generated 1328..3572 <- Decode
+generated 3572..4068 <- __convenience_const
+generated 4094..4138 <- $Newtype
+generated 4139..4863 <- Encode
+generated 4863..7040 <- Decode
+generated 7040..7126 <- Default
+generated 7126..7740 <- __convenience_const
+generated 7762..7807 <- $Newtype
+generated 7808..9583 <- Decode
+generated 9583..9889 <- __convenience_const
+generated 9912..9967 <- $Newtype
+generated 9991..10035 <- $Newtype
+generated 10036..10776 <- Encode
+generated 10776..13366 <- Decode
+generated 13366..13520 <- Hash
+generated 13520..13620 <- Debug
+generated 13620..14243 <- __convenience_const
 
 ## Metadata
 

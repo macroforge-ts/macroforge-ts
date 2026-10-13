@@ -30,7 +30,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Circle {
@@ -76,7 +76,7 @@ function circleEncodeFields(value: Circle, _ctx: __mf_EncodeContext, result: Rec
 export function circleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Circle } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = circleDecodeWithContext(data, ctx);
@@ -161,7 +161,7 @@ export function circleDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
     if ((__fields === undefined || __fields.requires("radius")) ? "radius" in obj : (__fields.keeps("radius") && obj["radius"] !== undefined)) {
         const __raw_radius = obj["radius"] as number;
 
-        if (!(typeof __raw_radius === "number")) {
+        if (!(typeof __raw_radius === "number" && globalThis.Number.isFinite(__raw_radius))) {
             errors.push({ field: "radius", message: __raw_radius == null ? "Circle.radius is required" : "expected number" });
         } else {
             instance.radius = __raw_radius;
@@ -265,7 +265,7 @@ function squareEncodeFields(value: Square, _ctx: __mf_EncodeContext, result: Rec
 export function squareDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Square } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = squareDecodeWithContext(data, ctx);
@@ -350,7 +350,7 @@ export function squareDecodeWithContext(value: unknown, ctx: __mf_DecodeContext,
     if ((__fields === undefined || __fields.requires("side")) ? "side" in obj : (__fields.keeps("side") && obj["side"] !== undefined)) {
         const __raw_side = obj["side"] as number;
 
-        if (!(typeof __raw_side === "number")) {
+        if (!(typeof __raw_side === "number" && globalThis.Number.isFinite(__raw_side))) {
             errors.push({ field: "side", message: __raw_side == null ? "Square.side is required" : "expected number" });
         } else {
             instance.side = __raw_side;
@@ -509,18 +509,18 @@ Error [320..349]: @derive(Decode): `Set<string> | string[]` holds `Set<string>`,
 
 ## Mapping
 
-original 30..71 -> expanded 648..689
-original 71..73 -> expanded 8980..8982
-original 103..142 -> expanded 8982..9021
-original 142..144 -> expanded 17272..17274
-original 174..351 -> expanded 17274..17451
-generated 0..648 <- imports
-generated 689..2796 <- Encode
-generated 2796..8031 <- Decode
-generated 8031..8980 <- __convenience_const
-generated 9021..11120 <- Encode
-generated 11120..16323 <- Decode
-generated 16323..17272 <- __convenience_const
+original 30..71 -> expanded 679..720
+original 71..73 -> expanded 9060..9062
+original 103..142 -> expanded 9062..9101
+original 142..144 -> expanded 17399..17401
+original 174..351 -> expanded 17401..17578
+generated 0..679 <- imports
+generated 720..2827 <- Encode
+generated 2827..8111 <- Decode
+generated 8111..9060 <- __convenience_const
+generated 9101..11200 <- Encode
+generated 11200..16450 <- Decode
+generated 16450..17399 <- __convenience_const
 
 ## Metadata
 

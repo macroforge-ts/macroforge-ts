@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeDate as __mf_decodeDate, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeNumber as __mf_decodeNumber } from "@macroforge/core/endec";
+import { encodedAs as __mf_encodedAs, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, EncodeContext as __mf_EncodeContext, derivedEncoder as __mf_derivedEncoder, decodeChecked as __mf_decodeChecked, decodeDate as __mf_decodeDate, decodeSet as __mf_decodeSet, decodeString as __mf_decodeString, decodeObject as __mf_decodeObject, holds as __mf_holds, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeNumber as __mf_decodeNumber } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 type Outcome = { ok: true; at: Date; tags: Set<string> } | { ok: false; reason: string };
@@ -70,7 +70,7 @@ export function outcomeEncodeWithContext(value: Outcome, ctx: __mf_EncodeContext
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function outcomeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Outcome } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = outcomeDecodeWithContext(data, ctx);
@@ -218,7 +218,7 @@ export function looseEncodeWithContext(value: Loose, ctx: __mf_EncodeContext): u
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function looseDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Loose } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = looseDecodeWithContext(data, ctx);
@@ -378,17 +378,17 @@ export {};
 
 ## Mapping
 
-original 30..120 -> expanded 649..739
-original 120..122 -> expanded 6860..6862
-original 186..272 -> expanded 6862..6948
-original 272..273 -> expanded 12940..12941
-generated 0..649 <- imports
-generated 739..2855 <- Encode
-generated 2855..6358 <- Decode
-generated 6358..6860 <- __convenience_const
-generated 6948..9072 <- Encode
-generated 9072..12464 <- Decode
-generated 12464..12940 <- __convenience_const
+original 30..120 -> expanded 680..770
+original 120..122 -> expanded 6896..6898
+original 186..272 -> expanded 6898..6984
+original 272..273 -> expanded 12981..12982
+generated 0..680 <- imports
+generated 770..2886 <- Encode
+generated 2886..6394 <- Decode
+generated 6394..6896 <- __convenience_const
+generated 6984..9108 <- Encode
+generated 9108..12505 <- Decode
+generated 12505..12981 <- __convenience_const
 
 ## Metadata
 

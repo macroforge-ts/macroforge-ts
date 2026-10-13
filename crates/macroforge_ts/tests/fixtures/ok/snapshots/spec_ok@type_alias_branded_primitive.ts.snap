@@ -20,7 +20,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, EncodeContext as __mf_EncodeContext, parsedText as __mf_parsedText, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
 import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 declare const MetersBrand: unique symbol;
 
@@ -44,7 +44,7 @@ export function metersEncodeWithContext(value: Meters): unknown {
 /** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
 export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Meters } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const result = metersDecodeWithContext(data, ctx);
@@ -85,7 +85,7 @@ export function metersDecode(input: unknown, opts?: __mf_DecodeOptions): { succe
 /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
 export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): Meters {
     const __decoded: unknown = value;
-    if (typeof __decoded !== "number") {
+    if (!((typeof __decoded === "number" && globalThis.Number.isFinite(__decoded)))) {
         throw new __mf_DecodeError([{ field: "_root", message: "Meters.decodeWithContext: expected number" }]);
     }
     const errors: Array<{ field: string; message: string }> = [];
@@ -95,11 +95,11 @@ export function metersDecodeWithContext(value: unknown, ctx: __mf_DecodeContext)
 }
 
 export function metersHasShape(value: unknown): boolean {
-    return typeof value === "number";
+    return (typeof value === "number" && globalThis.Number.isFinite(value));
 }
 
 export function metersIs(value: unknown): value is Meters {
-    return typeof value === "number" && metersDecode(value).success;
+    return (typeof value === "number" && globalThis.Number.isFinite(value)) && metersDecode(value).success;
 }
 
 export function metersDefaultValue(): Meters {
@@ -158,14 +158,14 @@ export {};
 
 ## Mapping
 
-original 0..43 -> expanded 264..307
-original 128..188 -> expanded 307..367
-original 188..189 -> expanded 3733..3734
-generated 0..264 <- imports
-generated 367..1075 <- Encode
-generated 1075..3082 <- Decode
-generated 3082..3156 <- Default
-generated 3156..3733 <- __convenience_const
+original 0..43 -> expanded 295..338
+original 128..188 -> expanded 338..398
+original 188..189 -> expanded 3893..3894
+generated 0..295 <- imports
+generated 398..1106 <- Encode
+generated 1106..3242 <- Decode
+generated 3242..3316 <- Default
+generated 3316..3893 <- __convenience_const
 
 ## Metadata
 

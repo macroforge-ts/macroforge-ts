@@ -18,7 +18,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 /** @endec({ renameAll: "kebab-case" }) */
@@ -71,7 +71,7 @@ function profileEncodeFields(value: Profile, _ctx: __mf_EncodeContext, result: R
 export function profileDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Profile } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = profileDecodeWithContext(data, ctx);
@@ -276,12 +276,12 @@ export {};
 
 ## Mapping
 
-original 30..141 -> expanded 648..759
-original 141..142 -> expanded 10062..10063
-generated 0..648 <- imports
-generated 759..3068 <- Encode
-generated 3068..9092 <- Decode
-generated 9092..10062 <- __convenience_const
+original 30..141 -> expanded 679..790
+original 141..142 -> expanded 10098..10099
+generated 0..679 <- imports
+generated 790..3099 <- Encode
+generated 3099..9128 <- Decode
+generated 9128..10098 <- __convenience_const
 
 ## Metadata
 

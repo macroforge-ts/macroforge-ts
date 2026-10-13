@@ -14,7 +14,7 @@ true
 
 import { edgeItemDecodePartialWithContext, edgeItemDecodeWithContext, edgeItemEncodePartialWithContext, edgeItemEncodeWithContext, edgeItemDefaultValue, edgeItemHasShape, edgeProfileDecodePartialWithContext, edgeProfileHasShape, edgeProfileEncodePartialWithContext, edgeItemDecode } from "./edge-types";
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, comparedWithin as __mf_comparedWithin, instanceOf as __mf_instanceOf } from "@macroforge/core/structural";
-import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeBoolean as __mf_decodeBoolean, decodeTuple as __mf_decodeTuple, decodeObject as __mf_decodeObject } from "@macroforge/core/endec";
+import { decodedLiteral as __mf_decodedLiteral, encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeString as __mf_decodeString, decodeArray as __mf_decodeArray, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef, decodeNumber as __mf_decodeNumber, decodeRecord as __mf_decodeRecord, decodeSet as __mf_decodeSet, decodeMap as __mf_decodeMap, decodeBoolean as __mf_decodeBoolean, decodeTuple as __mf_decodeTuple, decodeObject as __mf_decodeObject } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 /**
  * Every option a derive's decorator takes, each on a field of its own and in
@@ -307,7 +307,7 @@ function optionFieldsEncodeFields(value: OptionFields, ctx: __mf_EncodeContext, 
 export function optionFieldsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OptionFields } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = optionFieldsDecodeWithContext(data, ctx);
@@ -424,7 +424,7 @@ export function optionFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
         if (("count" in obj && obj["count"] !== undefined)) {
             const __raw_count = obj["count"] as number;
 
-            if (!(typeof __raw_count === "number")) {
+            if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
                 errors.push({ field: "count", message: "expected number" });
             } else {
                 instance.count = __raw_count;
@@ -512,7 +512,7 @@ export function optionFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
             const __rawNum: unknown = __raw_balance;
             const __numVal = typeof __rawNum === "number" ? __rawNum : typeof __rawNum === "string" && __rawNum.trim() !== "" ? globalThis.Number(__rawNum) : globalThis.Number.NaN;
-            if (globalThis.Number.isNaN(__numVal)) {
+            if (!globalThis.Number.isFinite(__numVal)) {
                 errors.push({ field: "balance", message: "expected a numeric string, got " + JSON.stringify(__raw_balance) });
             } else {
                 instance.balance = __numVal;
@@ -527,7 +527,7 @@ export function optionFieldsDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
 
                 const __rawNum: unknown = __raw_optionalBalance;
                 const __numVal = typeof __rawNum === "number" ? __rawNum : typeof __rawNum === "string" && __rawNum.trim() !== "" ? globalThis.Number(__rawNum) : globalThis.Number.NaN;
-                if (globalThis.Number.isNaN(__numVal)) {
+                if (!globalThis.Number.isFinite(__numVal)) {
                     errors.push({ field: "optionalBalance", message: "expected a numeric string, got " + JSON.stringify(__raw_optionalBalance) });
                 } else {
                     instance.optionalBalance = __numVal;
@@ -663,7 +663,7 @@ function optionScreamingEncodeFields(value: OptionScreaming, _ctx: __mf_EncodeCo
 export function optionScreamingDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OptionScreaming } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = optionScreamingDecodeWithContext(data, ctx);
@@ -889,7 +889,7 @@ function optionKebabEncodeFields(value: OptionKebab, ctx: __mf_EncodeContext, re
 export function optionKebabDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OptionKebab } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = optionKebabDecodeWithContext(data, ctx);
@@ -1127,7 +1127,7 @@ constructor(props: { firstName: string; homeTown: string | null }) {
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OptionPascal } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = OptionPascal.decodeWithContext(data, ctx);
@@ -1357,7 +1357,7 @@ function optionCamelEncodeFields(value: OptionCamel, _ctx: __mf_EncodeContext, r
 export function optionCamelDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OptionCamel } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = optionCamelDecodeWithContext(data, ctx);
@@ -1576,7 +1576,7 @@ function optionFlattenedEncodeFields(value: OptionFlattened, ctx: __mf_EncodeCon
 export function optionFlattenedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OptionFlattened } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = optionFlattenedDecodeWithContext(data, ctx);
@@ -1813,7 +1813,7 @@ function optionFlattenedOptionalEncodeFields(value: OptionFlattenedOptional, ctx
 export function optionFlattenedOptionalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OptionFlattenedOptional } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = optionFlattenedOptionalDecodeWithContext(data, ctx);
@@ -2060,7 +2060,7 @@ function optionStrictEncodeFields(value: OptionStrict, ctx: __mf_EncodeContext, 
 export function optionStrictDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OptionStrict } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = optionStrictDecodeWithContext(data, ctx);
@@ -2313,7 +2313,7 @@ function optionTaggedEncodeFields(value: OptionTagged, ctx: __mf_EncodeContext, 
 export function optionTaggedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OptionTagged } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = optionTaggedDecodeWithContext(data, ctx);
@@ -2582,7 +2582,7 @@ function optionValidatedEncodeFields(value: OptionValidated, _ctx: __mf_EncodeCo
 export function optionValidatedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OptionValidated } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = optionValidatedDecodeWithContext(data, ctx);
@@ -2705,7 +2705,7 @@ export function optionValidatedDecodeWithContext(value: unknown, ctx: __mf_Decod
     if ((__fields === undefined || __fields.requires("nullableCount")) ? "nullableCount" in obj : (__fields.keeps("nullableCount") && obj["nullableCount"] !== undefined)) {
         const __raw_nullableCount = obj["nullableCount"] as number | null;
 
-        if (!(typeof __raw_nullableCount === "number" || __raw_nullableCount === null)) {
+        if (!(typeof __raw_nullableCount === "number" && globalThis.Number.isFinite(__raw_nullableCount) || __raw_nullableCount === null)) {
             errors.push({ field: "nullableCount", message: "expected number | null" });
         } else {if (__raw_nullableCount != null) {
             if (__raw_nullableCount <= 0) { errors.push({ field: "nullableCount", message: "OptionValidated.nullableCount must be positive" }); }
@@ -2716,7 +2716,7 @@ export function optionValidatedDecodeWithContext(value: unknown, ctx: __mf_Decod
     if ((__fields === undefined || __fields.requires("laterCount")) || (__fields.keeps("laterCount") && obj["laterCount"] !== undefined)) {
         const __raw_laterCount = obj["laterCount"] as number | undefined;
 
-        if (!(typeof __raw_laterCount === "number" || __raw_laterCount === undefined)) {
+        if (!(typeof __raw_laterCount === "number" && globalThis.Number.isFinite(__raw_laterCount) || __raw_laterCount === undefined)) {
             errors.push({ field: "laterCount", message: "expected number | undefined" });
         } else {
             if (__raw_laterCount != null) {
@@ -2786,7 +2786,7 @@ export function optionValidatedDecodeWithContext(value: unknown, ctx: __mf_Decod
         if (("retries" in obj && obj["retries"] !== undefined)) {
             const __raw_retries = obj["retries"] as number;
 
-            if (!(typeof __raw_retries === "number")) {
+            if (!(typeof __raw_retries === "number" && globalThis.Number.isFinite(__raw_retries))) {
                 errors.push({ field: "retries", message: "expected number" });
             } else {
                 if (__raw_retries != null) {
@@ -3125,7 +3125,7 @@ function optionKindsEncodeFields(value: OptionKinds, ctx: __mf_EncodeContext, re
 export function optionKindsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OptionKinds } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = optionKindsDecodeWithContext(data, ctx);
@@ -3282,7 +3282,7 @@ export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
         const __raw_count = obj["count"] as number;
 
-        if (!(typeof __raw_count === "number")) {
+        if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
             errors.push({ field: "count", message: __raw_count == null ? "OptionKinds.count is required" : "expected number" });
         } else {
             instance.count = __raw_count;
@@ -3591,7 +3591,7 @@ export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     if ((__fields === undefined || __fields.requires("bytes")) ? "bytes" in obj : (__fields.keeps("bytes") && obj["bytes"] !== undefined)) {
         try {
             instance.bytes = ((v) => {
-        	if (!Array.isArray(v) || !v.every((n: unknown): n is number => typeof n === "number")) throw new TypeError("expected an array of numbers");
+        	if (!Array.isArray(v) || !v.every((n: unknown): n is number => typeof n === "number" && Number.isFinite(n))) throw new TypeError("expected an array of numbers");
         	return new Uint8Array(v);
         })(obj["bytes"]);
         } catch (__error) {
@@ -3611,7 +3611,7 @@ export function optionKindsDecodeWithContext(value: unknown, ctx: __mf_DecodeCon
     if ((__fields === undefined || __fields.requires("buffer")) ? "buffer" in obj : (__fields.keeps("buffer") && obj["buffer"] !== undefined)) {
         try {
             instance.buffer = ((v) => {
-        	if (!Array.isArray(v) || !v.every((n: unknown): n is number => typeof n === "number")) throw new TypeError("expected an array of numbers");
+        	if (!Array.isArray(v) || !v.every((n: unknown): n is number => typeof n === "number" && Number.isFinite(n))) throw new TypeError("expected an array of numbers");
         	return new Uint8Array(v).buffer;
         })(obj["buffer"]);
         } catch (__error) {
@@ -3863,7 +3863,7 @@ constructor(props: { text: string; count: number; at: Date; big: bigint; item: E
 static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OptionKindsClass } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = OptionKindsClass.decodeWithContext(data, ctx);
@@ -3991,7 +3991,7 @@ static decodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __m
     if ((__fields === undefined || __fields.requires("count")) ? "count" in obj : (__fields.keeps("count") && obj["count"] !== undefined)) {
         const __raw_count = obj["count"] as number;
 
-        if (!(typeof __raw_count === "number")) {
+        if (!(typeof __raw_count === "number" && globalThis.Number.isFinite(__raw_count))) {
             errors.push({ field: "count", message: __raw_count == null ? "OptionKindsClass.count is required" : "expected number" });
         } else {
             instance.count = __raw_count;
@@ -5125,82 +5125,82 @@ export declare function optionKindsClassIs(value: unknown): value is OptionKinds
 
 ## Mapping
 
-original 0..680 -> expanded 1546..2226
-original 680..1188 -> expanded 5418..5926
-original 1188..1439 -> expanded 6414..6665
-original 1439..1440 -> expanded 6989..6990
-original 1440..2512 -> expanded 7113..8185
-original 2512..2743 -> expanded 25652..25883
-original 2743..2920 -> expanded 36673..36850
-original 2920..3088 -> expanded 47950..48118
-original 3088..3089 -> expanded 55980..55981
-original 3089..3243 -> expanded 59203..59357
-original 3243..3431 -> expanded 68948..69136
-original 3431..3637 -> expanded 79969..80175
-original 3637..3837 -> expanded 92082..92282
-original 3837..3984 -> expanded 103808..103955
-original 3984..4627 -> expanded 114152..114795
-original 4627..5235 -> expanded 137048..137656
-original 5235..5710 -> expanded 170727..171202
-original 5710..6103 -> expanded 171784..172177
-original 6103..6104 -> expanded 194638..194639
-original 6104..6105 -> expanded 198075..198076
-generated 0..1546 <- imports
-generated 2226..2647 <- Debug
-generated 2647..2893 <- Clone
-generated 2893..3141 <- PartialEq
-generated 3141..3790 <- Hash
-generated 3790..4397 <- PartialOrd
-generated 4397..4876 <- Ord
-generated 4876..5418 <- __convenience_const
-generated 5926..6270 <- Default
-generated 6270..6414 <- __convenience_const
-generated 6665..6989 <- Default
-generated 6990..7113 <- Default
-generated 8185..11985 <- Encode
-generated 11985..24570 <- Decode
-generated 24570..25652 <- __convenience_const
-generated 25883..28498 <- Encode
-generated 28498..35528 <- Decode
-generated 35528..36673 <- __convenience_const
-generated 36850..39437 <- Encode
-generated 39437..46889 <- Decode
-generated 46889..47950 <- __convenience_const
-generated 48118..49888 <- Encode
-generated 49888..50219 <- Encode
-generated 50219..55980 <- Decode
-generated 55981..57361 <- Encode
-generated 57361..59203 <- Decode
-generated 59357..61730 <- Encode
-generated 61730..67887 <- Decode
-generated 67887..68948 <- __convenience_const
-generated 69136..72019 <- Encode
-generated 72019..78824 <- Decode
-generated 78824..79969 <- __convenience_const
-generated 80175..83015 <- Encode
-generated 83015..90769 <- Decode
-generated 90769..92082 <- __convenience_const
-generated 92282..94877 <- Encode
-generated 94877..102726 <- Decode
-generated 102726..103808 <- __convenience_const
-generated 103955..106364 <- Encode
-generated 106364..113070 <- Decode
-generated 113070..114152 <- __convenience_const
-generated 114795..118300 <- Encode
-generated 118300..135903 <- Decode
-generated 135903..137048 <- __convenience_const
-generated 137656..143788 <- Encode
-generated 143788..169666 <- Decode
-generated 169666..170727 <- __convenience_const
-generated 171202..171628 <- Default
-generated 171628..171784 <- __convenience_const
-generated 172177..172926 <- Default
-generated 172926..176635 <- Encode
-generated 176635..176974 <- Encode
-generated 176974..194638 <- Decode
-generated 194639..194753 <- Default
-generated 194753..196173 <- Encode
-generated 196173..198075 <- Decode
+original 0..680 -> expanded 1577..2257
+original 680..1188 -> expanded 5449..5957
+original 1188..1439 -> expanded 6445..6696
+original 1439..1440 -> expanded 7020..7021
+original 1440..2512 -> expanded 7144..8216
+original 2512..2743 -> expanded 25739..25970
+original 2743..2920 -> expanded 36765..36942
+original 2920..3088 -> expanded 48047..48215
+original 3088..3089 -> expanded 56082..56083
+original 3089..3243 -> expanded 59305..59459
+original 3243..3431 -> expanded 69055..69243
+original 3431..3637 -> expanded 80081..80287
+original 3637..3837 -> expanded 92199..92399
+original 3837..3984 -> expanded 103930..104077
+original 3984..4627 -> expanded 114279..114922
+original 4627..5235 -> expanded 137324..137932
+original 5235..5710 -> expanded 171095..171570
+original 5710..6103 -> expanded 172152..172545
+original 6103..6104 -> expanded 195054..195055
+original 6104..6105 -> expanded 198491..198492
+generated 0..1577 <- imports
+generated 2257..2678 <- Debug
+generated 2678..2924 <- Clone
+generated 2924..3172 <- PartialEq
+generated 3172..3821 <- Hash
+generated 3821..4428 <- PartialOrd
+generated 4428..4907 <- Ord
+generated 4907..5449 <- __convenience_const
+generated 5957..6301 <- Default
+generated 6301..6445 <- __convenience_const
+generated 6696..7020 <- Default
+generated 7021..7144 <- Default
+generated 8216..12016 <- Encode
+generated 12016..24657 <- Decode
+generated 24657..25739 <- __convenience_const
+generated 25970..28585 <- Encode
+generated 28585..35620 <- Decode
+generated 35620..36765 <- __convenience_const
+generated 36942..39529 <- Encode
+generated 39529..46986 <- Decode
+generated 46986..48047 <- __convenience_const
+generated 48215..49985 <- Encode
+generated 49985..50316 <- Encode
+generated 50316..56082 <- Decode
+generated 56083..57463 <- Encode
+generated 57463..59305 <- Decode
+generated 59459..61832 <- Encode
+generated 61832..67994 <- Decode
+generated 67994..69055 <- __convenience_const
+generated 69243..72126 <- Encode
+generated 72126..78936 <- Decode
+generated 78936..80081 <- __convenience_const
+generated 80287..83127 <- Encode
+generated 83127..90886 <- Decode
+generated 90886..92199 <- __convenience_const
+generated 92399..94994 <- Encode
+generated 94994..102848 <- Decode
+generated 102848..103930 <- __convenience_const
+generated 104077..106486 <- Encode
+generated 106486..113197 <- Decode
+generated 113197..114279 <- __convenience_const
+generated 114922..118427 <- Encode
+generated 118427..136179 <- Decode
+generated 136179..137324 <- __convenience_const
+generated 137932..144064 <- Encode
+generated 144064..170034 <- Decode
+generated 170034..171095 <- __convenience_const
+generated 171570..171996 <- Default
+generated 171996..172152 <- __convenience_const
+generated 172545..173294 <- Default
+generated 173294..177003 <- Encode
+generated 177003..177342 <- Encode
+generated 177342..195054 <- Decode
+generated 195055..195169 <- Default
+generated 195169..196589 <- Encode
+generated 196589..198491 <- Decode
 
 ## Metadata
 

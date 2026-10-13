@@ -21,7 +21,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface Settings {
@@ -82,7 +82,7 @@ function settingsEncodeFields(value: Settings, _ctx: __mf_EncodeContext, result:
 export function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = settingsDecodeWithContext(data, ctx);
@@ -165,7 +165,7 @@ export function settingsDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
         if (("retries" in obj && obj["retries"] !== undefined)) {
             const __raw_retries = obj["retries"] as number;
 
-            if (!(typeof __raw_retries === "number")) {
+            if (!(typeof __raw_retries === "number" && globalThis.Number.isFinite(__raw_retries))) {
                 errors.push({ field: "retries", message: "expected number" });
             } else {
                 instance.retries = __raw_retries;
@@ -295,15 +295,15 @@ export {};
 
 ## Mapping
 
-original 30..56 -> expanded 627..653
-original 88..114 -> expanded 653..679
-original 176..201 -> expanded 679..704
-original 235..259 -> expanded 704..728
-original 259..260 -> expanded 10158..10159
-generated 0..627 <- imports
-generated 728..3203 <- Encode
-generated 3203..9167 <- Decode
-generated 9167..10158 <- __convenience_const
+original 30..56 -> expanded 658..684
+original 88..114 -> expanded 684..710
+original 176..201 -> expanded 710..735
+original 235..259 -> expanded 735..759
+original 259..260 -> expanded 10239..10240
+generated 0..658 <- imports
+generated 759..3234 <- Encode
+generated 3234..9248 <- Decode
+generated 9248..10239 <- __convenience_const
 
 ## Metadata
 

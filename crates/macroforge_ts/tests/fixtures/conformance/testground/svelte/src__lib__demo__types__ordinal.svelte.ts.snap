@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -118,7 +118,7 @@ function ordinalEncodeFields(value: Ordinal, _ctx: __mf_EncodeContext, result: R
 export function ordinalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Ordinal } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = ordinalDecodeWithContext(data, ctx);
@@ -224,7 +224,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("north")) ? "north" in obj : (__fields.keeps("north") && obj["north"] !== undefined)) {
         const __raw_north = obj["north"] as number;
 
-        if (!(typeof __raw_north === "number")) {
+        if (!(typeof __raw_north === "number" && globalThis.Number.isFinite(__raw_north))) {
             errors.push({ field: "north", message: __raw_north == null ? "Ordinal.north is required" : "expected number" });
         } else {
             instance.north = __raw_north;
@@ -233,7 +233,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("northeast")) ? "northeast" in obj : (__fields.keeps("northeast") && obj["northeast"] !== undefined)) {
         const __raw_northeast = obj["northeast"] as number;
 
-        if (!(typeof __raw_northeast === "number")) {
+        if (!(typeof __raw_northeast === "number" && globalThis.Number.isFinite(__raw_northeast))) {
             errors.push({ field: "northeast", message: __raw_northeast == null ? "Ordinal.northeast is required" : "expected number" });
         } else {
             instance.northeast = __raw_northeast;
@@ -242,7 +242,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("east")) ? "east" in obj : (__fields.keeps("east") && obj["east"] !== undefined)) {
         const __raw_east = obj["east"] as number;
 
-        if (!(typeof __raw_east === "number")) {
+        if (!(typeof __raw_east === "number" && globalThis.Number.isFinite(__raw_east))) {
             errors.push({ field: "east", message: __raw_east == null ? "Ordinal.east is required" : "expected number" });
         } else {
             instance.east = __raw_east;
@@ -251,7 +251,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("southeast")) ? "southeast" in obj : (__fields.keeps("southeast") && obj["southeast"] !== undefined)) {
         const __raw_southeast = obj["southeast"] as number;
 
-        if (!(typeof __raw_southeast === "number")) {
+        if (!(typeof __raw_southeast === "number" && globalThis.Number.isFinite(__raw_southeast))) {
             errors.push({ field: "southeast", message: __raw_southeast == null ? "Ordinal.southeast is required" : "expected number" });
         } else {
             instance.southeast = __raw_southeast;
@@ -260,7 +260,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("south")) ? "south" in obj : (__fields.keeps("south") && obj["south"] !== undefined)) {
         const __raw_south = obj["south"] as number;
 
-        if (!(typeof __raw_south === "number")) {
+        if (!(typeof __raw_south === "number" && globalThis.Number.isFinite(__raw_south))) {
             errors.push({ field: "south", message: __raw_south == null ? "Ordinal.south is required" : "expected number" });
         } else {
             instance.south = __raw_south;
@@ -269,7 +269,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("southwest")) ? "southwest" in obj : (__fields.keeps("southwest") && obj["southwest"] !== undefined)) {
         const __raw_southwest = obj["southwest"] as number;
 
-        if (!(typeof __raw_southwest === "number")) {
+        if (!(typeof __raw_southwest === "number" && globalThis.Number.isFinite(__raw_southwest))) {
             errors.push({ field: "southwest", message: __raw_southwest == null ? "Ordinal.southwest is required" : "expected number" });
         } else {
             instance.southwest = __raw_southwest;
@@ -278,7 +278,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("west")) ? "west" in obj : (__fields.keeps("west") && obj["west"] !== undefined)) {
         const __raw_west = obj["west"] as number;
 
-        if (!(typeof __raw_west === "number")) {
+        if (!(typeof __raw_west === "number" && globalThis.Number.isFinite(__raw_west))) {
             errors.push({ field: "west", message: __raw_west == null ? "Ordinal.west is required" : "expected number" });
         } else {
             instance.west = __raw_west;
@@ -287,7 +287,7 @@ export function ordinalDecodeWithContext(value: unknown, ctx: __mf_DecodeContext
     if ((__fields === undefined || __fields.requires("northwest")) ? "northwest" in obj : (__fields.keeps("northwest") && obj["northwest"] !== undefined)) {
         const __raw_northwest = obj["northwest"] as number;
 
-        if (!(typeof __raw_northwest === "number")) {
+        if (!(typeof __raw_northwest === "number" && globalThis.Number.isFinite(__raw_northwest))) {
             errors.push({ field: "northwest", message: __raw_northwest == null ? "Ordinal.northwest is required" : "expected number" });
         } else {
             instance.northwest = __raw_northwest;
@@ -806,15 +806,15 @@ export declare const Ordinal: {
 
 ## Mapping
 
-original 0..58 -> expanded 807..865
-original 107..302 -> expanded 865..1060
-original 302..303 -> expanded 28210..28211
-generated 0..807 <- imports
-generated 1060..1290 <- Default
-generated 1290..4591 <- Encode
-generated 4591..14554 <- Decode
-generated 14554..26971 <- Gigaform
-generated 26971..28210 <- __convenience_const
+original 0..58 -> expanded 838..896
+original 107..302 -> expanded 896..1091
+original 302..303 -> expanded 28604..28605
+generated 0..838 <- imports
+generated 1091..1321 <- Default
+generated 1321..4622 <- Encode
+generated 4622..14948 <- Decode
+generated 14948..27365 <- Gigaform
+generated 27365..28604 <- __convenience_const
 
 ## Metadata
 

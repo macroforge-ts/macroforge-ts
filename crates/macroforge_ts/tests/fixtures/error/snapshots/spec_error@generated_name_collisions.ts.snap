@@ -41,7 +41,7 @@ true
 ## Output
 
 import { debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith } from "@macroforge/core/structural";
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 
 interface HTTPResponse {
@@ -99,7 +99,7 @@ function httpResponseEncodeFields(value: HTTPResponse, _ctx: __mf_EncodeContext,
 export function httpResponseDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: HTTPResponse } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = httpResponseDecodeWithContext(data, ctx);
@@ -184,7 +184,7 @@ export function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
     if ((__fields === undefined || __fields.requires("status")) ? "status" in obj : (__fields.keeps("status") && obj["status"] !== undefined)) {
         const __raw_status = obj["status"] as number;
 
-        if (!(typeof __raw_status === "number")) {
+        if (!(typeof __raw_status === "number" && globalThis.Number.isFinite(__raw_status))) {
             errors.push({ field: "status", message: __raw_status == null ? "HTTPResponse.status is required" : "expected number" });
         } else {
             instance.status = __raw_status;
@@ -304,7 +304,7 @@ function httpResponseEncodeFields(value: HttpResponse, _ctx: __mf_EncodeContext,
 export function httpResponseDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: HttpResponse } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = httpResponseDecodeWithContext(data, ctx);
@@ -389,7 +389,7 @@ export function httpResponseDecodeWithContext(value: unknown, ctx: __mf_DecodeCo
     if ((__fields === undefined || __fields.requires("code")) ? "code" in obj : (__fields.keeps("code") && obj["code"] !== undefined)) {
         const __raw_code = obj["code"] as number;
 
-        if (!(typeof __raw_code === "number")) {
+        if (!(typeof __raw_code === "number" && globalThis.Number.isFinite(__raw_code))) {
             errors.push({ field: "code", message: __raw_code == null ? "HttpResponse.code is required" : "expected number" });
         } else {
             instance.code = __raw_code;
@@ -684,33 +684,33 @@ Error [352..366]: `@derive(Clone)` on 'Account' generates `accountClone`, a name
 
 ## Mapping
 
-original 44..91 -> expanded 764..811
-original 91..93 -> expanded 10101..10103
-original 137..182 -> expanded 10103..10148
-original 182..184 -> expanded 19390..19392
-original 206..241 -> expanded 19392..19427
-original 241..243 -> expanded 21807..21809
-original 265..307 -> expanded 21809..21851
-original 307..347 -> expanded 24367..24407
-original 368..406 -> expanded 24407..24445
-original 406..441 -> expanded 24662..24697
-generated 0..764 <- imports
-generated 811..1083 <- Debug
-generated 1083..1240 <- Clone
-generated 1240..3437 <- Encode
-generated 3437..8870 <- Decode
-generated 8870..10101 <- __convenience_const
-generated 10148..10416 <- Debug
-generated 10416..10569 <- Clone
-generated 10569..12758 <- Encode
-generated 12758..18159 <- Decode
-generated 18159..19390 <- __convenience_const
-generated 19427..21488 <- Encode
-generated 21488..21807 <- __convenience_const
-generated 21851..24006 <- Encode
-generated 24006..24367 <- __convenience_const
-generated 24445..24574 <- Clone
-generated 24574..24662 <- __convenience_const
+original 44..91 -> expanded 795..842
+original 91..93 -> expanded 10181..10183
+original 137..182 -> expanded 10183..10228
+original 182..184 -> expanded 19517..19519
+original 206..241 -> expanded 19519..19554
+original 241..243 -> expanded 21934..21936
+original 265..307 -> expanded 21936..21978
+original 307..347 -> expanded 24494..24534
+original 368..406 -> expanded 24534..24572
+original 406..441 -> expanded 24789..24824
+generated 0..795 <- imports
+generated 842..1114 <- Debug
+generated 1114..1271 <- Clone
+generated 1271..3468 <- Encode
+generated 3468..8950 <- Decode
+generated 8950..10181 <- __convenience_const
+generated 10228..10496 <- Debug
+generated 10496..10649 <- Clone
+generated 10649..12838 <- Encode
+generated 12838..18286 <- Decode
+generated 18286..19517 <- __convenience_const
+generated 19554..21615 <- Encode
+generated 21615..21934 <- __convenience_const
+generated 21978..24133 <- Encode
+generated 24133..24494 <- __convenience_const
+generated 24572..24701 <- Clone
+generated 24701..24789 <- __convenience_const
 
 ## Metadata
 

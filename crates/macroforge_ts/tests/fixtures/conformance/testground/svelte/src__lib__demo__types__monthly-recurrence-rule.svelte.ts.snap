@@ -12,7 +12,7 @@ true
 
 ## Output
 
-import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_FieldRequirement, DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
 import { Option, Exit } from "effect";
 import type { FieldController } from "@testground/macro/gigaform";
@@ -84,7 +84,7 @@ function monthlyRecurrenceRuleEncodeFields(value: MonthlyRecurrenceRule, _ctx: _
 export function monthlyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MonthlyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
     try {
 
-        const data = typeof input === "string" ? JSON.parse(input) : input;
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
 
         const ctx = __mf_DecodeContext.create();
         const resultOrRef = monthlyRecurrenceRuleDecodeWithContext(data, ctx);
@@ -175,7 +175,7 @@ export function monthlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf
     if ((__fields === undefined || __fields.requires("quantityOfMonths")) ? "quantityOfMonths" in obj : (__fields.keeps("quantityOfMonths") && obj["quantityOfMonths"] !== undefined)) {
         const __raw_quantityOfMonths = obj["quantityOfMonths"] as number;
 
-        if (!(typeof __raw_quantityOfMonths === "number")) {
+        if (!(typeof __raw_quantityOfMonths === "number" && globalThis.Number.isFinite(__raw_quantityOfMonths))) {
             errors.push({ field: "quantityOfMonths", message: __raw_quantityOfMonths == null ? "MonthlyRecurrenceRule.quantityOfMonths is required" : "expected number" });
         } else {
             instance.quantityOfMonths = __raw_quantityOfMonths;
@@ -184,7 +184,7 @@ export function monthlyRecurrenceRuleDecodeWithContext(value: unknown, ctx: __mf
     if ((__fields === undefined || __fields.requires("day")) ? "day" in obj : (__fields.keeps("day") && obj["day"] !== undefined)) {
         const __raw_day = obj["day"] as number;
 
-        if (!(typeof __raw_day === "number")) {
+        if (!(typeof __raw_day === "number" && globalThis.Number.isFinite(__raw_day))) {
             errors.push({ field: "day", message: __raw_day == null ? "MonthlyRecurrenceRule.day is required" : "expected number" });
         } else {
             instance.day = __raw_day;
@@ -538,16 +538,16 @@ export declare const MonthlyRecurrenceRule: {
 
 ## Mapping
 
-original 0..58 -> expanded 807..865
-original 107..200 -> expanded 865..958
-original 241..261 -> expanded 958..978
-original 261..262 -> expanded 19836..19837
-generated 0..807 <- imports
-generated 978..1141 <- Default
-generated 1141..3823 <- Encode
-generated 3823..11906 <- Decode
-generated 11906..18219 <- Gigaform
-generated 18219..19836 <- __convenience_const
+original 0..58 -> expanded 838..896
+original 107..200 -> expanded 896..989
+original 241..261 -> expanded 989..1009
+original 261..262 -> expanded 19967..19968
+generated 0..838 <- imports
+generated 1009..1172 <- Default
+generated 1172..3854 <- Encode
+generated 3854..12037 <- Decode
+generated 12037..18350 <- Gigaform
+generated 18350..19967 <- __convenience_const
 
 ## Metadata
 

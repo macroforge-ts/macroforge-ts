@@ -207,6 +207,11 @@ Deno.test('fields written through type operators are coded by what the operator 
         return [...new Set(result.errors.map((error) => error.field))];
     };
     assertEquals(fieldsOf({ literal: 'other' }), ['literal']);
+    // An operator over a declared type is read as what it yields.
+    assertEquals(fieldsOf({ indexed: 5 }), ['indexed']);
+    assertEquals(fieldsOf({ keys: 'neither' }), ['keys']);
+    assertEquals(fieldsOf({ template: 'item-none' }), ['template']);
+    assertEquals(fieldsOf({ structure: 5 }), ['structure']);
     assertEquals(fieldsOf({ truth: false }), ['truth']);
     assertEquals(fieldsOf({ zero: 1 }), ['zero']);
     assertEquals(fieldsOf({ readonlyItem: { id: 'r' } }), ['readonlyItem.score']);
