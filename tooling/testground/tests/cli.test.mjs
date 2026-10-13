@@ -562,6 +562,45 @@ Deno.test('CLI expand: exits with code 2 when no macros found', () => {
     }
 });
 
+Deno.test('CLI expand: a relative path names the file an absolute one does', () => {
+    setupTmpDir();
+    try {
+        // Two files declare `Part`, so only its file tells one from the other.
+        fs.writeFileSync(
+            path.join(tmpDir, 'other.ts'),
+            `/** @derive(Encode, Decode) */
+export interface Part { other: string; }
+`
+        );
+        fs.writeFileSync(
+            path.join(tmpDir, 'whole.ts'),
+            `/** @derive(Encode, Decode) */
+export interface Part { id: string; }
+
+/** @derive(Encode, Decode) */
+export interface Whole {
+    id: number;
+    /** @endec(flatten) */
+    part: Part;
+}
+`
+        );
+
+        for (const input of ['whole.ts', path.join(tmpDir, 'whole.ts')]) {
+            const result = runCli(['expand', input], { cwd: tmpDir });
+            assertEquals(result.success, false, `${input} expanded:\n${result.stderr}`);
+            assert(
+                result.stderr.includes(
+                    "fields 'id' and 'part' are both written under the key `id`"
+                ),
+                `${input}:\n${result.stderr}`
+            );
+        }
+    } finally {
+        cleanupTmpDir();
+    }
+});
+
 Deno.test('CLI expand: prints to stdout with --print flag', () => {
     setupTmpDir();
     try {

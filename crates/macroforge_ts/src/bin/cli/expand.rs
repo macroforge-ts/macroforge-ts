@@ -314,16 +314,22 @@ pub(crate) fn expand_file_in_memory(
     if !macroforge_ts::has_macro_annotations(&source, &input.to_string_lossy()) {
         return Ok(None);
     }
+    // The registries name a file by its canonical path, as the project root
+    // is named, and tell two types of one name apart by the file each is in.
+    let named = input
+        .canonicalize()
+        .or_else(|_| std::path::absolute(input))
+        .unwrap_or_else(|_| input.to_path_buf());
     // Outside a project there are no registries to build or share, so the
     // file expands on its own and nothing is written.
     let expansion = match project_root {
         Some(root) => {
             super::wrappers::ensure_type_registry_cache(root)?;
-            expand_project_file(root, input, &source, &super::cache::project_registries()?)?
+            expand_project_file(root, &named, &source, &super::cache::project_registries()?)?
         }
         None => expand_project_file(
-            input.parent().unwrap_or_else(|| Path::new(".")),
-            input,
+            named.parent().unwrap_or_else(|| Path::new(".")),
+            &named,
             &source,
             &ProjectRegistries::default(),
         )?,
