@@ -643,6 +643,141 @@ fn check_endec_options(
     }
 }
 
+/// An error for each class, interface or enum with a built-in derive that
+/// the module declares again. TypeScript merges the declarations into one
+/// type, and a derive reads the one it is written on, so the members of the
+/// others would be left out of everything it generates.
+pub(super) fn check_merged_declarations(
+    targets: &[DeriveTarget],
+    declarations: &[(&str, SpanIR)],
+    source: &str,
+) -> Vec<Diagnostic> {
+    let mut reported = Vec::new();
+    targets
+        .iter()
+        .filter(|target| is_builtin(target))
+        .filter_map(|target| {
+            let (name, span) = match &target.target_ir {
+                DeriveTargetIR::Class(class) => (&class.name, class.span),
+                DeriveTargetIR::Interface(interface) => (&interface.name, interface.span),
+                DeriveTargetIR::Enum(declared) => (&declared.name, declared.span),
+                DeriveTargetIR::TypeAlias(_) => return None,
+            };
+            let others = declarations
+                .iter()
+                .filter(|(other, at)| *other == name.as_str() && *at != span)
+                .count();
+            if others == 0 || reported.contains(&span.start) {
+                return None;
+            }
+            reported.push(span.start);
+            Some(Diagnostic {
+                level: DiagnosticLevel::Error,
+                message: format!(
+                    "'{name}' is declared {} times in this module, which TypeScript merges into one type, and a derive reads only the declaration it is written on",
+                    others + 1
+                ),
+                span: Some(diagnostic_span_for_derive(target.decorator_span, source)),
+                notes: vec![],
+                help: Some(format!("declare the members of '{name}' together")),
+            })
+        })
+        .collect()
+}
+
+/// What follows `word` at the start of `text`, when `text` starts with it as
+/// a whole word.
+fn after_word<'a>(text: &'a str, word: &str) -> Option<&'a str> {
+    text.strip_prefix(word)
+        .filter(|rest| rest.starts_with(char::is_whitespace))
+        .map(str::trim_start)
+}
+
+/// An error for each JSDoc holding an `@derive` that stands above nothing a
+/// derive expands: a declaration of another kind, a member, or a type with
+/// something written between the two. `declared` gives each declaration
+/// lowered, by its span and its decorators.
+pub(super) fn check_unattached_derives(
+    comments: &[oxc::ast::Comment],
+    source: &str,
+    declared: &[(SpanIR, &[DecoratorIR])],
+) -> Vec<Diagnostic> {
+    use crate::ts_syn::jsdoc::{
+        JsDocBlock, adjacent_jsdoc, is_macro_import_comment, parse_all_macro_directives,
+        stacked_jsdoc_above,
+    };
+
+    comments
+        .iter()
+        .filter(|comment| comment.is_block())
+        .filter_map(|comment| {
+            let block = JsDocBlock {
+                start: comment.span.start as usize,
+                end: comment.span.end as usize,
+            };
+            let text = source.get(block.start..block.end)?;
+            let body = text.strip_prefix("/**")?.strip_suffix("*/")?;
+            let derives = !is_macro_import_comment(body)
+                && parse_all_macro_directives(body, None)
+                    .iter()
+                    .any(|(name, _)| name == "Derive");
+            if !derives {
+                return None;
+            }
+            let span = SpanIR::new(comment.span.start + 1, comment.span.end + 1);
+            let attached = declared.iter().any(|(declaration, decorators)| {
+                let decorates = decorators
+                    .iter()
+                    .any(|decorator| decorator.span.start < span.end && span.start < decorator.span.end);
+                // The comments stacked directly above a declaration are its own.
+                let mut above = adjacent_jsdoc(source, declaration.start.saturating_sub(1) as usize);
+                let mut stands_above = false;
+                while let Some(found) = above {
+                    if found == block {
+                        stands_above = true;
+                        break;
+                    }
+                    above = stacked_jsdoc_above(source, 0, found);
+                }
+                decorates || stands_above
+            });
+            if attached {
+                return None;
+            }
+            // A type that follows and was not lowered is declared where a
+            // derive does not reach: in a namespace or a function body.
+            let mut follows = source.get(block.end..).unwrap_or_default().trim_start();
+            while let Some(rest) = ["export", "declare", "abstract", "default", "const"]
+                .iter()
+                .find_map(|modifier| after_word(follows, modifier))
+            {
+                follows = rest;
+            }
+            let declares_type = ["class", "interface", "enum", "type"]
+                .iter()
+                .any(|keyword| after_word(follows, keyword).is_some());
+            let (message, help) = if declares_type {
+                (
+                    "this `@derive` is on a type declared inside a namespace or a block, where a derive does not reach, so it would generate nothing",
+                    "declare the type at the top level of its module",
+                )
+            } else {
+                (
+                    "this `@derive` is attached to nothing a derive expands, so it would generate nothing",
+                    "write it directly above a class, an interface, an enum or a type alias, with only other JSDoc comments in between",
+                )
+            };
+            Some(Diagnostic {
+                level: DiagnosticLevel::Error,
+                message: message.to_string(),
+                span: Some(diagnostic_span_for_derive(span, source)),
+                notes: vec![],
+                help: Some(help.to_string()),
+            })
+        })
+        .collect()
+}
+
 /// An error for each `declare enum` with a built-in derive. The functions a
 /// derive generates read the enum's members as the code runs, and the module
 /// a `declare enum` is written in has no such value.

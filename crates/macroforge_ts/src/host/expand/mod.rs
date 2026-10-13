@@ -107,8 +107,8 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use crate::ts_syn::abi::{
-    ClassIR, Diagnostic, DiagnosticLevel, EnumIR, FunctionIR, InterfaceIR, MacroContextIR,
-    MacroResult, Patch, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
+    ClassIR, DecoratorIR, Diagnostic, DiagnosticLevel, EnumIR, FunctionIR, InterfaceIR,
+    MacroContextIR, MacroResult, Patch, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
 };
 use crate::ts_syn::{
     lower_classes, lower_enums, lower_functions, lower_interfaces, lower_type_aliases,
@@ -974,6 +974,40 @@ impl MacroExpander {
             ),
         };
 
+        let declared: Vec<(SpanIR, &[DecoratorIR])> = items
+            .classes
+            .iter()
+            .map(|class| (class.span, class.decorators.as_slice()))
+            .chain(
+                items
+                    .interfaces
+                    .iter()
+                    .map(|interface| (interface.span, interface.decorators.as_slice())),
+            )
+            .chain(
+                items
+                    .enums
+                    .iter()
+                    .map(|declared| (declared.span, declared.decorators.as_slice())),
+            )
+            .chain(
+                items
+                    .type_aliases
+                    .iter()
+                    .map(|alias| (alias.span, alias.decorators.as_slice())),
+            )
+            .chain(
+                items
+                    .functions
+                    .iter()
+                    .map(|function| (function.span, function.decorators.as_slice())),
+            )
+            .collect();
+        let mut unattached =
+            derive_scope::check_unattached_derives(&parsed.program.comments, source, &declared);
+        map_diagnostic_spans(&mut unattached, prepass_mapping.as_ref());
+        prepass_diagnostics.append(&mut unattached);
+
         if items.is_empty() {
             return Ok(MacroExpansion {
                 code: source.to_string(),
@@ -1179,6 +1213,25 @@ impl MacroExpander {
             source,
         ));
         diagnostics.extend(derive_scope::check_unnamed_alias_members(&derive_targets));
+        let merging: Vec<(&str, SpanIR)> = class_map
+            .values()
+            .map(|class| (class.name.as_str(), class.span))
+            .chain(
+                interface_map
+                    .values()
+                    .map(|interface| (interface.name.as_str(), interface.span)),
+            )
+            .chain(
+                enum_map
+                    .values()
+                    .map(|declared| (declared.name.as_str(), declared.span)),
+            )
+            .collect();
+        diagnostics.extend(derive_scope::check_merged_declarations(
+            &derive_targets,
+            &merging,
+            source,
+        ));
         diagnostics.extend(derive_scope::check_ambient_enums(&derive_targets, source));
         diagnostics.extend(derive_scope::check_decorator_options(&derive_targets));
 

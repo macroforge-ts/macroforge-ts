@@ -117,6 +117,19 @@
 //! twice are expansion errors, and text in a string is only text, whatever
 //! brackets, commas or option names it holds.
 //!
+//! ## Where `@derive` Goes
+//!
+//! An `@derive` stands in a JSDoc directly above a class, an interface, an
+//! enum or a type alias at the top level of its module, with only other
+//! JSDoc comments in between. A declaration may spread its derives over
+//! several directives, which add up. One that stands above anything else, a
+//! `const`, a namespace, a member, a line comment or a type declared inside
+//! a namespace or a function, is an expansion error, as it would generate
+//! nothing.
+//! So is a derive on a class, an interface or an enum its module declares
+//! more than once: TypeScript merges the declarations, and a derive reads
+//! only the one it is written on.
+//!
 //! ## Example Usage
 //!
 //! ```typescript
