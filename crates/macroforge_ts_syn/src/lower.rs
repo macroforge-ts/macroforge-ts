@@ -373,14 +373,14 @@ fn lower_class(
             ClassElement::MethodDefinition(method) => {
                 // A constructor parameter with a modifier declares a field.
                 if method.kind == MethodDefinitionKind::Constructor {
-                    fields.extend(
-                        method
-                            .value
-                            .params
-                            .items
-                            .iter()
-                            .filter_map(|param| parameter_property(param, source)),
-                    );
+                    // A parameter's decorators stand between the one before
+                    // it, or the parenthesis that opens the list, and itself.
+                    let params = &method.value.params;
+                    let mut after = params.span.start as usize;
+                    for param in &params.items {
+                        let floor = std::mem::replace(&mut after, param.span.end as usize);
+                        fields.extend(parameter_property(param, source, floor, filter));
+                    }
                 }
                 if let PropertyKey::StaticIdentifier(ident) = &method.key {
                     let func = &method.value;
@@ -463,8 +463,14 @@ fn lower_class(
 
 /// The field a constructor parameter declares, when it carries the modifier
 /// that makes it one: `public`, `protected`, `private` or `readonly`. Its
-/// default value is the field's initializer.
-fn parameter_property(param: &FormalParameter<'_>, source: &str) -> Option<FieldIR> {
+/// default value is the field's initializer, and the decorators written
+/// above it, after `floor`, are the field's.
+fn parameter_property(
+    param: &FormalParameter<'_>,
+    source: &str,
+    floor: usize,
+    filter: Option<&HashSet<String>>,
+) -> Option<FieldIR> {
     if param.accessibility.is_none() && !param.readonly {
         return None;
     }
@@ -485,7 +491,7 @@ fn parameter_property(param: &FormalParameter<'_>, source: &str) -> Option<Field
         optional: param.optional,
         readonly: param.readonly,
         visibility: visibility(param.accessibility),
-        decorators: Vec::new(),
+        decorators: collect_leading_decorators(source, floor, param.span.start as usize, filter),
         initializer: param
             .initializer
             .as_ref()

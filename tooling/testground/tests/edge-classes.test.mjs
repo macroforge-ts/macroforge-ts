@@ -408,3 +408,19 @@ Deno.test('a field a subclass declares again is one field of it', () => {
     assert(mod.ClassCircle.equals(back.value, mod.ClassCircle.clone(back.value)));
     assert(mod.ClassCircle.toString(back.value).includes('kind: wide'));
 });
+
+Deno.test('a parameter property takes the decorators written above it', async () => {
+    const mod = await expandAndCompile(
+        join(vanillaRoot, 'src', 'edge-cases', 'class-parameters.ts')
+    );
+    const blank = mod.ClassTagged.defaultValue();
+    assertStrictEquals(blank.count, 9);
+    assertStrictEquals(blank.name, 'unnamed');
+
+    const encoded = JSON.parse(mod.ClassTagged.encode(blank));
+    assertEquals(encoded, { count: 9, label: 'unnamed', plain: false });
+    const back = mod.ClassTagged.decode({ count: 1, label: 'given', plain: true });
+    assert(back.success, JSON.stringify(back.errors));
+    assertStrictEquals(back.value.name, 'given');
+    assert(!mod.ClassTagged.decode({ count: 1, name: 'given', plain: true }).success);
+});
