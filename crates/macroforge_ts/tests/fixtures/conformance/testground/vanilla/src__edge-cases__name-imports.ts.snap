@@ -12,8 +12,8 @@ true
 
 ## Output
 
-import { nameModelDecodeWithContext as chosenDecodeWithContext, nameLateDecodeWithContext as nameShownDecodeWithContext, nameModelEncodeWithContext as chosenEncodeWithContext, nameLateEncodeWithContext as nameShownEncodeWithContext, nameModelDefaultValue as chosenDefaultValue, nameLateDefaultValue as nameShownDefaultValue } from "./name-exports";
-import { edgeItemDecodePartialWithContext as itemDecodePartialWithContext, edgeItemDecodeWithContext as itemDecodeWithContext, edgeItemEncodePartialWithContext as itemEncodePartialWithContext, edgeItemEncodeWithContext as itemEncodeWithContext, edgeItemDefaultValue as itemDefaultValue } from "./edge-types";
+import { nameModelDecodeWithContext as chosenDecodeWithContext, nameLateDecodeWithContext as nameShownDecodeWithContext, nameModelEncodeWithContext as chosenEncodeWithContext, nameLateEncodeWithContext as nameShownEncodeWithContext, nameModelDefaultValue as chosenDefaultValue, nameLateDefaultValue as nameShownDefaultValue, nameModelHashCode as chosenHashCode, nameLateHashCode as nameShownHashCode, nameModelEquals as chosenEquals, nameLateEquals as nameShownEquals, nameModelClone as chosenClone, nameLateClone as nameShownClone, nameModelToString as chosenToString, nameLateToString as nameShownToString } from "./name-exports";
+import { edgeItemDecodePartialWithContext as itemDecodePartialWithContext, edgeItemDecodeWithContext as itemDecodeWithContext, edgeItemEncodePartialWithContext as itemEncodePartialWithContext, edgeItemEncodeWithContext as itemEncodeWithContext, edgeItemDefaultValue as itemDefaultValue, edgeItemHashCode as itemHashCode, edgeItemEquals as itemEquals, edgeItemClone as itemClone, edgeItemToString as itemToString } from "./edge-types";
 import { point2DDecodeWithContext, point2DEncodeWithContext, point2DDefaultValue, point2DHashCode, point2DEquals, point2DClone, point2DToString } from "./name-shapes";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
 import { encodedText as __mf_encodedText, encodedTextWithoutMetadata as __mf_encodedTextWithoutMetadata, encodeSelection as __mf_encodeSelection, encodedAs as __mf_encodedAs, encodedReference as __mf_encodedReference, EncodeContext as __mf_EncodeContext, fieldRequirement as __mf_fieldRequirement, decodeArray as __mf_decodeArray, decodeMap as __mf_decodeMap, parsedText as __mf_parsedText, ownMembers as __mf_ownMembers, holds as __mf_holds, DecodeContext as __mf_DecodeContext, DecodeError as __mf_DecodeError, PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
@@ -412,9 +412,9 @@ export interface NameRenamed {
 export function nameRenamedToString(value: NameRenamed): string {
     return __mf_debuggedWithin(value, () => {
         const parts: string[] = [];
-    parts.push("held: " + __mf_structuralDebug(value.held));
-    parts.push("listed: " + __mf_structuralDebug(value.listed));
-    parts.push("maybe: " + __mf_structuralDebug(value.maybe));
+    parts.push("held: " + itemToString(value.held));
+    parts.push("listed: " + "[" + value.listed.map(itemToString).join(", ") + "]");
+    parts.push("maybe: " + (value.maybe == null ? String(value.maybe) : itemToString(value.maybe)));
     parts.push("some: " + __mf_structuralDebug(value.some));
         return "NameRenamed { " + parts.join(", ") + " }";
     });
@@ -422,27 +422,27 @@ export function nameRenamedToString(value: NameRenamed): string {
 
 export function nameRenamedClone(value: NameRenamed): NameRenamed {
     return __mf_clonedWith(value, (): NameRenamed => ({
-	held: __mf_structuralClone(value.held),
-	listed: value.listed.map((__item0) => __mf_structuralClone(__item0)),
-	maybe: __mf_structuralClone(value.maybe),
+	held: itemClone(value.held),
+	listed: value.listed.map((__item0) => itemClone(__item0)),
+	maybe: value.maybe == null ? value.maybe : itemClone(value.maybe),
 	some: __mf_structuralClone(value.some)
 }));
 }
 
 export function nameRenamedEquals(a: NameRenamed, b: NameRenamed): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.held, b.held) && a.listed.length === b.listed.length && a.listed.every((__item0, __index0) => {
+    return __mf_equalWithin(a, b, () => itemEquals(a.held, b.held) && a.listed.length === b.listed.length && a.listed.every((__item0, __index0) => {
 	const __other0 = b.listed[__index0];
-	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
-}) && __mf_structuralEquals(a.maybe, b.maybe) && __mf_structuralEquals(a.some, b.some));
+	return __other0 === undefined ? __item0 === undefined : itemEquals(__item0, __other0);
+}) && (a.maybe == null || b.maybe == null ? a.maybe === b.maybe : itemEquals(a.maybe, b.maybe)) && __mf_structuralEquals(a.some, b.some));
 }
 
 export function nameRenamedHashCode(value: NameRenamed): number {
     return __mf_hashedWithin(value, () => {
         let hash = 17;
-    hash = (hash * 31 + (__mf_structuralHash(value.held))) | 0;
-    hash = (hash * 31 + (value.listed.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
-    hash = (hash * 31 + (__mf_structuralHash(value.maybe))) | 0;
+    hash = (hash * 31 + (itemHashCode(value.held))) | 0;
+    hash = (hash * 31 + (value.listed.reduce<number>((__hash0, __item0) => __hash0 * 31 + itemHashCode(__item0) | 0, 1))) | 0;
+    hash = (hash * 31 + (value.maybe == null ? 0 : itemHashCode(value.maybe))) | 0;
     hash = (hash * 31 + (__mf_structuralHash(value.some))) | 0;
         return hash;
     });
@@ -774,38 +774,38 @@ export interface NameExported {
 export function nameExportedToString(value: NameExported): string {
     return __mf_debuggedWithin(value, () => {
         const parts: string[] = [];
-    parts.push("chosen: " + __mf_structuralDebug(value.chosen));
-    parts.push("shown: " + __mf_structuralDebug(value.shown));
-    parts.push("listed: " + __mf_structuralDebug(value.listed));
-    parts.push("maybe: " + __mf_structuralDebug(value.maybe));
+    parts.push("chosen: " + chosenToString(value.chosen));
+    parts.push("shown: " + nameShownToString(value.shown));
+    parts.push("listed: " + "[" + value.listed.map(nameShownToString).join(", ") + "]");
+    parts.push("maybe: " + (value.maybe == null ? String(value.maybe) : chosenToString(value.maybe)));
         return "NameExported { " + parts.join(", ") + " }";
     });
 }
 
 export function nameExportedClone(value: NameExported): NameExported {
     return __mf_clonedWith(value, (): NameExported => ({
-	chosen: __mf_structuralClone(value.chosen),
-	shown: __mf_structuralClone(value.shown),
-	listed: value.listed.map((__item0) => __mf_structuralClone(__item0)),
-	maybe: __mf_structuralClone(value.maybe)
+	chosen: chosenClone(value.chosen),
+	shown: nameShownClone(value.shown),
+	listed: value.listed.map((__item0) => nameShownClone(__item0)),
+	maybe: value.maybe == null ? value.maybe : chosenClone(value.maybe)
 }));
 }
 
 export function nameExportedEquals(a: NameExported, b: NameExported): boolean {
     if (a === b) return true;
-    return __mf_equalWithin(a, b, () => __mf_structuralEquals(a.chosen, b.chosen) && __mf_structuralEquals(a.shown, b.shown) && a.listed.length === b.listed.length && a.listed.every((__item0, __index0) => {
+    return __mf_equalWithin(a, b, () => chosenEquals(a.chosen, b.chosen) && nameShownEquals(a.shown, b.shown) && a.listed.length === b.listed.length && a.listed.every((__item0, __index0) => {
 	const __other0 = b.listed[__index0];
-	return __other0 === undefined ? __item0 === undefined : __mf_structuralEquals(__item0, __other0);
-}) && __mf_structuralEquals(a.maybe, b.maybe));
+	return __other0 === undefined ? __item0 === undefined : nameShownEquals(__item0, __other0);
+}) && (a.maybe == null || b.maybe == null ? a.maybe === b.maybe : chosenEquals(a.maybe, b.maybe)));
 }
 
 export function nameExportedHashCode(value: NameExported): number {
     return __mf_hashedWithin(value, () => {
         let hash = 17;
-    hash = (hash * 31 + (__mf_structuralHash(value.chosen))) | 0;
-    hash = (hash * 31 + (__mf_structuralHash(value.shown))) | 0;
-    hash = (hash * 31 + (value.listed.reduce<number>((__hash0, __item0) => __hash0 * 31 + __mf_structuralHash(__item0) | 0, 1))) | 0;
-    hash = (hash * 31 + (__mf_structuralHash(value.maybe))) | 0;
+    hash = (hash * 31 + (chosenHashCode(value.chosen))) | 0;
+    hash = (hash * 31 + (nameShownHashCode(value.shown))) | 0;
+    hash = (hash * 31 + (value.listed.reduce<number>((__hash0, __item0) => __hash0 * 31 + nameShownHashCode(__item0) | 0, 1))) | 0;
+    hash = (hash * 31 + (value.maybe == null ? 0 : chosenHashCode(value.maybe))) | 0;
         return hash;
     });
 }
@@ -1331,35 +1331,35 @@ export declare const NameExported: {
 
 ## Mapping
 
-original 0..723 -> expanded 1915..2638
-original 723..913 -> expanded 19465..19655
-original 913..1112 -> expanded 35457..35656
-original 1112..1113 -> expanded 51680..51681
-generated 0..1915 <- imports
-generated 2638..3168 <- Debug
-generated 3168..3642 <- Clone
-generated 3642..4380 <- PartialEq
-generated 4380..5065 <- Hash
-generated 5065..5250 <- Default
-generated 5250..8168 <- Encode
-generated 8168..17998 <- Decode
-generated 17998..19465 <- __convenience_const
-generated 19655..20123 <- Debug
-generated 20123..20450 <- Clone
-generated 20450..20946 <- PartialEq
-generated 20946..21438 <- Hash
-generated 21438..21613 <- Default
-generated 21613..24444 <- Encode
-generated 24444..33990 <- Decode
-generated 33990..35457 <- __convenience_const
-generated 35656..36133 <- Debug
-generated 36133..36470 <- Clone
-generated 36470..36975 <- PartialEq
-generated 36975..37472 <- Hash
-generated 37472..37673 <- Default
-generated 37673..40538 <- Encode
-generated 40538..50182 <- Decode
-generated 50182..51680 <- __convenience_const
+original 0..723 -> expanded 2325..3048
+original 723..913 -> expanded 19875..20065
+original 913..1112 -> expanded 35952..36151
+original 1112..1113 -> expanded 52279..52280
+generated 0..2325 <- imports
+generated 3048..3578 <- Debug
+generated 3578..4052 <- Clone
+generated 4052..4790 <- PartialEq
+generated 4790..5475 <- Hash
+generated 5475..5660 <- Default
+generated 5660..8578 <- Encode
+generated 8578..18408 <- Decode
+generated 18408..19875 <- __convenience_const
+generated 20065..20582 <- Debug
+generated 20582..20912 <- Clone
+generated 20912..21436 <- PartialEq
+generated 21436..21933 <- Hash
+generated 21933..22108 <- Default
+generated 22108..24939 <- Encode
+generated 24939..34485 <- Decode
+generated 34485..35952 <- __convenience_const
+generated 36151..36683 <- Debug
+generated 36683..37026 <- Clone
+generated 37026..37562 <- PartialEq
+generated 37562..38071 <- Hash
+generated 38071..38272 <- Default
+generated 38272..41137 <- Encode
+generated 41137..50781 <- Decode
+generated 50781..52279 <- __convenience_const
 
 ## Metadata
 

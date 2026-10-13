@@ -64,7 +64,7 @@ pub use property::{
 };
 pub use registry_helpers::{
     ClassUse, Declared, InheritedStatics, class_instance_fields, collection_element_type,
-    derive_class_fields, derive_interface_fields, fields_from_definition,
+    declared_type_has_derive, derive_class_fields, derive_interface_fields, fields_from_definition,
     flatten_intersection_fields, get_effective_fields, inherited_statics,
     interface_instance_fields, resolved_type_has_derive, standalone_fn_name, type_has_derive,
 };

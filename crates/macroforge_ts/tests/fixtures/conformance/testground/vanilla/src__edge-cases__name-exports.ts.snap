@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/name-exports.ts
-sha256 1c3901aa7b7ba075a1b136d7cd7b03fd9781813885f6fd9a769a7a33c2607fce
+sha256 c61e748bfac935ec5b8576c09c3c66ca73869da7c8047394a6d401318ca4419d
 
 ## Changed
 
@@ -317,6 +317,8 @@ export function nameModelIs(value: unknown): value is NameModel {
 interface NameLate {
     note: string;
     at: Date;
+    /** @partialEq({ skip: true }) @hash({ skip: true }) */
+    stamp: number;
 }
 
 export function nameLateToString(value: NameLate): string {
@@ -324,6 +326,7 @@ export function nameLateToString(value: NameLate): string {
         const parts: string[] = [];
     parts.push("note: " + String(value.note));
     parts.push("at: " + String(value.at));
+    parts.push("stamp: " + String(value.stamp));
         return "NameLate { " + parts.join(", ") + " }";
     });
 }
@@ -331,7 +334,8 @@ export function nameLateToString(value: NameLate): string {
 export function nameLateClone(value: NameLate): NameLate {
     return __mf_clonedWith(value, (): NameLate => ({
 	note: value.note,
-	at: new Date(value.at.getTime())
+	at: new Date(value.at.getTime()),
+	stamp: value.stamp
 }));
 }
 
@@ -353,6 +357,7 @@ export function nameLateDefaultValue(): NameLate {
     return {
         note: "",
         at: new Date(),
+        stamp: 0,
     };
 }
 
@@ -392,6 +397,11 @@ function nameLateEncodeFields(value: NameLate, _ctx: __mf_EncodeContext, result:
     if (__fields === undefined || __fields.keeps("at")) {
         if (value.at !== undefined) {
             result["at"] = value.at.toISOString();
+        }
+    }
+    if (__fields === undefined || __fields.keeps("stamp")) {
+        if (value.stamp !== undefined) {
+            result["stamp"] = value.stamp;
         }
     }
 }
@@ -476,6 +486,9 @@ export function nameLateDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
     if ((__fields === undefined || __fields.requires("at")) && !("at" in obj)) {
         errors.push({ field: "at", message: "missing required field" });
     }
+    if ((__fields === undefined || __fields.requires("stamp")) && !("stamp" in obj)) {
+        errors.push({ field: "stamp", message: "missing required field" });
+    }
 
     const instance: any = {};
 
@@ -506,6 +519,15 @@ export function nameLateDecodeWithContext(value: unknown, ctx: __mf_DecodeContex
             }
         }
     }
+    if ((__fields === undefined || __fields.requires("stamp")) ? "stamp" in obj : (__fields.keeps("stamp") && obj["stamp"] !== undefined)) {
+        const __raw_stamp = obj["stamp"] as number;
+
+        if (!(typeof __raw_stamp === "number" && globalThis.Number.isFinite(__raw_stamp))) {
+            errors.push({ field: "stamp", message: __raw_stamp == null ? "NameLate.stamp is required" : "expected number" });
+        } else {
+            instance.stamp = __raw_stamp;
+        }
+    }
 
     ctx.pushErrors(errors);
 
@@ -529,7 +551,7 @@ export function nameLateHasShape(obj: unknown): boolean {
     if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
         return false;
     }
-    return __mf_holds(obj, "note") && __mf_holds(obj, "at");
+    return __mf_holds(obj, "note") && __mf_holds(obj, "at") && __mf_holds(obj, "stamp");
 }
 
 export function nameLateIs(obj: unknown): obj is NameLate {
@@ -658,6 +680,8 @@ export declare function nameModelIs(value: unknown): value is NameModel;
 interface NameLate {
 	note: string;
 	at: Date;
+	/** @partialEq({ skip: true }) @hash({ skip: true }) */
+	stamp: number;
 }
 export declare function nameLateToString(value: NameLate): string;
 export declare function nameLateClone(value: NameLate): NameLate;
@@ -724,8 +748,8 @@ export type { NameLate as NameShown };
 
 original 0..309 -> expanded 894..1203
 original 309..310 -> expanded 10351..10352
-original 310..437 -> expanded 14007..14134
-original 437..478 -> expanded 25081..25122
+original 310..516 -> expanded 14007..14213
+original 516..557 -> expanded 26094..26135
 generated 0..894 <- imports
 generated 1203..1521 <- Debug
 generated 1521..1707 <- Clone
@@ -742,23 +766,24 @@ generated 10664..10767 <- Hash
 generated 10767..10860 <- Default
 generated 10860..12210 <- Encode
 generated 12210..14007 <- Decode
-generated 14134..14433 <- Debug
-generated 14433..14606 <- Clone
-generated 14606..14880 <- PartialEq
-generated 14880..15213 <- Hash
-generated 15213..15329 <- Default
-generated 15329..17621 <- Encode
-generated 17621..23714 <- Decode
-generated 23714..25081 <- __convenience_const
+generated 14213..14561 <- Debug
+generated 14561..14755 <- Clone
+generated 14755..15029 <- PartialEq
+generated 15029..15362 <- Hash
+generated 15362..15496 <- Default
+generated 15496..17949 <- Encode
+generated 17949..24727 <- Decode
+generated 24727..26094 <- __convenience_const
 
 ## Metadata
 
 class NameModel: {"body_span":{"end":311,"start":256},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":224,"start":154}}],"fields":[{"accessor":false,"decorators":[],"initializer":"''","key":"Named","name":"title","optional":false,"readonly":false,"span":{"end":281,"start":262},"ts_type":"string","untyped":false,"visibility":"Public"},{"accessor":false,"decorators":[],"initializer":"new Date(0)","key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":309,"start":286},"ts_type":"Date","untyped":false,"visibility":"Public"}],"heritage":[],"is_abstract":false,"is_declare":false,"methods":[],"name":"NameModel","span":{"end":311,"start":240},"superclass":null,"type_params":[]}
-interface NameLate: {"body_span":{"end":438,"start":403},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":383,"start":313}}],"fields":[{"decorators":[],"key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":422,"start":409},"ts_type":"string"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":436,"start":427},"ts_type":"Date"}],"heritage":[],"methods":[],"name":"NameLate","span":{"end":438,"start":384},"type_params":[]}
+interface NameLate: {"body_span":{"end":517,"start":403},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":383,"start":313}}],"fields":[{"decorators":[],"key":"Named","name":"note","optional":false,"readonly":false,"span":{"end":422,"start":409},"ts_type":"string"},{"decorators":[],"key":"Named","name":"at","optional":false,"readonly":false,"span":{"end":436,"start":427},"ts_type":"Date"},{"decorators":[{"args_src":"{ skip: true }","name":"partialEq","span":{"end":496,"start":441}},{"args_src":"{ skip: true }","name":"hash","span":{"end":496,"start":441}}],"key":"Named","name":"stamp","optional":false,"readonly":false,"span":{"end":515,"start":501},"ts_type":"number"}],"heritage":[],"methods":[],"name":"NameLate","span":{"end":517,"start":384},"type_params":[]}
 
 ## Registry reads
 
 Name("Date")
+Name("number")
 Name("string")
 
 ## Buildtime dependencies

@@ -7,7 +7,7 @@
 use convert_case::{Case, Casing};
 
 use super::values::DefaultSources;
-use crate::builtin::derive::common::{rendered, type_has_derive};
+use crate::builtin::derive::common::{declared_type_has_derive, rendered};
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::{
     TypeBody, TypeDefinitionIR, is_primitive_keyword, split_top_level_union,
@@ -66,7 +66,7 @@ pub(super) fn decode_literal_default(
     if !decodes {
         return value;
     }
-    if !type_has_derive(sources.registry, base, "Decode") {
+    if !declared_type_has_derive(sources.declared(), base, "Decode") {
         sources.rejected.borrow_mut().push(format!(
             "@default({literal}) on a '{name}' field needs '{base}' to derive Decode, which turns the literal into a '{base}'"
         ));

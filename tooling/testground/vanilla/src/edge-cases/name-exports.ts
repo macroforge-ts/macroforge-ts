@@ -13,6 +13,8 @@ export default class NameModel {
 interface NameLate {
     note: string;
     at: Date;
+    /** @partialEq({ skip: true }) @hash({ skip: true }) */
+    stamp: number;
 }
 
 export type { NameLate as NameShown };

@@ -14,8 +14,8 @@ use super::reference::decode_selectable_reference;
 use super::types::DecodeField;
 use super::validation::generate_field_validations;
 use crate::builtin::derive::common::{
-    ClassUse, TypeNames, derive_class_fields, inherited_statics, js_string, property_key, rendered,
-    type_has_derive,
+    ClassUse, Declared, TypeNames, declared_type_has_derive, derive_class_fields,
+    inherited_statics, js_string, property_key, rendered,
 };
 use crate::builtin::derive::endec::coder::endec_helper;
 use crate::builtin::derive::endec::type_arguments::{
@@ -187,11 +187,14 @@ pub(super) fn handle_class(
         .methods()
         .iter()
         .any(|method| method.name == "constructor");
-    let superclass_takes_fields = class
-        .inner
-        .superclass
-        .as_deref()
-        .is_some_and(|superclass| type_has_derive(type_registry, superclass, "Decode"));
+    let superclass_takes_fields = class.inner.superclass.as_deref().is_some_and(|superclass| {
+        let declared = Declared {
+            registry: type_registry,
+            file_path: caller_file_path,
+            file_imports,
+        };
+        declared_type_has_derive(declared, superclass, "Decode")
+    });
     let is_own = |field: &DecodeField| {
         class
             .fields()

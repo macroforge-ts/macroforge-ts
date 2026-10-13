@@ -284,7 +284,7 @@ MultipleValidatorsTest 2b5edae55ee9ae7d
 NameExported b6a28bf8be48c699
 NameHolder bb4c499578ce2d24
 NameImports 8527d2228f057f77
-NameLate 61252d069e2254f3
+NameLate 32fd95ef281a57ef
 NameLocals 343fc429b5aac3ec
 NameModel 01a617b055dba341
 NameParams 0d193577baa35e57
@@ -568,7 +568,7 @@ src/edge-cases/module-shapes.ts::ModulePrivateAlias de070ceea3475027
 src/edge-cases/module-shapes.ts::ModulePrivateClass 303d321b8a7e6a86
 src/edge-cases/module-shapes.ts::ModulePrivateEnum dd3e96772ce37abb
 src/edge-cases/module-shapes.ts::ModuleStatics eba5b2aa4c1b1376
-src/edge-cases/name-exports.ts::NameLate 61252d069e2254f3
+src/edge-cases/name-exports.ts::NameLate 32fd95ef281a57ef
 src/edge-cases/name-exports.ts::NameModel 01a617b055dba341
 src/edge-cases/name-imports.ts::NameExported b6a28bf8be48c699
 src/edge-cases/name-imports.ts::NameImports 8527d2228f057f77

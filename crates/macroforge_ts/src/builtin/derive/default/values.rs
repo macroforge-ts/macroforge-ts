@@ -7,8 +7,8 @@ use convert_case::{Case, Casing};
 use super::literal::decode_literal_default;
 use crate::builtin::derive::common::undefaultable;
 use crate::builtin::derive::common::{
-    TypeNames, extract_named_string, get_type_default_with_registry, is_primitive_type, js_string,
-    rendered, type_has_derive,
+    Declared, TypeNames, declared_type_has_derive, extract_named_string,
+    get_type_default_with_registry, is_primitive_type, js_string, rendered,
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::{
@@ -26,6 +26,17 @@ pub(super) struct DefaultSources<'a> {
     pub(super) file_imports: &'a [FileImportEntry],
     /// Why a written default cannot be used, found while resolving it.
     pub(super) rejected: RefCell<Vec<String>>,
+}
+
+impl<'a> DefaultSources<'a> {
+    /// Where the names in the type being defaulted resolve.
+    pub(super) fn declared(&self) -> Declared<'a> {
+        Declared {
+            registry: self.registry,
+            file_path: self.caller_file_path,
+            file_imports: self.file_imports,
+        }
+    }
 }
 
 /// Whether `expression` reads the `this` of the code around it. A function
@@ -251,7 +262,8 @@ pub(super) fn missing_default_derives<'f>(
             );
             continue;
         }
-        if let Some(reason) = undefaultable(ts_type, registry) {
+        let declared = sources.declared();
+        if let Some(reason) = undefaultable(ts_type, declared) {
             diagnostics.error(
                 span,
                 format!(
@@ -272,9 +284,11 @@ pub(super) fn missing_default_derives<'f>(
         }
         // A generic type is known, and derives, by its name.
         let type_name = ts_type.split_once('<').map_or(ts_type, |(base, _)| base);
-        let type_known =
-            registry.get(type_name).is_some() || registry.get_all(type_name).next().is_some();
-        if type_known && !type_has_derive(registry, type_name, "Default") {
+        let type_known = registry
+            .resolve_in_file(type_name, sources.caller_file_path, sources.file_imports)
+            .is_some()
+            || registry.get_all(type_name).next().is_some();
+        if type_known && !declared_type_has_derive(declared, type_name, "Default") {
             diagnostics.error(
                 span,
                 format!(

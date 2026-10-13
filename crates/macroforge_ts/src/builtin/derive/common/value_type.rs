@@ -8,7 +8,7 @@ use crate::ts_syn::abi::ir::{
 
 use crate::ts_syn::TsStream;
 
-use super::registry_helpers::{standalone_fn_name, type_has_derive};
+use super::registry_helpers::{resolved_type_has_derive, standalone_fn_name};
 use super::type_utils::{array_element_type, parse_generic_type, tuple_element};
 
 /// How values of a type are compared, hashed and copied.
@@ -244,10 +244,8 @@ pub fn derived_function(
     suffix: &str,
 ) -> Option<String> {
     let resolved = resolved?;
-    (!resolved.is_collection
-        && resolved.registry_key.is_some()
-        && type_has_derive(registry, &resolved.base_type_name, derive))
-    .then(|| standalone_fn_name(&resolved.base_type_name, suffix))
+    (!resolved.is_collection && resolved_type_has_derive(registry, resolved, derive))
+        .then(|| standalone_fn_name(&resolved.base_type_name, suffix))
 }
 
 /// Whether every element of a tuple is fixed: no optional or rest elements,

@@ -12,6 +12,43 @@ use crate::ts_syn::abi::ir::type_registry::{
 use crate::ts_syn::abi::{DecoratorIR, InterfaceFieldIR};
 use crate::ts_syn::{DataClass, DataInterface, DataTypeAlias, DeriveInput, MacroforgeError};
 
+/// Whether the declaration `entry` holds derives `derive_name`.
+fn entry_derives(entry: &TypeRegistryEntry, derive_name: &str) -> bool {
+    let decorators = match &entry.definition {
+        TypeDefinitionIR::Class(class) => &class.decorators,
+        TypeDefinitionIR::Interface(interface) => &interface.decorators,
+        TypeDefinitionIR::Enum(declared) => &declared.decorators,
+        TypeDefinitionIR::TypeAlias(alias) => &alias.decorators,
+    };
+    derives(decorators, derive_name)
+}
+
+/// Whether the type a file knows as `name` derives `derive_name`: the
+/// declaration the file's imports lead to, which may be declared under
+/// another name (`import { User as Member }`). A name they lead nowhere
+/// from is the type the registry holds under it.
+pub fn declared_type_has_derive(declared: Declared<'_>, name: &str, derive_name: &str) -> bool {
+    match declared.resolve(name) {
+        Some(entry) => entry_derives(entry, derive_name),
+        None => type_has_derive(declared.registry, name, derive_name),
+    }
+}
+
+/// The declaration `resolved` was resolved to: the one its registry key
+/// names by its file and its name, the file as it is on disk or as the
+/// registry keys it.
+fn resolved_entry<'a>(
+    registry: &'a TypeRegistry,
+    resolved: &ResolvedTypeRef,
+) -> Option<&'a TypeRegistryEntry> {
+    let key = resolved.registry_key.as_deref()?;
+    let (file_path, name) = key.rsplit_once("::")?;
+    registry
+        .get_all(name)
+        .find(|entry| entry.file_path == file_path)
+        .or_else(|| registry.get_qualified(key))
+}
+
 /// Whether one of `decorators` is an `@derive` naming `derive_name`.
 fn derives(decorators: &[DecoratorIR], derive_name: &str) -> bool {
     decorators.iter().any(|decorator| {
@@ -30,15 +67,7 @@ fn derives(decorators: &[DecoratorIR], derive_name: &str) -> bool {
 /// When a name is ambiguous (same type name in multiple files), checks ALL
 /// qualified entries: returns true if ANY entry with that name has the derive.
 pub fn type_has_derive(registry: &TypeRegistry, type_name: &str, derive_name: &str) -> bool {
-    let has_derive = |entry: &TypeRegistryEntry| {
-        let decorators = match &entry.definition {
-            TypeDefinitionIR::Class(c) => &c.decorators,
-            TypeDefinitionIR::Interface(i) => &i.decorators,
-            TypeDefinitionIR::Enum(e) => &e.decorators,
-            TypeDefinitionIR::TypeAlias(t) => &t.decorators,
-        };
-        derives(decorators, derive_name)
-    };
+    let has_derive = |entry: &TypeRegistryEntry| entry_derives(entry, derive_name);
 
     // Check primary entry first (fast path for unambiguous names)
     if let Some(entry) = registry.get(type_name)
@@ -62,7 +91,7 @@ pub fn resolved_type_has_derive(
     resolved: &ResolvedTypeRef,
     derive_name: &str,
 ) -> bool {
-    type_has_derive(registry, &resolved.base_type_name, derive_name)
+    resolved_entry(registry, resolved).is_some_and(|entry| entry_derives(entry, derive_name))
 }
 
 /// Get the inner element [`ResolvedTypeRef`] for a collection type.

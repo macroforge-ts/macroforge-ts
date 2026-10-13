@@ -305,12 +305,12 @@ Deno.test('a type its module exports under another name is coded through its own
     const at = new Date(1000);
     const source = {
         chosen: { title: 't', at },
-        shown: { note: 'n', at },
-        listed: [{ note: 'm', at }],
+        shown: { note: 'n', at, stamp: 1 },
+        listed: [{ note: 'm', at, stamp: 2 }],
         maybe: null
     };
     const encoded = JSON.parse(imports.nameExportedEncode(source));
-    assertEquals(encoded.shown, { note: 'n', at: at.toISOString() });
+    assertEquals(encoded.shown, { note: 'n', at: at.toISOString(), stamp: 1 });
     assertEquals(encoded.chosen.at, at.toISOString());
 
     const value = decoded(imports.nameExportedDecode(encoded));
@@ -319,9 +319,27 @@ Deno.test('a type its module exports under another name is coded through its own
     assertEquals(value.listed, source.listed);
     assertEquals(
         errorFields(
-            imports.nameExportedDecode({ ...encoded, shown: { note: 1, at: at.toISOString() } })
+            imports.nameExportedDecode({
+                ...encoded,
+                shown: { note: 1, at: at.toISOString(), stamp: 1 }
+            })
         ),
         ['shown.note']
+    );
+
+    // A field the type leaves out of its equality is left out through the
+    // name it is imported under too.
+    const restamped = { ...source, shown: { ...source.shown, stamp: 9 } };
+    assert(imports.nameExportedEquals(source, restamped));
+    assertStrictEquals(
+        imports.nameExportedHashCode(source),
+        imports.nameExportedHashCode(restamped)
+    );
+    assert(
+        !imports.nameExportedEquals(source, {
+            ...source,
+            shown: { ...source.shown, note: 'other' }
+        })
     );
     assertEquals(
         errorFields(

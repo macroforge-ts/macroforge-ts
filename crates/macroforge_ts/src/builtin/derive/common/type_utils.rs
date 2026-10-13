@@ -386,6 +386,16 @@ struct Names<'a> {
     file_imports: &'a [FileImportEntry],
 }
 
+impl<'a> Names<'a> {
+    fn declared(&self) -> super::Declared<'a> {
+        super::Declared {
+            registry: self.registry,
+            file_path: self.file_path,
+            file_imports: self.file_imports,
+        }
+    }
+}
+
 /// A key of a `Record` over a finite set of keys.
 enum RecordKey {
     /// A literal, as its type writes it: `'a'`, `1`.
@@ -650,7 +660,7 @@ fn get_type_default_resolved(ts_type: &str, names: &Names<'_>) -> String {
                     .registry
                     .resolve_in_file(base, names.file_path, names.file_imports)
                     .is_some()
-                    && super::type_has_derive(names.registry, base, "Default") =>
+                    && super::declared_type_has_derive(names.declared(), base, "Default") =>
             {
                 let callee = ts_ident!("{}DefaultValue", base.to_case(Case::Camel));
                 rendered(ts_template! { @{callee}<@{arguments}>() })
@@ -752,13 +762,11 @@ fn template_default(ts_type: &str) -> Option<Result<String, String>> {
 /// it has none: a `Required` whose type leaves fields optional, which a
 /// default of that type lacks, and a `Pick` or `Omit` of a type whose
 /// fields are not known.
-pub fn undefaultable(ts_type: &str, registry: &TypeRegistry) -> Option<String> {
-    // The field's own file is not known here, so a name resolves as the
-    // registry holds it.
+pub fn undefaultable(ts_type: &str, declared: super::Declared<'_>) -> Option<String> {
     let names = &Names {
-        registry,
-        file_path: "",
-        file_imports: &[],
+        registry: declared.registry,
+        file_path: declared.file_path,
+        file_imports: declared.file_imports,
     };
     let ts_type = ts_type.trim();
     if let Some(Err(hole)) = template_default(ts_type) {

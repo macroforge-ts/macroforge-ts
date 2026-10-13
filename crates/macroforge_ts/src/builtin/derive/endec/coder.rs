@@ -8,9 +8,9 @@
 use std::collections::HashMap;
 
 use crate::builtin::derive::common::{
-    EnumValueKinds, Member, fields_from_definition, is_identifier_name, js_string,
-    parse_generic_type, property_key, record_key_texts, rendered, tuple_body, tuple_element,
-    type_has_derive, undefined_as_null, ungrouped,
+    Declared, EnumValueKinds, Member, declared_type_has_derive, fields_from_definition,
+    is_identifier_name, js_string, parse_generic_type, property_key, record_key_texts, rendered,
+    tuple_body, tuple_element, undefined_as_null, ungrouped,
 };
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::class::MemberKey;
@@ -176,7 +176,7 @@ impl TypeScope<'_> {
             self.file_path,
             self.file_imports,
             &|alias, expanded| {
-                !type_has_derive(self.registry, alias, derive)
+                !self.has_derive(alias, derive)
                     || untold_member(expanded, self).is_none()
                     || matches!(self.guard(expanded, direction), Ok(Some(_)))
             },
@@ -300,8 +300,18 @@ impl TypeScope<'_> {
                 .registry
                 .resolve_in_file(name, self.file_path, self.file_imports)
                 .is_some()
-            && type_has_derive(self.registry, name, derive))
+            && self.has_derive(name, derive))
         .then(|| name.to_string())
+    }
+
+    /// Whether the type this scope's file knows as `name` derives `derive`.
+    fn has_derive(&self, name: &str, derive: &str) -> bool {
+        let declared = Declared {
+            registry: self.registry,
+            file_path: self.file_path,
+            file_imports: self.file_imports,
+        };
+        declared_type_has_derive(declared, name, derive)
     }
 
     /// Why `ts_type` cannot be coded, when it names a type through a
@@ -763,7 +773,9 @@ fn map_key(key_type: &str, scope: &TypeScope<'_>) -> Result<MapKey, String> {
     };
     Ok(MapKey {
         base,
-        decoder: type_has_derive(scope.registry, &name, "Decode").then(|| NestedType::whole(name)),
+        decoder: scope
+            .has_derive(&name, "Decode")
+            .then(|| NestedType::whole(name)),
     })
 }
 
