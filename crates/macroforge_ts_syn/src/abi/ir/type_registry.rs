@@ -456,9 +456,20 @@ struct DeclaringFile {
     names: std::collections::HashSet<String>,
 }
 
+/// `path` with the separators Windows writes as the `/` every comparison of
+/// paths here is made in.
+fn slashed(path: &str) -> std::borrow::Cow<'_, str> {
+    if path.contains('\\') {
+        std::borrow::Cow::Owned(path.replace('\\', "/"))
+    } else {
+        std::borrow::Cow::Borrowed(path)
+    }
+}
+
 /// Whether two paths name one file, where one may be written from a root the
 /// other is written below: `src/user.ts` and `/project/src/user.ts`.
 fn same_file(left: &str, right: &str) -> bool {
+    let (left, right) = (slashed(left), slashed(right));
     let (left, right) = (
         left.trim_start_matches("./"),
         right.trim_start_matches("./"),
@@ -1376,7 +1387,8 @@ pub fn specifier_endings(specifier: &str) -> Vec<String> {
 /// names: the file itself, its directory when it is an `index`, or the file
 /// without a further extension of its own (`user.svelte.ts` for `user`).
 pub fn file_path_ends_in_module(file_path: &str, ending: &str) -> bool {
-    let trimmed = strip_source_extension(file_path);
+    let file_path = slashed(file_path);
+    let trimmed = strip_source_extension(&file_path);
     let ends = |stem: &str| {
         stem == ending
             || stem
@@ -1431,6 +1443,7 @@ pub fn resolve_relative_module(caller_file_path: &str, module_specifier: &str) -
     {
         return None;
     }
+    let caller_file_path = slashed(caller_file_path);
     let mut segments: Vec<&str> = caller_file_path.split('/').collect();
     segments.pop();
     for segment in specifier.split('/') {
@@ -1449,7 +1462,8 @@ pub fn resolve_relative_module(caller_file_path: &str, module_specifier: &str) -
 /// extension-less path. A `.svelte` sub-extension still counts as the same
 /// module, and a directory import resolves to its `index`.
 pub fn file_path_is_module(file_path: &str, module_path: &str) -> bool {
-    let trimmed = strip_source_extension(file_path);
+    let file_path = slashed(file_path);
+    let trimmed = strip_source_extension(&file_path);
     trimmed == module_path
         || trimmed
             .strip_prefix(module_path)
@@ -1463,7 +1477,8 @@ pub fn file_path_is_module(file_path: &str, module_path: &str) -> bool {
 /// still matches `all-types.svelte.ts` (Svelte component output): the
 /// `.svelte` suffix counts as a sub-extension on the same module.
 fn file_path_module_matches(file_path: &str, needle: &str) -> bool {
-    let trimmed = strip_source_extension(file_path.rsplit('/').next().unwrap_or(file_path));
+    let file_path = slashed(file_path);
+    let trimmed = strip_source_extension(file_path.rsplit('/').next().unwrap_or(&file_path));
     if trimmed == needle {
         return true;
     }
@@ -1772,6 +1787,45 @@ mod tests {
         assert!(!same_file(
             "/project/src/page.ts",
             "/project/src/homepage.ts"
+        ));
+    }
+
+    /// A path written with the separators of Windows names the module a
+    /// path written with `/` does.
+    #[test]
+    fn a_windows_path_names_the_module_a_slashed_one_does() {
+        let mut registry = TypeRegistry::default();
+        registry.insert(
+            make_interface_entry("User", r"C:\project\src\models\user.ts", vec![]),
+            r"C:\project",
+        );
+        registry.insert(
+            make_interface_entry("User", r"C:\project\src\other.ts", vec![]),
+            r"C:\project",
+        );
+        let page = r"C:\project\src\routes\page.ts";
+        let resolve = |specifier: &str| {
+            registry
+                .resolve_in_file("User", page, &[import_from("User", specifier)])
+                .map(|entry| entry.file_path.as_str())
+        };
+
+        assert_eq!(
+            resolve("../models/user"),
+            Some(r"C:\project\src\models\user.ts")
+        );
+        assert_eq!(resolve("../other"), Some(r"C:\project\src\other.ts"));
+        assert_eq!(
+            resolve("$lib/models/user"),
+            Some(r"C:\project\src\models\user.ts")
+        );
+        assert_eq!(
+            resolve_relative_module(page, "../models/user").as_deref(),
+            Some("C:/project/src/models/user")
+        );
+        assert!(same_file(
+            r"src\routes\page.ts",
+            "C:/project/src/routes/page.ts"
         ));
     }
 
