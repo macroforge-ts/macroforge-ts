@@ -80,6 +80,11 @@ pub struct TypeRegistryEntry {
     #[serde(default)]
     pub exported_as: Vec<String>,
 
+    /// The names other modules export it under again: a barrel's
+    /// `export * from './user'` or `export { User as Member } from './user'`.
+    #[serde(default)]
+    pub re_exported: Vec<ReExport>,
+
     /// The full IR of the type.
     pub definition: TypeDefinitionIR,
 
@@ -94,6 +99,31 @@ impl TypeRegistryEntry {
         entry.definition.clear_spans();
         entry
     }
+}
+
+/// A name a module exports a type under that another module declares.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ReExport {
+    /// The file of the module that exports it again.
+    pub file_path: String,
+    /// The name that module exports it under.
+    pub name: String,
+    /// Whether that module exports everything the declaring one does, by
+    /// `export *` all the way: the type's generated functions come with it
+    /// then, where a named re-export brings the type alone.
+    pub whole: bool,
+}
+
+/// What a module exports again from another, as its source writes it.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ModuleReExport {
+    /// The module it comes from, as written (`./user`).
+    pub module_specifier: String,
+    /// The name it has there: `default` for that module's default export,
+    /// and `*` for `export * from`, which takes every name but `default`.
+    pub imported: String,
+    /// The name it is exported under here, and `*` for `export * from`.
+    pub exported: String,
 }
 
 /// A simplified import entry from a file (for cross-file resolution).
@@ -536,6 +566,8 @@ struct WireEntry<'a> {
     is_exported: bool,
     #[serde(skip_serializing_if = "no_names")]
     exported_as: &'a [String],
+    #[serde(skip_serializing_if = "no_re_exports")]
+    re_exported: &'a [ReExport],
     definition: &'a TypeDefinitionIR,
     #[serde(skip_serializing_if = "Option::is_none")]
     file_imports: Option<&'a [FileImportEntry]>,
@@ -546,6 +578,11 @@ fn no_names(names: &&[String]) -> bool {
     names.is_empty()
 }
 
+/// Whether an entry has no re-exports to write.
+fn no_re_exports(re_exports: &&[ReExport]) -> bool {
+    re_exports.is_empty()
+}
+
 /// An entry read from the wire, before its file's imports are filled in.
 #[derive(Deserialize)]
 struct WireEntryData {
@@ -554,6 +591,8 @@ struct WireEntryData {
     is_exported: bool,
     #[serde(default)]
     exported_as: Vec<String>,
+    #[serde(default)]
+    re_exported: Vec<ReExport>,
     definition: TypeDefinitionIR,
     #[serde(default)]
     file_imports: Option<Vec<FileImportEntry>>,
@@ -576,6 +615,7 @@ impl WireEntryData {
             file_path: self.file_path,
             is_exported: self.is_exported,
             exported_as: self.exported_as,
+            re_exported: self.re_exported,
             definition: self.definition,
             file_imports: imports,
         })
@@ -631,6 +671,7 @@ impl<'a> WireEntry<'a> {
             file_path: &entry.file_path,
             is_exported: entry.is_exported,
             exported_as: entry.exported_as.as_slice(),
+            re_exported: entry.re_exported.as_slice(),
             definition: &entry.definition,
             file_imports: inline_imports.then_some(entry.file_imports.as_slice()),
         }
@@ -1057,13 +1098,22 @@ impl TypeRegistry {
     }
 
     /// The declaration the module at `module_path` exports as `exported`:
-    /// one declared under that name, or one it exports under it (`export {
-    /// User as Member }`, `export default class User`).
+    /// one declared under that name, one it exports under it (`export {
+    /// User as Member }`, `export default class User`), or one of another
+    /// module that it exports again under it.
     fn exported_by(&self, module_path: &str, exported: &str) -> Option<&TypeRegistryEntry> {
-        if let Some(entry) = self
-            .candidates(exported)
-            .into_iter()
+        let exports_again = |entry: &TypeRegistryEntry| {
+            entry.re_exported.iter().any(|again| {
+                again.name == exported && file_path_is_module(&again.file_path, module_path)
+            })
+        };
+        // A type keeps its name through most modules, so the declarations
+        // of that name are asked first.
+        let named = self.candidates(exported);
+        if let Some(entry) = named
+            .iter()
             .find(|entry| file_path_is_module(&entry.file_path, module_path))
+            .or_else(|| named.iter().find(|entry| exports_again(entry)))
         {
             return Some(entry);
         }
@@ -1075,8 +1125,9 @@ impl TypeRegistry {
             .by_key
             .iter()
             .filter(|(_, entry)| {
-                entry.exported_as.iter().any(|name| name == exported)
-                    && file_path_is_module(&entry.file_path, module_path)
+                exports_again(entry)
+                    || (entry.exported_as.iter().any(|name| name == exported)
+                        && file_path_is_module(&entry.file_path, module_path))
             })
             .collect();
         renamed.sort_by_key(|(key, _)| *key);
@@ -1168,7 +1219,7 @@ fn module_specifier_basename(module_specifier: &str) -> &str {
 
 /// The extension-less path a relative specifier resolves to from the file at
 /// `caller_file_path`, or `None` for a bare or aliased specifier.
-fn resolve_relative_module(caller_file_path: &str, module_specifier: &str) -> Option<String> {
+pub fn resolve_relative_module(caller_file_path: &str, module_specifier: &str) -> Option<String> {
     let specifier = module_specifier.trim();
     if caller_file_path.is_empty() || !(specifier.starts_with("./") || specifier.starts_with("../"))
     {
@@ -1191,7 +1242,7 @@ fn resolve_relative_module(caller_file_path: &str, module_specifier: &str) -> Op
 /// Whether the file at `file_path` is the module at `module_path`, an
 /// extension-less path. A `.svelte` sub-extension still counts as the same
 /// module, and a directory import resolves to its `index`.
-fn file_path_is_module(file_path: &str, module_path: &str) -> bool {
+pub fn file_path_is_module(file_path: &str, module_path: &str) -> bool {
     let trimmed = strip_source_extension(file_path);
     trimmed == module_path
         || trimmed
@@ -1270,6 +1321,7 @@ mod tests {
             file_path: file_path.to_string(),
             is_exported: true,
             exported_as: Vec::new(),
+            re_exported: Vec::new(),
             definition: TypeDefinitionIR::Interface(InterfaceIR {
                 name: name.to_string(),
                 span: SpanIR::new(0, 0),
@@ -1298,6 +1350,7 @@ mod tests {
             file_path: "/project/src/aliases.ts".to_string(),
             is_exported: true,
             exported_as: Vec::new(),
+            re_exported: Vec::new(),
             definition: TypeDefinitionIR::TypeAlias(TypeAliasIR {
                 name: name.to_string(),
                 span: SpanIR::new(0, 0),

@@ -2,7 +2,7 @@
 
 use crate::LoweredTarget;
 use crate::TsSynError;
-use crate::abi::ir::TypeParamIR;
+use crate::abi::ir::{ModuleReExport, TypeParamIR};
 use crate::abi::{
     ClassIR, DecoratorIR, EnumIR, EnumValue, EnumVariantIR, FieldIR, FunctionIR, FunctionParamIR,
     InterfaceFieldIR, InterfaceIR, InterfaceMethodIR, MemberKey, MethodSigIR, NEWTYPE_BRAND_PREFIX,
@@ -1279,6 +1279,35 @@ pub fn collect_export_aliases(program: &Program<'_>) -> Vec<(String, String)> {
         }
     }
     aliases
+}
+
+/// What a module exports again from other modules: `export { A as B } from
+/// './a'`, `export { default as A } from './a'` and `export * from './a'`.
+/// `export * as space from './a'` exports a namespace, which names no type.
+pub fn collect_re_exports(program: &Program<'_>) -> Vec<ModuleReExport> {
+    let mut re_exports = Vec::new();
+    for statement in &program.body {
+        match statement {
+            Statement::ExportFromDeclaration(export) => {
+                for specifier in &export.specifiers {
+                    re_exports.push(ModuleReExport {
+                        module_specifier: export.source.value.to_string(),
+                        imported: specifier.local.name().to_string(),
+                        exported: specifier.exported.name().to_string(),
+                    });
+                }
+            }
+            Statement::ExportAllDeclaration(export) if export.exported.is_none() => {
+                re_exports.push(ModuleReExport {
+                    module_specifier: export.source.value.to_string(),
+                    imported: "*".to_string(),
+                    exported: "*".to_string(),
+                });
+            }
+            _ => {}
+        }
+    }
+    re_exports
 }
 
 /// Collect names of exported declarations from a parsed Oxc program.

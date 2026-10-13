@@ -22,7 +22,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use crate::host::declarative::ProjectDeclarativeRegistry;
 use crate::host::declarative::project_registry::FileMacros;
-use crate::ts_syn::abi::ir::type_registry::FileImportEntry;
+use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, ModuleReExport};
 use crate::ts_syn::abi::ir::{ClassIR, EnumIR, InterfaceIR, TypeAliasIR};
 
 /// Everything the scanner produces for a single `.ts/.tsx` file, plus the
@@ -59,6 +59,8 @@ pub struct CacheEntry {
     /// The other names the file exports its declarations under, each as the
     /// declared name and the exported one.
     pub export_aliases: Vec<(String, String)>,
+    /// What the file exports again from other modules.
+    pub re_exports: Vec<ModuleReExport>,
     /// Whether the file contains anything the engine expands.
     pub uses_macros: bool,
 }
@@ -265,6 +267,7 @@ mod tests {
             file_imports: Vec::new(),
             exported_names: HashSet::new(),
             export_aliases: Vec::new(),
+            re_exports: Vec::new(),
             uses_macros: false,
         })
     }

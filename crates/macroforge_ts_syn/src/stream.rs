@@ -742,6 +742,7 @@ mod import_for_tests {
                 file_path: type_path.to_string(),
                 is_exported: true,
                 exported_as: Vec::new(),
+                re_exported: Vec::new(),
                 definition: TypeDefinitionIR::Interface(empty_interface(type_name)),
                 file_imports: vec![],
             },

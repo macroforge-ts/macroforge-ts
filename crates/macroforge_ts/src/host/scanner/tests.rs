@@ -112,6 +112,179 @@ fn a_module_exports_a_declaration_under_other_names() {
 }
 
 #[test]
+fn a_module_says_what_it_exports_again() {
+    let source = r#"
+        export * from './user';
+        export { default as Chosen, User as Member } from './user';
+        export type { Late } from './late';
+        export * as space from './space';
+        export { own };
+    "#;
+
+    let allocator = Allocator::default();
+    let again: Vec<(String, String, String)> =
+        crate::ts_syn::collect_re_exports(&parse(&allocator, source, "test.ts"))
+            .into_iter()
+            .map(|again| (again.module_specifier, again.imported, again.exported))
+            .collect();
+    let named = |module: &str, imported: &str, exported: &str| {
+        (
+            module.to_string(),
+            imported.to_string(),
+            exported.to_string(),
+        )
+    };
+    assert_eq!(
+        again,
+        vec![
+            named("./user", "*", "*"),
+            named("./user", "default", "Chosen"),
+            named("./user", "User", "Member"),
+            named("./late", "Late", "Late"),
+        ]
+    );
+}
+
+/// A type is found through the barrels that export it again, under the name
+/// each gives it, and a barrel that exports all of a module brings its
+/// generated functions where one that names the type does not.
+#[test]
+fn an_import_is_followed_through_the_modules_that_export_it_again() {
+    use crate::ts_syn::abi::ir::type_registry::FileImportEntry;
+
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|elapsed| elapsed.as_nanos())
+        .unwrap_or_default();
+    let root = std::env::temp_dir().join(format!("macroforge_barrels_{nanos}"));
+    std::fs::create_dir_all(root.join("models")).expect("create fixture dir");
+    let write = |name: &str, source: &str| {
+        std::fs::write(root.join(name), source).expect("write source");
+    };
+    write(
+        "models/user.ts",
+        "export interface User { id: string; }\nexport default class Model { id = ''; }\n",
+    );
+    write(
+        "models/index.ts",
+        "export * from './user';\nexport { default as Chosen, User as Member } from './user';\n",
+    );
+    write(
+        "all.ts",
+        "export * from './models';\nexport * from './round';\n",
+    );
+    write(
+        "round.ts",
+        "export * from './all';\nexport interface Round { id: string; }\n",
+    );
+    // A name the project declares once elsewhere, which no import below leads to.
+    write("other.ts", "export interface Member { id: string; }\n");
+
+    let output = ProjectScanner::with_root(root.clone())
+        .scan()
+        .expect("scan");
+    let page = root.join("page.ts").to_string_lossy().to_string();
+    let import = |local: &str, exported: Option<&str>, module: &str| FileImportEntry {
+        local_name: local.to_string(),
+        module_specifier: module.to_string(),
+        original_name: exported.map(str::to_string),
+        is_type_only: true,
+    };
+    let resolve = |name: &str, imports: &[FileImportEntry]| {
+        output
+            .registry
+            .resolve_in_file(name, &page, imports)
+            .map(|entry| entry.name.clone())
+    };
+
+    // `export *` keeps the name, and a named re-export gives another.
+    assert_eq!(
+        resolve("User", &[import("User", None, "./models")]),
+        Some("User".to_string())
+    );
+    assert_eq!(
+        resolve("Member", &[import("Member", None, "./models")]),
+        Some("User".to_string())
+    );
+    assert_eq!(
+        resolve("Chosen", &[import("Chosen", None, "./models")]),
+        Some("Model".to_string())
+    );
+    // Through a second barrel, and renamed once more by the import.
+    assert_eq!(
+        resolve("Seen", &[import("Seen", Some("Member"), "./all")]),
+        Some("User".to_string())
+    );
+    assert_eq!(
+        resolve("Chosen", &[import("Chosen", None, "./all")]),
+        Some("Model".to_string())
+    );
+    // Two modules that export each other end, with what each declares.
+    assert_eq!(
+        resolve("Round", &[import("Round", None, "./all")]),
+        Some("Round".to_string())
+    );
+
+    let user = output.registry.get("User").expect("User is scanned");
+    let again = |file: &str, name: &str| {
+        user.re_exported
+            .iter()
+            .find(|again| again.file_path.ends_with(file) && again.name == name)
+            .map(|again| again.whole)
+    };
+    assert_eq!(again("models/index.ts", "User"), Some(true));
+    assert_eq!(again("models/index.ts", "Member"), Some(false));
+    assert_eq!(again("all.ts", "User"), Some(true));
+    assert_eq!(again("all.ts", "Member"), Some(false));
+
+    std::fs::remove_dir_all(&root).expect("remove fixture");
+}
+
+/// Barrels that reach one module by many ways are read once a round: forty
+/// layers of two, each exporting both of the layer below, are a million
+/// million ways down, and are linked as fast as forty files.
+#[test]
+fn barrels_that_reach_a_module_by_many_ways_are_linked_once() {
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|elapsed| elapsed.as_nanos())
+        .unwrap_or_default();
+    let root = std::env::temp_dir().join(format!("macroforge_diamond_{nanos}"));
+    std::fs::create_dir_all(&root).expect("create fixture dir");
+    let layers = 40;
+    std::fs::write(
+        root.join("left0.ts"),
+        "export interface Deep { id: string; }\n",
+    )
+    .expect("write source");
+    std::fs::write(
+        root.join("right0.ts"),
+        "export interface Wide { id: string; }\n",
+    )
+    .expect("write source");
+    for layer in 1..=layers {
+        let below = layer - 1;
+        let source = format!("export * from './left{below}';\nexport * from './right{below}';\n");
+        for side in ["left", "right"] {
+            std::fs::write(root.join(format!("{side}{layer}.ts")), &source).expect("write source");
+        }
+    }
+
+    let output = ProjectScanner::with_root(root.clone())
+        .scan()
+        .expect("scan");
+    let deep = output.registry.get("Deep").expect("Deep is scanned");
+    assert_eq!(deep.re_exported.len(), layers * 2);
+    assert!(
+        deep.re_exported
+            .iter()
+            .all(|again| again.whole && again.name == "Deep")
+    );
+
+    std::fs::remove_dir_all(&root).expect("remove fixture");
+}
+
+#[test]
 fn test_scanner_svelte_ts_interface_with_derive() {
     use crate::ts_syn::abi::ir::type_registry::{
         TypeDefinitionIR, TypeRegistry, TypeRegistryEntry,
@@ -151,6 +324,7 @@ export interface PhoneNumber {
             file_path: "phone-number.svelte.ts".to_string(),
             is_exported: true,
             exported_as: Vec::new(),
+            re_exported: Vec::new(),
             definition: TypeDefinitionIR::Interface(iface.clone()),
             file_imports: vec![],
         },

@@ -590,7 +590,7 @@ impl MacroContextIR {
 /// directory containing `current_file`. Strips `.svelte.ts` → `.svelte`,
 /// `.tsx` → empty, `.ts` → empty, and prepends `./` for sibling/descendant
 /// paths.
-pub(super) fn relative_module_specifier(current_file: &str, target_file: &str) -> Option<String> {
+pub fn relative_module_specifier(current_file: &str, target_file: &str) -> Option<String> {
     use std::path::Path;
     let from = Path::new(current_file).parent()?;
     let to = Path::new(target_file);
@@ -660,6 +660,7 @@ mod import_specifier_tests {
                 file_path: file_path.to_string(),
                 is_exported: true,
                 exported_as: Vec::new(),
+                re_exported: Vec::new(),
                 definition: TypeDefinitionIR::Interface(empty_interface(name)),
                 file_imports: vec![],
             },

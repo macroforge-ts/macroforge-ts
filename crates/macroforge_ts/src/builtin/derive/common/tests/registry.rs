@@ -21,6 +21,7 @@ fn make_registry_with_derives() -> TypeRegistry {
         file_path: "/project/src/user.ts".to_string(),
         is_exported: true,
         exported_as: Vec::new(),
+        re_exported: Vec::new(),
         definition: TypeDefinitionIR::Class(ClassIR {
             name: "User".to_string(),
             span: zero_span(),
@@ -47,6 +48,7 @@ fn make_registry_with_derives() -> TypeRegistry {
         file_path: "/project/src/order.ts".to_string(),
         is_exported: true,
         exported_as: Vec::new(),
+        re_exported: Vec::new(),
         definition: TypeDefinitionIR::Interface(InterfaceIR {
             name: "Order".to_string(),
             span: zero_span(),
@@ -67,6 +69,7 @@ fn make_registry_with_derives() -> TypeRegistry {
         file_path: "/project/src/product.ts".to_string(),
         is_exported: true,
         exported_as: Vec::new(),
+        re_exported: Vec::new(),
         definition: TypeDefinitionIR::Class(ClassIR {
             name: "Product".to_string(),
             span: zero_span(),
@@ -122,6 +125,7 @@ fn test_type_has_derive_ambiguous_name() {
         file_path: "/project/src/types/phone-number.svelte.ts".to_string(),
         is_exported: true,
         exported_as: Vec::new(),
+        re_exported: Vec::new(),
         definition: TypeDefinitionIR::Interface(InterfaceIR {
             name: "PhoneNumber".to_string(),
             span: zero_span(),
@@ -145,6 +149,7 @@ fn test_type_has_derive_ambiguous_name() {
         file_path: "/project/src/types/all-types.svelte.ts".to_string(),
         is_exported: true,
         exported_as: Vec::new(),
+        re_exported: Vec::new(),
         definition: TypeDefinitionIR::Interface(InterfaceIR {
             name: "PhoneNumber".to_string(),
             span: zero_span(),

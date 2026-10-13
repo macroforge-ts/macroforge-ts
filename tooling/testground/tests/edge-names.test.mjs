@@ -352,3 +352,38 @@ Deno.test('a type its module exports under another name is coded through its own
     assertStrictEquals(blank.shown.note, '');
     assertStrictEquals(blank.chosen.title, '');
 });
+
+Deno.test('a type a barrel exports again is coded through its own functions', async () => {
+    const imports = await expandAndCompile(
+        join(vanillaRoot, 'src', 'edge-cases', 'name-imports.ts')
+    );
+    const at = new Date(2000);
+    const source = {
+        model: { title: 't', at },
+        shown: { note: 'n', at, stamp: 1 },
+        item: { id: 'i', score: 1 },
+        items: [{ id: 'j', score: 2 }]
+    };
+    const encoded = JSON.parse(imports.nameBarrelledEncode(source));
+    assertEquals(encoded.model.at, at.toISOString());
+    assertEquals(encoded.shown.at, at.toISOString());
+
+    const value = decoded(imports.nameBarrelledDecode(encoded));
+    assert(value.model.at instanceof Date);
+    assert(value.shown.at instanceof Date);
+    assertEquals(value.items, source.items);
+    assertEquals(
+        errorFields(imports.nameBarrelledDecode({ ...encoded, item: { id: 1, score: 1 } })),
+        ['item.id']
+    );
+    assertEquals(
+        errorFields(
+            imports.nameBarrelledDecode({ ...encoded, model: { title: 't', at: 'never' } })
+        ),
+        ['model.at']
+    );
+    assertStrictEquals(imports.nameBarrelledDefaultValue().item.id, '');
+    assert(
+        imports.nameBarrelledEquals(source, { ...source, shown: { ...source.shown, stamp: 7 } })
+    );
+});

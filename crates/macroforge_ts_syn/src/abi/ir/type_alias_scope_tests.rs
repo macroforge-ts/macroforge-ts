@@ -25,6 +25,7 @@ fn link_alias(first: &str, file_path: &str, imports: Vec<FileImportEntry>) -> Ty
             file_path: file_path.to_string(),
             is_exported: true,
             exported_as: Vec::new(),
+            re_exported: Vec::new(),
             definition: TypeDefinitionIR::TypeAlias(TypeAliasIR {
                 name: "Link".to_string(),
                 span: SpanIR::new(0, 0),
@@ -169,6 +170,7 @@ fn a_type_declared_beside_the_alias_leaves_it_unexpanded() {
             file_path: "/p/lib/index.ts".to_string(),
             is_exported: true,
             exported_as: Vec::new(),
+            re_exported: Vec::new(),
             definition: TypeDefinitionIR::TypeAlias(TypeAliasIR {
                 name: "Sibling".to_string(),
                 span: SpanIR::new(0, 0),

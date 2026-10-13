@@ -1,19 +1,23 @@
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use ignore::WalkBuilder;
 
 use crate::host::declarative::ProjectDeclarativeRegistry;
-use crate::ts_syn::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistry, TypeRegistryEntry};
+use crate::ts_syn::abi::ir::type_registry::{
+    ReExport, TypeDefinitionIR, TypeRegistry, TypeRegistryEntry,
+};
 
 use crate::ts_syn::{
-    collect_export_aliases, collect_exported_names, collect_file_imports, lower_classes,
-    lower_enums, lower_interfaces, lower_type_aliases,
+    collect_export_aliases, collect_exported_names, collect_file_imports, collect_re_exports,
+    lower_classes, lower_enums, lower_interfaces, lower_type_aliases,
 };
 
 use super::cache::{CacheEntry, FileStamp, ScanCache, file_stamp, splice_declarative};
 use super::config::ScanConfig;
+use super::re_exports::link_re_exports;
 
 /// Result of scanning a project.
 pub struct ScanOutput {
@@ -154,17 +158,29 @@ impl ProjectScanner {
             removed = cache.len() != before;
         }
 
+        // A barrel declares nothing: what it exports again is recorded on
+        // the declarations it leads to.
+        let scanned: Vec<(String, &CacheEntry)> = paths
+            .iter()
+            .zip(&entries)
+            .filter_map(|(path, entry)| match entry {
+                Some(Ok(entry)) => Some((path.to_string_lossy().to_string(), entry.as_ref())),
+                Some(Err(_)) | None => None,
+            })
+            .collect();
+        let re_exported = link_re_exports(&scanned);
+
         let mut registry = TypeRegistry::new();
         let mut declarative_registry = ProjectDeclarativeRegistry::new();
         let root_str = self.config.root_dir.to_string_lossy().to_string();
         let mut macro_files: u32 = 0;
-        for (path, entry) in paths.iter().zip(entries) {
+        for (path, entry) in paths.iter().zip(&entries) {
             match entry {
                 Some(Ok(entry)) => {
                     let file_name = path.to_string_lossy().to_string();
-                    splice_declarative(&mut declarative_registry, &file_name, &entry);
+                    splice_declarative(&mut declarative_registry, &file_name, entry);
                     macro_files += u32::from(entry.uses_macros);
-                    self.register_items(&mut registry, &root_str, &file_name, &entry);
+                    self.register_items(&mut registry, &root_str, &file_name, entry, &re_exported);
                 }
                 Some(Err(e)) => warnings.push(format!("Failed to scan {:?}: {}", path, e)),
                 None => warnings.push(format!("{} was not scanned", path.display())),
@@ -244,6 +260,7 @@ impl ProjectScanner {
         project_root: &str,
         file_name: &str,
         entry: &CacheEntry,
+        re_exported: &HashMap<(String, String), Vec<ReExport>>,
     ) {
         let definitions = entry
             .classes
@@ -283,6 +300,10 @@ impl ProjectScanner {
                         .filter(|(declared, _)| declared == name)
                         .map(|(_, exported)| exported.clone())
                         .collect(),
+                    re_exported: re_exported
+                        .get(&(file_name.to_string(), name.clone()))
+                        .cloned()
+                        .unwrap_or_default(),
                     definition,
                     file_imports: entry.file_imports.clone(),
                 },
@@ -367,6 +388,7 @@ fn lower_file(path: &Path, stamp: Option<FileStamp>) -> anyhow::Result<CacheEntr
         file_imports: collect_file_imports(&ret.program),
         exported_names: collect_exported_names(&ret.program),
         export_aliases: collect_export_aliases(&ret.program),
+        re_exports: collect_re_exports(&ret.program),
         uses_macros,
     })
 }

@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/edge-cases/name-imports.ts
-sha256 22b3d7a255ebe4aaf4e4adc92662bd60858599b25e3f8bdfa73180f6500cf51f
+sha256 27a065687bab54be923f8f4e5cc9b2ecb21b661a21e5cb56aa763f6bef86f77b
 
 ## Changed
 
@@ -12,7 +12,8 @@ true
 
 ## Output
 
-import { nameModelDecodeWithContext as chosenDecodeWithContext, nameLateDecodeWithContext as nameShownDecodeWithContext, nameModelEncodeWithContext as chosenEncodeWithContext, nameLateEncodeWithContext as nameShownEncodeWithContext, nameModelDefaultValue as chosenDefaultValue, nameLateDefaultValue as nameShownDefaultValue, nameModelHashCode as chosenHashCode, nameLateHashCode as nameShownHashCode, nameModelEquals as chosenEquals, nameLateEquals as nameShownEquals, nameModelClone as chosenClone, nameLateClone as nameShownClone, nameModelToString as chosenToString, nameLateToString as nameShownToString } from "./name-exports";
+import { edgeItemDecodeWithContext as barrelItemDecodeWithContext, edgeItemEncodeWithContext as barrelItemEncodeWithContext, edgeItemDefaultValue as barrelItemDefaultValue, edgeItemHashCode as barrelItemHashCode, edgeItemEquals as barrelItemEquals, edgeItemClone as barrelItemClone, edgeItemToString as barrelItemToString } from "./name-barrel";
+import { nameModelDecodeWithContext as nameBarrelModelDecodeWithContext, nameLateDecodeWithContext as nameBarrelShownDecodeWithContext, nameModelEncodeWithContext as nameBarrelModelEncodeWithContext, nameLateEncodeWithContext as nameBarrelShownEncodeWithContext, nameModelDefaultValue as nameBarrelModelDefaultValue, nameLateDefaultValue as nameBarrelShownDefaultValue, nameModelHashCode as nameBarrelModelHashCode, nameLateHashCode as nameBarrelShownHashCode, nameModelEquals as nameBarrelModelEquals, nameLateEquals as nameBarrelShownEquals, nameModelClone as nameBarrelModelClone, nameLateClone as nameBarrelShownClone, nameModelToString as nameBarrelModelToString, nameLateToString as nameBarrelShownToString, nameModelDecodeWithContext as chosenDecodeWithContext, nameLateDecodeWithContext as nameShownDecodeWithContext, nameModelEncodeWithContext as chosenEncodeWithContext, nameLateEncodeWithContext as nameShownEncodeWithContext, nameModelDefaultValue as chosenDefaultValue, nameLateDefaultValue as nameShownDefaultValue, nameModelHashCode as chosenHashCode, nameLateHashCode as nameShownHashCode, nameModelEquals as chosenEquals, nameLateEquals as nameShownEquals, nameModelClone as chosenClone, nameLateClone as nameShownClone, nameModelToString as chosenToString, nameLateToString as nameShownToString } from "./name-exports";
 import { edgeItemDecodePartialWithContext as itemDecodePartialWithContext, edgeItemDecodeWithContext as itemDecodeWithContext, edgeItemEncodePartialWithContext as itemEncodePartialWithContext, edgeItemEncodeWithContext as itemEncodeWithContext, edgeItemDefaultValue as itemDefaultValue, edgeItemHashCode as itemHashCode, edgeItemEquals as itemEquals, edgeItemClone as itemClone, edgeItemToString as itemToString } from "./edge-types";
 import { point2DDecodeWithContext, point2DEncodeWithContext, point2DDefaultValue, point2DHashCode, point2DEquals, point2DClone, point2DToString } from "./name-shapes";
 import { structuralDebug as __mf_structuralDebug, debuggedWithin as __mf_debuggedWithin, clonedWith as __mf_clonedWith, equalWithin as __mf_equalWithin, hashedWithin as __mf_hashedWithin, structuralClone as __mf_structuralClone, structuralEquals as __mf_structuralEquals, structuralHash as __mf_structuralHash } from "@macroforge/core/structural";
@@ -21,12 +22,13 @@ import type { FieldSelection as __mf_FieldSelection, FieldRequirement as __mf_Fi
 /**
  * Types held from another module under names that do not lead to their
  * functions by themselves: one named in lowercase, one imported under
- * another name, one exported under another name, and a default export
- * imported under a name of this module's own. Their functions are imported
- * like any other type's.
+ * another name, one exported under another name, a default export imported
+ * under a name of this module's own, and three that a barrel exports again.
+ * Their functions are imported like any other type's.
  */
 
 import type { EdgeItem as Item } from './edge-types';
+import type { EdgeItem as BarrelItem, NameBarrelModel, NameBarrelShown } from './name-barrel';
 import type Chosen from './name-exports';
 import type { NameShown } from './name-exports';
 import type { point2D } from './name-shapes';
@@ -1125,16 +1127,375 @@ export const NameExported: {
   is: nameExportedIs
 };
 
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface NameBarrelled {
+    model: NameBarrelModel;
+    shown: NameBarrelShown;
+    item: BarrelItem;
+    items: BarrelItem[];
+}
+
+export function nameBarrelledToString(value: NameBarrelled): string {
+    return __mf_debuggedWithin(value, () => {
+        const parts: string[] = [];
+    parts.push("model: " + nameBarrelModelToString(value.model));
+    parts.push("shown: " + nameBarrelShownToString(value.shown));
+    parts.push("item: " + barrelItemToString(value.item));
+    parts.push("items: " + "[" + value.items.map(barrelItemToString).join(", ") + "]");
+        return "NameBarrelled { " + parts.join(", ") + " }";
+    });
+}
+
+export function nameBarrelledClone(value: NameBarrelled): NameBarrelled {
+    return __mf_clonedWith(value, (): NameBarrelled => ({
+	model: nameBarrelModelClone(value.model),
+	shown: nameBarrelShownClone(value.shown),
+	item: barrelItemClone(value.item),
+	items: value.items.map((__item0) => barrelItemClone(__item0))
+}));
+}
+
+export function nameBarrelledEquals(a: NameBarrelled, b: NameBarrelled): boolean {
+    if (a === b) return true;
+    return __mf_equalWithin(a, b, () => nameBarrelModelEquals(a.model, b.model) && nameBarrelShownEquals(a.shown, b.shown) && barrelItemEquals(a.item, b.item) && a.items.length === b.items.length && a.items.every((__item0, __index0) => {
+	const __other0 = b.items[__index0];
+	return __other0 === undefined ? __item0 === undefined : barrelItemEquals(__item0, __other0);
+}));
+}
+
+export function nameBarrelledHashCode(value: NameBarrelled): number {
+    return __mf_hashedWithin(value, () => {
+        let hash = 17;
+    hash = (hash * 31 + (nameBarrelModelHashCode(value.model))) | 0;
+    hash = (hash * 31 + (nameBarrelShownHashCode(value.shown))) | 0;
+    hash = (hash * 31 + (barrelItemHashCode(value.item))) | 0;
+    hash = (hash * 31 + (value.items.reduce<number>((__hash0, __item0) => __hash0 * 31 + barrelItemHashCode(__item0) | 0, 1))) | 0;
+        return hash;
+    });
+}
+
+export function nameBarrelledDefaultValue(): NameBarrelled {
+    return {
+        model: nameBarrelModelDefaultValue(),
+        shown: nameBarrelShownDefaultValue(),
+        item: barrelItemDefaultValue(),
+        items: [],
+    };
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export function nameBarrelledEncode(value: NameBarrelled, keepMetadata?: boolean): string {
+    const ctx = __mf_EncodeContext.create();
+    const __raw = nameBarrelledEncodeWithContext(value, ctx);
+    return keepMetadata ? __mf_encodedText(__raw) : __mf_encodedTextWithoutMetadata(__raw, "__type");
+}
+
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export function nameBarrelledEncodeWithContext(value: NameBarrelled, ctx: __mf_EncodeContext): Record<string, unknown> {
+    const existingId = ctx.getId(value);
+    if (existingId !== undefined) {
+        return __mf_encodedReference(ctx, existingId);
+    }
+    const result = __mf_encodedAs(ctx, ctx.register(value), { "__type": "NameBarrelled" });
+    nameBarrelledEncodeFields(value, ctx, result, undefined);
+    return result;
+}
+
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export function nameBarrelledEncodePartialWithContext(value: Partial<NameBarrelled>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameBarrelled>): Record<string, unknown> {
+    return __mf_encodeSelection(ctx, value, () => {
+        const result: Record<string, unknown> = { "__type": "NameBarrelled" };
+        nameBarrelledEncodeFields(value as NameBarrelled, ctx, result, fields === undefined ? undefined : __mf_fieldRequirement(fields));
+        return result;
+    });
+}
+
+function nameBarrelledEncodeFields(value: NameBarrelled, ctx: __mf_EncodeContext, result: Record<string, unknown>, __fields: __mf_FieldRequirement | undefined): void {
+    if (__fields === undefined || __fields.keeps("model")) {
+        if (value.model !== undefined) {
+            result["model"] = nameBarrelModelEncodeWithContext(value.model, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("shown")) {
+        if (value.shown !== undefined) {
+            result["shown"] = nameBarrelShownEncodeWithContext(value.shown, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("item")) {
+        if (value.item !== undefined) {
+            result["item"] = barrelItemEncodeWithContext(value.item, ctx);
+        }
+    }
+    if (__fields === undefined || __fields.keeps("items")) {
+        if (value.items !== undefined) {
+            result["items"] = value.items.map((__item0) => barrelItemEncodeWithContext(__item0, ctx));
+        }
+    }
+}
+
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export function nameBarrelledDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: NameBarrelled } | { success: false; errors: Array<{ field: string; message: string }> } {
+    try {
+
+        const data = typeof input === "string" ? __mf_parsedText(input) : input;
+
+        const ctx = __mf_DecodeContext.create();
+        const resultOrRef = nameBarrelledDecodeWithContext(data, ctx);
+
+        if (__mf_PendingRef.is(resultOrRef)) {
+            return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "NameBarrelled.decode: root cannot be a forward reference"
+	}]
+});
+        }
+
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+
+        const __errors = ctx.getErrors();
+        if (__errors.length > 0) {
+            return ({
+	success: false,
+	errors: __errors
+});
+        }
+
+        return ({
+	success: true,
+	value: resultOrRef
+});
+    } catch (e) {
+        if (e instanceof __mf_DecodeError) {
+            return ({
+	success: false,
+	errors: e.errors
+});
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+    }
+}
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export function nameBarrelledDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NameBarrelled | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export function nameBarrelledDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<NameBarrelled> | __mf_PendingRef;
+export function nameBarrelledDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, __fields?: __mf_FieldRequirement): Partial<NameBarrelled> | __mf_PendingRef {
+    if (__fields !== undefined && typeof value === "object" && value !== null && "__ref" in value) {
+        throw new __mf_DecodeError([{ field: "_root", message: "NameBarrelled.decodeWithContext: a value holding a selection of fields cannot be a reference" }]);
+    }
+    if (typeof value === "object" && value !== null && "__ref" in value) {
+        if (typeof value.__ref !== "number") {
+            throw new __mf_DecodeError([{ field: "__ref", message: "NameBarrelled.decodeWithContext: __ref must be a number" }]);
+        }
+        return ctx.getOrDefer(value.__ref, "NameBarrelled") as NameBarrelled | __mf_PendingRef;
+    }
+
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new __mf_DecodeError([{ field: "_root", message: "NameBarrelled.decodeWithContext: expected an object" }]);
+    }
+
+    const obj = __mf_ownMembers(value);
+    const errors: Array<{ field: string; message: string }> = [];
+    if ((__fields === undefined || __fields.requires("model")) && !("model" in obj)) {
+        errors.push({ field: "model", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("shown")) && !("shown" in obj)) {
+        errors.push({ field: "shown", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("item")) && !("item" in obj)) {
+        errors.push({ field: "item", message: "missing required field" });
+    }
+    if ((__fields === undefined || __fields.requires("items")) && !("items" in obj)) {
+        errors.push({ field: "items", message: "missing required field" });
+    }
+
+    const instance: any = {};
+
+    if (__fields === undefined && obj["__id"] !== undefined) {
+        ctx.register(obj["__id"] as number, instance, "NameBarrelled");
+    }
+
+    ctx.trackForFreeze(instance);
+
+    if ((__fields === undefined || __fields.requires("model")) ? "model" in obj : (__fields.keeps("model") && obj["model"] !== undefined)) {
+        const __raw_model = obj["model"] as NameBarrelModel;
+
+        ctx.pushScope("model");
+        try {
+            const __result = nameBarrelModelDecodeWithContext(__raw_model, ctx);
+            ctx.assignOrDefer(instance, "model", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "model" : "model." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "model", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("shown")) ? "shown" in obj : (__fields.keeps("shown") && obj["shown"] !== undefined)) {
+        const __raw_shown = obj["shown"] as NameBarrelShown;
+
+        ctx.pushScope("shown");
+        try {
+            const __result = nameBarrelShownDecodeWithContext(__raw_shown, ctx);
+            ctx.assignOrDefer(instance, "shown", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "shown" : "shown." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "shown", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("item")) ? "item" in obj : (__fields.keeps("item") && obj["item"] !== undefined)) {
+        const __raw_item = obj["item"] as BarrelItem;
+
+        ctx.pushScope("item");
+        try {
+            const __result = barrelItemDecodeWithContext(__raw_item, ctx);
+            ctx.assignOrDefer(instance, "item", __result);
+        } catch (__e) {
+            if (__e instanceof __mf_DecodeError) {
+                for (const __err of __e.errors) {
+                    errors.push({
+                        field: __err.field === "_root" ? "item" : "item." + __err.field,
+                        message: __err.message
+                    });
+                }
+            } else {
+
+                errors.push({ field: "item", message: __e instanceof Error ? __e.message : String(__e) });
+            }
+        } finally {
+            ctx.popScope();
+        }
+    }
+    if ((__fields === undefined || __fields.requires("items")) ? "items" in obj : (__fields.keeps("items") && obj["items"] !== undefined)) {
+        const __raw_items = obj["items"] as BarrelItem[];
+        if (Array.isArray(__raw_items)) {
+            ctx.pushScope("items");
+            try {
+                instance.items = __mf_decodeArray(__raw_items, ctx, (__raw0) => barrelItemDecodeWithContext(__raw0, ctx));
+            } catch (__e) {
+                if (__e instanceof __mf_DecodeError) {
+                    for (const __err of __e.errors) {
+                        errors.push({
+                            field: __err.field === "_root" ? "items" : "items." + __err.field,
+                            message: __err.message
+                        });
+                    }
+                } else {
+                    throw __e;
+                }
+            } finally {
+                ctx.popScope();
+            }
+        } else {
+            errors.push({ field: "items", message: __raw_items == null ? "NameBarrelled.items is required" : "expected BarrelItem[]" });
+        }
+    }
+
+    ctx.pushErrors(errors);
+
+    return instance as NameBarrelled;
+}
+
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export function nameBarrelledDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NameBarrelled>): Partial<NameBarrelled> | __mf_PendingRef {
+    return nameBarrelledDecodeWithContext(value, ctx, __mf_fieldRequirement(fields));
+}
+export function nameBarrelledValidateField<K extends keyof NameBarrelled>(field: K, value: unknown): Array<{ field: string; message: string }>;
+export function nameBarrelledValidateField(): Array<{ field: string; message: string }> {
+    return [];
+}
+
+export function nameBarrelledValidateFields(partial: { readonly [K in keyof NameBarrelled]?: unknown }): Array<{ field: string; message: string }>;
+export function nameBarrelledValidateFields(): Array<{ field: string; message: string }> {
+    return [];
+}
+export function nameBarrelledHasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    return __mf_holds(obj, "model") && __mf_holds(obj, "shown") && __mf_holds(obj, "item") && __mf_holds(obj, "items");
+}
+
+export function nameBarrelledIs(obj: unknown): obj is NameBarrelled {
+    return nameBarrelledHasShape(obj) && nameBarrelledDecode(obj).success;
+}
+
+export const NameBarrelled: {
+  readonly toString: typeof nameBarrelledToString;
+  readonly clone: typeof nameBarrelledClone;
+  readonly equals: typeof nameBarrelledEquals;
+  readonly hashCode: typeof nameBarrelledHashCode;
+  readonly defaultValue: typeof nameBarrelledDefaultValue;
+  readonly encode: typeof nameBarrelledEncode;
+  readonly encodeWithContext: typeof nameBarrelledEncodeWithContext;
+  readonly encodePartialWithContext: typeof nameBarrelledEncodePartialWithContext;
+  readonly decode: typeof nameBarrelledDecode;
+  readonly decodeWithContext: typeof nameBarrelledDecodeWithContext;
+  readonly decodePartialWithContext: typeof nameBarrelledDecodePartialWithContext;
+  readonly validateField: typeof nameBarrelledValidateField;
+  readonly validateFields: typeof nameBarrelledValidateFields;
+  readonly hasShape: typeof nameBarrelledHasShape;
+  readonly is: typeof nameBarrelledIs;
+} = {
+  toString: nameBarrelledToString,
+  clone: nameBarrelledClone,
+  equals: nameBarrelledEquals,
+  hashCode: nameBarrelledHashCode,
+  defaultValue: nameBarrelledDefaultValue,
+  encode: nameBarrelledEncode,
+  encodeWithContext: nameBarrelledEncodeWithContext,
+  encodePartialWithContext: nameBarrelledEncodePartialWithContext,
+  decode: nameBarrelledDecode,
+  decodeWithContext: nameBarrelledDecodeWithContext,
+  decodePartialWithContext: nameBarrelledDecodePartialWithContext,
+  validateField: nameBarrelledValidateField,
+  validateFields: nameBarrelledValidateFields,
+  hasShape: nameBarrelledHasShape,
+  is: nameBarrelledIs
+};
+
 ## DTS
 
 /**
 * Types held from another module under names that do not lead to their
 * functions by themselves: one named in lowercase, one imported under
-* another name, one exported under another name, and a default export
-* imported under a name of this module's own. Their functions are imported
-* like any other type's.
+* another name, one exported under another name, a default export imported
+* under a name of this module's own, and three that a barrel exports again.
+* Their functions are imported like any other type's.
 */
 import type { EdgeItem as Item } from "./edge-types";
+import type { EdgeItem as BarrelItem, NameBarrelModel, NameBarrelShown } from "./name-barrel";
 import type Chosen from "./name-exports";
 import type { NameShown } from "./name-exports";
 import type { point2D } from "./name-shapes";
@@ -1324,6 +1685,68 @@ export declare const NameExported: {
 	readonly hasShape: typeof nameExportedHasShape;
 	readonly is: typeof nameExportedIs;
 };
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface NameBarrelled {
+	model: NameBarrelModel;
+	shown: NameBarrelShown;
+	item: BarrelItem;
+	items: BarrelItem[];
+}
+export declare function nameBarrelledToString(value: NameBarrelled): string;
+export declare function nameBarrelledClone(value: NameBarrelled): NameBarrelled;
+export declare function nameBarrelledEquals(a: NameBarrelled, b: NameBarrelled): boolean;
+export declare function nameBarrelledHashCode(value: NameBarrelled): number;
+export declare function nameBarrelledDefaultValue(): NameBarrelled;
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+export declare function nameBarrelledEncode(value: NameBarrelled, keepMetadata?: boolean): string;
+/** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+export declare function nameBarrelledEncodeWithContext(value: NameBarrelled, ctx: __mf_EncodeContext): Record<string, unknown>;
+/** Encodes the fields a partial value has, with an existing context. A value encoded this way is written out wherever it is held: no reference stands for it. @param value - The value to encode @param ctx - The encoding context @param fields - The fields a `Pick` or `Omit` keeps: every field when left out  */
+export declare function nameBarrelledEncodePartialWithContext(value: Partial<NameBarrelled>, ctx: __mf_EncodeContext, fields?: __mf_FieldSelection<keyof NameBarrelled>): Record<string, unknown>;
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+export declare function nameBarrelledDecode(input: unknown, opts?: __mf_DecodeOptions): {
+	success: true;
+	value: NameBarrelled;
+} | {
+	success: false;
+	errors: Array<{
+		field: string;
+		message: string;
+	}>;
+};
+/** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+export declare function nameBarrelledDecodeWithContext(value: unknown, ctx: __mf_DecodeContext): NameBarrelled | __mf_PendingRef;
+/** Decodes the fields `fields` keeps, and no other. @param value - The raw value to decode @param ctx - The decoding context @param fields - Which fields the value has and has to have  */
+export declare function nameBarrelledDecodeWithContext(value: unknown, ctx: __mf_DecodeContext, fields: __mf_FieldRequirement): Partial<NameBarrelled> | __mf_PendingRef;
+/** Decodes a `Partial`, `Pick` or `Omit` of this type with an existing context. @param value - The raw value to decode @param ctx - The decoding context @param fields - The fields the value has to have: none when left out  */
+export declare function nameBarrelledDecodePartialWithContext(value: unknown, ctx: __mf_DecodeContext, fields?: __mf_FieldSelection<keyof NameBarrelled>): Partial<NameBarrelled> | __mf_PendingRef;
+export declare function nameBarrelledValidateField<K extends keyof NameBarrelled>(field: K, value: unknown): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function nameBarrelledValidateFields(partial: { readonly [K in keyof NameBarrelled]?: unknown }): Array<{
+	field: string;
+	message: string;
+}>;
+export declare function nameBarrelledHasShape(obj: unknown): boolean;
+export declare function nameBarrelledIs(obj: unknown): obj is NameBarrelled;
+export declare const NameBarrelled: {
+	readonly toString: typeof nameBarrelledToString;
+	readonly clone: typeof nameBarrelledClone;
+	readonly equals: typeof nameBarrelledEquals;
+	readonly hashCode: typeof nameBarrelledHashCode;
+	readonly defaultValue: typeof nameBarrelledDefaultValue;
+	readonly encode: typeof nameBarrelledEncode;
+	readonly encodeWithContext: typeof nameBarrelledEncodeWithContext;
+	readonly encodePartialWithContext: typeof nameBarrelledEncodePartialWithContext;
+	readonly decode: typeof nameBarrelledDecode;
+	readonly decodeWithContext: typeof nameBarrelledDecodeWithContext;
+	readonly decodePartialWithContext: typeof nameBarrelledDecodePartialWithContext;
+	readonly validateField: typeof nameBarrelledValidateField;
+	readonly validateFields: typeof nameBarrelledValidateFields;
+	readonly hasShape: typeof nameBarrelledHasShape;
+	readonly is: typeof nameBarrelledIs;
+};
 
 ## Diagnostics
 
@@ -1331,48 +1754,61 @@ export declare const NameExported: {
 
 ## Mapping
 
-original 0..723 -> expanded 2325..3048
-original 723..913 -> expanded 19875..20065
-original 913..1112 -> expanded 35952..36151
-original 1112..1113 -> expanded 52279..52280
-generated 0..2325 <- imports
-generated 3048..3578 <- Debug
-generated 3578..4052 <- Clone
-generated 4052..4790 <- PartialEq
-generated 4790..5475 <- Hash
-generated 5475..5660 <- Default
-generated 5660..8578 <- Encode
-generated 8578..18408 <- Decode
-generated 18408..19875 <- __convenience_const
-generated 20065..20582 <- Debug
-generated 20582..20912 <- Clone
-generated 20912..21436 <- PartialEq
-generated 21436..21933 <- Hash
-generated 21933..22108 <- Default
-generated 22108..24939 <- Encode
-generated 24939..34485 <- Decode
-generated 34485..35952 <- __convenience_const
-generated 36151..36683 <- Debug
-generated 36683..37026 <- Clone
-generated 37026..37562 <- PartialEq
-generated 37562..38071 <- Hash
-generated 38071..38272 <- Default
-generated 38272..41137 <- Encode
-generated 41137..50781 <- Decode
-generated 50781..52279 <- __convenience_const
+original 0..853 -> expanded 3376..4229
+original 853..1043 -> expanded 21056..21246
+original 1043..1242 -> expanded 37133..37332
+original 1242..1452 -> expanded 53460..53670
+original 1452..1453 -> expanded 69602..69603
+generated 0..3376 <- imports
+generated 4229..4759 <- Debug
+generated 4759..5233 <- Clone
+generated 5233..5971 <- PartialEq
+generated 5971..6656 <- Hash
+generated 6656..6841 <- Default
+generated 6841..9759 <- Encode
+generated 9759..19589 <- Decode
+generated 19589..21056 <- __convenience_const
+generated 21246..21763 <- Debug
+generated 21763..22093 <- Clone
+generated 22093..22617 <- PartialEq
+generated 22617..23114 <- Hash
+generated 23114..23289 <- Default
+generated 23289..26120 <- Encode
+generated 26120..35666 <- Decode
+generated 35666..37133 <- __convenience_const
+generated 37332..37864 <- Debug
+generated 37864..38207 <- Clone
+generated 38207..38743 <- PartialEq
+generated 38743..39252 <- Hash
+generated 39252..39453 <- Default
+generated 39453..42318 <- Encode
+generated 42318..51962 <- Decode
+generated 51962..53460 <- __convenience_const
+generated 53670..54173 <- Debug
+generated 54173..54498 <- Clone
+generated 54498..54988 <- PartialEq
+generated 54988..55490 <- Hash
+generated 55490..55725 <- Default
+generated 55725..58583 <- Encode
+generated 58583..68073 <- Decode
+generated 68073..69602 <- __convenience_const
 
 ## Metadata
 
-interface NameImports: {"body_span":{"end":724,"start":618},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":588,"start":518}}],"fields":[{"decorators":[],"key":"Named","name":"origin","optional":false,"readonly":false,"span":{"end":640,"start":624},"ts_type":"point2D"},{"decorators":[],"key":"Named","name":"path","optional":false,"readonly":false,"span":{"end":661,"start":645},"ts_type":"point2D[]"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":695,"start":666},"ts_type":"Map<string, point2D>"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":722,"start":700},"ts_type":"point2D | null"}],"heritage":[],"methods":[],"name":"NameImports","span":{"end":724,"start":596},"type_params":[]}
-interface NameRenamed: {"body_span":{"end":914,"start":826},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":796,"start":726}}],"fields":[{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":843,"start":832},"ts_type":"Item"},{"decorators":[],"key":"Named","name":"listed","optional":false,"readonly":false,"span":{"end":863,"start":848},"ts_type":"Item[]"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":887,"start":868},"ts_type":"Item | null"},{"decorators":[],"key":"Named","name":"some","optional":false,"readonly":false,"span":{"end":912,"start":892},"ts_type":"Partial<Item>"}],"heritage":[],"methods":[],"name":"NameRenamed","span":{"end":914,"start":804},"type_params":[]}
-interface NameExported: {"body_span":{"end":1113,"start":1017},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":986,"start":916}}],"fields":[{"decorators":[],"key":"Named","name":"chosen","optional":false,"readonly":false,"span":{"end":1038,"start":1023},"ts_type":"Chosen"},{"decorators":[],"key":"Named","name":"shown","optional":false,"readonly":false,"span":{"end":1060,"start":1043},"ts_type":"NameShown"},{"decorators":[],"key":"Named","name":"listed","optional":false,"readonly":false,"span":{"end":1085,"start":1065},"ts_type":"NameShown[]"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":1111,"start":1090},"ts_type":"Chosen | null"}],"heritage":[],"methods":[],"name":"NameExported","span":{"end":1113,"start":994},"type_params":[]}
+interface NameImports: {"body_span":{"end":854,"start":748},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":718,"start":648}}],"fields":[{"decorators":[],"key":"Named","name":"origin","optional":false,"readonly":false,"span":{"end":770,"start":754},"ts_type":"point2D"},{"decorators":[],"key":"Named","name":"path","optional":false,"readonly":false,"span":{"end":791,"start":775},"ts_type":"point2D[]"},{"decorators":[],"key":"Named","name":"byName","optional":false,"readonly":false,"span":{"end":825,"start":796},"ts_type":"Map<string, point2D>"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":852,"start":830},"ts_type":"point2D | null"}],"heritage":[],"methods":[],"name":"NameImports","span":{"end":854,"start":726},"type_params":[]}
+interface NameRenamed: {"body_span":{"end":1044,"start":956},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":926,"start":856}}],"fields":[{"decorators":[],"key":"Named","name":"held","optional":false,"readonly":false,"span":{"end":973,"start":962},"ts_type":"Item"},{"decorators":[],"key":"Named","name":"listed","optional":false,"readonly":false,"span":{"end":993,"start":978},"ts_type":"Item[]"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":1017,"start":998},"ts_type":"Item | null"},{"decorators":[],"key":"Named","name":"some","optional":false,"readonly":false,"span":{"end":1042,"start":1022},"ts_type":"Partial<Item>"}],"heritage":[],"methods":[],"name":"NameRenamed","span":{"end":1044,"start":934},"type_params":[]}
+interface NameExported: {"body_span":{"end":1243,"start":1147},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1116,"start":1046}}],"fields":[{"decorators":[],"key":"Named","name":"chosen","optional":false,"readonly":false,"span":{"end":1168,"start":1153},"ts_type":"Chosen"},{"decorators":[],"key":"Named","name":"shown","optional":false,"readonly":false,"span":{"end":1190,"start":1173},"ts_type":"NameShown"},{"decorators":[],"key":"Named","name":"listed","optional":false,"readonly":false,"span":{"end":1215,"start":1195},"ts_type":"NameShown[]"},{"decorators":[],"key":"Named","name":"maybe","optional":false,"readonly":false,"span":{"end":1241,"start":1220},"ts_type":"Chosen | null"}],"heritage":[],"methods":[],"name":"NameExported","span":{"end":1243,"start":1124},"type_params":[]}
+interface NameBarrelled: {"body_span":{"end":1453,"start":1347},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Default, Encode, Decode","name":"Derive","span":{"end":1315,"start":1245}}],"fields":[{"decorators":[],"key":"Named","name":"model","optional":false,"readonly":false,"span":{"end":1376,"start":1353},"ts_type":"NameBarrelModel"},{"decorators":[],"key":"Named","name":"shown","optional":false,"readonly":false,"span":{"end":1404,"start":1381},"ts_type":"NameBarrelShown"},{"decorators":[],"key":"Named","name":"item","optional":false,"readonly":false,"span":{"end":1426,"start":1409},"ts_type":"BarrelItem"},{"decorators":[],"key":"Named","name":"items","optional":false,"readonly":false,"span":{"end":1451,"start":1431},"ts_type":"BarrelItem[]"}],"heritage":[],"methods":[],"name":"NameBarrelled","span":{"end":1453,"start":1323},"type_params":[]}
 
 ## Registry reads
 
+Name("BarrelItem")
 Name("Chosen")
 Name("EdgeItem")
 Name("Item")
 Name("Map")
+Name("NameBarrelModel")
+Name("NameBarrelShown")
 Name("NameLate")
 Name("NameModel")
 Name("NameShown")

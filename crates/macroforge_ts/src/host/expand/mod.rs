@@ -106,6 +106,9 @@ mod wasm_loader;
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use crate::ts_syn::abi::ir::{
+    file_path_is_module, relative_module_specifier, resolve_relative_module,
+};
 use crate::ts_syn::abi::{
     ClassIR, DecoratorIR, Diagnostic, DiagnosticLevel, EnumIR, FunctionIR, InterfaceIR,
     MacroContextIR, MacroResult, Patch, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
@@ -1672,9 +1675,10 @@ impl MacroExpander {
                         // by whatever path the file imports it.
                         let file_imports = ctx.import_registry.file_import_entries();
                         let mut project_types = std::collections::HashSet::new();
-                        for name in import_sources.keys() {
+                        let imported: Vec<String> = import_sources.keys().cloned().collect();
+                        for name in imported {
                             let Some(entry) = self.type_registry.resolve_in_file(
-                                name,
+                                &name,
                                 &ctx.file_name,
                                 &file_imports,
                             ) else {
@@ -1683,8 +1687,27 @@ impl MacroExpander {
                             project_types.insert(name.clone());
                             // Its functions carry the name it is declared
                             // under, whatever it is exported or imported as.
-                            if entry.name != *name {
+                            if entry.name != name {
                                 exported_names.insert(name.clone(), entry.name.clone());
+                            }
+                            // A module that exports the type again by name
+                            // exports the type alone: its functions are
+                            // imported from where it is declared.
+                            let gives_functions = |module_path: &str| {
+                                file_path_is_module(&entry.file_path, module_path)
+                                    || entry.re_exported.iter().any(|again| {
+                                        again.whole
+                                            && file_path_is_module(&again.file_path, module_path)
+                                    })
+                            };
+                            if let Some(specifier) = import_sources.get(&name)
+                                && let Some(module_path) =
+                                    resolve_relative_module(&ctx.file_name, specifier)
+                                && !gives_functions(&module_path)
+                                && let Some(declaring) =
+                                    relative_module_specifier(&ctx.file_name, &entry.file_path)
+                            {
+                                import_sources.insert(name, declaring);
                             }
                         }
                         let external_imports = external_type_function_import_patches(

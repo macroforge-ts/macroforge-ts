@@ -1,12 +1,13 @@
 /**
  * Types held from another module under names that do not lead to their
  * functions by themselves: one named in lowercase, one imported under
- * another name, one exported under another name, and a default export
- * imported under a name of this module's own. Their functions are imported
- * like any other type's.
+ * another name, one exported under another name, a default export imported
+ * under a name of this module's own, and three that a barrel exports again.
+ * Their functions are imported like any other type's.
  */
 
 import type { EdgeItem as Item } from './edge-types';
+import type { EdgeItem as BarrelItem, NameBarrelModel, NameBarrelShown } from './name-barrel';
 import type Chosen from './name-exports';
 import type { NameShown } from './name-exports';
 import type { point2D } from './name-shapes';
@@ -33,4 +34,12 @@ export interface NameExported {
     shown: NameShown;
     listed: NameShown[];
     maybe: Chosen | null;
+}
+
+/** @derive(Debug, Clone, PartialEq, Hash, Default, Encode, Decode) */
+export interface NameBarrelled {
+    model: NameBarrelModel;
+    shown: NameBarrelShown;
+    item: BarrelItem;
+    items: BarrelItem[];
 }
